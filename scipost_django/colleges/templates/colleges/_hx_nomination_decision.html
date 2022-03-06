@@ -1,0 +1,22 @@
+{% load crispy_forms_tags %}
+{% load automarkup %}
+{% if nomination.decision %}
+  {{ nomination.decision }}
+  <p>Fixed on: {{ nomination.decision.fixed_on }}</p>
+  {% if nomination.decision.comments %}
+    <p>Comments:</p>
+    {% automarkup nomination.decision.comments %}
+  {% endif %}
+{% else %}
+  {% with blocks=nomination.decision_blocks %}
+    {% if blocks %}
+      <p>The decision cannot be fixed at this moment: {{ blocks }}</p>
+    {% else %}
+      <form hx-post="{% url 'colleges:_hx_nomination_decision' nomination_id=nomination.id %}"
+	    hx-target="#nomination-{{ nomination.id }}-decision"
+      >
+	{% crispy decision_form %}
+      </form>
+    {% endif %}
+  {% endwith %}
+{% endif %}

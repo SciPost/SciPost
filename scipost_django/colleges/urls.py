@@ -155,9 +155,9 @@ urlpatterns = [
     ),
     path("_hx_nominations", views._hx_nominations, name="_hx_nominations"),
     path(
-        "_hx_nomination_li/<int:nomination_id>",
-        views._hx_nomination_li,
-        name="_hx_nomination_li"
+        "_hx_nomination_li_contents/<int:nomination_id>",
+        views._hx_nomination_li_contents,
+        name="_hx_nomination_li_contents"
     ),
     path(
         "_hx_nominations_needing_specialties",
@@ -173,5 +173,10 @@ urlpatterns = [
         "_hx_nomination_vote/<int:voting_round_id>",
         views._hx_nomination_vote,
         name="_hx_nomination_vote",
+    ),
+    path(
+        "_hx_nomination_decision/<int:nomination_id>",
+        views._hx_nomination_decision,
+        name="_hx_nomination_decision",
     ),
 ]

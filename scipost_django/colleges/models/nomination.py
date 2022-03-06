@@ -68,6 +68,25 @@ class FellowshipNomination(models.Model):
     def ongoing_voting_round(self):
         return self.voting_rounds.ongoing().first()
 
+    @property
+    def decision_blocks(self):
+        """
+        List of blocking facts (if any) preventing fixing a decision.
+        """
+        latest_round = self.voting_rounds.first()
+        if latest_round:
+            eligible_count = latest_round.eligible_to_vote.count()
+            if eligible_count < 3:
+                return "Fewer than 3 eligible voters (insufficient)."
+            votes_count = latest_round.votes.count()
+            if (eligible_count == votes_count # everybody (>=3) has voted
+                or
+                latest_round.voting_deadline < timezone.now()
+                ):
+                return None
+            return "Latest voting round is ongoing, and not everybody has voted."
+        return "No voting round found."
+
 
 class FellowshipNominationComment(models.Model):
 

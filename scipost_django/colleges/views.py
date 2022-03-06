@@ -52,6 +52,7 @@ from .forms import (
     PotentialFellowshipEventForm,
     FellowshipNominationForm,
     FellowshipNominationSearchForm,
+    FellowshipNominationDecisionForm,
 )
 from .models import (
     College,
@@ -699,11 +700,11 @@ def _hx_nominations(request):
 
 
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
-def _hx_nomination_li(request, nomination_id):
+def _hx_nomination_li_contents(request, nomination_id):
     """For (re)loading the details if modified."""
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
     context = {"nomination": nomination,}
-    return render(request, "colleges/_hx_nomination_li.html", context)
+    return render(request, "colleges/_hx_nomination_li_contents.html", context)
 
 
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
@@ -755,3 +756,18 @@ def _hx_nomination_vote(request, voting_round_id):
         )
     context = {"voting_round": voting_round, "vote_object": vote_object,}
     return render(request, "colleges/_hx_nomination_vote.html", context)
+
+
+@user_passes_test(is_edadmin)
+def _hx_nomination_decision(request, nomination_id):
+    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+    decision_form = FellowshipNominationDecisionForm(request.POST or None)
+    if decision_form.is_valid():
+        decision = decision_form.save()
+    else:
+        decision_form.fields["nomination"].initial = nomination
+    context = {
+        "nomination": nomination,
+        "decision_form": decision_form,
+    }
+    return render(request, "colleges/_hx_nomination_decision.html", context)

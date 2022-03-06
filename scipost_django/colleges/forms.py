@@ -26,6 +26,7 @@ from .models import (
     PotentialFellowshipEvent,
     FellowshipNomination,
     FellowshipNominationVote,
+    FellowshipNominationDecision,
 )
 from .constants import (
     POTENTIAL_FELLOWSHIP_IDENTIFIED,
@@ -423,3 +424,31 @@ class FellowshipNominationSearchForm(forms.Form):
                 ]
             )
         return nominations
+
+
+class FellowshipNominationDecisionForm(forms.ModelForm):
+    class Meta:
+        model = FellowshipNominationDecision
+        fields = [
+            "nomination",
+            "outcome",
+            "fixed_on",
+            "comments",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("nomination", type="hidden"),
+            Field("fixed_on", type="hidden"),
+            Div(
+                Div(Field("comments"), css_class="col-8"),
+                Div(
+                    Field("outcome"),
+                    ButtonHolder(Submit("submit", "Submit")),
+                    css_class="col-4"
+                ),
+                css_class="row",
+            )
+        )
