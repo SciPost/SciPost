@@ -36,8 +36,15 @@ def roles_processor(request):
         active_fellowships = request.user.contributor.fellowships.active()
         if active_fellowships.exists():
             context["user_roles"].append("active_fellow")
-        if active_fellowships.senior().exists():
-            context["user_roles"].append("active_senior_fellow")
+            if request.session.get("session_fellowship_id", None):
+                try:
+                    context["session_fellowship"] = active_fellowships.get(
+                        pk=request.session["session_fellowship_id"]
+                    )
+                except active_fellowships.model.DoesNotExist:
+                    context["session_fellowship"] = active_fellowships.first()
+            if context["session_fellowship"].senior:
+                context["user_roles"].append("active_senior_fellow")
     except AttributeError:
         pass
     return context

@@ -22,6 +22,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
+from scipost.permissions import is_edadmin
 from colleges.permissions import (
     is_edadmin_or_senior_fellow,
     is_edadmin_or_advisory_or_active_regular_or_senior_fellow,
@@ -57,7 +58,9 @@ from .models import (
     Fellowship,
     PotentialFellowship,
     PotentialFellowshipEvent,
+    FellowshipNomination,
     FellowshipNominationVotingRound,
+    FellowshipNominationVote,
 )
 
 from scipost.forms import EmailUsersForm, SearchTextForm
@@ -666,6 +669,21 @@ def _hx_nomination_form(request, profile_id):
     return render(request, "colleges/_hx_nomination_form.html", context)
 
 
+@user_passes_test(is_edadmin_or_senior_fellow)
+def _hx_nominations_needing_specialties(request):
+    nominations_needing_specialties = FellowshipNomination.objects.filter(
+        profile__specialties__isnull=True,
+    )
+    context = {
+        "nominations_needing_specialties": nominations_needing_specialties,
+    }
+    return render(
+        request,
+        "colleges/_hx_nominations_needing_specialties.html",
+        context,
+    )
+
+
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nominations(request):
     form = FellowshipNominationSearchForm(request.POST or None)
@@ -678,6 +696,14 @@ def _hx_nominations(request):
     page_obj = paginator.get_page(page_nr)
     context = {"page_obj": page_obj}
     return render(request, "colleges/_hx_nominations.html", context)
+
+
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def _hx_nomination_li(request, nomination_id):
+    """For (re)loading the details if modified."""
+    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+    context = {"nomination": nomination,}
+    return render(request, "colleges/_hx_nomination_li.html", context)
 
 
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
@@ -707,3 +733,25 @@ def _hx_nomination_voting_rounds(request):
         "voting_rounds": voting_rounds,
     }
     return render(request, "colleges/_hx_nomination_voting_rounds.html", context)
+
+
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def _hx_nomination_vote(request, voting_round_id):
+    fellowship = request.user.contributor.session_fellowship(request)
+    voting_round = get_object_or_404(
+        FellowshipNominationVotingRound,
+        pk=voting_round_id,
+        eligible_to_vote=fellowship,
+    )
+    vote_object = None
+    if request.method == "POST":
+        vote_object, created = FellowshipNominationVote.objects.update_or_create(
+            voting_round=voting_round,
+            fellow=fellowship,
+            defaults={
+                "vote": request.POST.get("vote"),
+                "on": timezone.now(),
+            }
+        )
+    context = {"voting_round": voting_round, "vote_object": vote_object,}
+    return render(request, "colleges/_hx_nomination_vote.html", context)

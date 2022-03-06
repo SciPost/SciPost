@@ -11,3 +11,7 @@ def is_tester(user):
     This method checks if user is member of the Test Group.
     """
     return user.groups.filter(name="Testers").exists()
+
+
+def is_edadmin(user):
+    return user.groups.filter(name="Editorial Administrators").exists()

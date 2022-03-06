@@ -155,8 +155,23 @@ urlpatterns = [
     ),
     path("_hx_nominations", views._hx_nominations, name="_hx_nominations"),
     path(
+        "_hx_nomination_li/<int:nomination_id>",
+        views._hx_nomination_li,
+        name="_hx_nomination_li"
+    ),
+    path(
+        "_hx_nominations_needing_specialties",
+        views._hx_nominations_needing_specialties,
+        name="_hx_nominations_needing_specialties",
+    ),
+    path(
         "_hx_nomination_voting_rounds",
         views._hx_nomination_voting_rounds,
         name="_hx_nomination_voting_rounds",
+    ),
+    path(
+        "_hx_nomination_vote/<int:voting_round_id>",
+        views._hx_nomination_vote,
+        name="_hx_nomination_vote",
     ),
 ]

@@ -83,38 +83,55 @@
     </div>
   </details>
 
+  {% if "edadmin" in user_roles or "senior_fellow" in user_roles %}
+    <details class="border border-danger border-2 mt-4">
+      <summary class="bg-danger bg-opacity-10 p-2">
+	<h2 class="ms-2">
+	  <strong class="text-danger">EdAdmin/Senior Fellows</strong>:
+	  ensure specialties in each nominee's profile</h2>
+      </summary>
+      <div class="p-2 mt-2">
+	<div id="nominations_needing_specialties"
+	     hx-get="{% url 'colleges:_hx_nominations_needing_specialties' %}"
+	     hx-trigger="revealed"
+	>
+	</div>
+      </div>
+    </details>
+  {% endif %}
+
   <details class="border border-success border-2 mt-4">
     <summary class="bg-success bg-opacity-10 p-2">
       <h2 class="ms-2">Vote</h2>
     </summary>
     <div class="p-2 mt-2">
       {% if is_ed_admin %}
-	<h3>Ongoing elections</h3>
+	<h3 class="highlight mt-4">Ongoing elections</h3>
 	<div id="voting_rounds_ongoing"
 	     hx-get="{% url 'colleges:_hx_nomination_voting_rounds' %}?filters=ongoing"
 	     hx-trigger="revealed"
 	>
 	</div>
-	<h3>Closed elections</h3>
+	<h3 class="highlight mt-4">Closed elections</h3>
 	<div id="voting_rounds_closed"
 	     hx-get="{% url 'colleges:_hx_nomination_voting_rounds' %}?filters=closed"
 	     hx-trigger="revealed"
 	>
 	</div>
       {% else %}
-	<h3>Cast your vote (election ongoing)</h3>
+	<h3 class="highlight mt-4">Cast your vote (election ongoing)</h3>
 	<div id="voting_rounds_ongoing_vote_required"
 	     hx-get="{% url 'colleges:_hx_nomination_voting_rounds' %}?filters=ongoing,vote_required"
 	     hx-trigger="revealed"
 	>
 	</div>
-	<h3>Votes you have cast (election ongoing)</h3>
+	<h3 class="highlight mt-4">Votes you have cast (election ongoing)</h3>
 	<div id="voting_rounds_ongoing_voted"
 	     hx-get="{% url 'colleges:_hx_nomination_voting_rounds' %}?filters=ongoing,voted"
 	     hx-trigger="revealed"
 	>
 	</div>
-	<h3>Votes you have cast (election closed)</h3>
+	<h3 class="highlight mt-4">Votes you have cast (election closed)</h3>
 	<div id="voting_rounds_closed_voted"
 	     hx-get="{% url 'colleges:_hx_nomination_voting_rounds' %}?filters=closed,voted"
 	     hx-trigger="revealed"
@@ -124,7 +141,7 @@
     </div>
   </details>
 
-  <details class="border border-2 mt-4">
+  <details class="border border-2 mt-4" open>
     <summary class="bg-light p-2">
       <h2 class="ms-2">List / filter</h2>
     </summary>

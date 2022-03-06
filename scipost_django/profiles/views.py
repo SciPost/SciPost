@@ -23,6 +23,7 @@ from scipost.forms import SearchTextForm
 
 from common.utils import Q_with_alternative_spellings
 from invitations.models import RegistrationInvitation
+from ontology.models import Specialty
 from submissions.models import RefereeInvitation
 
 from .models import Profile, ProfileEmail, Affiliation
@@ -352,6 +353,29 @@ def _hx_profile_dynsel_list(request):
         "action_target_element_id": form.cleaned_data["action_target_element_id"],
     }
     return render(request, "profiles/_hx_profile_dynsel_list.html", context)
+
+
+@permission_required("scipost.can_create_profiles")
+def _hx_profile_specialties(request, profile_id):
+    """
+Returns a snippet with current and possible specialties, with one-click actions.
+    """
+    profile = get_object_or_404(Profile, pk=profile_id)
+    if request.method == "POST":
+        specialty = get_object_or_404(Specialty, slug=request.POST.get("spec_slug"))
+        if request.POST.get("action") == "add":
+            profile.specialties.add(specialty)
+        elif request.POST.get("action") == "remove":
+            profile.specialties.remove(specialty)
+    current_spec_slugs = [s.slug for s in profile.specialties.all()]
+    other_specialties = Specialty.objects.filter(
+        acad_field=profile.acad_field
+    ).exclude(slug__in=profile.specialties.values_list("slug"))
+    context = {
+        "profile": profile,
+        "other_specialties": other_specialties,
+    }
+    return render(request, "profiles/_hx_profile_specialties.html", context)
 
 
 @transaction.atomic

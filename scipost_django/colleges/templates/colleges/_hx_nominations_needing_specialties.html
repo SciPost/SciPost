@@ -1,0 +1,18 @@
+{% for nomination in nominations_needing_specialties %}
+  <details class="border border-2 mt-4">
+    <summary class="p-2 bg-light">{{ nomination }}</summary>
+    <div id="profile-{{ nomination.profile.id }}-specialties"
+	 class="p-2 mt-2"
+	 hx-get="{% url 'profiles:_hx_profile_specialties' profile_id=nomination.profile.id %}"
+	 hx-trigger="revealed"
+    >
+    </div>
+    <button class="btn btn-success text-white m-2"
+		   hx-get="{% url 'colleges:_hx_nominations_needing_specialties' %}"
+		   hx-target="#nominations_needing_specialties">
+      Done
+    </button>
+  </details>
+{% empty %}
+  <p>All nomination profiles have at least one specialty.</p>
+{% endfor %}

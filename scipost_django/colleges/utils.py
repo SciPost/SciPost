@@ -12,6 +12,7 @@ def check_profile_eligibility_for_fellowship(profile):
     Requirements:
 
     - Profile has a known acad_field
+    - Profile has at least one specialty
     - There is an active College in the Profile's acad_field
     - no current Fellowship exists
     - no current FellowshipNomination exists

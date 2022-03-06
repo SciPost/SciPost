@@ -1,0 +1,50 @@
+<div class="row">
+  <div class="col">
+    <table class="table">
+      <caption style="caption-side: top;">Specialties (current)</caption>
+      {% for spec in profile.specialties.all %}
+	<tr>
+	  <td>{{ spec }}</td>
+	  <td>
+	    <form hx-post="{% url 'profiles:_hx_profile_specialties' profile_id=profile.id %}"
+		  hx-target="#profile-{{ profile.id }}-specialties"
+	    >
+	      {% csrf_token %}
+	      <input type="hidden" name="action" value="remove">
+	      <input type="hidden" name="spec_slug" value="{{ spec.slug }}">
+	      <button class="btn btn-sm btn-danger">Remove</button>
+	    </form>
+	  </td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="2">None defined</td>
+	</tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="col">
+    <table class="table">
+      <caption style="caption-side: top;">Other specialties</caption>
+      {% for spec in other_specialties.all %}
+	<tr>
+	  <td>{{ spec }}</td>
+	  <td>
+	    <form hx-post="{% url 'profiles:_hx_profile_specialties' profile_id=profile.id %}"
+		  hx-target="#profile-{{ profile.id }}-specialties"
+	    >
+	      {% csrf_token %}
+	      <input type="hidden" name="action" value="add">
+	      <input type="hidden" name="spec_slug" value="{{ spec.slug }}">
+	      <button class="btn btn-sm btn-primary">Add</button>
+	    </form>
+	  </td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="2">None defined</td>
+	</tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>

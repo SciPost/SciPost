@@ -133,3 +133,14 @@ class FellowshipNominationVotingRoundQuerySet(models.QuerySet):
     def closed(self):
         now = timezone.now()
         return self.filter(voting_deadline__lte=now)
+
+
+class FellowshipNominationVoteQuerySet(models.QuerySet):
+    def agree(self):
+        return self.filter(vote=self.model.VOTE_AGREE)
+
+    def abstain(self):
+        return self.filter(vote=self.model.VOTE_ABSTAIN)
+
+    def disagree(self):
+        return self.filter(vote=self.model.VOTE_DISAGREE)

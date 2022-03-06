@@ -8,6 +8,7 @@ from django.utils import timezone
 from ..managers import (
     FellowshipNominationQuerySet,
     FellowshipNominationVotingRoundQuerySet,
+    FellowshipNominationVoteQuerySet,
 )
 
 
@@ -62,6 +63,10 @@ class FellowshipNomination(models.Model):
             f"{self.profile} to {self.college} "
             f'on {self.nominated_on.strftime("%Y-%m-%d")}'
         )
+
+    @property
+    def ongoing_voting_round(self):
+        return self.voting_rounds.ongoing().first()
 
 
 class FellowshipNominationComment(models.Model):
@@ -130,7 +135,10 @@ class FellowshipNominationVotingRound(models.Model):
     objects = FellowshipNominationVotingRoundQuerySet.as_manager()
 
     class Meta:
-        ordering = ["nomination__profile__last_name"]
+        ordering = [
+            "nomination__profile__last_name",
+            "-voting_deadline",
+        ]
         verbose_name_plural = "Fellowship Nomination Voting Rounds"
 
     def __str__(self):
@@ -138,6 +146,12 @@ class FellowshipNominationVotingRound(models.Model):
             f'Voting round ({self.voting_opens.strftime("%Y-%m-%d")} -'
             f' {self.voting_deadline.strftime("%Y-%m-%d")}) for {self.nomination}'
         )
+
+    def vote_of_Fellow(self, fellow):
+        vote = self.votes.filter(fellow=fellow)
+        if vote:
+            return vote.vote
+        return None
 
 
 class FellowshipNominationVote(models.Model):
@@ -175,7 +189,15 @@ class FellowshipNominationVote(models.Model):
         blank=True,
     )
 
+    objects = FellowshipNominationVoteQuerySet.as_manager()
+
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["voting_round", "fellow"],
+                name="unique_together_voting_round_fellow",
+            ),
+        ]
         ordering = [
             "voting_round",
         ]

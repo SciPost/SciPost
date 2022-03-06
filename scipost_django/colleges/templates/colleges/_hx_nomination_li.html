@@ -67,7 +67,7 @@
 	      </table>
 	    </div>
 	  </div>
-		</div>
+	</div>
 	<div class="col">
 	  <div class="card">
 	    <div class="card-header">
@@ -83,7 +83,7 @@
 	      </ul>
 	    </div>
 	  </div>
-		</div>
+	</div>
       </div>
       <table class="table">
 	<tr>
@@ -93,14 +93,102 @@
 	</tr>
       </table>
 
-      {% if is_ed_admin %}
-	<h3>Voting rounds</h3>
-	<ul>
-	  {% for round in nomination.voting_rounds %}
-	    <li>{{ round }}</li>
+      {% with ongoing_round=nomination.ongoing_voting_round %}
+	{% if ongoing_round %}
+	  <div class="card">
+	    <div class="card-header">
+	      Ongoing voting round <em>(voting deadline: {{ ongoing_round.voting_deadline }})</em>
+	    </div>
+	    <div class="card-body">
+	      {% if session_fellowship and session_fellowship in ongoing_round.eligible_to_vote.all %}
+		<p>You are eligible to vote</p>
+		{% if include_vote_buttons %}
+		  <div id="nomination-{{ nomination.id }}-vote"
+		       hx-get="{% url 'colleges:_hx_nomination_vote' voting_round_id=ongoing_round.id %}"
+		       hx-trigger="revealed"
+		  >
+		  </div>
+		{% else %}
+		  <p><strong>Please go up to the main Vote dropdown to cast your vote</strong></p>
+		{% endif %}
+	      {% else %}
+		<p>You are not called upon to vote in this round.</p>
+	      {% endif %}
+	    </div>
+	  </div>
+	{% endif %}
+      {% endwith %}
+
+      {% if "edadmin" in user_roles %}
+	<div class="border border-danger m-2 p-2">
+	  <strong class="text-danger">Editorial Administration</strong>
+	  <h3>Voting rounds</h3>
+	  {% for round in nomination.voting_rounds.all %}
+	    <div class="card">
+	      <div class="card-header">
+		{{ round }}
+	      </div>
+	      <div class="card-body">
+		<div class="row">
+		  <div class="col-lg-6">
+		    <h4>Eligible to vote</h4>
+		    <ul>
+		      {% for voter in round.eligible_to_vote.all %}
+			<li>{{ voter }}</li>
+		      {% empty %}
+			<li>None</li>
+		      {% endfor %}
+		    </ul>
+		  </div>
+		  <div class="col-lg-6">
+		    <h4>Results</h4>
+		    {% include "colleges/_voting_results_box.html" with voting_round=round %}
+		    <table class="table m-2">
+		      <tr>
+			<th>Agree</th>
+			<td>
+			  <ul class="list-unstyled">
+			    {% for vote in round.votes.agree %}
+			      <li>{{ vote.fellow }}</li>
+			    {% empty %}
+			      <li>None</li>
+			    {% endfor %}
+			  </ul>
+			</td>
+		      </tr>
+		      <tr>
+			<th>Abstain</th>
+			<td>
+			  <ul class="list-unstyled">
+			    {% for vote in round.votes.abstain %}
+			      <li>{{ vote.fellow }}</li>
+			    {% empty %}
+			      <li>None</li>
+			    {% endfor %}
+			  </ul>
+			</td>
+		      </tr>
+		      <tr>
+			<th>Disagree</th>
+			<td>
+			  <ul class="list-unstyled">
+			    {% for vote in round.votes.disagree %}
+			      <li>{{ vote.fellow }}</li>
+			    {% empty %}
+			      <li>None</li>
+			    {% endfor %}
+			  </ul>
+			</td>
+		      </tr>
+		    </table>
+		  </div>
+		</div>
+	      </div>
+	    </div>
 	  {% empty %}
-	    <li>No voting round</li>
+	    <div>No voting round</div>
 	  {% endfor %}
+	</div>
       {% endif %}
     </div>
   </details>

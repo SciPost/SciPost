@@ -25,6 +25,7 @@ from .models import (
     PotentialFellowship,
     PotentialFellowshipEvent,
     FellowshipNomination,
+    FellowshipNominationVote,
 )
 from .constants import (
     POTENTIAL_FELLOWSHIP_IDENTIFIED,
@@ -381,10 +382,6 @@ class FellowshipNominationSearchForm(forms.Form):
     college = forms.ModelChoiceField(queryset=College.objects.all(), required=False)
     specialty = forms.ModelChoiceField(
         queryset=Specialty.objects.all(),
-        # widget=autocomplete.ModelSelect2(
-        #     url='/ontology/specialty-autocomplete',
-        #     attrs={'data-html': True}
-        # ),
         label="Specialty",
         required=False,
     )
@@ -394,6 +391,10 @@ class FellowshipNominationSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Div(
+                FloatingField("category"),
+                css_class="row",
+            ),
             Div(
                 Div(FloatingField("college"), css_class="col-lg-6"),
                 Div(FloatingField("specialty"), css_class="col-lg-6"),

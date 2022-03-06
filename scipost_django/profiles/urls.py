@@ -35,6 +35,12 @@ urlpatterns = [
         views._hx_profile_dynsel_list,
         name="_hx_profile_dynsel_list",
     ),
+    # Specialties handing via HTMX
+    path(
+        "_hx_profile_specialties/<int:profile_id>",
+        views._hx_profile_specialties,
+        name="_hx_profile_specialties",
+    ),
     # Instance CBVs
     path(
         "<int:pk>/",

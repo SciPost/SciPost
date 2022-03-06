@@ -1,9 +1,8 @@
-<ul>
-  {% for round in voting_rounds %}
-    <li class="p-2 mb-2" id="voting_round_{{ round.id }}">
-      {{ round }}
-    </li>
-  {% empty %}
-    <li>No voting round found</li>
-  {% endfor %}
-</ul>
+{% for round in voting_rounds %}
+  <div class="p-2" id="voting_round_{{ round.id }}">
+    <h3>Voting deadline: {{ round.voting_deadline }}</h3>
+    {% include 'colleges/_hx_nomination_li.html' with nomination=round.nomination include_vote_buttons=True %}
+  </div>
+{% empty %}
+  <div class="p-2">No voting round found</div>
+{% endfor %}
