@@ -25,6 +25,7 @@ from .models import (
     PotentialFellowship,
     PotentialFellowshipEvent,
     FellowshipNomination,
+    FellowshipNominationComment,
     FellowshipNominationVote,
     FellowshipNominationDecision,
 )
@@ -424,6 +425,41 @@ class FellowshipNominationSearchForm(forms.Form):
                 ]
             )
         return nominations
+
+
+class FellowshipNominationCommentForm(forms.ModelForm):
+    class Meta:
+        model = FellowshipNominationComment
+        fields = [
+            "nomination",
+            "by",
+            "text",
+            "on",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.fields["text"].label = False
+        self.fields
+        self.helper.layout = Layout(
+            Field("nomination", type="hidden"),
+            Field("by", type="hidden"),
+            Field("on", type="hidden"),
+            Div(
+                Div(
+                    Field(
+                        "text",
+                        placeholder="Add a comment (visible to EdAdmin and all Fellows)",
+                        rows=2),
+                    css_class="col-lg-10"),
+                Div(
+                    ButtonHolder(Submit("submit", "Add comment")),
+                    css_class="col-lg-2"
+                ),
+                css_class="row",
+            )
+        )
 
 
 class FellowshipNominationDecisionForm(forms.ModelForm):

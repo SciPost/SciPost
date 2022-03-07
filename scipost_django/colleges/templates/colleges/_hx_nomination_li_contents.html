@@ -1,18 +1,8 @@
 <div class="p-2">
   <p>Nominated by {{ nomination.nominated_by }} on {{ nomination.nominated_on|date:"Y-m-d" }}</p>
-  {% if nomination.nominator_comments %}
-    <div class="row">
-      <div class="col-lg-2">
-	Nominator comments:
-      </div>
-      <div class="col-lg-10">
-	<em>{{ nomination.nominator_comments }}</em>
-      </div>
-    </div>
-  {% endif %}
   <div class="row">
     <div class="col">
-      <div class="card">
+      <div class="card m-2 mt-4">
 	<div class="card-header">
 	  Details
 	</div>
@@ -55,7 +45,7 @@
       </div>
     </div>
     <div class="col">
-      <div class="card">
+      <div class="card m-2 mt-4">
 	<div class="card-header">
 	  Publications in SciPost Journals
 	</div>
@@ -79,9 +69,33 @@
     </tr>
   </table>
 
-  {% with ongoing_round=nomination.ongoing_voting_round %}
+  <div class="card m-2 mt-4">
+    <div class="card-header">
+      Comments
+    </div>
+    <div class="card-body">
+      {% if nomination.nominator_comments %}
+	<div class="row">
+	  <div class="col-lg-2">
+	    Nominator comments:
+	  </div>
+	  <div class="col-lg-10">
+	    <em>{{ nomination.nominator_comments }}</em>
+	  </div>
+	</div>
+      {% endif %}
+
+      <div id="nomination-{{ nomination.id }}-comments"
+	   hx-get="{% url 'colleges:_hx_nomination_comments' nomination_id=nomination.id %}"
+	   hx-trigger="revealed"
+      >
+      </div>
+    </div>
+  </div>
+
+  {% with ongoing_round=nomination.ongoing_voting_round latest_round=nomination.voting_rounds.first %}
     {% if ongoing_round %}
-      <div class="card">
+      <div class="card m-2 mt-4">
 	<div class="card-header">
 	  Ongoing voting round <em>(voting deadline: {{ ongoing_round.voting_deadline }})</em>
 	</div>
@@ -102,6 +116,19 @@
 	  {% endif %}
 	</div>
       </div>
+    {% elif latest_round %}
+      <div class="card m-2 mt-4">
+	<div class="card-header">
+	  {{ latest_round }}
+	</div>
+	<div class="card-body">
+	  {% if session_fellowship and session_fellowship in latest_round.eligible_to_vote.all %}
+	    {% include "colleges/_voting_results_box.html" with voting_round=latest_round %}
+	  {% else %}
+	    <p>You were not called upon to vote in this round.</p>
+	  {% endif %}
+	</div>
+      </div>
     {% endif %}
   {% endwith %}
 
@@ -110,7 +137,7 @@
       <strong class="text-danger">Editorial Administration</strong>
       <h3>Voting rounds</h3>
       {% for round in nomination.voting_rounds.all %}
-	<div class="card">
+	<div class="card m-2 mt-4">
 	  <div class="card-header">
 	    {{ round }}
 	  </div>
@@ -175,7 +202,7 @@
 	<div>No voting round</div>
       {% endfor %}
 
-      <div class="card">
+      <div class="card m-2 mt-4">
 	<div class="card-header">
 	  Decision
 	</div>

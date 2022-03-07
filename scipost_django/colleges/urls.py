@@ -160,6 +160,11 @@ urlpatterns = [
         name="_hx_nomination_li_contents"
     ),
     path(
+        "_hx_nomination_comments/<int:nomination_id>",
+        views._hx_nomination_comments,
+        name="_hx_nomination_comments",
+    ),
+    path(
         "_hx_nominations_needing_specialties",
         views._hx_nominations_needing_specialties,
         name="_hx_nominations_needing_specialties",

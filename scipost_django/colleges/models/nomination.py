@@ -69,6 +69,10 @@ class FellowshipNomination(models.Model):
         return self.voting_rounds.ongoing().first()
 
     @property
+    def latest_voting_round(self):
+        return self.voting_rounds.first()
+
+    @property
     def decision_blocks(self):
         """
         List of blocking facts (if any) preventing fixing a decision.

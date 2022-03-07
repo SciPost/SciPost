@@ -52,6 +52,7 @@ from .forms import (
     PotentialFellowshipEventForm,
     FellowshipNominationForm,
     FellowshipNominationSearchForm,
+    FellowshipNominationCommentForm,
     FellowshipNominationDecisionForm,
 )
 from .models import (
@@ -705,6 +706,18 @@ def _hx_nomination_li_contents(request, nomination_id):
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
     context = {"nomination": nomination,}
     return render(request, "colleges/_hx_nomination_li_contents.html", context)
+
+
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def _hx_nomination_comments(request, nomination_id):
+    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+    initial={"nomination": nomination, "by": request.user.contributor,}
+    form = FellowshipNominationCommentForm(request.POST or None, initial=initial)
+    if form.is_valid():
+        form.save()
+        form = FellowshipNominationCommentForm(initial=initial)
+    context = {"nomination": nomination, "form": form,}
+    return render(request, "colleges/_hx_nomination_comments.html", context)
 
 
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)

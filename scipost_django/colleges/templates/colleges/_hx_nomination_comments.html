@@ -1,0 +1,20 @@
+{% load crispy_forms_tags %}
+{% load automarkup %}
+{% for comment in nomination.comments.all %}
+  <details class="m-2 border" open>
+    <summary class="bg-light p-2">{{ comment.by }} on {{ comment.on }}</summary>
+    <div class="m-2">
+      {% automarkup comment.text %}
+    </div>
+  </details>
+{% empty %}
+  <p>No comments have been received</p>
+{% endfor %}
+
+<div class="m-2 mt-4">
+  <form hx-post="{% url 'colleges:_hx_nomination_comments' nomination_id=nomination.id %}"
+	hx-target="#nomination-{{ nomination.id }}-comments"
+  >
+    {% crispy form %}
+  </form>
+</div>
