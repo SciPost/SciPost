@@ -1,0 +1,22 @@
+{% include 'colleges/_hx_nominations_invitations_tablist.html' with selected=selected %}
+
+
+{% for invitation in invitations.all %}
+  <div class="card">
+    <div class="card-header">
+      {{ invitation }}
+    </div>
+    <div class="card-body">
+      {% if selected == 'notyetinvited' %}
+	<ul>
+	  {% if not invitation.nomination.profile.contributor %}
+	    <li class="text-danger">N.B.: this potential Fellow is not yet registered as a Contributor</li>
+	  {% endif %}
+	  <li>For named or elected: prepare and send initial email</li>
+	</ul>
+      {% endif %}
+    </div>
+  </div>
+{% empty %}
+  <p>No invitations of this kind</p>
+{% endfor %}

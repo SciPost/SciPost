@@ -141,6 +141,25 @@
     </div>
   </details>
 
+  {% if "edadmin" in user_roles %}
+    <details class="border border-success border-2 mt-4">
+      <summary class="bg-success bg-opacity-10 p-2">
+	<h2 class="ms-2">
+	  <strong class="text-danger">EdAdmin</strong>:
+	  (for elected) invitations</h2>
+      </summary>
+      <div class="p-2 mt-2">
+	<div id="invitations_tablist"
+	     hx-get="{% url 'colleges:_hx_nominations_invitations' %}?response='notyetinvited'"
+	     hx-trigger="load"
+	     hx-target="this"
+	     hx-swap="innerHTML"
+	>
+	</div>
+      </div>
+    </details>
+  {% endif %}
+
   <details class="border border-2 mt-4">
     <summary class="bg-light p-2">
       <h2 class="ms-2">List / filter</h2>

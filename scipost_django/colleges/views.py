@@ -63,6 +63,8 @@ from .models import (
     FellowshipNomination,
     FellowshipNominationVotingRound,
     FellowshipNominationVote,
+    FellowshipNominationDecision,
+    FellowshipInvitation,
 )
 
 from scipost.forms import EmailUsersForm, SearchTextForm
@@ -624,6 +626,7 @@ class PotentialFellowshipEventCreateView(PermissionsMixin, CreateView):
 ###############
 
 
+@login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def nominations(request):
     """
@@ -643,6 +646,7 @@ def nominations(request):
     return render(request, "colleges/nominations.html", context)
 
 
+@login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_form(request, profile_id):
     profile = get_object_or_404(Profile, pk=profile_id)
@@ -671,6 +675,7 @@ def _hx_nomination_form(request, profile_id):
     return render(request, "colleges/_hx_nomination_form.html", context)
 
 
+@login_required
 @user_passes_test(is_edadmin_or_senior_fellow)
 def _hx_nominations_needing_specialties(request):
     nominations_needing_specialties = FellowshipNomination.objects.filter(
@@ -686,6 +691,7 @@ def _hx_nominations_needing_specialties(request):
     )
 
 
+@login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nominations(request):
     form = FellowshipNominationSearchForm(request.POST or None)
@@ -700,6 +706,7 @@ def _hx_nominations(request):
     return render(request, "colleges/_hx_nominations.html", context)
 
 
+@login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_li_contents(request, nomination_id):
     """For (re)loading the details if modified."""
@@ -708,6 +715,7 @@ def _hx_nomination_li_contents(request, nomination_id):
     return render(request, "colleges/_hx_nomination_li_contents.html", context)
 
 
+@login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_comments(request, nomination_id):
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
@@ -720,6 +728,7 @@ def _hx_nomination_comments(request, nomination_id):
     return render(request, "colleges/_hx_nomination_comments.html", context)
 
 
+@login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_voting_rounds(request):
     fellowship = request.user.contributor.session_fellowship(request)
@@ -749,6 +758,7 @@ def _hx_nomination_voting_rounds(request):
     return render(request, "colleges/_hx_nomination_voting_rounds.html", context)
 
 
+@login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_vote(request, voting_round_id):
     fellowship = request.user.contributor.session_fellowship(request)
@@ -771,12 +781,19 @@ def _hx_nomination_vote(request, voting_round_id):
     return render(request, "colleges/_hx_nomination_vote.html", context)
 
 
+@login_required
 @user_passes_test(is_edadmin)
 def _hx_nomination_decision(request, nomination_id):
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
     decision_form = FellowshipNominationDecisionForm(request.POST or None)
     if decision_form.is_valid():
         decision = decision_form.save()
+        if decision.outcome == FellowshipNominationDecision.OUTCOME_ELECTED:
+            invitation = FellowshipInvitation(
+                nomination=nomination,
+                response=FellowshipInvitation.RESPONSE_NOT_YET_INVITED,
+            )
+            invitation.save()
     else:
         decision_form.fields["nomination"].initial = nomination
     context = {
@@ -784,3 +801,23 @@ def _hx_nomination_decision(request, nomination_id):
         "decision_form": decision_form,
     }
     return render(request, "colleges/_hx_nomination_decision.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_nominations_invitations(request):
+    selected = request.GET.get("response", "notyetinvited")
+    invitations = FellowshipInvitation.objects.filter(
+        nomination__fellowship__isnull=True,
+        response=selected,
+    )
+    context = {
+        "response_choices": FellowshipInvitation.RESPONSE_CHOICES,
+        "selected": selected,
+        "invitations": invitations,
+    }
+    return render(
+        request,
+        "colleges/_hx_nominations_invitations.html",
+        context,
+    )

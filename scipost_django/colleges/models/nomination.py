@@ -271,7 +271,7 @@ class FellowshipInvitation(models.Model):
     )
     response = models.CharField(max_length=16, choices=RESPONSE_CHOICES, blank=True)
 
-    postpone_start_to = models.DateField(blank=True)
+    postpone_start_to = models.DateField(blank=True, null=True)
 
     comments = models.TextField(
         help_text=(

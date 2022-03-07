@@ -184,4 +184,9 @@ urlpatterns = [
         views._hx_nomination_decision,
         name="_hx_nomination_decision",
     ),
+    path(
+        "_hx_nominations_invitations",
+        views._hx_nominations_invitations,
+        name="_hx_nominations_invitations",
+    ),
 ]
