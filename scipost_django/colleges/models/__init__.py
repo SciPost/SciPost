@@ -9,7 +9,6 @@ from .fellowship import Fellowship
 from .nomination import (
     FellowshipNomination,
     FellowshipNominationComment,
-    FellowshipNominationEvent,
     FellowshipNominationVotingRound,
     FellowshipNominationVote,
     FellowshipNominationDecision,

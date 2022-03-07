@@ -11,7 +11,6 @@ from .models import (
     PotentialFellowshipEvent,
     FellowshipNomination,
     FellowshipNominationComment,
-    FellowshipNominationEvent,
     FellowshipNominationVotingRound,
     FellowshipNominationVote,
     FellowshipNominationDecision,
@@ -76,11 +75,6 @@ class FellowshipNominationCommentInline(admin.TabularInline):
     extra = 0
 
 
-class FellowshipNominationEventInline(admin.TabularInline):
-    model = FellowshipNominationEvent
-    extra = 0
-
-
 class FellowshipNominationVotingRoundInline(admin.TabularInline):
     model = FellowshipNominationVotingRound
     extra = 0
@@ -99,7 +93,6 @@ class FellowshipInvitationInline(admin.TabularInline):
 class FellowshipNominationAdmin(admin.ModelAdmin):
     inlines = [
         FellowshipNominationCommentInline,
-        FellowshipNominationEventInline,
         FellowshipNominationVotingRoundInline,
         FellowshipNominationDecisionInline,
         FellowshipInvitationInline,

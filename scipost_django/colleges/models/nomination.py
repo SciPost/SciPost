@@ -119,24 +119,6 @@ class FellowshipNominationComment(models.Model):
         return f"Comment on {self.nomination}"
 
 
-class FellowshipNominationEvent(models.Model):
-
-    nomination = models.ForeignKey(
-        "colleges.FellowshipNomination", on_delete=models.CASCADE, related_name="events"
-    )
-
-    description = models.TextField()
-
-    on = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        ordering = ["-on"]
-        verbose_name_plural = "Fellowhip Nomination Events"
-
-    def __str__(self):
-        return f"Event for {self.nomination}"
-
-
 class FellowshipNominationVotingRound(models.Model):
 
     nomination = models.ForeignKey(
@@ -203,14 +185,6 @@ class FellowshipNominationVote(models.Model):
     vote = models.CharField(max_length=16, choices=VOTE_CHOICES)
 
     on = models.DateTimeField(blank=True, null=True)
-
-    comments = models.TextField(
-        help_text=(
-            "You can use plain text, Markdown or reStructuredText; see our "
-            '<a href="/markup/help/" target="_blank">markup help</a> pages.'
-        ),
-        blank=True,
-    )
 
     objects = FellowshipNominationVoteQuerySet.as_manager()
 

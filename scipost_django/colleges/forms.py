@@ -26,7 +26,6 @@ from .models import (
     PotentialFellowshipEvent,
     FellowshipNomination,
     FellowshipNominationComment,
-    FellowshipNominationVote,
     FellowshipNominationDecision,
 )
 from .constants import (
