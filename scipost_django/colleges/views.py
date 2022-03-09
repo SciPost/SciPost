@@ -148,7 +148,7 @@ class FellowshipCreateView(PermissionsMixin, CreateView):
 
     def form_valid(self, form):
         """
-        Save the new Fellowship, add College rights and update the status of any PotentialFellowship.
+        Save the new Fellowship, add College rights and update the status of any PotentialFellowship and FellowshipNomination.
         """
         self.object = form.save()
         group = Group.objects.get(name="Editorial College")
@@ -167,6 +167,16 @@ class FellowshipCreateView(PermissionsMixin, CreateView):
             potfelevent.save()
             potfel.status = POTENTIAL_FELLOWSHIP_ACTIVE_IN_COLLEGE
             potfel.save()
+        nomination = FellowshipNomination.objects.filter(
+            profile=self.object.contributor.profile
+        ).first()
+        if nomination:
+            nomination.fellowship=self.object
+            nomination.save()
+            nomination.add_event(
+                description="Fellowship created",
+                by=self.request.user.contributor,
+            )
         return redirect(self.get_success_url())
 
 

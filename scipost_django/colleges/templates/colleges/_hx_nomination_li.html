@@ -11,6 +11,9 @@
 	{% else %}
 	  pending
 	{% endif %}
+	{% if nomination.fellowship and nomination.fellowship.is_active %}
+	  &emsp;<span class="p-2 bg-success text-white">Fellow</span>
+	{% endif %}
       </span>
     </summary>
 
