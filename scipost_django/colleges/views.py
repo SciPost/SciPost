@@ -54,6 +54,7 @@ from .forms import (
     FellowshipNominationSearchForm,
     FellowshipNominationCommentForm,
     FellowshipNominationDecisionForm,
+    FellowshipInvitationResponseForm,
 )
 from .models import (
     College,
@@ -72,7 +73,7 @@ from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from scipost.models import Contributor
 
 from common.utils import Q_with_alternative_spellings
-from mails.views import MailView
+from mails.views import MailView, MailEditorSubviewHTMX
 from ontology.models import Branch
 from profiles.models import Profile
 from profiles.forms import ProfileDynSelForm
@@ -833,5 +834,55 @@ def _hx_nominations_invitations(request):
     return render(
         request,
         "colleges/_hx_nominations_invitations.html",
+        context,
+    )
+
+
+class FellowshipInvitationEmailInitialView(PermissionsMixin, MailView):
+    """Send a templated email to an elected nominee."""
+
+    permission_required = "scipost.can_manage_college_composition"
+    queryset = FellowshipInvitation.objects.all()
+    mail_code = "fellowship_nominees/fellowship_invitation_initial"
+    success_url = reverse_lazy("colleges:nominations")
+
+    def form_valid(self, form):
+        """Create an event associated to this outgoing email."""
+        self.object.nomination.add_event(
+            description="Initial invitation email sent",
+            by=self.request.user.contributor,
+        )
+        self.object.invited_on = timezone.now()
+        self.object.response = FellowshipInvitation.RESPONSE_INVITED
+        self.object.save()
+        return super().form_valid(form)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_fellowship_invitation_update_response(request, invitation_id):
+    invitation = get_object_or_404(FellowshipInvitation, pk=invitation_id)
+    form = FellowshipInvitationResponseForm(
+        request.POST or None,
+        instance=invitation,
+    )
+    if form.is_valid():
+        invitation = form.save()
+        invitation.nomination.add_event(
+            description=f"Response updated to: {invitation.get_response_display()}",
+            by=request.user.contributor,
+        )
+        return redirect(
+            "%s?response=%s" % (
+                reverse("colleges:_hx_nominations_invitations"),
+                form.cleaned_data["response"],
+            )
+        )
+    else:
+        print(form.errors)
+    context = {"invitation": invitation, "form": form,}
+    return render(
+        request,
+        "colleges/_hx_nomination_invitation_update_response.html",
         context,
     )

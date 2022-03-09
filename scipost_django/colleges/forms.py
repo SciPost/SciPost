@@ -27,6 +27,7 @@ from .models import (
     FellowshipNomination,
     FellowshipNominationComment,
     FellowshipNominationDecision,
+    FellowshipInvitation,
 )
 from .constants import (
     POTENTIAL_FELLOWSHIP_IDENTIFIED,
@@ -485,5 +486,43 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
                     css_class="col-4"
                 ),
                 css_class="row",
+            )
+        )
+
+
+class FellowshipInvitationResponseForm(forms.ModelForm):
+    class Meta:
+        model = FellowshipInvitation
+        fields = [
+            "nomination",
+            "response",
+            "postpone_start_to",
+            "comments",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.fields
+        self.helper.layout = Layout(
+            Field("nomination", type="hidden"),
+            Div(
+                Div(Field("response"), css_class="col-lg-5"),
+                Div(Field("postpone_start_to"), css_class="col-lg-5"),
+                css_class="row"),
+            Div(
+                Div(
+                    Field(
+                        "comments",
+                        placeholder="Add a comment (visible to EdAdmin)",
+                        rows=2
+                    ),
+                    css_class="col-lg-10"
+                ),
+                Div(
+                    ButtonHolder(Submit("submit", "Submit")),
+                    css_class="col-lg-2"
+                ),
+                css_class="row mt-0",
             )
         )

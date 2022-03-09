@@ -189,4 +189,14 @@ urlpatterns = [
         views._hx_nominations_invitations,
         name="_hx_nominations_invitations",
     ),
+    path(
+        "fellowship_invitation/<int:pk>/email_initial",
+        views.FellowshipInvitationEmailInitialView.as_view(),
+        name="fellowship_invitation_email_initial",
+    ),
+    path(
+        "_hx_fellowship_invitation/<int:invitation_id>/update_response",
+        views._hx_fellowship_invitation_update_response,
+        name="_hx_fellowship_invitation_update_response",
+    ),
 ]

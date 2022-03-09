@@ -204,6 +204,10 @@ class MailEditorSubview:
         return self.mail_form.save()
 
 
+class MailEditorSubviewHTMX(MailEditorSubview):
+    template_name = "mails/_hx_mail_form.html"
+
+
 class MailEditorMixin:
     """Deprecated."""
 
