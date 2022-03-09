@@ -69,6 +69,32 @@
     </tr>
   </table>
 
+  <hr>
+
+  {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+    <details class="m-2 mt-4 border border-danger">
+      <summary class="p-2 bg-light">Events</summary>
+      <table class="table m-2">
+	<thead>
+	  <tr>
+	    <th>Date and time</th>
+	    <th>Description</th>
+	    <th>By</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for event in nomination.events.all %}
+	    <tr>
+	      <td>{{ event.on }}</td>
+	      <td>{{ event.description }}</td>
+	      <td>{{ event.by }}</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+    </details>
+  {% endif %}
+
   <div class="card m-2 mt-4">
     <div class="card-header">
       Comments
@@ -216,4 +242,5 @@
 
     </div>
   {% endif %}
+
 </div>

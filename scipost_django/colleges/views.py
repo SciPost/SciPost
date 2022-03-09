@@ -663,6 +663,13 @@ def _hx_nomination_form(request, profile_id):
     nomination_form = FellowshipNominationForm(request.POST or None, profile=profile)
     if nomination_form.is_valid():
         nomination = nomination_form.save()
+        nomination.add_event(description="Nominated", by=request.user.contributor)
+        event = FellowshipNominationEvent(
+            nomination=nomination,
+            description="Nominated",
+            by=request.user.contributor,
+        )
+        event.save()
         return HttpResponse(
             f'<div class="bg-success text-white p-2 ">{nomination.profile} '
             f"successfully nominated to {nomination.college}.</div>"
@@ -723,6 +730,7 @@ def _hx_nomination_comments(request, nomination_id):
     form = FellowshipNominationCommentForm(request.POST or None, initial=initial)
     if form.is_valid():
         form.save()
+        nomination.add_event(description="Comment added", by=request.user.contributor)
         form = FellowshipNominationCommentForm(initial=initial)
     context = {"nomination": nomination, "form": form,}
     return render(request, "colleges/_hx_nomination_comments.html", context)
@@ -777,6 +785,10 @@ def _hx_nomination_vote(request, voting_round_id):
                 "on": timezone.now(),
             }
         )
+        if created:
+            nomination.add_event(description="Vote received", by=request.user.contributor)
+        else:
+            nomination.add_event(description="Vote updated", by=request.user.contributor)
     context = {"voting_round": voting_round, "vote_object": vote_object,}
     return render(request, "colleges/_hx_nomination_vote.html", context)
 
@@ -788,12 +800,14 @@ def _hx_nomination_decision(request, nomination_id):
     decision_form = FellowshipNominationDecisionForm(request.POST or None)
     if decision_form.is_valid():
         decision = decision_form.save()
+        nomination.add_event(description="Decision fixed", by=request.user.contributor)
         if decision.outcome == FellowshipNominationDecision.OUTCOME_ELECTED:
             invitation = FellowshipInvitation(
                 nomination=nomination,
                 response=FellowshipInvitation.RESPONSE_NOT_YET_INVITED,
             )
             invitation.save()
+            nomination.add_event(description="Invitation created", by=request.user.contributor)
     else:
         decision_form.fields["nomination"].initial = nomination
     context = {

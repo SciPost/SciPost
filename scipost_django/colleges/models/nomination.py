@@ -11,6 +11,8 @@ from ..managers import (
     FellowshipNominationVoteQuerySet,
 )
 
+from scipost.models import get_sentinel_user
+
 
 class FellowshipNomination(models.Model):
 
@@ -64,6 +66,14 @@ class FellowshipNomination(models.Model):
             f'on {self.nominated_on.strftime("%Y-%m-%d")}'
         )
 
+    def add_event(self, description="", by=None):
+        event = FellowshipNominationEvent(
+            nomination=self,
+            description=description,
+            by=by,
+        )
+        event.save()
+
     @property
     def ongoing_voting_round(self):
         return self.voting_rounds.ongoing().first()
@@ -90,6 +100,28 @@ class FellowshipNomination(models.Model):
                 return None
             return "Latest voting round is ongoing, and not everybody has voted."
         return "No voting round found."
+
+
+class FellowshipNominationEvent(models.Model):
+
+    nomination = models.ForeignKey(
+        "colleges.FellowshipNomination", on_delete=models.CASCADE, related_name="events"
+    )
+    description = models.TextField()
+    on = models.DateTimeField(default=timezone.now)
+    by = models.ForeignKey(
+        "scipost.Contributor",
+        on_delete=models.SET(get_sentinel_user),
+        blank=True, null=True,
+    )
+
+    class Meta:
+        ordering = ["nomination", "-on"]
+        verbose_name_plural = "Fellowhip Nomination Events"
+
+    def __str__(self):
+        return (f"Event for {self.nomination.profile} by {self.by} on {self.on}: "
+                f"{self.description}")
 
 
 class FellowshipNominationComment(models.Model):
