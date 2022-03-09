@@ -188,7 +188,7 @@ class Organization(models.Model):
         return self.orgtype != ORGTYPE_PRIVATE_BENEFACTOR
 
     def get_publications(self, year=None, journal=None):
-        if "all" not in in self.cf_associated_publication_ids:
+        if "all" not in self.cf_associated_publication_ids:
             return Publication.objects.none()
         if journal and isinstance(journal, Journal):
             publications = journal.get_publications()
