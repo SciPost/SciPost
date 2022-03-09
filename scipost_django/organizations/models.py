@@ -188,19 +188,14 @@ class Organization(models.Model):
         return self.orgtype != ORGTYPE_PRIVATE_BENEFACTOR
 
     def get_publications(self, year=None, journal=None):
-        # org_and_children_ids = [k["id"] for k in list(self.children.all().values("id"))]
-        # org_and_children_ids += [self.id]
+        if "all" not in in self.cf_associated_publication_ids:
+            return Publication.objects.none()
         if journal and isinstance(journal, Journal):
             publications = journal.get_publications()
         else:
             publications = Publication.objects.published()
         if year:
             publications = publications.filter(publication_date__year=year)
-        # return publications.filter(
-        #     models.Q(authors__affiliations__pk__in=org_and_children_ids)
-        #     | models.Q(grants__funder__organization__pk__in=org_and_children_ids)
-        #     | models.Q(funders_generic__organization__pk__in=org_and_children_ids)
-        # ).distinct()
         return publications.filter(pk__in=self.cf_associated_publication_ids["all"])
 
     def get_affiliate_publications(self, journal):
