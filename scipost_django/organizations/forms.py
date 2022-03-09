@@ -53,6 +53,13 @@ class OrganizationForm(forms.ModelForm):
         model = Organization
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Bypass JSONField not validating empty dict default
+        self.fields["cf_associated_publication_ids"].required = False
+        self.fields["cf_balance_info"].required = False
+        self.fields["cf_expenditure_for_publication"].required = False
+
 
 class OrganizationEventForm(forms.ModelForm):
     class Meta:
