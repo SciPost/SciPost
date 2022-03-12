@@ -33,6 +33,11 @@ class Command(BaseCommand):
             )
             voting_round.save()
             voting_round.eligible_to_vote.set(
-                Fellowship.objects.active(
-                ).senior().specialties_overlap(specialties_slug_list)
+                Fellowship.objects.active().senior(
+                ).specialties_overlap(specialties_slug_list)
             )
+            if voting_round.eligible_to_vote.count() <= 5:
+                # add Senior Fellows from all specialties
+                voting_round.eligible_to_vote.set(
+                    Fellowship.objects.active().senior().filter(college=nomination.college)
+                )

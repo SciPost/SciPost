@@ -170,9 +170,9 @@ urlpatterns = [
         name="_hx_nominations_needing_specialties",
     ),
     path(
-        "_hx_nomination_voting_rounds",
-        views._hx_nomination_voting_rounds,
-        name="_hx_nomination_voting_rounds",
+        "_hx_voting_rounds",
+        views._hx_voting_rounds,
+        name="_hx_voting_rounds",
     ),
     path(
         "_hx_nomination_vote/<int:voting_round_id>",

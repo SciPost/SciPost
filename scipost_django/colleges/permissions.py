@@ -50,6 +50,14 @@ def is_edadmin_or_advisory_or_active_regular_or_senior_fellow(user):
     )
 
 
+def is_edadmin_or_advisory_or_active_senior_fellow(user):
+    return (
+        user.groups.filter(name="Editorial Administrators").exists()
+        or user.groups.filter(name="Advisory Board").exists()
+        or Fellowship.objects.active().senior().filter(contributor__user=user).exists()
+    )
+
+
 def is_edadmin_or_active_regular_or_senior_fellow(user):
     return (
         user.groups.filter(name="Editorial Administrators").exists()

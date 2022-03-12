@@ -97,6 +97,7 @@
       <div id="nomination-{{ nomination.id }}-comments"
 	   hx-get="{% url 'colleges:_hx_nomination_comments' nomination_id=nomination.id %}"
 	   hx-trigger="revealed"
+	   hx-target="this"
       >
       </div>
     </div>
@@ -110,16 +111,8 @@
 	</div>
 	<div class="card-body">
 	  {% if session_fellowship and session_fellowship in ongoing_round.eligible_to_vote.all %}
-	    <p>You are eligible to vote</p>
-	    {% if include_vote_buttons %}
-	      <div id="nomination-{{ nomination.id }}-vote"
-		   hx-get="{% url 'colleges:_hx_nomination_vote' voting_round_id=ongoing_round.id %}"
-		   hx-trigger="revealed"
-	      >
-	      </div>
-	    {% else %}
-	      <p><strong>Please go up to the main Vote dropdown to cast your vote</strong></p>
-	    {% endif %}
+	    <p>You are eligible to vote {{ include_vote_buttons }}</p>
+	    <p><strong>Please go up to the main Vote dropdown to cast your vote</strong></p>
 	  {% else %}
 	    <p>You are not called upon to vote in this round.</p>
 	  {% endif %}
@@ -219,6 +212,7 @@
 	  <div id="nomination-{{ nomination.id }}-decision"
 	       hx-get="{% url 'colleges:_hx_nomination_decision' nomination_id=nomination.id %}"
 	       hx-trigger="revealed"
+	       hx-target="this"
 	  </div>
 	</div>
       </div>

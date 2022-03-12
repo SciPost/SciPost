@@ -1,0 +1,19 @@
+{% include 'colleges/_hx_voting_rounds_tablist.html' with selected=selected %}
+
+{% for round in voting_rounds %}
+  <div class="mt-4 p-2 border border-2" id="voting_round_{{ round.id }}">
+
+    {% include 'colleges/_hx_nomination_li.html' with nomination=round.nomination %}
+    <h3 class="mt-4">Voting deadline: {{ round.voting_deadline }}</h3>
+    {% if session_fellowship and session_fellowship in round.eligible_to_vote.all %}
+      <div id="nomination-{{ round.nomination.id }}-vote"
+	   hx-get="{% url 'colleges:_hx_nomination_vote' voting_round_id=round.id %}"
+	   hx-trigger="revealed"
+	   hx-target="this"
+      >
+      </div>
+    {% endif %}
+  </div>
+{% empty %}
+  <div class="p-2">No voting round found</div>
+{% endfor %}

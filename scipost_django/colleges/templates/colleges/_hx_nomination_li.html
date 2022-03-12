@@ -20,6 +20,7 @@
     <div id="nomination-{{ nomination.id }}-li-contents"
 	 hx-get="{% url 'colleges:_hx_nomination_li_contents' nomination_id=nomination.id %}"
 	 hx-trigger="toggle from:#nomination-{{ nomination.id }}-li-details"
+	 hx-target="this"
     >
     </div>
   </details>

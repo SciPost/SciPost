@@ -62,6 +62,7 @@ from .models import (
     PotentialFellowship,
     PotentialFellowshipEvent,
     FellowshipNomination,
+    FellowshipNominationEvent,
     FellowshipNominationVotingRound,
     FellowshipNominationVote,
     FellowshipNominationDecision,
@@ -749,32 +750,37 @@ def _hx_nomination_comments(request, nomination_id):
 
 @login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
-def _hx_nomination_voting_rounds(request):
+def _hx_voting_rounds(request):
+    selected = request.GET.get("tab", "ongoing")
+    tab_choices = []
+    if request.user.contributor.is_ed_admin:
+        tab_choices += [("ongoing", "Ongoing"), ("closed", "Closed"),]
+    elif request.user.contributor.is_active_fellow:
+        tab_choices += [
+            ("ongoing-vote_required", "Cast your vote (election ongoing)"),
+            ("ongoing-voted", "Votes you have cast (election ongoing)"),
+            ("closed-voted", "Votes you have cast (election closed)"),
+        ]
     fellowship = request.user.contributor.session_fellowship(request)
-    filters = request.GET.get("filters", None)
-    if filters:
-        filters = filters.split(",")
-    if not filters:  # if no filters present, return empty response
-        voting_rounds = FellowshipNominationVotingRound.objects.none()
-    else:
-        voting_rounds = FellowshipNominationVotingRound.objects.all()
-        for filter in filters:
-            if filter == "ongoing":
-                voting_rounds = voting_rounds.ongoing()
-            if filter == "closed":
-                voting_rounds = voting_rounds.closed()
-            if filter == "vote_required":
-                # show all voting rounds to edadmin; for Fellow, filter
-                if not request.user.contributor.is_ed_admin:
-                    voting_rounds = voting_rounds.filter(
-                        eligible_to_vote=fellowship
-                    ).exclude(votes__fellow=fellowship)
-            if filter == "voted":
-                voting_rounds = voting_rounds.filter(votes__fellow=fellowship)
+    voting_rounds = FellowshipNominationVotingRound.objects.all()
+    if "ongoing" in selected:
+        voting_rounds = voting_rounds.ongoing()
+    if "closed" in selected:
+        voting_rounds = voting_rounds.closed()
+    if "vote_required" in selected:
+        # show all voting rounds to edadmin; for Fellow, filter
+        if not request.user.contributor.is_ed_admin:
+            voting_rounds = voting_rounds.filter(
+                eligible_to_vote=fellowship
+            ).exclude(votes__fellow=fellowship)
+    if "voted" in selected:
+        voting_rounds = voting_rounds.filter(votes__fellow=fellowship)
     context = {
+        "tab_choices": tab_choices,
+        "selected": selected,
         "voting_rounds": voting_rounds,
     }
-    return render(request, "colleges/_hx_nomination_voting_rounds.html", context)
+    return render(request, "colleges/_hx_voting_rounds.html", context)
 
 
 @login_required
@@ -786,7 +792,6 @@ def _hx_nomination_vote(request, voting_round_id):
         pk=voting_round_id,
         eligible_to_vote=fellowship,
     )
-    vote_object = None
     if request.method == "POST":
         vote_object, created = FellowshipNominationVote.objects.update_or_create(
             voting_round=voting_round,
@@ -797,9 +802,20 @@ def _hx_nomination_vote(request, voting_round_id):
             }
         )
         if created:
-            nomination.add_event(description="Vote received", by=request.user.contributor)
+            voting_round.nomination.add_event(
+                description="Vote received",
+                by=request.user.contributor,
+            )
         else:
-            nomination.add_event(description="Vote updated", by=request.user.contributor)
+            voting_round.nomination.add_event(
+                description="Vote updated",
+                by=request.user.contributor,
+            )
+    else:
+        vote_object = FellowshipNominationVote.objects.filter(
+            voting_round=voting_round,
+            fellow=fellowship,
+        ).first()
     context = {"voting_round": voting_round, "vote_object": vote_object,}
     return render(request, "colleges/_hx_nomination_vote.html", context)
 
@@ -841,11 +857,7 @@ def _hx_nominations_invitations(request):
         "selected": selected,
         "invitations": invitations,
     }
-    return render(
-        request,
-        "colleges/_hx_nominations_invitations.html",
-        context,
-    )
+    return render(request, "colleges/_hx_nominations_invitations.html", context)
 
 
 class FellowshipInvitationEmailInitialView(PermissionsMixin, MailView):
