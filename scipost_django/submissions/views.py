@@ -852,7 +852,7 @@ def editorial_workflow(request):
 
 @login_required
 @fellowship_or_admin_required()
-def pool(request, identifier_w_vn_nr=None):
+def pool_pre202203(request, identifier_w_vn_nr=None):
     """
     List page of Submissions in refereeing.
 
@@ -932,13 +932,13 @@ def pool(request, identifier_w_vn_nr=None):
     if context["submission"] and request.is_ajax():
         template = "submissions/pool/_submission_details.html"
     else:
-        template = "submissions/pool/pool.html"
+        template = "submissions/pool/pool_pre202203.html"
     return render(request, template, context)
 
 
 @login_required
 @fellowship_or_admin_required()
-def pool2(request):
+def pool(request):
     """
     Listing of Submissions for purposes of editorial handling.
     """
@@ -960,7 +960,7 @@ def pool2(request):
             initial={"status": STATUS_UNASSIGNED}, user=request.user
         ),
     }
-    return render(request, "submissions/pool/pool2.html", context)
+    return render(request, "submissions/pool/pool.html", context)
 
 
 def pool_hx_submissions_list(request):

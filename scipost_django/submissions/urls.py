@@ -223,7 +223,7 @@ urlpatterns = [
         name="withdraw_manuscript",
     ),
     # Pool
-    path("pool2", views.pool2, name="pool2"),
+    path("pool", views.pool, name="pool"),
     path(
         "pool/submissions",
         views.pool_hx_submissions_list,
@@ -234,8 +234,13 @@ urlpatterns = [
         views.pool_hx_submission_details,
         name="pool_hx_submission_details",
     ),
-    path("pool/", views.pool, name="pool"),
-    path("pool/<identifier:identifier_w_vn_nr>/", views.pool, name="pool"),
+    # Next 2: deprecated old pool
+    path("pool/", views.pool_pre202203, name="pool_pre202203"),
+    path(
+        "pool/<identifier:identifier_w_vn_nr>/",
+        views.pool_pre202203,
+        name="pool_pre202203",
+    ),
     path(
         "add_remark/<identifier:identifier_w_vn_nr>",
         views.add_remark,
