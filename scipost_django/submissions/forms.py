@@ -442,39 +442,6 @@ class SubmissionOldSearchForm(forms.Form):
         )
 
 
-class SubmissionPoolFilterForm(forms.Form):
-    status = forms.ChoiceField(
-        choices=((None, "All submissions currently under evaluation"),)
-        + SUBMISSION_STATUS,
-        required=False,
-    )
-    editor_in_charge = forms.BooleanField(
-        label="Show only Submissions for which I am editor in charge.", required=False
-    )
-
-    def search(self, queryset, current_user):
-        if self.cleaned_data.get("status"):
-            # Do extra check on non-required field to never show errors on template
-            queryset = queryset.pool_editable(current_user).filter(
-                status=self.cleaned_data["status"]
-            )
-        else:
-            # If no specific status if requested, just return the Pool by default
-            queryset = queryset.pool(current_user)
-
-        if self.cleaned_data.get("editor_in_charge") and hasattr(
-            current_user, "contributor"
-        ):
-            queryset = queryset.filter(editor_in_charge=current_user.contributor)
-
-        return queryset.order_by("-submission_date")
-
-    def status_verbose(self):
-        try:
-            return dict(SUBMISSION_STATUS)[self.cleaned_data["status"]]
-        except KeyError:
-            return ""
-
 
 ######################################################################
 #

@@ -96,7 +96,6 @@ from .forms import (
     ReportPDFForm,
     SubmissionReportsForm,
     EICRecommendationForm,
-    SubmissionPoolFilterForm,
     # FixCollegeDecisionForm,
     EditorialDecisionForm,
     SubmissionTargetJournalForm,
@@ -848,92 +847,6 @@ def editorial_workflow(request):
     of the actions to take to handle Submissions.
     """
     return render(request, "submissions/editorial_workflow.html")
-
-
-@login_required
-@fellowship_or_admin_required()
-def pool_pre202203(request, identifier_w_vn_nr=None):
-    """
-    List page of Submissions in refereeing.
-
-    The Submissions pool contains all submissions which are undergoing
-    the editorial process, from submission
-    to publication acceptance or rejection.
-    All members of the Editorial College have access.
-    """
-    # Search
-    search_form = SubmissionPoolFilterForm(request.GET or None)
-    if search_form.is_valid():
-        submissions = search_form.search(Submission.objects.all(), request.user)
-    else:
-        submissions = Submission.objects.pool(request.user)
-
-    # Query optimization
-    submissions = submissions.select_related(
-        "preprint", "publication"
-    ).prefetch_related("eicrecommendations")
-
-    nr_potfels_to_vote_on = PotentialFellowship.objects.to_vote_on(
-        request.user.contributor
-    ).count()
-    recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
-        submission__in=submissions
-    )
-    recs_current_voted = EICRecommendation.objects.user_current_voted(
-        request.user
-    ).filter(submission__in=submissions)
-    assignments_to_consider = EditorialAssignment.objects.invited().filter(
-        to=request.user.contributor
-    )
-
-    # Forms
-    consider_assignment_form = ConsiderAssignmentForm()
-    rec_vote_form = RecommendationVoteForm()
-    remark_form = RemarkForm()
-
-    context = {
-        "submissions": submissions.order_by("status", "-submission_date"),
-        "search_form": search_form,
-        "submission_status": SUBMISSION_STATUS,
-        "assignments_to_consider": assignments_to_consider,
-        "consider_assignment_form": consider_assignment_form,
-        "nr_potfels_to_vote_on": nr_potfels_to_vote_on,
-        "recs_to_vote_on": recs_to_vote_on,
-        "recs_current_voted": recs_current_voted,
-        "rec_vote_form": rec_vote_form,
-        "remark_form": remark_form,
-    }
-
-    # Show specific submission in the pool
-    context["submission"] = None
-    if identifier_w_vn_nr:
-        try:
-            context["submission"] = Submission.objects.pool_editable(request.user).get(
-                preprint__identifier_w_vn_nr=identifier_w_vn_nr
-            )
-        except Submission.DoesNotExist:
-            pass
-
-    # EdColAdmin related variables
-    if request.user.has_perm("scipost.can_oversee_refereeing"):
-        context["recommendations"] = EICRecommendation.objects.active().filter(
-            submission__in=submissions
-        )
-        context["latest_submission_events"] = (
-            SubmissionEvent.objects.for_eic()
-            .last_hours()
-            .filter(submission__in=context["submissions"])
-        )
-
-    if request.user.has_perm("scipost.can_run_pre_screening"):
-        context["pre_screening_subs"] = Submission.objects.prescreening()
-
-    # Pool gets Submission details via ajax request
-    if context["submission"] and request.is_ajax():
-        template = "submissions/pool/_submission_details.html"
-    else:
-        template = "submissions/pool/pool_pre202203.html"
-    return render(request, template, context)
 
 
 @login_required

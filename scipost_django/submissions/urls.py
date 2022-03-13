@@ -234,13 +234,6 @@ urlpatterns = [
         views.pool_hx_submission_details,
         name="pool_hx_submission_details",
     ),
-    # Next 2: deprecated old pool
-    path("pool/", views.pool_pre202203, name="pool_pre202203"),
-    path(
-        "pool/<identifier:identifier_w_vn_nr>/",
-        views.pool_pre202203,
-        name="pool_pre202203",
-    ),
     path(
         "add_remark/<identifier:identifier_w_vn_nr>",
         views.add_remark,

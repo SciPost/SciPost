@@ -38,10 +38,6 @@
     </div>
   </div>
 
-  <div class="border border-danger my-4 p-2">
-    <strong><a href="{% url 'submissions:pool_pre202203' %}">Take me back to the old pool...</a></strong>
-  </div>
-
   {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
     {% if assignments_to_consider %}
       <h3>Your open Assignment Requests <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
