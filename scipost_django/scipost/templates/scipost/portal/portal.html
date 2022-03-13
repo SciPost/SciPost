@@ -17,10 +17,6 @@
 {% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
 {% block pagetitle %} Homepage{% endblock pagetitle %}
 
-{% block navbar %}
-  {% include 'scipost/navbar.html' %}
-{% endblock navbar %}
-
 {% block content %}
 
   <div class="tab-content my-2" id="portalTabContent">
@@ -30,7 +26,7 @@
 	 role="tabpanel" aria-labelledby="home-tab">
       <div hx-get="{% url 'scipost:portal_hx_home' %}"
 	   hx-trigger="{% if not request.GET.tab %}load, {% endif %}click delay:200ms from:#home-tab"
-	   hx-push-url="{% url 'scipost:portal' %}"
+	   hx-push-url="{% url 'scipost:index' %}"
       >
       </div>
     </div>
@@ -40,7 +36,7 @@
 	 role="tabpanel" aria-labelledby="journals-tab">
       <div hx-get="{% url 'scipost:portal_hx_journals' %}"
 	   hx-trigger="{% if request.GET.tab == 'journals' %}load, {% endif %}click delay:200ms from:#journals-tab, session-acad-field-set from:body"
-	   hx-push-url="{% url 'scipost:portal' %}?tab=journals"
+	   hx-push-url="{% url 'scipost:index' %}?tab=journals"
       >
       </div>
     </div>
@@ -50,7 +46,7 @@
 	 role="tabpanel" aria-labelledby="publications-tab">
       <div hx-get="{% url 'scipost:portal_hx_publications' %}"
 	   hx-trigger="{% if request.GET.tab == 'publications' %}load, {% endif %}click delay:200ms from:#publications-tab, session-acad-field-set from:body, session-specialty-set from:body"
-	   hx-push-url="{% url 'scipost:portal' %}?tab=publications"
+	   hx-push-url="{% url 'scipost:index' %}?tab=publications"
       >
       </div>
     </div>
@@ -60,7 +56,7 @@
 	 role="tabpanel" aria-labelledby="submissions-tab">
       <div hx-get="{% url 'scipost:portal_hx_submissions' %}"
 	   hx-trigger="{% if request.GET.tab == 'submissions' %}load, {% endif %}click delay:200ms from:#submissions-tab, session-acad-field-set from:body, session-specialty-set from:body"
-	   hx-push-url="{% url 'scipost:portal' %}?tab=submissions"
+	   hx-push-url="{% url 'scipost:index' %}?tab=submissions"
       >
       </div>
     </div>
@@ -70,7 +66,7 @@
 	 role="tabpanel" aria-labelledby="reports-needed-tab">
       <div hx-get="{% url 'scipost:portal_hx_submissions' %}?reports_needed=1"
 	   hx-trigger="{% if request.GET.tab == 'reportsneeded' %}load, {% endif %}click delay:200ms from:#reports-needed-tab, session-acad-field-set from:body, session-specialty-set from:body"
-	   hx-push-url="{% url 'scipost:portal' %}?tab=reportsneeded"
+	   hx-push-url="{% url 'scipost:index' %}?tab=reportsneeded"
       >
       </div>
     </div>
@@ -80,7 +76,7 @@
 	 role="tabpanel" aria-labelledby="reports-tab">
       <div hx-get="{% url 'scipost:portal_hx_reports' %}"
 	   hx-trigger="{% if request.GET.tab == 'reports' %}load, {% endif %}click delay:200ms from:#reports-tab, session-acad-field-set from:body, session-specialty-set from:body"
-	   hx-push-url="{% url 'scipost:portal' %}?tab=reports"
+	   hx-push-url="{% url 'scipost:index' %}?tab=reports"
       >
       </div>
     </div>
@@ -90,7 +86,7 @@
 	 role="tabpanel" aria-labelledby="comments-tab">
       <div hx-get="{% url 'scipost:portal_hx_comments' %}"
 	   hx-trigger="{% if request.GET.tab == 'comments' %}load, {% endif %}click delay:200ms from:#comments-tab, session-acad-field-set from:body, session-specialty-set from:body"
-	   hx-push-url="{% url 'scipost:portal' %}?tab=comments"
+	   hx-push-url="{% url 'scipost:index' %}?tab=comments"
       >
       </div>
     </div>
@@ -100,7 +96,7 @@
 	 role="tabpanel" aria-labelledby="commentaries-tab">
       <div hx-get="{% url 'scipost:portal_hx_commentaries' %}"
 	   hx-trigger="{% if request.GET.tab == 'commentaries' %}load, {% endif %}click delay:200ms from:#commentaries-tab, session-acad-field-set from:body, session-specialty-set from:body"
-	   hx-push-url="{% url 'scipost:portal' %}?tab=commentaries"
+	   hx-push-url="{% url 'scipost:index' %}?tab=commentaries"
       >
       </div>
     </div>
@@ -110,7 +106,7 @@
 	 role="tabpanel" aria-labelledby="theses-tab">
       <div hx-get="{% url 'scipost:portal_hx_theses' %}"
 	   hx-trigger="{% if request.GET.tab == 'theses' %}load, {% endif %}click delay:200ms from:#theses-tab, session-acad-field-set from:body, session-specialty-set from:body"
-	   hx-push-url="{% url 'scipost:portal' %}?tab=theses"
+	   hx-push-url="{% url 'scipost:index' %}?tab=theses"
       >
       </div>
     </div>

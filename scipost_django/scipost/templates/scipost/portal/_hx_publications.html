@@ -25,11 +25,11 @@
 
 
 <div class="d-flex justify-content-between">
-  <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#publicationsSearch" aria-expanded="false" aria-controls="publicationsSearch">
+  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#publicationsSearch" aria-expanded="false" aria-controls="publicationsSearch">
     {% include 'bi/search.html' %}&emsp;Simple search / filter
   </button>
-  <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
-    {% include 'bi/binoculars-fill.html' %}... or use our advanced search API&emsp;{% include 'bi/arrow-right.html' %}
+  <a class="btn btn-primary ms-2" href="{% url 'scipost:search' %}">
+    {% include 'bi/binoculars-fill.html' %}... or use our advanced search&emsp;{% include 'bi/arrow-right.html' %}
   </a>
 </div>
 <div class="collapse" id="publicationsSearch">

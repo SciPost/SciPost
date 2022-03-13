@@ -3,11 +3,11 @@
 <h2 class="highlight my-4">Reports on Submissions{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
 
 <div class="d-flex justify-content-between">
-  <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#reportsSearch" aria-expanded="false" aria-controls="reportsSearch">
+  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#reportsSearch" aria-expanded="false" aria-controls="reportsSearch">
     {% include 'bi/search.html' %}&emsp;Simple search / filter
   </button>
-  <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
-    {% include 'bi/binoculars-fill.html' %}... or use our advanced search API&emsp;{% include 'bi/arrow-right.html' %}
+  <a class="btn btn-primary ms-2" href="{% url 'scipost:search' %}">
+    {% include 'bi/binoculars-fill.html' %}... or use our advanced search&emsp;{% include 'bi/arrow-right.html' %}
   </a>
 </div>
 <div class="collapse" id="reportsSearch">

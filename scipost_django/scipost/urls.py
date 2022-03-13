@@ -81,11 +81,11 @@ urlpatterns = [
     # Homepage
     ###########
     path(
-        "",  #'index_pre202202',
+        'index_pre202202',
         views.index_pre202202,
-        name="index",  # name='index_pre202202'
+        name='index_pre202202'
     ),
-    path("portal", views.portal, name="portal"),
+    path("", views.portal, name="index"),
     #
     ####################################
     # HTMX-delivered homepage fragments
