@@ -359,117 +359,56 @@ urlpatterns = [
     ################
     # Personal Page
     ################
-    path("personal_page_htmx", views.personal_page_htmx, name="personal_page_htmx"),
+    path("personal_page/", views.personal_page, name="personal_page"),
     path(
-        "personal_page_htmx/_hx_account",
+        "personal_page/_hx_account",
         views.personal_page_hx_account,
         name="personal_page_hx_account",
     ),
     path(
-        "personal_page_htmx/_hx_admin",
+        "personal_page/_hx_admin",
         views.personal_page_hx_admin,
         name="personal_page_hx_admin",
     ),
     path(
-        "personal_page_htmx/_hx_edadmin",
+        "personal_page/_hx_edadmin",
         views.personal_page_hx_edadmin,
         name="personal_page_hx_edadmin",
     ),
     path(
-        "personal_page_htmx/_hx_refereeing",
+        "personal_page/_hx_refereeing",
         views.personal_page_hx_refereeing,
         name="personal_page_hx_refereeing",
     ),
     path(
-        "personal_page_htmx/_hx_publications",
+        "personal_page/_hx_publications",
         views.personal_page_hx_publications,
         name="personal_page_hx_publications",
     ),
     path(
-        "personal_page_htmx/_hx_submissions",
+        "personal_page/_hx_submissions",
         views.personal_page_hx_submissions,
         name="personal_page_hx_submissions",
     ),
     path(
-        "personal_page_htmx/_hx_commentaries",
+        "personal_page/_hx_commentaries",
         views.personal_page_hx_commentaries,
         name="personal_page_hx_commentaries",
     ),
     path(
-        "personal_page_htmx/_hx_theses",
+        "personal_page/_hx_theses",
         views.personal_page_hx_theses,
         name="personal_page_hx_theses",
     ),
     path(
-        "personal_page_htmx/_hx_comments",
+        "personal_page/_hx_comments",
         views.personal_page_hx_comments,
         name="personal_page_hx_comments",
     ),
     path(
-        "personal_page_htmx/_hx_author_replies",
+        "personal_page/_hx_author_replies",
         views.personal_page_hx_author_replies,
         name="personal_page_hx_author_replies",
-    ),
-    path("personal_page/", views.personal_page, name="personal_page"),
-    path(
-        "personal_page/account",
-        views.personal_page,
-        name="personal_page_account",
-        kwargs={"tab": "account"},
-    ),
-    path(
-        "personal_page/admin_actions",
-        views.personal_page,
-        name="personal_page_admin_actions",
-        kwargs={"tab": "admin_actions"},
-    ),
-    path(
-        "personal_page/editorial_actions",
-        views.personal_page,
-        name="personal_page_editorial_actions",
-        kwargs={"tab": "editorial_actions"},
-    ),
-    path(
-        "personal_page/refereeing",
-        views.personal_page,
-        name="personal_page_refereeing",
-        kwargs={"tab": "refereeing"},
-    ),
-    path(
-        "personal_page/publications",
-        views.personal_page,
-        name="personal_page_publications",
-        kwargs={"tab": "publications"},
-    ),
-    path(
-        "personal_page/submissions",
-        views.personal_page,
-        name="personal_page_submissions",
-        kwargs={"tab": "submissions"},
-    ),
-    path(
-        "personal_page/commentaries",
-        views.personal_page,
-        name="personal_page_commentaries",
-        kwargs={"tab": "commentaries"},
-    ),
-    path(
-        "personal_page/theses",
-        views.personal_page,
-        name="personal_page_theses",
-        kwargs={"tab": "theses"},
-    ),
-    path(
-        "personal_page/comments",
-        views.personal_page,
-        name="personal_page_comments",
-        kwargs={"tab": "comments"},
-    ),
-    path(
-        "personal_page/author_replies",
-        views.personal_page,
-        name="personal_page_author_replies",
-        kwargs={"tab": "author_replies"},
     ),
     #
     ###################
