@@ -80,11 +80,6 @@ urlpatterns = [
     ###########
     # Homepage
     ###########
-    path(
-        'index_pre202202',
-        views.index_pre202202,
-        name='index_pre202202'
-    ),
     path("", views.portal, name="index"),
     #
     ####################################

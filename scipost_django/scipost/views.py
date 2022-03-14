@@ -173,20 +173,6 @@ def trigger_error(request):
 #############
 
 
-def index_pre202202(request):
-    """Homepage view of SciPost."""
-    context = {
-        "news_items": NewsItem.objects.homepage().order_by("-date")[:4],
-        "latest_newsitem": NewsItem.objects.homepage().order_by("-date").first(),
-        "submissions": Submission.objects.public().order_by("-submission_date")[:3],
-        "publications": Publication.objects.published().order_by(
-            "-publication_date", "-paper_nr"
-        )[:3],
-        "current_sponsors": Organization.objects.current_sponsors().order_by("?")[:2],
-    }
-    return render(request, "scipost/index.html", context)
-
-
 def portal(request):
     if request.GET.get("field", None):
         if request.GET["field"] != request.session["session_acad_field_slug"]:
