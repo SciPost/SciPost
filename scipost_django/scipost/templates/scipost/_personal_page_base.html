@@ -1,0 +1,15 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+          <a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal Page</a>
+        {% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block container_class %}{{ block.super }} pb-5{% endblock container_class %}
