@@ -9,7 +9,7 @@
 >
   <ul class="list list-unstyled">
     {% for sponsor in current_sponsors %}
-      {% if sponsor.logos %}
+      {% if sponsor.logos and sponsor.logo %}
 	<li class="p-2">
 	  <picture>
 	    {% for source in sponsor.logos.all %}
