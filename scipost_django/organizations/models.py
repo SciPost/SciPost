@@ -137,6 +137,7 @@ class Organization(models.Model):
     )
     # Calculated fields (to save CPU; field name always starts with cf_)
     cf_associated_publication_ids = models.JSONField(
+        blank=True,
         default=dict,
         help_text="NB: calculated field. Do not modify.",
     )
@@ -146,10 +147,12 @@ class Organization(models.Model):
         help_text="NB: calculated field. Do not modify.",
     )
     cf_balance_info = models.JSONField(
+        blank=True,
         default=dict,
         help_text="NB: calculated field. Do not modify.",
     )
     cf_expenditure_for_publication = models.JSONField(
+        blank=True,
         default=dict,
         help_text="NB: calculated field. Do not modify.",
     )
