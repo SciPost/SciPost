@@ -876,6 +876,8 @@ def pool(request, identifier_w_vn_nr=None):
     return render(request, "submissions/pool/pool.html", context)
 
 
+@login_required
+@fellowship_or_admin_required()
 def pool_hx_submissions_list(request):
     form = SubmissionPoolSearchForm(request.POST or None, user=request.user)
     if form.is_valid():
@@ -889,6 +891,8 @@ def pool_hx_submissions_list(request):
     return render(request, "submissions/pool/hx_submissions_list.html", context)
 
 
+@login_required
+@fellowship_or_admin_required()
 def pool_hx_submission_details(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission.objects.pool_editable(request.user),
