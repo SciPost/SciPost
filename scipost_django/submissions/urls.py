@@ -225,6 +225,11 @@ urlpatterns = [
     # Pool
     path("pool", views.pool, name="pool"),
     path(
+        "pool/<identifier:identifier_w_vn_nr>/",
+        views.pool,
+        name="pool",
+    ),
+    path(
         "pool/submissions",
         views.pool_hx_submissions_list,
         name="pool_hx_submissions_list",

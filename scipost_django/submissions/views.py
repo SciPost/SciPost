@@ -851,7 +851,7 @@ def editorial_workflow(request):
 
 @login_required
 @fellowship_or_admin_required()
-def pool(request):
+def pool(request, identifier_w_vn_nr=None):
     """
     Listing of Submissions for purposes of editorial handling.
     """
@@ -863,15 +863,15 @@ def pool(request):
     assignments_to_consider = EditorialAssignment.objects.invited().filter(
         to=request.user.contributor
     )
-
+    initial = {"status": STATUS_UNASSIGNED}
+    if identifier_w_vn_nr:
+        initial = {"identifier": identifier_w_vn_nr}
     context = {
         "nr_potfels_to_vote_on": nr_potfels_to_vote_on,
         "recs_to_vote_on": recs_to_vote_on,
         "recs_current_voted": recs_current_voted,
         "assignments_to_consider": assignments_to_consider,
-        "form": SubmissionPoolSearchForm(
-            initial={"status": STATUS_UNASSIGNED}, user=request.user
-        ),
+        "form": SubmissionPoolSearchForm(initial=initial, user=request.user),
     }
     return render(request, "submissions/pool/pool.html", context)
 
