@@ -2,10 +2,10 @@
 
 <p>Please find below a summary of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention on any point in need of attention. Your good work as an Editorial Fellow is greatly appreciated!</p>
 
-{% if nr_potfels_to_vote_on > 0 %}
+{% if nr_nominations_to_vote_on > 0 %}
 <br/>
 <h3>Nominations to the Editorial College</h3>
-<p>You have {{ nr_potfels_to_vote_on }} nomination{{ nr_potfels_to_vote_on|pluralize }} to vote on, please visit the <a href="https://{{ domain }}{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a> page to cast your vote{{ nr_potfels_to_vote_on|pluralize }}.</p>
+<p>You have {{ nr_nominations_to_vote_on }} nomination{{ nr_nominations_to_vote_on|pluralize }} to vote on, please visit the <a href="https://{{ domain }}{% url 'colleges:nominations' %}">Nominations</a> page to cast your vote{{ nr_nominations_to_vote_on|pluralize }}.</p>
 {% endif %}
 
 {% if recs_to_vote_on %}

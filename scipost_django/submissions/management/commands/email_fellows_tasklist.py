@@ -6,9 +6,8 @@ from django.core.management import BaseCommand
 
 from ...models import EICRecommendation
 
-from colleges.models import PotentialFellowship
+from colleges.models import Fellowship, FellowshipNominationVotingRound
 from mails.utils import DirectMailUtil
-from colleges.models import Fellowship
 
 
 class Command(BaseCommand):
@@ -21,9 +20,10 @@ class Command(BaseCommand):
         count = 0
 
         for fellowship in fellowships:
-            nr_potfels_to_vote_on = PotentialFellowship.objects.to_vote_on(
-                fellowship.contributor
-            ).count()
+            nr_nominations_to_vote_on = FellowshipNominationVotingRound.objects.ongoing(
+                ).filter(
+                    eligible_to_vote=fellowship
+                ).exclude(votes__fellow=fellowship).count()
             recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(
                 fellowship.contributor.user
             )
@@ -49,7 +49,7 @@ class Command(BaseCommand):
                     delayed_processing=False,
                     object=fellowship.contributor,
                     fellow=fellowship.contributor,
-                    nr_potfels_to_vote_on=nr_potfels_to_vote_on,
+                    nr_nominations_to_vote_on=nr_nominations_to_vote_on,
                     recs_to_vote_on=recs_to_vote_on,
                     assignments_ongoing=assignments_ongoing,
                     assignments_to_consider=assignments_to_consider,
