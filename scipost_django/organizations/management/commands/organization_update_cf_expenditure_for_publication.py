@@ -10,19 +10,19 @@ from organizations.models import Organization
 class Command(BaseCommand):
     help = (
         "For all Organization model instances, "
-        "this updates the calculated field cf_expenditures_for_publication"
+        "this updates the calculated field cf_expenditure_for_publication"
     )
 
     def handle(self, *args, **kwargs):
         for org in Organization.objects.all():
             for publication in org.get_publications():
-                org.cf_expenditures_for_publication[
+                org.cf_expenditure_for_publication[
                     publication.doi_label
-                ] = org.expenditures_for_publication(publication.doi_label)
+                ] = org.expenditure_for_publication(publication.doi_label)
                 org.save()
             org.update_cf_nr_associated_publications()
         self.stdout.write(
             self.style.SUCCESS(
-                "Successfully updated Organization:cf_expenditures_for_publication."
+                "Successfully updated Organization:cf_expenditure_for_publication."
             )
         )
