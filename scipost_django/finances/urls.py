@@ -17,6 +17,16 @@ urlpatterns = [
         name="business_model",
     ),
     path("apex", views.apex, name="apex"),
+    path(
+        "country_level_data",
+        views.country_level_data,
+        name="country_level_data",
+    ),
+    path(
+        "_hx_country_level_data/<slug:country>",
+        views._hx_country_level_data,
+        name="_hx_country_level_data",
+    ),
     # Subsidies
     path("subsidies/", views.SubsidyListView.as_view(), name="subsidies"),
     path("subsidies/add/", views.SubsidyCreateView.as_view(), name="subsidy_create"),

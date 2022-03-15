@@ -92,7 +92,11 @@
 	{% for code in countrycodes %}
 	  {% get_country code as country_obj %}
 	  <li style="display: inline-block;">
-	    <a href="{% add_get_parameters country=code %}"><i class="{{ country_obj.flag_css }}" data-bs-toggle="tooltip" title="{{ country_obj.name }}"></i></a>
+	    <a href="{% add_get_parameters country=code %}">
+	      <i class="{{ country_obj.flag_css }}"
+		 data-bs-toggle="tooltip"
+		 title="{{ country_obj.name }}"></i>
+	    </a>
 	  </li>
 	{% endfor %}
       </ul>

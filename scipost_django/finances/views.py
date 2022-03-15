@@ -167,6 +167,51 @@ def apex(request):
     return render(request, "finances/apex.html", context)
 
 
+def country_level_data(request):
+    context = {}
+    context["countrycodes"] = [
+        code["country"]
+        for code in list(
+                Organization.objects.all().distinct("country").values("country")
+        )
+    ]
+    return render(request, "finances/country_level_data.html", context)
+
+
+def _hx_country_level_data(request, country):
+    organizations = Organization.objects.filter(country=country)
+    pubyears = [str(y) for y in range(int(timezone.now().strftime("%Y")), 2015, -1)]
+    context = {
+        "country": country,
+        "organizations": organizations,
+        "cumulative": {"contribution": 0, "expenditures": 0, "balance": 0},
+        "per_year": {}
+    }
+    for year in pubyears:
+        context["per_year"][year] = {
+            "contribution": 0,
+            "expenditures": 0,
+            "balance": 0,
+        }
+    cumulative_expenditures = 0
+    for organization in organizations.all():
+        for key in ("contribution", "expenditures", "balance"):
+            context["cumulative"][
+                key
+            ] += organization.cf_balance_info["cumulative"][key]
+        for year in pubyears:
+            context["per_year"][year]["contribution"] += (
+                organization.cf_balance_info[year]["contribution"]
+            )
+            context["per_year"][year]["expenditures"] += (
+                organization.cf_balance_info[year]["expenditures"]["total"]
+            )
+            context["per_year"][year]["balance"] += (
+                organization.cf_balance_info[year]["balance"]
+            )
+    return render(request, "finances/_hx_country_level_data.html", context)
+
+
 #############
 # Subsidies #
 #############
