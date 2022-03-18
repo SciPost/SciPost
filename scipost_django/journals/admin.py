@@ -82,6 +82,7 @@ class OrgPubFractionInline(admin.TabularInline):
 
 
 class PublicationAdmin(admin.ModelAdmin):
+    exclude = ["cf_citation", "cf_author_affiliation_indices_list"]
     search_fields = ["title", "author_list", "doi_label"]
     list_display = [
         "title",
