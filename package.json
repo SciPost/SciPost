@@ -62,7 +62,7 @@
     "mem": "^6.0.0",
     "mini-css-extract-plugin": "^1.6.2",
     "nan": "^2.15.0",
-    "npm": "^6.14.13",
+    "npm": "^8.5.5",
     "npm-install-peers": "^1.2.2",
     "postcss": "^8.3.9",
     "qrcode": "^1.4.4",
