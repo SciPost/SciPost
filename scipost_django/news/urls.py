@@ -37,6 +37,11 @@ urlpatterns = [
     ),
     path("newsitem/add/", views.NewsItemCreateView.as_view(), name="newsitem_create"),
     path(
+        "newsitem/<int:pk>/",
+        views.NewsItemDetailView.as_view(),
+        name="newsitem_detail",
+    ),
+    path(
         "newsitem/<int:pk>/update/",
         views.NewsItemUpdateView.as_view(),
         name="newsitem_update",

@@ -1,0 +1,21 @@
+{% extends 'news/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: News Item{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">{{ object.headline|truncatechars:20 }}</span>
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">News Item</h1>
+      {% include 'news/news_card_content.html' with news=object %}
+    </div>
+  </div>
+{% endblock content %}

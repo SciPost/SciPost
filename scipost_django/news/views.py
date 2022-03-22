@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
@@ -115,6 +116,10 @@ class NewsItemCreateView(PermissionsMixin, CreateView):
     form_class = NewsItemForm
     template_name = "news/newsitem_create.html"
     success_url = reverse_lazy("news:news")
+
+
+class NewsItemDetailView(DetailView):
+    model = NewsItem
 
 
 class NewsItemUpdateView(PermissionsMixin, UpdateView):

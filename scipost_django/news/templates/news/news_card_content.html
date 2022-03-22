@@ -1,6 +1,6 @@
 <div class="p-3 mb-3 bg-light news-item scipost-bar" id="news_{{ news.id }}">
   <h3 class="title">{{ news.headline }}</h3>
-  <h5 class="sub-title">{{ news.date|date:'j F Y' }}</h5>
+  <h5 class="sub-title">{{ news.date|date:'j F Y' }}&emsp;<a href="{{ news.get_absolute_url }}">{% include 'bi/link.html' %}</a></h5>
   {% if news.image %}
     <div class="row">
       <div class="col-sm-3 col-lg-2">

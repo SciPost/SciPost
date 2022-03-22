@@ -60,7 +60,7 @@ class NewsItem(models.Model):
         return self.date.strftime("%Y-%m-%d") + ", " + self.headline
 
     def get_absolute_url(self):
-        return reverse("news:news") + "#news_" + str(self.id)
+        return reverse("news:newsitem_detail", kwargs={"pk": self.id})
 
 
 class NewsLetterNewsItemsTable(models.Model):
