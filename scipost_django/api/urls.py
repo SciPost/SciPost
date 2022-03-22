@@ -6,6 +6,10 @@ from django.urls import include, path
 
 from rest_framework import routers
 
+
+# colleges
+from colleges.api.viewsets import FellowshipPublicAPIViewSet
+
 # journals
 from journals.api.viewsets import (
     PublicationPublicAPIViewSet,
@@ -50,6 +54,10 @@ router.register("search/submissions", SubmissionPublicSearchAPIViewSet)
 #############################
 # publicly-accessible routes
 #############################
+
+# colleges
+router.register("colleges/fellowships", FellowshipPublicAPIViewSet)
+
 
 # journals
 router.register("publications", PublicationPublicAPIViewSet)
