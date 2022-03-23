@@ -56,7 +56,12 @@ module.exports = {
                 test: /\.(scss|css)$/,
 	    	use: [
 		    'vue-style-loader',
-		    'style-loader',
+		    {
+			loader: 'style-loader',
+			options: {
+			    esModule: false,
+			},
+		    },
 		    'css-loader',
 		    {
 			loader: 'postcss-loader',
