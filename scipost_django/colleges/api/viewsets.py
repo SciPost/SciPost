@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from rest_framework.permissions import AllowAny
+
 from api.viewsets.base import ExtraFilteredReadOnlyModelViewSet
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
@@ -14,6 +16,9 @@ class FellowshipPublicAPIViewSet(
     FilteringOptionsActionMixin, ExtraFilteredReadOnlyModelViewSet
 ):
     queryset = Fellowship.objects.all()
+    permission_classes = [
+        AllowAny,
+    ]
     serializer_class = FellowshipPublicAPISerializer
     search_fields = [
         "first_name",
