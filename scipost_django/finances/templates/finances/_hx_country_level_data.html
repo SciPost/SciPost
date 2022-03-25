@@ -37,6 +37,7 @@
   <thead>
     <tr>
       <th></th>
+      <th></th>
       <th style="text-align: right;">Contribution</th>
       <th style="text-align: right;">Expenditures</th>
       <th style="text-align: right;">Balance</th>
@@ -45,6 +46,7 @@
   <tbody>
     <tr class="bg-light">
       <td>Total</td>
+      <td></td>
       <td style="text-align: right;">{{ cumulative.contribution }}</td>
       <td style="text-align: right;">{{ cumulative.expenditures }}</td>
       <td style="text-align: right;">{{ cumulative.balance }}</td>
@@ -53,6 +55,7 @@
       {% if organization.cf_balance_info.cumulative.contribution > 0 or organization.cf_balance_info.cumulative.expenditures > 0 %}
 	<tr>
 	  <td><a href="https://{{ request.get_host }}{{ organization.get_absolute_url }}">{{ organization }}</a></td>
+	  <td>{{ organization.get_orgtype_display }}</td>
 	  <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.contribution }}</td>
 	  <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.expenditures }}</td>
 	  <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.balance }}</td>
