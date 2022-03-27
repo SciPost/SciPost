@@ -37,6 +37,12 @@ class PublicationPublicAPIFilterSet(df_filters.FilterSet):
             "topics__name": [
                 "icontains",
             ],
+            "authors__affiliations__name": [
+                "icontains",
+            ],
+            "authors__affiliations__country": [
+                "exact",
+            ],
         }
 
 
@@ -69,5 +75,11 @@ class PublicationPublicSearchAPIFilterSet(df_filters.FilterSet):
             ],
             "topics__name": [
                 "icontains",
+            ],
+            "authors__affiliations__name": [
+                "icontains",
+            ],
+            "authors__affiliations__country": [
+                "iexact",
             ],
         }

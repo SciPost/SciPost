@@ -7,8 +7,9 @@
   <thead>
     <tr>
       <th></th>
-      <th style="text-align: right;">Publications count</th>
-      <th style="text-align: right;">Authorships count</th>
+      <th style="text-align: right;">Publications</th>
+      <th style="text-align: right;">Authorships</th>
+      <th style="text-align: right;">Authors (distinct)</th>
     </tr>
   </thead>
   <tbody>
@@ -16,12 +17,14 @@
       <td>Cumulative</td>
       <td style="text-align: right;">{{ cumulative.publications_count }}</td>
       <td style="text-align: right;">{{ cumulative.authorships_count }}</td>
+      <td style="text-align: right;">{{ cumulative.authors_count }}</td>
     </tr>
     {% for year, val in per_year.items %}
       <tr>
 	<td>{{ year }}</td>
 	<td style="text-align: right;">{{ val.publications_count }}</td>
 	<td style="text-align: right;">{{ val.authorships_count }}</td>
+	<td style="text-align: right;">{{ val.authors_count }}</td>
       </tr>
     {% endfor %}
   </tbody>

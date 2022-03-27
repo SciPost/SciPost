@@ -32,15 +32,16 @@ def _hx_country_level_authorships(request, country):
         "cumulative": {
             "publications_count": publications.count(),
             "authorships_count": authorships.count(),
+            "authors_count": authorships.values_list("profile").distinct().count(),
         },
         "per_year": {}
     }
     for year in pubyears:
+        authorships_year = authorships.filter(publication__publication_date__year=year)
         context["per_year"][year] = {
             "publications_count": publications.filter(publication_date__year=year).count(),
-            "authorships_count": authorships.filter(
-                publication__publication_date__year=year
-            ).count(),
+            "authorships_count": authorships_year.count(),
+            "authors_count": authorships_year.values_list("profile").distinct().count(),
         }
     return render(request, "stats/_hx_country_level_authorships.html", context)
 

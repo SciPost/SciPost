@@ -26,4 +26,4 @@ class ExtraFilteredReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
                             querydict["%s__%s" % (field, lookup)] = param
                             query = query | Q(**querydict)
                         queryset = queryset.filter(query)
-        return queryset
+        return queryset.distinct()
