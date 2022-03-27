@@ -25,5 +25,15 @@ urlpatterns = [
         views.statistics,
         name="statistics",
     ),
+    path(
+        "country_level_authorships",
+        views.country_level_authorships,
+        name="country_level_authorships",
+    ),
+    path(
+        "_hx_country_level_authorships/<slug:country>",
+        views._hx_country_level_authorships,
+        name="_hx_country_level_authorships",
+    ),
     path("statistics", views.statistics, name="statistics"),
 ]

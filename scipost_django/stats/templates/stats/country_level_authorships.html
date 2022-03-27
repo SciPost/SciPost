@@ -1,0 +1,44 @@
+{% extends 'scipost/base.html' %}
+
+{% load countries %}
+{% load static %}
+
+{% block meta_description %}{{ block.super }} authorship info{% endblock meta_description %}
+{% block pagetitle %}: authorship info{% endblock pagetitle %}
+
+{% block headsup %}
+  <link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
+{% endblock headsup %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h2>Country-Level Authorship Data</h2>
+
+      <div class="row mt-4">
+	<div class="col-lg-3">
+	  <h3>Click on flag to view that country's data</h3>
+	</div>
+	<div class="col-lg-8">
+	  <ul>
+	    {% for code in countrycodes %}
+	      {% get_country code as country_obj %}
+	      <li style="display: inline-block;" class="m-1">
+		<a hx-get="{% url 'stats:_hx_country_level_authorships' country=code %}"
+		   hx-target="#country_data"
+		>
+		  <i class="{{ country_obj.flag_css }}"
+		     data-bs-toggle="tooltip"
+		     title="{{ country_obj.name }}"></i>
+		</a>
+	      </li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+
+      <div id="country_data" class="mt-4"></div>
+
+    </div>
+  </div>
+{% endblock content %}
