@@ -1075,7 +1075,7 @@ def personal_page_hx_edadmin(request):
         ).exists()
         or request.user.is_superuser
     )
-    permission = permission or request.user.contributor.is_active_fellow()
+    permission = permission or request.user.contributor.is_active_fellow
     if not permission:
         raise PermissionDenied
     context = {}
