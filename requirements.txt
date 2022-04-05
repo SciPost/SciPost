@@ -6,7 +6,7 @@ feedparser~=6.0.8     # Check: not updated since 2016. [JdW, 2021-09-25] Upgrade
 psycopg2==2.8.6	  		# 2020-09-19 PostgreSQL engine
 pytz==2021.1          # 2021-07-15 Timezone package
 # djangorestframework==3.9.3	# DEPREC, see next entry -- 2019-12-05  IMPORTANT: update templates/rest_framework/base.html if corresponding file rest_framework/templates/rest_framework/base.html has changed
-git+git://github.com/SciPost/django-rest-framework.git@bootstrap-v5
+git+https://github.com/SciPost/django-rest-framework.git@bootstrap-v5
 requests==2.25.1      # 2021-05-21
 pyotp==2.2.7
 mock==2.0.0

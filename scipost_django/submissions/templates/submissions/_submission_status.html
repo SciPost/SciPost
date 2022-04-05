@@ -8,7 +8,7 @@
     <div class="status">
       <span class="label label-secondary">{{ submission.get_status_display }}</span>
     </div>
-    {% if submission.editorial_decision %}
+    {% if submission.editorial_decision and submission.editorial_decision.status != submission.editorial_decision.DEPRECATED %}
       <p>
 	Editorial decision:
 	<span class="label label-secondary">For Journal {{ submission.editorial_decision.for_journal }}: {{ submission.editorial_decision.get_decision_display }}</span>
