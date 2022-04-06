@@ -817,10 +817,10 @@ class SciPostLoginView(LoginView):
         """Add items to session variables."""
         self.request.session["session_acad_field_slug"] = (
             self.request.user.contributor.profile.acad_field.slug
-            if self.request.user.contributor.profile.acad_field
+            if self.request.user.contributor and self.request.user.contributor.profile.acad_field
             else ""
         )
-        if self.request.user.contributor.fellowships.active():
+        if self.request.user.contributor and self.request.user.contributor.fellowships.active():
             self.request.session["session_fellowship_id"] = (
                 self.request.user.contributor.fellowships.active().first().id
             )
