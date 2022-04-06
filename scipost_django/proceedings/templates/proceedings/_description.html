@@ -1,11 +1,11 @@
 {% if proceedings.cover_image %}
   <div class="row">
-    <div class="col-lg-9">
+    <div class="col-md-10">
 {% endif %}
 
 {% if proceedings.logo %}
   <div class="row">
-    <div class="col-10">
+    <div class="col-md-10">
 {% endif %}
 <h3>{{ proceedings.event_name }} {% if proceedings.event_suffix %}({{ proceedings.event_suffix }}){% endif %}</h3>
 <div class="mb-4">
@@ -13,15 +13,15 @@
 </div>
 {% if proceedings.logo %}
     </div>
-    <div class="col-lg-2">
-      <img class="d-flex me-3" src="{{ proceedings.logo.url }}" alt="logo"/>
+    <div class="col-md-2">
+      <img style="max-width: 100%;" class="d-flex me-3" src="{{ proceedings.logo.url }}" alt="logo"/>
     </div>
   </div>
 {% endif %}
 <p>{{ proceedings.event_description|safe|linebreaksbr }}</p>
 {% if proceedings.picture %}
   <figure class="mx-4 my-2">
-    <img src="{{ proceedings.picture.url }}" alt="picture"/>
+    <img style="max-width: 100%;" src="{{ proceedings.picture.url }}" alt="picture"/>
     {% if proceedings.picture_credit %}<figcaption>{{ proceedings.picture_credit }}</figcaption>{% endif %}
   </figure>
   <br>
@@ -48,9 +48,8 @@
 
 {% if proceedings.cover_image %}
     </div>
-    <div class="col-lg-1"></div>
-    <div class="col-lg-2">
-      <img class="d-flex me-3" src="{{ proceedings.cover_image.url }}" alt="cover_image"/>
+    <div class="col-md-2">
+      <img style="max-width: 100%;" class="d-flex me-3" src="{{ proceedings.cover_image.url }}" alt="cover_image"/>
     </div>
   </div>
 {% endif %}
