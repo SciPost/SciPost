@@ -1198,7 +1198,7 @@ class SubmissionForm(forms.ModelForm):
             )
 
         if "Codeb" in cleaned_data["submitted_to"].doi_label:
-            if not cleaned_data["code_repository_url"]:
+            if not ("code_repository_url" in cleaned_data and cleaned_data["code_repository_url"]):
                 msg = (
                     "You must specify a code repository if you submit to %s"
                     % cleaned_data["submitted_to"].name
