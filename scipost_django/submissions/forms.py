@@ -2246,7 +2246,10 @@ class EICRecommendationForm(forms.ModelForm):
         widgets = {
             "remarks_for_authors": forms.Textarea(
                 {
-                    "placeholder": "Your general remarks for the authors",
+                    "placeholder": (
+                        "Your remarks for the authors. If you recommend to accept or reject, will"
+                        " only be seen after the college vote concludes."
+                    ),
                     "rows": 10,
                 }
             ),
@@ -2261,8 +2264,9 @@ class EICRecommendationForm(forms.ModelForm):
             "remarks_for_editorial_college": forms.Textarea(
                 {
                     "placeholder": (
-                        "If you recommend to accept or refuse, the Editorial College "
-                        "will vote; write any relevant remarks for the EC here."
+                        "If you recommend to accept or reject the manuscript, the Editorial College"
+                        " will vote. Summarize the reasons for your recommendation. Focus especially"
+                        " on the aspects that do not directly follow from the referee reports."
                     ),
                 }
             ),
@@ -2333,6 +2337,13 @@ class EICRecommendationForm(forms.ModelForm):
                 raise forms.ValidationError(
                     "If you recommend Publish, please also provide a Tier."
                 )
+        if (
+            cleaned_data["recommendation"] in (EIC_REC_PUBLISH, EIC_REC_REJECT)
+            and len(cleaned_data["remarks_for_editorial_college"]) < 10
+        ):
+            raise forms.ValidationError(
+                "You must substantiate your recommendation to accept or reject the manuscript."
+            )
 
     def save(self):
         # If the cycle hadn't been chosen, set it to the DirectCycle
