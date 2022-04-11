@@ -38,11 +38,10 @@
       <div id="journals_journals" class="collapse" role="tabpanel">
         <p>The following Journals are currently being offered:</p>
         <ul>
-          <li>SciPost Physics</li>
-          <li>SciPost Physics Lecture Notes</li>
-          <li>SciPost Physics Proceedings</li>
+	  {% for journal in journals.active.all %}
+	    <li>{{ journal.name }}</li>
+	  {% endfor %}
         </ul>
-        <p>These Journals cover all domains and subject areas within the field of Physics.</p>
       </div>
     </div>
 
