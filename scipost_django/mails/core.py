@@ -7,10 +7,11 @@ import re
 import inspect
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.template.loader import get_template
+
+from common.utils import get_current_domain
 
 from .exceptions import ConfigurationError
 
@@ -68,7 +69,7 @@ class MailEngine:
         }
         self.template_variables = kwargs
         # Add the 'domain' template variable to all templates using the Sites framework:
-        self.template_variables["domain"] = Site.objects.get_current().domain
+        self.template_variables["domain"] = get_current_domain()
 
     def __repr__(self):
         return '<%(cls)s code="%(code)s", validated=%(validated)s sent=%(sent)s>' % {
@@ -130,14 +131,14 @@ class MailEngine:
             % (
                 self.mail_data.get("from_name", "SciPost"),
                 self.mail_data.get(
-                    "from_email", "noreply@%s" % Site.objects.get_current().domain
+                    "from_email", "noreply@%s" % get_current_domain()
                 ),
             ),
             self.mail_data["recipient_list"],
             bcc=self.mail_data["bcc"],
             reply_to=[
                 self.mail_data.get(
-                    "from_email", "noreply@%s" % Site.objects.get_current().domain
+                    "from_email", "noreply@%s" % get_current_domain()
                 )
             ],
             headers={
@@ -280,7 +281,7 @@ class MailEngine:
             return entry
         # if the email address is given as a prefix of the form `[recipient]@`, add domain name:
         elif re.match("[^@]+@$", entry):
-            return "%s%s" % (entry, Site.objects.get_current().domain)
+            return "%s%s" % (entry, get_current_domain())
         elif self.template_variables["object"]:
             mail_to = self.template_variables["object"]
             for attr in entry.split("."):

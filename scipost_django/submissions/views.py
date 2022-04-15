@@ -20,7 +20,6 @@ from django.contrib.auth.mixins import (
     UserPassesTestMixin,
 )
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import transaction, IntegrityError
@@ -115,7 +114,7 @@ from colleges.permissions import (
 )
 from comments.forms import CommentForm
 from common.helpers import get_new_secrets_key
-from common.utils import workdays_between
+from common.utils import get_current_domain, workdays_between
 from invitations.constants import STATUS_SENT
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication
@@ -792,7 +791,7 @@ def report_pdf_compile(request, report_id):
         messages.success(request, "Upload complete.")
         return redirect(reverse("submissions:reports_accepted_list"))
     context = {
-        "domain": Site.objects.get_current().domain,
+        "domain": get_current_domain(),
         "report": report,
         "form": form,
     }
@@ -828,7 +827,7 @@ def treated_submission_pdf_compile(request, identifier_w_vn_nr):
         messages.success(request, "Upload complete.")
         return redirect(reverse("submissions:treated_submissions_list"))
     context = {
-        "domain": Site.objects.get_current().domain,
+        "domain": get_current_domain(),
         "submission": submission,
         "form": form,
     }

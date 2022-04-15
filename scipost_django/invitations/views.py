@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.sites.models import Site
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy, reverse
@@ -29,6 +28,7 @@ from .models import RegistrationInvitation, CitationNotification
 
 from scipost.models import Contributor
 from scipost.mixins import PaginationMixin, PermissionsMixin
+from common.utils import get_current_domain
 from mails.views import MailFormView
 
 
@@ -223,7 +223,7 @@ class RegistrationInvitationsUpdateView(
     def get_mail_config(self):
         config = super().get_mail_config()
         if self.object.invitation_type == INVITATION_EDITORIAL_FELLOW:
-            domain = Site.objects.get_current().domain
+            domain = get_current_domain()
             config["from_email"] = f"jscaux@{domain}"
             config["from_name"] = "J-S Caux"
         return config
@@ -282,7 +282,7 @@ class RegistrationInvitationsReminderView(
     def get_mail_config(self):
         config = super().get_mail_config()
         if self.object.invitation_type == INVITATION_EDITORIAL_FELLOW:
-            domain = Site.objects.get_current().domain
+            domain = get_current_domain()
             config["from_email"] = f"jscaux@{domain}"
             config["from_name"] = "J-S Caux"
         return config

@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 import datetime
 
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 
@@ -17,9 +16,9 @@ from .constants import (
 )
 
 from scipost.utils import EMAIL_FOOTER
-from common.utils import BaseMailUtil
+from common.utils import get_current_domain, BaseMailUtil
 
-domain = Site.objects.get_current().domain
+domain = get_current_domain()
 
 
 class SubmissionUtils(BaseMailUtil):

@@ -4,11 +4,11 @@ __license__ = "AGPL v3"
 
 import requests
 
-from django.contrib.sites.models import Site
 from django.urls import reverse
 from django.db import models
 from django.http import Http404
 
+from common.utils import get_current_domain
 from submissions.exceptions import PreprintDocumentNotFoundError
 
 
@@ -68,7 +68,7 @@ class Preprint(models.Model):
         """Return the absolute URL of the pdf for the meta tag for Google Scholar."""
         if self._file:  # means this is a SciPost-hosted preprint
             return "https://%s%s" % (
-                Site.objects.get_current().domain,
+                get_current_domain(),
                 self.get_absolute_url(),
             )
         elif self.is_arXiv:

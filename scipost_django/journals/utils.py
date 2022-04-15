@@ -2,20 +2,19 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 
-from common.utils import BaseMailUtil
+from common.utils import get_current_domain, BaseMailUtil
 
 
 class JournalUtils(BaseMailUtil):
-    mail_sender = "edadmin@%s" % Site.objects.get_current().domain
+    mail_sender = "edadmin@%s" % get_current_domain()
     mail_sender_title = "SciPost Editorial Admin"
 
     @classmethod
     def send_authors_paper_published_email(cls):
         """Requires loading 'publication' attribute."""
-        domain = Site.objects.get_current().domain
+        domain = get_current_domain()
         email_text = (
             "Dear "
             + cls.publication.accepted_submission.submitted_by.profile.get_title_display()

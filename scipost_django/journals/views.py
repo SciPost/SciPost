@@ -18,7 +18,6 @@ import plotly.graph_objects as pgo
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
@@ -79,6 +78,7 @@ from .services import update_citedby
 from .utils import JournalUtils
 
 from comments.models import Comment
+from common.utils import get_current_domain
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
 from mails.views import MailEditorSubview
@@ -1452,7 +1452,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
     For PublicationUpdates, the deposit type is `journal_article` and
     the journal is used as container.
     """
-    domain = Site.objects.get_current().domain
+    domain = get_current_domain()
 
     type_of_object = kwargs["type_of_object"]
     object_id = int(kwargs["object_id"])

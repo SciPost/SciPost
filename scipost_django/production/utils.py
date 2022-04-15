@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from guardian.shortcuts import assign_perm
 
-from common.utils import BaseMailUtil
+from common.utils import get_current_domain, BaseMailUtil
 
 
 def proofs_id_to_slug(id):
@@ -29,7 +29,7 @@ def get_or_create_production_stream(submission):
 
 
 class ProductionUtils(BaseMailUtil):
-    mail_sender = "proofs@%s" % Site.objects.get_current().domain
+    mail_sender = "proofs@%s" % get_current_domain()
     mail_sender_title = "SciPost Production"
 
     @classmethod

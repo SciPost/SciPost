@@ -12,7 +12,6 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.utils import timezone
@@ -45,6 +44,7 @@ from common.forms import ModelChoiceFieldwithid
 from colleges.models import Fellowship, PotentialFellowshipEvent
 from commentaries.models import Commentary
 from comments.models import Comment
+from common.utils import get_current_domain
 from funders.models import Grant
 from invitations.models import CitationNotification
 from journals.models import PublicationAuthorsTable, Publication
@@ -62,7 +62,7 @@ from submissions.models import (
 )
 from theses.models import ThesisLink
 
-domain = Site.objects.get_current().domain
+domain = get_current_domain()
 
 REGISTRATION_REFUSAL_CHOICES = (
     (None, "-"),

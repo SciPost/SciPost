@@ -125,16 +125,23 @@ def jatsify_tags(text):
     return jatsified
 
 
+def get_current_domain():
+    try:
+        return Site.objects.get_current().domain
+    except:
+        return "fake.domain"
+
+
 # MARKED FOR DEPRECATION
 class BaseMailUtil(object):
-    mail_sender = "no-reply@%s" % Site.objects.get_current().domain
+    mail_sender = "no-reply@%s" % get_current_domain()
     mail_sender_title = ""
 
     @classmethod
     def load(cls, _dict, request=None):
         cls._context = _dict
         cls._context["request"] = request
-        cls._context["domain"] = Site.objects.get_current().domain
+        cls._context["domain"] = get_current_domain()
         for var_name in _dict:
             setattr(cls, var_name, _dict[var_name])
 

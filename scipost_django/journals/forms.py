@@ -12,7 +12,6 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.db.models import Q
 from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
@@ -41,7 +40,7 @@ from .models import (
 from .utils import JournalUtils
 
 
-from common.utils import jatsify_tags
+from common.utils import get_current_domain, jatsify_tags
 from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
@@ -271,7 +270,7 @@ class CreateMetadataXMLForm(forms.ModelForm):
         # Render from template
         template = loader.get_template("xml/publication_crossref.html")
         context = {
-            "domain": Site.objects.get_current().domain,
+            "domain": get_current_domain(),
             "publication": publication,
             "doi_batch_id": doi_batch_id,
             "deposit_email": settings.CROSSREF_DEPOSIT_EMAIL,
@@ -649,7 +648,7 @@ class DraftPublicationForm(forms.ModelForm):
             paper_nr,
             issue.until_date.strftime("%Y"),
             doi_string,
-            Site.objects.get_current().domain,
+            get_current_domain(),
             doi_string,
         )
 
@@ -686,7 +685,7 @@ class DraftPublicationForm(forms.ModelForm):
             paper_nr,
             timezone.now().year,
             doi_string,
-            Site.objects.get_current().domain,
+            get_current_domain(),
             doi_string,
         )
         self.fields["BiBTeX_entry"].initial = bibtex_entry

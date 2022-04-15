@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 from django import forms
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
@@ -13,6 +12,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from scipost.models import Contributor
 from scipost.utils import build_absolute_uri_using_site
+from common.utils import get_current_domain
 
 from .models import ThesisLink
 from .helpers import past_years
@@ -124,7 +124,7 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
 
             thesislink.delete()
 
-        domain = Site.objects.get_current().domain
+        domain = get_current_domain()
         email = EmailMessage(
             subject_line,
             message_plain,

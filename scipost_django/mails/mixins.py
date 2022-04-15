@@ -10,11 +10,11 @@ from html2text import HTML2Text
 
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth import get_user_model
-from django.contrib.sites.models import Site
 from django.conf import settings
 from django.template import loader
 
 from scipost.models import Contributor
+from common.utils import get_current_domain
 
 
 class MailUtilsMixin:
@@ -59,7 +59,7 @@ class MailUtilsMixin:
             "bcc_to": kwargs.pop("bcc", ""),
             "from_address_name": kwargs.pop("from_name", "SciPost"),
             "from_address": kwargs.pop(
-                "from", "no-reply@%s" % Site.objects.get_current().domain
+                "from", "no-reply@%s" % get_current_domain()
             ),
         }
 

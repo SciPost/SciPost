@@ -2,13 +2,11 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.contrib.sites.models import Site
-
-from common.utils import BaseMailUtil
+from common.utils import get_current_domain, BaseMailUtil
 
 
 class Utils(BaseMailUtil):
-    mail_sender = "invitations@%s" % Site.objects.get_current().domain
+    mail_sender = "invitations@%s" % get_current_domain()
     mail_sender_title = "SciPost Invitation"
 
     @classmethod

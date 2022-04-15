@@ -2,9 +2,9 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.contrib.sites.models import Site
+from common.utils import get_current_domain
 
-domain = Site.objects.get_current().domain
+domain = get_current_domain()
 
 from common.utils import BaseMailUtil
 

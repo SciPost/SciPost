@@ -7,12 +7,13 @@ import random
 import string
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.template import loader
 from django.urls import reverse
+
+from common.utils import get_current_domain
 
 
 class PublicationUpdate(models.Model):
@@ -119,7 +120,7 @@ class PublicationUpdate(models.Model):
         # Render from template
         template = loader.get_template("xml/publication_update_crossref.html")
         context = {
-            "domain": Site.objects.get_current().domain,
+            "domain": get_current_domain(),
             "update": self,
             "doi_batch_id": doi_batch_id,
             "deposit_email": settings.CROSSREF_DEPOSIT_EMAIL,

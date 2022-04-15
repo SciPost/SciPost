@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django import forms
+from django.db.utils import ProgrammingError
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div
@@ -15,13 +16,16 @@ from .models import Branch, AcademicField, Specialty, Tag, Topic
 
 def academic_field_slug_choices():
     choices = (("All", (("all", "All"),)),)
-    for branch in Branch.objects.all():
-        if branch.name != "Multidisciplinary" and branch.journals.active().exists():
-            subchoices = ()
-            for acad_field in branch.academic_fields.all():
-                if acad_field.journals.active().exists():
-                    subchoices += ((acad_field.slug, acad_field.name),)
-            choices += ((branch.name, subchoices),)
+    try:
+        for branch in Branch.objects.all():
+            if branch.name != "Multidisciplinary" and branch.journals.active().exists():
+                subchoices = ()
+                for acad_field in branch.academic_fields.all():
+                    if acad_field.journals.active().exists():
+                        subchoices += ((acad_field.slug, acad_field.name),)
+                choices += ((branch.name, subchoices),)
+    except ProgrammingError: # when running on new, empty database
+        pass
     return choices
 
 

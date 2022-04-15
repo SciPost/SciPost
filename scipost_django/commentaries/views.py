@@ -5,7 +5,6 @@ __license__ = "AGPL v3"
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
@@ -30,6 +29,7 @@ from .forms import (
 
 from comments.models import Comment
 from comments.forms import CommentForm
+from common.utils import get_current_domain
 from journals.models import Publication
 from scipost.mixins import PaginationMixin
 
@@ -141,7 +141,7 @@ def vet_commentary_requests(request, commentary_id=None):
         request.POST or None, user=request.user, commentary_id=commentary_id
     )
     if form.is_valid():
-        domain = Site.objects.get_current().domain
+        domain = get_current_domain()
 
         # Get commentary
         commentary = form.get_commentary()
@@ -194,7 +194,7 @@ def modify_commentary_request(request, commentary_id):
     )
     form = RequestCommentaryForm(request.POST or None, instance=commentary)
     if form.is_valid():
-        domain = Site.objects.get_current().domain
+        domain = get_current_domain()
 
         # Process commentary data
         commentary = form.save(commit=False)

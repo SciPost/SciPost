@@ -3,13 +3,13 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import messages
-from django.contrib.sites.models import Site
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from .models import Webinar
 from .forms import WebinarRegistrationForm
 
+from common.utils import get_current_domain
 from mails.utils import DirectMailUtil
 
 
@@ -44,7 +44,7 @@ def webinar_register(request, slug):
             "webinars/webinar_registration_ack",
             delayed_processing=False,
             bcc=[
-                "admin@{domain}".format(domain=Site.objects.get_current().domain),
+                "admin@{domain}".format(domain=get_current_domain()),
             ],
             registration=registration,
         )

@@ -4,13 +4,13 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.contrib.sites.models import Site
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
+from common.utils import get_current_domain
 from mails.utils import DirectMailUtil
 
 from .models import JobOpening, JobApplication
@@ -85,7 +85,7 @@ class JobOpeningApplyView(CreateView):
             "careers/jobapplication_ack",
             delayed_processing=False,
             bcc=[
-                "admin@{domain}".format(domain=Site.objects.get_current().domain),
+                "admin@{domain}".format(domain=get_current_domain()),
             ],
             jobapplication=self.object,
         )

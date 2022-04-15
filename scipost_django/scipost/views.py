@@ -21,7 +21,6 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
 )
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
@@ -71,6 +70,7 @@ from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
 from comments.forms import CommentSearchForm
+from common.utils import get_current_domain
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication, PublicationAuthorsTable
@@ -666,7 +666,7 @@ def vet_registration_request_ack(request, contributor_id):
     form = VetRegistrationForm(request.POST or None)
     contributor = Contributor.objects.get(pk=contributor_id)
     if form.is_valid():
-        domain = Site.objects.get_current().domain
+        domain = get_current_domain()
         if form.promote_to_registered_contributor():
             contributor.status = NORMAL_CONTRIBUTOR
             contributor.vetted_by = request.user.contributor
@@ -1619,7 +1619,7 @@ def email_group_members(request):
     """
     form = EmailGroupMembersForm(request.POST or None)
     if form.is_valid():
-        domain = Site.objects.get_current().domain
+        domain = get_current_domain()
         group_members = (
             form.cleaned_data["group"]
             .user_set.filter(contributor__isnull=False)
@@ -1700,7 +1700,7 @@ def email_particular(request):
     if request.method == "POST":
         form = EmailParticularForm(request.POST)
         if form.is_valid():
-            domain = Site.objects.get_current().domain
+            domain = get_current_domain()
             email_text = form.cleaned_data["email_text"]
             email_text_html = "{{ email_text|linebreaks }}"
             email_context = {"email_text": form.cleaned_data["email_text"]}
@@ -1739,7 +1739,7 @@ def send_precooked_email(request):
     """
     form = SendPrecookedEmailForm(request.POST or None)
     if form.is_valid():
-        domain = Site.objects.get_current().domain
+        domain = get_current_domain()
         precookedEmail = form.cleaned_data["email_option"]
         if form.cleaned_data["email_address"] in precookedEmail.emailed_to:
             errormessage = "This message has already been sent to this address"

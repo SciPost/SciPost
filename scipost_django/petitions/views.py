@@ -7,11 +7,11 @@ import random
 import string
 
 from django.contrib import messages
-from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Context, Template
 
+from common.utils import get_current_domain
 from mails.utils import DirectMailUtil
 
 from .models import Petition, PetitionSignatory
@@ -49,7 +49,7 @@ def petition(request, slug):
         current_user=request.user,
     )
     if form.is_valid():
-        domain = Site.objects.get_current().domain
+        domain = get_current_domain()
         signature = form.save(commit=False)
         signature.petition = petition
         message = (

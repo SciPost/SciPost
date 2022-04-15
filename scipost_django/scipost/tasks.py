@@ -2,12 +2,12 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 
 from SciPost_v1.celery import app
+from common.utils import get_current_domain
 
-domain = Site.objects.get_current().domain
+domain = get_current_domain()
 
 
 @app.task(bind=True)
