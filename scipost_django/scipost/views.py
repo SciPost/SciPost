@@ -187,7 +187,7 @@ def portal_hx_home(request):
     if NewsItem.objects.homepage().exists():
         news_items = NewsItem.objects.homepage().order_by("-date")[:3]
     else:
-        news_item = NewsItem.objects.none()
+        news_items = NewsItem.objects.none()
     context = {
         "news_items": news_items,
         "publications": Publication.objects.published()
