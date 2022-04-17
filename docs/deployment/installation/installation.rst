@@ -254,6 +254,7 @@ command::
    (scipostenv) $ ./manage.py add_groups_and_permissions
 
 
+
 **********
 Run server
 **********
@@ -267,8 +268,22 @@ You are now ready to run the server::
 Contributors
 ************
 
-Users of the SciPost portal are known as Contributors and are created
+Users of the SciPost portal are known as Contributors and are usually created
 through the registration form accessible from the home page.
+
+========================================
+Finish setting up your first Contributor
+========================================
+
+After groups have been defined, you can finish setting up your first `Contributor` from your
+superuser created just above::
+
+  (scipostenv) $ ./manage.py setup_contributor --username=[username you used for the db su]
+
+
+==================
+Other Contributors
+==================
 
 You can create a number of users, and use the admin site to give them
 various permissions through memberships of certain groups. For example,
