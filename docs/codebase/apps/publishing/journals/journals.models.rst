@@ -10,6 +10,7 @@ Submodules
    journals.models.issue
    journals.models.journal
    journals.models.publication
+   journals.models.submission_template
    journals.models.update
    journals.models.volume
 

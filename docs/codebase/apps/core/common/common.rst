@@ -14,9 +14,9 @@ Submodules
 .. toctree::
 
    common.constants
+   common.converters
    common.forms
    common.utils
-   common.widgets
 
 Module contents
 ---------------

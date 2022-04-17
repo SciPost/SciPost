@@ -10,6 +10,7 @@ Submodules
    journals.management.commands.create_journals
    journals.management.commands.create_publications
    journals.management.commands.create_volumes
+   journals.management.commands.journal_update_cf_metrics
    journals.management.commands.repair_issue_path
 
 Module contents

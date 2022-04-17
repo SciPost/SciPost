@@ -17,6 +17,7 @@ Submodules
    comments.admin
    comments.behaviors
    comments.constants
+   comments.converters
    comments.factories
    comments.forms
    comments.managers

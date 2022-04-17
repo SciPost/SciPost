@@ -10,8 +10,10 @@ Submodules
    scipost.management.commands.check_celery
    scipost.management.commands.create_contributors
    scipost.management.commands.create_remarks
+   scipost.management.commands.export_Fellows
    scipost.management.commands.export_contributors
    scipost.management.commands.populate_db
+   scipost.management.commands.populate_faker_data
    scipost.management.commands.setup_contributor
 
 Module contents

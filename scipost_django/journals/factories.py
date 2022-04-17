@@ -63,7 +63,7 @@ class VolumeFactory(factory.django.DjangoModelFactory):
 class IssueFactory(factory.django.DjangoModelFactory):
     in_volume = factory.Iterator(Volume.objects.all())
     number = factory.LazyAttribute(lambda o: o.in_volume.issues.count() + 1)
-    doi_label = factory.LazyAttribute(lambda o: '%s.%i.format() % (o.in_volume.doi_label, o.number))
+    doi_label = factory.LazyAttribute(lambda o: '%s.%i' % (o.in_volume.doi_label, o.number))
 
     start_date = factory.LazyAttribute(lambda o: Faker().date_time_between(
         start_date=o.in_volume.start_date, end_date=o.in_volume.until_date, tzinfo=pytz.UTC))

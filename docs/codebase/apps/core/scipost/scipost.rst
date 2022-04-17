@@ -19,7 +19,7 @@ Submodules
    scipost.apps
    scipost.behaviors
    scipost.constants
-   scipost.converters
+   scipost.context_processors
    scipost.decorators
    scipost.factories
    scipost.feeds
@@ -32,6 +32,7 @@ Submodules
    scipost.permissions
    scipost.services
    scipost.signals
+   scipost.sso
    scipost.storage
    scipost.tasks
    scipost.totp

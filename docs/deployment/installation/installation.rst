@@ -37,6 +37,10 @@ You will need to create a database user. You can find many guides online on how 
 
     GRANT ALL PRIVILEGES ON DATABASE scipost_database TO scipost_db_user;
 
+* To enable testing, also give the `CREATEDB` permission to the user::
+
+    ALTER USER scipost_db_user CREATEDB;
+
 * Quit postgres session::
 
     \q

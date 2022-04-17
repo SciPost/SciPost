@@ -1,6 +1,13 @@
 ontology package
 ================
 
+Subpackages
+-----------
+
+.. toctree::
+
+   ontology.models
+
 Submodules
 ----------
 
@@ -8,8 +15,10 @@ Submodules
 
    ontology.admin
    ontology.constants
+   ontology.context_processors
+   ontology.converters
+   ontology.factories
    ontology.forms
-   ontology.models
    ontology.urls
    ontology.views
 

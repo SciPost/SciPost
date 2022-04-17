@@ -3033,8 +3033,7 @@ def submissions_processing_timescales(submissions, phase):
     """
     Generate a tuple containing information about timescales on submissions.
 
-    :params:
-    * phase: one of `screening`, `acceptance`
+    :param phase: one of `screening`, `acceptance`
 
     """
     timescales = []

@@ -19,7 +19,7 @@ import sys
 import django
 import sphinx_rtd_theme
 
-sys.path.insert(0, os.path.abspath(".."))
+sys.path.insert(0, os.path.abspath("../scipost_django"))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "SciPost_v1.settings.empty")
 

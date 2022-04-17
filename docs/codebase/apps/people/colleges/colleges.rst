@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
    colleges.management
+   colleges.models
    colleges.tests
 
 Submodules
@@ -17,12 +18,13 @@ Submodules
    colleges.admin
    colleges.apps
    colleges.constants
+   colleges.converters
    colleges.factories
    colleges.forms
    colleges.managers
-   colleges.models
    colleges.permissions
    colleges.urls
+   colleges.utils
    colleges.views
 
 Module contents

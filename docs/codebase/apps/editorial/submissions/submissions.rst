@@ -21,6 +21,7 @@ Submodules
    submissions.apps
    submissions.behaviors
    submissions.constants
+   submissions.converters
    submissions.exceptions
    submissions.factories
    submissions.forms
@@ -28,6 +29,7 @@ Submodules
    submissions.mixins
    submissions.plagiarism
    submissions.refereeing_cycles
+   submissions.regexes
    submissions.search_indexes
    submissions.services
    submissions.tasks

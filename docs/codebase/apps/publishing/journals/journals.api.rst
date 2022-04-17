@@ -1,14 +1,14 @@
 journals.api package
 ====================
 
-Submodules
-----------
+Subpackages
+-----------
 
 .. toctree::
 
+   journals.api.filtersets
    journals.api.serializers
-   journals.api.urls
-   journals.api.views
+   journals.api.viewsets
 
 Module contents
 ---------------

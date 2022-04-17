@@ -7,4 +7,3 @@ Communications
    mailing_lists/modules
    mails/modules
    news/modules
-   notifications/modules
