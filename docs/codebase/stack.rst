@@ -60,7 +60,7 @@ Besides this, we also use
 We self-host our code repositories by running
 
 * a `GitLab <https://gitlab.com/gitlab-org/gitlab>`_ instance
-  at `scipost-codebases.org <https://scipost-codebases.org>`_.
+  at `git.scipost.org <https://git.scipost.org>`_.
 
 See our :doc:`deployment documentation <../deployment/index>` for the complete details
 of how our services are brought to life.

@@ -76,6 +76,7 @@ we are building to turn our vision for the future of publishing into reality:
    team
    codebase/index
    deployment/index
+   workflows/index
 
 
 The SciPost codebase and this documentation are released under the terms of the
