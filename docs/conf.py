@@ -45,9 +45,15 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx_rtd_theme",
+    "sphinxcontrib.mermaid",
 ]
 
 autodoc_member_order = "bysource"
+
+mermaid_version = ""
+html_js_files = [
+   'js/mermaid.js',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
