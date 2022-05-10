@@ -327,6 +327,7 @@
 	    <table class="table">
 	      <tr>
 		<th>Name</th>
+		<th>Email</th>
 		<th>Kind</th>
 		<th>Date from</th>
 		<th>Date until</th>
@@ -338,6 +339,7 @@
 	      {% for contactrole in org.contactrole_set.all %}
 		<tr>
 		  <td>{{ contactrole.contact }}</td>
+		  <td>{{ contactrole.contact.user.email }}</td>
 		  <td>{{ contactrole.get_kind_display }}</td>
 		  <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
 		  <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
