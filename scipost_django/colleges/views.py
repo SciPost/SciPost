@@ -754,7 +754,12 @@ def _hx_voting_rounds(request):
     selected = request.GET.get("tab", "ongoing")
     tab_choices = []
     if request.user.contributor.is_ed_admin:
-        tab_choices += [("ongoing", "Ongoing"), ("closed", "Closed"),]
+        tab_choices += [
+            ("ongoing", "Ongoing"),
+            ("closed-pending", "Closed"),
+            ("closed-elected", "Closed (elected)"),
+            ("closed-notelected", "Closed (not elected)"),
+        ]
     elif request.user.contributor.is_active_fellow:
         tab_choices += [
             ("ongoing-vote_required", "Cast your vote (election ongoing)"),
@@ -767,6 +772,16 @@ def _hx_voting_rounds(request):
         voting_rounds = voting_rounds.ongoing()
     if "closed" in selected:
         voting_rounds = voting_rounds.closed()
+    if "-pending" in selected:
+        voting_rounds = voting_rounds.filter(decision__isnull=True)
+    if "-elected" in selected:
+        voting_rounds = voting_rounds.filter(
+            decision__outcome=FellowshipNominationDecision.OUTCOME_ELECTED
+        )
+    if "-notelected" in selected:
+        voting_rounds = voting_rounds.filter(
+            decision__outcome=FellowshipNominationDecision.OUTCOME_NOT_ELECTED
+        )
     if "vote_required" in selected:
         # show all voting rounds to edadmin; for Fellow, filter
         if not request.user.contributor.is_ed_admin:
