@@ -5,7 +5,7 @@
 
 {% if proceedings.logo %}
   <div class="row">
-    <div class="col-md-10">
+    <div class="col-md-8">
 {% endif %}
 <h3>{{ proceedings.event_name }} {% if proceedings.event_suffix %}({{ proceedings.event_suffix }}){% endif %}</h3>
 <div class="mb-4">
@@ -13,7 +13,7 @@
 </div>
 {% if proceedings.logo %}
     </div>
-    <div class="col-md-2">
+    <div class="col-md-4">
       <img style="max-width: 100%;" class="d-flex me-3" src="{{ proceedings.logo.url }}" alt="logo"/>
     </div>
   </div>
