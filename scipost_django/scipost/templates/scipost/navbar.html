@@ -28,6 +28,22 @@
 	  {% endif %}
 	</li>
 
+	{% if is_active_fellow %}
+	  <li class="nav-item" role="presentation">
+	    {% if request.path == '/' %}
+	      <button class="nav-link{% if request.GET.tab == 'tasklist' %} active{% endif %} border border-warning"
+		      id="tasklist-tab"
+		      data-bs-toggle="tab" data-bs-target="#tasklist"
+		      type="button" role="tab"
+		      aria-controls="tasklist" aria-selected="true">
+		Tasklist
+	      </button>
+	    {% else %}
+	      <a href="{% url 'scipost:index' %}?tab=tasklist">Tasklist</a>
+	    {% endif %}
+	  </li>
+	{% endif %}
+
 	<li class="nav-item" role="presentation">
 	  {% if request.path == '/' %}
 	    <button class="nav-link{% if request.GET.tab == 'journals' %} active{% endif %}"

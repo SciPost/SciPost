@@ -4,6 +4,8 @@
 {% load render_bundle from webpack_loader %}
 {% load get_files from webpack_loader %}
 
+{% load user_groups %}
+
 {% block basebundle %}
   {% render_bundle 'style' %}
   {% get_files 'base' as base_scripts %}
@@ -18,6 +20,8 @@
 {% block pagetitle %} Homepage{% endblock pagetitle %}
 
 {% block content %}
+
+  {% is_active_fellow request.user as is_active_fellow %}
 
   <div class="tab-content my-2" id="portalTabContent">
 
@@ -110,6 +114,18 @@
       >
       </div>
     </div>
+
+    {% if is_active_fellow %}
+      <div class="tab-pane portal-tab fade{% if request.GET.tab == 'tasklist' %} show active{% endif %}"
+	id="tasklist"
+	role="tabpanel" aria-labelledby="tasklist-tab">
+	<div hx-get="{% url 'scipost:portal_hx_tasklist' %}"
+	     hx-trigger="{% if request.GET.tab == 'tasklist' %}load, {% endif %}click delay:200ms from:#tasklist-tab"
+	     hx-push-url="{% url 'scipost:index' %}?tab=tasklist"
+	>
+	</div>
+      </div>
+    {% endif %}
 
   </div>
 

@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import (
@@ -65,7 +65,7 @@ from .forms import (
 from .mixins import PermissionsMixin, PaginationMixin
 from .utils import EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
-from colleges.permissions import fellowship_or_admin_required
+from colleges.permissions import fellowship_or_admin_required, is_edadmin_or_active_fellow
 from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
@@ -81,7 +81,13 @@ from organizations.decorators import has_contact
 from organizations.models import Organization, Contact
 from organizations.forms import UpdateContactDataForm
 from profiles.models import Profile
-from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
+from submissions.models import (
+    Submission,
+    RefereeInvitation,
+    Report,
+    EditorialAssignment,
+    EICRecommendation,
+)
 from submissions.forms import SubmissionSearchForm, ReportSearchForm
 from theses.models import ThesisLink
 from theses.forms import ThesisSearchForm
@@ -197,6 +203,23 @@ def portal_hx_home(request):
         )[:3],
     }
     return render(request, "scipost/portal/_hx_home.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin_or_active_fellow)
+def portal_hx_tasklist(request):
+    """Displays list of tasks for Fellows."""
+    context = {
+        "assignments_to_consider": EditorialAssignment.objects.invited().filter(
+            to=request.user.contributor
+        ),
+        "assignments_ongoing": request.user.contributor.editorial_assignments.ongoing(),
+        "recs_to_vote_on": EICRecommendation.objects.user_must_vote_on(request.user),
+        "recs_current_voted": EICRecommendation.objects.user_current_voted(
+            request.user
+        ),
+    }
+    return render(request, "scipost/portal/_hx_tasklist.html", context)
 
 
 def portal_hx_journals(request):

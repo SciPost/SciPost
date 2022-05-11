@@ -1,0 +1,117 @@
+<h1>Tasklist</h1>
+<p>Fellows: below you will find a list of pending tasks, with quick links to facilitate your work.</p>
+<p><span class="text-warning border border-danger p-2">{% include 'bi/cone-striped.html' %}&nbsp;in construction!</span> <em>This might not contain all your todo items.</em></p>
+
+{% if assignments_to_consider or assignments_ongoing %}
+  <div class="mt-5 p-4 border border-primary">
+    <h2>Assignments</h2>
+    {% if assignments_to_consider %}
+      <h3 class="highlight">Assignments for you to consider <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
+      <ul>
+	{% for assignment in assignments_to_consider %}
+	  <li>On submission: {{ assignment.submission }}<br>
+            <a class="btn btn-sm btn-primary" href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+	  </li>
+	{% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if assignments_ongoing %}
+      <h3 class="highlight">Ongoing assignments (you are Editor-in-charge)</h3>
+      <table class="table">
+	<thead>
+	  <tr>
+	    <th>Submission</th>
+	    <th>Refereeing deadline</th>
+	    <th>Required actions</th>
+	    <th></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for assignment in assignments_ongoing %}
+            <tr{% if assignment.submission.cycle.required_actions %} class="bg-warning"{% endif %}>
+	      <td>
+		{{ assignment.submission.title }}<br>
+		<em>by {{ assignment.submission.author_list }}</em>
+	      </td>
+	      <td>{{ assignment.submission.reporting_deadline|date:"Y-m-d" }}</td>
+	      <td>
+		<ul>
+		  {% for code, action in assignment.submission.cycle.required_actions.items %}
+                    <li>{{ action|safe }}</li>
+		  {% empty %}
+                    <li>No action required. Great job!</li>
+		  {% endfor %}
+		</ul>
+	      </td>
+	      <td>
+		<a class="btn btn-sm btn-primary" href="{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">{% include "bi/arrow-right.html" %}Editorial page</a>
+	      </td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+	    {% endif %}
+
+  </div>
+    {% endif %}
+
+    <div class="mt-5 p-4 border border-primary">
+      <h2>Voting</h2>
+      <h3 class="mt-5 highlight">Recommendations to vote on  <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
+      <table class="table">
+	<thead>
+	  <tr>
+	    <th>Submission</th>
+	    <th>Recommendation</th>
+	    <th>Voting deadline</th>
+	    <th></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for rec in recs_to_vote_on.all %}
+	    <tr>
+	      <td>{{ rec.submission }}</td>
+	      <td>{{ rec.get_recommendation_display }}</td>
+	      <td>{{ rec.voting_deadline|date:"Y-m-d" }}</td>
+	      <td><a class="btn btn-primary" href="{% url 'submissions:vote_on_rec' rec_id=rec.id %}" target="_blank">Vote</a></td>
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td colspan="4">You have no recommendations to vote on at the moment</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+      <h3 class="mt-5 highlight">Recommendations in voting (for which you have recently voted)</h3>
+      <table class="table">
+	<thead>
+	  <tr>
+	    <th>Submission</th>
+	    <th>Recommendation</th>
+	    <th>Voting deadline</th>
+	    <th></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for rec in recs_current_voted.all %}
+	    <tr>
+	      <td>
+		{{ rec.submission.title }}<br>
+		<em>by {{ rec.submission.author_list }}</em>
+	      </td>
+	      </td>
+	      <td>{{ rec.get_recommendation_display }}</td>
+	      <td>{{ rec.voting_deadline|date:"Y-m-d" }}</td>
+	      <td><a class="btn btn-sm btn-primary" href="{% url 'submissions:vote_on_rec' rec_id=rec.id %}" target="_blank">{% include "bi/arrow-right.html" %}View/revise your vote</a></td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="4">None found</td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
