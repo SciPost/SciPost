@@ -3,6 +3,17 @@
 
 <div class="submission-contents">
   <h3>Submission & Refereeing History</h3>
+  {% if submission.thread_full.first.publication and submission.thread_full.first.publication.is_published %}
+    <h4 class="my-4">
+      <span class="border border-2 border-success p-2">
+        Published as
+        <a href="{{ submission.thread_full.first.publication.get_absolute_url }}">
+	  {{ submission.thread_full.first.publication.citation }}
+        </a>
+      </span>
+    </h4>
+  {% endif %}
+
   {% if perms.scipost.can_oversee_refereeing %}
     <small class="text-muted">Thread {{ submission.thread_hash }}
       <br/>(all emails concerning this stream contain this uuid)</small>

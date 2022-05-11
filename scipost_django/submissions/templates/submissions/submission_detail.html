@@ -70,12 +70,21 @@
       {% endif %}
 
       <div class="ps-2 mb-1">
-	{% if submission.publication and submission.publication.is_published %}
-	  <h4>
-            - Published as
-            <a href="{{ submission.publication.get_absolute_url }}">
-              {{ submission.publication.citation }}
-            </a>
+	{% if not submission.is_current %}
+	  <h4 class="text-danger">
+            <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
+            This is not the latest submitted version.
+	  </h4>
+	{% endif %}
+
+	{% if submission.thread_full.first.publication and submission.thread_full.first.publication.is_published %}
+	  <h4 class="mt-4">
+	    <span class="border border-2 border-success p-2">
+              This Submission thread is now published as
+              <a href="{{ submission.thread_full.first.publication.get_absolute_url }}">
+		{{ submission.thread_full.first.publication.citation }}
+              </a>
+	    </span>
 	  </h4>
 	{% endif %}
 
@@ -83,13 +92,6 @@
 	  <h4>
             <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
             You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a>
-	  </h4>
-	{% endif %}
-
-	{% if not submission.is_current %}
-	  <h4 class="text-danger">
-            <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
-            This is not the current version.
 	  </h4>
 	{% endif %}
 
