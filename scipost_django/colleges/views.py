@@ -773,14 +773,14 @@ def _hx_voting_rounds(request):
     if "closed" in selected:
         voting_rounds = voting_rounds.closed()
     if "-pending" in selected:
-        voting_rounds = voting_rounds.filter(decision__isnull=True)
+        voting_rounds = voting_rounds.filter(nomination__decision__isnull=True)
     if "-elected" in selected:
         voting_rounds = voting_rounds.filter(
-            decision__outcome=FellowshipNominationDecision.OUTCOME_ELECTED
+            nomination__decision__outcome=FellowshipNominationDecision.OUTCOME_ELECTED
         )
     if "-notelected" in selected:
         voting_rounds = voting_rounds.filter(
-            decision__outcome=FellowshipNominationDecision.OUTCOME_NOT_ELECTED
+            nomination__decision__outcome=FellowshipNominationDecision.OUTCOME_NOT_ELECTED
         )
     if "vote_required" in selected:
         # show all voting rounds to edadmin; for Fellow, filter
