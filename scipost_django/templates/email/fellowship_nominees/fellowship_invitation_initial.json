@@ -4,8 +4,8 @@
         "nomination.profile.email"
     ],
     "bcc": [
-        "admin@"
+        "edadmin@"
     ],
-    "from_name": "SciPost Admin",
-    "from_email": "admin@"
+    "from_name": "SciPost EdAdmin",
+    "from_email": "edadmin@"
 }
