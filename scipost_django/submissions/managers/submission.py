@@ -271,6 +271,12 @@ class SubmissionQuerySet(models.QuerySet):
             authors=user.contributor,
         )
 
+    def awaiting_resubmission(self):
+        return self.filter(
+            is_current=True,
+            recommendation__in=[EIC_REC_MINOR_REVISION, EIC_REC_MAJOR_REVISION],
+        )
+
     def voting_in_preparation(self):
         from submissions.models import EICRecommendation
 
