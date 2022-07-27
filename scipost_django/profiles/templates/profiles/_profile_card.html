@@ -87,7 +87,21 @@
 	<tr><td>Webpage</td><td><a href="{{ profile.webpage }}" target="_blank" rel="noopener">{{ profile.webpage }}</a></td></tr>
 	<tr><td>Accepts SciPost emails</td><td>{{ profile.accepts_SciPost_emails }}</td></tr>
 	<tr><td>Accepts refereeing requests</td><td>{{ profile.accepts_refereeing_requests }}</td></tr>
-	<tr><td>Contributor</td><td>{% if profile.contributor %}Yes, id: {{ profile.contributor.pk }}, status: {{ profile.contributor.get_status_display }}, user active: {{ profile.contributor.user.is_active }} (<a href="{% url 'scipost:contributor_info' contributor_id=profile.contributor.id %}" target="_blank">info link</a>){% else %}No{% endif %}</td></tr>
+	<tr>
+	  <td>Contributor</td>
+	  <td>
+	    {% if profile.contributor %}
+	      Yes, id: {{ profile.contributor.pk }}, status: {{ profile.contributor.get_status_display }},
+	      user active: {{ profile.contributor.user.is_active }}
+	      (<a href="{% url 'scipost:contributor_info' contributor_id=profile.contributor.id %}" target="_blank">info link</a>)
+	      {% if is_scipost_admin or is_ed_admin %}
+		-- last login: {{ profile.contributor.user.last_login }}
+	      {% endif %}
+	    {% else %}
+	      No
+	    {% endif %}
+	  </td>
+	</tr>
     </table>
   </div>
 </div>
