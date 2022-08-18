@@ -16,6 +16,46 @@
     <div class="col">
       <h1 class="highlight">Submissions Monitor</h1>
       <p>This page provides information of the timescales associated to various phases of the editorial workflow.</p>
+      <p>This data <span class="text-danger">excludes submissions to Proceedings journals</span>.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <h2 class="highlight">Load (&amp; Submission versus &amp; Fellows)</h2>
+      <p>Based on submission numbers in the last 12 months.</p>
+      <p><strong class="text-danger">Caveat</strong>: this handles specialties one by one; a Submission/Fellow linked to multiple specialties is thus counted multiple times.</p>
+      <table class="table">
+	<tr>
+	  <td>Legend</td>
+	  <td class="bg-danger text-white">More than 8 streams per Fellow</td>
+	  <td class="bg-warning text-white">More than 4 streams per Fellow</td>
+	  <td class="bg-success text-white">4 streams or less (target)</td>
+	</tr>
+      </table>
+      <table class="table">
+	<thead>
+	  <th>Field</th>
+	  <th>Specialty</th>
+	  <th>Nr<br/><small class="text-muted">(new streams)</small></th>
+	  <th>Nr<br/><small class="text-muted">(including resub)</small></th>
+	  <th>Nr Fellows<br/>
+	    <small class="text-muted">total&emsp;(senior&nbsp;|&nbsp;regular&nbsp;|&nbsp;guest)</small>
+	  </th>
+	  <th>Load<br/>
+	    <small class="text-muted">(nr streams per Fellow per year)</small>
+	  </th>
+	</thead>
+	{% for entry in submissions_versus_fellows %}
+	  <tr{% if entry.ratio > 8 %} class="bg-danger text-white"{% elif entry.ratio > 4 %} class="bg-warning text-white"{% else %} class="bg-success text-white"{% endif %}>
+	    <td>{{ entry.acad_field }}</td>
+	    <td>{{ entry.specialty }}</td>
+	    <td>{{ entry.nr_streams }}</td>
+	    <td>{{ entry.number }}</td>
+	    <td>{{ entry.fellows_total }}&emsp;({{ entry.fellows_senior }}&nbsp;|&nbsp;{{ entry.fellows_regular }}&nbsp;|&nbsp;{{ entry.fellows_guest }})</td>
+	    <td>{{ entry.ratio|floatformat }}</td>
+	  </tr>
+	{% endfor %}
+      </table>
     </div>
   </div>
   <div class="row">
@@ -45,9 +85,9 @@
 	    <td>{{ entry.acad_field }}</td>
 	    <td>{{ entry.specialty }}</td>
 	    <td>{{ entry.number }}</td>
-	    <th>{{ entry.waiting_days }}</th>
-	    <th>{{ entry.avg_waiting_days }}</th>
-	    <th>{{ entry.max_waiting_days }}</th>
+	    <td>{{ entry.waiting_days }}</td>
+	    <td>{{ entry.avg_waiting_days }}</td>
+	    <td>{{ entry.max_waiting_days }}</td>
 	  </tr>
 	{% endfor %}
       </table>
