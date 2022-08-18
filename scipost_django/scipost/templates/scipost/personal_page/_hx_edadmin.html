@@ -60,6 +60,9 @@
       <ul>
         <li><a href="{% url 'submissions:editorial_workflow' %}">How-to guide: summary of the editorial workflow</a></li>
 	<li><a href="{% url 'submissions:monitor' %}">Submissions monitor (current workflow timescales)</a></li>
+	{% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+	  <li><a href="{% url 'colleges:fellowships_monitor' %}">Fellowships monitor</a></li>
+	{% endif %}
       </ul>
 
       <h3>Submissions assignments</h3>

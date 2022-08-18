@@ -38,6 +38,56 @@ from .constants import (
 from .utils import check_profile_eligibility_for_fellowship
 
 
+class CollegeChoiceForm(forms.Form):
+    college = forms.ModelChoiceField(queryset=College.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(FloatingField("college"),)
+        )
+
+
+class FellowshipSearchForm(forms.Form):
+    college = forms.ModelChoiceField(
+        queryset=College.objects.all(),
+        widget=forms.HiddenInput(),
+    )
+    specialty = forms.ModelChoiceField(
+        queryset=Specialty.objects.all(),
+        label="Specialty",
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "initial" in kwargs:
+            self.fields["specialty"].queryset = Specialty.objects.filter(
+                acad_field=kwargs["initial"].get("college").acad_field
+            )
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(FloatingField("college"),),
+            Div(FloatingField("specialty"),),
+        )
+
+    def search_results(self):
+        fellowships = Fellowship.objects.active()
+        if self.initial and self.initial.get("college", None):
+            fellowships = fellowships.filter(college=self.initial["college"])
+        if hasattr(self, "cleaned_data"):
+            if self.cleaned_data.get("college"):
+                fellowships = fellowships.filter(college=self.cleaned_data.get("college"))
+            if self.cleaned_data.get("specialty"):
+                fellowships = fellowships.filter(
+                    contributor__profile__specialties__in=[
+                        self.cleaned_data.get("specialty"),
+                    ]
+            )
+        return fellowships
+
+
 class FellowshipSelectForm(forms.Form):
     fellowship = forms.ModelChoiceField(
         queryset=Fellowship.objects.all(),

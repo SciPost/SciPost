@@ -21,6 +21,11 @@ class EditorialAssignmentQuerySet(models.QuerySet):
             date_created__gt=timezone.now() - timezone.timedelta(days=365)
         )
 
+    def last_two_years(self):
+        return self.filter(
+            date_created__gt=timezone.now() - timezone.timedelta(days=730)
+        )
+
     def refereeing_deadline_within(self, days=7):
         now = timezone.now()
         return self.exclude(
