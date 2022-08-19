@@ -31,15 +31,18 @@
     </div>
     <div class="col-md-8 col-lg-7 ms-lg-auto">
 
-      <form action="{% url 'scipost:register' %}" method="post">
-        {% csrf_token %}
-        {{ form|bootstrap:'3,9' }}
-        <input class="btn btn-primary" type="submit" value="Submit" />
-      </form>
+      <div id="registration-form-wrapper">
+        <!-- Form feedback message -->
+        <div id="form_feedback_message">
+          <p>Please provide your email address:</p>
+        </div>
 
-      {% if errormessage %}
-        <p class="text-danger">{{ errormessage }}</p>
-      {% endif %}
+        {% include 'scipost/_hx_register.html' %}
+
+        {% if errormessage %}
+          <p class="text-danger">{{ errormessage }}</p>
+        {% endif %}
+      </div>
     </div>
   </div>
 

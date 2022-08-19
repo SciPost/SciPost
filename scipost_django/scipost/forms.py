@@ -99,18 +99,51 @@ class HttpRefererFormMixin(RequestFormMixin):
             self.fields["http_referer"].initial = self.request.META.get("HTTP_REFERER")
 
 
-class RegistrationForm(forms.Form):
+class EmailForm(forms.Form):
+    email = forms.EmailField(label="* Email address")
+
+    def __init__(self, *args, **kwargs):
+        if "readonly_email" in kwargs:
+            kwargs.pop("readonly_email")
+            super().__init__(*args, **kwargs)
+            self.fields['email'].widget.attrs["readonly"] = True
+        else:
+            super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        # check if a Contributor / User exists with this email
+        user = User.objects.filter(email=email).first()
+        if user:
+            raise forms.ValidationError("Already registered!")
+        return email
+
+
+class BasicUserInfoForm(EmailForm):
+    email = forms.EmailField(label="* Email address")
+    title = forms.ChoiceField(choices=TITLE_CHOICES, label="* Title")
+    first_name = forms.CharField(label="* First name", max_length=100)
+    last_name = forms.CharField(label="* Last name", max_length=100)
+
+    def create_profile_with_email(self) -> ProfileEmail:
+        """ Creates a Profile object from submitted data, and links this to a ProfileEmail """
+        profile_data = {
+            'title': self.cleaned_data['title'],
+            'first_name': self.cleaned_data['first_name'],
+            'last_name': self.cleaned_data['last_name']
+        }
+        profile = Profile.objects.create(**profile_data)
+        profile_email = ProfileEmail.objects.create(profile=profile, email=self.cleaned_data['email'])
+        return profile_email  
+
+
+class RegistrationForm(BasicUserInfoForm):
     """
     Use this form to process the registration of new accounts.
     Due to the construction of a separate Contributor from the User,
     it is difficult to create a 'combined ModelForm'. All fields
     are thus separately handled here.
     """
-
-    title = forms.ChoiceField(choices=TITLE_CHOICES, label="* Title")
-    first_name = forms.CharField(label="* First name", max_length=100)
-    last_name = forms.CharField(label="* Last name", max_length=100)
-    email = forms.EmailField(label="* Email address")
     invitation_key = forms.CharField(
         max_length=40, widget=forms.HiddenInput(), required=False
     )
@@ -180,7 +213,7 @@ class RegistrationForm(forms.Form):
         widget=forms.PasswordInput(),
         help_text="Your password must contain at least 8 characters",
     )
-    captcha = ReCaptchaField(label="* Please verify to continue:")
+    # captcha = ReCaptchaField(label="* Please verify to continue:")
     subscribe = forms.BooleanField(
         required=False,
         initial=False,
@@ -257,22 +290,19 @@ class RegistrationForm(forms.Form):
                 "is_active": False,
             }
         )
-        # Get or create a Profile
+        # Get the Profile attached to this submission
         profile = Profile.objects.filter(
             emails__email__icontains=self.cleaned_data["email"]
         ).first()
-        if profile is None:
-            profile = Profile.objects.create(
-                title=self.cleaned_data["title"],
-                first_name=self.cleaned_data["first_name"],
-                last_name=self.cleaned_data["last_name"],
-                acad_field=self.cleaned_data["acad_field"],
-                orcid_id=self.cleaned_data["orcid_id"],
-                webpage=self.cleaned_data["webpage"],
-            )
-            profile.specialties.set(self.cleaned_data["specialties"])
-        # Add a ProfileEmail to this Profile
-        profile_email, created = ProfileEmail.objects.get_or_create(
+
+        # Update profile details
+        profile.acad_field = self.cleaned_data["acad_field"]
+        profile.orcid_id = self.cleaned_data["orcid_id"]
+        profile.webpage = self.cleaned_data["webpage"]
+        profile.specialties.set(self.cleaned_data["specialties"])
+
+        # Get the ProfileEmail for this Profile
+        profile_email = ProfileEmail.objects.get(
             profile=profile, email=self.cleaned_data["email"]
         )
         profile.emails.update(primary=False)
@@ -290,7 +320,6 @@ class RegistrationForm(forms.Form):
             **{
                 "profile": profile,
                 "user": user,
-                "invitation_key": self.cleaned_data.get("invitation_key", ""),
                 "address": self.cleaned_data["address"],
             }
         )

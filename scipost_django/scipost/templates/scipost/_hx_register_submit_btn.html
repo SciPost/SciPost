@@ -1,0 +1,14 @@
+<input class="btn btn-primary" 
+    type="submit"
+    value="Submit"
+    {% if profile_email and not profile_email.verified %} 
+        hx-get="{% url 'scipost:check_email_verified' profile_email.id %}" 
+        hx-trigger="every 5s"
+        hx-swap="outerHTML"
+        hx-select=".btn"
+        disabled
+    {% endif %}
+/>
+
+{# Out of band content #}
+{% include 'scipost/portal/_hx_registration_form_feedback.html' %}

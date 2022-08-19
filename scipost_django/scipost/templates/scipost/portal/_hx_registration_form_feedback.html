@@ -1,0 +1,5 @@
+{% if form_feedback_message %}
+    <div id="form_feedback_message" class="row" hx-swap-oob="true" hx-swap="outerHTML">
+        <p>{{ form_feedback_message|safe }}</p>
+    </div>
+{% endif %}

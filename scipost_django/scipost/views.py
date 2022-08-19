@@ -61,6 +61,8 @@ from .forms import (
     EmailGroupMembersForm,
     EmailParticularForm,
     SendPrecookedEmailForm,
+    EmailForm,
+    BasicUserInfoForm
 )
 from .mixins import PermissionsMixin, PaginationMixin
 from .utils import EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
@@ -80,7 +82,7 @@ from news.models import NewsItem
 from organizations.decorators import has_contact
 from organizations.models import Organization, Contact
 from organizations.forms import UpdateContactDataForm
-from profiles.models import Profile
+from profiles.models import Profile, ProfileEmail
 from submissions.models import (
     Submission,
     RefereeInvitation,
@@ -510,6 +512,133 @@ def feeds(request):
 # Contributors:
 ################
 
+########### HTMX FORM VALIDATION
+def _hx_register(request):
+    email_form = EmailForm(request.POST or None)
+    if not email_form.is_valid():
+        return render(request, "scipost/_hx_register.html", {"form": email_form})
+
+    # no user: check if there's a profile with this email
+    email = email_form.cleaned_data['email']
+    profile_email = ProfileEmail.objects.filter(email=email).first()
+
+    if profile_email:
+        # a Profile object exists 
+        # Render the form with the existing Profile details on GET
+        # OR: handle form submission on POST    
+        profile = profile_email.profile
+        initial = {
+            'title': profile.title,
+            'first_name': profile.first_name,
+            'last_name': profile.last_name,
+            'email': email
+        }
+        if request.method == 'GET':
+            registration_form = RegistrationForm(initial=initial, readonly_email=True)
+            context = {"form": registration_form}
+            if profile_email.verified:
+                context["form_feedback_message"] = "Please fill in the registration form"
+            else:
+                context["form_feedback_message"] = "Please <b>verify your email</b> and fill out the registration form."
+            return render(request, "scipost/_hx_register.html", context)
+
+        elif request.method == 'POST':
+            if "username" not in request.POST:
+                # if no username's submitted, display a fresh registration form w/ prefilled Profile data
+                registration_form = RegistrationForm(initial=initial, readonly_email=True)
+                context = {
+                    "form": registration_form,
+                    "profile_email": profile_email,
+                }
+                if profile_email.verified:
+                    context["form_feedback_message"] = "Please fill in the registration form"
+                else:
+                    context["form_feedback_message"] = "Please <b>verify your email</b> and fill out the registration form."
+                return render(request, "scipost/_hx_register.html", context)
+
+            # if we have a username, we're dealing with a submission of the full registration form
+            # validate and handle submission
+            registration_form = RegistrationForm(request.POST)
+            if registration_form.is_valid():
+                contributor = registration_form.create_and_save_contributor()
+                context = {
+                    "ack_header": "Registration complete!",
+                    "ack_message": "Thank you for registering at SciPost.",
+                }
+                response = render(request, "scipost/acknowledgement.html", context)
+                response['HX-Retarget'] = '#registration-form-wrapper'
+                return response
+                
+            else:
+                print(registration_form.errors)
+                context = {
+                    "form": registration_form,
+                    "profile_email": profile_email,
+                    "form_feedback_message": "Please resolve the following issues."
+                }
+                return render(request, "scipost/_hx_register.html", context)
+
+
+    # No Profile exists: render the BasicInfoForm on GET, and handle submit on POST
+    info_form = BasicUserInfoForm(request.POST or None)
+    if info_form.is_valid():
+        # create Profile and ProfileEmail objects
+        profile_email = info_form.create_profile_with_email()
+
+        # send email
+        mail_util = DirectMailUtil("contributors/email_activation", profile_email=profile_email)
+        mail_util.send_mail()
+
+        # display registration form and link the new profile email instance
+        form = RegistrationForm(initial=info_form.cleaned_data, readonly_email=True)
+        context = {
+            'form': form,
+            'profile_email': profile_email,
+            "form_feedback_message": "Please <b>verify your email</b> and fill out the registration form."
+        }
+        return render(request, "scipost/_hx_register.html", context)
+    
+    # GET request when no profile exists - display the additional info form required to create profile
+    info_form = BasicUserInfoForm(initial={'email': email}, readonly_email=True)
+    context = {
+        "form": info_form,
+        "form_feedback_message": "Please provide your title, first name and surname."
+    }
+    return render(request, "scipost/_hx_register.html", context)
+
+
+def profile_activation(request, profile_email_id, uuid):
+    """
+    This view activates an email address (EmailProfile) that matches the parameters in the URL.
+    """
+    profile_email = get_object_or_404(ProfileEmail, pk=profile_email_id, uuid=uuid)
+    profile_email.verified = True
+    profile_email.save()
+    context = {
+        "ack_header": "Many thanks for confirming your email address.",
+        "ack_message": (
+            "Thank you for confirming your email address."
+        ),
+    }
+    return render(request, "scipost/acknowledgement.html", context)
+
+
+def check_email_verified(request, profile_email_id):
+    """
+    Checks if a given ProfileEmail instance is exists.
+    Returns the ProfileEmail object in the context, for verification checks within the template
+    """
+    try:
+        profile_email = ProfileEmail.objects.get(pk=profile_email_id)
+    except Profile.DoesNotExist:
+        pass
+    else:
+        context = {'profile_email': profile_email}
+        if profile_email.verified:
+            context["form_feedback_message"] = "Please fill in the registration form"
+        else:
+            context["form_feedback_message"] = "Please <b>verify your email</b> and fill out the registration form."
+        return render(request, 'scipost/_hx_register_submit_btn.html', context)
 
 @transaction.atomic
 def register(request):
@@ -525,42 +654,8 @@ def register(request):
     if request.user.is_authenticated:
         return redirect(reverse("scipost:personal_page"))
 
-    form = RegistrationForm(request.POST or None)
-    if form.is_valid():
-        contributor = form.create_and_save_contributor()
-        mail_util = DirectMailUtil(
-            "contributors/registration_received", contributor=contributor
-        )
-        mail_util.send_mail()
-
-        # Disable invitations related to the new Contributor
-        RegistrationInvitation.objects.declined_or_without_response().filter(
-            email=form.cleaned_data["email"]
-        ).update(status=STATUS_REGISTERED)
-
-        context = {
-            "ack_header": "Thanks for registering to SciPost.",
-            "ack_message": (
-                """
-                <h3>What happens now?</h3>
-                <ul>
-                <li>You will receive an email with a link to verify your email address.
-                You should visit this link within 48 hours.</li>
-                <li>You didn't receive this email? Check your spam folder.</li>
-                <li>Your credentials will thereafter be verified. If you fulfil our
-                eligibility requirements, your account will be vetted through
-                (you will receive confirmation by email).</li>
-                <li>If vetted through, you will then be able to login and use our facilities.</li>
-                </ul>
-                <h4>Why is your procedure <span style="color: red;">so complicated</span>?</h4>
-                <p>It is simply part of our quality assurance processes: we want to make sure
-                we are dealing with qualified academics rather than random people or robots.
-                </p>
-                """
-            ),
-        }
-        return render(request, "scipost/acknowledgement.html", context)
-    return render(request, "scipost/register.html", {"form": form, "invited": False})
+    # render page with the email form
+    return render(request, "scipost/register.html", {'form': EmailForm()})
 
 
 def invitation(request, key):

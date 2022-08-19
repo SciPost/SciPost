@@ -1,0 +1,15 @@
+{% load bootstrap %}
+
+
+<form hx-post="{% url 'scipost:_hx-register' %}" 
+    hx-swap="outerHTML" 
+    {% if profile_email %} hx-select="#acknowledgement" {% endif %}>
+
+        {% csrf_token %}
+        {{ form|bootstrap:'3,9' }}
+        
+    {% include 'scipost/_hx_register_submit_btn.html' %}
+</form>
+
+{# Out of band content #}
+{% include 'scipost/portal/_hx_registration_form_feedback.html' %}

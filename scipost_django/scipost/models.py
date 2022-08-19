@@ -223,8 +223,9 @@ class Contributor(models.Model):
 
     def generate_key(self, feed=""):
         """Generate a new activation_key for the contributor, given a certain feed."""
-        for i in range(5):
-            feed += random.choice(string.ascii_letters)
+        # for i in range(5):
+        #     feed += random.choice(string.ascii_letters)
+        feed += ''.join(random.choices(string.ascii_letters, k=5))
         feed = feed.encode("utf8")
         salt = self.user.username.encode("utf8")
         self.activation_key = hashlib.sha1(salt + feed).hexdigest()

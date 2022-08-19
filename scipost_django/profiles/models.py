@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import uuid
 from django.urls import reverse
 from django.db import models
 from django.db.models.functions import Concat
@@ -148,6 +149,9 @@ class ProfileEmail(models.Model):
     email = models.EmailField()
     still_valid = models.BooleanField(default=True)
     primary = models.BooleanField(default=False)
+    # fields for email verification
+    verified = models.BooleanField(default=False)
+    uuid = models.UUIDField(default=uuid.uuid4)
 
     class Meta:
         unique_together = ["profile", "email"]

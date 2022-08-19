@@ -143,6 +143,8 @@ urlpatterns = [
         name="_hx_participates_in",
     ),
     path("_hx_sponsors", views._hx_sponsors, name="_hx_sponsors"),
+    path('_hx-register', views._hx_register, name='_hx-register'),
+    path('_hx-check-email/<int:profile_email_id>/', views.check_email_verified, name='check_email_verified'),
     #
     ####################
     # General use pages
@@ -269,6 +271,11 @@ urlpatterns = [
     # Registration
     ###############
     path("register", views.register, name="register"),
+    path(
+        "activation/<int:profile_email_id>/<uuid:uuid>/",
+        views.profile_activation,
+        name="profile_activation",
+    ),
     path(
         "thanks_for_registering",
         TemplateView.as_view(template_name="scipost/thanks_for_registering.html"),

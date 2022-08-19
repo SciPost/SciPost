@@ -1,0 +1,23 @@
+<p>
+    Dear {{ profile_email.profile.get_title_display }} {{ profile_email.profile.last_name }},
+  </p>
+  <p>
+    Your request for registration to the SciPost publication portal has been received. You now need to validate your email by visiting this link within the next 48 hours:
+  </p>
+  <p>
+    <a href="https://{{ domain }}{% url 'scipost:profile_activation' profile_email.id profile_email.uuid %}">Activate your account</a>
+  </p>
+  <h3>What happens now?</h3>
+  <ul>
+    <li>Your credentials will thereafter be verified. If you fulfil our
+      eligibility requirements, your account will be vetted through
+      (you will receive confirmation by email).</li>
+    <li>If vetted through, you will then be able to login and use our facilities.</li>
+  </ul>
+  <p>
+    Many thanks for your interest.<br>
+    The SciPost Team.
+  </p>
+  
+  {% include 'email/_footer.html' %}
+  

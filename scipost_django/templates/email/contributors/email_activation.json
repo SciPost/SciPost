@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: Request received",
+    "recipient_list": [
+        "email"
+    ],
+    "bcc": [
+        "registration@"
+    ],
+    "from_name": "SciPost registration",
+    "from_email": "registration@"
+}
