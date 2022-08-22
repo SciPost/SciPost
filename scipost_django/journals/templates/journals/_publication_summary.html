@@ -32,7 +32,10 @@
 	<li><a href="{{ publication.resources.source.first.url }}"><strong>src</strong></a></li>
       {% endif %}
       {% if publication.resources.release.first %}
-	<li><a href="{{ publication.resources.release.first.url }}"><strong>repo</strong></a></li>
+	<li><a href="{{ publication.resources.release.first.url }}"><strong>publication&nbsp;repo</strong></a></li>
+      {% endif %}
+      {% if publication.resources.live.first %}
+	<li><a href="{{ publication.resources.live.first.url }}">live&nbsp;repo&nbsp;(external)</a></li>
       {% endif %}
       <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#bibtextmodal">BiBTeX</button></li>
       <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#rismodal">RIS</button></li>
