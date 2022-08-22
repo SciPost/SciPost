@@ -754,25 +754,21 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
         To keep the Publication pdfs organized we move the pdfs to their own folder
         organized by journal and optional issue folder.
         """
-        if not self.instance.pdf_file:
-            return None
+        if self.instance.pdf_file:
+            initial_path = self.instance.pdf_file.path
+            new_dir = ""
+            if self.instance.in_issue:
+                new_dir += self.instance.in_issue.path
+            elif self.instance.in_journal:
+                new_dir += "SCIPOST_JOURNALS/{name}".format(
+                    name=self.instance.in_journal.doi_label
+                )
+            new_dir += "/{paper_nr}".format(paper_nr=self.instance.get_paper_nr())
+            os.makedirs(settings.MEDIA_ROOT + new_dir, exist_ok=True)
+            new_dir += "/{doi}.pdf".format(doi=self.instance.doi_label.replace(".", "_"))
+            os.rename(initial_path, settings.MEDIA_ROOT + new_dir)
+            self.instance.pdf_file.name = new_dir
 
-        initial_path = self.instance.pdf_file.path
-
-        new_dir = ""
-        if self.instance.in_issue:
-            new_dir += self.instance.in_issue.path
-        elif self.instance.in_journal:
-            new_dir += "SCIPOST_JOURNALS/{name}".format(
-                name=self.instance.in_journal.doi_label
-            )
-
-        new_dir += "/{paper_nr}".format(paper_nr=self.instance.get_paper_nr())
-        os.makedirs(settings.MEDIA_ROOT + new_dir, exist_ok=True)
-
-        new_dir += "/{doi}.pdf".format(doi=self.instance.doi_label.replace(".", "_"))
-        os.rename(initial_path, settings.MEDIA_ROOT + new_dir)
-        self.instance.pdf_file.name = new_dir
         self.instance.status = PUBLICATION_PUBLISHED
         self.instance.save()
 
