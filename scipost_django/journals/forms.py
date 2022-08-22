@@ -754,6 +754,9 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
         To keep the Publication pdfs organized we move the pdfs to their own folder
         organized by journal and optional issue folder.
         """
+        if not self.instance.pdf_file:
+            return None
+
         initial_path = self.instance.pdf_file.path
 
         new_dir = ""
