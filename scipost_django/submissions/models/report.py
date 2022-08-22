@@ -264,13 +264,12 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         Check if the Report relates to a SciPost-published object. If it does, return the doi
         of the published object.
         """
-        try:
-            publication = Publication.objects.get(
-                accepted_submission__thread_hash=self.submission.thread_hash
-            )
-        except Publication.DoesNotExist:
-            return None
-        return publication.doi_string
+        publication = Publication.objects.filter(
+            accepted_submission__thread_hash=self.submission.thread_hash
+        ).order_by('doi_label').first()
+        # order by doi_label to give priority to main article, which has no DOI suffix
+        if publication:
+            return publication.doi_string
 
     @property
     def relation_to_published(self):
