@@ -278,21 +278,19 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         Check if the Report relates to a SciPost-published object. If it does, return a dict with
         info on relation to the published object, based on Crossref's peer review content type.
         """
-        try:
-            publication = Publication.objects.get(
-                accepted_submission__thread_hash=self.submission.thread_hash
-            )
-        except Publication.DoesNotExist:
-            return None
+        publication = Publication.objects.filter(
+            accepted_submission__thread_hash=self.submission.thread_hash
+        ).order_by('doi_label').first()
 
-        relation = {
-            "isReviewOfDOI": publication.doi_string,
-            "stage": "pre-publication",
-            "type": "referee-report",
-            "title": "Report on " + self.submission.preprint.identifier_w_vn_nr,
-            "contributor_role": "reviewer",
-        }
-        return relation
+        if publication:
+            relation = {
+                "isReviewOfDOI": publication.doi_string,
+                "stage": "pre-publication",
+                "type": "referee-report",
+                "title": "Report on " + self.submission.preprint.identifier_w_vn_nr,
+                "contributor_role": "reviewer",
+            }
+            return relation
 
     @property
     def citation(self):

@@ -1690,14 +1690,12 @@ def email_object_made_citable(request, **kwargs):
         redirect_to = reverse("journals:manage_report_metadata")
         publication_citation = None
         publication_doi = None
-        try:
-            publication = Publication.objects.get(
-                accepted_submission__thread_hash=_object.submission.thread_hash
-            )
+        publication = Publication.objects.filter(
+            accepted_submission__thread_hash=_object.submission.thread_hash
+        ).order_by('doi_label').first()
+        if publication:
             publication_citation = publication.citation
             publication_doi = publication.doi_string
-        except Publication.DoesNotExist:
-            pass
     elif type_of_object == "comment":
         _object = get_object_or_404(Comment, id=object_id)
         redirect_to = reverse("journals:manage_comment_metadata")
