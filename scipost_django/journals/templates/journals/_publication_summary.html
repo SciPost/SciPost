@@ -1,4 +1,5 @@
 {% load scipost_extras %}
+{% load automarkup %}
 
 <div class="row">
   <div class="col-12">
@@ -22,9 +23,17 @@
 
     <ul class="publicationClickables mt-3">
       <li>doi:  {{ publication.doi_string }}</li>
-      <li class="publicationPDF">
-        <a href="{{ publication.get_absolute_url }}/pdf" target="_blank">pdf</a>
-      </li>
+      {% if publication.pdf_file %}
+	<li class="publicationPDF">
+          <a href="{{ publication.get_absolute_url }}/pdf" target="_blank">pdf</a>
+	</li>
+      {% endif %}
+      {% if publication.resources.source.first %}
+	<li><a href="{{ publication.resources.source.first.url }}"><strong>src</strong></a></li>
+      {% endif %}
+      {% if publication.resources.release.first %}
+	<li><a href="{{ publication.resources.release.first.url }}"><strong>repo</strong></a></li>
+      {% endif %}
       <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#bibtextmodal">BiBTeX</button></li>
       <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#rismodal">RIS</button></li>
       <li><a href="{% url 'submissions:submission' publication.accepted_submission.preprint.identifier_w_vn_nr %}">Submissions/Reports</a></li>
@@ -37,6 +46,41 @@
     </ul>
   </div>
 </div>
+{% if publication.bundle.all|length > 1 %}
+  <div class="row border border-primary p-2">
+    <div class="col-lg-4">
+      <h3 class="py-2">
+	<span class="px-2 py-1 bg-info">This Publication is part of a bundle</span>
+      </h3>
+      <p>
+	When citing, cite all relevant items
+	(e.g. for a Codebase, cite both the article and the release you used).
+      </p>
+    </div>
+    <div class="col-lg-8">
+      <table class="table">
+	<thead>
+	  <th></th>
+	  <th>DOI</th>
+	  <th>Type</th>
+	</thead>
+	{% for item in publication.bundle.all %}
+	  <tr{% if item.doi_label == publication.doi_label %} class="bg-light bg-success"{% endif %}>
+	    <td>
+	      {% if item.doi_label == publication.doi_label %}
+		<span class="text-success">
+		  {% include 'bi/arrow-right-square-fill.html' %}
+		</span>
+	      {% endif %}
+	    </td>
+	    <td><a href="{{ item.get_absolute_url }}">{{ item.doi_string }}</a></td>
+	    <td>{{ item.get_pubtype_display }}</td>
+	  </tr>
+	{% endfor %}
+      </table>
+    </div>
+  </div>
+{% endif %}
 <div class="row">
   <div class="col-12">
     {% if publication.in_issue.proceedings %}
@@ -59,6 +103,7 @@
 	{% endfor %}
       </ul>
     {% endif %}
+
   </div>
 </div>
 
@@ -88,7 +133,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div><pre><code>{{ publication.BiBTeX_entry|linebreaksbr }}</code></pre></div>
+        <div><pre><code>{{ publication.BiBTeX|linebreaksbr }}</code></pre></div>
       </div>
     </div>
   </div>

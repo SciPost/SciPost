@@ -12,13 +12,13 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field
+from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
@@ -433,10 +433,12 @@ class DraftPublicationForm(forms.ModelForm):
     class Meta:
         model = Publication
         fields = [
+            "pubtype",
             "doi_label",
             "pdf_file",
             "in_issue",
             "paper_nr",
+            "paper_nr_suffix",
             "title",
             "author_list",
             "abstract",
@@ -444,7 +446,6 @@ class DraftPublicationForm(forms.ModelForm):
             "specialties",
             "approaches",
             "cc_license",
-            "BiBTeX_entry",
             "submission_date",
             "acceptance_date",
             "publication_date",
@@ -507,9 +508,11 @@ class DraftPublicationForm(forms.ModelForm):
         Delete fields from the self.fields dictionary. Later on, this submitted sparse form can
         be used to prefill these secondary fields.
         """
+        del self.fields["pubtype"]
         del self.fields["doi_label"]
         del self.fields["pdf_file"]
         del self.fields["paper_nr"]
+        del self.fields["paper_nr_suffix"]
         del self.fields["title"]
         del self.fields["author_list"]
         del self.fields["abstract"]
@@ -517,7 +520,6 @@ class DraftPublicationForm(forms.ModelForm):
         del self.fields["specialties"]
         del self.fields["approaches"]
         del self.fields["cc_license"]
-        del self.fields["BiBTeX_entry"]
         del self.fields["submission_date"]
         del self.fields["acceptance_date"]
         del self.fields["publication_date"]
@@ -620,77 +622,93 @@ class DraftPublicationForm(forms.ModelForm):
         self.fields["doi_label"].initial = doi_label
         doi_string = "10.21468/{doi}".format(doi=doi_label)
 
-        # Initiate a BibTex entry
-        bibtex_entry = ("@Article{%s,\n" "\ttitle={{%s}},\n" "\tauthor={%s},\n") % (
-            doi_string,
-            self.submission.title,
-            self.submission.author_list.replace(",", " and"),
-        )
-
-        if issue.in_volume:
-            bibtex_entry += "\tjournal={%s},\n\tvolume={%i},\n" % (
-                issue.in_volume.in_journal.name_abbrev,
-                issue.in_volume.number,
-            )
-        elif issue.in_journal:
-            bibtex_entry += "\tjournal={%s},\n" % (issue.in_journal.name_abbrev)
-
-        bibtex_entry += (
-            "\tissue={%i},\n"
-            "\tpages={%i},\n"
-            "\tyear={%s},\n"
-            "\tpublisher={SciPost},\n"
-            "\tdoi={%s},\n"
-            "\turl={https://%s/%s},\n"
-            "}"
-        ) % (
-            issue.number,
-            paper_nr,
-            issue.until_date.strftime("%Y"),
-            doi_string,
-            get_current_domain(),
-            doi_string,
-        )
-
-        self.fields["BiBTeX_entry"].initial = bibtex_entry
-        if not self.instance.BiBTeX_entry:
-            self.instance.BiBTeX_entry = bibtex_entry
-
     def prefill_with_journal(self, journal):
         # Determine next available paper number:
-        paper_nr = journal.publications.count() + 1
+        #paper_nr = journal.publications.count() + 1
+        paper_nr = (journal.publications.aggregate(Max("paper_nr"))["paper_nr__max"] or 0) + 1
         self.fields["paper_nr"].initial = str(paper_nr)
         doi_label = "{journal}.{paper}".format(
             journal=journal.doi_label, paper=paper_nr
         )
         self.fields["doi_label"].initial = doi_label
 
-        doi_string = "10.21468/{doi}".format(doi=doi_label)
-        bibtex_entry = (
-            "@Article{%s,\n"
-            "\ttitle={{%s}},\n"
-            "\tauthor={%s},\n"
-            "\tjournal={%s},\n"
-            "\tpages={%i},\n"
-            "\tyear={%s},\n"
-            "\tpublisher={SciPost},\n"
-            "\tdoi={%s},\n"
-            "\turl={https://%s/%s},\n"
-            "}"
-        ) % (
-            doi_string,
-            self.submission.title,
-            self.submission.author_list.replace(",", " and"),
-            journal.name_abbrev,
-            paper_nr,
-            timezone.now().year,
-            doi_string,
-            get_current_domain(),
-            doi_string,
+
+class DraftAccompanyingPublicationForm(forms.Form):
+    anchor = forms.ModelChoiceField(
+        queryset=Publication.objects.all(),
+        widget=forms.HiddenInput(),
+    )
+    title = forms.CharField(max_length=300)
+    abstract = forms.CharField(widget=forms.Textarea())
+    doi_label_suffix = forms.CharField(max_length=128)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("anchor"),
+            FloatingField("title"),
+            Field("abstract"),
+            FloatingField("doi_label_suffix"),
+            ButtonHolder(Submit("submit", "Submit", css_class="btn btn-primary")),
         )
-        self.fields["BiBTeX_entry"].initial = bibtex_entry
-        if not self.instance.BiBTeX_entry:
-            self.instance.BiBTeX_entry = bibtex_entry
+
+    def save(self, *args, **kwargs):
+        anchor = self.cleaned_data["anchor"]
+        # Create a new Publication based on the anchor data
+        companion = Publication(
+            accepted_submission=anchor.accepted_submission,
+            in_issue=anchor.in_issue,
+            in_journal=anchor.in_journal,
+            paper_nr=anchor.paper_nr,
+            paper_nr_suffix=self.cleaned_data["doi_label_suffix"],
+            status=STATUS_DRAFT,
+            title=self.cleaned_data["title"],
+            author_list=anchor.author_list,
+            abstract=self.cleaned_data["abstract"],
+            acad_field=anchor.acad_field,
+            approaches=anchor.approaches,
+            doi_label=f"{anchor.doi_label}-{self.cleaned_data['doi_label_suffix']}",
+            submission_date=anchor.submission_date,
+            acceptance_date=anchor.acceptance_date,
+            publication_date=anchor.publication_date,
+        )
+        companion.save()
+        # Handle ManyToMany fields
+        companion.specialties.add(*anchor.specialties.all())
+        companion.topics.add(*anchor.topics.all())
+        companion.grants.add(*anchor.grants.all())
+        companion.funders_generic.add(*anchor.funders_generic.all())
+
+        # Add authors, using anchor info
+        for author in anchor.authors.all():
+            pat = PublicationAuthorsTable.objects.create(
+                publication=companion,
+                profile=author.profile,
+                order=author.order,
+            )
+            pat.affiliations.add(*author.affiliations.all())
+
+        # Add References, using anchor info
+        for reference in anchor.references.all():
+            Reference.objects.create(
+                reference_number=reference.reference_number,
+                publication=companion,
+                authors=reference.authors,
+                citation=reference.citation,
+                identifier=reference.identifier,
+                link=reference.link,
+            )
+
+        # Add PubFractions
+        for pubfrac in anchor.pubfractions.all():
+            OrgPubFraction.objects.create(
+                organization=pubfrac.organization,
+                publication=companion,
+                fraction=pubfrac.fraction,
+            )
+
+        return companion
 
 
 class DraftPublicationApprovalForm(forms.ModelForm):

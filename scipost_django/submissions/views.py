@@ -945,8 +945,8 @@ def submission_add_topic(request, identifier_w_vn_nr):
         for sub in submission.get_other_versions():
             sub.topics.add(select_topic_form.cleaned_data["topic"])
         try:
-            if submission.publication:
-                submission.publication.topics.add(
+            for publication in submission.publications.all():
+                publication.topics.add(
                     select_topic_form.cleaned_data["topic"]
                 )
         except:
@@ -969,8 +969,8 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
     for sub in submission.get_other_versions():
         sub.topics.remove(topic)
     try:
-        if submission.publication:
-            submission.publication.topics.remove(topic)
+        for publication in submission.publications.all():
+            publication.topics.remove(topic)
     except:
         pass
     messages.success(request, "Successfully removed Topic")

@@ -82,3 +82,17 @@ class PublicationQuerySet(models.QuerySet):
 
     def most_cited(self, n_returns=5):
         return self.order_by("-number_of_citations")[:n_returns]
+
+
+class PublicationResourceQuerySet(models.QuerySet):
+    def current(self):
+        return self.filter(deprecated=False)
+
+    def source(self):
+        return self.filter(_type=self.model.TYPE_SOURCE_REPO)
+
+    def release(self):
+        return self.filter(_type=self.model.TYPE_RELEASE_ARCHIVE_REPO)
+
+    def live(self):
+        return self.filter(_type=self.model.TYPE_LIVE_REPO)

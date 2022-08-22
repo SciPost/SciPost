@@ -1,0 +1,31 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Draft Accompanying Publication{% endblock pagetitle %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+        <span class="breadcrumb-item active">Draft accompanying Publication</span>
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Draft accompanying Publication to <a href="{{ anchor.get_absolute_url }}">{{ anchor.doi_label }}</a></h1>
+      <br>
+      <form action="{% url 'journals:draft_accompanying_publication' anchor.doi_label %}" method="post">
+        {% crispy form %}
+      </form>
+    </div>
+  </div>
+
+
+{% endblock %}

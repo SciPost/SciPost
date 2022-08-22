@@ -77,13 +77,15 @@
 	  </h4>
 	{% endif %}
 
-	{% if submission.thread_full.first.publication and submission.thread_full.first.publication.is_published %}
+	{% if submission.thread_full.first.publications.published %}
 	  <h4 class="mt-4">
 	    <span class="border border-2 border-success p-2">
               This Submission thread is now published as
-              <a href="{{ submission.thread_full.first.publication.get_absolute_url }}">
-		{{ submission.thread_full.first.publication.citation }}
-              </a>
+	      {% for publication in submission.thread_full.first.publications.published %}
+	      	<a href="{{ publication.get_absolute_url }}">
+	      	  {{ publication.citation }}</a>
+	      	{% if not forloop.last %}, {% endif %}
+	      {% endfor %}
 	    </span>
 	  </h4>
 	{% endif %}

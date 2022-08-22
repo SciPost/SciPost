@@ -68,13 +68,15 @@
           {% endif %}
         </td>
       </tr>
-      {% if submission.publication and submission.publication.is_published %}
+      {% if submission.publications.published %}
         <tr>
           <td>Submission is published as:</td>
           <td>
-            <a href="{{ submission.publication.get_absolute_url }}">
-              {{ submission.publication.citation }}
-	    </a>
+	    {% for publication in submission.publications.published %}
+	      <a href="{{ publication.get_absolute_url }}">
+	      	{{ publication.citation }}</a>
+	      {% if not forloop.last %}, {% endif %}
+	    {% endfor %}
           </td>
         </tr>
       {% endif %}
