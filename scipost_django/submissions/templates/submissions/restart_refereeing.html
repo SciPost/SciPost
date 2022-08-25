@@ -33,7 +33,8 @@
       <ul>
 	<li>reactivate the latest editorial assignment to Editor-in-charge {{ submission.editor_in_charge }} (who will have to restart refereeing by choosing a cycle)</li>
 	<li>update the Submission's status to Editor-in-charge assigned
-	<li>deprecate the latest recommendation</li>
+	  <li>deprecate the latest recommendation</li>
+	  <li>deprecate any EditorialDecision</li>
       </ul>
 
       <form action="{% url 'submissions:restart_refereeing' submission.preprint.identifier_w_vn_nr %}" method="post">
