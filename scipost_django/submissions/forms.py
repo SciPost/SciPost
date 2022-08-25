@@ -1572,6 +1572,11 @@ class SubmissionReassignmentForm(forms.ModelForm):
     new_editor = forms.ModelChoiceField(
         queryset=Contributor.objects.none(), required=True
     )
+    email_old_eic = forms.BooleanField(
+        required=False,
+        initial=True,
+        help_text="Whether the previous EiC should be informed",
+    )
 
     class Meta:
         model = Submission
@@ -1612,7 +1617,7 @@ class SubmissionReassignmentForm(forms.ModelForm):
         self.submission.save()
 
         # Email old and new editor
-        if old_assignment:
+        if old_assignment and self.cleaned_data["email_old_eic"]:
             mail_sender = DirectMailUtil(
                 "fellows/email_fellow_replaced_by_other", assignment=old_assignment
             )
