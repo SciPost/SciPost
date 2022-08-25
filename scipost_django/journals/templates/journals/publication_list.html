@@ -1,15 +1,11 @@
-{% extends 'scipost/layout_2_col.html' %}
+{% extends 'journals/base.html' %}
 
 {% load bootstrap %}
 {% load request_filters %}
 {% load submissions_extras %}
 
-{% block body_class %}{{block.super}} sidebar-left{% endblock %}
-
 {% block meta_description %}{{ block.super }} Publication List{% endblock meta_description %}
 {% block pagetitle %}: Publications{% endblock pagetitle %}
-
-{% block page_header %}<h1 class="highlight">Recent SciPost Publications</h1>{% endblock page_header %}
 
 {% block breadcrumb_items %}
   <li class="breadcrumb-item"><a href="{% url 'journals:journals' %}">Journals</a></li>
@@ -48,21 +44,3 @@
   </div>
 
 {% endblock content %}
-
-
-{% block sidebar %}
-  <div class="row">
-    <div class="col-12">
-      <h2>Recent Issues</h2>
-      <div class="mb-1 ps-2">
-        <a href="?{% url_replace issue='' page='' subject='' %}" class="{% active_get_request 'issue' '' %}">All Issues</a>
-      </div>
-      {% for issue in recent_issues %}
-        <div class="mb-1 ps-2">
-          <a href="?{% url_replace issue=issue.id page='' subject='' %}" class="{% active_get_request 'issue' issue.id %}">{{ issue.in_volume.in_journal }} {{ issue.short_str }}</a>
-          <br>{{ issue.period_as_string }}
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-{% endblock %}
