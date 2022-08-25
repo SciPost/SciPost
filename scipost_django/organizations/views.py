@@ -129,6 +129,17 @@ class OrganizationDeleteView(PermissionsMixin, DeleteView):
     success_url = reverse_lazy("organizations:organizations")
 
 
+class OrganizationRorListView(PermissionsMixin, CreateView):
+    """
+    Create a new Organization.
+    """
+
+    permission_required = "scipost.can_manage_organizations"
+    form_class = OrganizationForm
+    template_name = "organizations/organization_ror_list.html"
+    success_url = reverse_lazy("organizations:organizations")
+
+
 class OrganizationListView(PaginationMixin, ListView):
     model = Organization
     paginate_by = 50

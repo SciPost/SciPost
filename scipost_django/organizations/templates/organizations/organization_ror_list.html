@@ -1,0 +1,110 @@
+{% extends 'scipost/base.html' %}
+
+{% block meta_description %}{{ block.super }} Organizations list{% endblock meta_description %}
+{% block pagetitle %}: Organizations{% endblock pagetitle %}
+
+{% load bootstrap %}
+{% load static %}
+{% load user_groups %}
+{% load add_get_parameters %}
+{% load organizations_extras %}
+{% load countries %}
+
+{% is_scipost_admin request.user as is_scipost_admin %}
+
+{% block headsup %}
+  <link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
+{% endblock headsup %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Organizations</span>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Organizations</h1>
+    </div>
+  </div>
+
+<div class="row">
+  <div class="col-12">
+    <h3>This page lists Organizations which have bit yet been synchronised with ROR.</h3>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-12">
+    <table class="table table-hover mb-5">
+<thead class="table-light">
+  <tr>
+    <th><a href="{% add_get_parameters order_by='country' %}">Country</a></th>
+    <th><a href="{% add_get_parameters order_by='name' %}">Name</a>&nbsp;&nbsp;<small>[acronym]</small></th>
+    <th>NAP <span data-bs-toggle="tooltip" data-bs-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab">{% include 'bi/info-circle-fill.html' %}</span>
+      {% if request.GET.ordering != 'asc' %}
+  <a href="{% add_get_parameters order_by='nap' ordering='asc' %}">{% include 'bi/sort-up.html' %}</a>
+      {% else %}
+  <a href="{% url 'organizations:organizations' %}">{% include 'bi/sort-up.html' %}</a>
+      {% endif %}
+      {% if request.GET.ordering != 'desc' %}
+  <a href="{% add_get_parameters order_by='nap' ordering='desc' %}">{% include 'bi/sort-down.html' %}</a>
+      {% else %}
+  <a href="{% url 'organizations:organizations' %}">{% include 'bi/sort-down.html' %}</a>
+      {% endif %}
+    </th>
+    <th>SciPost sponsor?</th>
+  </tr>
+</thead>
+<tbody>
+  {% for org in object_list %}
+    <tr class="table-row" data-href="{% url 'organizations:organization_detail' pk=org.id %}" style="cursor: pointer;">
+      <td><img src="{{ org.country.flag }}" alt="{{ org.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ org.country }}]</small></span>&nbsp;&nbsp;{{ org.get_country_display }}</td>
+      <td>
+  {{ org.full_name }}&nbsp;&nbsp;<small>{% if org.acronym %}[{{ org.acronym }}]{% endif %}</small>
+  {% if org.parent %}
+    <p><small class="text-muted">Parent: {{ org.parent }}</small></p>
+  {% endif %}
+  {% if org.children.all %}
+    <p><small class="text-muted">
+      Parent of:
+      {% for child in org.children.all %}
+        {{ child }}{% if not forloop.last %},&nbsp;{% endif %}
+      {% endfor %}
+    </small></p>
+  {% endif %}
+  {% if org.superseded_by %}
+    <p><small class="text-muted">Superseded by {{ org.superseded_by }}</small></p>
+  {% endif %}
+      </td>
+      <td>{{ org.cf_nr_associated_publications }}</td>
+      {% if org.has_current_subsidy %}
+  <td class="bg-success">Yes, current</td>
+      {% elif org.has_children_with_current_subsidy %}
+  <td class="bg-success">Yes, as&nbsp;parent</td>
+      {% elif org.subsidy_set.all|length > 0 %}
+  <td class="bg-primary text-white">Yes, past</td>
+      {% else %}
+  <td class="bg-warning">Not yet</td>
+      {% endif %}
+    </tr>
+  {% empty %}
+    <tr><td colspan="4">No organizations found</td></tr>
+  {% endfor %}
+</tbody>
+    </table>
+
+    {% if is_paginated %}
+<div class="col-12">
+  {% include '_pagination.html' with page_obj=page_obj %}
+</div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock content %}
+
+{% block footer_script %}
+  {{ form.media }}
+{% endblock %}

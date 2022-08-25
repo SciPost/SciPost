@@ -15,6 +15,7 @@ urlpatterns = [
         name="organization-autocomplete",
     ),
     path("", views.OrganizationListView.as_view(), name="organizations"),
+    path("add/", views.OrganizationRorListView.as_view(), name="organization_ror"),
     path("add/", views.OrganizationCreateView.as_view(), name="organization_create"),
     path(
         "<int:pk>/update/",
