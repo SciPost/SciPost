@@ -129,16 +129,62 @@ class OrganizationDeleteView(PermissionsMixin, DeleteView):
     success_url = reverse_lazy("organizations:organizations")
 
 
-class OrganizationRorListView(PermissionsMixin, CreateView):
+class OrganizationRorListView(PaginationMixin, ListView):
     """
-    Create a new Organization.
+    List Organizations without a ROR ID.
     """
 
-    permission_required = "scipost.can_manage_organizations"
+    #permission_required = "scipost.can_manage_organizations"
     form_class = OrganizationForm
     template_name = "organizations/organization_ror_list.html"
     success_url = reverse_lazy("organizations:organizations")
+    model = Organization
+    paginate_by = 50
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        if self.request.user.has_perm("scipost.can_manage_organizations"):
+            context["nr_funders_wo_organization"] = Funder.objects.filter(
+                organization=None
+            ).count()
+        context["pubyears"] = range(int(timezone.now().strftime("%Y")), 2015, -1)
+        context["countrycodes"] = [
+            code["country"]
+            for code in list(
+                Organization.objects.all().distinct("country").values("country")
+            )
+        ]
+        context["select_organization_form"] = SelectOrganizationForm()
+        return context
+
+    def get_queryset(self):
+        qs = super().get_queryset().exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
+        country = self.request.GET.get("country")
+        order_by = self.request.GET.get("order_by")
+        ordering = self.request.GET.get("ordering")
+        if country:
+            qs = qs.filter(country=country)
+        if order_by == "country":
+            qs = qs.order_by("country")
+        elif order_by == "name":
+            qs = qs.order_by("name")
+        elif order_by == "nap":
+            qs = qs.exclude(cf_nr_associated_publications__isnull=True).order_by(
+                "cf_nr_associated_publications"
+            )
+        if ordering == "desc":
+            qs = qs.reverse()
+        return qs.prefetch_related('logos')
+
+
+def get_organization_detail(request):
+    org_id = request.GET.get("organization", None)
+    if org_id:
+        return redirect(
+            reverse("organizations:organization_detail", kwargs={"pk": org_id})
+        )
+    return redirect(reverse("organizations:organizations"))
+ 
 
 class OrganizationListView(PaginationMixin, ListView):
     model = Organization

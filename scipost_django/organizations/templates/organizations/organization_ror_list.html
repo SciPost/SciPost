@@ -24,15 +24,77 @@
 {% block content %}
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">Organizations</h1>
+      <h1 class="highlight">Organizations without a ROR ID</h1>
     </div>
   </div>
 
 <div class="row">
   <div class="col-12">
-    <h3>This page lists Organizations which have bit yet been synchronised with ROR.</h3>
+    <h3>This page lists Organizations which have not yet been synchronised with ROR.</h3>
   </div>
 </div>
+
+
+<div class="row">
+  <div class="col-lg-5">
+    <p>Organizations are linked through appearing in a publication's author affiliations, grant-giving agencies or explicit support acknowledgements.</p>
+    <p>For each Organization, the NAP (number of associated publications) is given (you can order in decreasing/increasing NAP using the header arrows).</p>
+  </div>
+  <div class="col-lg-1"></div>
+  <div class="col-lg-5">
+    <p>Click on a row to see more details about the Organization, including per-year breakdowns of:</p>
+    <ul>
+<li>associated publications</li>
+{% if is_scipost_admin %}
+  <li>associated support fractions</li>
+{% endif %}
+<li>associated authors</li>
+<li>partnership history</li>
+    </ul>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-lg-3">
+    <h3>Search for a particular Organization</h3>
+    <p>(by name or acronym)</p>
+  </div>
+  <div class="col-lg-8">
+    <form action="{% url 'organizations:get_organization_detail' %}" method="get">
+<ul class="list-inline">
+  <li class="list-inline-item">
+    {{ select_organization_form.as_p }}
+  </li>
+  <li class="list-inline-item">
+    <input type="submit" value="View" class="btn btn-secondary py-1">
+  </li>
+</ul>
+    </form>
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-3">
+    <h3>Click on flag to view by Country</h3>
+    <p><a href="{% url 'organizations:organizations' %}">View all</a></p>
+  </div>
+  <div class="col-lg-8">
+    <ul>
+{% for code in countrycodes %}
+  {% get_country code as country_obj %}
+  <li style="display: inline-block;">
+    <a href="{% add_get_parameters country=code %}">
+      <i class="{{ country_obj.flag_css }}"
+   data-bs-toggle="tooltip"
+   title="{{ country_obj.name }}"></i>
+    </a>
+  </li>
+{% endfor %}
+    </ul>
+  </div>
+</div>
+
 
 
 <div class="row">
@@ -105,6 +167,9 @@
 </div>
 {% endblock content %}
 
+
 {% block footer_script %}
-  {{ form.media }}
+  <script src="{% static 'scipost/table-row-blank.js' %}"></script>
+  {{ select_organization_form.media }}
 {% endblock %}
+
