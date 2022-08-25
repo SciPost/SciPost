@@ -134,7 +134,7 @@ class OrganizationRorListView(PaginationMixin, ListView):
     List Organizations without a ROR ID.
     """
 
-    #permission_required = "scipost.can_manage_organizations"
+    permission_required = "scipost.can_manage_organizations"
     form_class = OrganizationForm
     template_name = "organizations/organization_ror_list.html"
     success_url = reverse_lazy("organizations:organizations")
@@ -172,6 +172,7 @@ class OrganizationRorListView(PaginationMixin, ListView):
             qs = qs.exclude(cf_nr_associated_publications__isnull=True).order_by(
                 "cf_nr_associated_publications"
             )
+        qs = qs.filter(ror_json={})
         if ordering == "desc":
             qs = qs.reverse()
         return qs.prefetch_related('logos')
