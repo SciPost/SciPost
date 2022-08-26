@@ -40,6 +40,8 @@ from .constants import (
     POTENTIAL_FELLOWSHIP_EVENT_EMAILED,
 )
 from .forms import (
+    CollegeChoiceForm,
+    FellowshipSearchForm,
     FellowshipDynSelForm,
     FellowshipForm,
     FellowshipRemoveSubmissionForm,
@@ -429,6 +431,49 @@ def fellowship_add_proceedings(request, id):
         "form": form,
     }
     return render(request, "colleges/fellowship_proceedings_add.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin_or_senior_fellow)
+def fellowships_monitor(request):
+    """
+    Dashboard providing an overview of Fellows' activity levels (forlevels of activity. EdAdmin and SF).
+    """
+    context = {
+        "college_choice_form": CollegeChoiceForm(),
+    }
+    return render(request, "colleges/fellowships_monitor.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin_or_senior_fellow)
+def _hx_fellowships_monitor_college_choice(request):
+    if request.method == "POST":
+        form = CollegeChoiceForm(request.POST)
+        if form.is_valid():
+            fellowships_search_form = FellowshipSearchForm(
+                initial={"college": form.cleaned_data["college"]},
+            )
+            context = {
+                "fellowships_search_form": fellowships_search_form,
+            }
+            return render(request, "colleges/_hx_fellowships_search_form.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin_or_senior_fellow)
+def _hx_fellowships_monitor(request):
+    if request.method == "POST":
+        form = FellowshipSearchForm(request.POST)
+        if form.is_valid():
+            fellowships = form.search_results()
+        else:
+            fellowships = Fellowship.objects.active()
+        paginator = Paginator(fellowships, 16)
+        page_nr = request.GET.get("page")
+        page_obj = paginator.get_page(page_nr)
+        context = {"page_obj": page_obj}
+        return render(request, "colleges/_hx_fellowships_monitor.html", context)
 
 
 #########################

@@ -9,7 +9,7 @@
 </div>
 <div class="card-body">
   {% if perms.scipost.can_draft_publication and stream.status == 'accepted' %}
-    <p>The proofs have been accepted. Please start <a href="{% url 'journals:update_publication' stream.submission.preprint.identifier_w_vn_nr %}">drafting the Publication here</a>.</p>
+    <p>The proofs have been accepted. Please start <a href="{% url 'journals:create_publication' stream.submission.preprint.identifier_w_vn_nr %}">drafting the Publication here</a>.</p>
   {% endif %}
   <h3>Stream details</h3>
   <ul>

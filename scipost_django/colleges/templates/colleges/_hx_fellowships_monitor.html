@@ -1,0 +1,83 @@
+{% for fellow in page_obj %}
+  <tr id="fellowship_{{ fellow.id }}">
+    <tr>
+      <td>
+	{% if "edadmin" in user_roles %}
+	  <a href="{{ fellow.get_absolute_url }}">{{ fellow.contributor }}</a>
+	{% else %}
+	  {{ fellow.contributor }}
+	{% endif %}
+      </td>
+      <td>{% if fellow.guest %}<span class="text-warning">Guest</span>{% elif fellow.senior %}<span class="text-success">Senior</span>{% else %}<span class="text-primary">Regular{% endif %}</td>
+	<td>{{ fellow.contributor.profile.acad_field }}
+	  <br/>
+	  {% for specialty in fellow.contributor.profile.specialties.all %}
+	    <div class="single d-inline text-muted" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+	  {% endfor %}
+	</td>
+	<td>
+	  <small class="text-muted">
+	    {{ fellow.start_date|default:'<i>No start date</i>' }}<br/>
+	    {{ fellow.until_date|default:'<i>No end date</i>' }}
+	  </small>
+	</td>
+	<td>
+	  {{ fellow.contributor.editorial_assignments.ongoing.count }}
+	</td>
+	<td>
+	  {{ fellow.contributor.editorial_assignments.last_year.count }}<br/>
+	  <small class="text-muted">
+	    {{ fellow.contributor.editorial_assignments.last_two_years.count }}<br/>
+	    [{{ fellow.contributor.editorial_assignments.count }}]
+	  </small>
+	</td>
+	<td>
+	  {{ fellow.contributor.editorial_assignments.last_year.accepted.count }}<br/>
+	  <small class="text-muted">
+	    {{ fellow.contributor.editorial_assignments.last_two_years.accepted.count }}<br/>
+	    [{{ fellow.contributor.editorial_assignments.accepted.count }}]
+	  </small>
+	</td>
+	<td>
+	  {{ fellow.contributor.editorial_assignments.last_year.declined.count }}<br/>
+	  <small class="text-muted">
+	    {{ fellow.contributor.editorial_assignments.last_two_years.declined.count }}<br/>
+	    [{{ fellow.contributor.editorial_assignments.declined.count }}]
+	  </small>
+	</td>
+	<td>
+	  {{ fellow.contributor.editorial_assignments.last_year.deprecated.count }}<br/>
+	  <small class="text-muted">
+	    {{ fellow.contributor.editorial_assignments.last_two_years.deprecated.count }}<br/>
+	    [{{ fellow.contributor.editorial_assignments.deprecated.count }}]
+	  </small>
+	</td>
+	<td>
+	  {{ fellow.contributor.editorial_assignments.last_year.completed.count }}<br/>
+	  <small class="text-muted">
+	    {{ fellow.contributor.editorial_assignments.last_two_years.completed.count }}<br/>
+	    [{{ fellow.contributor.editorial_assignments.completed.count }}]
+	  </small>
+	</td>
+    </tr>
+{% empty %}
+    <tr>
+      <td class="text-danger py-2" colspan="4">No fellowships found</td>
+    </tr>
+{% endfor %}
+
+{% if page_obj.has_next %}
+  <tr hx-post="{% url 'colleges:_hx_fellowships_monitor' %}?page={{ page_obj.next_page_number }}"
+      hx-include="#fellowships-search-form"
+      hx-trigger="revealed"
+      hx-swap="afterend"
+      hx-indicator="#indicator-search-page-{{ page_obj.number }}"
+  >
+    <td id="indicator-search-page-{{ page_obj.number }}" class="htmx-indicator p-2">
+      <button class="btn btn-warning" type="button" disabled>
+	<strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </td>
+  </tr>
+{% endif %}

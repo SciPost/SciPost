@@ -176,7 +176,7 @@
 	  {% if is_ed_admin %}
             {% if submission.status == 'accepted' %}
               <li class="pb-2"><a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
-              <li class="pb-2"><a href="{% url 'journals:update_publication' submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
+              <li class="pb-2"><a href="{% url 'journals:create_publication' submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
             {% endif %}
 	  {% endif %}
 

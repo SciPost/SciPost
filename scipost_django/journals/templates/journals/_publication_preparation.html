@@ -2,7 +2,7 @@
 
 <h3>Publication preparation</h3>
 <ul>
-  <li><span class="text-success">{% include 'bi/check-square-fill.html' %}</span><a href="{% url 'journals:update_publication' publication.accepted_submission.preprint.identifier_w_vn_nr %}">Create/update Publication object</a></li>
+  <li><span class="text-success">{% include 'bi/check-square-fill.html' %}</span><a href="{% url 'journals:update_publication' publication.doi_label %}">Update Publication object</a></li>
   <li>{% if publication|has_all_author_relations %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/square.html' %}{% endif %}<a href="{% url 'journals:add_author' publication.doi_label %}">Create all author relations</a></li>
   <li>{% if publication|authors_in_right_order %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/square.html' %}{% endif %}<a href="{% url 'journals:update_author_ordering' doi_label=publication.doi_label %}">Update Author ordering</a></li>
   <li>{% if publication|author_affiliations_complete %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/square.html' %}{% endif %}<a href="{% url 'journals:author_affiliations' doi_label=publication.doi_label %}">Manage Author Affiliations</a></li>

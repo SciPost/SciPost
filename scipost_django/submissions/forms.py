@@ -225,8 +225,18 @@ class SubmissionPoolSearchForm(forms.Form):
             (
                 "Refereeing",
                 (
-                    (STATUS_EIC_ASSIGNED, "Editor-in-charge assigned; in refereeing"),
+                    ("actively_refereeing", "In refereeing"),
                     ("unvetted_reports", "... with unvetted Reports"),
+                    ("deadline_passed", "deadline passed, no recommendation yet"),
+                    ("refereeing_1", "Refereeing round ongoing for > 1 month"),
+                    ("refereeing_2", "Refereeing round ongoing for > 2 months"),
+                    ("refereeing_3", "Refereeing round ongoing for > 3 months"),
+                ),
+            ),
+            (
+                "Revision requested",
+                (
+                    ("revision_requested", "Minor or major revision requested"),
                 ),
             ),
             (
@@ -371,10 +381,44 @@ class SubmissionPoolSearchForm(forms.Form):
                 status=STATUS_UNASSIGNED,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=28),
             )
+        elif status == "actively_refereeing":
+            submissions = submissions.actively_refereeing()
         elif status == "unvetted_reports":
             reports_to_vet = Report.objects.awaiting_vetting()
             id_list = [r.submission.id for r in reports_to_vet.all()]
             submissions = submissions.filter(id__in=id_list)
+        elif status == "deadline_passed":
+            submissions = submissions.actively_refereeing().filter(
+                reporting_deadline__lt=timezone.now(),
+            ).exclude(eicrecommendations__isnull=False)
+        elif status == "refereeing_1":
+            submissions = submissions.filter(
+                referee_invitations__date_invited__lt=(
+                    timezone.now() - datetime.timedelta(days=30)
+                )
+            ).exclude(
+                referee_invitations__date_invited__lt=(
+                    timezone.now() - datetime.timedelta(days=60)
+                )
+            ).distinct().exclude(eicrecommendations__isnull=False)
+        elif status == "refereeing_2":
+            submissions = submissions.filter(
+                referee_invitations__date_invited__lt=(
+                    timezone.now() - datetime.timedelta(days=60)
+                )
+            ).exclude(
+                referee_invitations__date_invited__lt=(
+                    timezone.now() - datetime.timedelta(days=90)
+                )
+            ).distinct().exclude(eicrecommendations__isnull=False)
+        elif status == "refereeing_3":
+            submissions = submissions.filter(
+                referee_invitations__date_invited__lt=(
+                    timezone.now() - datetime.timedelta(days=90)
+                )
+            ).distinct().exclude(eicrecommendations__isnull=False)
+        elif status == "revision_requested":
+            submissions = submissions.revision_requested()
         elif status == "voting_prepare":
             submissions = submissions.voting_in_preparation()
         elif status == "voting_ongoing":
@@ -1528,6 +1572,11 @@ class SubmissionReassignmentForm(forms.ModelForm):
     new_editor = forms.ModelChoiceField(
         queryset=Contributor.objects.none(), required=True
     )
+    email_old_eic = forms.BooleanField(
+        required=False,
+        initial=True,
+        help_text="Whether the previous EiC should be informed",
+    )
 
     class Meta:
         model = Submission
@@ -1568,7 +1617,7 @@ class SubmissionReassignmentForm(forms.ModelForm):
         self.submission.save()
 
         # Email old and new editor
-        if old_assignment:
+        if old_assignment and self.cleaned_data["email_old_eic"]:
             mail_sender = DirectMailUtil(
                 "fellows/email_fellow_replaced_by_other", assignment=old_assignment
             )
@@ -2584,6 +2633,7 @@ class RestartRefereeingForm(forms.Form):
                 to=self.submission.editor_in_charge, status=STATUS_COMPLETED
             ).update(status=STATUS_ACCEPTED)
             self.submission.eicrecommendations.active().update(status=DEPRECATED)
+            self.submission.editorialdecision_set.update(status=EditorialDecision.DEPRECATED)
 
             # Delete any production stream
             if hasattr(self.submission, "production_stream"):

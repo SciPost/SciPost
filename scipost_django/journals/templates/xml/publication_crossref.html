@@ -128,16 +128,18 @@
                 <doi_data>
                     <doi>{{ publication.doi_string }}</doi>
                     <resource>https://{{ domain }}/{{ publication.doi_string }}</resource>
-                    <collection property='crawler-based'>
+		    {% if publication.pdf_file %}
+                      <collection property='crawler-based'>
                         <item crawler='iParadigms'>
-                            <resource>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
+                          <resource>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
                         </item>
-                    </collection>
-                    <collection property='text-mining'>
+                      </collection>
+                      <collection property='text-mining'>
                         <item>
-                            <resource mime_type='application/pdf'>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
+                          <resource mime_type='application/pdf'>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
                         </item>
-                    </collection>
+                      </collection>
+		    {% endif %}
                 </doi_data>
                 {% if publication.metadata.citation_list %}
                     <citation_list>

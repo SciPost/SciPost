@@ -77,15 +77,18 @@
 	  </h4>
 	{% endif %}
 
-	{% if submission.thread_full.first.publication and submission.thread_full.first.publication.is_published %}
-	  <h4 class="mt-4">
-	    <span class="border border-2 border-success p-2">
+	{% if submission.thread_full.first.publications.published %}
+	  <div class="d-inline-flex flex-column border border-2 border-success p-2">
+	    <h4 class="text-primary">
               This Submission thread is now published as
-              <a href="{{ submission.thread_full.first.publication.get_absolute_url }}">
-		{{ submission.thread_full.first.publication.citation }}
-              </a>
-	    </span>
-	  </h4>
+	    </h4>
+	    <ul class="mb-0">
+	      {% for publication in submission.thread_full.first.publications.published %}
+	      	<li><a href="{{ publication.get_absolute_url }}">
+	      	  {{ publication.citation }}</a></li>
+	      {% endfor %}
+	    </ul>
+	  </div>
 	{% endif %}
 
 	{% if unfinished_report_for_user %}

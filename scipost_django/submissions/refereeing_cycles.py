@@ -355,12 +355,12 @@ class BaseCycle:
         elif self._submission.status == constants.STATUS_WITHDRAWN:
             texts.append("The authors have withdrawn the Submission.")
         elif self._submission.status == constants.STATUS_PUBLISHED:
-            texts.append(
-                'The Submission has been published as <a href="{url}">{doi}</a>.'.format(
-                    url=self._submission.publication.get_absolute_url(),
-                    doi=self._submission.publication.doi_label,
-                )
-            )
+            texts.append("The Submission has been published as ")
+            for publication in self._submission.publications.published():
+                texts.append('<a href="{url}">{doi}</a> '.format(
+                    url=publication.get_absolute_url(),
+                    doi=publication.doi_label,
+                ))
         elif self._submission.status == constants.STATUS_EIC_ASSIGNED:
             if not self._submission.in_refereeing_phase:
                 if recommendation:

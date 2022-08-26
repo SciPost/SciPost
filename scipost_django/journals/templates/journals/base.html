@@ -54,9 +54,11 @@
 	    {{ journal.name }} has been awarded the DOAJ Seal <img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="40"> from the <a href="https://doaj.org">Directory of Open Access Journals</a>.
 	  </p>
 	{% endif %}
-	<p>
-	  All content in {{ journal }} is deposited and permanently preserved in the CLOCKSS archive <a href="https://www.clockss.org/clockss/Home" target="_blank" rel="noopener"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" alt="CLOCKSS logo" width="40"></a>
-	</p>
+	{% if journal.has_CLOCKSS %}
+	  <p>
+	    All content in {{ journal }} is deposited and permanently preserved in the CLOCKSS archive <a href="https://www.clockss.org/clockss/Home" target="_blank" rel="noopener"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" alt="CLOCKSS logo" width="40"></a>
+	  </p>
+	{% endif %}
       </div>
     </div>
   </footer>

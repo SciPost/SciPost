@@ -102,6 +102,8 @@ class Journal(models.Model):
 
     has_DOAJ_Seal = models.BooleanField(default=False)
 
+    has_CLOCKSS = models.BooleanField(default=True)
+
     # Templates
     template_latex_tgz = models.FileField(
         verbose_name="Template (LaTeX, gzipped tarball)",

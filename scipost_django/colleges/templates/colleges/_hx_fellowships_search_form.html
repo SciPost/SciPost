@@ -1,0 +1,10 @@
+{% load crispy_forms_tags %}
+
+<form
+  hx-post="{% url 'colleges:_hx_fellowships_monitor' %}"
+	   hx-trigger="load, keyup delay:500ms, change"
+	   hx-target="#fellowships-search-results"
+	   hx-indicator="#indicator-search"
+>
+  <div>{% crispy fellowships_search_form %}</div>
+</form>

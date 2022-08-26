@@ -90,6 +90,22 @@ urlpatterns = [
         views.fellowship_remove_proceedings,
         name="fellowship_remove_proceedings",
     ),
+    path(
+        "fellowships_monitor",
+        views.fellowships_monitor,
+        name="fellowships_monitor",
+    ),
+    path(
+        "_hx_fellowships_monitor_college_choice",
+        views._hx_fellowships_monitor_college_choice,
+        name="_hx_fellowships_monitor_college_choice",
+    ),
+    path(
+        "_hx_fellowships_monitor",
+        views._hx_fellowships_monitor,
+        name="_hx_fellowships_monitor",
+    ),
+
     # Potential Fellowships
     path(
         "potentialfellowships/add/",

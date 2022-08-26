@@ -75,7 +75,6 @@ class SubmissionAdmin(GuardedModelAdmin):
         "visible_pool",
         "refereeing_cycle",
         "submission_date",
-        "publication",
     )
     list_filter = ("status", "acad_field", "specialties", "submitted_to")
     search_fields = [
@@ -100,7 +99,6 @@ class SubmissionAdmin(GuardedModelAdmin):
         "plagiarism_report",
         "topics",
     ]
-    readonly_fields = ("publication",)
     inlines = [
         SubmissionTieringInline,
     ]
@@ -115,7 +113,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         (
             None,
             {
-                "fields": ("preprint", "publication", "title", "abstract"),
+                "fields": ("preprint", "title", "abstract"),
             },
         ),
         (

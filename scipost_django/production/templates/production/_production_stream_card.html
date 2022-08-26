@@ -102,7 +102,7 @@
         <li><a href="{% url 'production:mark_as_completed' stream_id=stream.id %}">Mark this stream as completed</a></li>
       {% endif %}
       {% if perms.scipost.can_draft_publication and stream.status == 'accepted' %}
-        <li><a href="{% url 'journals:update_publication' stream.submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
+        <li><a href="{% url 'journals:create_publication' stream.submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
       {% endif %}
     </ul>
   {% endif %}

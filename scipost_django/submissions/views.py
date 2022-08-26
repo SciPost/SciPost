@@ -23,7 +23,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db import transaction, IntegrityError
-from django.db.models import Q
+from django.db.models import Q, Count, Sum
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
@@ -945,8 +945,8 @@ def submission_add_topic(request, identifier_w_vn_nr):
         for sub in submission.get_other_versions():
             sub.topics.add(select_topic_form.cleaned_data["topic"])
         try:
-            if submission.publication:
-                submission.publication.topics.add(
+            for publication in submission.publications.all():
+                publication.topics.add(
                     select_topic_form.cleaned_data["topic"]
                 )
         except:
@@ -969,8 +969,8 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
     for sub in submission.get_other_versions():
         sub.topics.remove(topic)
     try:
-        if submission.publication:
-            submission.publication.topics.remove(topic)
+        for publication in submission.publications.all():
+            publication.topics.remove(topic)
     except:
         pass
     messages.success(request, "Successfully removed Topic")
@@ -3029,6 +3029,40 @@ class PlagiarismInternalView(SubmissionAdminViewMixin, DetailView):
 ##############
 
 
+def submissions_versus_fellows(submissions):
+    stats = []
+    from ontology.models import AcademicField
+    for acad_field in AcademicField.objects.all():
+        for specialty in acad_field.specialties.all():
+            submissions_in_spec = submissions.filter(
+                acad_field=acad_field, specialties__in=[specialty]
+            )
+            nr_streams = len(submissions_in_spec.filter(is_resubmission_of__isnull=True))
+            number = len(submissions_in_spec)
+            fellows = Fellowship.objects.active().filter(
+                contributor__profile__specialties__in=[specialty]
+            )
+            fellows_total = fellows.count()
+            fellows_senior = fellows.senior().count()
+            fellows_regular = fellows.regular().count()
+            fellows_guest = fellows.guests().count()
+            if number > 0:
+                stats.append(
+                    {
+                        "acad_field": acad_field,
+                        "specialty": specialty,
+                        "nr_streams": nr_streams,
+                        "number": number,
+                        "fellows_total": fellows_total,
+                        "fellows_senior": fellows_senior,
+                        "fellows_regular": fellows_regular,
+                        "fellows_guest": fellows_guest,
+                        "ratio": nr_streams/fellows_total if fellows_total > 0 else nr_streams,
+                    }
+                )
+    return sorted(stats, key=lambda tup: tup["ratio"], reverse=True)
+
+
 def submissions_processing_timescales(submissions, phase):
     """
     Generate a tuple containing information about timescales on submissions.
@@ -3077,12 +3111,19 @@ def monitor(request):
     Dashboard providing an overview of the status of submission workflows.
     """
     # Compute stats for all submissions under processing
+    # Exclude submissions to Proceedings
+    submissions = Submission.objects.exclude(submitted_to__name__contains="Proceedings")
     context = {
+        "submissions_versus_fellows": submissions_versus_fellows(
+            submissions.filter(
+                submission_date__gt=timezone.now() - datetime.timedelta(days=365),
+            )
+        ),
         "timescales_screening": submissions_processing_timescales(
-            Submission.objects.unassigned(), "screening"
+            submissions.unassigned(), "screening"
         ),
         "timescales_original_submission_to_acceptance": submissions_processing_timescales(
-            Submission.objects.accepted(), "original_submission_to_acceptance"
+            submissions.accepted(), "original_submission_to_acceptance"
         ),
     }
     return render(request, "submissions/monitor.html", context)

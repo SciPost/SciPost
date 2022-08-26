@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from decimal import Decimal
+from string import Template as string_Template
 
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -23,6 +24,7 @@ from ..helpers import paper_nr_string
 from ..managers import PublicationQuerySet
 from ..validators import doi_publication_validator
 
+from common.utils import get_current_domain
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 
@@ -83,9 +85,21 @@ class Publication(models.Model):
     It may be directly related to a Journal or to an Issue.
     """
 
+    PUBTYPE_ARTICLE = "article"
+    PUBTYPE_CODEBASE_RELEASE = "codebase_release"
+    PUBTYPE_CHOICES = (
+        (PUBTYPE_ARTICLE, "Article"),
+        (PUBTYPE_CODEBASE_RELEASE, "Codebase release"),
+    )
+    pubtype = models.CharField(
+        max_length=32,
+        choices=PUBTYPE_CHOICES,
+        default=PUBTYPE_ARTICLE,
+    )
+
     # Publication data
-    accepted_submission = models.OneToOneField(
-        "submissions.Submission", on_delete=models.CASCADE, related_name="publication"
+    accepted_submission = models.ForeignKey(
+        "submissions.Submission", on_delete=models.CASCADE,
     )
     in_issue = models.ForeignKey(
         "journals.Issue",
@@ -102,6 +116,7 @@ class Publication(models.Model):
         help_text="Assign either an Issue or Journal to the Publication",
     )
     paper_nr = models.PositiveSmallIntegerField()
+    paper_nr_suffix = models.CharField(max_length=32, blank=True)
     status = models.CharField(
         max_length=8, choices=PUBLICATION_STATUSES, default=STATUS_DRAFT
     )
@@ -115,7 +130,11 @@ class Publication(models.Model):
         default="",
         help_text="JATS version of abstract for Crossref deposit",
     )
-    pdf_file = models.FileField(upload_to="UPLOADS/PUBLICATIONS/%Y/%m/", max_length=200)
+    pdf_file = models.FileField(
+        upload_to="UPLOADS/PUBLICATIONS/%Y/%m/",
+        max_length=200,
+        blank=True
+    )
 
     # Ontology-based semantic linking
     acad_field = models.ForeignKey(
@@ -151,7 +170,6 @@ class Publication(models.Model):
         db_index=True,
         validators=[doi_publication_validator],
     )
-    BiBTeX_entry = models.TextField(blank=True)
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = models.JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
@@ -345,8 +363,50 @@ class Publication(models.Model):
         return self.metadata_xml != ""
 
     @property
-    def has_bibtex_entry(self):
-        return self.BiBTeX_entry != ""
+    def BiBTeX(self):
+        bibtex_entry = ("@Article{%s,\n" "\ttitle={{%s}},\n" "\tauthor={%s},\n") % (
+            self.doi_string,
+            self.title,
+            self.author_list.replace(",", " and"),
+        )
+        if self.in_issue:
+            if self.in_issue.in_volume:
+                bibtex_entry += "\tjournal={%s},\n\tvolume={%i},\n" % (
+                    self.in_issue.in_volume.in_journal.name_abbrev,
+                    self.in_issue.in_volume.number,
+                )
+            elif self.in_issue.in_journal:
+                bibtex_entry += "\tjournal={%s},\n" % self.in_issue.in_journal.name_abbrev
+        elif self.in_journal:
+            bibtex_entry += "\tjournal={%s},\n" % self.in_journal.name_abbrev
+        bibtex_entry += (
+            "\tpages={%s},\n"
+            "\tyear={%s},\n"
+            "\tpublisher={SciPost},\n"
+            "\tdoi={%s},\n"
+            "\turl={https://%s/%s},\n"
+            "}"
+        ) % (
+            self.get_paper_nr(),
+            self.publication_date.strftime("%Y"),
+            self.doi_string,
+            get_current_domain(),
+            self.doi_string,
+        )
+        return bibtex_entry
+
+
+    def resources_as_md(self):
+        """Return a Markdown string representing the list of resources."""
+        if self.resources.all():
+            resources_md = "## Resources:\n\n"
+            for resource in self.resources.all():
+                resources_md += (
+                    f"* {resource.get__type_display()} "
+                    f"at [{resource.url}]({resource.url})\n"
+                )
+            return resources_md
+        return None
 
     @property
     def has_citation_list(self):
@@ -388,23 +448,16 @@ class Publication(models.Model):
         elif self.in_journal:
             citation = "{journal} {paper_nr} ({year})".format(
                 journal=self.in_journal.name_abbrev,
-                paper_nr=self.paper_nr,
+                paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime("%Y"),
             )
         else:
             citation = "{paper_nr} ({year})".format(
-                paper_nr=self.paper_nr, year=self.publication_date.strftime("%Y")
+                paper_nr=self.get_paper_nr(), year=self.publication_date.strftime("%Y")
             )
         self.cf_citation = citation
         self.save()
         return citation
-
-
-    def get_cc_license_URI(self):
-        for (key, val) in CC_LICENSES_URI:
-            if key == self.cc_license:
-                return val
-        raise KeyError
 
     def get_all_funders(self):
         from funders.models import Funder
@@ -429,9 +482,10 @@ class Publication(models.Model):
         return None
 
     def get_paper_nr(self):
-        if self.in_journal:
-            return self.paper_nr
-        return paper_nr_string(self.paper_nr)
+        """Returns the paper number (including possible suffixes) as a string."""
+        s = f"{self.paper_nr}" if self.in_journal else paper_nr_string(self.paper_nr)
+        return f"{s}{f'-{self.paper_nr_suffix}' if self.paper_nr_suffix else ''}"
+
 
     def citation_rate(self):
         """Returns the citation rate in units of nr citations per article per year."""
@@ -449,6 +503,15 @@ class Publication(models.Model):
             .filter(in_issue=self.in_issue)
             .exclude(id=self.id)[:4]
         )
+
+    @property
+    def bundle(self):
+        """Returns a QuerySet of all Publications with same DOI anchor."""
+        doi_anchor = self.doi_label.partition("-")[0]
+        return Publication.objects.filter(
+            models.Q(doi_label=doi_anchor) |
+            models.Q(doi_label__startswith=f"{doi_anchor}-")
+        ).order_by('doi_label')
 
 
 class Reference(models.Model):

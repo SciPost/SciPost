@@ -1,0 +1,70 @@
+{% extends 'colleges/base.html' %}
+
+{% load user_groups %}
+{% load crispy_forms_tags %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
+  <span class="breadcrumb-item">Fellowships monitor</span>
+{% endblock %}
+
+{% block meta_description %}{{ block.super }} Fellowships monitor{% endblock meta_description %}
+{% block pagetitle %}: Fellowships monitor{% endblock pagetitle %}
+
+{% block content %}
+
+  <h1 class="highlight">Fellowships Monitor</h1>
+
+  <div class="row mt-4">
+    <div class="col-lg-6">
+      <form
+	hx-post="{% url 'colleges:_hx_fellowships_monitor_college_choice' %}"
+	hx-trigger="load, keyup delay:500ms, change"
+	hx-target="#fellowships-search-form"
+      >
+	<div id="college-choice-form">{% crispy college_choice_form %}</div>
+      </form>
+    </div>
+    <div class="col-lg-6" id="fellowships-search-form"></div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div id="indicator-search" class="htmx-indicator">
+	<button class="btn btn-sm btn-warning" type="button" disabled>
+	  <strong>Loading...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="p-2">
+    <table class="table">
+      <thead>
+	<tr>
+          <th rowspan="2">
+	    Fellow<br/>{% if "edadmin" in user_roles %}<span class="text-muted">[Click for details]</span>{% endif %}
+	  </th>
+	  <th rowspan="2">Type</th>
+          <th rowspan="2">Field<br/><span class="text-muted">Specialties</span></th>
+          <th rowspan="2">Start&nbsp;date<br/>End&nbsp;date</th>
+          <th colspan="6">
+	    Assignments: last year / <small class="text-muted">last 2 years</small> / <small class="text-muted">[total]</small>
+	  </th>
+	</tr>
+	<tr>
+	  <th><small>Ongoing</small></th>
+          <th><small>Requested</small></th>
+          <th><small>Accepted</small></th>
+          <th><small>Refused</small></th>
+          <th><small>Deprecated</small></th>
+          <th><small>Fulfilled</small></th>
+	</tr>
+      </thead>
+      <tbody id="fellowships-search-results"></tbody>
+    </table>
+  </div>
+
+{% endblock content %}
