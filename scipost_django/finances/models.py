@@ -199,3 +199,35 @@ class WorkLog(models.Model):
     @property
     def slug(self):
         return id_to_slug(self.id)
+
+
+####################
+# Periodic Reports #
+####################
+
+
+class PeriodicReportType(models.Model):
+    name = models.CharField(max_length=256)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
+class PeriodicReport(models.Model):
+    """
+    Any form of report (annual, financial, administrative etc).
+    """
+    _type = models.ForeignKey(
+        'finances.PeriodicReportType',
+        on_delete=models.CASCADE,
+    )
+    _file = models.FileField(
+        upload_to="uploads/periodic_reports/%Y/",
+        max_length=256,
+    )
+    created_on = models.DateTimeField()
+    year = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return f"{self.year} {self.get__type_display()}"

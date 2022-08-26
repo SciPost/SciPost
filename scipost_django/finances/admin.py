@@ -4,7 +4,13 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Subsidy, SubsidyAttachment, WorkLog
+from .models import (
+    Subsidy,
+    SubsidyAttachment,
+    WorkLog,
+    PeriodicReportType,
+    PeriodicReport,
+)
 
 
 class SubsidyAttachmentInline(admin.TabularInline):
@@ -34,3 +40,8 @@ class WorkLogAdmin(admin.ModelAdmin):
 
 
 admin.site.register(WorkLog, WorkLogAdmin)
+
+
+admin.site.register(PeriodicReportType)
+
+admin.site.register(PeriodicReport)
