@@ -151,7 +151,7 @@
 		<td class="bg-success">Yes, current</td>
 	      {% elif org.has_children_with_current_subsidy %}
 		<td class="bg-success">Yes, as&nbsp;parent</td>
-	      {% elif org.subsidy_set.all|length > 0 %}
+	      {% elif org.subsidy_set.obtained|length > 0 %}
 		<td class="bg-primary text-white">Yes, past</td>
 	      {% else %}
 		<td class="bg-warning">Not yet</td>

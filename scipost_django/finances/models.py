@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from .constants import SUBSIDY_TYPES, SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_STATUS
+from .managers import SubsidyQuerySet
 from .utils import id_to_slug
 
 from scipost.storage import SecureFileStorage
@@ -52,6 +53,8 @@ class Subsidy(models.Model):
     renewal_of = models.ManyToManyField(
         "self", related_name="renewed_by", symmetrical=False, blank=True
     )
+
+    objects = SubsidyQuerySet.as_manager()
 
     class Meta:
         verbose_name_plural = "subsidies"

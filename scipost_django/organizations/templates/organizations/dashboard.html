@@ -123,7 +123,7 @@
 	      <li>
 		<h4>{{ role.organization }}</h4>
 
-		{% if role.organization.subsidy_set.all|length > 0 %}
+		{% if role.organization.subsidy_set.obtained|length > 0 %}
 		  <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
 		  <table class="table table-hover mb-5">
 		    <thead class="table-light">
@@ -134,7 +134,7 @@
 		      </tr>
 		    </thead>
 		    <tbody>
-		      {% for subsidy in role.organization.subsidy_set.all %}
+		      {% for subsidy in role.organization.subsidy_set.obtained %}
 			<tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
 			  <td>{{ subsidy.get_subsidy_type_display }}</td>
 			  <td>&euro;{{ subsidy.amount }}</td>

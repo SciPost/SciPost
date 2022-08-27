@@ -208,8 +208,8 @@
 
 	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
 	  <h3 class="highlight">Support history</h3>
-	  {% if org.subsidy_set.all|length > 0 or org.children.all|length > 0 %}
-	    {% if org.subsidy_set.all|length > 0 %}
+	  {% if org.subsidy_set.obtained|length > 0 or org.children.all|length > 0 %}
+	    {% if org.subsidy_set.obtained|length > 0 %}
 	      <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
 	      <table class="table table-hover mb-5">
 		<thead class="table-light">
@@ -220,7 +220,7 @@
 		  </tr>
 		</thead>
 		<tbody>
-		  {% for subsidy in org.subsidy_set.all %}
+		  {% for subsidy in org.subsidy_set.obtained %}
 		    <tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
 		      <td>{{ subsidy.get_subsidy_type_display }}</td>
 		      <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>

@@ -26,9 +26,11 @@ SUBSIDY_TYPES = (
 SUBSIDY_PROMISED = "promised"
 SUBSIDY_INVOICED = "invoiced"
 SUBSIDY_RECEIVED = "received"
+SUBSIDY_WITHDRAWN = "withdrawn"
 
 SUBSIDY_STATUS = (
     (SUBSIDY_PROMISED, "promised"),
     (SUBSIDY_INVOICED, "invoiced"),
     (SUBSIDY_RECEIVED, "received"),
+    (SUBSIDY_WITHDRAWN, "withdrawn"),
 )
