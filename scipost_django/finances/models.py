@@ -214,6 +214,10 @@ class PeriodicReportType(models.Model):
         return self.name
 
 
+def periodic_report_upload_path(instance, filename):
+    return f"uploads/finances/periodic_reports/{instance.for_year}/{filename}"
+
+
 class PeriodicReport(models.Model):
     """
     Any form of report (annual, financial, administrative etc).
@@ -223,11 +227,14 @@ class PeriodicReport(models.Model):
         on_delete=models.CASCADE,
     )
     _file = models.FileField(
-        upload_to="uploads/periodic_reports/%Y/",
+        upload_to=periodic_report_upload_path,
         max_length=256,
     )
-    created_on = models.DateTimeField()
-    year = models.PositiveSmallIntegerField()
+    created_on = models.DateTimeField(default=timezone.now)
+    for_year = models.PositiveSmallIntegerField()
+
+    class META:
+        ordering = ["-for_year", "_type__name"]
 
     def __str__(self):
-        return f"{self.year} {self.get__type_display()}"
+        return f"{self.for_year} {self._type}"
