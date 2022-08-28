@@ -533,8 +533,10 @@ def _hx_register(request):
             'last_name': profile.last_name,
             'email': email
         }
+        readonly_fields = ('email', 'title', 'first_name', 'last_name')
+
         if request.method == 'GET':
-            registration_form = RegistrationForm(initial=initial, readonly_email=True)
+            registration_form = RegistrationForm(initial=initial, readonly_fields=readonly_fields)
             context = {"form": registration_form}
             if profile_email.verified:
                 context["form_feedback_message"] = "Please fill in the registration form"
@@ -545,7 +547,7 @@ def _hx_register(request):
         elif request.method == 'POST':
             if "username" not in request.POST:
                 # if no username's submitted, display a fresh registration form w/ prefilled Profile data
-                registration_form = RegistrationForm(initial=initial, readonly_email=True)
+                registration_form = RegistrationForm(initial=initial, readonly_fields=readonly_fields)
                 context = {
                     "form": registration_form,
                     "profile_email": profile_email,
@@ -590,7 +592,8 @@ def _hx_register(request):
         mail_util.send_mail()
 
         # display registration form and link the new profile email instance
-        form = RegistrationForm(initial=info_form.cleaned_data, readonly_email=True)
+        readonly_fields = ('email', 'title', 'first_name', 'last_name')
+        form = RegistrationForm(initial=info_form.cleaned_data, readonly_fields=readonly_fields)
         context = {
             'form': form,
             'profile_email': profile_email,
@@ -599,7 +602,7 @@ def _hx_register(request):
         return render(request, "scipost/_hx_register.html", context)
     
     # GET request when no profile exists - display the additional info form required to create profile
-    info_form = BasicUserInfoForm(initial={'email': email}, readonly_email=True)
+    info_form = BasicUserInfoForm(initial={'email': email}, readonly_fields=('email',))
     context = {
         "form": info_form,
         "form_feedback_message": "Please provide your title, first name and surname."

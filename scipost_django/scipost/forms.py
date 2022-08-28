@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from asyncore import read
 import datetime
 import pyotp
 import re
@@ -103,10 +104,17 @@ class EmailForm(forms.Form):
     email = forms.EmailField(label="* Email address")
 
     def __init__(self, *args, **kwargs):
-        if "readonly_email" in kwargs:
-            kwargs.pop("readonly_email")
+        if "readonly_fields" in kwargs:
+            readonly_fields = kwargs.pop("readonly_fields")
             super().__init__(*args, **kwargs)
-            self.fields['email'].widget.attrs["readonly"] = True
+
+            # make any fields passed through read-only
+            if readonly_fields:
+                for field in readonly_fields:
+                    # check if the field exists in the form - necessary due to subclassing
+                    if field in self.fields:
+                        self.fields[field].widget.attrs['readonly'] = True
+            # self.fields['email'].widget.attrs["readonly"] = True
         else:
             super().__init__(*args, **kwargs)
 
