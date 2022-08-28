@@ -2,7 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from asyncore import read
 import datetime
 import pyotp
 import re
@@ -114,7 +113,6 @@ class EmailForm(forms.Form):
                     # check if the field exists in the form - necessary due to subclassing
                     if field in self.fields:
                         self.fields[field].widget.attrs['readonly'] = True
-            # self.fields['email'].widget.attrs["readonly"] = True
         else:
             super().__init__(*args, **kwargs)
 
