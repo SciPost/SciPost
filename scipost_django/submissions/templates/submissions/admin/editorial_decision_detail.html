@@ -19,11 +19,11 @@
 
       {% include 'submissions/admin/_editorial_decision_as_table.html' with decision=decision %}
 
-      {% if decision.status != decision.FIXED_AND_ACCEPTED %}
-	<ul class="list-unstyled">
-	  <li class="list-item my-2">
-	    <a class="btn btn-warning" href="{% url 'submissions:editorial_decision_update' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr %}">Update this decision</a>
-	  </li>
+      <ul class="list-unstyled">
+	<li class="list-item my-2">
+	  <a class="btn btn-warning" href="{% url 'submissions:editorial_decision_update' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr %}">Update this decision</a>
+	</li>
+	{% if decision.status == decision.DRAFTED %}
 	  <li class="list-item my-2">
 	    <a class="btn btn-danger" href="{% url 'submissions:fix_editorial_decision' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr %}">Fix this decision</a>
 	    <span class="text-danger">
@@ -36,8 +36,8 @@
 	      </ul>
 	    </span>
 	  </li>
-	</ul>
-      {% endif %}
+	{% endif %}
+      </ul>
 
     </div>
   </div>
