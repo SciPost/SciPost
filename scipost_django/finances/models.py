@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from .constants import SUBSIDY_TYPES, SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_STATUS
+from .managers import SubsidyQuerySet
 from .utils import id_to_slug
 
 from scipost.storage import SecureFileStorage
@@ -52,6 +53,8 @@ class Subsidy(models.Model):
     renewal_of = models.ManyToManyField(
         "self", related_name="renewed_by", symmetrical=False, blank=True
     )
+
+    objects = SubsidyQuerySet.as_manager()
 
     class Meta:
         verbose_name_plural = "subsidies"
@@ -199,3 +202,42 @@ class WorkLog(models.Model):
     @property
     def slug(self):
         return id_to_slug(self.id)
+
+
+####################
+# Periodic Reports #
+####################
+
+
+class PeriodicReportType(models.Model):
+    name = models.CharField(max_length=256)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
+def periodic_report_upload_path(instance, filename):
+    return f"uploads/finances/periodic_reports/{instance.for_year}/{filename}"
+
+
+class PeriodicReport(models.Model):
+    """
+    Any form of report (annual, financial, administrative etc).
+    """
+    _type = models.ForeignKey(
+        'finances.PeriodicReportType',
+        on_delete=models.CASCADE,
+    )
+    _file = models.FileField(
+        upload_to=periodic_report_upload_path,
+        max_length=256,
+    )
+    created_on = models.DateTimeField(default=timezone.now)
+    for_year = models.PositiveSmallIntegerField()
+
+    class META:
+        ordering = ["-for_year", "_type__name"]
+
+    def __str__(self):
+        return f"{self.for_year} {self._type}"

@@ -384,7 +384,7 @@ class Organization(models.Model):
         """
         Check if this organization has a Subsidy with a still-running validity period.
         """
-        return self.subsidy_set.filter(date_until__gte=datetime.date.today()).exists()
+        return self.subsidy_set.obtained().filter(date_until__gte=datetime.date.today()).exists()
 
     @property
     def has_children_with_current_subsidy(self):
@@ -398,8 +398,8 @@ class Organization(models.Model):
         """
         Returns the end date of validity of the latest subsidy.
         """
-        if self.subsidy_set:
-            return self.subsidy_set.order_by("-date_until").first().date_until
+        if self.subsidy_set.obtained():
+            return self.subsidy_set.obtained().order_by("-date_until").first().date_until
         return "-"
 
     def total_subsidies_in_year(self, year):
@@ -407,7 +407,7 @@ class Organization(models.Model):
         Return the total subsidies for this Organization in that year.
         """
         total = 0
-        for subsidy in self.subsidy_set.filter(date__year__lte=year).filter(
+        for subsidy in self.subsidy_set.obtained().filter(date__year__lte=year).filter(
             models.Q(date_until=None) | models.Q(date_until__year__gte=year)
         ):
             total += subsidy.value_in_year(year)
@@ -418,7 +418,7 @@ class Organization(models.Model):
         Computes the total amount received by SciPost, in the form
         of subsidies from this Organization.
         """
-        return self.subsidy_set.aggregate(models.Sum("amount")).get("amount__sum", 0)
+        return self.subsidy_set.obtained().aggregate(models.Sum("amount")).get("amount__sum", 0)
 
     def get_balance_info(self):
         """

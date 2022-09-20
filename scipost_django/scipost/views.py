@@ -323,7 +323,7 @@ def portal_hx_submissions_page(request):
         "submitted_to",
     ).prefetch_related(
         "specialties",
-        "publication",
+        "publications",
     )
     paginator = Paginator(submissions, 10)
     page_nr = request.GET.get("page")

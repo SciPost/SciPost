@@ -80,18 +80,13 @@
 	  including a per-Journal breakdown.</li>
       </ul>
 
-      <h3 class="highlight" id="reports">Financial Reports</h3>
+      <h3 class="highlight" id="reports">Periodic Reports</h3>
       <ul>
-	<li><a href="{% static 'scipost/info/AnnualReports/AnnualReport_2015.pdf' %}">Annual Report 2015</a></li>
-	<li><a href="{% static 'scipost/info/AnnualReports/AnnualReport_2016.pdf' %}">Annual Report 2016</a></li>
-	<li><a href="{% static 'scipost/info/AnnualReports/AnnualReport_2017.pdf' %}">Annual Report 2017</a></li>
-	<li><a href="{% static 'scipost/info/AnnualReports/AnnualReport_2018.pdf' %}">Annual Report 2018</a></li>
-	<li><a href="{% static 'scipost/info/AnnualReports/AnnualReport_2019.pdf' %}">Annual Report 2019</a></li>
-	<li>
-	  <a href="{% static 'scipost/info/AnnualReports/2020_SciPost_Financial_Report.pdf' %}">Financial Report 2020</a>&emsp;
-	  <a href="{% static 'scipost/info/AnnualReports/2020_SciPost_ANBI_form.pdf' %}">ANBI form 2020</a>&emsp;
-	  <a href="{% static 'scipost/info/AnnualReports/2020_SciPost_Board_Report.pdf' %}">Board Report 2020</a>
-	</li>
+	{% for report in periodic_reports.all  %}
+	  <li><a href="{{ report.get_absolute_url }}">{{ report }}</a></li>
+	{% empty %}
+	  <li>No periodic report to display at this time</li>
+	{% endfor %}
       </ul>
 
       {% if perms.scipost.can_view_timesheets %}

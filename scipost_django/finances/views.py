@@ -23,7 +23,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilterForm
-from .models import Subsidy, SubsidyAttachment, WorkLog
+from .models import Subsidy, SubsidyAttachment, WorkLog, PeriodicReport
 from .utils import slug_to_id
 
 from journals.models import Journal, Publication
@@ -159,6 +159,7 @@ def finances(request):
         "sustainable_until": now
         + datetime.timedelta(days=30.5 * resources * 6 / recent_exp["expenditures"]),
     }
+    context["periodic_reports"] = PeriodicReport.objects.all()
     return render(request, "finances/finances.html", context)
 
 
