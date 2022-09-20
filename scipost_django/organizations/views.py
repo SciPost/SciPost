@@ -1,6 +1,8 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import requests
+import json
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -28,6 +30,7 @@ from .constants import (
 from .forms import (
     SelectOrganizationForm,
     OrganizationForm,
+    OrganizationUpdateRORForm,
     OrganizationEventForm,
     ContactPersonForm,
     NewContactForm,
@@ -105,6 +108,57 @@ class OrganizationCreateView(PermissionsMixin, CreateView):
     form_class = OrganizationForm
     template_name = "organizations/organization_create.html"
     success_url = reverse_lazy("organizations:organizations")
+
+class OrganizationUpdateRORView(PermissionsMixin, UpdateView):#, pk):
+    """
+    Update an Organization's ROR ID.
+    """
+
+    #initial_ROR_ID = {"test":123}
+
+    permission_required = "scipost.can_manage_organizations"
+    model = Organization
+    form_class = OrganizationUpdateRORForm#() #initial=initial_ROR_ID
+    template_name = "organizations/organization_update_ror.html"
+    success_url = reverse_lazy("organizations:organizations")
+
+    # could load a separate RORResultsListView here
+    # display important fields 
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if initial=={}:
+            text = requests.get('https://api.ror.org/organizations?query=%spage=1' % (
+                    self.object,
+                )).json(),#.items(),
+            #)
+
+            first_item = text[0]['items'][0]['id']
+            ror_id_dev = first_item.split('/')[-1]
+
+            json_value = {"id": ror_id_dev}
+
+            self.object.ror_json=json.loads(json.dumps(json_value))
+            initial.update({"id": ror_id_dev, "action": ORGANIZATION_EVENT_COMMENT})
+            #self.instance.ror_json = json_value
+        return initial
+        #return self.object.ror_json
+
+    #print('test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test')
+    #print(get_initial.json_value)
+        #print('TYPE OF INITIAL: ' + str(type(initial.id)))
+        #print(type(json.loads(json.dumps(json_value))))
+
+        
+        #self.instance = {"test":ror_id_dev}
+
+        #for key in text[0]['items']:
+        #    print(key, ":", "test")
+
+        #return initial
+
+    # Load a new ListView with the API response
 
 
 class OrganizationUpdateView(PermissionsMixin, UpdateView):

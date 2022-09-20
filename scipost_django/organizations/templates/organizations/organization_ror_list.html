@@ -117,11 +117,13 @@
       {% endif %}
     </th>
     <th>SciPost sponsor?</th>
+		<th>ROR</th>
   </tr>
 </thead>
 <tbody>
   {% for org in object_list %}
-    <tr class="table-row" data-href="{% url 'organizations:organization_detail' pk=org.id %}" style="cursor: pointer;">
+    <!-- <tr class="table-row" data-href="{% url 'organizations:organization_detail' pk=org.id %}" style="cursor: pointer;"> -->
+    <tr class="table-row" style="cursor: pointer;">
       <td><img src="{{ org.country.flag }}" alt="{{ org.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ org.country }}]</small></span>&nbsp;&nbsp;{{ org.get_country_display }}</td>
       <td>
   {{ org.full_name }}&nbsp;&nbsp;<small>{% if org.acronym %}[{{ org.acronym }}]{% endif %}</small>
@@ -150,6 +152,8 @@
       {% else %}
   <td class="bg-warning">Not yet</td>
       {% endif %}
+  <!-- <td data-href="{% url 'organizations:organization_update' pk=org.id %}"><button></button></td> -->
+  <td><a href="{% url 'organizations:organization_update_ror' pk=org.id %}">Update</a></td>
     </tr>
   {% empty %}
     <tr><td colspan="4">No organizations found</td></tr>

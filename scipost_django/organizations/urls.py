@@ -18,6 +18,11 @@ urlpatterns = [
     path("ror/", views.OrganizationRorListView.as_view(), name="organization_ror"),
     path("add/", views.OrganizationCreateView.as_view(), name="organization_create"),
     path(
+        "<int:pk>/update_ror/",
+        views.OrganizationUpdateRORView.as_view(),
+        name="organization_update_ror",
+    ),
+    path(
         "<int:pk>/update/",
         views.OrganizationUpdateView.as_view(),
         name="organization_update",

@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import json
 
 from django import forms
 
@@ -29,6 +30,94 @@ class SelectOrganizationForm(forms.Form):
         ),
         label="",
     )
+
+class OrganizationUpdateRORForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url="/organizations/organization-autocomplete", attrs={"data-html": True}
+        ),
+        label="Parent",
+        required=False,
+    )
+    superseded_by = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url="/organizations/organization-autocomplete", attrs={"data-html": True}
+        ),
+        label="Superseded by",
+        required=False,
+    )
+
+    class Meta:
+        model = Organization
+        fields = ('grid_json', 'ror_json') #"__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        print('test test test test test test test test test test test test test test test test test test test ')
+        print(self.initial['ror_json'])
+        print(self.fields['ror_json'])
+
+        Organization.ror_json = json.loads(json.dumps(self.initial['ror_json']))
+
+        #Organization.save(self, update_fields=["ror_json"])
+
+        return self.initial['ror_json'] #Organization.ror_json
+
+        #if self.instance.ror_json != {}
+        #    query_results_dict = (request.get()).json()
+
+
+        #self.fields["ror_json"].default = self.fields["grid_json"] #.choices = [(A,'A'), (B,'B')]#'{"test": 123}' #requests.get('https://api.ror.org/organizations?query=bath'
+#).json()
+        # Bypass JSONField not validating empty dict default
+        #self.fields["cf_associated_publication_ids"].required = False
+        #self.fields["cf_balance_info"].required = False
+        #self.fields["cf_expenditure_for_publication"].required = False
+
+        #r = Organization.objects.get('org_id' == org_id)
+        #r=queryset.
+        #r.ror_json = '{"test": 123}'
+        #r.save()
+
+        #self.fields["ror_json"].instance = '{"test": 123}'
+
+
+
+class OrganizationEventForm(forms.ModelForm):
+    class Meta:
+        model = OrganizationEvent
+        fields = ["organization", "event", "comments", "noted_on", "noted_by"]
+
+
+class ContactPersonForm(forms.ModelForm):
+    class Meta:
+        model = ContactPerson
+        fields = "__all__"
+
+    def clean_email(self):
+        """
+        Check if the email is already associated to an existing ContactPerson or Contact.
+        """
+        email = self.cleaned_data["email"]
+        try:
+            ContactPerson.objects.get(email=email)
+            if self.instance.pk:
+                pass  # OK, this is an update
+            else:
+                self.add_error(
+                    "email", "This email is already associated to a Contact Person."
+                )
+        except ContactPerson.DoesNotExist:
+            pass
+        try:
+            Contact.objects.get(user__email=email)
+            self.add_error("email", "This email is already associated to a Contact.")
+        except Contact.DoesNotExist:
+            pass
+        return email
 
 
 class OrganizationForm(forms.ModelForm):
