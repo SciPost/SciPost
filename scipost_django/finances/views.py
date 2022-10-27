@@ -26,6 +26,8 @@ from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilterForm
 from .models import Subsidy, SubsidyAttachment, WorkLog, PeriodicReport
 from .utils import slug_to_id
 
+from comments.constants import EXTENTIONS_IMAGES, EXTENTIONS_PDF
+from comments.utils import validate_file_extention
 from journals.models import Journal, Publication
 from organizations.models import Organization
 from scipost.mixins import PermissionsMixin
@@ -443,3 +445,21 @@ class LogDeleteView(LoginRequiredMixin, DeleteView):
     def get_success_url(self):
         messages.success(self.request, "Log deleted.")
         return self.object.content.get_absolute_url()
+
+
+###################
+# PeriodicReports #
+###################
+
+def periodicreport_file(request, pk):
+    periodicreport = get_object_or_404(PeriodicReport, pk=pk)
+    if validate_file_extention(periodicreport._file, EXTENTIONS_IMAGES):
+        content_type = "image/jpeg"
+    elif validate_file_extention(periodicreport._file, EXTENTIONS_PDF):
+        content_type = "application/pdf"
+    else:
+        raise Http404
+    response = HttpResponse(periodicreport._file.read(), content_type=content_type)
+    filename = periodicreport._file.name
+    response["Content-Disposition"] = f"filename={filename}"
+    return response
