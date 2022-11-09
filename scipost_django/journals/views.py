@@ -1780,7 +1780,8 @@ def publication_detail_pdf(request, doi_label):
         "scipost.can_draft_publication"
     ):
         raise Http404("Publication is not publicly visible")
-
+    if not publication.pdf_file:
+        raise Http404("Publication has no associated pdf document")
     response = HttpResponse(publication.pdf_file.read(), content_type="application/pdf")
     response["Content-Disposition"] = (
         "filename=" + publication.doi_label.replace(".", "_") + ".pdf"
