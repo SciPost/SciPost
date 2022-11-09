@@ -99,13 +99,26 @@
 
   {% if perms.scipost.can_do_plagiarism_checks %}
     <tr>
-      <td>Plagiarism score</td>
+      <td>iThenticate plagiarism score</td>
       <td>
         {% if submission.plagiarism_report %}
           {{ submission.plagiarism_report.score }}%
+	  &emsp;<a href="{% url 'submissions:plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="ms-2 btn btn-default" target="_blank">View report pdf</a>
         {% else %}
           <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
         {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Internal plagiarism matches</td>
+      <td>
+	{% if submission.internal_plagiarism_matches.submission_matches %}
+	  Sub: {{ submission.internal_plagiarism_matches.submission_matches|length }}&emsp;
+	{% endif %}
+	{% if submission.internal_plagiarism_matches.publication_matches %}
+	  Pub: {{ submission.internal_plagiarism_matches.publication_matches|length }}&emsp;
+	{% endif %}
+	<a href="{% url 'submissions:plagiarism_internal' submission.preprint.identifier_w_vn_nr %}" target="_blank">View details</a>
       </td>
     </tr>
   {% endif %}

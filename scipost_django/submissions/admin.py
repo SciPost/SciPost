@@ -113,17 +113,14 @@ class SubmissionAdmin(GuardedModelAdmin):
         (
             None,
             {
-                "fields": ("preprint", "title", "abstract"),
-            },
-        ),
-        (
-            "Versioning",
-            {
                 "fields": (
-                    "thread_hash",
-                    "is_current",
-                    "is_resubmission_of",
-                    "list_of_changes",
+                    "preprint",
+                    "title",
+                    "abstract",
+                    "author_list",
+                    "submission_date",
+                    "submitted_to",
+                    "status",
                 ),
             },
         ),
@@ -148,7 +145,6 @@ class SubmissionAdmin(GuardedModelAdmin):
                 "classes": ("collapse",),
                 "fields": (
                     "submitted_by",
-                    "author_list",
                     "authors",
                     "authors_claims",
                     "authors_false_claims",
@@ -156,12 +152,37 @@ class SubmissionAdmin(GuardedModelAdmin):
             },
         ),
         (
+            "Versioning",
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    "thread_hash",
+                    "is_current",
+                    "is_resubmission_of",
+                    "list_of_changes",
+                ),
+            },
+        ),
+        (
+            "Plagiarism",
+            {
+                "classes": ("collapse",),
+                "fields": ("internal_plagiarism_matches", "plagiarism_report"),
+            }
+        ),
+        (
+            "Conflicts of interest",
+            {
+                "classes": ("collapse",),
+                "fields": ("needs_conflicts_update",),
+            }
+        ),
+        (
             "Refereeing",
             {
                 "classes": ("collapse",),
                 "fields": (
                     "editor_in_charge",
-                    "status",
                     ("visible_public", "visible_pool"),
                     "refereeing_cycle",
                     ("open_for_commenting", "open_for_reporting"),
@@ -170,9 +191,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                     "referees_flagged",
                     "referees_suggested",
                     "remarks_for_editors",
-                    "submitted_to",
                     "pdf_refereeing_pack",
-                    "plagiarism_report",
                     "fellows",
                 ),
             },
@@ -181,7 +200,7 @@ class SubmissionAdmin(GuardedModelAdmin):
             "Meta",
             {
                 "classes": ("collapse",),
-                "fields": ("metadata", "submission_date", "needs_conflicts_update"),
+                "fields": ("metadata",),
             },
         ),
     )

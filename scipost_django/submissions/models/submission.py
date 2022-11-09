@@ -167,6 +167,11 @@ class Submission(models.Model):
         blank=True,
         related_name="to_submission",
     )
+    internal_plagiarism_matches = models.JSONField(
+        default=dict,
+        blank=True,
+        null=True,
+    )
 
     pdf_refereeing_pack = models.FileField(
         upload_to="UPLOADS/REFEREE/%Y/%m/", max_length=200, blank=True
@@ -340,6 +345,11 @@ class Submission(models.Model):
     def submission_date_ymd(self):
         """Return the submission date in YYYY-MM-DD format."""
         return self.submission_date.date()
+
+    @property
+    def original_submission_date_ymd(self):
+        """Return the submission date in YYYY-MM-DD format."""
+        return self.original_submission_date.date()
 
     @property
     def original_submission_date(self):

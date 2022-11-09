@@ -2977,50 +2977,33 @@ class PlagiarismInternalView(SubmissionAdminViewMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         submission = self.get_object()
-        ratio_threshold = 0.7
 
-        # Submissions:
-        submission_matches = []
-        for sub in Submission.objects.exclude(pk=submission.id):
-            sub_title_sm = SequenceMatcher(None, submission.title, sub.title)
-            ratio_title = sub_title_sm.ratio()
-            ratio_authors = SequenceMatcher(
-                None, submission.author_list, sub.author_list
-            ).ratio()
-            ratio_abstract = SequenceMatcher(
-                None, submission.abstract, sub.abstract
-            ).ratio()
-            if ratio_title > ratio_threshold or ratio_abstract > ratio_threshold:
-                submission_matches.append(
+        context["submission_matches"] = []
+        if "submission_matches" in submission.internal_plagiarism_matches:
+            for sub_match in submission.internal_plagiarism_matches["submission_matches"]:
+                context["submission_matches"].append(
                     {
-                        "submission": sub,
-                        "ratio_title": ratio_title,
-                        "ratio_authors": ratio_authors,
-                        "ratio_abstract": ratio_abstract,
+                        "submission": Submission.objects.get(
+                            preprint__identifier_w_vn_nr=sub_match["identifier_w_vn_nr"],
+                        ),
+                        "ratio_title": sub_match["ratio_title"],
+                        "ratio_authors": sub_match["ratio_authors"],
+                        "ratio_abstract": sub_match["ratio_abstract"],
                     }
                 )
-        context["submission_matches"] = submission_matches
 
-        # Publications:
-        publication_matches = []
-        for pub in Publication.objects.all():
-            ratio_title = SequenceMatcher(None, submission.title, pub.title).ratio()
-            ratio_authors = SequenceMatcher(
-                None, submission.author_list, pub.author_list
-            ).ratio()
-            ratio_abstract = SequenceMatcher(
-                None, submission.abstract, pub.abstract
-            ).ratio()
-            if ratio_title > ratio_threshold or ratio_abstract > ratio_threshold:
-                publication_matches.append(
+        context["publication_matches"] = []
+        if "publication_matches" in submission.internal_plagiarism_matches:
+            for pub_match in submission.internal_plagiarism_matches["publication_matches"]:
+                context["publication_matches"].append(
                     {
-                        "publication": pub,
-                        "ratio_title": ratio_title,
-                        "ratio_authors": ratio_authors,
-                        "ratio_abstract": ratio_abstract,
+                        "publication": Publication.objects.get(doi_label=pub_match["doi_label"]),
+                        "ratio_title": pub_match["ratio_title"],
+                        "ratio_authors": pub_match["ratio_authors"],
+                        "ratio_abstract": pub_match["ratio_abstract"],
                     }
                 )
-        context["publication_matches"] = publication_matches
+
         return context
 
 
