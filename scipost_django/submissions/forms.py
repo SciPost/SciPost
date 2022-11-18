@@ -197,7 +197,7 @@ class SubmissionPoolSearchForm(forms.Form):
         queryset=Proceedings.objects.order_by("-submissions_close"), required=False
     )
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
-    title = forms.CharField(max_length=100, required=False)
+    title = forms.CharField(max_length=512, required=False)
     identifier = forms.CharField(max_length=128, required=False)
     status = forms.ChoiceField(
         choices=(
