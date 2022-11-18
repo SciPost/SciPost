@@ -180,7 +180,7 @@
 const headers = new Headers();
 headers.append('Accept', 'application/json; version=0')
 
-import { ref, onMounted } from '@vue/composition-api'
+import { ref, onMounted } from 'vue'
 
 import SearchableObjectsTable from './SearchableObjectsTable.vue'
 

@@ -321,7 +321,7 @@
 const headers = new Headers();
 headers.append('Accept', 'application/json; version=0')
 
-import { ref, toRef, computed, watch, onMounted } from '@vue/composition-api'
+import { ref, toRef, computed, watch, onMounted } from 'vue'
 
 import ObjectRowDetails from './ObjectRowDetails/ObjectRowDetails.vue'
 
