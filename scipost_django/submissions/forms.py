@@ -276,6 +276,18 @@ class SubmissionPoolSearchForm(forms.Form):
         ),
         initial="current",
     )
+    ordering = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=(
+            (
+                "Submission date", (
+                    ("recent", "most recent first"),
+                    ("oldest", "oldest first"),
+                ),
+            ),
+        ),
+        initial="recent",
+    )
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user")
@@ -322,7 +334,11 @@ class SubmissionPoolSearchForm(forms.Form):
                 ),
                 css_class="row mb-0",
             ),
-            Div(Div(InlineRadios("search_set"), css_class="col"), css_class="row mb-0"),
+            Div(
+                Div(InlineRadios("search_set"), css_class="col"),
+                Div(InlineRadios("ordering"), css_class="col"),
+                css_class="row mb-0",
+            ),
         )
 
     def search_results(self, user):
@@ -437,6 +453,10 @@ class SubmissionPoolSearchForm(forms.Form):
             submissions = submissions.filter(
                 editor_in_charge=self.cleaned_data.get("editor_in_charge").contributor
             )
+
+        if self.cleaned_data.get("ordering") == "oldest":
+            submissions = submissions.order_by("submission_date")
+
         return submissions
 
 
