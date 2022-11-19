@@ -941,14 +941,15 @@ def submission_add_topic(request, identifier_w_vn_nr):
     )
     select_topic_form = SelectTopicForm(request.POST or None)
     if select_topic_form.is_valid():
-        submission.topics.add(select_topic_form.cleaned_data["topic"])
+        for topic in select_topic_form.cleaned_data["topic"]:
+            submission.topics.add(topic)
         for sub in submission.get_other_versions():
-            sub.topics.add(select_topic_form.cleaned_data["topic"])
+            for topic in select_topic_form.cleaned_data["topic"]:
+                sub.topics.add(topic)
         try:
             for publication in submission.publications.all():
-                publication.topics.add(
-                    select_topic_form.cleaned_data["topic"]
-                )
+                for topic in select_topic_form.cleaned_data["topic"]:
+                    publication.topics.add(topic)
         except:
             pass
         messages.success(request, "Successfully linked Topic to this Submission")
