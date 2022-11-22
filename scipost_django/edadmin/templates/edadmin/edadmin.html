@@ -1,0 +1,27 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+          <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">EdAdmin</a>
+        {% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block pagetitle %}: EdAdmin{% endblock pagetitle %}
+
+{% block content %}
+
+  <h2 class="highlight">Prescreening</h2>
+  {% for submission in prescreening %}
+    <details>
+      <summary>{{ submission }}</summary>
+      {{ submission }}
+    </details>
+  {% endfor %}
+
+{% endblock content %}

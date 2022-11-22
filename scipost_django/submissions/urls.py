@@ -17,8 +17,7 @@ urlpatterns = [
         views.SubmissionAutocompleteView.as_view(),
         name="submission-autocomplete",
     ),
-    # Submissions
-    path("", views.SubmissionListView.as_view(), name="submissions"),
+    # Information
     path(
         "author_guidelines",
         TemplateView.as_view(template_name="submissions/author_guidelines.html"),
@@ -34,6 +33,8 @@ urlpatterns = [
         TemplateView.as_view(template_name="submissions/referee_guidelines.html"),
         name="referee_guidelines",
     ),
+    # Submissions
+    path("", views.SubmissionListView.as_view(), name="submissions"),
     path(
         "<identifier_wo_vn_nr:identifier_wo_vn_nr>/",
         views.submission_detail_wo_vn_nr,

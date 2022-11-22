@@ -13,6 +13,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+from guardian.models import UserObjectPermissionBase
+from guardian.models import GroupObjectPermissionBase
+
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
@@ -196,6 +199,10 @@ class Submission(models.Model):
     class Meta:
         app_label = "submissions"
         ordering = ["-submission_date"]
+        permissions = [
+            ("take_edadmin_actions", "Take editorial admin actions"),
+            ("view_edadmin_info", "View editorial admin information"),
+        ]
 
     def save(self, *args, **kwargs):
         """Prefill some fields before saving."""
@@ -535,6 +542,18 @@ class Submission(models.Model):
         if self.editorialdecision_set.nondeprecated().exists():
             return self.editorialdecision_set.nondeprecated().latest_version()
         return None
+
+
+# The next two models are for optimization of django guardian object-level permissions
+# using direct foreign keys instead of generic ones
+# (see https://django-guardian.readthedocs.io/en/stable/userguide/performance.html)
+
+class SubmissionUserObjectPermission(UserObjectPermissionBase):
+    content_object = models.ForeignKey(Submission, on_delete=models.CASCADE)
+
+class SubmissionGroupObjectPermission(GroupObjectPermissionBase):
+    content_object = models.ForeignKey(Submission, on_delete=models.CASCADE)
+
 
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
