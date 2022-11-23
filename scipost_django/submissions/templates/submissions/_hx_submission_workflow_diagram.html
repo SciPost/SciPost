@@ -16,8 +16,8 @@ flowchart LR
 </pre>
 </div>
 <div class="m-4">
-<strong class="mt-2">Screening</strong>
-<pre class="mermaid">
+  <strong class="mt-2">Screening</strong>
+  <pre class="mermaid">
 flowchart LR
     subgraph Screening
         ScrInv([Fellows invited<br>to take charge]) --> ScrDecl(Fellows decline)
@@ -26,13 +26,29 @@ flowchart LR
         ScrAcc --> ScrEiC(Editor-in-charge<br>appointed)
         ScrVol(A Fellow<br>volunteers) --> ScrEiC
     end
-    Resub([Resubmission or<br>restart refereeing]) --> ScrEiC
-    ScrEiC --> ChooseCycle{% verbatim %}{{Choose<br>cycle}}{% endverbatim %}
-    ChooseCycle --"open a<br>refereeing<br>round"--> Refereeing[[Goto:<br>Refereeing]]
-    ChooseCycle --direct<br>recommendation--> DirectRec[[Goto:<br>Editorial Recommendation]]
     ScrDecl --> DeskRej([Screening failed])
     ScrNoAns --> DeskRej
-</pre>
+    ScrEiC --> ScrPassed([Screening<br>passed]) --> RefPrep[[Goto:<br>Refereeing setup]]
+  </pre>
+</div>
+<div class="m-4">
+  <strong class="mt-2">Refereeing setup</strong>
+  <pre class="mermaid">
+flowchart LR
+    subgraph ChooseCycle [Choose refereeing cycle]
+        DirectRec(Direct recommendation)
+        RegCycle(Regular cycle)
+        ShortCycle(Short cycle)
+    end
+    ScrPassed --> DirectRec
+    ScrPassed([Screening passed]) --> RegCycle
+    Resub([Resubmission or<br>restart refereeing]) --> RegCycle
+    Resub --> ShortCycle
+    Resub --> DirectRec
+    DirectRec ----> EdRec[[Goto:<br>Editorial Recommendation]]
+    RegCycle ----> Refereeing[[Goto:<br>Refereeing]]
+    ShortCycle ----> Refereeing
+  </pre>
 </div>
 <div class="m-4">
 <strong class="mt-2">Refereeing</strong>
