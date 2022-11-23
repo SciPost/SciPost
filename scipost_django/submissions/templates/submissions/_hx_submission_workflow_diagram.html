@@ -1,0 +1,84 @@
+<div class="border m-2 p-2">
+  <strong class="m-2">Workflow graphs{% if submission %} for <a href="{{ submission.get_absolute_url }}">{{ submission }}</a>{% else %}: Submission processing{% endif %}</strong>
+<div class="m-4">
+  <strong class="mt-2">Pre-screening</strong>
+  <pre class="mermaid">
+flowchart LR
+    Sub([Submission{% if submission %}<br>{{ submission.submission_date }}<br>{{ submission.submission_date|timesince }} ago{% endif %}])
+    subgraph Pre-screening
+        Admiss(Admissibility<br>and plagiarism<br>checks) --pass--> PreTop(Topics<br>specification)
+        PreTop --> PreCOI(Conflict<br>of interest<br>checks)
+        PreCOI --> PrePa(Pre-assignments)
+    end
+    Admiss --fail--> PreFailed([Pre-screening<br>failed])
+    Sub --> Admiss
+    PrePa --> PrePass([Pre-screening<br>passed]) --> Screening[[Goto:<br>Screening]]
+</pre>
+</div>
+<div class="m-4">
+<strong class="mt-2">Screening</strong>
+<pre class="mermaid">
+flowchart LR
+    subgraph Screening
+        ScrInv([Fellows invited<br>to take charge]) --> ScrDecl(Fellows decline)
+        ScrInv --> ScrNoAns(Fellows unresponsive)
+        ScrInv --> ScrAcc(A Fellow accepts)
+        ScrAcc --> ScrEiC(Editor-in-charge<br>appointed)
+        ScrVol(A Fellow<br>volunteers) --> ScrEiC
+    end
+    Resub([Resubmission or<br>restart refereeing]) --> ScrEiC
+    ScrEiC --> ChooseCycle{% verbatim %}{{Choose<br>cycle}}{% endverbatim %}
+    ChooseCycle --"open a<br>refereeing<br>round"--> Refereeing[[Goto:<br>Refereeing]]
+    ChooseCycle --direct<br>recommendation--> DirectRec[[Goto:<br>Editorial Recommendation]]
+    ScrDecl --> DeskRej([Screening failed])
+    ScrNoAns --> DeskRej
+</pre>
+</div>
+<div class="m-4">
+<strong class="mt-2">Refereeing</strong>
+<pre class="mermaid">
+flowchart LR
+    subgraph Ref [Refereeing]
+        RefOpen([Refereeing<br>round open]) --> RefInv(Referees<br>invited)
+        RefInv--> RepSub(Reports<br>submitted)
+        RefCont(Contributed<br>Reports) --> RepSub
+        RepSub --vetting--> RepPub(Reports<br>published)
+        RepPub --> AuthResp(Author<br>response)
+        ContCom(Contributed<br>Comments) --vetting--> ComPub(Comments<br>published)
+        ComPub --> AuthResp
+        AuthResp --> RefClosed(Refereeing round<br>closed)
+    end
+    RefClosed --> EiCRec[[Goto:<br>Editorial recommendation]]
+</pre>
+</div>
+<div class="m-4">
+  <strong>Recommendation, voting and decision</strong>
+  <pre class="mermaid">
+flowchart LR
+    subgraph EiCRec [Editorial recommendation]
+        RefClosed([Refereeing round<br>closed]) --> EiCRecForm{% verbatim %}{{EiC Rec<br>Formulation}}{% endverbatim %}
+        DirectRec([Direct<br>Recommendation]) --> EiCRecForm
+    end
+    subgraph EdColVote [Editorial College vote]
+        VotePrep(Voting<br>preparation) --> VotingInv(Fellows<br>invited to vote)
+        VotingInv --> Voting(Fellows voting)
+    end
+    EiCRecForm --minor/major revision--> Resub(Resubmission)
+    EiCRecForm --accept/reject--> EdColVote
+    Resub --> Refereeing[[Goto: Screening:<br>Resubmission or restart refereeing]]
+    subgraph EdDec [Editorial decision]
+        AcceptTarget(Accept<br>in target<br>Journal)
+        AcceptAlt(Accept<br>in alternative<br>Journal)
+        Reject
+        RestartRef(Restart<br>refereeing)
+    end
+    EdColVote --> EdDec
+    AcceptTarget --> Production([Production])
+    AcceptAlt --> PubOffer(Publication<br>offer)
+    PubOffer --accept--> Production
+    PubOffer --decline--> Close([Processing<br>closed])
+    RestartRef(Restart<br>refereeing) --> Refereeing
+    Reject --> Close
+  </pre>
+</div>
+</div>

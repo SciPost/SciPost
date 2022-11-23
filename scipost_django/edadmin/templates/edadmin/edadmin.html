@@ -20,8 +20,22 @@
   {% for submission in prescreening %}
     <details>
       <summary>{{ submission }}</summary>
-      {{ submission }}
+      <button class="m-2 btn btn-primary workflowDiagram"
+	      id="submission-{{ submission.preprint.identifier_w_vn_nr }}-workflow-diagram"
+	      hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	      hx-swap="outerHTML"
+      >Load Submission processing workflow graphs</button>
     </details>
   {% endfor %}
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script type="module" nonce="{{ request.csp_nonce }}">
+   import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
+   mermaid.initialize({ startOnLoad: false });
+   document.body.addEventListener("htmx:afterSettle", function(evt) {
+       mermaid.init(".workflowDiagram");
+   });
+  </script>
+{% endblock footer_script %}

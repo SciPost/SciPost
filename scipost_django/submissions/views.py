@@ -699,6 +699,17 @@ def submission_detail(request, identifier_w_vn_nr):
     return render(request, "submissions/submission_detail.html", context)
 
 
+def _hx_submission_workflow_diagram(request, identifier_w_vn_nr=None):
+    """Mermaid workflow diagram of Submission."""
+    context = {}
+    if identifier_w_vn_nr:
+        submission = get_object_or_404(
+            Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+        )
+        context["submission"]= submission
+    return render(request, "submissions/_hx_submission_workflow_diagram.html", context)
+
+
 def report_attachment(request, identifier_w_vn_nr, report_nr):
     """Download the attachment of a Report if available."""
     report = get_object_or_404(

@@ -44,6 +44,16 @@ urlpatterns = [
         "<identifier:identifier_w_vn_nr>/", views.submission_detail, name="submission"
     ),
     path(
+        "workflow_diagram",
+        views._hx_submission_workflow_diagram,
+        name="_hx_submission_workflow_diagram"
+    ),
+    path(
+        "<identifier:identifier_w_vn_nr>/workflow_diagram",
+        views._hx_submission_workflow_diagram,
+        name="_hx_submission_workflow_diagram"
+    ),
+    path(
         "<identifier:identifier_w_vn_nr>/reports/<int:report_nr>/pdf",
         views.report_detail_pdf,
         name="report_detail_pdf",
