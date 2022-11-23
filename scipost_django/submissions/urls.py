@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.urls import path, re_path
 from django.views.generic import TemplateView
+from django.views.generic.base import RedirectView
 
 from . import views
 
@@ -24,8 +25,13 @@ urlpatterns = [
         name="author_guidelines",
     ),
     path(
+        "editorial_procedure",
+        TemplateView.as_view(template_name="submissions/editorial_procedure.html"),
+        name="editorial_procedure",
+    ),
+    path( # deprecated 2022-11-23, replaced by editorial_procedure; keep active for now
         "refereeing_procedure",
-        TemplateView.as_view(template_name="submissions/refereeing_procedure.html"),
+        RedirectView.as_view(pattern_name="submissions:editorial_procedure", permanent=True),
         name="refereeing_procedure",
     ),
     path(

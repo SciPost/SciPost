@@ -27,10 +27,10 @@
         <a href="{% url 'journals:journals_terms_and_conditions' %}">
     	  Journals Terms and Conditions</a>.
       </p>
+      <p>Scroll to the bottom to see a graphical representation of the editorial workflow.</p>
     </div>
   </div>
 
-  {# <hr>#}
 
   <div class="row">
     <div class="col-12">
@@ -158,4 +158,23 @@
     </div>
   </div>
 
+
+  <button class="m-2 btn btn-primary workflowDiagram"
+	  id="submission-workflow-diagram"
+	  hx-get="{% url 'submissions:_hx_submission_workflow_diagram' %}"
+	  hx-swap="outerHTML"
+	  hx-trigger="revealed"
+  >Submission processing workflow graphs</button>
+
+
 {% endblock %}
+
+{% block footer_script %}
+  <script type="module" nonce="{{ request.csp_nonce }}">
+   import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
+   mermaid.initialize({ startOnLoad: false });
+   document.body.addEventListener("htmx:afterSettle", function(evt) {
+       mermaid.init(".workflowDiagram");
+   });
+  </script>
+{% endblock footer_script %}
