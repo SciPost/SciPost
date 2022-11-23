@@ -38,14 +38,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 
 from .constants import (
-    STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
-    STATUS_ACCEPTED,
-    STATUS_REJECTED,
     STATUS_VETTED,
-    SUBMISSION_STATUS,
-    STATUS_FAILED_PRESCREENING,
-    STATUS_UNASSIGNED,
-    STATUS_ASSIGNMENT_FAILED,
     STATUS_DRAFT,
     CYCLE_DIRECT_REC,
     STATUS_COMPLETED,
@@ -873,7 +866,7 @@ def pool(request, identifier_w_vn_nr=None):
     assignments_to_consider = EditorialAssignment.objects.invited().filter(
         to=request.user.contributor
     )
-    initial = {"status": STATUS_UNASSIGNED}
+    initial = {"status": Submission.UNASSIGNED}
     if identifier_w_vn_nr:
         initial = {"identifier": identifier_w_vn_nr}
     context = {
@@ -1009,7 +1002,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
             ),
         )
         return redirect("submissions:pool")
-    elif submission.status == STATUS_ASSIGNMENT_FAILED:
+    elif submission.status == submission.ASSIGNMENT_FAILED:
         messages.success(
             request,
             (
@@ -1168,7 +1161,7 @@ def assignment_failed(request, identifier_w_vn_nr):
         # Update status of Submission
         submission.touch()
         Submission.objects.filter(id=submission.id).update(
-            status=STATUS_ASSIGNMENT_FAILED, visible_pool=False, visible_public=False
+            status=Submission.ASSIGNMENT_FAILED, visible_pool=False, visible_public=False
         )
 
         messages.success(
@@ -1236,12 +1229,12 @@ def editorial_page(request, identifier_w_vn_nr):
 @login_required
 @fellowship_or_admin_required()
 def cycle_form_submit(request, identifier_w_vn_nr):
-    """Form view to choose refereeing cycle.
+    """
+    Form view to choose refereeing cycle.
 
-    If Submission is `resubmission_incoming` the EIC should first choose what refereeing
-    cycle to choose.
+    If Submission is a resubmission, the EIC should first choose a refereeing cycle.
 
-    Accessible for: Editor-in-charge and Editorial Administration
+    Accessible to: Editor-in-charge and Editorial Administration
     """
     submission = get_object_or_404(
         Submission.objects.filter_for_eic(request.user),
@@ -2477,7 +2470,7 @@ def remind_Fellows_to_vote(request, rec_id):
 @user_passes_test(is_edadmin_or_senior_fellow)
 def editor_invitations(request, identifier_w_vn_nr):
     """
-    Update/show invitations of editors for incoming Submission.
+    Update/show invitations of editors for Submission.
     """
     submission = get_object_or_404(
         Submission.objects.without_eic(),
@@ -2640,7 +2633,7 @@ def _hx_submission_update_preprint_file(request, identifier_w_vn_nr):
 
 
 class PreScreeningView(SubmissionAdminViewMixin, UpdateView):
-    """Do pre-screening of new incoming Submissions."""
+    """Do pre-screening of Submissions."""
 
     permission_required = "scipost.can_run_pre_screening"
     queryset = Submission.objects.prescreening()
@@ -2790,13 +2783,13 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
     eicrec.save()
 
     if decision.decision == EIC_REC_PUBLISH:
-        new_sub_status = STATUS_ACCEPTED
+        new_sub_status = submission.ACCEPTED
         if (
             decision.for_journal != submission.submitted_to
             # promotion to Selections assumed automatically accepted by authors:
             and decision.for_journal.name != "SciPost Selections"
         ):
-            new_sub_status = STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
+            new_sub_status = submission.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
         Submission.objects.filter(id=submission.id).update(
             visible_public=True,
             status=new_sub_status,
@@ -2812,7 +2805,7 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
         Submission.objects.filter(id=submission.id).update(
             visible_public=False,
             visible_pool=False,
-            status=STATUS_REJECTED,
+            status=Submission.REJECTED,
             latest_activity=timezone.now(),
         )
         submission.get_other_versions().update(visible_public=False)
@@ -2917,14 +2910,14 @@ def accept_puboffer(request, identifier_w_vn_nr):
             "You are not marked as the submitting author of this Submission, "
             "and thus are not allowed to take this action."
         )
-    if submission.status != STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE:
+    if submission.status != submission.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE:
         errormessage = (
             "This Submission's status is incompatible with accepting"
             " a publication offer."
         )
     if errormessage != "":
         return render(request, "scipost/error.html", {"errormessage": errormessage})
-    Submission.objects.filter(id=submission.id).update(status=STATUS_ACCEPTED)
+    Submission.objects.filter(id=submission.id).update(status=Submission.ACCEPTED)
     EditorialDecision.objects.filter(id=submission.editorial_decision.id).update(
         status=EditorialDecision.FIXED_AND_ACCEPTED
     )

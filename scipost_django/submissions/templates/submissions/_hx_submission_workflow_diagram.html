@@ -47,11 +47,11 @@ flowchart LR
         ScrVol(A Fellow<br>volunteers) --> ScrEiC
     end
     NoEiC --> DeskRej(["Screening<br>failed ✉<small>A</small>"])
-    ScrEiC --> ScrPassed(["Screening<br>passed ✉<small>A</small>"]) --> RefPrep[[Goto:<br>Refereeing setup]]
+    ScrEiC --> ScrPassed(["Screening<br>passed ✉<small>A</small>"]) --> RefPrep[[Goto:<br>Refereeing<br>preparation]]
     </pre>
   </div>
   <div class="m-4">
-    <strong class="mt-2">Refereeing setup</strong>
+    <strong class="mt-2">Refereeing preparation</strong>
     <pre class="mermaid">
 flowchart LR
     subgraph ChooseCycle [Choose refereeing cycle]
@@ -100,7 +100,7 @@ flowchart LR
     end
     EiCRecForm --minor/major revision--> Resub(Resubmission<br>required)
     EiCRecForm --accept/reject--> EdColVote
-    Resub --> Refereeing[[Goto: Refereeing setup:<br>Resubmission or restart refereeing]]
+    Resub --> Refereeing[[Goto: Refereeing preparation:<br>Resubmission or restart refereeing]]
     subgraph EdDec ["Editorial decision ✉<small>A</small>"]
         AcceptTarget(Accept<br>in target<br>Journal)
         AcceptAlt(Accept<br>in alternative<br>Journal)

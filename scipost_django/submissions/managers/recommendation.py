@@ -17,7 +17,7 @@ class EICRecommendationQuerySet(models.QuerySet):
         """Return the subset of EICRecommendation the User is requested to vote on."""
         if not hasattr(user, "contributor"):
             return self.none()
-
+        from ..models import Submission
         return (
             self.put_to_voting()
             .filter(eligible_to_vote=user.contributor)
@@ -29,9 +29,9 @@ class EICRecommendationQuerySet(models.QuerySet):
             )
             .exclude(
                 submission__status__in=[
-                    constants.STATUS_REJECTED,
-                    constants.STATUS_PUBLISHED,
-                    constants.STATUS_WITHDRAWN,
+                    Submission.REJECTED,
+                    Submission.PUBLISHED,
+                    Submission.WITHDRAWN,
                 ]
             )
             .distinct()
@@ -44,6 +44,7 @@ class EICRecommendationQuerySet(models.QuerySet):
         """
         if not hasattr(user, "contributor"):
             return self.none()
+        from ..models import Submission
         return (
             self.put_to_voting()
             .filter(eligible_to_vote=user.contributor)
@@ -55,9 +56,9 @@ class EICRecommendationQuerySet(models.QuerySet):
             )
             .exclude(
                 submission__status__in=[
-                    constants.STATUS_REJECTED,
-                    constants.STATUS_PUBLISHED,
-                    constants.STATUS_WITHDRAWN,
+                    Submission.REJECTED,
+                    Submission.PUBLISHED,
+                    Submission.WITHDRAWN,
                 ]
             )
             .distinct()

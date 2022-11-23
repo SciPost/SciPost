@@ -332,7 +332,7 @@ class BaseCycle:
             elif recommendation.status == constants.PUT_TO_VOTING:
                 texts.append("It is now put to voting in the college.")
 
-        if self._submission.status == constants.STATUS_RESUBMITTED:
+        if self._submission.status == self._submission.RESUBMITTED:
             new_sub_id = (
                 self._submission.get_latest_version().preprint.identifier_w_vn_nr
             )
@@ -346,22 +346,22 @@ class BaseCycle:
                     identifier=new_sub_id,
                 )
             )
-        elif self._submission.status == constants.STATUS_ACCEPTED:
+        elif self._submission.status == self._submission.ACCEPTED:
             texts.append(
                 "The SciPost production team is working on the proofs for publication."
             )
-        elif self._submission.status == constants.STATUS_REJECTED:
+        elif self._submission.status == self._submission.REJECTED:
             texts.append("The Submission is rejected for publication.")
-        elif self._submission.status == constants.STATUS_WITHDRAWN:
+        elif self._submission.status == self._submission.WITHDRAWN:
             texts.append("The authors have withdrawn the Submission.")
-        elif self._submission.status == constants.STATUS_PUBLISHED:
+        elif self._submission.status == self._submission.PUBLISHED:
             texts.append("The Submission has been published as ")
             for publication in self._submission.publications.published():
                 texts.append('<a href="{url}">{doi}</a> '.format(
                     url=publication.get_absolute_url(),
                     doi=publication.doi_label,
                 ))
-        elif self._submission.status == constants.STATUS_EIC_ASSIGNED:
+        elif self._submission.status == self._submission.EIC_ASSIGNED:
             if not self._submission.in_refereeing_phase:
                 if recommendation:
                     texts.append("The refereeing round is closed.")
@@ -389,11 +389,11 @@ class BaseCycle:
         from .models import Submission  # Prevent circular import errors
 
         if self._submission.status in [
-            constants.STATUS_INCOMING,
-            constants.STATUS_UNASSIGNED,
+            self._submission.INCOMING,
+            self._submission.UNASSIGNED,
         ]:
             Submission.objects.filter(id=self._submission.id).update(
-                status=constants.STATUS_EIC_ASSIGNED
+                status=self._submission.EIC_ASSIGNED
             )
 
         deadline = timezone.now() + datetime.timedelta(days=self.days_for_refereeing)

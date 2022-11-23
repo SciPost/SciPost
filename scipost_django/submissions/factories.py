@@ -14,11 +14,6 @@ from common.helpers import random_scipost_report_doi_label
 from ontology.models import Specialty, AcademicField
 
 from .constants import (
-    STATUS_UNASSIGNED,
-    STATUS_EIC_ASSIGNED,
-    STATUS_INCOMING,
-    STATUS_PUBLISHED,
-    STATUS_RESUBMITTED,
     STATUS_VETTED,
     REFEREE_QUALIFICATION,
     RANKING_CHOICES,
@@ -128,7 +123,7 @@ class UnassignedSubmissionFactory(SubmissionFactory):
     A new incoming Submission without any EIC assigned.
     """
 
-    status = STATUS_UNASSIGNED
+    status = Submission.UNASSIGNED
     visible_public = False
     visible_pool = True
 
@@ -138,7 +133,7 @@ class EICassignedSubmissionFactory(SubmissionFactory):
     A Submission with an EIC assigned, visible in the pool and refereeing in process.
     """
 
-    status = STATUS_EIC_ASSIGNED
+    status = Submission.EIC_ASSIGNED
     open_for_commenting = True
     open_for_reporting = True
     visible_public = True
@@ -182,7 +177,7 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
     with a successive version number.
     """
 
-    status = STATUS_RESUBMITTED
+    status = Submission.RESUBMITTED
     open_for_commenting = False
     open_for_reporting = False
     is_current = False
@@ -245,7 +240,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
     already known by the SciPost database.
     """
 
-    status = STATUS_INCOMING
+    status = Submission.INCOMING
     open_for_commenting = True
     open_for_reporting = True
     visible_public = False
@@ -296,7 +291,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
 
 
 class PublishedSubmissionFactory(EICassignedSubmissionFactory):
-    status = STATUS_PUBLISHED
+    status = Submission.PUBLISHED
     open_for_commenting = False
     open_for_reporting = False
     visible_public = True

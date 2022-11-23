@@ -7,7 +7,6 @@ from django.utils import timezone
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
-    STATUS_EIC_ASSIGNED,
     EIC_REC_CHOICES,
     EIC_REC_STATUSES,
     DECISION_FIXED,

@@ -25,18 +25,7 @@ from comments.models import Comment
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
-    SUBMISSION_STATUS,
-    STATUS_INCOMING,
-    STATUS_UNASSIGNED,
     STATUS_PREASSIGNED,
-    STATUS_EIC_ASSIGNED,
-    SUBMISSION_UNDER_CONSIDERATION,
-    STATUS_FAILED_PRESCREENING,
-    STATUS_RESUBMITTED,
-    STATUS_ACCEPTED,
-    STATUS_REJECTED,
-    STATUS_WITHDRAWN,
-    STATUS_PUBLISHED,
     SUBMISSION_CYCLES,
     CYCLE_DEFAULT,
     CYCLE_SHORT,
@@ -57,6 +46,90 @@ class Submission(models.Model):
     A Submission is a preprint sent to SciPost for consideration.
     """
 
+    # Possible statuses
+    INCOMING = "incoming"
+    PRESCREENING = "prescreening"
+    FAILED_PRESCREENING = "failed_pre"
+    PRESCREENING_FAILED = "prescreening_failed"
+    UNASSIGNED = "unassigned"
+    SCREENING = "screening"
+    SCREENING_FAILED = "screening_failed"
+    EIC_ASSIGNED = "assigned"
+    ASSIGNMENT_FAILED = "assignment_failed"
+    REFEREEING_IN_PREPARATION = "refereeing_in_preparation"
+    IN_REFEREEING = "in_refereeing"
+    REFEREEING_CLOSED = "refereeing_closed"
+    AWAITING_RESUBMISSION = "awaiting_resubmission"
+    RESUBMITTED = "resubmitted"
+    VOTING_IN_PREPARATION = "voting_in_preparation"
+    IN_VOTING = "in_voting"
+    AWAITING_DECISION = "awaiting_decision"
+    ACCEPTED = "accepted"
+    ACCEPTED_IN_TARGET = "accepted_in_target"
+    ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE = "puboffer_waiting"
+    ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE = "accepted_alt_puboffer_waiting"
+    ACCEPTED_IN_ALTERNATIVE = "accepted_alt"
+    REJECTED = "rejected"
+    WITHDRAWN = "withdrawn"
+    PUBLISHED = "published"
+
+    SUBMISSION_STATUSES = (
+        (INCOMING, "Submission incoming, awaiting EdAdmin"), ## descriptor rephrased
+        (PRESCREENING, "Undergoing pre-screening"), ## new
+        (FAILED_PRESCREENING, "Failed pre-screening"), ## rename: PRESCREENING_FAILED
+        (PRESCREENING_FAILED, "Pre-screening failed"), ## new
+        (UNASSIGNED, "Unassigned, awaiting editor assignment"),  ## rename: SCREENING
+        (SCREENING, "Undergoing screening"), ## new, replacement for UNASSIGNED
+        (SCREENING_FAILED, "Screening failed"), ## new
+        (EIC_ASSIGNED, "Editor-in-charge assigned"), ## shift to IN_REFEREEING if ref round open
+        (
+            ASSIGNMENT_FAILED, ## rename: SCREENING_FAILED
+            "Failed to assign Editor-in-charge; manuscript rejected",
+        ),
+        (REFEREEING_IN_PREPARATION, "Refereeing in preparation"), ## new
+        (IN_REFEREEING, "In refereeing"), ## new
+        (REFEREEING_CLOSED, "Refereeing closed (awaiting author replies and EdRec)"), ## new
+        (AWAITING_RESUBMISSION, "Awaiting resubmission"), ## new
+        (RESUBMITTED, "Has been resubmitted"),
+        (VOTING_IN_PREPARATION, "Voting in preparation"), ## new
+        (IN_VOTING, "In voting"), ## new
+        (AWAITING_DECISION, "Awaiting decision"), ## new
+        (ACCEPTED, "Publication decision taken: accept"), ## rename: ACCEPTED_IN_TARGET
+        (ACCEPTED_IN_TARGET, "Accepted in target Journal"), ## new
+        (
+            ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, ## rename: ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
+            "Accepted in other journal; awaiting puboffer acceptance",
+        ),
+        (
+            ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE, ## new
+            "Accepted in alternative Journal; awaiting puboffer acceptance",
+        ),
+        (ACCEPTED_IN_ALTERNATIVE, "Accepted in alternative Journal"), ## new
+        (REJECTED, "Publication decision taken: reject"),
+        (WITHDRAWN, "Withdrawn by the Authors"),
+        (PUBLISHED, "Published"),
+    )
+
+    # Submissions which are currently under consideration
+    UNDER_CONSIDERATION = [
+        INCOMING,
+        PRESCREENING,
+        UNASSIGNED, # remove
+        SCREENING,
+        EIC_ASSIGNED, # remove
+        REFEREEING_IN_PREPARATION,
+        IN_REFEREEING,
+        REFEREEING_CLOSED,
+        AWAITING_RESUBMISSION,
+        RESUBMITTED,
+        VOTING_IN_PREPARATION,
+        IN_VOTING,
+        AWAITING_DECISION,
+        ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, # remove
+        ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE, # remove
+    ]
+
+    # Fields
     preprint = models.OneToOneField(
         "preprints.Preprint", on_delete=models.CASCADE, related_name="submission"
     )
@@ -97,7 +170,7 @@ class Submission(models.Model):
 
     # Submission status fields
     status = models.CharField(
-        max_length=30, choices=SUBMISSION_STATUS, default=STATUS_INCOMING
+        max_length=30, choices=SUBMISSION_STATUSES, default=INCOMING
     )
     is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
@@ -314,19 +387,19 @@ class Submission(models.Model):
         Check if the Submission is currently under consideration
         (in other words: is undergoing editorial processing).
         """
-        return self.status in SUBMISSION_UNDER_CONSIDERATION
+        return self.status in self.UNDER_CONSIDERATION
 
     @property
     def open_for_resubmission(self):
         """Check if Submission has fixed EICRecommendation asking for revision."""
-        if self.status != STATUS_EIC_ASSIGNED:
+        if self.status != self.EIC_ASSIGNED:
             return False
         return self.eicrecommendations.fixed().asking_revision().exists()
 
     @property
     def reporting_deadline_has_passed(self):
         """Check if Submission has passed its reporting deadline."""
-        if self.status in [STATUS_INCOMING, STATUS_UNASSIGNED]:
+        if self.status in [self.INCOMING, self.UNASSIGNED]:
             # These statuses do not have a deadline
             return False
 
@@ -335,7 +408,7 @@ class Submission(models.Model):
     @property
     def reporting_deadline_approaching(self):
         """Check if reporting deadline is within 7 days from now but not passed yet."""
-        if self.status in [STATUS_INCOMING, STATUS_UNASSIGNED]:
+        if self.status in [self.INCOMING, self.UNASSIGNED]:
             # These statuses do not have a deadline
             return False
 
@@ -371,7 +444,7 @@ class Submission(models.Model):
 
     @property
     def in_prescreening(self):
-        return self.status == STATUS_INCOMING
+        return self.status == self.INCOMING
 
     @property
     def in_refereeing_phase(self):
@@ -397,7 +470,7 @@ class Submission(models.Model):
 
         # Maybe: Check for unvetted Reports?
         return (
-            self.status == STATUS_EIC_ASSIGNED
+            self.status == self.EIC_ASSIGNED
             and self.is_open_for_reporting_within_deadline
         )
 
@@ -405,12 +478,12 @@ class Submission(models.Model):
     def can_reset_reporting_deadline(self):
         """Check if reporting deadline is allowed to be reset."""
         blocked_statuses = [
-            STATUS_FAILED_PRESCREENING,
-            STATUS_RESUBMITTED,
-            STATUS_ACCEPTED,
-            STATUS_REJECTED,
-            STATUS_WITHDRAWN,
-            STATUS_PUBLISHED,
+            self.FAILED_PRESCREENING,
+            self.RESUBMITTED,
+            self.ACCEPTED,
+            self.REJECTED,
+            self.WITHDRAWN,
+            self.PUBLISHED,
         ]
         if self.status in blocked_statuses:
             return False
@@ -515,7 +588,7 @@ class Submission(models.Model):
 
     def is_sending_editorial_invitations(self):
         """Return whether editorial assignments are being send out."""
-        if self.status != STATUS_UNASSIGNED:
+        if self.status != self.UNASSIGNED:
             # Only if status is unassigned.
             return False
 

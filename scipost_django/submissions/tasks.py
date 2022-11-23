@@ -60,7 +60,7 @@ def submit_submission_document_for_plagiarism(self):
 @app.task(bind=True)
 def check_for_internal_plagiarism_submission_matches(self, ratio_threshold=0.7):
     """
-    Check incoming Submissions for internal plagiarism with preexisting Submissions.
+    Check Submissions for internal plagiarism with preexisting Submissions.
     """
 
     submissions_to_check = Submission.objects.exclude(
@@ -98,7 +98,7 @@ def check_for_internal_plagiarism_submission_matches(self, ratio_threshold=0.7):
 @app.task(bind=True)
 def check_for_internal_plagiarism_publication_matches(self, ratio_threshold=0.7):
     """
-    Check incoming Submissions for internal plagiarism with existing Publications.
+    Check Submissions for internal plagiarism with existing Publications.
     """
 
     submissions_to_check = Submission.objects.exclude(

@@ -88,7 +88,6 @@ from ontology.models import AcademicField, Topic
 from ontology.forms import SelectTopicForm
 from organizations.models import Organization
 from profiles.forms import ProfileSelectForm
-from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
@@ -1387,7 +1386,7 @@ def manage_report_metadata(request):
     if needing_update:
         reports = reports.filter(
             Q(needs_doi=None) | Q(needs_doi=True, doideposit_needs_updating=True)
-        ).filter(submission__status=STATUS_PUBLISHED)
+        ).filter(submission__status=Submission.PUBLISHED)
 
     paginator = Paginator(reports, 25)
     page = request.GET.get("page")

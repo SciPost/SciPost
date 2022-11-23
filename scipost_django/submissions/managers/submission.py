@@ -70,16 +70,16 @@ class SubmissionQuerySet(models.QuerySet):
     def pool(self, user):
         """Return the user-dependent pool of Submissions in active referee phase."""
         allowed_statuses = [
-            constants.STATUS_UNASSIGNED,
-            constants.STATUS_EIC_ASSIGNED,
-            constants.STATUS_ACCEPTED,
-            constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
+            self.model.UNASSIGNED,
+            self.model.EIC_ASSIGNED,
+            self.model.ACCEPTED,
+            self.model.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
         ]
         if (
             user.has_perm("scipost.can_oversee_refereeing")
             or user.contributor.is_active_senior_fellow
         ):
-            allowed_statuses.append(constants.STATUS_INCOMING)
+            allowed_statuses.append(self.model.INCOMING)
         return self.pool_editable(user).filter(
             is_current=True, status__in=allowed_statuses
         )
@@ -111,7 +111,7 @@ class SubmissionQuerySet(models.QuerySet):
 
     def prescreening(self):
         """Return submissions just coming in and going through pre-screening."""
-        return self.filter(status=constants.STATUS_INCOMING)
+        return self.filter(status=self.model.INCOMING)
 
     def assigned(self):
         """Return submissions with assigned Editor-in-charge."""
@@ -119,19 +119,19 @@ class SubmissionQuerySet(models.QuerySet):
 
     def unassigned(self):
         """Return submissions passed pre-screening, but unassigned."""
-        return self.filter(status=constants.STATUS_UNASSIGNED)
+        return self.filter(status=self.model.UNASSIGNED)
 
     def without_eic(self):
         """Return Submissions that still need Editorial Assignment."""
         return self.filter(
-            status__in=[constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED]
+            status__in=[self.model.INCOMING, self.model.UNASSIGNED]
         )
 
     def actively_refereeing(self):
         from ..models import EditorialDecision
 
         """Return submission currently in some point of the refereeing round."""
-        return self.filter(status=constants.STATUS_EIC_ASSIGNED).exclude(
+        return self.filter(status=self.model.EIC_ASSIGNED).exclude(
             models.Q(eicrecommendations__status=constants.DECISION_FIXED)
             & ~models.Q(
                 editorialdecision__decision=EditorialDecision.FIXED_AND_ACCEPTED
@@ -150,7 +150,7 @@ class SubmissionQuerySet(models.QuerySet):
                    should be able to view *all* submissions.
         """
         return self.filter(visible_public=True).exclude(
-            status__in=[constants.STATUS_RESUBMITTED, constants.STATUS_PUBLISHED]
+            status__in=[self.model.RESUBMITTED, self.model.PUBLISHED]
         )
 
     def public_newest(self):
@@ -164,10 +164,10 @@ class SubmissionQuerySet(models.QuerySet):
         """This query returns all Submissions that are presumed to be 'done'."""
         return self.filter(
             status__in=[
-                constants.STATUS_ACCEPTED,
-                constants.STATUS_REJECTED,
-                constants.STATUS_PUBLISHED,
-                constants.STATUS_RESUBMITTED,
+                self.model.ACCEPTED,
+                self.model.REJECTED,
+                self.model.PUBLISHED,
+                self.model.RESUBMITTED,
             ]
         )
 
@@ -186,12 +186,12 @@ class SubmissionQuerySet(models.QuerySet):
 
     def accepted(self):
         """Return accepted Submissions."""
-        return self.filter(status=constants.STATUS_ACCEPTED)
+        return self.filter(status=self.model.ACCEPTED)
 
     def awaiting_puboffer_acceptance(self):
         """Return Submissions for which an outstanding publication offer exists."""
         return self.filter(
-            status=constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
+            status=self.model.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
         )
 
     def revision_requested(self):
@@ -206,23 +206,23 @@ class SubmissionQuerySet(models.QuerySet):
 
     def published(self):
         """Return published Submissions."""
-        return self.filter(status=constants.STATUS_PUBLISHED)
+        return self.filter(status=self.model.PUBLISHED)
 
     def unpublished(self):
         """Return unpublished Submissions."""
-        return self.exclude(status=constants.STATUS_PUBLISHED)
+        return self.exclude(status=self.model.PUBLISHED)
 
     def assignment_failed(self):
         """Return Submissions which have failed assignment."""
-        return self.filter(status=constants.STATUS_ASSIGNMENT_FAILED)
+        return self.filter(status=self.model.ASSIGNMENT_FAILED)
 
     def rejected(self):
         """Return rejected Submissions."""
-        return self._newest_version_only(self.filter(status=constants.STATUS_REJECTED))
+        return self._newest_version_only(self.filter(status=self.model.REJECTED))
 
     def withdrawn(self):
         """Return withdrawn Submissions."""
-        return self._newest_version_only(self.filter(status=constants.STATUS_WITHDRAWN))
+        return self._newest_version_only(self.filter(status=self.model.WITHDRAWN))
 
     def open_for_reporting(self):
         """Return Submissions open for reporting."""
@@ -264,9 +264,9 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(
             is_current=True,
             status__in=[
-                constants.STATUS_INCOMING,
-                constants.STATUS_UNASSIGNED,
-                constants.STATUS_EIC_ASSIGNED,
+                self.model.INCOMING,
+                self.model.UNASSIGNED,
+                self.model.EIC_ASSIGNED,
             ],
             authors=user.contributor,
         )

@@ -11,9 +11,6 @@ from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 
 from ..constants import (
-    STATUS_UNASSIGNED,
-    STATUS_INCOMING,
-    STATUS_EIC_ASSIGNED,
     CYCLE_DEFAULT,
     CYCLE_DIRECT_REC,
 )
@@ -39,7 +36,7 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 #     @tag('cycle', 'core')
 #     def test_init_submission_factory_is_valid(self):
 #         """Ensure valid fields for the factory."""
-#         self.assertEqual(self.new_submission.status, STATUS_UNASSIGNED)
+#         self.assertEqual(self.new_submission.status, self.new_submission.UNASSIGNED)
 #         self.assertIsNone(self.new_submission.editor_in_charge)
 #         self.assertTrue(self.new_submission.is_current)
 #         self.assertFalse(self.new_submission.is_resubmission)
@@ -87,7 +84,7 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 #     @tag('cycle', 'core')
 #     def test_init_resubmission_factory_is_valid(self):
 #         """Ensure valid fields for the factory."""
-#         self.assertEqual(self.submission.status, STATUS_INCOMING)
+#         self.assertEqual(self.submission.status, self.submission.INCOMING)
 #         self.assertIsInstance(self.submission.editor_in_charge, Contributor)
 #         self.assertTrue(self.submission.is_current)
 #         self.assertTrue(self.submission.is_resubmission)
@@ -105,7 +102,7 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 
 #         # Update status for default cycle to check new status
 #         self.submission.cycle.update_status()
-#         self.assertEqual(self.submission.status, STATUS_EIC_ASSIGNED)
+#         self.assertEqual(self.submission.status, self.submission.EIC_ASSIGNED)
 
 
 # NOTED AS BROKEN 2019-11-08
@@ -128,7 +125,7 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 #     @tag('cycle', 'core')
 #     def test_init_resubmission_factory_is_valid(self):
 #         """Ensure valid fields for the factory."""
-#         self.assertEqual(self.submission.status, STATUS_INCOMING)
+#         self.assertEqual(self.submission.status, self.submission.INCOMING)
 #         self.assertIsInstance(self.submission.editor_in_charge, Contributor)
 #         self.assertTrue(self.submission.is_current)
 #         self.assertTrue(self.submission.is_resubmission)
@@ -146,4 +143,4 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 
 #         # Update status for default cycle to check new status
 #         self.submission.cycle.update_status()
-#         self.assertEqual(self.submission.status, STATUS_EIC_ASSIGNED)
+#         self.assertEqual(self.submission.status, self.submission.EIC_ASSIGNED)

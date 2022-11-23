@@ -21,22 +21,14 @@ from dal import autocomplete
 from .constants import (
     ASSIGNMENT_BOOL,
     ASSIGNMENT_REFUSAL_REASONS,
-    STATUS_RESUBMITTED,
     REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES,
-    STATUS_REJECTED,
-    STATUS_INCOMING,
     REPORT_POST_EDREC,
     REPORT_NORMAL,
     STATUS_DRAFT,
     STATUS_UNVETTED,
     REPORT_ACTION_ACCEPT,
     REPORT_ACTION_REFUSE,
-    STATUS_UNASSIGNED,
-    SUBMISSION_STATUS,
-    STATUS_ASSIGNMENT_FAILED,
-    STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
-    STATUS_PUBLISHED,
     PUT_TO_VOTING,
     SUBMISSION_CYCLE_CHOICES,
     CYCLE_UNDETERMINED,
@@ -53,14 +45,11 @@ from .constants import (
     DECISION_FIXED,
     DEPRECATED,
     STATUS_COMPLETED,
-    STATUS_EIC_ASSIGNED,
     STATUS_PREASSIGNED,
     STATUS_REPLACED,
-    STATUS_FAILED_PRESCREENING,
     STATUS_DEPRECATED,
     STATUS_ACCEPTED,
     STATUS_DECLINED,
-    STATUS_WITHDRAWN,
 )
 from . import exceptions, helpers
 from .helpers import to_ascii_only
@@ -205,19 +194,19 @@ class SubmissionPoolSearchForm(forms.Form):
             (
                 "Pre-screening",
                 (
-                    (STATUS_INCOMING, "In pre-screening"),
-                    (STATUS_FAILED_PRESCREENING, "Failed pre-screening"),
+                    (Submission.INCOMING, "In pre-screening"),
+                    (Submission.FAILED_PRESCREENING, "Failed pre-screening"),
                 ),
             ),
             (
                 "Screening",
                 (
-                    (STATUS_UNASSIGNED, "Unassigned, awaiting editor assignment"),
+                    (Submission.UNASSIGNED, "Unassigned, awaiting editor assignment"),
                     ("unassigned_1", "... unassigned for > 1 week"),
                     ("unassigned_2", "... unassigned for > 2 weeks"),
                     ("unassigned_4", "... unassigned for > 4 weeks"),
                     (
-                        STATUS_ASSIGNMENT_FAILED,
+                        Submission.ASSIGNMENT_FAILED,
                         "Failed to assign Editor-in-charge; manuscript rejected",
                     ),
                 ),
@@ -252,16 +241,16 @@ class SubmissionPoolSearchForm(forms.Form):
             (
                 "Decided",
                 (
-                    (STATUS_ACCEPTED, "Accepted"),
+                    (Submission.ACCEPTED, "Accepted"),
                     (
-                        STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
+                        Submission.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
                         "Accepted in other journal; awaiting puboffer acceptance",
                     ),
-                    (STATUS_REJECTED, "Rejected"),
-                    (STATUS_WITHDRAWN, "Withdrawn by the Authors"),
+                    (Submission.REJECTED, "Rejected"),
+                    (Submission.WITHDRAWN, "Withdrawn by the Authors"),
                 ),
             ),
-            ("Processed", ((STATUS_PUBLISHED, "Published"),)),
+            ("Processed", ((Submission.PUBLISHED, "Published"),)),
         ),
     )
     editor_in_charge = forms.ModelChoiceField(
@@ -384,17 +373,17 @@ class SubmissionPoolSearchForm(forms.Form):
             pass
         elif status == "unassigned_1":
             submissions = submissions.filter(
-                status=STATUS_UNASSIGNED,
+                status=Submission.UNASSIGNED,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=7),
             )
         elif status == "unassigned_2":
             submissions = submissions.filter(
-                status=STATUS_UNASSIGNED,
+                status=Submission.UNASSIGNED,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=14),
             )
         elif status == "unassigned_4":
             submissions = submissions.filter(
-                status=STATUS_UNASSIGNED,
+                status=Submission.UNASSIGNED,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=28),
             )
         elif status == "actively_refereeing":
@@ -521,7 +510,7 @@ def check_resubmission_readiness(requested_by, submission):
     Check if submission can be resubmitted.
     """
     if submission:
-        if submission.status == STATUS_REJECTED:
+        if submission.status == Submission.REJECTED:
             # Explicitly give rejected status warning.
             error_message = (
                 "This preprint has previously undergone refereeing "
@@ -1413,7 +1402,7 @@ class SubmissionForm(forms.ModelForm):
 
         # Close last submission
         Submission.objects.filter(id=previous_submission.id).update(
-            is_current=False, open_for_reporting=False, status=STATUS_RESUBMITTED
+            is_current=False, open_for_reporting=False, status=Submission.RESUBMITTED
         )
 
         # Copy Topics
@@ -1427,7 +1416,7 @@ class SubmissionForm(forms.ModelForm):
             visible_pool=True,
             refereeing_cycle=CYCLE_UNDETERMINED,
             editor_in_charge=previous_submission.editor_in_charge,
-            status=STATUS_EIC_ASSIGNED,
+            status=Submission.EIC_ASSIGNED,
         )
 
         # Add author(s) (claim) fields
@@ -1441,7 +1430,7 @@ class SubmissionForm(forms.ModelForm):
         EditorialAssignment.objects.create(
             submission=submission,
             to=previous_submission.editor_in_charge,
-            status=STATUS_ACCEPTED,
+            status=Submission.ACCEPTED,
         )
 
     def set_fellowship(self, submission):
@@ -1476,7 +1465,7 @@ class SubmissionReportsForm(forms.ModelForm):
 
 
 class PreassignEditorsForm(forms.ModelForm):
-    """Preassign editors for incoming Submission."""
+    """Preassign editors during Submission pre-screening."""
 
     assign = forms.BooleanField(required=False)
     to = forms.ModelChoiceField(
@@ -1504,7 +1493,7 @@ class PreassignEditorsForm(forms.ModelForm):
             )
         elif self.instance.id is not None:
             # Delete if exists
-            if self.instance.status == STATUS_PREASSIGNED:
+            if self.instance.status == Submission.PREASSIGNED:
                 self.instance.delete()
         return self.instance
 
@@ -1516,7 +1505,7 @@ class PreassignEditorsForm(forms.ModelForm):
 
 
 class BasePreassignEditorsFormSet(forms.BaseModelFormSet):
-    """Preassign editors for incoming Submission."""
+    """Pre-assign editors during Submission pre-screening."""
 
     def __init__(self, *args, **kwargs):
         self.submission = kwargs.pop("submission")
@@ -1736,7 +1725,7 @@ class SubmissionPrescreeningForm(forms.ModelForm):
     def clean(self):
         """Check if Submission has right status."""
         data = super().clean()
-        if self.instance.status != STATUS_INCOMING:
+        if self.instance.status != Submission.INCOMING:
             self.add_error(None, "This Submission is currently not in pre-screening.")
 
         if data["decision"] == self.PASS:
@@ -1753,7 +1742,7 @@ class SubmissionPrescreeningForm(forms.ModelForm):
         """Update Submission status."""
         if self.cleaned_data["decision"] == self.PASS:
             Submission.objects.filter(id=self.instance.id).update(
-                status=STATUS_UNASSIGNED, visible_pool=True, visible_public=False
+                status=Submission.UNASSIGNED, visible_pool=True, visible_public=False
             )
             self.instance.add_general_event("Submission passed pre-screening.")
         elif self.cleaned_data["decision"] == self.FAIL:
@@ -1761,7 +1750,7 @@ class SubmissionPrescreeningForm(forms.ModelForm):
                 submission=self.instance
             ).invited().update(status=STATUS_DEPRECATED)
             Submission.objects.filter(id=self.instance.id).update(
-                status=STATUS_FAILED_PRESCREENING,
+                status=Submission.FAILED_PRESCREENING,
                 visible_pool=False,
                 visible_public=False,
             )
@@ -1815,7 +1804,7 @@ class WithdrawSubmissionForm(forms.Form):
                 visible_pool=False,
                 open_for_commenting=False,
                 open_for_reporting=False,
-                status=STATUS_WITHDRAWN,
+                status=Submission.WITHDRAWN,
                 latest_activity=timezone.now(),
             )
             self.submission.get_other_versions().update(visible_public=False)
@@ -1918,7 +1907,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                 # Update related Submission.
                 Submission.objects.filter(id=self.submission.id).update(
                     refereeing_cycle=CYCLE_DEFAULT,
-                    status=STATUS_EIC_ASSIGNED,
+                    status=Submission.EIC_ASSIGNED,
                     editor_in_charge=self.request.user.contributor,
                     reporting_deadline=deadline,
                     open_for_reporting=True,
@@ -1937,7 +1926,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                     )
                 Submission.objects.filter(id=self.submission.id).update(
                     refereeing_cycle=CYCLE_DIRECT_REC,
-                    status=STATUS_EIC_ASSIGNED,
+                    status=Submission.EIC_ASSIGNED,
                     editor_in_charge=self.request.user.contributor,
                     reporting_deadline=timezone.now(),
                     open_for_reporting=False,
@@ -2644,7 +2633,7 @@ class RestartRefereeingForm(forms.Form):
     def save(self):
         if self.is_confirmed():
             Submission.objects.filter(id=self.submission.id).update(
-                status=STATUS_EIC_ASSIGNED,
+                status=Submission.EIC_ASSIGNED,
                 refereeing_cycle=CYCLE_UNDETERMINED,
                 acceptance_date=None,
                 latest_activity=timezone.now(),

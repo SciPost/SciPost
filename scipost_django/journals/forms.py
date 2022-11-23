@@ -50,7 +50,6 @@ from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from scipost.forms import RequestFormMixin
 from scipost.services import DOICaller
-from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission
 
 
@@ -776,7 +775,7 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
         # Mark the submission as having been published:
         submission = self.instance.accepted_submission
         submission.published_as = self.instance
-        submission.status = STATUS_PUBLISHED
+        submission.status = submission.PUBLISHED
         submission.save()
 
         # Add SubmissionEvents

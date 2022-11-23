@@ -18,6 +18,9 @@
 
   <h2 class="highlight">Prescreening</h2>
   {% for submission in prescreening %}
+
+    {% include 'submissions/_submission_events.html' with events=submission.events.for_edadmin %}
+
     <details>
       <summary>{{ submission }}</summary>
       <button class="m-2 btn btn-primary workflowDiagram"
