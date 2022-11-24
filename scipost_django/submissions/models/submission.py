@@ -81,7 +81,7 @@ class Submission(models.Model):
         (UNASSIGNED, "Unassigned, awaiting editor assignment"),  ## rename: SCREENING
         (SCREENING, "Undergoing screening"), ## new, replacement for UNASSIGNED
         (SCREENING_FAILED, "Screening failed"), ## new
-        (EIC_ASSIGNED, "Editor-in-charge assigned"), ## shift to IN_REFEREEING if ref round open
+        (EIC_ASSIGNED, "Editor-in-charge assigned"), ## rename: IN_REFEREEING or others
         (
             ASSIGNMENT_FAILED, ## rename: SCREENING_FAILED
             "Failed to assign Editor-in-charge; manuscript rejected",
@@ -94,7 +94,7 @@ class Submission(models.Model):
         (VOTING_IN_PREPARATION, "Voting in preparation"), ## new
         (IN_VOTING, "In voting"), ## new
         (AWAITING_DECISION, "Awaiting decision"), ## new
-        (ACCEPTED, "Publication decision taken: accept"), ## rename: ACCEPTED_IN_TARGET
+        (ACCEPTED, "Publication decision taken: accept"), ## rename: ACCEPTED_IN_TARGET or ALTERNATIVE
         (ACCEPTED_IN_TARGET, "Accepted in target Journal"), ## new
         (
             ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, ## rename: ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
