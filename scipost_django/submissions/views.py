@@ -886,11 +886,14 @@ def pool_hx_submissions_list(request):
     if form.is_valid():
         submissions = form.search_results(request.user)
     else:
-        submissions = Submission.objects.pool(request.user)[:16]
+        submissions = Submission.objects.in_pool(request.user)[:16]
     paginator = Paginator(submissions, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
-    context = {"page_obj": page_obj}
+    count = paginator.count
+    start_index = page_obj.start_index
+    end_index = page_obj.end_index
+    context = {"count": count, "page_obj": page_obj, "start_index": start_index, "end_index": end_index,}
     return render(request, "submissions/pool/hx_submissions_list.html", context)
 
 
@@ -898,7 +901,7 @@ def pool_hx_submissions_list(request):
 @fellowship_or_admin_required()
 def pool_hx_submission_details(request, identifier_w_vn_nr):
     submission = get_object_or_404(
-        Submission.objects.pool_for_user(request.user, historical=True),
+        Submission.objects.in_pool(request.user, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     context = {"remark_form": RemarkForm(), "submission": submission}
@@ -914,7 +917,7 @@ def add_remark(request, identifier_w_vn_nr):
     is adding a remark on a Submission.
     """
     submission = get_object_or_404(
-        Submission.objects.pool_for_user(request.user),
+        Submission.objects.in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -988,7 +991,7 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
 def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     """Editorial Assignment form view."""
     submission = get_object_or_404(
-        Submission.objects.unassigned().pool_for_user(request.user),
+        Submission.objects.unassigned().in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1107,7 +1110,7 @@ def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
     Send an email to the authors, informing them that screening is still ongoing after one week.
     """
     submission = get_object_or_404(
-        Submission.objects.pool(request.user).unassigned(),
+        Submission.objects.in_pool(request.user).unassigned(),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     if nrweeks == 1:
@@ -1142,7 +1145,7 @@ def assignment_failed(request, identifier_w_vn_nr):
     Submission is rejected. An Editorial Administrator can access this view from the Pool.
     """
     submission = get_object_or_404(
-        Submission.objects.pool(request.user).unassigned(),
+        Submission.objects.in_pool(request.user).unassigned(),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1206,7 +1209,7 @@ def editorial_page(request, identifier_w_vn_nr):
     for both the Editor-in-charge of the Submission and the Editorial Administration.
     """
     submission = get_object_or_404(
-        Submission.objects.pool_for_user(request.user, historical=True),
+        Submission.objects.in_pool(request.user, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1819,7 +1822,7 @@ def close_refereeing_round(request, identifier_w_vn_nr):
 def refereeing_overview(request):
     """List all Submissions undergoing active Refereeing."""
     submissions_under_refereeing = (
-        Submission.objects.pool_for_user(request.user)
+        Submission.objects.in_pool(request.user)
         .actively_refereeing()
         .order_by("submission_date")
     )
@@ -1855,7 +1858,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         # Editorial Administration to Editor
         if not request.user.has_perm("scipost.can_oversee_refereeing"):
             raise PermissionDenied
-        submissions_qs = Submission.objects.pool_for_user(request.user)
+        submissions_qs = Submission.objects.in_pool(request.user)
         referee = request.user.contributor
     else:
         # Invalid commtype in the url!
@@ -2231,7 +2234,7 @@ def vet_submitted_report(request, report_id):
 @transaction.atomic
 def prepare_for_voting(request, rec_id):
     """Form view to prepare a EICRecommendation for voting."""
-    submissions = Submission.objects.pool_for_user(request.user)
+    submissions = Submission.objects.in_pool(request.user)
     recommendation = get_object_or_404(
         EICRecommendation.objects.voting_in_preparation().filter(
             submission__in=submissions
@@ -2306,7 +2309,7 @@ def claim_voting_right(request, rec_id):
 @transaction.atomic
 def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
-    submissions = Submission.objects.pool_for_user(request.user)
+    submissions = Submission.objects.in_pool(request.user)
     previous_vote = None
     try:
         recommendation = EICRecommendation.objects.user_must_vote_on(request.user).get(

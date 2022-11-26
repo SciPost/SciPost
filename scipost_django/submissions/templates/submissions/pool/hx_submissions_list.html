@@ -1,4 +1,5 @@
 {% for submission in page_obj %}
+  <li{% if not forloop.first %} class="mt-4"{% endif %}><strong>{{ forloop.counter0|add:start_index }} of {{ count }}</strong></li>
   <li class="submission p-2 mb-2" id="submission_{{ submission.id }}">
     {% include 'submissions/pool/_hx_submission_li.html' with submission=submission %}
   </li>

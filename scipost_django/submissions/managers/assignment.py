@@ -10,11 +10,6 @@ from .. import constants
 
 
 class EditorialAssignmentQuerySet(models.QuerySet):
-    def get_for_user_in_pool(self, user):
-        return self.exclude(submission__authors=user.contributor).exclude(
-            models.Q(submission__author_list__icontains=user.last_name),
-            ~models.Q(submission__authors_false_claims=user.contributor),
-        )
 
     def last_year(self):
         return self.filter(

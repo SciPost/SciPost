@@ -77,11 +77,11 @@ class Submission(models.Model):
     SUBMISSION_STATUSES = (
         (INCOMING, "Submission incoming, awaiting EdAdmin"), ## descriptor rephrased
         (ADMISSION_FAILED, "Admission failed"), ## new
-        (PRESCREENING, "Undergoing pre-screening"), ## new
+        (PRESCREENING, "In pre-screening"), ## new
         (FAILED_PRESCREENING, "Failed pre-screening"), ## rename: PRESCREENING_FAILED
         (PRESCREENING_FAILED, "Pre-screening failed"), ## new
         (UNASSIGNED, "Unassigned, awaiting editor assignment"),  ## rename: SCREENING
-        (SCREENING, "Undergoing screening"), ## new, replacement for UNASSIGNED
+        (SCREENING, "In screening"), ## new, replacement for UNASSIGNED
         (SCREENING_FAILED, "Screening failed"), ## new
         (EIC_ASSIGNED, "Editor-in-charge assigned"), ## rename: IN_REFEREEING or others
         (
@@ -375,22 +375,6 @@ class Submission(models.Model):
     def notification_name(self):
         """Return string representation of this Submission as shown in Notifications."""
         return self.preprint.identifier_w_vn_nr
-
-    ######################
-    # Deal with statuses #
-    ######################
-
-    @property
-    def pool_statuses_list_Senior_Fellows(self):
-        statuses = list(self.UNDER_CONSIDERATION)
-        statuses.remove(self.INCOMING)
-        return statuses
-
-    @property
-    def pool_statuses_list(self):
-        statuses = list(self.UNDER_CONSIDERATION)
-        statuses.remove(self.INCOMING, self.PRESCREENING)
-        return statuses
 
     @property
     def eic_recommendation_required(self):

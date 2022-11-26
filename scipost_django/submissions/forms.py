@@ -345,9 +345,9 @@ class SubmissionPoolSearchForm(forms.Form):
         if self.cleaned_data.get("search_set") == "eic":
             submissions = Submission.objects.filter_for_eic(user)
         elif self.cleaned_data.get("search_set") == "current":
-            submissions = Submission.objects.pool_for_user(user)
+            submissions = Submission.objects.in_pool(user)
         else:  # include historical items
-            submissions = Submission.objects.pool_for_user(user, historical=True)
+            submissions = Submission.objects.in_pool(user, historical=True)
         if self.cleaned_data.get("specialties"):
             submissions = submissions.filter(
                 specialties__in=self.cleaned_data.get("specialties")
