@@ -192,28 +192,35 @@ class SubmissionPoolSearchForm(forms.Form):
         choices=(
             ("All", (("all", "All Submissions"),)),
             (
+                "Incoming",
+                (
+                    (Submission.INCOMING, "Incoming: awaiting EdAdmin checks"),
+                ),
+            ),
+            (
                 "Pre-screening",
                 (
-                    (Submission.INCOMING, "In pre-screening"),
+                    (Submission.PRESCREENING, "In pre-screening"),
                     (Submission.FAILED_PRESCREENING, "Failed pre-screening"),
                 ),
             ),
             (
                 "Screening",
                 (
-                    (Submission.UNASSIGNED, "Unassigned, awaiting editor assignment"),
-                    ("unassigned_1", "... unassigned for > 1 week"),
-                    ("unassigned_2", "... unassigned for > 2 weeks"),
-                    ("unassigned_4", "... unassigned for > 4 weeks"),
+                    (Submission.SCREENING, "In screening, awaiting editor assignment"),
+                    ("screening_1", "... waiting for > 1 week"),
+                    ("screening_2", "... waiting for > 2 weeks"),
+                    ("screening_4", "... waiting for > 4 weeks"),
                     (
-                        Submission.ASSIGNMENT_FAILED,
-                        "Failed to assign Editor-in-charge; manuscript rejected",
+                        Submission.SCREENING_FAILED,
+                        "Failed to find Editor-in-charge; manuscript rejected",
                     ),
                 ),
             ),
             (
                 "Refereeing",
                 (
+                    (Submission.REFEREEING_IN_PREPARATION, "Refereeing in preparation (cycle choice needed)"),
                     ("actively_refereeing", "In refereeing"),
                     ("unvetted_reports", "... with unvetted Reports"),
                     ("deadline_passed", "deadline passed, no recommendation yet"),
@@ -241,11 +248,12 @@ class SubmissionPoolSearchForm(forms.Form):
             (
                 "Decided",
                 (
-                    (Submission.ACCEPTED, "Accepted"),
+                    (Submission.ACCEPTED_IN_TARGET, "Accepted in target Journal"),
                     (
-                        Submission.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
+                        Submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
                         "Accepted in other journal; awaiting puboffer acceptance",
                     ),
+                    (Submission.ACCEPTED_IN_ALTERNATIVE, "Accepted in alternative Journal"),
                     (Submission.REJECTED, "Rejected"),
                     (Submission.WITHDRAWN, "Withdrawn by the Authors"),
                 ),
@@ -337,9 +345,9 @@ class SubmissionPoolSearchForm(forms.Form):
         if self.cleaned_data.get("search_set") == "eic":
             submissions = Submission.objects.filter_for_eic(user)
         elif self.cleaned_data.get("search_set") == "current":
-            submissions = Submission.objects.pool(user)
+            submissions = Submission.objects.pool_for_user(user)
         else:  # include historical items
-            submissions = Submission.objects.pool_editable(user)
+            submissions = Submission.objects.pool_for_user(user, historical=True)
         if self.cleaned_data.get("specialties"):
             submissions = submissions.filter(
                 specialties__in=self.cleaned_data.get("specialties")
@@ -371,19 +379,19 @@ class SubmissionPoolSearchForm(forms.Form):
         status = self.cleaned_data.get("status")
         if status == "all":
             pass
-        elif status == "unassigned_1":
+        elif status == "screening_1":
             submissions = submissions.filter(
-                status=Submission.UNASSIGNED,
+                status=Submission.SCREENING,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=7),
             )
-        elif status == "unassigned_2":
+        elif status == "screening_2":
             submissions = submissions.filter(
-                status=Submission.UNASSIGNED,
+                status=Submission.SCREENING,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=14),
             )
-        elif status == "unassigned_4":
+        elif status == "screening_4":
             submissions = submissions.filter(
-                status=Submission.UNASSIGNED,
+                status=Submission.SCREENING,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=28),
             )
         elif status == "actively_refereeing":
@@ -434,7 +442,7 @@ class SubmissionPoolSearchForm(forms.Form):
             submissions = submissions.undergoing_voting(longer_than_days=14)
         elif status == "voting_4":
             submissions = submissions.undergoing_voting(longer_than_days=28)
-        else:
+        else: # if an actual unmodified status is used, just filter on that
             submissions = submissions.filter(status=status)
 
         # filter by EIC
@@ -1402,7 +1410,7 @@ class SubmissionForm(forms.ModelForm):
 
         # Close last submission
         Submission.objects.filter(id=previous_submission.id).update(
-            is_current=False, open_for_reporting=False, status=Submission.RESUBMITTED
+            open_for_reporting=False, status=Submission.RESUBMITTED
         )
 
         # Copy Topics

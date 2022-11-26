@@ -58,7 +58,6 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     author_comments = factory.Faker("paragraph")
     remarks_for_editors = factory.Faker("paragraph")
     thread_hash = factory.Faker("uuid4")
-    is_current = True
     submission_date = factory.Faker("date_time_this_decade", tzinfo=pytz.utc)
     latest_activity = factory.LazyAttribute(
         lambda o: Faker().date_time_between(
@@ -180,7 +179,6 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
     status = Submission.RESUBMITTED
     open_for_commenting = False
     open_for_reporting = False
-    is_current = False
     visible_public = True
     visible_pool = False
 

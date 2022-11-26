@@ -152,8 +152,8 @@ class SubmissionAutocompleteView(autocomplete.Select2QuerySetView):
         Give same info as in ``Submission.__str__()`` but with carriage returns.
         """
         end_info = ""
-        if item.is_current:
-            end_info = " (current version)"
+        if item.is_latest:
+            end_info = " (latest version)"
         else:
             end_info = " (deprecated version " + str(item.thread_sequence_order) + ")"
         if hasattr(item, "publication") and item.publication.is_published:
@@ -898,7 +898,7 @@ def pool_hx_submissions_list(request):
 @fellowship_or_admin_required()
 def pool_hx_submission_details(request, identifier_w_vn_nr):
     submission = get_object_or_404(
-        Submission.objects.pool_editable(request.user),
+        Submission.objects.pool_for_user(request.user, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     context = {"remark_form": RemarkForm(), "submission": submission}
@@ -914,7 +914,7 @@ def add_remark(request, identifier_w_vn_nr):
     is adding a remark on a Submission.
     """
     submission = get_object_or_404(
-        Submission.objects.pool_editable(request.user),
+        Submission.objects.pool_for_user(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -988,7 +988,7 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
 def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     """Editorial Assignment form view."""
     submission = get_object_or_404(
-        Submission.objects.unassigned().pool_editable(request.user),
+        Submission.objects.unassigned().pool_for_user(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1206,7 +1206,7 @@ def editorial_page(request, identifier_w_vn_nr):
     for both the Editor-in-charge of the Submission and the Editorial Administration.
     """
     submission = get_object_or_404(
-        Submission.objects.pool_editable(request.user),
+        Submission.objects.pool_for_user(request.user, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1819,7 +1819,7 @@ def close_refereeing_round(request, identifier_w_vn_nr):
 def refereeing_overview(request):
     """List all Submissions undergoing active Refereeing."""
     submissions_under_refereeing = (
-        Submission.objects.pool_editable(request.user)
+        Submission.objects.pool_for_user(request.user)
         .actively_refereeing()
         .order_by("submission_date")
     )
@@ -1855,7 +1855,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         # Editorial Administration to Editor
         if not request.user.has_perm("scipost.can_oversee_refereeing"):
             raise PermissionDenied
-        submissions_qs = Submission.objects.pool_editable(request.user)
+        submissions_qs = Submission.objects.pool_for_user(request.user)
         referee = request.user.contributor
     else:
         # Invalid commtype in the url!
@@ -2231,7 +2231,7 @@ def vet_submitted_report(request, report_id):
 @transaction.atomic
 def prepare_for_voting(request, rec_id):
     """Form view to prepare a EICRecommendation for voting."""
-    submissions = Submission.objects.pool_editable(request.user)
+    submissions = Submission.objects.pool_for_user(request.user)
     recommendation = get_object_or_404(
         EICRecommendation.objects.voting_in_preparation().filter(
             submission__in=submissions
@@ -2306,7 +2306,7 @@ def claim_voting_right(request, rec_id):
 @transaction.atomic
 def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
-    submissions = Submission.objects.pool_editable(request.user)
+    submissions = Submission.objects.pool_for_user(request.user)
     previous_vote = None
     try:
         recommendation = EICRecommendation.objects.user_must_vote_on(request.user).get(

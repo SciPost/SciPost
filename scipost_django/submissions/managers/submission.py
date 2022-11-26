@@ -14,6 +14,7 @@ class SubmissionQuerySet(models.QuerySet):
     def _newest_version_only(self, queryset):
         """
         TODO: Make more efficient... with agregation or whatever.
+        TODO: just replace this by the `latest` filter defined below.
 
         The current Queryset should return only the latest version
         of the submissions.
@@ -30,15 +31,19 @@ class SubmissionQuerySet(models.QuerySet):
         )
         return queryset.filter(id__in=ids)
 
-    def user_filter(self, user):
-        """Filter on basic conflict of interests.
+    def latest(self, queryset):
+        return queryset.exclude(status=self.model.RESUBMITTED)
 
-        Prevent conflict of interest by filtering submissions possibly related to user.
+    def remove_COI(self, user):
+        """
+        Filter on basic conflicts of interest.
+
+        Prevent conflicts of interest by filtering submissions possibly related to user.
         This filter should be inherited by other filters.
         """
         try:
             return self.exclude(authors=user.contributor).exclude(
-                models.Q(author_list__icontains=user.last_name),
+                models.Q(author_list__icontains=user.last_name), # TODO: replace by Profiles-based checks
                 ~models.Q(authors_false_claims=user.contributor),
             )
         except AttributeError:
@@ -62,36 +67,59 @@ class SubmissionQuerySet(models.QuerySet):
             # Editorial Administators do have permission to see all submissions
             # without being one of the College Fellows. Therefore, use the 'old' author
             # filter to still filter out their conflicts of interests.
-            return self.user_filter(user)
+            return self.remove_COI(user)
         else:
             qs = user.contributor.fellowships.active()
             return self.filter(fellows__in=qs)
 
-    def pool(self, user):
-        """Return the user-dependent pool of Submissions in active referee phase."""
-        allowed_statuses = [
-            self.model.UNASSIGNED,
-            self.model.EIC_ASSIGNED,
-            self.model.ACCEPTED,
-            self.model.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
-        ]
-        if (
-            user.has_perm("scipost.can_oversee_refereeing")
-            or user.contributor.is_active_senior_fellow
-        ):
-            allowed_statuses.append(self.model.INCOMING)
-        return self.pool_editable(user).filter(
-            is_current=True, status__in=allowed_statuses
-        )
-
-    def pool_editable(self, user):
-        """Return the editable pool for a certain user.
-
-        This is similar to the regular pool, however it also contains submissions that are
-        hidden in the regular pool, but should still be able to be opened by for example
-        the Editor-in-charge.
+    def pool_for_user(self, user, historical: bool=False):
         """
-        return self._pool(user)
+        Return the pool of Submissions (current or historical), filtered for the user.
+
+        * if user is EdAdmin:
+
+          * `historical==False`: Submission status in UNDER_CONSIDERATION
+          * `historical==True`: all
+
+        * if user is currently active Fellow:
+
+          * Fellow in Submission's fellowship and
+          * Submission status in UNDER_CONSIDERATION but not INCOMING or PRESCREENING
+
+          * `historical==False`:
+          * `historical=True`:
+
+        and then filter for COI.
+        """
+        # allowed_statuses = [
+        #     self.model.UNASSIGNED,
+        #     self.model.EIC_ASSIGNED,
+        #     self.model.ACCEPTED,
+        #     self.model.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
+        # ]
+        # if (
+        #     user.has_perm("scipost.can_oversee_refereeing")
+        #     or user.contributor.is_active_senior_fellow
+        # ):
+        #     allowed_statuses.append(self.model.INCOMING)
+        # return self._pool(user).filter(
+        #     is_current=True, status__in=allowed_statuses
+        # )
+        if not hasattr(user, "contributor"):
+            return self.none()
+
+        qs = self.none()
+        if user.contributor.is_ed_admin:
+            qs = self.filter(status__in=self.model.UNDER_CONSIDERATION)
+        else:
+            f_ids = user.contributor.fellowships.active()
+            qs = self.filter(fellows__in=f_ids)
+
+        if not historical:
+            qs = qs.latest()
+
+        return qs.remove_COI(user)
+
 
     def filter_for_eic(self, user):
         """Return the set of Submissions the user is Editor-in-charge for.
@@ -262,12 +290,13 @@ class SubmissionQuerySet(models.QuerySet):
             return self.none()
 
         return self.filter(
-            is_current=True,
-            status__in=[
-                self.model.INCOMING,
-                self.model.UNASSIGNED,
-                self.model.EIC_ASSIGNED,
-            ],
+            # is_current=True,
+            # status__in=[
+            #     self.model.INCOMING,
+            #     self.model.UNASSIGNED,
+            #     self.model.EIC_ASSIGNED,
+            # ],
+            status=self.model.AWAITING_RESUBMISSION,
             authors=user.contributor,
         )
 

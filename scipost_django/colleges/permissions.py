@@ -5,7 +5,6 @@ __license__ = "AGPL v3"
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import PermissionDenied
 
-from scipost.permissions import is_in_group
 from colleges.models import Fellowship
 
 
@@ -37,6 +36,10 @@ def fellowship_or_admin_required():
         raise PermissionDenied
 
     return user_passes_test(test)
+
+
+def is_edadmin(user):
+    return user.groups.filter(name="Editorial Administrators").exists()
 
 
 def is_edadmin_or_active_fellow(user):

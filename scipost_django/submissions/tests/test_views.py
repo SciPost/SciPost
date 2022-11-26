@@ -161,7 +161,7 @@ class PrefillUsingArXivIdentifierTest(BaseContributorTestCase):
 #         self.assertEqual(response.status_code, 302)
 
 #         # Do a quick check on the Submission submitted.
-#         submission = Submission.objects.filter(status=Submission.UNASSIGNED).last()
+#         submission = Submission.objects.filter(status=Submission.INCOMING).last()
 #         self.assertIsNotNone(submission)
 #         self.assertEqual(TEST_SUBMISSION['is_resubmission'], submission.is_resubmission)
 #         self.assertEqual(TEST_SUBMISSION['title'], submission.title)

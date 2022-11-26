@@ -157,7 +157,6 @@ class SubmissionAdmin(GuardedModelAdmin):
                 "classes": ("collapse",),
                 "fields": (
                     "thread_hash",
-                    "is_current",
                     "is_resubmission_of",
                     "list_of_changes",
                 ),

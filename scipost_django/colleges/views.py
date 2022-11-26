@@ -22,8 +22,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from scipost.permissions import is_edadmin
 from colleges.permissions import (
+    is_edadmin,
     is_edadmin_or_senior_fellow,
     is_edadmin_or_advisory_or_active_regular_or_senior_fellow,
 )
@@ -960,8 +960,7 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
                 form.cleaned_data["response"],
             )
         )
-    else:
-        print(form.errors)
+
     context = {"invitation": invitation, "form": form,}
     return render(
         request,

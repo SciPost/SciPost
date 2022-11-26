@@ -43,9 +43,9 @@
       <tr>
         <td>Submission is current version:</td>
         <td>
-          {% if submission.is_current %}
+          {% if submission.is_latest %}
             <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
-            <span class="text-muted">This is the current version.</span>
+            <span class="text-muted">This is the latest version.</span>
           {% else %}
             <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
             <span class="text-muted">This is not the current version.</span>

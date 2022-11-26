@@ -1178,8 +1178,7 @@ def personal_page_hx_submissions(request):
         .exclude(authors_false_claims=contributor)
         .count()
     )
-    context["own_submissions"] = contributor.submissions.filter(
-        is_current=True
+    context["own_submissions"] = contributor.submissions.latest(
     ).order_by("-submission_date")
     return render(request, "scipost/personal_page/_hx_submissions.html", context)
 

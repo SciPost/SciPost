@@ -48,14 +48,15 @@ class Submission(models.Model):
 
     # Possible statuses
     INCOMING = "incoming"
+    ADMISSION_FAILED = "admission_failed"
     PRESCREENING = "prescreening"
-    FAILED_PRESCREENING = "failed_pre"
+    FAILED_PRESCREENING = "failed_pre" # remove
     PRESCREENING_FAILED = "prescreening_failed"
-    UNASSIGNED = "unassigned"
+    UNASSIGNED = "unassigned" # remove
     SCREENING = "screening"
     SCREENING_FAILED = "screening_failed"
-    EIC_ASSIGNED = "assigned"
-    ASSIGNMENT_FAILED = "assignment_failed"
+    EIC_ASSIGNED = "assigned" # remove
+    ASSIGNMENT_FAILED = "assignment_failed" # remove
     REFEREEING_IN_PREPARATION = "refereeing_in_preparation"
     IN_REFEREEING = "in_refereeing"
     REFEREEING_CLOSED = "refereeing_closed"
@@ -64,9 +65,9 @@ class Submission(models.Model):
     VOTING_IN_PREPARATION = "voting_in_preparation"
     IN_VOTING = "in_voting"
     AWAITING_DECISION = "awaiting_decision"
-    ACCEPTED = "accepted"
+    ACCEPTED = "accepted" # remove
     ACCEPTED_IN_TARGET = "accepted_in_target"
-    ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE = "puboffer_waiting"
+    ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE = "puboffer_waiting" # remove
     ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE = "accepted_alt_puboffer_waiting"
     ACCEPTED_IN_ALTERNATIVE = "accepted_alt"
     REJECTED = "rejected"
@@ -75,6 +76,7 @@ class Submission(models.Model):
 
     SUBMISSION_STATUSES = (
         (INCOMING, "Submission incoming, awaiting EdAdmin"), ## descriptor rephrased
+        (ADMISSION_FAILED, "Admission failed"), ## new
         (PRESCREENING, "Undergoing pre-screening"), ## new
         (FAILED_PRESCREENING, "Failed pre-screening"), ## rename: PRESCREENING_FAILED
         (PRESCREENING_FAILED, "Pre-screening failed"), ## new
@@ -111,7 +113,7 @@ class Submission(models.Model):
     )
 
     # Submissions which are currently under consideration
-    UNDER_CONSIDERATION = [
+    UNDER_CONSIDERATION = (
         INCOMING,
         PRESCREENING,
         UNASSIGNED, # remove
@@ -127,7 +129,7 @@ class Submission(models.Model):
         AWAITING_DECISION,
         ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, # remove
         ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE, # remove
-    ]
+    )
 
     # Fields
     preprint = models.OneToOneField(
@@ -172,7 +174,6 @@ class Submission(models.Model):
     status = models.CharField(
         max_length=30, choices=SUBMISSION_STATUSES, default=INCOMING
     )
-    is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
     is_resubmission_of = models.ForeignKey(
@@ -291,7 +292,7 @@ class Submission(models.Model):
             title=self.title[:30],
             authors=self.author_list[:30],
         )
-        if self.is_current:
+        if self.is_latest:
             header += " (current version)"
         else:
             header += " (deprecated version " + str(self.thread_sequence_order) + ")"
@@ -301,6 +302,10 @@ class Submission(models.Model):
                 self.publication.publication_date.strftime("%Y"),
             )
         return header
+
+    @property
+    def is_latest(self):
+        return self.status != self.RESUBMITTED
 
     @property
     def authors_as_list(self):
@@ -370,6 +375,22 @@ class Submission(models.Model):
     def notification_name(self):
         """Return string representation of this Submission as shown in Notifications."""
         return self.preprint.identifier_w_vn_nr
+
+    ######################
+    # Deal with statuses #
+    ######################
+
+    @property
+    def pool_statuses_list_Senior_Fellows(self):
+        statuses = list(self.UNDER_CONSIDERATION)
+        statuses.remove(self.INCOMING)
+        return statuses
+
+    @property
+    def pool_statuses_list(self):
+        statuses = list(self.UNDER_CONSIDERATION)
+        statuses.remove(self.INCOMING, self.PRESCREENING)
+        return statuses
 
     @property
     def eic_recommendation_required(self):

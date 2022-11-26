@@ -4,8 +4,9 @@
     <summary><strong>Legend</strong></summary>
     <ul class="m-2 list list-unstyled">
       <li>✉=email sent</li>
-      <li>S=SciPost EdAdmin</li>
       <li>A=submitting Author</li>
+      <li>S=SciPost EdAdmin</li>
+      <li>SF=SFellow(s)</li>
       <li>F=Fellow(s)</li>
       <li>E=Editor-in-charge</li>
       <li>R=Referee(s)</li>
@@ -19,24 +20,38 @@
     </p>
   </details>
   <div class="m-4">
-    <strong class="mt-2">Pre-screening</strong>
+    <strong class="mt-2">Incoming</strong>
     <pre class="mermaid">
 flowchart LR
     Sub([Submission{% if submission %}<br>{{ submission.submission_date }}<br>{{ submission.submission_date|timesince }} ago{% endif %}])
+    subgraph Admission
+        Admiss(Admissibility<br>and plagiarism<br>checks)
+    end
+    Sub --> Admiss
+    Admiss --fail--> AdmissFailed("Admission<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
+    Admiss --pass--> AdmissPassed("Admission<br>passed ✉<small>A</small>") --> Prescreening[[Goto:<br>Pre-screening]]
+    </pre>
+  </div>
+  <div class="m-4">
+    <strong class="mt-2">Pre-screening</strong>
+    <pre class="mermaid">
+flowchart LR
+    AdmissPassed([Admission<br>passed])
     subgraph Pre-screening
-        Admiss(Admissibility<br>and plagiarism<br>checks) --pass--> PreTop(Topics<br>specification)
-        PreTop --> PreCOI(Conflict<br>of interest<br>checks)
+        PreTop(Submission<br>Topics<br>specification) --> ProfMatch(Author<br>Profiles<br>matching)
+        ProfMatch --> PreCOI(Conflict<br>of interest<br>checks)
         PreCOI --> PrePa(Listing of<br>potential<br>Editors-in-charge)
     end
-    Admiss --fail--> PreFailed(["Pre-screening<br>failed ✉<small>A</small>"])
-    Sub --> Admiss
-    PrePa --> PrePass(["Pre-screening<br>passed ✉<small>A</small>"]) --> Screening[[Goto:<br>Screening]]
+    AdmissPassed --> PreTop
+    PrePa --no qualified<br>Fellows--> PreFail("Pre-screening<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
+    PrePa --"∃ qualified<br>Fellows"--> PrePass("Pre-screening<br>passed ✉<small>A</small>") --> Screening[[Goto:<br>Screening]]
     </pre>
   </div>
   <div class="m-4">
     <strong class="mt-2">Screening</strong>
     <pre class="mermaid">
 flowchart LR
+    PrePass(["Pre-screening<br>passed"])
     subgraph Screening
         ScrInv(["Fellows invited<br>to take charge ✉<small>F</small>"]) --> ScrDecl(Fellows decline)
         ScrInv --> ScrNoAns(Fellows unresponsive)
@@ -46,12 +61,13 @@ flowchart LR
         ScrAcc --> ScrEiC("Editor-in-charge<br>appointed ✉<small>E</small>")
         ScrVol(A Fellow<br>volunteers) --> ScrEiC
     end
-    NoEiC --> DeskRej(["Screening<br>failed ✉<small>A</small>"])
-    ScrEiC --> ScrPassed(["Screening<br>passed ✉<small>A</small>"]) --> RefPrep[[Goto:<br>Refereeing<br>preparation]]
+    PrePass --> ScrInv
+    NoEiC --> DeskRej("Screening<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
+    ScrEiC --> ScrPassed("Screening<br>passed ✉<small>A</small>") --> RefPrep[[Goto:<br>Refereeing<br>in preparation]]
     </pre>
   </div>
   <div class="m-4">
-    <strong class="mt-2">Refereeing preparation</strong>
+    <strong class="mt-2">Refereeing in preparation</strong>
     <pre class="mermaid">
 flowchart LR
     subgraph ChooseCycle [Choose refereeing cycle]
@@ -61,7 +77,7 @@ flowchart LR
     end
     ScrPassed --> DirectRec
     ScrPassed([Screening passed]) --> RegCycle
-    Resub([Resubmission received<br>or restart refereeing]) --> RegCycle
+    Resub([Resubmission received<br>or refereeing restarted]) --> RegCycle
     Resub --> ShortCycle
     Resub --> DirectRec
     DirectRec ----> EdRec[[Goto:<br>Editorial Recommendation]]
@@ -95,24 +111,24 @@ flowchart LR
         DirectRec([Direct<br>Recommendation]) --> EiCRecForm
     end
     subgraph EdColVote [Editorial College vote]
-        VotePrep(Voting<br>preparation) --> VotingInv(Fellows<br>invited to vote)
+        VotePrep(Voting<br>in preparation) --> VotingInv(Fellows<br>invited to vote)
         VotingInv --> Voting(Fellows voting)
     end
     EiCRecForm --minor/major revision--> Resub(Resubmission<br>required)
     EiCRecForm --accept/reject--> EdColVote
-    Resub --> Refereeing[[Goto: Refereeing preparation:<br>Resubmission or restart refereeing]]
+    Resub --> Refereeing[[Goto: Refereeing in preparation:<br>Resubmission received or refereeing restarted]]
     subgraph EdDec ["Editorial decision ✉<small>A</small>"]
-        AcceptTarget(Accept<br>in target<br>Journal)
-        AcceptAlt(Accept<br>in alternative<br>Journal)
-        Reject
-        RestartRef(Restart<br>refereeing)
+        AcceptTarget{% verbatim %}{{Accept<br>in target<br>Journal}}{% endverbatim %}
+        AcceptAlt{% verbatim %}{{Accept<br>in alternative<br>Journal}}{% endverbatim %}
+        Reject{% verbatim %}{{Reject}}{% endverbatim %}
+        RestartRef{% verbatim %}{{Restart<br>refereeing}}{% endverbatim %}
     end
     EdColVote --> EdDec
     AcceptTarget --> Production([Production])
     AcceptAlt --> PubOffer("Publication<br>offer ✉<small>A</small>")
     PubOffer --accept--> Production[[Production stream<br>started]]
     PubOffer --decline--> Close([Processing<br>closed])
-    RestartRef(Restart<br>refereeing) --> Refereeing
+    RestartRef --> Refereeing
     Reject --> Close
     </pre>
   </div>

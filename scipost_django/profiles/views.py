@@ -90,7 +90,6 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                     | Q(emails__email__in=contributor.user.email)
                 )
             elif from_type == "refereeinvitation":
-                print("Here refinv")
                 refinv = get_object_or_404(RefereeInvitation, pk=pk)
                 matching_profiles = matching_profiles.filter(
                     Q(last_name=refinv.last_name)

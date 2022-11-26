@@ -70,7 +70,7 @@
       {% endif %}
 
       <div class="ps-2 mb-1">
-	{% if not submission.is_current %}
+	{% if not submission.is_latest %}
 	  <h4 class="text-danger">
             <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
             This is not the latest submitted version.

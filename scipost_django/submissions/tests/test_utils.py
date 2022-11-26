@@ -36,9 +36,9 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 #     @tag('cycle', 'core')
 #     def test_init_submission_factory_is_valid(self):
 #         """Ensure valid fields for the factory."""
-#         self.assertEqual(self.new_submission.status, self.new_submission.UNASSIGNED)
+#         self.assertEqual(self.new_submission.status, self.new_submission.INCOMING)
 #         self.assertIsNone(self.new_submission.editor_in_charge)
-#         self.assertTrue(self.new_submission.is_current)
+#         self.assertTrue(self.new_submission.is_latest)
 #         self.assertFalse(self.new_submission.is_resubmission)
 #         self.assertIsNot(self.new_submission.title, '')
 #         self.assertIsInstance(self.new_submission.submitted_by, Contributor)
@@ -86,7 +86,7 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 #         """Ensure valid fields for the factory."""
 #         self.assertEqual(self.submission.status, self.submission.INCOMING)
 #         self.assertIsInstance(self.submission.editor_in_charge, Contributor)
-#         self.assertTrue(self.submission.is_current)
+#         self.assertTrue(self.submission.is_latest)
 #         self.assertTrue(self.submission.is_resubmission)
 #         self.assertIsNot(self.submission.title, '')
 #         self.assertIsInstance(self.submission.submitted_by, Contributor)
@@ -127,7 +127,7 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 #         """Ensure valid fields for the factory."""
 #         self.assertEqual(self.submission.status, self.submission.INCOMING)
 #         self.assertIsInstance(self.submission.editor_in_charge, Contributor)
-#         self.assertTrue(self.submission.is_current)
+#         self.assertTrue(self.submission.is_latest)
 #         self.assertTrue(self.submission.is_resubmission)
 #         self.assertIsNot(self.submission.title, '')
 #         self.assertIsInstance(self.submission.submitted_by, Contributor)

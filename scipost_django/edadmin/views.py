@@ -7,7 +7,7 @@ from django.shortcuts import render
 
 from guardian.shortcuts import get_objects_for_user
 
-from scipost.permissions import is_edadmin
+from colleges.permissions import is_edadmin
 
 
 @login_required
