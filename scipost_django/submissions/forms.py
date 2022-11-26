@@ -131,7 +131,7 @@ class SubmissionSearchForm(forms.Form):
         """
         Return all Submission objects fitting search criteria.
         """
-        submissions = Submission.objects.public_newest().unpublished()
+        submissions = Submission.objects.public_latest().unpublished()
         if self.acad_field_slug and self.acad_field_slug != "all":
             submissions = submissions.filter(acad_field__slug=self.acad_field_slug)
             if self.specialty_slug and self.specialty_slug != "all":
@@ -496,7 +496,7 @@ class SubmissionOldSearchForm(forms.Form):
 
     def search_results(self):
         """Return all Submission objects according to search."""
-        return Submission.objects.public_newest().filter(
+        return Submission.objects.public_latest().filter(
             title__icontains=self.cleaned_data.get("title", ""),
             author_list__icontains=self.cleaned_data.get("author", ""),
             abstract__icontains=self.cleaned_data.get("abstract", ""),

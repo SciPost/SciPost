@@ -551,7 +551,7 @@ class SubmissionListView(PaginationMixin, ListView):
 
     def get_queryset(self):
         """Return queryset, filtered with GET request data if given."""
-        queryset = Submission.objects.public_newest()
+        queryset = Submission.objects.public_latest()
         self.form = self.form(self.request.GET)
         if "field" in self.request.GET:
             queryset = queryset.filter(acad_field__slug=self.request.GET["field"])

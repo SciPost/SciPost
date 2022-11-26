@@ -11,25 +11,6 @@ from .. import constants
 
 
 class SubmissionQuerySet(models.QuerySet):
-    def _newest_version_only(self, queryset):
-        """
-        TODO: Make more efficient... with agregation or whatever.
-        TODO: just replace this by the `latest` filter defined below.
-
-        The current Queryset should return only the latest version
-        of the submissions.
-
-        Method only compatible with PostgreSQL
-        """
-        # This method used a double query, which is a consequence of the complex distinct()
-        # filter combined with the PostGresQL engine. Without the double query, ordering
-        # on a specific field after filtering seems impossible.
-        ids = (
-            queryset.order_by("thread_hash", "-submission_date")
-            .distinct("thread_hash")
-            .values_list("id", flat=True)
-        )
-        return queryset.filter(id__in=ids)
 
     def latest(self, queryset):
         return queryset.exclude(status=self.model.RESUBMITTED)
@@ -181,12 +162,12 @@ class SubmissionQuerySet(models.QuerySet):
             status__in=[self.model.RESUBMITTED, self.model.PUBLISHED]
         )
 
-    def public_newest(self):
+    def public_latest(self):
         """
-        This query contains set of public() submissions, filtered to only the newest available
+        This query contains set of public() submissions, filtered to only the latest available
         version.
         """
-        return self._newest_version_only(self.public())
+        return self.latest(self.public())
 
     def treated(self):
         """This query returns all Submissions that are presumed to be 'done'."""
@@ -246,11 +227,11 @@ class SubmissionQuerySet(models.QuerySet):
 
     def rejected(self):
         """Return rejected Submissions."""
-        return self._newest_version_only(self.filter(status=self.model.REJECTED))
+        return self.latest(self.filter(status=self.model.REJECTED))
 
     def withdrawn(self):
         """Return withdrawn Submissions."""
-        return self._newest_version_only(self.filter(status=self.model.WITHDRAWN))
+        return self.latest(self.filter(status=self.model.WITHDRAWN))
 
     def open_for_reporting(self):
         """Return Submissions open for reporting."""

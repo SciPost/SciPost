@@ -41,7 +41,7 @@ class SubmissionPublicAPIViewSet(
 class SubmissionPublicSearchAPIViewSet(
     FilteringOptionsActionMixin, viewsets.ReadOnlyModelViewSet
 ):
-    queryset = Submission.objects.public_newest().unpublished()
+    queryset = Submission.objects.public_latest().unpublished()
     permission_classes = [
         AllowAny,
     ]
