@@ -12,7 +12,7 @@ from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Fieldset, ButtonHolder, Submit
+from crispy_forms.layout import Layout, Div, Field, Fieldset, ButtonHolder, Submit
 from crispy_forms.bootstrap import InlineRadios
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
@@ -232,7 +232,7 @@ class SubmissionPoolSearchForm(forms.Form):
             (
                 "Revision requested",
                 (
-                    ("revision_requested", "Minor or major revision requested"),
+                    ("revision_requested", "Minor or major revision requested, awaiting resubmission"),
                 ),
             ),
             (
@@ -264,11 +264,22 @@ class SubmissionPoolSearchForm(forms.Form):
     editor_in_charge = forms.ModelChoiceField(
         queryset=Fellowship.objects.active(), required=False
     )
+    versions = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=(
+            ("latest", "Latest submitted only"),
+            ("any", "All versions"),
+        ),
+        initial="latest",
+    )
     search_set = forms.ChoiceField(
         widget=forms.RadioSelect,
         choices=(
-            ("eic", "I am Editor-in-charge"),
-            ("current", "All currently in processing"),
+            ("current", "Currently under consideration"),
+            (
+                "current_noawaitingresub",
+                "Currently under consideration\n(excluding awaiting resubmission)"
+            ),
             ("historical", "All accessible history"),
         ),
         initial="current",
@@ -277,17 +288,24 @@ class SubmissionPoolSearchForm(forms.Form):
         widget=forms.RadioSelect,
         choices=(
             (
-                "Submission date", (
-                    ("recent", "most recent first"),
-                    ("oldest", "oldest first"),
+                "Submission date ", (
+                    ("submission_recent", "most recent first"),
+                    ("submission_oldest", "oldest first"),
+                ),
+            ),
+            (
+                "Activity ", (
+                    ("activity_recent", "most recent first"),
+                    ("activity_oldest", "oldest first"),
                 ),
             ),
         ),
-        initial="recent",
+        initial="submission_recent",
     )
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop("user")
+        request = kwargs.pop("request")
+        user = request.user
         super().__init__(*args, **kwargs)
         if not user.contributor.is_ed_admin:
             # restrict journals to those of Colleges of user's Fellowships
@@ -297,12 +315,9 @@ class SubmissionPoolSearchForm(forms.Form):
             self.fields["submitted_to"].queryset = Journal.objects.filter(
                 college__in=college_id_list
             )
-        if user.contributor.is_ed_admin:
-            # Remove 'I am Editor-in-charge' choice
-            self.fields["search_set"].choices = (
-                ("current", "All currently in processing"),
-                ("historical", "All accessible history"),
-            )
+        self.fields["editor_in_charge"].initial = (
+            user.contributor.session_fellowship(request)
+        )
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -332,8 +347,9 @@ class SubmissionPoolSearchForm(forms.Form):
                 css_class="row mb-0",
             ),
             Div(
-                Div(InlineRadios("search_set"), css_class="col"),
-                Div(InlineRadios("ordering"), css_class="col"),
+                Div(Field("versions"), css_class="col border"),
+                Div(Field("search_set"), css_class="col border"),
+                Div(Field("ordering"), css_class="col border"),
                 css_class="row mb-0",
             ),
         )
@@ -342,12 +358,16 @@ class SubmissionPoolSearchForm(forms.Form):
         """
         Return all Submission objects fitting search criteria.
         """
-        if self.cleaned_data.get("search_set") == "eic":
-            submissions = Submission.objects.filter_for_eic(user)
-        elif self.cleaned_data.get("search_set") == "current":
-            submissions = Submission.objects.in_pool(user)
-        else:  # include historical items
-            submissions = Submission.objects.in_pool(user, historical=True)
+        latest = self.cleaned_data.get("versions") == "latest"
+        search_set = self.cleaned_data.get("search_set")
+        historical = search_set == "historical"
+        submissions = Submission.objects.in_pool(
+            user,
+            latest=latest,
+            historical=historical,
+        )
+        if search_set == "current_noawaitingresub":
+            submissions = submissions.exclude(status=Submission.AWAITING_RESUBMISSION)
         if self.cleaned_data.get("specialties"):
             submissions = submissions.filter(
                 specialties__in=self.cleaned_data.get("specialties")
@@ -451,8 +471,12 @@ class SubmissionPoolSearchForm(forms.Form):
                 editor_in_charge=self.cleaned_data.get("editor_in_charge").contributor
             )
 
-        if self.cleaned_data.get("ordering") == "oldest":
+        if self.cleaned_data.get("ordering") == "submission_oldest":
             submissions = submissions.order_by("submission_date")
+        elif self.cleaned_data.get("ordering") == "activity_recent":
+            submissions = submissions.order_by("-latest_activity")
+        elif self.cleaned_data.get("ordering") == "activity_oldest":
+            submissions = submissions.order_by("latest_activity")
 
         return submissions
 

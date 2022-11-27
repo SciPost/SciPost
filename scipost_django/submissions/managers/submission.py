@@ -30,7 +30,7 @@ class SubmissionQuerySet(models.QuerySet):
         except AttributeError:
             return self.none()
 
-    def in_pool(self, user, historical: bool=False):
+    def in_pool(self, user, latest: bool=True, historical: bool=False):
         """
         Filter for Submissions (current or historical) in user's pool.
 
@@ -50,13 +50,15 @@ class SubmissionQuerySet(models.QuerySet):
             return self.none()
 
         qs = self
+        if latest:
+            qs = qs.latest()
         if not historical:
-            qs = qs.latest().filter(status__in=self.model.UNDER_CONSIDERATION)
+            qs = qs.filter(status__in=self.model.UNDER_CONSIDERATION)
 
         # for non-EdAdmin, filter: in Submission's Fellowship
         if not user.contributor.is_ed_admin:
             f_ids = user.contributor.fellowships.active()
-            qs = self.filter(fellows__in=f_ids)
+            qs = qs.filter(fellows__in=f_ids)
 
         # Fellows can't see incoming and (non-Senior) prescreening
         if user.contributor.is_active_senior_fellow:
@@ -67,12 +69,12 @@ class SubmissionQuerySet(models.QuerySet):
         return qs.remove_COI(user)
 
 
-    def filter_for_eic(self, user):
+    def in_pool_filter_for_eic(self, user, historical: bool=False):
         """Return the set of Submissions the user is Editor-in-charge for.
 
-        If user is an Editorial Administrator: return the full pool.
+        If user is an Editorial Administrator: keep any EiC.
         """
-        qs = self.in_pool(user)
+        qs = self.in_pool(user, historical)
         if user.is_authenticated and not user.contributor.is_ed_admin:
             qs = qs.filter(editor_in_charge__user=user)
         return qs

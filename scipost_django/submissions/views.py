@@ -714,7 +714,7 @@ def report_attachment(request, identifier_w_vn_nr, report_nr):
     if not report.is_vetted:
         # Only Admins and EICs are allowed to see non-vetted Report attachments.
         if (
-            not Submission.objects.filter_for_eic(request.user)
+            not Submission.objects.in_pool_filter_for_eic(request.user)
             .filter(preprint__identifier_w_vn_nr=identifier_w_vn_nr)
             .exists()
         ):
@@ -874,7 +874,7 @@ def pool(request, identifier_w_vn_nr=None):
         "recs_to_vote_on": recs_to_vote_on,
         "recs_current_voted": recs_current_voted,
         "assignments_to_consider": assignments_to_consider,
-        "form": SubmissionPoolSearchForm(initial=initial, user=request.user),
+        "form": SubmissionPoolSearchForm(initial=initial, request=request),
     }
     return render(request, "submissions/pool/pool.html", context)
 
@@ -882,7 +882,7 @@ def pool(request, identifier_w_vn_nr=None):
 @login_required
 @fellowship_or_admin_required()
 def pool_hx_submissions_list(request):
-    form = SubmissionPoolSearchForm(request.POST or None, user=request.user)
+    form = SubmissionPoolSearchForm(request.POST or None, request=request)
     if form.is_valid():
         submissions = form.search_results(request.user)
     else:
@@ -892,8 +892,7 @@ def pool_hx_submissions_list(request):
     page_obj = paginator.get_page(page_nr)
     count = paginator.count
     start_index = page_obj.start_index
-    end_index = page_obj.end_index
-    context = {"count": count, "page_obj": page_obj, "start_index": start_index, "end_index": end_index,}
+    context = {"count": count, "page_obj": page_obj, "start_index": start_index,}
     return render(request, "submissions/pool/hx_submissions_list.html", context)
 
 
@@ -1240,7 +1239,7 @@ def cycle_form_submit(request, identifier_w_vn_nr):
     Accessible to: Editor-in-charge and Editorial Administration
     """
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1282,7 +1281,7 @@ def select_referee(request, identifier_w_vn_nr):
     create a new Profile and return to this page for further processing.
     """
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1347,7 +1346,7 @@ def select_referee(request, identifier_w_vn_nr):
 @transaction.atomic
 def add_referee_profile(request, identifier_w_vn_nr):
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     profile_form = SimpleProfileForm(request.POST or None)
@@ -1380,7 +1379,7 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
     If there is no associated Contributor, a registration invitation is included.
     """
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     profile = get_object_or_404(Profile, pk=profile_id)
@@ -1501,7 +1500,7 @@ def ref_invitation_reminder(request, identifier_w_vn_nr, invitation_id):
     Accessible for: Editor-in-charge and Editorial Administration
     """
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     invitation = get_object_or_404(
@@ -1673,7 +1672,7 @@ def cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     Accessible for: Editor-in-charge and Editorial Administration.
     """
     try:
-        submissions = Submission.objects.filter_for_eic(request.user)
+        submissions = Submission.objects.in_pool_filter_for_eic(request.user)
         invitation = RefereeInvitation.objects.get(
             submission__in=submissions, pk=invitation_id
         )
@@ -1710,7 +1709,7 @@ def extend_refereeing_deadline(request, identifier_w_vn_nr, days):
     Accessible for: Editor-in-charge and Editorial Administration
     """
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1746,7 +1745,7 @@ def set_refereeing_deadline(request, identifier_w_vn_nr):
     Accessible for: Editor-in-charge and Editorial Administration
     """
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1797,7 +1796,7 @@ def close_refereeing_round(request, identifier_w_vn_nr):
     Accessible for: Editor-in-charge and Editorial Administration.
     """
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1839,7 +1838,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
     referee = None
     if comtype in ["EtoA", "EtoR", "EtoS"]:
         # Editor to {Author, Referee, Editorial Administration}
-        submissions_qs = Submission.objects.filter_for_eic(request.user)
+        submissions_qs = Submission.objects.in_pool_filter_for_eic(request.user)
     elif comtype == "AtoE":
         # Author to Editor
         submissions_qs = Submission.objects.filter_for_author(request.user)
@@ -1920,7 +1919,7 @@ def eic_recommendation(request, identifier_w_vn_nr):
     Accessible for: Editor-in-charge and Editorial Administration
     """
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1991,7 +1990,7 @@ def reformulate_eic_recommendation(request, identifier_w_vn_nr):
     Accessible for: Editor-in-charge and Editorial Administration.
     """
     submission = get_object_or_404(
-        Submission.objects.filter_for_eic(request.user),
+        Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     recommendation = submission.eicrecommendations.last()
@@ -2152,7 +2151,9 @@ def submit_report(request, identifier_w_vn_nr):
 @fellowship_or_admin_required()
 def vet_submitted_reports_list(request):
     """List Reports with status `unvetted`."""
-    submissions = get_list_or_404(Submission.objects.filter_for_eic(request.user))
+    submissions = get_list_or_404(
+        Submission.objects.in_pool_filter_for_eic(request.user)
+    )
     reports_to_vet = (
         Report.objects.filter(submission__in=submissions)
         .awaiting_vetting()
@@ -2178,7 +2179,7 @@ def vet_submitted_report(request, report_id):
         # Vetting Editors may vote on everything.
         report = get_object_or_404(Report.objects.awaiting_vetting(), id=report_id)
     else:
-        submissions = Submission.objects.filter_for_eic(request.user)
+        submissions = Submission.objects.in_pool_filter_for_eic(request.user)
         report = get_object_or_404(
             Report.objects.filter(submission__in=submissions).awaiting_vetting(),
             id=report_id,
