@@ -127,12 +127,12 @@ class ScreeningSubmissionFactory(SubmissionFactory):
     visible_pool = True
 
 
-class EICassignedSubmissionFactory(SubmissionFactory):
+class InRefereeingSubmissionFactory(SubmissionFactory):
     """
     A Submission with an EIC assigned, visible in the pool and refereeing in process.
     """
 
-    status = Submission.EIC_ASSIGNED
+    status = Submission.IN_REFEREEING
     open_for_commenting = True
     open_for_reporting = True
     visible_public = True
@@ -170,7 +170,7 @@ class EICassignedSubmissionFactory(SubmissionFactory):
             EICRecommendationFactory(submission=self)
 
 
-class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
+class ResubmittedSubmissionFactory(InRefereeingSubmissionFactory):
     """
     A Submission that has a newer Submission version in the database
     with a successive version number.
@@ -232,7 +232,7 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
             CancelledRefereeInvitationFactory(submission=self)
 
 
-class ResubmissionFactory(EICassignedSubmissionFactory):
+class ResubmissionFactory(InRefereeingSubmissionFactory):
     """
     This Submission is a newer version of a Submission which is
     already known by the SciPost database.
@@ -288,7 +288,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
         pass
 
 
-class PublishedSubmissionFactory(EICassignedSubmissionFactory):
+class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
     status = Submission.PUBLISHED
     open_for_commenting = False
     open_for_reporting = False

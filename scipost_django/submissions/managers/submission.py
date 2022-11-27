@@ -79,6 +79,9 @@ class SubmissionQuerySet(models.QuerySet):
 
     #### Managers mixing statuses ####
 
+    def under_consideration(self):
+        return self.filter(status__in=self.model.UNDER_CONSIDERATION)
+
     def accepted(self):
         return self.filter(status__in=[
             self.model.ACCEPTED_IN_TARGET,
@@ -170,17 +173,6 @@ class SubmissionQuerySet(models.QuerySet):
         """Return Submissions that still need Editorial Assignment."""
         return self.filter(
             status__in=[self.model.INCOMING, self.model.SCREENING]
-        )
-
-    def actively_refereeing(self):
-        from ..models import EditorialDecision
-
-        """Return submission currently in some point of the refereeing round."""
-        return self.filter(status=self.model.EIC_ASSIGNED).exclude(
-            models.Q(eicrecommendations__status=constants.DECISION_FIXED)
-            & ~models.Q(
-                editorialdecision__decision=EditorialDecision.FIXED_AND_ACCEPTED
-            )
         )
 
     def public(self):

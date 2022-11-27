@@ -293,7 +293,7 @@ class BaseCycle:
         for report in reports_to_vet:
             self.add_action(VettingAction(report))
 
-        if self.can_invite_referees and self._submission.in_refereeing_phase:
+        if self.can_invite_referees and self._submission.in_stage_in_refereeing:
             # Referees required in this cycle.
             referee_invitations_count = (
                 self._submission.referee_invitations.non_cancelled().count()
@@ -361,17 +361,16 @@ class BaseCycle:
                     url=publication.get_absolute_url(),
                     doi=publication.doi_label,
                 ))
-        elif self._submission.status == self._submission.EIC_ASSIGNED:
-            if not self._submission.in_refereeing_phase:
-                if recommendation:
-                    texts.append("The refereeing round is closed.")
-                else:
-                    texts.append(
-                        (
-                            "The refereeing round is closed "
-                            "and you have not formulated an Editorial Recommendation."
-                        )
+        elif self._submission.status == self._submission.REFEREEING_CLOSED:
+            if recommendation:
+                texts.append("The refereeing round is closed.")
+            else:
+                texts.append(
+                    (
+                        "The refereeing round is closed "
+                        "and you have not formulated an Editorial Recommendation."
                     )
+                )
 
         if not self.required_actions and not texts:
             texts.append("No action required.")

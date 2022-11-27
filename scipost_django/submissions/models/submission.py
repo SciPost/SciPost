@@ -54,7 +54,6 @@ class Submission(models.Model):
     PRESCREENING_FAILED = "prescreening_failed"
     SCREENING = "screening"
     SCREENING_FAILED = "screening_failed"
-    EIC_ASSIGNED = "assigned" # remove
     ASSIGNMENT_FAILED = "assignment_failed" # remove
     REFEREEING_IN_PREPARATION = "refereeing_in_preparation"
     IN_REFEREEING = "in_refereeing"
@@ -81,7 +80,6 @@ class Submission(models.Model):
         (PRESCREENING_FAILED, "Pre-screening failed"), ## new
         (SCREENING, "In screening"),
         (SCREENING_FAILED, "Screening failed"), ## new
-        (EIC_ASSIGNED, "Editor-in-charge assigned"), ## rename: IN_REFEREEING or others
         (
             ASSIGNMENT_FAILED, ## rename: SCREENING_FAILED
             "Failed to assign Editor-in-charge; manuscript rejected",
@@ -115,7 +113,6 @@ class Submission(models.Model):
         INCOMING,
         PRESCREENING,
         SCREENING,
-        EIC_ASSIGNED, # remove
         REFEREEING_IN_PREPARATION,
         IN_REFEREEING,
         REFEREEING_CLOSED,
@@ -499,17 +496,11 @@ class Submission(models.Model):
     @property
     def open_for_resubmission(self):
         """Check if Submission has fixed EICRecommendation asking for revision."""
-        # CLEANUP 2022-11-27
-        # if self.status != self.EIC_ASSIGNED:
-        #     return False
-        # return self.eicrecommendations.fixed().asking_revision().exists()
         return self.status == self.AWAITING_RESUBMISSION
 
     @property
     def reporting_deadline_has_passed(self):
         """Check if Submission has passed its reporting deadline."""
-        if self.status != self.IN_REFEREEING:
-            return False
         return timezone.now() > self.reporting_deadline
 
     @property
@@ -552,34 +543,6 @@ class Submission(models.Model):
     @property
     def in_prescreening(self):
         return self.status == self.INCOMING
-
-    @property
-    def in_refereeing_phase(self):
-        """Check if Submission is in active refereeing phase.
-
-        This is not meant for functional logic, rather for explanatory functionality to the user.
-        """
-        if self.eicrecommendations.active().exists():
-            # Editorial Recommendation is formulated!
-            return False
-
-        if self.refereeing_cycle == CYCLE_DIRECT_REC:
-            # There's no refereeing in this cycle at all.
-            return False
-
-        if self.referee_invitations.in_process().exists():
-            # Some unfinished invitations exist still.
-            return True
-
-        if self.referee_invitations.awaiting_response().exists():
-            # Some invitations have been sent out without a response.
-            return True
-
-        # Maybe: Check for unvetted Reports?
-        return (
-            self.status == self.EIC_ASSIGNED
-            and self.is_open_for_reporting_within_deadline
-        )
 
     @property
     def can_reset_reporting_deadline(self):

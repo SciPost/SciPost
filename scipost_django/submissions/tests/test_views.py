@@ -14,7 +14,7 @@ from scipost.factories import ContributorFactory
 from ..constants import STATUS_DRAFT, STATUS_UNVETTED
 from ..factories import (
     ScreeningSubmissionFactory,
-    EICassignedSubmissionFactory,
+    InRefereeingSubmissionFactory,
     ResubmittedSubmissionFactory,
     ResubmissionFactory,
     PublishedSubmissionFactory,
@@ -212,7 +212,7 @@ class SubmissionDetailTest(BaseContributorTestCase):
     def setUp(self):
         super().setUp()
         self.client = Client()
-        self.submission = EICassignedSubmissionFactory()
+        self.submission = InRefereeingSubmissionFactory()
         self.target = reverse(
             "submissions:submission",
             kwargs={"identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr},
@@ -240,7 +240,7 @@ class SubmissionDetailTest(BaseContributorTestCase):
 #     visible_submission_ids = []
 #     visible_submission_ids.append(
 #         ResubmittedSubmissionFactory.create(preprint__identifier_w_vn_nr=arxiv_id_resubmission).id)
-#     visible_submission_ids.append(EICassignedSubmissionFactory.create().id)
+#     visible_submission_ids.append(InRefereeingSubmissionFactory.create().id)
 #     visible_submission_ids.append(PublishedSubmissionFactory.create().id)
 
 #     # Extra submission with multiple versions where the newest is publicly visible
@@ -248,7 +248,7 @@ class SubmissionDetailTest(BaseContributorTestCase):
 #     arxiv_id_resubmission = random_arxiv_identifier_without_version_number()
 #     ResubmittedSubmissionFactory.create(preprint__identifier_w_vn_nr=arxiv_id_resubmission)
 #     visible_submission_ids.append(
-#         EICassignedSubmissionFactory.create(
+#         InRefereeingSubmissionFactory.create(
 #             preprint__identifier_w_vn_nr=arxiv_id_resubmission,
 #             fill_arxiv_fields__preprint__vn_nr=2).id
 #     )
@@ -291,7 +291,7 @@ class SubmitReportTest(BaseContributorTestCase):
         report_deadline = Faker().date_time_between(
             start_date="now", end_date="+30d", tzinfo=pytz.utc
         )
-        self.submission = EICassignedSubmissionFactory(
+        self.submission = InRefereeingSubmissionFactory(
             reporting_deadline=report_deadline
         )
         self.submission.authors.remove(self.current_contrib)
@@ -310,7 +310,7 @@ class SubmitReportTest(BaseContributorTestCase):
     #     '''Test response for view if no report is submitted yet.'''
     #     report_deadline = Faker().date_time_between(
     #         start_date="now", end_date="+30d", tzinfo=pytz.utc)
-    #     submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline)
+    #     submission = InRefereeingSubmissionFactory(reporting_deadline=report_deadline)
     #     submission.authors.remove(self.current_contrib)
     #     submission.authors_false_claims.add(self.current_contrib)
 
@@ -412,7 +412,7 @@ class SubmitReportTest(BaseContributorTestCase):
     # def test_post_report_flagged_author(self):
     #     '''Test if report is `flagged` if author is flagged on related submission.'''
     #     report_deadline = Faker().date_time_between(start_date="now", end_date="+30d", tzinfo=None)
-    #     submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline,
+    #     submission = InRefereeingSubmissionFactory(reporting_deadline=report_deadline,
     #                                               referees_flagged=str(self.current_contrib))
     #     submission.authors.remove(self.current_contrib)
     #     submission.authors_false_claims.add(self.current_contrib)

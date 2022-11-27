@@ -23,14 +23,14 @@ class Command(BaseCommand):
             "--status",
             choices=[
                 "screening",
-                "assigned",
+                "in_refereeing",
                 "resubmitted",
                 "resubmission",
                 "published",
             ],
             action="store",
             dest="status",
-            default="assigned",
+            default="in_refereeing",
             help="Current status of the Submission",
         )
 
@@ -38,11 +38,11 @@ class Command(BaseCommand):
         if kwargs["number"]:
             self.create_submissions(kwargs["number"], status=kwargs["status"])
 
-    def create_submissions(self, n, status="assigned"):
+    def create_submissions(self, n, status="in_refereeing"):
         if status == "screening":
             factories.ScreeningSubmissionFactory.create_batch(n)
-        elif status == "assigned":
-            factories.EICassignedSubmissionFactory.create_batch(n)
+        elif status == "in_refereeing":
+            factories.InRefereeingSubmissionFactory.create_batch(n)
         elif status == "resubmitted":
             factories.ResubmittedSubmissionFactory.create_batch(n)
         elif status == "resubmission":

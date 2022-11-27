@@ -160,7 +160,7 @@ class SubmissionSearchForm(forms.Form):
             )
         if self.reports_needed:
             submissions = (
-                submissions.actively_refereeing()
+                submissions.in_refereeing()
                 .open_for_reporting()
                 .reports_needed()
                 .order_by("submission_date")
@@ -221,7 +221,7 @@ class SubmissionPoolSearchForm(forms.Form):
                 "Refereeing",
                 (
                     (Submission.REFEREEING_IN_PREPARATION, "Refereeing in preparation (cycle choice needed)"),
-                    ("actively_refereeing", "In refereeing"),
+                    ("in_refereeing", "In refereeing"),
                     ("unvetted_reports", "... with unvetted Reports"),
                     ("deadline_passed", "deadline passed, no recommendation yet"),
                     ("refereeing_1", "Refereeing round ongoing for > 1 month"),
@@ -414,14 +414,14 @@ class SubmissionPoolSearchForm(forms.Form):
                 status=Submission.SCREENING,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=28),
             )
-        elif status == "actively_refereeing":
-            submissions = submissions.actively_refereeing()
+        elif status == "in_refereeing":
+            submissions = submissions.in_refereeing()
         elif status == "unvetted_reports":
             reports_to_vet = Report.objects.awaiting_vetting()
             id_list = [r.submission.id for r in reports_to_vet.all()]
             submissions = submissions.filter(id__in=id_list)
         elif status == "deadline_passed":
-            submissions = submissions.actively_refereeing().filter(
+            submissions = submissions.in_refereeing().filter(
                 reporting_deadline__lt=timezone.now(),
             ).exclude(eicrecommendations__isnull=False)
         elif status == "refereeing_1":
@@ -1939,7 +1939,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                 # Update related Submission.
                 Submission.objects.filter(id=self.submission.id).update(
                     refereeing_cycle=CYCLE_DEFAULT,
-                    status=Submission.EIC_ASSIGNED,
+                    status=Submission.IN_REFEREEING,
                     editor_in_charge=self.request.user.contributor,
                     reporting_deadline=deadline,
                     open_for_reporting=True,
@@ -1958,7 +1958,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                     )
                 Submission.objects.filter(id=self.submission.id).update(
                     refereeing_cycle=CYCLE_DIRECT_REC,
-                    status=Submission.EIC_ASSIGNED,
+                    status=Submission.REFEREEING_CLOSED,
                     editor_in_charge=self.request.user.contributor,
                     reporting_deadline=timezone.now(),
                     open_for_reporting=False,
@@ -2665,7 +2665,7 @@ class RestartRefereeingForm(forms.Form):
     def save(self):
         if self.is_confirmed():
             Submission.objects.filter(id=self.submission.id).update(
-                status=Submission.EIC_ASSIGNED,
+                status=Submission.REFEREEING_IN_PREPARATION,
                 refereeing_cycle=CYCLE_UNDETERMINED,
                 acceptance_date=None,
                 latest_activity=timezone.now(),

@@ -102,7 +102,7 @@ from ..factories import ScreeningSubmissionFactory, ResubmissionFactory
 
 #         # Update status for default cycle to check new status
 #         self.submission.cycle.update_status()
-#         self.assertEqual(self.submission.status, self.submission.EIC_ASSIGNED)
+#         self.assertEqual(self.submission.status, self.submission.REFEREEING_IN_PREPARATION)
 
 
 # NOTED AS BROKEN 2019-11-08
@@ -143,4 +143,4 @@ from ..factories import ScreeningSubmissionFactory, ResubmissionFactory
 
 #         # Update status for default cycle to check new status
 #         self.submission.cycle.update_status()
-#         self.assertEqual(self.submission.status, self.submission.EIC_ASSIGNED)
+#         self.assertEqual(self.submission.status, self.submission.REFEREEING_IN_PREPARATION)

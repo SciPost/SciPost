@@ -1822,7 +1822,7 @@ def refereeing_overview(request):
     """List all Submissions undergoing active Refereeing."""
     submissions_under_refereeing = (
         Submission.objects.in_pool(request.user)
-        .actively_refereeing()
+        .in_refereeing()
         .order_by("submission_date")
     )
     context = {"submissions_under_refereeing": submissions_under_refereeing}

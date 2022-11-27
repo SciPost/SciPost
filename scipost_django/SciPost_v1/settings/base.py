@@ -186,7 +186,7 @@ HAYSTACK_SIGNAL_PROCESSOR = "SciPost_v1.signalprocessors.SearchIndexingProcessor
 SHELL_PLUS_POST_IMPORTS = (
     ("theses.factories", ("ThesisLinkFactory")),
     ("comments.factories", ("CommentFactory")),
-    ("submissions.factories", ("SubmissionFactory", "EICassignedSubmissionFactory")),
+    ("submissions.factories", ("SubmissionFactory", "InRefereeingSubmissionFactory")),
     (
         "commentaries.factories",
         (
