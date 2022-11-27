@@ -384,21 +384,13 @@ class BaseCycle:
 
     def reset_refereeing_round(self):
         """
-        Set the Submission status to EIC_ASSIGNED and reset the reporting deadline.
+        Set the Submission status to IN_REFEREEING and reset the reporting deadline.
         """
         from .models import Submission  # Prevent circular import errors
-
-        if self._submission.status in [
-            self._submission.INCOMING,
-            self._submission.UNASSIGNED,
-        ]:
-            Submission.objects.filter(id=self._submission.id).update(
-                status=self._submission.EIC_ASSIGNED
-            )
-
         deadline = timezone.now() + datetime.timedelta(days=self.days_for_refereeing)
         Submission.objects.filter(id=self._submission.id).update(
-            reporting_deadline=deadline
+            status=self._submission.IN_REFEREEING,
+            reporting_deadline=deadline,
         )
 
     def reinvite_referees(self, referees):

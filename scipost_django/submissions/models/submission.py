@@ -52,7 +52,6 @@ class Submission(models.Model):
     PRESCREENING = "prescreening"
     FAILED_PRESCREENING = "failed_pre" # remove
     PRESCREENING_FAILED = "prescreening_failed"
-    UNASSIGNED = "unassigned" # remove
     SCREENING = "screening"
     SCREENING_FAILED = "screening_failed"
     EIC_ASSIGNED = "assigned" # remove
@@ -80,8 +79,7 @@ class Submission(models.Model):
         (PRESCREENING, "In pre-screening"), ## new
         (FAILED_PRESCREENING, "Failed pre-screening"), ## rename: PRESCREENING_FAILED
         (PRESCREENING_FAILED, "Pre-screening failed"), ## new
-        (UNASSIGNED, "Unassigned, awaiting editor assignment"),  ## rename: SCREENING
-        (SCREENING, "In screening"), ## new, replacement for UNASSIGNED
+        (SCREENING, "In screening"),
         (SCREENING_FAILED, "Screening failed"), ## new
         (EIC_ASSIGNED, "Editor-in-charge assigned"), ## rename: IN_REFEREEING or others
         (
@@ -116,7 +114,6 @@ class Submission(models.Model):
     UNDER_CONSIDERATION = (
         INCOMING,
         PRESCREENING,
-        UNASSIGNED, # remove
         SCREENING,
         EIC_ASSIGNED, # remove
         REFEREEING_IN_PREPARATION,
@@ -511,16 +508,14 @@ class Submission(models.Model):
     @property
     def reporting_deadline_has_passed(self):
         """Check if Submission has passed its reporting deadline."""
-        if self.status in [self.INCOMING, self.UNASSIGNED]:
-            # These statuses do not have a deadline
+        if self.status != self.IN_REFEREEING:
             return False
-
         return timezone.now() > self.reporting_deadline
 
     @property
     def reporting_deadline_approaching(self):
         """Check if reporting deadline is within 7 days from now but not passed yet."""
-        if self.status in [self.INCOMING, self.UNASSIGNED]:
+        if self.status != self.IN_REFEREEING:
             # These statuses do not have a deadline
             return False
 
@@ -590,7 +585,7 @@ class Submission(models.Model):
     def can_reset_reporting_deadline(self):
         """Check if reporting deadline is allowed to be reset."""
         blocked_statuses = [
-            self.FAILED_PRESCREENING,
+            self.PRESCREENING_FAILED,
             self.RESUBMITTED,
             self.ACCEPTED,
             self.REJECTED,
@@ -699,9 +694,8 @@ class Submission(models.Model):
         return coauthorships
 
     def is_sending_editorial_invitations(self):
-        """Return whether editorial assignments are being send out."""
-        if self.status != self.UNASSIGNED:
-            # Only if status is unassigned.
+        """Return whether editorial assignments are being sent out."""
+        if self.status != self.SCREENING:
             return False
 
         return self.editorial_assignments.filter(status=STATUS_PREASSIGNED).exists()

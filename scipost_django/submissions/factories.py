@@ -117,12 +117,12 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
         self.authors.add(*contribs)
 
 
-class UnassignedSubmissionFactory(SubmissionFactory):
+class ScreeningSubmissionFactory(SubmissionFactory):
     """
     A new incoming Submission without any EIC assigned.
     """
 
-    status = Submission.UNASSIGNED
+    status = Submission.SCREENING
     visible_public = False
     visible_pool = True
 

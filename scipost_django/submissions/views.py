@@ -866,7 +866,7 @@ def pool(request, identifier_w_vn_nr=None):
     assignments_to_consider = EditorialAssignment.objects.invited().filter(
         to=request.user.contributor
     )
-    initial = {"status": Submission.UNASSIGNED}
+    initial = {"status": Submission.SCREENING}
     if identifier_w_vn_nr:
         initial = {"identifier": identifier_w_vn_nr}
     context = {
@@ -990,7 +990,7 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
 def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     """Editorial Assignment form view."""
     submission = get_object_or_404(
-        Submission.objects.unassigned().in_pool(request.user),
+        Submission.objects.screening().in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1109,7 +1109,7 @@ def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
     Send an email to the authors, informing them that screening is still ongoing after one week.
     """
     submission = get_object_or_404(
-        Submission.objects.in_pool(request.user).unassigned(),
+        Submission.objects.in_pool(request.user).screening(),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     if nrweeks == 1:
@@ -1144,7 +1144,7 @@ def assignment_failed(request, identifier_w_vn_nr):
     Submission is rejected. An Editorial Administrator can access this view from the Pool.
     """
     submission = get_object_or_404(
-        Submission.objects.in_pool(request.user).unassigned(),
+        Submission.objects.in_pool(request.user).screening(),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -3112,7 +3112,7 @@ def monitor(request):
             )
         ),
         "timescales_screening": submissions_processing_timescales(
-            submissions.unassigned(), "screening"
+            submissions.screening(), "screening"
         ),
         "timescales_original_submission_to_acceptance": submissions_processing_timescales(
             submissions.accepted(), "original_submission_to_acceptance"

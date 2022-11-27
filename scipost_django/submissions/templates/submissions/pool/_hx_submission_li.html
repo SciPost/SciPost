@@ -31,9 +31,9 @@
       <small class="text-muted">Editor-in-charge</small>
       <br>
       <ul class="list list-unstyled">
-	{% if submission.status == 'unassigned' %}
+	{% if submission.status == 'screening' %}
 	  {% if is_ed_admin %}
-	    <li>Unassigned</li>
+	    <li>Screening (unassigned)</li>
 	  {% else %}
             <li>You can
 	      <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>
@@ -102,7 +102,7 @@
     </div>
   {% endif %}
 
-  {% if submission.status == 'unassigned' %}
+  {% if submission.status == 'screening' %}
     {% get_editor_invitations submission request.user as invitations %}
     {% if invitations %}
       <div class="border border-warning mt-1 py-1 px-2">

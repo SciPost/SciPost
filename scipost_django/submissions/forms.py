@@ -201,7 +201,7 @@ class SubmissionPoolSearchForm(forms.Form):
                 "Pre-screening",
                 (
                     (Submission.PRESCREENING, "In pre-screening"),
-                    (Submission.FAILED_PRESCREENING, "Failed pre-screening"),
+                    (Submission.PRESCREENING_FAILED, "Pre-screening failed"),
                 ),
             ),
             (
@@ -1774,7 +1774,7 @@ class SubmissionPrescreeningForm(forms.ModelForm):
         """Update Submission status."""
         if self.cleaned_data["decision"] == self.PASS:
             Submission.objects.filter(id=self.instance.id).update(
-                status=Submission.UNASSIGNED, visible_pool=True, visible_public=False
+                status=Submission.SCREENING, visible_pool=True, visible_public=False
             )
             self.instance.add_general_event("Submission passed pre-screening.")
         elif self.cleaned_data["decision"] == self.FAIL:
@@ -1782,7 +1782,7 @@ class SubmissionPrescreeningForm(forms.ModelForm):
                 submission=self.instance
             ).invited().update(status=STATUS_DEPRECATED)
             Submission.objects.filter(id=self.instance.id).update(
-                status=Submission.FAILED_PRESCREENING,
+                status=Submission.PRESCREENING_FAILED,
                 visible_pool=False,
                 visible_public=False,
             )

@@ -13,7 +13,7 @@ from scipost.factories import ContributorFactory
 
 from ..constants import STATUS_DRAFT, STATUS_UNVETTED
 from ..factories import (
-    UnassignedSubmissionFactory,
+    ScreeningSubmissionFactory,
     EICassignedSubmissionFactory,
     ResubmittedSubmissionFactory,
     ResubmissionFactory,
@@ -233,7 +233,7 @@ class SubmissionDetailTest(BaseContributorTestCase):
 # def test_public_list_view(self):
 #     # Create invisible Submissions.
 #     arxiv_id_resubmission = random_arxiv_identifier_with_version_number()
-#     UnassignedSubmissionFactory.create()
+#     ScreeningSubmissionFactory.create()
 #     ResubmissionFactory.create(preprint__identifier_w_vn_nr=arxiv_id_resubmission)
 
 #     # Create visible submissions

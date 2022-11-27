@@ -18,7 +18,7 @@ def send_editorial_assignment_invitations(self):
     """
     Send next queued editorial assignment invitation emails.
     """
-    qs = Submission.objects.unassigned().has_editor_invitations_to_be_sent().distinct()
+    qs = Submission.objects.screening().has_editor_invitations_to_be_sent().distinct()
     submission_ids = qs.values_list("id", flat=True)
     submissions_count = len(submission_ids)
 

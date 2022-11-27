@@ -22,7 +22,7 @@ class Command(BaseCommand):
             "-s",
             "--status",
             choices=[
-                "unassigned",
+                "screening",
                 "assigned",
                 "resubmitted",
                 "resubmission",
@@ -39,8 +39,8 @@ class Command(BaseCommand):
             self.create_submissions(kwargs["number"], status=kwargs["status"])
 
     def create_submissions(self, n, status="assigned"):
-        if status == "unassigned":
-            factories.UnassignedSubmissionFactory.create_batch(n)
+        if status == "screening":
+            factories.ScreeningSubmissionFactory.create_batch(n)
         elif status == "assigned":
             factories.EICassignedSubmissionFactory.create_batch(n)
         elif status == "resubmitted":
