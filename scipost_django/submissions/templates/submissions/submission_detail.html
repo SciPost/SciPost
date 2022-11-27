@@ -161,6 +161,14 @@
     {% include 'submissions/_submission_editorial_information.html' with submission=submission %}
   {% endif %}
 
+  {% if is_ed_admin %}
+    <button class="m-2 btn btn-primary workflowDiagram"
+	    id="submission-{{ submission.preprint.identifier_w_vn_nr }}-workflow-diagram"
+	    hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	    hx-swap="outerHTML"
+    >Load Submission processing workflow graphs</button>
+  {% endif %}
+
   {% if submission.reports.accepted %}
     <hr class="lg my-4">
 
@@ -210,4 +218,11 @@
 {% block footer_script %}
   {{ block.super }}
   {{ select_topic_form.media }}
+  <script type="module" nonce="{{ request.csp_nonce }}">
+   import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
+   mermaid.initialize({ startOnLoad: false });
+   document.body.addEventListener("htmx:afterSettle", function(evt) {
+       mermaid.init(".workflowDiagram");
+   });
+  </script>
 {% endblock footer_script %}

@@ -1,5 +1,7 @@
-<div class="border m-2 p-2">
-  <p><strong class="m-2">Workflow graphs{% if submission %} for <a href="{{ submission.get_absolute_url }}">{{ submission }}</a>{% else %}: Submission processing{% endif %}</strong></p>
+<details class="border border-2 my-2" open>
+  <summary class="p-2">
+    <p><strong class="m-2">Workflow graphs{% if submission %} for <a href="{{ submission.get_absolute_url }}">{{ submission }}</a>{% else %}: Submission processing{% endif %}</strong></p>
+  </summary>
   <details class="m-2 p-2 border">
     <summary><strong>Legend</strong></summary>
     <ul class="m-2 list list-unstyled">
@@ -19,9 +21,13 @@
       </ul>
     </p>
   </details>
-  <div class="m-4">
-    <strong class="mt-2">Incoming</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Incoming</strong>
+	{% if submission %}{% if submission.in_stage_incoming %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_incoming_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     Sub([Submission{% if submission %}<br>{{ submission.submission_date }}<br>{{ submission.submission_date|timesince }} ago{% endif %}])
     subgraph Admission
@@ -30,11 +36,16 @@ flowchart LR
     Sub --> Admiss
     Admiss --fail--> AdmissFailed("Admission<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
     Admiss --pass--> AdmissPassed("Admission<br>passed ✉<small>A</small>") --> Prescreening[[Goto:<br>Pre-screening]]
-    </pre>
+      </pre>
+    </details>
   </div>
-  <div class="m-4">
-    <strong class="mt-2">Pre-screening</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Pre-screening</strong>
+	{% if submission %}{% if submission.in_stage_prescreening %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_prescreening_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     AdmissPassed([Admission<br>passed])
     subgraph Pre-screening
@@ -45,11 +56,16 @@ flowchart LR
     AdmissPassed --> PreTop
     PrePa --no qualified<br>Fellows--> PreFail("Pre-screening<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
     PrePa --"∃ qualified<br>Fellows"--> PrePass("Pre-screening<br>passed ✉<small>A</small>") --> Screening[[Goto:<br>Screening]]
-    </pre>
+      </pre>
+    </details>
   </div>
-  <div class="m-4">
-    <strong class="mt-2">Screening</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Screening</strong>
+	{% if submission %}{% if submission.in_stage_screening %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_screening_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     PrePass(["Pre-screening<br>passed"])
     subgraph Screening
@@ -64,11 +80,16 @@ flowchart LR
     PrePass --> ScrInv
     NoEiC --> DeskRej("Screening<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
     ScrEiC --> ScrPassed("Screening<br>passed ✉<small>A</small>") --> RefPrep[[Goto:<br>Refereeing<br>in preparation]]
-    </pre>
+      </pre>
+    </details>
   </div>
-  <div class="m-4">
-    <strong class="mt-2">Refereeing in preparation</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Refereeing in preparation</strong>
+	{% if submission %}{% if submission.in_stage_refereeing_in_preparation %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_refereeing_in_preparation_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     subgraph ChooseCycle [Choose refereeing cycle]
         DirectRec(Direct recommendation)
@@ -83,11 +104,16 @@ flowchart LR
     DirectRec ----> EdRec[[Goto:<br>Editorial Recommendation]]
     RegCycle ----> Refereeing[[Goto:<br>Refereeing]]
     ShortCycle ----> Refereeing
-    </pre>
+      </pre>
+    </details>
   </div>
-  <div class="m-4">
-    <strong class="mt-2">Refereeing</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Refereeing</strong>
+	{% if submission %}{% if submission.in_stage_in_refereeing %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_in_refereeing_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     subgraph Ref [Refereeing]
         RefOpen([Refereeing<br>round open]) --> RefInv("Referees<br>invited ✉<small>R</small>")
@@ -100,11 +126,16 @@ flowchart LR
         AuthResp --> RefClosed(Refereeing round<br>closed)
     end
     RefClosed --> EiCRec[[Goto:<br>Editorial recommendation]]
-    </pre>
+      </pre>
+    </details>
   </div>
-  <div class="m-4">
-    <strong>Recommendation, voting and decision</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong>Recommendation, voting and decision</strong>
+	{% if submission %}{% if submission.in_stage_decisionmaking %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_decisionmaking_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     subgraph EiCRec [Editorial recommendation]
         RefClosed([Refereeing round<br>closed]) --> EiCRecForm{% verbatim %}{{EiC Rec<br>Formulation}}{% endverbatim %}
@@ -130,6 +161,7 @@ flowchart LR
     PubOffer --decline--> Close([Processing<br>closed])
     RestartRef --> Refereeing
     Reject --> Close
-    </pre>
+      </pre>
+    </details>
   </div>
-</div>
+</details>
