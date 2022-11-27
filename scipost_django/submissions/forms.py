@@ -1448,7 +1448,7 @@ class SubmissionForm(forms.ModelForm):
             visible_pool=True,
             refereeing_cycle=CYCLE_UNDETERMINED,
             editor_in_charge=previous_submission.editor_in_charge,
-            status=Submission.EIC_ASSIGNED,
+            status=Submission.REFEREEING_IN_PREPARATION,
         )
 
         # Add author(s) (claim) fields

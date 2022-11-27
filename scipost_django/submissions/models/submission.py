@@ -131,6 +131,28 @@ class Submission(models.Model):
         ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE, # remove
     )
 
+    # Further handy sets
+    STAGE_INCOMING = (INCOMING, ADMISSION_FAILED)
+    STAGE_PRESCREENING = (PRESCREENING, PRESCREENING_FAILED)
+    STAGE_SCREENING = (SCREENING, SCREENING_FAILED)
+    STAGE_REFEREEING_IN_PREPARATION = (REFEREEING_IN_PREPARATION,)
+    STAGE_IN_REFEREEING = (IN_REFEREEING, REFEREEING_CLOSED)
+    STAGE_DECISIONMAKING = (
+        VOTING_IN_PREPARATION,
+        IN_VOTING,
+        AWAITING_DECISION,
+        ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
+    )
+    STAGE_DECIDED = (
+        AWAITING_RESUBMISSION,
+        RESUBMITTED,
+        ACCEPTED_IN_TARGET,
+        ACCEPTED_IN_ALTERNATIVE,
+        REJECTED,
+        WITHDRAWN,
+        PUBLISHED,
+    )
+
     # Fields
     preprint = models.OneToOneField(
         "preprints.Preprint", on_delete=models.CASCADE, related_name="submission"
@@ -303,6 +325,89 @@ class Submission(models.Model):
             )
         return header
 
+    ##########################################
+    # Shortcut properties for stage checking #
+    ##########################################
+    @property
+    def in_stage_incoming(self):
+        return self.status in self.STAGE_INCOMING
+
+    @property
+    def stage_incoming_completed(self):
+        return self.status in (
+            self.STAGE_PRESCREENING +
+            self.STAGE_SCREENING +
+            self.STAGE_REFEREEING_IN_PREPARATION +
+            self.STAGE_IN_REFEREEING +
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+
+    @property
+    def in_stage_prescreening(self):
+        return self.status in self.STAGE_PRESCREENING
+
+    @property
+    def stage_prescreening_completed(self):
+        return self.status in (
+            self.STAGE_SCREENING +
+            self.STAGE_REFEREEING_IN_PREPARATION +
+            self.STAGE_IN_REFEREEING +
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+    @property
+    def in_stage_screening(self):
+        return self.status in self.STAGE_SCREENING
+
+    @property
+    def stage_screening_completed(self):
+        return self.status in (
+            self.STAGE_REFEREEING_IN_PREPARATION +
+            self.STAGE_IN_REFEREEING +
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+
+    @property
+    def in_stage_refereeing_in_preparation(self):
+        return self.status in self.STAGE_REFEREEING_IN_PREPARATION
+
+    @property
+    def stage_refereeing_in_preparation_completed(self):
+        return self.status in (
+            self.STAGE_IN_REFEREEING +
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+
+    @property
+    def in_stage_in_refereeing(self):
+        return self.status in self.STAGE_IN_REFEREEING
+
+    @property
+    def stage_in_refereeing_completed(self):
+        return self.status in (
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+
+    @property
+    def in_stage_decisionmaking(self):
+        return self.status in self.STAGE_DECISIONMAKING
+
+    @property
+    def stage_decisionmaking_completed(self):
+        return self.in_stage_decided
+
+    @property
+    def in_stage_decided(self):
+        return self.status in self.STAGE_DECIDED
+    ###############################################
+    # End shortucut properties for stage checking #
+    ###############################################
+
+
     @property
     def is_latest(self):
         return self.status != self.RESUBMITTED
@@ -397,9 +502,11 @@ class Submission(models.Model):
     @property
     def open_for_resubmission(self):
         """Check if Submission has fixed EICRecommendation asking for revision."""
-        if self.status != self.EIC_ASSIGNED:
-            return False
-        return self.eicrecommendations.fixed().asking_revision().exists()
+        # CLEANUP 2022-11-27
+        # if self.status != self.EIC_ASSIGNED:
+        #     return False
+        # return self.eicrecommendations.fixed().asking_revision().exists()
+        return self.status == self.AWAITING_RESUBMISSION
 
     @property
     def reporting_deadline_has_passed(self):
