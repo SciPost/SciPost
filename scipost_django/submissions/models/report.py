@@ -171,20 +171,6 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """Return url of the Report on the Submission detail page."""
         return self.submission.get_absolute_url() + "#report_" + str(self.report_nr)
 
-    def get_notification_url(self, url_code):
-        """Return url related to the Report by the `url_code` meant for Notifications."""
-        if url_code == "report_form":
-            return reverse(
-                "submissions:submit_report",
-                args=(self.submission.preprint.identifier_w_vn_nr,),
-            )
-        elif url_code == "editorial_page":
-            return reverse(
-                "submissions:editorial_page",
-                args=(self.submission.preprint.identifier_w_vn_nr,),
-            )
-        return self.get_absolute_url()
-
     def get_attachment_url(self):
         """Return url of the Report its attachment if exists."""
         return reverse(
@@ -219,11 +205,6 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             STATUS_NOT_USEFUL,
             STATUS_NOT_ACADEMIC,
         ]
-
-    @property
-    def notification_name(self):
-        """Return string representation of this Report as shown in Notifications."""
-        return self.submission.preprint.identifier_w_vn_nr
 
     @property
     def doi_string(self):

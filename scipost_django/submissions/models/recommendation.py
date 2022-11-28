@@ -90,11 +90,6 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         return self.submission.get_absolute_url()
 
     @property
-    def notification_name(self):
-        """Return string representation of this EICRecommendation as shown in Notifications."""
-        return self.submission.preprint.identifier_w_vn_nr
-
-    @property
     def nr_for(self):
         """Return the number of votes 'for'."""
         return self.voted_for.count()

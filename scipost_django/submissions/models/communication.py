@@ -43,12 +43,3 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     def get_absolute_url(self):
         """Return the url of the related Submission detail page."""
         return self.submission.get_absolute_url()
-
-    def get_notification_url(self, url_code):
-        """Return url related to the Communication by the `url_code` meant for Notifications."""
-        if url_code == "editorial_page":
-            return reverse(
-                "submissions:editorial_page",
-                args=(self.submission.preprint.identifier_w_vn_nr,),
-            )
-        return self.get_absolute_url()

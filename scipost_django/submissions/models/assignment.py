@@ -65,11 +65,6 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
         return reverse("submissions:assignment_request", args=(self.id,))
 
     @property
-    def notification_name(self):
-        """Return string representation of this EditorialAssigment as shown in Notifications."""
-        return self.submission.preprint.identifier_w_vn_nr
-
-    @property
     def preassigned(self):
         return self.status == STATUS_PREASSIGNED
 

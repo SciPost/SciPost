@@ -141,7 +141,13 @@ class Submission(models.Model):
         WITHDRAWN,
         PUBLISHED,
     )
-
+    TREATED = (
+        ACCEPTED_IN_TARGET,
+        ACCEPTED_IN_ALTERNATIVE,
+        REJECTED,
+        WITHDRAWN,
+        PUBLISHED,
+    )
     # Fields
     preprint = models.OneToOneField(
         "preprints.Preprint", on_delete=models.CASCADE, related_name="submission"
@@ -322,8 +328,8 @@ class Submission(models.Model):
         return self.status in self.STAGE_INCOMING
 
     @property
-    def stage_incoming_completed(self):
-        return self.status in (
+    def stage_incoming_completed_statuses(self):
+        return (
             self.STAGE_PREASSIGNMENT +
             self.STAGE_ASSIGNMENT +
             self.STAGE_REFEREEING_IN_PREPARATION +
@@ -333,25 +339,34 @@ class Submission(models.Model):
         )
 
     @property
+    def stage_incoming_completed(self):
+        return self.status in self.stage_incoming_completed_statuses
+
+    @property
     def in_stage_preassignment(self):
         return self.status in self.STAGE_PREASSIGNMENT
 
     @property
-    def stage_preassignment_completed(self):
-        return self.status in (
+    def stage_preassignment_completed_statuses(self):
+        return (
             self.STAGE_ASSIGNMENT +
             self.STAGE_REFEREEING_IN_PREPARATION +
             self.STAGE_IN_REFEREEING +
             self.STAGE_DECISIONMAKING +
             self.STAGE_DECIDED
         )
+
+    @property
+    def stage_preassignment_completed(self):
+        return self.status in self.stage_preassignment_completed_statuses
+
     @property
     def in_stage_assignment(self):
         return self.status in self.STAGE_ASSIGNMENT
 
     @property
-    def stage_assignment_completed(self):
-        return self.status in (
+    def stage_assignment_completed_statuses(self):
+        return (
             self.STAGE_REFEREEING_IN_PREPARATION +
             self.STAGE_IN_REFEREEING +
             self.STAGE_DECISIONMAKING +
@@ -359,31 +374,47 @@ class Submission(models.Model):
         )
 
     @property
+    def stage_assignment_completed(self):
+        return self.status in self.stage_assignment_completed_statuses
+
+    @property
     def in_stage_refereeing_in_preparation(self):
         return self.status in self.STAGE_REFEREEING_IN_PREPARATION
 
     @property
-    def stage_refereeing_in_preparation_completed(self):
-        return self.status in (
+    def stage_refereeing_in_preparation_completed_statuses(self):
+        return (
             self.STAGE_IN_REFEREEING +
             self.STAGE_DECISIONMAKING +
             self.STAGE_DECIDED
         )
 
     @property
+    def stage_refereeing_in_preparation_completed(self):
+        return self.status in self.stage_refereeing_in_preparation_completed_statuses
+
+    @property
     def in_stage_in_refereeing(self):
         return self.status in self.STAGE_IN_REFEREEING
 
     @property
-    def stage_in_refereeing_completed(self):
-        return self.status in (
+    def stage_in_refereeing_completed_statuses(self):
+        return (
             self.STAGE_DECISIONMAKING +
             self.STAGE_DECIDED
         )
 
     @property
+    def stage_in_refereeing_completed(self):
+        return self.status in self.stage_in_refereeing_completed_statuses
+
+    @property
     def in_stage_decisionmaking(self):
         return self.status in self.STAGE_DECISIONMAKING
+
+    @property
+    def stage_decisionmaking_completed_statuses(self): # include for completeness
+        return self.STAGE_DECIDED
 
     @property
     def stage_decisionmaking_completed(self):
@@ -453,22 +484,9 @@ class Submission(models.Model):
             "submissions:submission", args=(self.preprint.identifier_w_vn_nr,)
         )
 
-    def get_notification_url(self, url_code):
-        """Return url related to the Submission by the `url_code` meant for Notifications."""
-        if url_code == "editorial_page":
-            return reverse(
-                "submissions:editorial_page", args=(self.preprint.identifier_w_vn_nr,)
-            )
-        return self.get_absolute_url()
-
     @property
     def is_resubmission(self):
         return self.is_resubmission_of is not None
-
-    @property
-    def notification_name(self):
-        """Return string representation of this Submission as shown in Notifications."""
-        return self.preprint.identifier_w_vn_nr
 
     @property
     def eic_recommendation_required(self):
@@ -536,21 +554,9 @@ class Submission(models.Model):
         )
 
     @property
-    def in_preassignment(self):
-        return self.status == self.INCOMING
-
-    @property
     def can_reset_reporting_deadline(self):
         """Check if reporting deadline is allowed to be reset."""
-        blocked_statuses = [
-            self.PREASSIGNMENT_FAILED,
-            self.RESUBMITTED,
-            self.ACCEPTED,
-            self.REJECTED,
-            self.WITHDRAWN,
-            self.PUBLISHED,
-        ]
-        if self.status in blocked_statuses:
+        if self.status in STAGE_DECIDED:
             return False
 
         if self.refereeing_cycle == CYCLE_DIRECT_REC:
@@ -658,20 +664,18 @@ class Submission(models.Model):
 
         return self.editorial_assignments.filter(status=STATUS_PREASSIGNED).exists()
 
-    def has_inadequate_pool_composition(self):
+    def has_inadequate_fellowship_composition(self):
         """
-        Check whether the EIC actually in the pool of the Submission.
-
-        (Could happen on resubmission or reassignment after wrong Journal selection)
+        Check whether the EIC is actually in the fellowship of the Submission.
         """
         if not self.editor_in_charge:
             # None assigned yet.
             return False
 
-        pool_contributors_ids = Contributor.objects.filter(
+        contributors_ids = Contributor.objects.filter(
             fellowships__pool=self
         ).values_list("id", flat=True)
-        return self.editor_in_charge.id not in pool_contributors_ids
+        return self.editor_in_charge.id not in contributors_ids
 
     @property
     def editorial_decision(self):

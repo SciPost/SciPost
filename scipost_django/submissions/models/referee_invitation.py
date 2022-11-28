@@ -107,11 +107,6 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         return self.last_name + ", " + self.first_name
 
     @property
-    def notification_name(self):
-        """Return string representation of this RefereeInvitation as shown in Notifications."""
-        return self.submission.preprint.identifier_w_vn_nr
-
-    @property
     def related_report(self):
         """Return the Report that's been created for this invitation."""
         return self.submission.reports.filter(author=self.referee).last()

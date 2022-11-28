@@ -77,10 +77,53 @@ class SubmissionQuerySet(models.QuerySet):
     def published(self):
         return self.filter(status=self.model.PUBLISHED)
 
-    #### Managers mixing statuses ####
+    ### Managers for stages ####
+    def in_stage_incoming(self):
+        return self.filter(status=self.model.STAGE_INCOMING)
+
+    def stage_incoming_completed(self):
+        return self.filter(status__in=self.model.stage_incoming_completed_statuses)
+
+    def in_stage_preassignment(self):
+        return self.filter(status__in=self.model.STAGE_PREASSIGNMENT)
+
+    def stage_preassignment_completed(self):
+        return self.filter(status__in=self.model.stage_preassignment_completed_statuses)
+
+    def in_stage_assignment(self):
+        return self.filter(status__in=self.model.STAGE_ASSIGNMENT)
+
+    def stage_assignment_completed(self):
+        return self.filter(status__in=self.model.stage_assignment_completed_statuses)
+
+    def in_stage_refereeing_in_preparation(self):
+        return self.filter(status__in=self.model.STAGE_REFEREEING_IN_PREPARATION)
+
+    def stage_refereeing_in_preparation_completed(self):
+        return self.filter(
+            status__in=self.model.stage_refereeing_in_preparation_completed_statuses
+        )
+
+    def in_stage_in_refereeing(self):
+        return self.filter(status__in=self.model.STAGE_IN_REFEREEING)
+
+    def stage_in_refereeing_completed(self):
+        return self.filter(status__in=self.model.stage_in_refereeing_completed_statuses)
+
+    def in_stage_decisionmaking(self):
+        return self.filter(status__in=self.model.STAGE_DECISIONMAKING)
+
+    def stage_decisionmaking_completed(self):
+        return self.filter(status__in=self.model.STAGE_DECIDED)
+
+    #### Other managers mixing statuses ####
 
     def under_consideration(self):
         return self.filter(status__in=self.model.UNDER_CONSIDERATION)
+
+    def treated(self):
+        """Returns Submissions (stream heads) whose streams are fully processed."""
+        return self.filter(status__in=self.model.TREATED)
 
     def accepted(self):
         return self.filter(status__in=[
@@ -197,17 +240,6 @@ class SubmissionQuerySet(models.QuerySet):
         """
         return self.latest().public()
 
-    def treated(self):
-        """This query returns all Submissions that are presumed to be 'done'."""
-        return self.filter(
-            status__in=[
-                self.model.ACCEPTED,
-                self.model.REJECTED,
-                self.model.PUBLISHED,
-                self.model.RESUBMITTED,
-            ]
-        )
-
     def originally_submitted(self, from_date, until_date):
         """
         Returns the submissions originally received between from_date and until_date
@@ -220,22 +252,6 @@ class SubmissionQuerySet(models.QuerySet):
         ):
             thread_hashes.append(sub.thread_hash)
         return self.filter(thread_hash__in=thread_hashes)
-
-    def awaiting_puboffer_acceptance(self):
-        """Return Submissions for which an outstanding publication offer exists."""
-        return self.filter(
-            status=self.model.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
-        )
-
-    def revision_requested(self):
-        """Return Submissions with a fixed EICRecommendation: minor or major revision."""
-        return self.filter(
-            eicrecommendations__status=constants.DECISION_FIXED,
-            eicrecommendations__recommendation__in=[
-                constants.REPORT_MINOR_REV,
-                constants.REPORT_MAJOR_REV,
-            ],
-        )
 
     def unpublished(self):
         """Return unpublished Submissions."""
@@ -284,15 +300,6 @@ class SubmissionQuerySet(models.QuerySet):
             ],
             authors=user.contributor,
         )
-
-    # CLEANUP 2022-11-27
-    # def voting_in_preparation(self):
-    #     from submissions.models import EICRecommendation
-
-    #     ids_list = [
-    #         r.submission.id for r in EICRecommendation.objects.voting_in_preparation()
-    #     ]
-    #     return self.filter(id__in=ids_list)
 
     def undergoing_voting(self, longer_than_days=None):
         from submissions.models import EICRecommendation

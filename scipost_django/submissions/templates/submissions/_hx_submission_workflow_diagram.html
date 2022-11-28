@@ -35,7 +35,7 @@ flowchart LR
     end
     Sub --> Admiss
     Admiss --fail--> AdmissFailed("Admission<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
-    Admiss --pass--> AdmissPassed("Admission<br>passed ✉<small>A</small>") --> Preassignment[[Goto:<br>preassignment]]
+    Admiss --pass--> AdmissPassed("Admission<br>passed ✉<small>A</small>") --> Preassignment[[Goto:<br>Preassignment]]
       </pre>
     </details>
   </div>
@@ -48,13 +48,13 @@ flowchart LR
       <pre class="mermaid workflowDiagram">
 flowchart LR
     AdmissPassed([Admission<br>passed])
-    subgraph preassignment
+    subgraph Preassignment
         PreTop(Submission<br>Topics<br>specification) --> ProfMatch(Author<br>Profiles<br>matching)
         ProfMatch --> PreCOI(Conflict<br>of interest<br>checks)
         PreCOI --> PrePa(Listing of<br>potential<br>Editors-in-charge)
     end
     AdmissPassed --> PreTop
-    PrePa --no qualified<br>Fellows--> PreFail("preassignment<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
+    PrePa --no qualified<br>Fellows--> PreFail("Preassignment<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
     PrePa --"∃ qualified<br>Fellows"--> PrePass("Preassignment<br>passed ✉<small>A</small>") --> Assignment[[Goto:<br>Assignment]]
       </pre>
     </details>

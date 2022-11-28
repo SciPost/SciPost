@@ -230,9 +230,11 @@ class SubmissionPoolSearchForm(forms.Form):
                 ),
             ),
             (
-                "Revision requested",
+                "Awaiting resubmission",
                 (
-                    ("revision_requested", "Minor or major revision requested, awaiting resubmission"),
+                    (
+                        Submission.AWAITING_RESUBMISSION,
+                        "Awaiting resubmission (minor or major revision requested)"),
                 ),
             ),
             (
@@ -450,8 +452,6 @@ class SubmissionPoolSearchForm(forms.Form):
                     timezone.now() - datetime.timedelta(days=90)
                 )
             ).distinct().exclude(eicrecommendations__isnull=False)
-        elif status == "revision_requested":
-            submissions = submissions.revision_requested()
         elif status == "voting_prepare":
             submissions = submissions.voting_in_preparation()
         elif status == "voting_ongoing":
@@ -1462,7 +1462,7 @@ class SubmissionForm(forms.ModelForm):
         EditorialAssignment.objects.create(
             submission=submission,
             to=previous_submission.editor_in_charge,
-            status=Submission.ACCEPTED,
+            status=STATUS_ACCEPTED,
         )
 
     def set_fellowship(self, submission):

@@ -1137,7 +1137,8 @@ def personal_page_hx_edadmin(request):
             Report.objects.accepted().filter(pdf_report="").count()
         )
         context["nr_treated_submissions_without_pdf"] = (
-            Submission.objects.treated().public().filter(pdf_refereeing_pack="").count()
+            Submission.objects.treated().public(
+            ).filter(pdf_refereeing_pack="").count()
         )
     return render(request, "scipost/personal_page/_hx_edadmin.html", context)
 
