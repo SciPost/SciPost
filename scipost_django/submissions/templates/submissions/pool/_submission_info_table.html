@@ -45,9 +45,9 @@
     <td>Editor-in-charge</td>
     <td>
       <ul class="list list-unstyled">
-	{% if submission.status == 'screening' %}
+	{% if submission.status == 'seeking_assignment' %}
 	  {% if is_ed_admin %}
-	    <li>Screening (unassigned)</li>
+	    <li>Seeking assignment</li>
 	  {% else %}
             <li>You can
 	      <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>

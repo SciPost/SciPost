@@ -22,7 +22,7 @@ class Command(BaseCommand):
             "-s",
             "--status",
             choices=[
-                "screening",
+                "seeking_assignment",
                 "in_refereeing",
                 "resubmitted",
                 "resubmission",
@@ -39,8 +39,8 @@ class Command(BaseCommand):
             self.create_submissions(kwargs["number"], status=kwargs["status"])
 
     def create_submissions(self, n, status="in_refereeing"):
-        if status == "screening":
-            factories.ScreeningSubmissionFactory.create_batch(n)
+        if status == "seeking_assignment":
+            factories.SeekingAssignmentSubmissionFactory.create_batch(n)
         elif status == "in_refereeing":
             factories.InRefereeingSubmissionFactory.create_batch(n)
         elif status == "resubmitted":

@@ -1105,7 +1105,7 @@ def personal_page_hx_edadmin(request):
     context = {}
     contributor = request.user.contributor
     if contributor.is_scipost_admin:
-        context["nr_submissions_to_assign"] = Submission.objects.prescreening().count()
+        context["nr_submissions_to_assign"] = Submission.objects.preassignment().count()
         context[
             "nr_recommendations_to_prepare_for_voting"
         ] = EICRecommendation.objects.voting_in_preparation().count()
@@ -1811,6 +1811,8 @@ def send_precooked_email(request):
 def EdCol_bylaws(request):
     return render(request, "scipost/EdCol_by-laws.html")
 
+def EdCol_bylaws_Changes_2022_11(request):
+    return render(request, "scipost/EdCol_by-laws_Changes_2022-11.html")
 
 def EdCol_bylaws_Changes_2021_04(request):
     return render(request, "scipost/EdCol_by-laws_Changes_2021-04.html")

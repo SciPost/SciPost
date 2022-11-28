@@ -117,12 +117,12 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
         self.authors.add(*contribs)
 
 
-class ScreeningSubmissionFactory(SubmissionFactory):
+class SeekingAssignmentSubmissionFactory(SubmissionFactory):
     """
     A new incoming Submission without any EIC assigned.
     """
 
-    status = Submission.SCREENING
+    status = Submission.SEEKING_ASSIGNMENT
     visible_public = False
     visible_pool = True
 
@@ -238,7 +238,7 @@ class ResubmissionFactory(InRefereeingSubmissionFactory):
     already known by the SciPost database.
     """
 
-    status = Submission.INCOMING
+    status = Submission.REFEREEING_IN_PREPARATION
     open_for_commenting = True
     open_for_reporting = True
     visible_public = False

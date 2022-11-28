@@ -5,15 +5,15 @@
 {% load scipost_extras %}
 {% load conflict_tags %}
 
-{% block pagetitle %}: pre-screening ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
+{% block pagetitle %}: preassignment ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</span>
+  <span class="breadcrumb-item">Preassignment {{ submission.preprint.identifier_w_vn_nr }}</span>
 {% endblock %}
 
 {% block content %}
-  <h1 class="highlight">Pre-screening of Submission</h1>
+  <h1 class="highlight">Preassignment of Submission</h1>
   <h3><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
   <h4>by {{ submission.author_list }}</h4>
   {% include 'helpdesk/_ticket_for_object_link.html' with object=submission %}
@@ -24,7 +24,7 @@
   <h3 class="mt-4">Abstract</h3>
   <p>{{ submission.abstract }}</p>
 
-  <h3 class="mt-4">Pre-screening steps</h3>
+  <h3 class="mt-4">Preassignment steps</h3>
   <ul>
     <li>
       <span class="text-success">{% include 'bi/arrow-right.html' %}</span>
@@ -83,8 +83,8 @@
   <br>
 
   <div class="p-3 border">
-    <h2>Take decision on pre-screening</h2>
-    <p>If the decision is to pass pre-screening, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">the pre-assignments system</a> will start inviting editors one-by-one.</p>
+    <h2>Take decision on preassignment</h2>
+    <p>If the decision is to pass preassignment, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">the preassignments system</a> will start inviting editors one-by-one.</p>
     <br>
     <form method="post">
       {% csrf_token %}

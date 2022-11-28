@@ -49,12 +49,10 @@ class Submission(models.Model):
     # Possible statuses
     INCOMING = "incoming"
     ADMISSION_FAILED = "admission_failed"
-    PRESCREENING = "prescreening"
-    FAILED_PRESCREENING = "failed_pre" # remove
-    PRESCREENING_FAILED = "prescreening_failed"
-    SCREENING = "screening"
-    SCREENING_FAILED = "screening_failed"
-    ASSIGNMENT_FAILED = "assignment_failed" # remove
+    PREASSIGNMENT = "preassignment"
+    PREASSIGNMENT_FAILED = "preassignment_failed"
+    SEEKING_ASSIGNMENT = "seeking_assignment" # new2
+    ASSIGNMENT_FAILED = "assignment_failed" # remove # new2 reinstate
     REFEREEING_IN_PREPARATION = "refereeing_in_preparation"
     IN_REFEREEING = "in_refereeing"
     REFEREEING_CLOSED = "refereeing_closed"
@@ -75,13 +73,11 @@ class Submission(models.Model):
     SUBMISSION_STATUSES = (
         (INCOMING, "Submission incoming, awaiting EdAdmin"), ## descriptor rephrased
         (ADMISSION_FAILED, "Admission failed"), ## new
-        (PRESCREENING, "In pre-screening"), ## new
-        (FAILED_PRESCREENING, "Failed pre-screening"), ## rename: PRESCREENING_FAILED
-        (PRESCREENING_FAILED, "Pre-screening failed"), ## new
-        (SCREENING, "In screening"),
-        (SCREENING_FAILED, "Screening failed"), ## new
+        (PREASSIGNMENT, "In preassignment"), ## new2
+        (PREASSIGNMENT_FAILED, "Preassignment failed"), ## new
+        (SEEKING_ASSIGNMENT, "Seeking assignment"),
         (
-            ASSIGNMENT_FAILED, ## rename: SCREENING_FAILED
+            ASSIGNMENT_FAILED,
             "Failed to assign Editor-in-charge; manuscript rejected",
         ),
         (REFEREEING_IN_PREPARATION, "Refereeing in preparation"), ## new
@@ -92,7 +88,6 @@ class Submission(models.Model):
         (VOTING_IN_PREPARATION, "Voting in preparation"), ## new
         (IN_VOTING, "In voting"), ## new
         (AWAITING_DECISION, "Awaiting decision"), ## new
-        (ACCEPTED, "Publication decision taken: accept"), ## rename: ACCEPTED_IN_TARGET or ALTERNATIVE
         (ACCEPTED_IN_TARGET, "Accepted in target Journal"), ## new
         (
             ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, ## rename: ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
@@ -111,8 +106,8 @@ class Submission(models.Model):
     # Submissions which are currently under consideration
     UNDER_CONSIDERATION = (
         INCOMING,
-        PRESCREENING,
-        SCREENING,
+        PREASSIGNMENT,
+        SEEKING_ASSIGNMENT,
         REFEREEING_IN_PREPARATION,
         IN_REFEREEING,
         REFEREEING_CLOSED,
@@ -127,8 +122,8 @@ class Submission(models.Model):
 
     # Further handy sets
     STAGE_INCOMING = (INCOMING, ADMISSION_FAILED)
-    STAGE_PRESCREENING = (PRESCREENING, PRESCREENING_FAILED)
-    STAGE_SCREENING = (SCREENING, SCREENING_FAILED)
+    STAGE_PREASSIGNMENT = (PREASSIGNMENT, PREASSIGNMENT_FAILED)
+    STAGE_ASSIGNMENT = (SEEKING_ASSIGNMENT, ASSIGNMENT_FAILED)
     STAGE_REFEREEING_IN_PREPARATION = (REFEREEING_IN_PREPARATION,)
     STAGE_IN_REFEREEING = (IN_REFEREEING, REFEREEING_CLOSED)
     STAGE_DECISIONMAKING = (
@@ -329,8 +324,8 @@ class Submission(models.Model):
     @property
     def stage_incoming_completed(self):
         return self.status in (
-            self.STAGE_PRESCREENING +
-            self.STAGE_SCREENING +
+            self.STAGE_PREASSIGNMENT +
+            self.STAGE_ASSIGNMENT +
             self.STAGE_REFEREEING_IN_PREPARATION +
             self.STAGE_IN_REFEREEING +
             self.STAGE_DECISIONMAKING +
@@ -338,24 +333,24 @@ class Submission(models.Model):
         )
 
     @property
-    def in_stage_prescreening(self):
-        return self.status in self.STAGE_PRESCREENING
+    def in_stage_preassignment(self):
+        return self.status in self.STAGE_PREASSIGNMENT
 
     @property
-    def stage_prescreening_completed(self):
+    def stage_preassignment_completed(self):
         return self.status in (
-            self.STAGE_SCREENING +
+            self.STAGE_ASSIGNMENT +
             self.STAGE_REFEREEING_IN_PREPARATION +
             self.STAGE_IN_REFEREEING +
             self.STAGE_DECISIONMAKING +
             self.STAGE_DECIDED
         )
     @property
-    def in_stage_screening(self):
-        return self.status in self.STAGE_SCREENING
+    def in_stage_assignment(self):
+        return self.status in self.STAGE_ASSIGNMENT
 
     @property
-    def stage_screening_completed(self):
+    def stage_assignment_completed(self):
         return self.status in (
             self.STAGE_REFEREEING_IN_PREPARATION +
             self.STAGE_IN_REFEREEING +
@@ -541,14 +536,14 @@ class Submission(models.Model):
         )
 
     @property
-    def in_prescreening(self):
+    def in_preassignment(self):
         return self.status == self.INCOMING
 
     @property
     def can_reset_reporting_deadline(self):
         """Check if reporting deadline is allowed to be reset."""
         blocked_statuses = [
-            self.PRESCREENING_FAILED,
+            self.PREASSIGNMENT_FAILED,
             self.RESUBMITTED,
             self.ACCEPTED,
             self.REJECTED,
@@ -658,7 +653,7 @@ class Submission(models.Model):
 
     def is_sending_editorial_invitations(self):
         """Return whether editorial assignments are being sent out."""
-        if self.status != self.SCREENING:
+        if self.status != self.SEEKING_ASSIGNMENT:
             return False
 
         return self.editorial_assignments.filter(status=STATUS_PREASSIGNED).exists()

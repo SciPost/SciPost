@@ -198,21 +198,21 @@ class SubmissionPoolSearchForm(forms.Form):
                 ),
             ),
             (
-                "Pre-screening",
+                "Preassignment",
                 (
-                    (Submission.PRESCREENING, "In pre-screening"),
-                    (Submission.PRESCREENING_FAILED, "Pre-screening failed"),
+                    (Submission.PREASSIGNMENT, "In preassignment"),
+                    (Submission.PREASSIGNMENT_FAILED, "preassignment failed"),
                 ),
             ),
             (
-                "Screening",
+                "Assignment",
                 (
-                    (Submission.SCREENING, "In screening, awaiting editor assignment"),
-                    ("screening_1", "... waiting for > 1 week"),
-                    ("screening_2", "... waiting for > 2 weeks"),
-                    ("screening_4", "... waiting for > 4 weeks"),
+                    (Submission.SEEKING_ASSIGNMENT, "Seeking editor assignment"),
+                    ("assignment_1", "... waiting for > 1 week"),
+                    ("assignment_2", "... waiting for > 2 weeks"),
+                    ("assignment_4", "... waiting for > 4 weeks"),
                     (
-                        Submission.SCREENING_FAILED,
+                        Submission.ASSIGNMENT_FAILED,
                         "Failed to find Editor-in-charge; manuscript rejected",
                     ),
                 ),
@@ -399,19 +399,19 @@ class SubmissionPoolSearchForm(forms.Form):
         status = self.cleaned_data.get("status")
         if status == "all":
             pass
-        elif status == "screening_1":
+        elif status == "assignment_1":
             submissions = submissions.filter(
-                status=Submission.SCREENING,
+                status=Submission.SEEKING_ASSIGNMENT,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=7),
             )
-        elif status == "screening_2":
+        elif status == "assignment_2":
             submissions = submissions.filter(
-                status=Submission.SCREENING,
+                status=Submission.SEEKING_ASSIGNMENT,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=14),
             )
-        elif status == "screening_4":
+        elif status == "assignment_4":
             submissions = submissions.filter(
-                status=Submission.SCREENING,
+                status=Submission.SEEKING_ASSIGNMENT,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=28),
             )
         elif status == "in_refereeing":
@@ -1497,7 +1497,7 @@ class SubmissionReportsForm(forms.ModelForm):
 
 
 class PreassignEditorsForm(forms.ModelForm):
-    """Preassign editors during Submission pre-screening."""
+    """Preassign editors during Submission preassignment."""
 
     assign = forms.BooleanField(required=False)
     to = forms.ModelChoiceField(
@@ -1537,7 +1537,7 @@ class PreassignEditorsForm(forms.ModelForm):
 
 
 class BasePreassignEditorsFormSet(forms.BaseModelFormSet):
-    """Pre-assign editors during Submission pre-screening."""
+    """Pre-assign editors during Submission preassignment."""
 
     def __init__(self, *args, **kwargs):
         self.submission = kwargs.pop("submission")
@@ -1725,13 +1725,13 @@ class SubmissionPreprintFileForm(forms.ModelForm):
         )
 
 
-class SubmissionPrescreeningForm(forms.ModelForm):
-    """Processing decision for pre-screening of Submission."""
+class SubmissionPreassignmentForm(forms.ModelForm):
+    """Processing decision for preassignment of Submission."""
 
     PASS, FAIL = "pass", "fail"
     CHOICES = (
-        (PASS, "Pass pre-screening. Proceed to the Pool."),
-        (FAIL, "Fail pre-screening."),
+        (PASS, "Pass preassignment. Proceed to the Pool."),
+        (FAIL, "Fail preassignment."),
     )
     decision = forms.ChoiceField(
         widget=forms.RadioSelect, choices=CHOICES, required=False
@@ -1757,8 +1757,8 @@ class SubmissionPrescreeningForm(forms.ModelForm):
     def clean(self):
         """Check if Submission has right status."""
         data = super().clean()
-        if self.instance.status != Submission.INCOMING:
-            self.add_error(None, "This Submission is currently not in pre-screening.")
+        if self.instance.status != Submission.PREASSIGNMENT:
+            self.add_error(None, "This Submission is currently not in preassignment.")
 
         if data["decision"] == self.PASS:
             if not self.instance.fellows.exists():
@@ -1774,24 +1774,24 @@ class SubmissionPrescreeningForm(forms.ModelForm):
         """Update Submission status."""
         if self.cleaned_data["decision"] == self.PASS:
             Submission.objects.filter(id=self.instance.id).update(
-                status=Submission.SCREENING, visible_pool=True, visible_public=False
+                status=Submission.SEEKING_ASSIGNMENT, visible_pool=True, visible_public=False
             )
-            self.instance.add_general_event("Submission passed pre-screening.")
+            self.instance.add_general_event("Submission passed preassignment.")
         elif self.cleaned_data["decision"] == self.FAIL:
             EditorialAssignment.objects.filter(
                 submission=self.instance
             ).invited().update(status=STATUS_DEPRECATED)
             Submission.objects.filter(id=self.instance.id).update(
-                status=Submission.PRESCREENING_FAILED,
+                status=Submission.PREASSIGNMENT_FAILED,
                 visible_pool=False,
                 visible_public=False,
             )
-            self.instance.add_general_event("Submission failed pre-screening.")
+            self.instance.add_general_event("Submission failed preassignment.")
             mail_sender = DirectMailUtil(
-                "prescreening_failed",
+                "preassignment_failed",
                 instance=self.instance,
                 message_for_authors=self.cleaned_data["message_for_authors"],
-                header_template="submissions/admin/prescreening_failed.html",
+                header_template="submissions/admin/preassignment_failed.html",
             )
             mail_sender.send_mail()
 

@@ -250,9 +250,9 @@ class Command(BaseCommand):
             name="Can oversee refereeing",
             content_type=content_type,
         )
-        can_run_pre_screening, created = Permission.objects.get_or_create(
-            codename="can_run_pre_screening",
-            name="Can run pre-screening on Submissions",
+        can_run_preassignment, created = Permission.objects.get_or_create(
+            codename="can_run_preassignment",
+            name="Can run preassignment on Submissions",
             content_type=content_type,
         )
 
@@ -469,7 +469,7 @@ class Command(BaseCommand):
                 can_do_plagiarism_checks,
                 can_oversee_refereeing,
                 can_reassign_submissions,
-                can_run_pre_screening,
+                can_run_preassignment,
                 can_manage_series,
                 can_prepare_recommendations_for_voting,
                 can_manage_college_composition,

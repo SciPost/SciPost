@@ -17,5 +17,5 @@ def edadmin(request):
     Editorial administration page.
     """
     submissions = get_objects_for_user(request.user, "submissions.take_edadmin_actions")
-    context = { "prescreening": submissions.prescreening() }
+    context = { "preassignment": submissions.preassignment() }
     return render(request, "edadmin/edadmin.html", context)

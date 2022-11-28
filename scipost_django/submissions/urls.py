@@ -105,9 +105,9 @@ urlpatterns = [
         name="_hx_submission_update_preprint_file",
     ),
     path(
-        "admin/<identifier:identifier_w_vn_nr>/prescreening",
-        views.PreScreeningView.as_view(),
-        name="do_prescreening",
+        "admin/<identifier:identifier_w_vn_nr>/preassignment",
+        views.PreassignmentView.as_view(),
+        name="do_preassignment",
     ),
     path(
         "admin/<identifier:identifier_w_vn_nr>/conflicts",
@@ -278,9 +278,9 @@ urlpatterns = [
         name="editorial_assignment",
     ),
     path(
-        "update_authors_screening/<identifier:identifier_w_vn_nr>/<int:nrweeks>",
-        views.update_authors_screening,
-        name="update_authors_screening",
+        "update_authors_assignment/<identifier:identifier_w_vn_nr>/<int:nrweeks>",
+        views.update_authors_assignment,
+        name="update_authors_assignment",
     ),
     path(
         "assignment_failed/<identifier:identifier_w_vn_nr>",

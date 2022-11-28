@@ -21,17 +21,17 @@ class SubmissionQuerySet(models.QuerySet):
     def admission_failed(self):
         return self.filter(status=self.model.ADMISSION_FAILED)
 
-    def prescreening(self):
-        return self.filter(status=self.model.PRESCREENING)
+    def preassignment(self):
+        return self.filter(status=self.model.PREASSIGNMENT)
 
-    def prescreening_failed(self):
-        return self.filter(status=self.model.PRESCREENING_FAILED)
+    def preassignment_failed(self):
+        return self.filter(status=self.model.PREASSIGNMENT_FAILED)
 
-    def screening(self):
-        return self.filter(status=self.model.SCREENING)
+    def seeking_assignment(self):
+        return self.filter(status=self.model.SEEKING_ASSIGNMENT)
 
-    def screening_failed(self):
-        return self.filter(status=self.model.SCREENING_FAILED)
+    def assignment_failed(self):
+        return self.filter(status=self.model.ASSIGNMENT_FAILED)
 
     def refereeing_in_preparation(self):
         return self.filter(status=self.model.REFEREEING_IN_PREPARATION)
@@ -121,7 +121,7 @@ class SubmissionQuerySet(models.QuerySet):
         be listed in Submission's Fellowship.
 
         For Senior Fellows, exclude INCOMING status;
-        for other Fellows, also exclude PRESCREENING.
+        for other Fellows, also exclude PREASSIGNMENT.
 
         Finally, filter out the COI.
         """
@@ -140,11 +140,11 @@ class SubmissionQuerySet(models.QuerySet):
             f_ids = user.contributor.fellowships.active()
             qs = qs.filter(fellows__in=f_ids)
 
-        # Fellows can't see incoming and (non-Senior) prescreening
+        # Fellows can't see incoming and (non-Senior) preassignment
         if user.contributor.is_active_senior_fellow:
             qs = qs.exclude(status__in=[self.model.INCOMING,])
         elif user.contributor.is_active_fellow:
-            qs = qs.exclude(status__in=[self.model.INCOMING, self.model.PRESCREENING])
+            qs = qs.exclude(status__in=[self.model.INCOMING, self.model.PREASSIGNMENT])
 
         return qs.remove_COI(user)
 
@@ -172,7 +172,7 @@ class SubmissionQuerySet(models.QuerySet):
     def without_eic(self):
         """Return Submissions that still need Editorial Assignment."""
         return self.filter(
-            status__in=[self.model.INCOMING, self.model.SCREENING]
+            status__in=[self.model.PREASSIGNMENT, self.model.SEEKING_ASSIGNMENT]
         )
 
     def public(self):
@@ -240,10 +240,6 @@ class SubmissionQuerySet(models.QuerySet):
     def unpublished(self):
         """Return unpublished Submissions."""
         return self.exclude(status=self.model.PUBLISHED)
-
-    def assignment_failed(self):
-        """Return Submissions which have failed assignment."""
-        return self.filter(status=self.model.ASSIGNMENT_FAILED)
 
     def open_for_reporting(self):
         """Return Submissions open for reporting."""

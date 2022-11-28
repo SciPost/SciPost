@@ -16,8 +16,8 @@
 
 {% block content %}
 
-  <h2 class="highlight">Prescreening</h2>
-  {% for submission in prescreening %}
+  <h2 class="highlight">Preassignment</h2>
+  {% for submission in preassignment %}
 
     {% include 'submissions/_submission_events.html' with events=submission.events.for_edadmin %}
 

@@ -15,7 +15,7 @@ from ..constants import (
     CYCLE_DIRECT_REC,
 )
 from ..exceptions import CycleUpdateDeadlineError
-from ..factories import ScreeningSubmissionFactory, ResubmissionFactory
+from ..factories import SeekingAssignmentSubmissionFactory, ResubmissionFactory
 
 # from .utils import GeneralSubmissionCycle
 
@@ -29,7 +29,7 @@ from ..factories import ScreeningSubmissionFactory, ResubmissionFactory
 #         self.submission_date = datetime.date.today()
 #         add_groups_and_permissions()
 #         ContributorFactory.create_batch(5)
-#         self.new_submission = ScreeningSubmissionFactory(
+#         self.new_submission = SeekingAssignmentSubmissionFactory(
 #             dates__submission=self.submission_date
 #         )
 

@@ -93,7 +93,7 @@ from .forms import (
     SubmissionTargetJournalForm,
     SubmissionTargetProceedingsForm,
     SubmissionPreprintFileForm,
-    SubmissionPrescreeningForm,
+    SubmissionPreassignmentForm,
     PreassignEditorsFormSet,
     SubmissionReassignmentForm,
 )
@@ -866,7 +866,7 @@ def pool(request, identifier_w_vn_nr=None):
     assignments_to_consider = EditorialAssignment.objects.invited().filter(
         to=request.user.contributor
     )
-    initial = {"status": Submission.SCREENING}
+    initial = {"status": Submission.SEEKING_ASSIGNMENT}
     if identifier_w_vn_nr:
         initial = {"identifier": identifier_w_vn_nr}
     context = {
@@ -990,7 +990,7 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
 def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     """Editorial Assignment form view."""
     submission = get_object_or_404(
-        Submission.objects.screening().in_pool(request.user),
+        Submission.objects.seeking_assignment().in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1009,7 +1009,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
             request,
             (
                 "Thank you for considering."
-                " This Submission has failed pre-screening and has been rejected."
+                " This Submission has failed assignment and has been rejected."
             ),
         )
         return redirect("submissions:pool")
@@ -1047,7 +1047,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
 
             if form.is_normal_cycle():
                 # Inform authors about new status.
-                SubmissionUtils.send_author_prescreening_passed_email()
+                SubmissionUtils.send_author_assignment_passed_email()
             else:
                 # Inform authors about new status.
                 mail_sender = DirectMailUtil(
@@ -1104,18 +1104,18 @@ def assignment_request(request, assignment_id):
 
 @login_required
 @permission_required("scipost.can_assign_submissions", raise_exception=True)
-def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
+def update_authors_assignment(request, identifier_w_vn_nr, nrweeks):
     """
-    Send an email to the authors, informing them that screening is still ongoing after one week.
+    Send an email to the authors, informing them that assignment is still ongoing after one week.
     """
     submission = get_object_or_404(
-        Submission.objects.in_pool(request.user).screening(),
+        Submission.objects.in_pool(request.user).seeking_assignment(),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     if nrweeks == 1:
-        mail_code = "authors/update_authors_screening_1week"
+        mail_code = "authors/update_authors_assignment_1week"
     elif nrweeks == 2:
-        mail_code = "authors/update_authors_screening_2weeks"
+        mail_code = "authors/update_authors_assignment_2weeks"
     else:
         raise Http404
     mail_editor_view = MailEditorSubview(
@@ -1124,7 +1124,7 @@ def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
     if mail_editor_view.is_valid():
         messages.success(
             request,
-            "Authors of Submission {identifier} updated by email (screening week {nrweeks}).".format(
+            "Authors of Submission {identifier} updated by email (assignment week {nrweeks}).".format(
                 identifier=submission.preprint.identifier_w_vn_nr, nrweeks=nrweeks
             ),
         )
@@ -1138,13 +1138,13 @@ def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
 @permission_required("scipost.can_assign_submissions", raise_exception=True)
 @transaction.atomic
 def assignment_failed(request, identifier_w_vn_nr):
-    """Reject a Submission in screening.
+    """Reject a Submission in assignment.
 
     No Editorial Fellow has accepted or volunteered to become Editor-in-charge., hence the
     Submission is rejected. An Editorial Administrator can access this view from the Pool.
     """
     submission = get_object_or_404(
-        Submission.objects.in_pool(request.user).screening(),
+        Submission.objects.in_pool(request.user).seeking_assignment(),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
@@ -1168,7 +1168,7 @@ def assignment_failed(request, identifier_w_vn_nr):
 
         messages.success(
             request,
-            "Submission {identifier} has failed screening and been rejected.".format(
+            "Submission {identifier} has failed assignment and been rejected.".format(
                 identifier=submission.preprint.identifier_w_vn_nr
             ),
         )
@@ -2636,13 +2636,13 @@ def _hx_submission_update_preprint_file(request, identifier_w_vn_nr):
     )
 
 
-class PreScreeningView(SubmissionAdminViewMixin, UpdateView):
-    """Do pre-screening of Submissions."""
+class PreassignmentView(SubmissionAdminViewMixin, UpdateView):
+    """Do preassignment of Submissions."""
 
-    permission_required = "scipost.can_run_pre_screening"
-    queryset = Submission.objects.prescreening()
-    template_name = "submissions/admin/submission_prescreening.html"
-    form_class = SubmissionPrescreeningForm
+    permission_required = "scipost.can_run_preassignment"
+    queryset = Submission.objects.preassignment()
+    template_name = "submissions/admin/submission_preassignment.html"
+    form_class = SubmissionPreassignmentForm
     editorial_page = True
     success_url = reverse_lazy("submissions:pool")
 
@@ -2655,7 +2655,7 @@ class PreScreeningView(SubmissionAdminViewMixin, UpdateView):
 class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
     """List all conflicts for a certain Submission."""
 
-    permission_required = "scipost.can_run_pre_screening"
+    permission_required = "scipost.can_run_preassignment"
     template_name = "submissions/admin/submission_conflicts.html"
     editorial_page = True
     success_url = reverse_lazy("submissions:pool")
@@ -2979,7 +2979,7 @@ class PlagiarismInternalView(SubmissionAdminViewMixin, DetailView):
     Check for matching title, author, abstract in Submissions and Publications.
     """
 
-    permission_required = "scipost.can_run_pre_screening"
+    permission_required = "scipost.can_run_preassignment"
     template_name = "submissions/admin/plagiarism_internal_check.html"
     editorial_page = True
 
@@ -3059,7 +3059,7 @@ def submissions_processing_timescales(submissions, phase):
     """
     Generate a tuple containing information about timescales on submissions.
 
-    :param phase: one of `screening`, `acceptance`
+    :param phase: one of `assignment`, `acceptance`
 
     """
     timescales = []
@@ -3077,7 +3077,7 @@ def submissions_processing_timescales(submissions, phase):
                 total_waiting_days = 0
                 max_waiting_days = 0
                 for sub in submissions_in_spec.all():
-                    if phase == "screening":
+                    if phase == "assignment":
                         waiting_days = workdays_between(sub.submission_date, now)
                     elif phase == "original_submission_to_acceptance":
                         waiting_days = workdays_between(
@@ -3111,8 +3111,8 @@ def monitor(request):
                 submission_date__gt=timezone.now() - datetime.timedelta(days=365),
             )
         ),
-        "timescales_screening": submissions_processing_timescales(
-            submissions.screening(), "screening"
+        "timescales_assignment": submissions_processing_timescales(
+            submissions.seeking_assignment(), "assignment"
         ),
         "timescales_original_submission_to_acceptance": submissions_processing_timescales(
             submissions.accepted(), "original_submission_to_acceptance"

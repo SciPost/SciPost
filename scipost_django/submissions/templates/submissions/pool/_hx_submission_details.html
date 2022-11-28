@@ -97,16 +97,16 @@
 	      </ul>
 	    </li>
 	    <li class="pb-2">
-	      {% if submission.in_prescreening %}
-		<a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Pre-screening</a>
+	      {% if submission.in_preassignment %}
+		<a href="{% url 'submissions:do_preassignment' submission.preprint.identifier_w_vn_nr %}">Preassignment</a>
 	      {% else %}
-		Pre-screening completed
+		Preassignment completed
 	      {% endif %}
 	    </li>
 	  {% endif %}
 
           {# EIC Assignments #}
-          <li class="pb-2">Screening: invitations to take charge
+          <li class="pb-2">Seeking assignment: invitations to take charge
 	    {% if not submission.editor_in_charge %}
 	      <span class="border border-danger text-danger ms-2 p-1">
 		There is no Editor-in-charge yet {% include 'bi/arrow-right.html' %}
@@ -122,13 +122,13 @@
 
 	      {% if is_ed_admin %}
 		{% if not submission.editor_in_charge %}
-		  <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">
-		    No EIC yet, update authors by email (1 week into screening)
+		  <li><a href="{% url 'submissions:update_authors_assignment' submission.preprint.identifier_w_vn_nr 1 %}">
+		    No EIC yet, update authors by email (1 week into assignment)
 		  </a></li>
-		  <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">
-		    No EIC yet, update authors by email (2 weeks into screening)
+		  <li><a href="{% url 'submissions:update_authors_assignment' submission.preprint.identifier_w_vn_nr 2 %}">
+		    No EIC yet, update authors by email (2 weeks into assignment)
 		  </a></li>
-		  <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
+		  <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: assignment failed (failure to find EIC)</a></li>
 		{% endif %}
 	      {% endif %}
             </ul>

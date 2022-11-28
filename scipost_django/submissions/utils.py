@@ -95,7 +95,7 @@ class SubmissionUtils(BaseMailUtil):
         emailmessage.send(fail_silently=False)
 
     @classmethod
-    def send_author_prescreening_passed_email(cls):
+    def send_author_assignment_passed_email(cls):
         """Requires loading 'assignment' attribute."""
         email_text = (
             "Dear "
@@ -106,7 +106,7 @@ class SubmissionUtils(BaseMailUtil):
             + cls.assignment.submission.title
             + " by "
             + cls.assignment.submission.author_list
-            + "\n\nhas successfully passed the pre-screening stage. "
+            + "\n\nhas successfully passed the assignment stage. "
             "\n\nA Submission Page has been activated at "
             f"https://{domain}/submission/"
             + cls.assignment.submission.preprint.identifier_w_vn_nr
@@ -136,7 +136,7 @@ class SubmissionUtils(BaseMailUtil):
             "<p>We are pleased to inform you that your recent Submission to SciPost,</p>"
             "<p>{{ sub_title }}</p>"
             "\n<p>by {{ author_list }}</p>"
-            "\n<p>has successfully passed the pre-screening stage.</p>"
+            "\n<p>has successfully passed the assignment stage.</p>"
             f'\n<p>A <a href="https://{domain}/submission/'
             + '{{ identifier_w_vn_nr }}">'
             "Submission Page</a> has been activated "
@@ -174,7 +174,7 @@ class SubmissionUtils(BaseMailUtil):
         html_template = Template(email_text_html)
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
-            "SciPost: pre-screening passed",
+            "SciPost: assignment passed",
             email_text,
             f"SciPost Editorial Admin <submissions@{domain}>",
             [cls.assignment.submission.submitted_by.user.email],

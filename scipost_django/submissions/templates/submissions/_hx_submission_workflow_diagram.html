@@ -35,40 +35,40 @@ flowchart LR
     end
     Sub --> Admiss
     Admiss --fail--> AdmissFailed("Admission<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
-    Admiss --pass--> AdmissPassed("Admission<br>passed ✉<small>A</small>") --> Prescreening[[Goto:<br>Pre-screening]]
+    Admiss --pass--> AdmissPassed("Admission<br>passed ✉<small>A</small>") --> Preassignment[[Goto:<br>preassignment]]
       </pre>
     </details>
   </div>
   <div class="m-2 border">
     <details open>
       <summary class="p-2">
-	<strong class="mt-2">Pre-screening</strong>
-	{% if submission %}{% if submission.in_stage_prescreening %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_prescreening_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+	<strong class="mt-2">Preassignment</strong>
+	{% if submission %}{% if submission.in_stage_preassignment %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_preassignment_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
       </summary>
       <pre class="mermaid workflowDiagram">
 flowchart LR
     AdmissPassed([Admission<br>passed])
-    subgraph Pre-screening
+    subgraph preassignment
         PreTop(Submission<br>Topics<br>specification) --> ProfMatch(Author<br>Profiles<br>matching)
         ProfMatch --> PreCOI(Conflict<br>of interest<br>checks)
         PreCOI --> PrePa(Listing of<br>potential<br>Editors-in-charge)
     end
     AdmissPassed --> PreTop
-    PrePa --no qualified<br>Fellows--> PreFail("Pre-screening<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
-    PrePa --"∃ qualified<br>Fellows"--> PrePass("Pre-screening<br>passed ✉<small>A</small>") --> Screening[[Goto:<br>Screening]]
+    PrePa --no qualified<br>Fellows--> PreFail("preassignment<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
+    PrePa --"∃ qualified<br>Fellows"--> PrePass("Preassignment<br>passed ✉<small>A</small>") --> Assignment[[Goto:<br>Assignment]]
       </pre>
     </details>
   </div>
   <div class="m-2 border">
     <details open>
       <summary class="p-2">
-	<strong class="mt-2">Screening</strong>
-	{% if submission %}{% if submission.in_stage_screening %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_screening_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+	<strong class="mt-2">Assignment</strong>
+	{% if submission %}{% if submission.in_stage_assignment %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_assignment_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
       </summary>
       <pre class="mermaid workflowDiagram">
 flowchart LR
-    PrePass(["Pre-screening<br>passed"])
-    subgraph Screening
+    PrePass(["Preassignment<br>passed"])
+    subgraph Assignment
         ScrInv(["Fellows invited<br>to take charge ✉<small>F</small>"]) --> ScrDecl(Fellows decline)
         ScrInv --> ScrNoAns(Fellows unresponsive)
         ScrDecl --> NoEiC(No Editor-in-charge<br>found)
@@ -78,8 +78,8 @@ flowchart LR
         ScrVol(A Fellow<br>volunteers) --> ScrEiC
     end
     PrePass --> ScrInv
-    NoEiC --> DeskRej("Screening<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
-    ScrEiC --> ScrPassed("Screening<br>passed ✉<small>A</small>") --> RefPrep[[Goto:<br>Refereeing<br>in preparation]]
+    NoEiC --> DeskRej("Assignment<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
+    ScrEiC --> ScrPassed("Assignment<br>passed ✉<small>A</small>") --> RefPrep[[Goto:<br>Refereeing<br>in preparation]]
       </pre>
     </details>
   </div>
@@ -97,7 +97,7 @@ flowchart LR
         ShortCycle(Short cycle)
     end
     ScrPassed --> DirectRec
-    ScrPassed([Screening passed]) --> RegCycle
+    ScrPassed([Assignment passed]) --> RegCycle
     Resub([Resubmission received<br>or refereeing restarted]) --> RegCycle
     Resub --> ShortCycle
     Resub --> DirectRec
