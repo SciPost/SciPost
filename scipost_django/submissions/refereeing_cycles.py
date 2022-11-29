@@ -18,8 +18,8 @@ class RequiredActionsDict(dict):
     """
     A collection of required actions.
 
-    The required action, meant for the editors-in-charge know how to display itself in
-    various formats. Dictionary keys are the action-codes, the values are the texts
+    This dict, meant for the editors-in-charge, knows how to display itself in
+    various formats. Its keys are the action-codes, while its values are the texts
     to present to the user.
     """
 
@@ -60,7 +60,7 @@ class RequiredActionsDict(dict):
 
 
 class BaseAction:
-    """An item in the RequiredActionsDict dictionary for the Submission refereeing cycle."""
+    """An item in the RequiredActionsDict  for the Submission refereeing cycle."""
 
     txt = ""
     url = "#"
@@ -155,7 +155,7 @@ class OverdueAction(BaseAction):
     )
 
 
-class ChoiceCycleAction(BaseAction):
+class CycleChoiceAction(BaseAction):
     txt = "Choose the submission cycle to proceed with."
 
 
@@ -272,7 +272,7 @@ class BaseCycle:
 
         if not self._submission.refereeing_cycle:
             # Submission is a resubmission: EIC has to determine which cycle to proceed with.
-            self.add_action(ChoiceCycleAction())
+            self.add_action(CycleChoiceAction())
             return  # If no cycle is chosen. Make this a first priority!
 
         # The EIC is late with formulating a Recommendation.
