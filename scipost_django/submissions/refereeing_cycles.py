@@ -346,7 +346,7 @@ class BaseCycle:
                     identifier=new_sub_id,
                 )
             )
-        elif self._submission.status == self._submission.ACCEPTED:
+        elif self._submission.in_stage_in_production:
             texts.append(
                 "The SciPost production team is working on the proofs for publication."
             )

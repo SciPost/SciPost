@@ -51,8 +51,8 @@ class Submission(models.Model):
     ADMISSION_FAILED = "admission_failed"
     PREASSIGNMENT = "preassignment"
     PREASSIGNMENT_FAILED = "preassignment_failed"
-    SEEKING_ASSIGNMENT = "seeking_assignment" # new2
-    ASSIGNMENT_FAILED = "assignment_failed" # remove # new2 reinstate
+    SEEKING_ASSIGNMENT = "seeking_assignment"
+    ASSIGNMENT_FAILED = "assignment_failed"
     REFEREEING_IN_PREPARATION = "refereeing_in_preparation"
     IN_REFEREEING = "in_refereeing"
     REFEREEING_CLOSED = "refereeing_closed"
@@ -61,7 +61,6 @@ class Submission(models.Model):
     VOTING_IN_PREPARATION = "voting_in_preparation"
     IN_VOTING = "in_voting"
     AWAITING_DECISION = "awaiting_decision"
-    ACCEPTED = "accepted" # remove
     ACCEPTED_IN_TARGET = "accepted_in_target"
     ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE = "accepted_alt_puboffer_waiting"
     ACCEPTED_IN_ALTERNATIVE = "accepted_alt"
@@ -142,6 +141,11 @@ class Submission(models.Model):
         WITHDRAWN,
         PUBLISHED,
     )
+    STAGE_IN_PRODUCTION = (
+        ACCEPTED_IN_TARGET,
+        ACCEPTED_IN_ALTERNATIVE,
+    )
+
     # Fields
     preprint = models.OneToOneField(
         "preprints.Preprint", on_delete=models.CASCADE, related_name="submission"
@@ -417,6 +421,15 @@ class Submission(models.Model):
     @property
     def in_stage_decided(self):
         return self.status in self.STAGE_DECIDED
+
+    @property
+    def treated(self):
+        return self.status in self.TREATED
+
+    @property
+    def in_stage_in_production(self):
+        return self.status in self.STAGE_IN_PRODUCTION
+
     ###############################################
     # End shortucut properties for stage checking #
     ###############################################

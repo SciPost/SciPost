@@ -2925,7 +2925,9 @@ def accept_puboffer(request, identifier_w_vn_nr):
         )
     if errormessage != "":
         return render(request, "scipost/error.html", {"errormessage": errormessage})
-    Submission.objects.filter(id=submission.id).update(status=Submission.ACCEPTED)
+    Submission.objects.filter(id=submission.id).update(
+        status=Submission.ACCEPTED_IN_ALTERNATIVE
+    )
     EditorialDecision.objects.filter(id=submission.editorial_decision.id).update(
         status=EditorialDecision.FIXED_AND_ACCEPTED
     )

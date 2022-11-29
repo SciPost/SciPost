@@ -1970,7 +1970,6 @@ class EditorialAssignmentForm(forms.ModelForm):
                 self.instance.submission = Submission.objects.get(id=self.submission.id)
 
             # Implicitly or explicity accept the assignment and deprecate others.
-            # assignment.accepted = True  # Deprecated field
             assignment.status = STATUS_ACCEPTED
 
             # Update all other 'open' invitations
@@ -1978,7 +1977,6 @@ class EditorialAssignmentForm(forms.ModelForm):
                 submission=self.submission
             ).need_response().exclude(id=assignment.id).update(status=STATUS_DEPRECATED)
         else:
-            # assignment.accepted = False  # Deprecated field
             assignment.status = STATUS_DECLINED
             assignment.refusal_reason = self.cleaned_data["refusal_reason"]
         assignment.save()  # Save again to register acceptance
