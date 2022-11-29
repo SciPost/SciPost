@@ -4,36 +4,16 @@ __license__ = "AGPL v3"
 
 import factory
 import pytz
-import random
-
-from comments.factories import SubmissionCommentFactory
-from scipost.constants import SCIPOST_APPROACHES
-from scipost.models import Contributor
-from journals.models import Journal
-from common.helpers import random_scipost_report_doi_label
-from ontology.models import Specialty, AcademicField
-
-from .constants import (
-    STATUS_VETTED,
-    REFEREE_QUALIFICATION,
-    RANKING_CHOICES,
-    QUALITY_SPEC,
-    REPORT_REC,
-    REPORT_STATUSES,
-    STATUS_UNVETTED,
-    STATUS_DRAFT,
-    ASSIGNMENT_STATUSES,
-    STATUS_COMPLETED,
-)
-from .models import (
-    Submission,
-    Report,
-    RefereeInvitation,
-    EICRecommendation,
-    EditorialAssignment,
-)
 
 from faker import Faker
+
+from scipost.constants import SCIPOST_APPROACHES
+from scipost.models import Contributor
+from comments.factories import SubmissionCommentFactory
+from journals.models import Journal
+from ontology.models import Specialty, AcademicField
+
+from ..models import Submission
 
 
 class SubmissionFactory(factory.django.DjangoModelFactory):
@@ -145,21 +125,26 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
     @factory.post_generation
     def eic_assignment(self, create, extracted, **kwargs):
         if create:
+            from submissions.factories import EditorialAssignmentFactory
             EditorialAssignmentFactory(submission=self, to=self.editor_in_charge)
 
     @factory.post_generation
     def referee_invites(self, create, extracted, **kwargs):
+        from submissions.factories import (
+            RefereeInvitationFactory,
+            AcceptedRefereeInvitationFactory,
+            FulfilledRefereeInvitationFactory,
+        )
         for i in range(random.randint(1, 3)):
             RefereeInvitationFactory(submission=self)
-
         for i in range(random.randint(0, 2)):
             AcceptedRefereeInvitationFactory(submission=self)
-
         for i in range(random.randint(0, 2)):
             FulfilledRefereeInvitationFactory(submission=self)
 
     @factory.post_generation
     def comments(self, create, extracted, **kwargs):
+
         if create:
             for i in range(random.randint(0, 3)):
                 SubmissionCommentFactory(content_object=self)
@@ -167,6 +152,7 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
     @factory.post_generation
     def eic_recommendation(self, create, extracted, **kwargs):
         if create:
+            from submissions.factories import EICRecommendationFactory
             EICRecommendationFactory(submission=self)
 
 
@@ -225,6 +211,10 @@ class ResubmittedSubmissionFactory(InRefereeingSubmissionFactory):
         """
         This Submission is deactivated for refereeing.
         """
+        from submissions.factories import (
+            FulfilledRefereeInvitationFactory,
+            CancelledRefereeInvitationFactory,
+        )
         for i in range(random.randint(0, 2)):
             FulfilledRefereeInvitationFactory(submission=self)
 
@@ -299,7 +289,6 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
     def generate_publication(self, create, extracted, **kwargs):
         if create and extracted is not False:
             from journals.factories import PublicationFactory
-
             PublicationFactory(
                 journal=self.submitted_to.doi_label,
                 accepted_submission=self,
@@ -310,6 +299,7 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
     @factory.post_generation
     def eic_assignment(self, create, extracted, **kwargs):
         if create:
+            from submissions.factories import EditorialAssignmentFactory
             EditorialAssignmentFactory(
                 submission=self, to=self.editor_in_charge, status=STATUS_COMPLETED
             )
@@ -318,156 +308,5 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
     def referee_invites(self, create, extracted, **kwargs):
         for i in range(random.randint(2, 4)):
             FulfilledRefereeInvitationFactory(submission=self)
-
         for i in range(random.randint(0, 2)):
             CancelledRefereeInvitationFactory(submission=self)
-
-
-class ReportFactory(factory.django.DjangoModelFactory):
-    status = factory.Iterator(REPORT_STATUSES, getter=lambda c: c[0])
-    submission = factory.SubFactory("submissions.factories.SubmissionFactory")
-    report_nr = factory.LazyAttribute(lambda o: o.submission.reports.count() + 1)
-    date_submitted = factory.Faker("date_time_this_decade", tzinfo=pytz.utc)
-    vetted_by = factory.Iterator(Contributor.objects.all())
-    author = factory.Iterator(Contributor.objects.all())
-    strengths = factory.Faker("paragraph")
-    weaknesses = factory.Faker("paragraph")
-    report = factory.Faker("paragraph")
-    requested_changes = factory.Faker("paragraph")
-
-    qualification = factory.Iterator(REFEREE_QUALIFICATION[1:], getter=lambda c: c[0])
-    validity = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
-    significance = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
-    originality = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
-    clarity = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
-    formatting = factory.Iterator(QUALITY_SPEC[1:], getter=lambda c: c[0])
-    grammar = factory.Iterator(QUALITY_SPEC[1:], getter=lambda c: c[0])
-    recommendation = factory.Iterator(REPORT_REC[1:], getter=lambda c: c[0])
-
-    remarks_for_editors = factory.Faker("paragraph")
-    flagged = factory.Faker("boolean", chance_of_getting_true=10)
-    anonymous = factory.Faker("boolean", chance_of_getting_true=75)
-
-    class Meta:
-        model = Report
-
-    @classmethod
-    def create(cls, **kwargs):
-        if Contributor.objects.count() < 5:
-            from scipost.factories import ContributorFactory
-
-            ContributorFactory.create_batch(5)
-        return super().create(**kwargs)
-
-
-class DraftReportFactory(ReportFactory):
-    status = STATUS_DRAFT
-    vetted_by = None
-
-
-class UnVettedReportFactory(ReportFactory):
-    status = STATUS_UNVETTED
-    vetted_by = None
-
-
-class VettedReportFactory(ReportFactory):
-    status = STATUS_VETTED
-    needs_doi = True
-    doideposit_needs_updating = factory.Faker("boolean")
-    doi_label = factory.lazy_attribute(lambda n: random_scipost_report_doi_label())
-    pdf_report = factory.Faker("file_name", extension="pdf")
-
-
-class RefereeInvitationFactory(factory.django.DjangoModelFactory):
-    submission = factory.SubFactory("submissions.factories.SubmissionFactory")
-    referee = factory.lazy_attribute(
-        lambda o: Contributor.objects.exclude(id__in=o.submission.authors.all())
-        .order_by("?")
-        .first()
-    )
-
-    title = factory.lazy_attribute(lambda o: o.referee.profile.title)
-    first_name = factory.lazy_attribute(lambda o: o.referee.user.first_name)
-    last_name = factory.lazy_attribute(lambda o: o.referee.user.last_name)
-    email_address = factory.lazy_attribute(lambda o: o.referee.user.email)
-    date_invited = factory.lazy_attribute(lambda o: o.submission.latest_activity)
-    nr_reminders = factory.lazy_attribute(lambda o: random.randint(0, 4))
-    date_last_reminded = factory.lazy_attribute(lambda o: o.submission.latest_activity)
-
-    invitation_key = factory.Faker("md5")
-    invited_by = factory.lazy_attribute(lambda o: o.submission.editor_in_charge)
-
-    class Meta:
-        model = RefereeInvitation
-
-
-class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
-    accepted = True
-    date_responded = factory.lazy_attribute(
-        lambda o: Faker().date_time_between(
-            start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC
-        )
-    )
-
-    @factory.post_generation
-    def report(self, create, extracted, **kwargs):
-        if create:
-            VettedReportFactory(submission=self.submission, author=self.referee)
-
-
-class FulfilledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
-    fulfilled = True
-    date_responded = factory.lazy_attribute(
-        lambda o: Faker().date_time_between(
-            start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC
-        )
-    )
-
-    @factory.post_generation
-    def report(self, create, extracted, **kwargs):
-        if create:
-            VettedReportFactory(submission=self.submission, author=self.referee)
-
-
-class CancelledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
-    fulfilled = False
-    cancelled = True
-    date_responded = factory.lazy_attribute(
-        lambda o: Faker().date_time_between(
-            start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC
-        )
-    )
-
-
-class EICRecommendationFactory(factory.django.DjangoModelFactory):
-    submission = factory.Iterator(Submission.objects.all())
-    date_submitted = factory.lazy_attribute(
-        lambda o: Faker().date_time_between(
-            start_date=o.submission.submission_date, end_date="now", tzinfo=pytz.UTC
-        )
-    )
-    remarks_for_authors = factory.Faker("paragraph")
-    requested_changes = factory.Faker("paragraph")
-    remarks_for_editorial_college = factory.Faker("paragraph")
-    recommendation = factory.Iterator(REPORT_REC[1:], getter=lambda c: c[0])
-    version = 1
-    active = True
-
-    class Meta:
-        model = EICRecommendation
-
-
-class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
-    """
-    An EditorialAssignmentFactory should always have a `submission` explicitly assigned. This will
-    mostly be done using the post_generation hook in any SubmissionFactory.
-    """
-
-    submission = None
-    to = factory.Iterator(Contributor.objects.all())
-    status = factory.Iterator(ASSIGNMENT_STATUSES, getter=lambda c: c[0])
-    date_created = factory.lazy_attribute(lambda o: o.submission.latest_activity)
-    date_answered = factory.lazy_attribute(lambda o: o.submission.latest_activity)
-
-    class Meta:
-        model = EditorialAssignment

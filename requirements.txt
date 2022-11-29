@@ -47,6 +47,7 @@ django-silk==4.1.0		# 2021-10-16
 # Testing
 factory-boy==3.0.1		# 2020-09-27
 Faker==4.1.3			# 2020-09-27
+coverage==6.5.0			# 2022-11-29
 
 
 # Django Utils
