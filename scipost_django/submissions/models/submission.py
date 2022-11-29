@@ -63,7 +63,6 @@ class Submission(models.Model):
     AWAITING_DECISION = "awaiting_decision"
     ACCEPTED = "accepted" # remove
     ACCEPTED_IN_TARGET = "accepted_in_target"
-    ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE = "puboffer_waiting" # remove
     ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE = "accepted_alt_puboffer_waiting"
     ACCEPTED_IN_ALTERNATIVE = "accepted_alt"
     REJECTED = "rejected"
@@ -71,33 +70,29 @@ class Submission(models.Model):
     PUBLISHED = "published"
 
     SUBMISSION_STATUSES = (
-        (INCOMING, "Submission incoming, awaiting EdAdmin"), ## descriptor rephrased
-        (ADMISSION_FAILED, "Admission failed"), ## new
-        (PREASSIGNMENT, "In preassignment"), ## new2
-        (PREASSIGNMENT_FAILED, "Preassignment failed"), ## new
+        (INCOMING, "Submission incoming, awaiting EdAdmin"),
+        (ADMISSION_FAILED, "Admission failed"),
+        (PREASSIGNMENT, "In preassignment"),
+        (PREASSIGNMENT_FAILED, "Preassignment failed"),
         (SEEKING_ASSIGNMENT, "Seeking assignment"),
         (
             ASSIGNMENT_FAILED,
             "Failed to assign Editor-in-charge; manuscript rejected",
         ),
-        (REFEREEING_IN_PREPARATION, "Refereeing in preparation"), ## new
-        (IN_REFEREEING, "In refereeing"), ## new
-        (REFEREEING_CLOSED, "Refereeing closed (awaiting author replies and EdRec)"), ## new
-        (AWAITING_RESUBMISSION, "Awaiting resubmission"), ## new
+        (REFEREEING_IN_PREPARATION, "Refereeing in preparation"),
+        (IN_REFEREEING, "In refereeing"),
+        (REFEREEING_CLOSED, "Refereeing closed (awaiting author replies and EdRec)"),
+        (AWAITING_RESUBMISSION, "Awaiting resubmission"),
         (RESUBMITTED, "Has been resubmitted"),
-        (VOTING_IN_PREPARATION, "Voting in preparation"), ## new
-        (IN_VOTING, "In voting"), ## new
-        (AWAITING_DECISION, "Awaiting decision"), ## new
-        (ACCEPTED_IN_TARGET, "Accepted in target Journal"), ## new
+        (VOTING_IN_PREPARATION, "Voting in preparation"),
+        (IN_VOTING, "In voting"),
+        (AWAITING_DECISION, "Awaiting decision"),
+        (ACCEPTED_IN_TARGET, "Accepted in target Journal"),
         (
-            ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, ## rename: ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
-            "Accepted in other journal; awaiting puboffer acceptance",
-        ),
-        (
-            ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE, ## new
+            ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
             "Accepted in alternative Journal; awaiting puboffer acceptance",
         ),
-        (ACCEPTED_IN_ALTERNATIVE, "Accepted in alternative Journal"), ## new
+        (ACCEPTED_IN_ALTERNATIVE, "Accepted in alternative Journal"),
         (REJECTED, "Publication decision taken: reject"),
         (WITHDRAWN, "Withdrawn by the Authors"),
         (PUBLISHED, "Published"),
@@ -116,8 +111,7 @@ class Submission(models.Model):
         VOTING_IN_PREPARATION,
         IN_VOTING,
         AWAITING_DECISION,
-        ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, # remove
-        ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE, # remove
+        ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
     )
 
     # Further handy sets

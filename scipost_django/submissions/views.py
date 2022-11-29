@@ -2787,13 +2787,15 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
     eicrec.save()
 
     if decision.decision == EIC_REC_PUBLISH:
-        new_sub_status = submission.ACCEPTED
+        new_sub_status = submission.ACCEPTED_IN_TARGET
         if (
             decision.for_journal != submission.submitted_to
             # promotion to Selections assumed automatically accepted by authors:
             and decision.for_journal.name != "SciPost Selections"
         ):
-            new_sub_status = submission.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
+            new_sub_status = (
+                submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
+            )
         Submission.objects.filter(id=submission.id).update(
             visible_public=True,
             status=new_sub_status,
@@ -2914,7 +2916,9 @@ def accept_puboffer(request, identifier_w_vn_nr):
             "You are not marked as the submitting author of this Submission, "
             "and thus are not allowed to take this action."
         )
-    if submission.status != submission.ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE:
+    if submission.status != (
+            submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
+    ):
         errormessage = (
             "This Submission's status is incompatible with accepting"
             " a publication offer."
