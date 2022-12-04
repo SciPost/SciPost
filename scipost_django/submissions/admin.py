@@ -20,6 +20,8 @@ from submissions.models import (
     EditorialDecision,
     SubmissionEvent,
     iThenticateReport,
+    InternalPlagiarismAssessment,
+    iThenticatePlagiarismAssessment,
     PreprintServer,
 )
 from scipost.models import Contributor
@@ -50,6 +52,14 @@ class iThenticateReportAdmin(admin.ModelAdmin):
 
 
 admin.site.register(iThenticateReport, iThenticateReportAdmin)
+
+
+class InternalPlagiarismAssessmentInline(admin.StackedInline):
+    model = InternalPlagiarismAssessment
+
+
+class iThenticatePlagiarismAssessmentInline(admin.StackedInline):
+    model = iThenticatePlagiarismAssessment
 
 
 class SubmissionTieringInline(admin.StackedInline):
@@ -100,6 +110,8 @@ class SubmissionAdmin(GuardedModelAdmin):
         "topics",
     ]
     inlines = [
+        InternalPlagiarismAssessmentInline,
+        iThenticatePlagiarismAssessmentInline,
         SubmissionTieringInline,
     ]
 
@@ -166,7 +178,10 @@ class SubmissionAdmin(GuardedModelAdmin):
             "Plagiarism",
             {
                 "classes": ("collapse",),
-                "fields": ("internal_plagiarism_matches", "plagiarism_report"),
+                "fields": (
+                    "internal_plagiarism_matches",
+                    "iThenticate_plagiarism_report",
+                ),
             }
         ),
         (

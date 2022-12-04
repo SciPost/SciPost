@@ -1,0 +1,20 @@
+<h1>Plagiarism</h1>
+<div class="p-2">
+  <h2>Internal plagiarism checks</h2>
+  <button class="m-2 btn btn-primary"
+		 id="submission-{{ submission.preprint.identifier_w_vn_nr }}"
+		 hx-get="{% url 'edadmin:_hx_plagiarism_internal' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+		 hx-swap="outerHTML"
+		 hx-trigger="revealed"
+  >load internal plagiarism info</button>
+</div>
+<div class="p-2">
+  <h2>iThenticate checks {% if submission.iThenticate_plagiarism_assessment %}{% if submission.iThenticate_plagiarism_assessment.passed %}[passed]{% elif submission.iThenticate_plagiarism_assessment.ongoing %}[ongoing]{% elif submission.iThenticate_plagiarism_assessment.failed %}[failed]{% else %}[STATUS ERROR] {{ submission.iThenticate_plagiarism_assessment.get_status_display }}{% endif %}{% else %}[not assessed yet]{% endif %}</h2>
+  <div id="submission-{{ submission.pk }}-iThenticate">
+    <button class="m-2 btn btn-primary"
+	    hx-get="{% url 'edadmin:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	    hx-swap="outerHTML"
+	    hx-trigger="revealed"
+    >load iThenticate plagiarism info</button>
+  </div>
+</div>

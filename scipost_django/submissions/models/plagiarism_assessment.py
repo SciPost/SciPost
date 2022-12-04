@@ -26,15 +26,36 @@ class PlagiarismAssessment(models.Model):
     comments_for_authors = models.TextField()
 
     @property
+    def ongoing(self):
+        return self.status == self.STATUS_ONGOING
+
+    @property
     def passed(self):
         return self.status == self.STATUS_PASSED
 
+    @property
+    def failed(self):
+        return self.status in [
+            self.STATUS_FAILED_TEMPORARY,
+            self.STATUS_FAILED_PERMANENT,
+        ]
+
 
 class InternalPlagiarismAssessment(PlagiarismAssessment):
-    pass
+    submission = models.OneToOneField(
+        "submissions.Submission",
+        on_delete=models.CASCADE,
+        related_name="internal_plagiarism_assessment",
+    )
 
 
 class iThenticatePlagiarismAssessment(PlagiarismAssessment):
+    submission = models.OneToOneField(
+        "submissions.Submission",
+        on_delete=models.CASCADE,
+        related_name="iThenticate_plagiarism_assessment",
+    )
+
     class Meta:
         verbose_name = "iThenticate plagiarism assessment"
         verbose_name_plural = "iThenticate plagiarism assessments"

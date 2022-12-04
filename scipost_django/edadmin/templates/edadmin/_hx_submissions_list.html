@@ -20,26 +20,9 @@
       <h1>Summary</h1>
       {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
-      <h1>Plagiarism</h1>
-      <div class="p-2">
-	<h2>Internal plagiarism checks</h2>
-	<button class="m-2 btn btn-primary"
-		id="submission-{{ submission.preprint.identifier_w_vn_nr }}"
-		hx-get="{% url 'edadmin:_hx_plagiarism_internal' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-		hx-swap="outerHTML"
-		hx-trigger="revealed"
-	>load internal plagiarism info</button>
-      </div>
-      <div class="p-2">
-	<h2>iThenticate checks</h2>
-	<div id="submission-{{ submission.pk }}-iThenticate">
-	  <button class="m-2 btn btn-primary"
-		  hx-get="{% url 'edadmin:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-		  hx-swap="outerHTML"
-		  hx-trigger="revealed"
-	  >load iThenticate plagiarism info</button>
-	</div>
-      </div>
+      {% if phase == "incoming" %}
+	{% include "edadmin/_hx_submission_incoming.html" with submission=submission %}
+      {% endif %}
 
       <h1>Workflow diagram</h1>
       <button class="m-2 btn btn-primary workflowDiagram"

@@ -19,7 +19,10 @@ def _hx_incoming_list(request):
     EdAdmin page for incoming Submissions.
     """
     submissions = get_objects_for_user(request.user, "submissions.take_edadmin_actions")
-    context = { "submissions": submissions.incoming() }
+    context = {
+        "phase": "incoming",
+        "submissions": submissions.incoming(),
+    }
     return render(request, "edadmin/_hx_submissions_list.html", context)
 
 
@@ -53,6 +56,17 @@ def _hx_plagiarism_internal(request, identifier_w_vn_nr):
                 }
             )
     return render(request, "edadmin/_hx_plagiarism_internal.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_plagiarism_internal_assess(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    form = InternalPlagiarismAssessmentForm(request.POST or None)
+    if form.is_valid():
+        form.save()
 
 
 @login_required

@@ -259,24 +259,12 @@ class Submission(models.Model):
         blank=True,
         null=True,
     )
-    internal_plagiarism_assessment = models.OneToOneField(
-        "submissions.InternalPlagiarismAssessment",
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-    )
     iThenticate_plagiarism_report = models.OneToOneField(
         "submissions.iThenticateReport",
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
         related_name="to_submission",
-    )
-    iThenticate_plagiarism_assessment = models.OneToOneField(
-        "submissions.iThenticatePlagiarismAssessment",
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
     )
 
     # Refereeing pack

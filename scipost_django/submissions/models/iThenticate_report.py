@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from django.db import models
 from django.urls import reverse
 
-from ..constants import PLAGIARISM_STATUSES, STATUS_WAITING
+from ..constants import PLAGIARISM_STATUSES, STATUS_WAITING, STATUS_RECEIVED
 
 from scipost.behaviors import TimeStampedModel
 
@@ -65,6 +65,10 @@ class iThenticateReport(TimeStampedModel):
 
         plagiarism = iThenticate()
         return plagiarism.get_url(self.part_id)
+
+    @property
+    def processed(self):
+        return self.processed_time is not None
 
     @property
     def score(self):
