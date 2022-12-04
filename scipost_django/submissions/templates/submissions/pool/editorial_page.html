@@ -159,13 +159,13 @@
         {% endif %}
       </td>
     </tr>
-    {% if submission.plagiarism_report or perms.scipost.can_do_plagiarism_checks %}
+    {% if submission.iThenticate_plagiarism_report or perms.scipost.can_do_plagiarism_checks %}
       <tr>
         <td>Plagiarism report:</td>
         <td>
-          {% if submission.plagiarism_report %}
-            {% if submission.plagiarism_report.percent_match %}
-              <b>{{ submission.plagiarism_report.percent_match }}%</b>
+          {% if submission.iThenticate_plagiarism_report %}
+            {% if submission.iThenticate_plagiarism_report.percent_match %}
+              <b>{{ submission.iThenticate_plagiarism_report.percent_match }}%</b>
             {% else %}
               <em>Scan in progress</em>
               {% if perms.scipost.can_do_plagiarism_checks %}

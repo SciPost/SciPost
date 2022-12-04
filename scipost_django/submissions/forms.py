@@ -2789,7 +2789,7 @@ class iThenticateReportForm(forms.ModelForm):
         else:
             report.save()
             Submission.objects.filter(id=self.submission.id).update(
-                plagiarism_report=report
+                iThenticate_plagiarism_report=report
             )
         return report
 

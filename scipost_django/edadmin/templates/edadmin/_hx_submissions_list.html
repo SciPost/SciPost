@@ -1,0 +1,52 @@
+{% for submission in submissions %}
+
+  <details class="border border-2 my-2">
+    <summary class="px-4 py-2">
+      <table>
+	<tbody>
+	  <tr>
+	    <td><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ submission.title }}</a></td>
+	  </tr>
+	  <tr>
+	    <td>{{ submission.author_list }}</td>
+	  </tr>
+	  <tr>
+	    <td>Submitted {{ submission.submission_date|date:"Y-m-d" }} to {{ submission.submitted_to }}</td>
+	  </tr>
+	</tbody>
+      </table>
+    </summary>
+    <div class="p-2">
+      <h1>Summary</h1>
+      {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
+
+      <h1>Plagiarism</h1>
+      <div class="p-2">
+	<h2>Internal plagiarism checks</h2>
+	<button class="m-2 btn btn-primary"
+		id="submission-{{ submission.preprint.identifier_w_vn_nr }}"
+		hx-get="{% url 'edadmin:_hx_plagiarism_internal' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+		hx-swap="outerHTML"
+		hx-trigger="revealed"
+	>load internal plagiarism info</button>
+      </div>
+      <div class="p-2">
+	<h2>iThenticate checks</h2>
+	<div id="submission-{{ submission.pk }}-iThenticate">
+	  <button class="m-2 btn btn-primary"
+		  hx-get="{% url 'edadmin:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+		  hx-swap="outerHTML"
+		  hx-trigger="revealed"
+	  >load iThenticate plagiarism info</button>
+	</div>
+      </div>
+
+      <h1>Workflow diagram</h1>
+      <button class="m-2 btn btn-primary workflowDiagram"
+	      id="submission-{{ submission.preprint.identifier_w_vn_nr }}-workflow-diagram"
+	      hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	      hx-swap="outerHTML"
+      >Load Submission processing workflow graphs</button>
+    </div>
+  </details>
+{% endfor %}

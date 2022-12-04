@@ -183,8 +183,10 @@ class SubmissionQuerySet(models.QuerySet):
             f_ids = user.contributor.fellowships.active()
             qs = qs.filter(fellows__in=f_ids)
 
+        if user.contributor.is_scipost_admin:
+            pass
         # Fellows can't see incoming and (non-Senior) preassignment
-        if user.contributor.is_active_senior_fellow:
+        elif user.contributor.is_active_senior_fellow:
             qs = qs.exclude(status__in=[self.model.INCOMING,])
         elif user.contributor.is_active_fellow:
             qs = qs.exclude(status__in=[self.model.INCOMING, self.model.PREASSIGNMENT])
@@ -338,13 +340,13 @@ class SubmissionEventQuerySet(models.QuerySet):
             created__gte=timezone.now() - datetime.timedelta(hours=hours)
         )
 
-    def plagiarism_report_to_be_uploaded(self):
+    def iThenticate_plagiarism_report_to_be_uploaded(self):
         """Return Submissions that has not been sent to iThenticate for their plagiarism check."""
         return self.filter(
-            models.Q(plagiarism_report__isnull=True)
-            | models.Q(plagiarism_report__status=constants.STATUS_WAITING)
+            models.Q(iThenticate_plagiarism_report__isnull=True)
+            | models.Q(iThenticate_plagiarism_report__status=constants.STATUS_WAITING)
         ).distinct()
 
-    def plagiarism_report_to_be_updated(self):
+    def iThenticate_plagiarism_report_to_be_updated(self):
         """Return Submissions for which their iThenticateReport has not received a report yet."""
-        return self.filter(plagiarism_report__status=constants.STATUS_SENT)
+        return self.filter(iThenticate_plagiarism_report__status=constants.STATUS_SENT)

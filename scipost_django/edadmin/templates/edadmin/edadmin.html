@@ -16,20 +16,36 @@
 
 {% block content %}
 
-  <h2 class="highlight">Preassignment</h2>
-  {% for submission in preassignment %}
 
-    {% include 'submissions/_submission_events.html' with events=submission.events.for_edadmin %}
-
-    <details>
-      <summary>{{ submission }}</summary>
-      <button class="m-2 btn btn-primary workflowDiagram"
-	      id="submission-{{ submission.preprint.identifier_w_vn_nr }}-workflow-diagram"
-	      hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+  <details class="border border-2 my-4">
+    <summary class="bg-info px-4 py-2">
+      <h1>Incoming</h1>
+    </summary>
+    <div class="p-2">
+      <button class="m-2 btn btn-primary"
+	      id="incoming"
+	      hx-get="{% url 'edadmin:_hx_incoming_list' %}"
 	      hx-swap="outerHTML"
-      >Load Submission processing workflow graphs</button>
-    </details>
-  {% endfor %}
+      >Load incoming Submissions</button>
+    </div>
+  </details>
+
+  <details>
+    <summary>Preassignment</summary>
+    {% for submission in preassignment %}
+
+      {% include 'submissions/_submission_events.html' with events=submission.events.for_edadmin %}
+
+      <details>
+	<summary>{{ submission }}</summary>
+	<button class="m-2 btn btn-primary workflowDiagram"
+		id="submission-{{ submission.preprint.identifier_w_vn_nr }}-workflow-diagram"
+		hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+		hx-swap="outerHTML"
+	>Load Submission processing workflow graphs</button>
+      </details>
+    {% endfor %}
+  </details>
 
 {% endblock content %}
 

@@ -2950,14 +2950,14 @@ class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
     """Administration detail page of Plagiarism report."""
 
     permission_required = "scipost.can_do_plagiarism_checks"
-    template_name = "submissions/admin/plagiarism_report.html"
+    template_name = "submissions/admin/iThenticate_plagiarism_report.html"
     editorial_page = True
     form_class = iThenticateReportForm
 
     def get_object(self):
-        """Get the plagiarism_report as a linked object from the Submission."""
+        """Get the iThenticate_plagiarism_report as a linked object from the Submission."""
         submission = super().get_object()
-        return submission.plagiarism_report
+        return submission.iThenticate_plagiarism_report
 
 
 class PlagiarismReportPDFView(
@@ -2971,9 +2971,9 @@ class PlagiarismReportPDFView(
     def get_redirect_url(self, *args, **kwargs):
         """Get the temporary url provided by the iThenticate API."""
         submission = self.get_object()
-        if not submission.plagiarism_report:
+        if not submission.iThenticate_plagiarism_report:
             raise Http404
-        url = submission.plagiarism_report.get_report_url()
+        url = submission.iThenticate_plagiarism_report.get_report_url()
 
         if not url:
             raise Http404

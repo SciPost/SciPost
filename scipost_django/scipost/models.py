@@ -192,7 +192,7 @@ class Contributor(models.Model):
 
     @property
     def is_active_senior_fellow(self):
-        return self.fellowships.active().senior().exists()
+        return self.fellowships.active().senior().exists() or self.user.is_superuser
 
     def session_fellowship(self, request):
         """Return session's fellowship, if any; if Fellow, set session_fellowship_id if not set."""

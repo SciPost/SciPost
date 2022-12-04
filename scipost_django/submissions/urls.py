@@ -140,9 +140,9 @@ urlpatterns = [
         name="plagiarism",
     ),
     path(
-        "admin/<identifier:identifier_w_vn_nr>/plagiarism/report",
+        "admin/<identifier:identifier_w_vn_nr>/plagiarism/iThenticate_report",
         views.PlagiarismReportPDFView.as_view(),
-        name="plagiarism_report",
+        name="iThenticate_plagiarism_report",
     ),
     path(
         "admin/<identifier:identifier_w_vn_nr>/plagiarism/internal",

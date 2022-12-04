@@ -96,7 +96,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         "authors",
         "authors_claims",
         "authors_false_claims",
-        "plagiarism_report",
+        "iThenticate_plagiarism_report",
         "topics",
     ]
     inlines = [

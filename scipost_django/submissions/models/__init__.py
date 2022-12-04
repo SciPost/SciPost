@@ -4,7 +4,13 @@ __license__ = "AGPL v3"
 
 from .submission import Submission, SubmissionEvent, SubmissionTiering
 
-from .plagiarism import iThenticateReport
+from .plagiarism_assessment import (
+    PlagiarismAssessment,
+    InternalPlagiarismAssessment,
+    iThenticatePlagiarismAssessment,
+)
+
+from .iThenticate_report import iThenticateReport
 
 from .assignment import EditorialAssignment
 

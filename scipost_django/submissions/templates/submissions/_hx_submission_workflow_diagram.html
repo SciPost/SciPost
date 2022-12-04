@@ -31,11 +31,14 @@
 flowchart LR
     Sub([Submission{% if submission %}<br>{{ submission.submission_date }}<br>{{ submission.submission_date|timesince }} ago{% endif %}])
     subgraph Admission
-        Admiss(Admissibility<br>and plagiarism<br>checks)
+        Admiss(Admissibility<br>check)
+        Admiss --> PlagInt(internal plagiarism<br>check)
+        PlagInt --> PlagExt(external plagiarism<br>check)
     end
     Sub --> Admiss
-    Admiss --fail--> AdmissFailed("Admission<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
-    Admiss --pass--> AdmissPassed("Admission<br>passed ✉<small>A</small>") --> Preassignment[[Goto:<br>Preassignment]]
+    PlagExt --fail--> AdmissFailed("Admission<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
+    PlagExt --pass--> AdmissPassed("Admission<br>passed ✉<small>A</small>") --> Preassignment[[Goto:<br>Preassignment]]
+    PlagInt --"pass<br>(authors created new submission<br>but this is a resubmission)"--> LinkResub("Link resubmission<br>to earlier thread") --> AdmissPassed2("Admission<br>passed ✉<small>A</small>") --> RefPrep[[Goto:<br>Refereeing<br>in preparation]]
       </pre>
     </details>
   </div>

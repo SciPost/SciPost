@@ -250,21 +250,36 @@ class Submission(models.Model):
     # Comments can be added to a Submission
     comments = GenericRelation("comments.Comment", related_query_name="submissions")
 
-    # iThenticate and conflicts
+    # Conflicts of interest
     needs_conflicts_update = models.BooleanField(default=True)
-    plagiarism_report = models.OneToOneField(
-        "submissions.iThenticateReport",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="to_submission",
-    )
+
+    # Plagiarism
     internal_plagiarism_matches = models.JSONField(
         default=dict,
         blank=True,
         null=True,
     )
+    internal_plagiarism_assessment = models.OneToOneField(
+        "submissions.InternalPlagiarismAssessment",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    iThenticate_plagiarism_report = models.OneToOneField(
+        "submissions.iThenticateReport",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="to_submission",
+    )
+    iThenticate_plagiarism_assessment = models.OneToOneField(
+        "submissions.iThenticatePlagiarismAssessment",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
 
+    # Refereeing pack
     pdf_refereeing_pack = models.FileField(
         upload_to="UPLOADS/REFEREE/%Y/%m/", max_length=200, blank=True
     )
@@ -563,7 +578,7 @@ class Submission(models.Model):
     @property
     def can_reset_reporting_deadline(self):
         """Check if reporting deadline is allowed to be reset."""
-        if self.status in STAGE_DECIDED:
+        if self.status in self.STAGE_DECIDED:
             return False
 
         if self.refereeing_cycle == CYCLE_DIRECT_REC:

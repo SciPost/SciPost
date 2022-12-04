@@ -101,9 +101,9 @@
     <tr>
       <td>iThenticate plagiarism score</td>
       <td>
-        {% if submission.plagiarism_report %}
-          {{ submission.plagiarism_report.score }}%
-	  &emsp;<a href="{% url 'submissions:plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="ms-2 btn btn-default" target="_blank">View report pdf</a>
+        {% if submission.iThenticate_plagiarism_report %}
+          {{ submission.iThenticate_plagiarism_report.score }}%
+	  &emsp;<a href="{% url 'submissions:iThenticate_plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="ms-2 btn btn-default" target="_blank">View report pdf</a>
         {% else %}
           <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
         {% endif %}

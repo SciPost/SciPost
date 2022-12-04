@@ -39,29 +39,29 @@
       <a href="{% url 'submissions:plagiarism_internal' submission.preprint.identifier_w_vn_nr %}">Check internal plagiarism</a>
     </li>
     <li>
-      {% if submission.plagiarism_report %}
+      {% if submission.iThenticate_plagiarism_report %}
         <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
         <a class="d-inline-block" href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Update plagiarism report</a>
         <table>
           <tr>
             <td style="min-width: 150px;">iThenticate document</td>
-            <td>{{ submission.plagiarism_report.doc_id }}</td>
+            <td>{{ submission.iThenticate_plagiarism_report.doc_id }}</td>
           </tr>
           <tr>
             <td>Percent match</td>
-            <td>{{ submission.plagiarism_report.percent_match|default:'?' }}%</td>
+            <td>{{ submission.iThenticate_plagiarism_report.percent_match|default:'?' }}%</td>
           </tr>
           <tr>
             <td>Processed</td>
-            <td>{{ submission.plagiarism_report.processed_time }}</td>
+            <td>{{ submission.iThenticate_plagiarism_report.processed_time }}</td>
           </tr>
           <tr>
             <td>Uploaded</td>
-            <td>{{ submission.plagiarism_report.uploaded_time }}</td>
+            <td>{{ submission.iThenticate_plagiarism_report.uploaded_time }}</td>
           </tr>
           <tr>
             <td>Latest update</td>
-            <td>{{ submission.plagiarism_report.latest_activity }}</td>
+            <td>{{ submission.iThenticate_plagiarism_report.latest_activity }}</td>
           </tr>
         </table>
       {% else %}

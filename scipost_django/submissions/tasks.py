@@ -45,15 +45,15 @@ def send_editorial_assignment_invitations(self):
 @app.task(bind=True)
 def submit_submission_document_for_plagiarism(self):
     """Upload a new Submission document to iThenticate."""
-    submissions_to_upload = Submission.objects.plagiarism_report_to_be_uploaded()
-    submission_to_update = Submission.objects.plagiarism_report_to_be_updated()
+    submissions_to_upload = Submission.objects.iThenticate_plagiarism_report_to_be_uploaded()
+    submission_to_update = Submission.objects.iThenticate_plagiarism_report_to_be_updated()
 
     for submission in submissions_to_upload:
         report, __ = iThenticate.objects.get_or_create(to_submission=submission)
         # do it...
 
     for submission in submission_to_update:
-        report = submission.plagiarism_report
+        report = submission.iThenticate_plagiarism_report
         # do it...
 
 
