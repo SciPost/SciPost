@@ -24,7 +24,7 @@ ACCEPTED_IN_ALTERNATIVE = "accepted_alt"
 
 # INCOMING = "incoming"
 # PRESCREENING = "prescreening"
-# REFEREEING_CLOSED = "refereeing_closed"
+REFEREEING_CLOSED = "refereeing_closed"
 # RESUBMITTED = "resubmitted"
 # AWAITING_DECISION = "awaiting_decision"
 # REJECTED = "rejected"
@@ -52,6 +52,42 @@ def update_submission_status(apps, schema_editor):
     # Deal with EIC_ASSIGNED status first:
     eic_assigned = Submission.objects.filter(status=EIC_ASSIGNED)
 
+    # Repair case where rev required but (wrongly) still open for reporting:
+    eic_assigned.filter(
+        eicrecommendations__status=DECISION_FIXED,
+        eicrecommendations__recommendation__in=[
+            REPORT_MINOR_REV,
+            REPORT_MAJOR_REV,
+        ],
+    ).filter(open_for_reporting=True).update(open_for_reporting=False)
+
+    # Repair case where open for reporting but no cycle
+    eic_assigned.filter(
+        open_for_reporting=True
+    ).filter(refereeing_cycle="").update(open_for_reporting=False)
+
+    # Repair case where voting in prep but open for reporting
+    eic_assigned.filter(open_for_reporting=True).filter(
+        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(
+            status=VOTING_IN_PREP)]
+    ).update(open_for_reporting=False)
+
+    # Repair case where EiC is assigned, but not in set of revreq,
+    # open, nocycle, votingprep or voting: give status REFEREEING_CLOSED
+    eic_assigned.exclude(
+        eicrecommendations__status=DECISION_FIXED,
+        eicrecommendations__recommendation__in=[
+            REPORT_MINOR_REV,
+            REPORT_MAJOR_REV,
+        ],
+    ).exclude(open_for_reporting=True).exclude(refereeing_cycle="").exclude(
+        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(
+            status__in=[VOTING_IN_PREP, PUT_TO_VOTING])]
+    ).update(status=REFEREEING_CLOSED)
+
+    # Done with repairs.
+
+    # Now define handy querysets and update statuses:
     eic_assigned_revreq = eic_assigned.filter(
         eicrecommendations__status=DECISION_FIXED,
         eicrecommendations__recommendation__in=[
@@ -62,17 +98,39 @@ def update_submission_status(apps, schema_editor):
     eic_assigned_open = eic_assigned.filter(open_for_reporting=True)
     eic_assigned_nocycle = eic_assigned.filter(refereeing_cycle="")
     eic_assigned_votingprep = eic_assigned.filter(
-        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(status=VOTING_IN_PREP)]
+        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(
+            status=VOTING_IN_PREP)]
     )
     eic_assigned_voting = eic_assigned.filter(
-        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(status=PUT_TO_VOTING)]
+        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(
+            status=PUT_TO_VOTING)]
     )
 
-    if len(eic_assigned) != len(
-            eic_assigned_revreq.union(
-                eic_assigned_open, eic_assigned_nocycle, eic_assigned_votingprep, eic_assigned_voting
-            )):
+    if len(eic_assigned) != (
+            len(eic_assigned_revreq) + len(eic_assigned_open) +
+            len(eic_assigned_nocycle) + len(eic_assigned_votingprep) +
+            len(eic_assigned_voting)
+    ):
         print("Error: queryset lengths do not match. Aborting.")
+        print(f"{len(eic_assigned) = }")
+        print(f"{len(eic_assigned_revreq) = }")
+        print(f"{len(eic_assigned_open) = }")
+        print(f"{len(eic_assigned_nocycle) = }")
+        print(f"{len(eic_assigned_votingprep) = }")
+        print(f"{len(eic_assigned_voting) = }")
+        print(f"{len(eic_assigned_revreq.union(eic_assigned_open, eic_assigned_nocycle, eic_assigned_votingprep, eic_assigned_voting)) = }")
+        print(f"{len(eic_assigned_revreq) + len(eic_assigned_open) + len(eic_assigned_nocycle) + len(eic_assigned_votingprep) + len(eic_assigned_voting) = }")
+        print(f"{eic_assigned_revreq.intersection(eic_assigned_open) = }")
+        print(f"{eic_assigned_revreq.intersection(eic_assigned_nocycle) = }")
+        print(f"{eic_assigned_revreq.intersection(eic_assigned_votingprep) = }")
+        print(f"{eic_assigned_revreq.intersection(eic_assigned_voting) = }")
+        print(f"{eic_assigned_open.intersection(eic_assigned_nocycle) = }")
+        print(f"{eic_assigned_open.intersection(eic_assigned_votingprep) = }")
+        print(f"{eic_assigned_open.intersection(eic_assigned_voting) = }")
+        print(f"{eic_assigned_nocycle.intersection(eic_assigned_votingprep) = }")
+        print(f"{eic_assigned_nocycle.intersection(eic_assigned_voting) = }")
+        print(f"{eic_assigned_votingprep.intersection(eic_assigned_voting) = }")
+        print(f"{eic_assigned.difference(eic_assigned_revreq.union(eic_assigned_open, eic_assigned_nocycle, eic_assigned_votingprep, eic_assigned_voting)) = }")
         raise
 
     eic_assigned_revreq.update(
