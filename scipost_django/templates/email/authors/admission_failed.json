@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: submission admission failed",
+    "recipient_list": [
+        "submitted_by.user.email"
+    ],
+    "bcc": [
+        "submissions@"
+    ],
+    "from_name": "SciPost Editorial Admin",
+    "from_email": "submissions@"
+}
