@@ -49,6 +49,7 @@ class Submission(models.Model):
 
     # Possible statuses
     INCOMING = "incoming"
+    ADMISSIBLE = "admissible"
     ADMISSION_FAILED = "admission_failed"
     PREASSIGNMENT = "preassignment"
     PREASSIGNMENT_FAILED = "preassignment_failed"
@@ -71,6 +72,7 @@ class Submission(models.Model):
 
     SUBMISSION_STATUSES = (
         (INCOMING, "Submission incoming, awaiting EdAdmin"),
+        (ADMISSIBLE, "Admissible, undergoing further admission checks"),
         (ADMISSION_FAILED, "Admission failed"),
         (PREASSIGNMENT, "In preassignment"),
         (PREASSIGNMENT_FAILED, "Preassignment failed"),
@@ -101,6 +103,7 @@ class Submission(models.Model):
     # Submissions which are currently under consideration
     UNDER_CONSIDERATION = (
         INCOMING,
+        ADMISSIBLE,
         PREASSIGNMENT,
         SEEKING_ASSIGNMENT,
         REFEREEING_IN_PREPARATION,
@@ -115,7 +118,7 @@ class Submission(models.Model):
     )
 
     # Further handy sets
-    STAGE_INCOMING = (INCOMING, ADMISSION_FAILED)
+    STAGE_INCOMING = (INCOMING, ADMISSIBLE, ADMISSION_FAILED)
     STAGE_PREASSIGNMENT = (PREASSIGNMENT, PREASSIGNMENT_FAILED)
     STAGE_ASSIGNMENT = (SEEKING_ASSIGNMENT, ASSIGNMENT_FAILED)
     STAGE_REFEREEING_IN_PREPARATION = (REFEREEING_IN_PREPARATION,)

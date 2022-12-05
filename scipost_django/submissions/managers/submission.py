@@ -18,6 +18,9 @@ class SubmissionQuerySet(models.QuerySet):
     def incoming(self):
         return self.filter(status=self.model.INCOMING)
 
+    def admissible(self):
+        return self.filter(status=self.model.ADMISSIBLE)
+
     def admission_failed(self):
         return self.filter(status=self.model.ADMISSION_FAILED)
 
@@ -78,8 +81,9 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(status=self.model.PUBLISHED)
 
     ### Managers for stages ####
+
     def in_stage_incoming(self):
-        return self.filter(status=self.model.STAGE_INCOMING)
+        return self.filter(status__in=self.model.STAGE_INCOMING)
 
     def stage_incoming_completed(self):
         return self.filter(status__in=self.model.stage_incoming_completed_statuses)

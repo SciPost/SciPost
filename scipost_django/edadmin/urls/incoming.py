@@ -17,6 +17,11 @@ urlpatterns = [
         "<identifier:identifier_w_vn_nr>/",
         include([
             path(
+                "_hx_submission_admissibility",
+                incoming._hx_submission_admissibility,
+                name="_hx_submission_admissibility",
+            ),
+            path(
                 "_hx_submission_details_contents",
                 incoming._hx_submission_details_contents,
                 name="_hx_submission_details_contents",

@@ -1,17 +1,41 @@
-<h1>Plagiarism</h1>
-<div class="p-2">
-  <div id="submission-{{ submission.pk }}-plagiarism-internal"
-       class="m-2"
-       hx-get="{% url 'edadmin:_hx_plagiarism_internal' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-       hx-trigger="load, {{ submission.pk }}-plagiarism-internal-updated"
-  >
-  </div>
+<h1>Admissibility</h1>
+<div class="p-2 mb-4" id="submission-{{ submission.pk }}-admissibility">
+  {% if submission.status == submission.INCOMING %}
+    <div id="submission-{{ submission.pk }}-admissibility-form"
+	 class="m-2"
+	 hx-get="{% url 'edadmin:_hx_submission_admissibility' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-trigger="load"
+    >
+    </div>
+  {% elif submission.status == submission.ADMISSIBLE %}
+    <span class="px-2 py-1 bg-success text-white">
+      Marked as admissible
+    </span>
+  {% elif submission.status == submission.ADMISSION_FAILED %}
+    <span class="px-2 py-1 bg-danger text-white">
+      Admission failed (authors informed)
+    </span>
+  {% else %}
+    Inconsistent status: {{ submission.status }}
+  {% endif %}
 </div>
-<div class="p-2">
-  <div id="submission-{{ submission.pk }}-plagiarism-iThenticate"
-       class="m-2"
-       hx-get="{% url 'edadmin:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-       hx-trigger="load, {{ submission.pk }}-plagiarism-iThenticate-updated"
-  >
+
+{% if submission.status == submission.ADMISSIBLE %}
+  <h1>Plagiarism</h1>
+  <div class="p-2 mb-4">
+    <div id="submission-{{ submission.pk }}-plagiarism-internal"
+	 class="m-2"
+	 hx-get="{% url 'edadmin:_hx_plagiarism_internal' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-trigger="load, {{ submission.pk }}-plagiarism-internal-updated"
+    >
+    </div>
   </div>
-</div>
+  <div class="p-2">
+    <div id="submission-{{ submission.pk }}-plagiarism-iThenticate"
+	 class="m-2"
+	 hx-get="{% url 'edadmin:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-trigger="load, {{ submission.pk }}-plagiarism-iThenticate-updated"
+    >
+    </div>
+  </div>
+{% endif %}

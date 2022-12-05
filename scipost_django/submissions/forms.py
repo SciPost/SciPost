@@ -195,6 +195,10 @@ class SubmissionPoolSearchForm(forms.Form):
                 "Incoming",
                 (
                     (Submission.INCOMING, "Incoming: awaiting EdAdmin checks"),
+                    (
+                        Submission.ADMISSIBLE,
+                        "Admissible; undergoing plagiarism checks",
+                    ),
                 ),
             ),
             (

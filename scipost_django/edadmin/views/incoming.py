@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
 from guardian.shortcuts import get_objects_for_user
@@ -17,9 +17,10 @@ from submissions.models import (
 )
 from submissions.forms import iThenticateReportForm
 
-from edadmin.forms.plagiarism import (
+from edadmin.forms import (
     InternalPlagiarismAssessmentForm,
     iThenticatePlagiarismAssessmentForm,
+    SubmissionAdmissibilityForm,
 )
 
 
@@ -31,9 +32,9 @@ def _hx_incoming_list(request):
     """
     submissions = get_objects_for_user(request.user, "submissions.take_edadmin_actions")
     context = {
-        "phase": "incoming",
-        "submissions": submissions.incoming(),
+        "submissions": submissions.in_stage_incoming(),
     }
+    print(f"{len(submissions.in_stage_incoming()) = }")
     return render(request, "edadmin/_hx_submissions_list.html", context)
 
 
@@ -45,6 +46,36 @@ def _hx_submission_details_contents(request, identifier_w_vn_nr):
     )
     context = {"submission": submission,}
     return render(request, "edadmin/_hx_submission_details_contents.html", context)
+
+
+#################
+# Admissibility #
+#################
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_submission_admissibility(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    form = SubmissionAdmissibilityForm(request.POST or None)
+    if form.is_valid():
+        if form.cleaned_data["admissibility"] == "pass":
+            Submission.objects.filter(pk=submission.id).update(
+                status=Submission.ADMISSIBLE
+            )
+        else: # inadmissible, inform authors and set status to ADMISSION_FAILED
+            Submission.objects.filter(pk=submission.id).update(
+                status=Submission.ADMISSION_FAILED
+            )
+            # send authors admission failed email
+        submission.refresh_from_db()
+        # trigger re-rendering of the details-contents div
+        response = HttpResponse()
+        response["HX-Trigger"] = f"submission-{submission.pk}-details-updated"
+        return response
+    context = {"submission": submission, "form": form,}
+    return render(request, "edadmin/_hx_submission_admissibility_form.html", context)
+
 
 
 ########################
