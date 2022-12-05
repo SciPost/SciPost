@@ -37,6 +37,7 @@ from ..constants import (
     EVENT_FOR_EIC,
     SUBMISSION_TIERS,
 )
+from ..exceptions import StageNotDefinedError
 from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
 from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 
@@ -432,6 +433,28 @@ class Submission(models.Model):
     @property
     def in_stage_in_production(self):
         return self.status in self.STAGE_IN_PRODUCTION
+
+    @property
+    def stage(self):
+        if self.in_stage_incoming:
+            return "incoming"
+        elif self.in_stage_preassignment:
+            return "preassignment"
+        elif self.in_stage_assignment:
+            return "assignment"
+        elif self.in_stage_refereeing_in_preparation:
+            return "refereeing_in_preparation"
+        elif self.in_stage_in_refereeing:
+            return "in_refereeing"
+        elif self.in_stage_decisionmaking:
+            return "decisionmaking"
+        elif self.in_stage_decided:
+            return "decided"
+        elif self.in_stage_treated:
+            return "treated"
+        elif self.in_stage_in_production:
+            return "in_production"
+        raise StageNotDefinedError
 
     ###############################################
     # End shortucut properties for stage checking #

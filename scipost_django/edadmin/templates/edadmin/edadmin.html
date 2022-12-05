@@ -17,21 +17,21 @@
 {% block content %}
 
 
-  <details class="border border-2 my-4">
+  <details class="border border-2 my-4"
+	   id="incoming-details"
+  >
     <summary class="bg-info px-4 py-2">
       <h1>Incoming</h1>
     </summary>
-    <span class="p-2">
-      <button class="m-2 btn btn-primary"
-	      id="incoming"
-	      hx-get="{% url 'edadmin:_hx_incoming_list' %}"
-	      hx-swap="outerHTML"
-	      hx-indicator="#indicator-submissions-incoming"
-      >Load incoming Submissions</button>
-    </span>
+    <span id="incoming"
+	  hx-get="{% url 'edadmin:_hx_incoming_list' %}"
+	  hx-swap="outerHTML"
+	  hx-trigger="toggle once from:#incoming-details"
+	  hx-indicator="#indicator-submissions-incoming"
+    ></span>
     <span id="indicator-submissions-incoming" class="htmx-indicator">
-      <button class="btn btn-sm btn-warning" type="button" disabled>
-	<strong>Loading...</strong>
+      <button class="m-2 btn btn-sm btn-warning" type="button" disabled>
+	<strong>Loading incoming Submissions...</strong>
 	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
       </button>
     </span>

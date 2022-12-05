@@ -3,7 +3,7 @@
   <div id="submission-{{ submission.pk }}-plagiarism-internal"
        class="m-2"
        hx-get="{% url 'edadmin:_hx_plagiarism_internal' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-       hx-trigger="revealed, {{ submission.pk }}-plagiarism-internal-updated"
+       hx-trigger="load, {{ submission.pk }}-plagiarism-internal-updated"
   >
   </div>
 </div>
@@ -11,7 +11,7 @@
   <div id="submission-{{ submission.pk }}-plagiarism-iThenticate"
        class="m-2"
        hx-get="{% url 'edadmin:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-       hx-trigger="revealed, {{ submission.pk }}-plagiarism-iThenticate-updated"
+       hx-trigger="load, {{ submission.pk }}-plagiarism-iThenticate-updated"
   >
   </div>
 </div>

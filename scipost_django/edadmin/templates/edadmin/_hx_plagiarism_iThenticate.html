@@ -3,9 +3,11 @@
 <details class="border border-2">
   <summary class="bg-primary bg-opacity-10 p-2">
     <h2>
-      iThenticate checks
+      iThenticate checks&emsp;
       {% if submission.iThenticate_plagiarism_assessment %}
-	&emsp;{% include "edadmin/plagiarism_assessment_status_span.html" with assessment=submission.iThenticate_plagiarism_assessment %}
+	{% include "edadmin/plagiarism_assessment_status_span.html" with assessment=submission.iThenticate_plagiarism_assessment %}
+      {% else %}
+	<span class="text-danger">[not started]</span>
       {% endif %}
     </h2>
   </summary>
