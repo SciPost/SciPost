@@ -37,9 +37,6 @@
 	      <td>Percent match</td>
 	      <td>{{ submission.iThenticate_plagiarism_report.percent_match }}%</td>
 	    </tr>
-	    <tr>
-	      <td><a href="{% url 'submissions:iThenticate_plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="btn btn-success text-white" target="_blank">Download report pdf</a></td>
-	    </tr>
 	  {% else %}
 	    <tr>
 	      <td>Report not yet received</td>
@@ -51,7 +48,9 @@
       {% endif %}
     </div>
     <div class="col col-lg-4">
-      {% if not submission.iThenticate_plagiarism_report.processed %}
+      {% if submission.iThenticate_plagiarism_report.processed %}
+	<a href="{% url 'submissions:iThenticate_plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="btn btn-success text-white" target="_blank">Download report pdf</a>
+      {% else %}
 	<form
 	    class="mt-3" enctype="multipart/form-data"
 	    hx-post="{% url 'edadmin:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"

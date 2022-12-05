@@ -1,22 +1,32 @@
 {% for submission in submissions %}
 
   <details id="submission-{{ submission.pk }}-details"
-	   class="border border-2 my-2"
+	   class="border border-2 m-4"
   >
     <summary class="px-4 py-2 bg-primary bg-opacity-10">
-      <table>
-	<tbody>
-	  <tr>
-	    <td><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ submission.title }}</a></td>
-	  </tr>
-	  <tr>
-	    <td>{{ submission.author_list }}</td>
-	  </tr>
-	  <tr>
-	    <td>Submitted {{ submission.submission_date|date:"Y-m-d" }} to {{ submission.submitted_to }}</td>
-	  </tr>
-	</tbody>
-      </table>
+      <ul class="list list-inline">
+	<li class="list-inline-item">
+	  <table>
+	    <tbody>
+	      <tr>
+		<td>{{ submission.title }}</td>
+	      </tr>
+	      <tr>
+		<td>{{ submission.author_list }}</td>
+	      </tr>
+	      <tr>
+		<td>Submitted {{ submission.submission_date|date:"Y-m-d" }} to {{ submission.submitted_to }}</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</li>
+	<li class="list-inline-item float-end">
+	  <ul class="list list-unstyled">
+	    <li class="mb-4"><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{% include "bi/arrow-right-square-fill.html" %}submission page</a></li>
+	    <li class="mb-4"><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" class="text-danger">{% include "bi/arrow-right-square-fill.html" %}editorial page</a></li>
+	  </ul>
+	</li>
+      </ul>
     </summary>
     <div id="submission-{{ submission.pk }}-details-contents"
 	 hx-get="{% url 'edadmin:_hx_submission_details_contents' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
