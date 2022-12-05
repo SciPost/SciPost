@@ -21,9 +21,9 @@ class PlagiarismAssessment(models.Model):
         choices=STATUS_CHOICES,
         default=STATUS_ONGOING,
     )
-    passed_on = models.DateTimeField(blank=True, null=True)
-    comments_for_edadmin = models.TextField()
-    comments_for_authors = models.TextField()
+    date_set = models.DateTimeField(blank=True, null=True)
+    comments_for_edadmin = models.TextField(blank=True)
+    comments_for_authors = models.TextField(blank=True)
 
     @property
     def ongoing(self):

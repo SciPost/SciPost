@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import messages
-from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render

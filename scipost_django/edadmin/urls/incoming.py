@@ -22,9 +22,19 @@ urlpatterns = [
                 name="_hx_plagiarism_internal",
             ),
             path(
+                "_hx_plagiarism_internal_assess",
+                incoming._hx_plagiarism_internal_assess,
+                name="_hx_plagiarism_internal_assess",
+            ),
+            path(
                 "_hx_plagiarism_iThenticate",
                 incoming._hx_plagiarism_iThenticate,
                 name="_hx_plagiarism_iThenticate",
+            ),
+            path(
+                "_hx_plagiarism_iThenticate_assess",
+                incoming._hx_plagiarism_iThenticate_assess,
+                name="_hx_plagiarism_iThenticate_assess",
             ),
         ])
     ),

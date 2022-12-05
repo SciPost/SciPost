@@ -3,13 +3,24 @@ __license__ = "AGPL v3"
 
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from guardian.shortcuts import get_objects_for_user
 
 from colleges.permissions import is_edadmin
-from submissions.models import Submission
+from submissions.models import (
+    Submission,
+    InternalPlagiarismAssessment,
+    iThenticatePlagiarismAssessment,
+)
 from submissions.forms import iThenticateReportForm
+
+from edadmin.forms.plagiarism import (
+    InternalPlagiarismAssessmentForm,
+    iThenticatePlagiarismAssessmentForm,
+)
 
 
 @login_required
@@ -26,13 +37,21 @@ def _hx_incoming_list(request):
     return render(request, "edadmin/_hx_submissions_list.html", context)
 
 
+########################
+# Plagiarism: internal #
+########################
+
 @login_required
 @user_passes_test(is_edadmin)
 def _hx_plagiarism_internal(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
-    context = {"submission_matches": [], "publication_matches": []}
+    context = {
+        "submission": submission,
+        "submission_matches": [],
+        "publication_matches": [],
+    }
     if "submission_matches" in submission.internal_plagiarism_matches:
         for sub_match in submission.internal_plagiarism_matches["submission_matches"]:
             context["submission_matches"].append(
@@ -64,10 +83,32 @@ def _hx_plagiarism_internal_assess(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
-    form = InternalPlagiarismAssessmentForm(request.POST or None)
-    if form.is_valid():
-        form.save()
+    # if Submission has no assessment yet, create one:
+    try:
+        submission.internal_plagiarism_assessment
+    except InternalPlagiarismAssessment.DoesNotExist:
+        assessment = InternalPlagiarismAssessment(submission=submission)
+        assessment.save()
+        submission.refresh_from_db()
+    form = InternalPlagiarismAssessmentForm(
+        request.POST or None,
+        instance=submission.internal_plagiarism_assessment,
+    )
+    if form.is_valid(): # just trigger re-rendering of iThenticate div
+        assessment = form.save()
+        response = HttpResponse()
+        response["HX-Trigger"] = f"{submission.pk}-plagiarism-internal-updated"
+        return response
+    context = {
+        "submission": submission,
+        "form": form,
+    }
+    return render(request, "edadmin/_hx_plagiarism_internal_assess.html", context)
 
+
+###########################
+# Plagiarism: iThenticate #
+###########################
 
 @login_required
 @user_passes_test(is_edadmin)
@@ -84,3 +125,32 @@ def _hx_plagiarism_iThenticate(request, identifier_w_vn_nr):
         "form": form,
     }
     return render(request, "edadmin/_hx_plagiarism_iThenticate.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_plagiarism_iThenticate_assess(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    # if Submission has no assessment yet, create one:
+    try:
+        submission.iThenticate_plagiarism_assessment
+    except iThenticatePlagiarismAssessment.DoesNotExist:
+        assessment = iThenticatePlagiarismAssessment(submission=submission)
+        assessment.save()
+        submission.refresh_from_db()
+    form = iThenticatePlagiarismAssessmentForm(
+        request.POST or None,
+        instance=submission.iThenticate_plagiarism_assessment,
+    )
+    if form.is_valid(): # just trigger re-rendering of iThenticate div
+        assessment = form.save()
+        response = HttpResponse()
+        response["HX-Trigger"] = f"{submission.pk}-plagiarism-iThenticate-updated"
+        return response
+    context = {
+        "submission": submission,
+        "form": form,
+    }
+    return render(request, "edadmin/_hx_plagiarism_iThenticate_assess.html", context)

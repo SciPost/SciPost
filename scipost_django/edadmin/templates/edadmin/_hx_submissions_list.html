@@ -1,7 +1,7 @@
 {% for submission in submissions %}
 
   <details class="border border-2 my-2">
-    <summary class="px-4 py-2">
+    <summary class="px-4 py-2 bg-primary bg-opacity-10">
       <table>
 	<tbody>
 	  <tr>
@@ -16,7 +16,7 @@
 	</tbody>
       </table>
     </summary>
-    <div class="p-2">
+    <div class="p-4">
       <h1>Summary</h1>
       {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
@@ -26,7 +26,7 @@
 
       <h1>Workflow diagram</h1>
       <button class="m-2 btn btn-primary workflowDiagram"
-	      id="submission-{{ submission.preprint.identifier_w_vn_nr }}-workflow-diagram"
+	      id="submission-{{ submission.pk }}-workflow-diagram"
 	      hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	      hx-swap="outerHTML"
       >Load Submission processing workflow graphs</button>
