@@ -1,5 +1,7 @@
 {% extends 'scipost/base.html' %}
 
+{% load common_extras %}
+
 {% block breadcrumb %}
   <div class="breadcrumb-container">
     <div class="container">
@@ -16,27 +18,27 @@
 
 {% block content %}
 
-
-  <details class="border border-2 my-4"
-	   id="incoming-details"
-  >
-    <summary class="bg-primary bg-opacity-10 px-4 py-2">
-      <h1>Incoming</h1>
-    </summary>
-    <span id="incoming"
-	  hx-get="{% url 'edadmin:_hx_incoming_list' %}"
-	  hx-swap="outerHTML"
-	  hx-trigger="toggle once from:#incoming-details"
-	  hx-indicator="#indicator-submissions-incoming"
-    ></span>
-    <span id="indicator-submissions-incoming" class="htmx-indicator">
-      <button class="m-2 btn btn-sm btn-warning" type="button" disabled>
-	<strong>Loading incoming Submissions...</strong>
-	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-      </button>
-    </span>
-  </details>
-
+  {% for stage in stages %}
+    <details class="border border-2 my-4"
+	     id="{{ stage }}-details"
+    >
+      <summary class="bg-primary bg-opacity-10 px-4 py-2">
+	<h1>{{ stage|capfirst|replace:"_| " }}</h1>
+      </summary>
+      <span id="{{ stage }}-details-contents"
+	    hx-get="{% url 'edadmin:_hx_submissions_in_stage' stage=stage %}"
+	    hx-swap="outerHTML"
+	    hx-trigger="toggle once from:#{{ stage }}-details"
+	    hx-indicator="#indicator-submissions-{{ stage }}"
+      ></span>
+      <span id="indicator-submissions-{{ stage }}" class="htmx-indicator">
+	<button class="m-2 btn btn-sm btn-warning" type="button" disabled>
+	  <strong>Loading Submissions in stage {{ stage|replace:"_| " }}...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </span>
+    </details>
+  {% endfor %}
 {% endblock content %}
 
 {% block footer_script %}

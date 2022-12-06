@@ -117,13 +117,24 @@ class Submission(models.Model):
         ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
     )
 
+    STAGE_SLUGS = ( # for converters
+        "incoming",
+        "preassignment",
+        "assignment",
+        "refereeing_in_preparation",
+        "in_refereeing",
+        "decisionmaking",
+        "in_production",
+    )
+
     # Further handy sets
     STAGE_INCOMING = (INCOMING, ADMISSIBLE)
-    STAGE_PREASSIGNMENT = (PREASSIGNMENT, PREASSIGNMENT_FAILED)
-    STAGE_ASSIGNMENT = (SEEKING_ASSIGNMENT, ASSIGNMENT_FAILED)
+    STAGE_PREASSIGNMENT = (PREASSIGNMENT,)
+    STAGE_ASSIGNMENT = (SEEKING_ASSIGNMENT,)
     STAGE_REFEREEING_IN_PREPARATION = (REFEREEING_IN_PREPARATION,)
-    STAGE_IN_REFEREEING = (IN_REFEREEING, REFEREEING_CLOSED)
+    STAGE_IN_REFEREEING = (IN_REFEREEING,)
     STAGE_DECISIONMAKING = (
+        REFEREEING_CLOSED,
         VOTING_IN_PREPARATION,
         IN_VOTING,
         AWAITING_DECISION,
