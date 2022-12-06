@@ -8,3 +8,5 @@ from .plagiarism import (
 )
 
 from .submission_admissibility import SubmissionAdmissibilityForm
+
+from .submission_admission import SubmissionAdmissionForm

@@ -22,6 +22,7 @@ from edadmin.forms import (
     InternalPlagiarismAssessmentForm,
     iThenticatePlagiarismAssessmentForm,
     SubmissionAdmissibilityForm,
+    SubmissionAdmissionForm,
 )
 
 
@@ -35,7 +36,6 @@ def _hx_incoming_list(request):
     context = {
         "submissions": submissions.in_stage_incoming(),
     }
-    print(f"{len(submissions.in_stage_incoming()) = }")
     return render(request, "edadmin/_hx_submissions_list.html", context)
 
 
@@ -203,3 +203,45 @@ def _hx_plagiarism_iThenticate_assess(request, identifier_w_vn_nr):
         "form": form,
     }
     return render(request, "edadmin/_hx_plagiarism_iThenticate_assess.html", context)
+
+
+#############
+# Admission #
+#############
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_submission_admission(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    form = SubmissionAdmissionForm(request.POST or None)
+    if form.is_valid():
+        if form.cleaned_data["choice"] == "pass":
+            Submission.objects.filter(pk=submission.id).update(
+                status=Submission.PREASSIGNMENT
+            )
+            # send authors admission passed email
+            mail_util = DirectMailUtil(
+                "authors/admission_passed",
+                submission=submission,
+                comments_for_authors=form.cleaned_data["comments_for_authors"],
+            )
+        else: # inadmissible, inform authors and set status to ADMISSION_FAILED
+            Submission.objects.filter(pk=submission.id).update(
+                status=Submission.ADMISSION_FAILED
+            )
+            # send authors admission failed email
+            mail_util = DirectMailUtil(
+                "authors/admission_failed",
+                submission=submission,
+                comments_for_authors=form.cleaned_data["comments_for_authors"],
+            )
+            mail_util.send_mail()
+        submission.refresh_from_db()
+        # trigger re-rendering of the details-contents div
+        response = HttpResponse()
+        response["HX-Trigger"] = f"submission-{submission.pk}-details-updated"
+        return response
+    context = {"submission": submission, "form": form,}
+    return render(request, "edadmin/_hx_submission_admission_form.html", context)

@@ -525,6 +525,27 @@ class Submission(models.Model):
         return self.is_resubmission_of is not None
 
     @property
+    def plagiarism_internal_tests_passed(self):
+        from submissions.models import InternalPlagiarismAssessment
+        try:
+            return self.internal_plagiarism_assessment.passed
+        except InternalPlagiarismAssessment.DoesNotExist:
+            return False
+
+    @property
+    def plagiarism_iThenticate_tests_passed(self):
+        from submissions.models import iThenticatePlagiarismAssessment
+        try:
+            return self.iThenticate_plagiarism_assessment.passed
+        except iThenticatePlagiarismAssessment.DoesNotExist:
+            return False
+
+    @property
+    def plagiarism_tests_passed(self):
+        return (self.plagiarism_internal_tests_passed and
+                self.plagiarism_iThenticate_tests_passed)
+
+    @property
     def eic_recommendation_required(self):
         """Return if Submission requires a EICRecommendation to be formulated."""
         return not self.eicrecommendations.active().exists()

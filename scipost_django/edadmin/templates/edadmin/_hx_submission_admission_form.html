@@ -1,0 +1,8 @@
+{% load crispy_forms_tags %}
+<form
+    class="mt-3"
+    hx-post="{% url 'edadmin:_hx_submission_admission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+    hx-target="#submission-{{ submission.pk }}-admission-form"
+>
+  {% crispy form %}
+</form>

@@ -26,12 +26,19 @@ class PlagiarismAssessmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["comments_for_edadmin"].widget.attrs.update({"rows": 5, "cols": 80})
+        self.fields["comments_for_authors"].widget.attrs.update({"rows": 5, "cols": 80})
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("status"),
-            Field("comments_for_edadmin"),
-            Field("comments_for_authors"),
-            ButtonHolder(Submit("submit", "Submit", css_class="btn btn-primary")),
+            Div(Div(Field("status"), css_class="col col-lg-6"), css_class="row"),
+            Div(
+                Div(Field("comments_for_edadmin"), css_class="col col-lg-6"),
+                Div(Field("comments_for_authors"), css_class="col col-lg-6"),
+                css_class="row",
+            ),
+            ButtonHolder(
+                Submit("submit", "Submit", css_class="btn btn-primary"),
+            ),
         )
 
     def save(self):

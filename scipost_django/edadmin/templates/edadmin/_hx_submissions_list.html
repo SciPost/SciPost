@@ -23,8 +23,8 @@
 	<li class="list-inline-item float-end">
 	  <ul class="list list-unstyled">
 	    <li class="mb-2"><strong>Status</strong>:&nbsp;{{ submission.get_status_display }}</li>
-	    <li class="mb-2"><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{% include "bi/arrow-right-square-fill.html" %}submission page</a></li>
-	    <li class="mb-2"><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" class="text-danger">{% include "bi/arrow-right-square-fill.html" %}editorial page</a></li>
+	    <li class="mb-2"><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">{% include "bi/arrow-right-square-fill.html" %}submission page</a></li>
+	    <li class="mb-2"><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank" class="text-danger">{% include "bi/arrow-right-square-fill.html" %}editorial page</a></li>
 	  </ul>
 	</li>
       </ul>

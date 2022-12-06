@@ -46,6 +46,11 @@ urlpatterns = [
                 incoming._hx_plagiarism_iThenticate_assess,
                 name="_hx_plagiarism_iThenticate_assess",
             ),
+            path(
+                "_hx_submission_admission",
+                incoming._hx_submission_admission,
+                name="_hx_submission_admission",
+            ),
         ])
     ),
 ]
