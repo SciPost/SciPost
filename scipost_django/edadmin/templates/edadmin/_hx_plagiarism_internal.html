@@ -34,6 +34,8 @@
 	      <br>
 	      <a href="{{ match.submission.get_absolute_url }}" target="_blank">{{ match.submission.title }}</a><br>
 	      {{ match.submission.author_list }}
+	      <br>
+	      <strong>Status</strong>:&emsp;{{ match.submission.get_status_display }}
 	    </td>
 	    <td>{{ match.ratio_title|floatformat:2 }}</td>
 	    <td>{{ match.ratio_authors|floatformat:2 }}</td>
