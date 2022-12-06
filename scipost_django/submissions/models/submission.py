@@ -118,7 +118,7 @@ class Submission(models.Model):
     )
 
     # Further handy sets
-    STAGE_INCOMING = (INCOMING, ADMISSIBLE, ADMISSION_FAILED)
+    STAGE_INCOMING = (INCOMING, ADMISSIBLE)
     STAGE_PREASSIGNMENT = (PREASSIGNMENT, PREASSIGNMENT_FAILED)
     STAGE_ASSIGNMENT = (SEEKING_ASSIGNMENT, ASSIGNMENT_FAILED)
     STAGE_REFEREEING_IN_PREPARATION = (REFEREEING_IN_PREPARATION,)
@@ -130,6 +130,9 @@ class Submission(models.Model):
         ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
     )
     STAGE_DECIDED = (
+        ADMISSION_FAILED,
+        PREASSIGNMENT_FAILED,
+        ASSIGNMENT_FAILED,
         AWAITING_RESUBMISSION,
         RESUBMITTED,
         ACCEPTED_IN_TARGET,
@@ -458,6 +461,29 @@ class Submission(models.Model):
         elif self.in_stage_in_production:
             return "in_production"
         raise StageNotDefinedError
+
+    @property
+    def get_stage_display(self):
+        if self.in_stage_incoming:
+            return "Incoming"
+        elif self.in_stage_preassignment:
+            return "Preassignment"
+        elif self.in_stage_assignment:
+            return "Assignment"
+        elif self.in_stage_refereeing_in_preparation:
+            return "Refereeing in preparation"
+        elif self.in_stage_in_refereeing:
+            return "In refereeing"
+        elif self.in_stage_decisionmaking:
+            return "Decisionmaking"
+        elif self.in_stage_decided:
+            return "Decided"
+        elif self.in_stage_treated:
+            return "Treated"
+        elif self.in_stage_in_production:
+            return "In production"
+        raise StageNotDefinedError
+
 
     ###############################################
     # End shortucut properties for stage checking #

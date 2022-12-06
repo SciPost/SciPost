@@ -1,5 +1,7 @@
 <div class="p-4">
-  <h1>Summary</h1>
+  <h1>Status:&emsp;{{ submission.get_status_display }}</h1>
+  <hr class="my-2">
+  <h1>Submission details summary</h1>
   {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
   {% if submission.in_stage_incoming %}
