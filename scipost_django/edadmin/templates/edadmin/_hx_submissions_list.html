@@ -30,7 +30,7 @@
       </div>
     </summary>
     <div id="submission-{{ submission.pk }}-edadmin"
-	 hx-get="{% url 'edadmin:_hx_submission_edadmin' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-get="{% url 'edadmin:_hx_submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	 hx-trigger="toggle once from:#submission-{{ submission.pk }}-details, submission-{{ submission.pk }}-details-updated"
     >
     </div>

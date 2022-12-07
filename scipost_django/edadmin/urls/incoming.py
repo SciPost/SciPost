@@ -8,41 +8,51 @@ from ..views import incoming
 
 
 urlpatterns = [
-    path(
-        "_hx_incoming_list",
-        incoming._hx_incoming_list,
-        name="_hx_incoming_list",
-    ),
-    path(
+    path( # "incoming/<identifier>/"
         "<identifier:identifier_w_vn_nr>/",
         include([
-            path(
-                "_hx_submission_admissibility",
+            path( # "incoming/<identifier>/admissibility"
+                "admissibility",
                 incoming._hx_submission_admissibility,
                 name="_hx_submission_admissibility",
             ),
-            path(
-                "_hx_plagiarism_internal",
-                incoming._hx_plagiarism_internal,
-                name="_hx_plagiarism_internal",
-            ),
-            path(
-                "_hx_plagiarism_internal_assess",
-                incoming._hx_plagiarism_internal_assess,
-                name="_hx_plagiarism_internal_assess",
-            ),
-            path(
-                "_hx_plagiarism_iThenticate",
-                incoming._hx_plagiarism_iThenticate,
-                name="_hx_plagiarism_iThenticate",
-            ),
-            path(
-                "_hx_plagiarism_iThenticate_assess",
-                incoming._hx_plagiarism_iThenticate_assess,
-                name="_hx_plagiarism_iThenticate_assess",
-            ),
-            path(
-                "_hx_submission_admission",
+            path( # "incoming/<identifier>/plagiarism/"
+                "plagiarism/",
+                include([
+                    path( # "incoming/<identifier>/plagiarism/internal/"
+                        "internal/",
+                        include([
+                            path(
+                                "",
+                                incoming._hx_plagiarism_internal,
+                                name="_hx_plagiarism_internal",
+                            ),
+                            path(
+                                "assess",
+                                incoming._hx_plagiarism_internal_assess,
+                                name="_hx_plagiarism_internal_assess",
+                            ),
+                            ]),
+                    ), # end "internal/"
+                    path( # "incoming/<identifier>/plagiarism/iThenticate/"
+                        "iThenticate/",
+                        include([
+                            path(
+                                "",
+                                incoming._hx_plagiarism_iThenticate,
+                                name="_hx_plagiarism_iThenticate",
+                            ),
+                            path(
+                                "assess",
+                                incoming._hx_plagiarism_iThenticate_assess,
+                                name="_hx_plagiarism_iThenticate_assess",
+                            ),
+                        ]),
+                    ), # end "iThenticate/"
+                ]),
+            ), # end "plagiarism/"
+            path( # "incoming/<identifier>/admission"
+                "admission",
                 incoming._hx_submission_admission,
                 name="_hx_submission_admission",
             ),

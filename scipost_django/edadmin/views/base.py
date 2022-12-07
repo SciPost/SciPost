@@ -6,7 +6,7 @@ import operator
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from guardian.shortcuts import get_objects_for_user
 
@@ -41,9 +41,9 @@ def _hx_submissions_in_stage(request, stage):
 
 @login_required
 @user_passes_test(is_edadmin)
-def _hx_submission_edadmin(request, identifier_w_vn_nr):
+def _hx_submission(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
     context = {"submission": submission,}
-    return render(request, "edadmin/_hx_submission_edadmin.html", context)
+    return render(request, "edadmin/_hx_submission.html", context)
