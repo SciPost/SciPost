@@ -26,29 +26,6 @@ from edadmin.forms import (
 )
 
 
-@login_required
-@user_passes_test(is_edadmin)
-def _hx_incoming_list(request):
-    """
-    EdAdmin page for incoming Submissions.
-    """
-    submissions = get_objects_for_user(request.user, "submissions.take_edadmin_actions")
-    context = {
-        "submissions": submissions.in_stage_incoming(),
-    }
-    return render(request, "edadmin/_hx_submissions_list.html", context)
-
-
-@login_required
-@user_passes_test(is_edadmin)
-def _hx_submission_details_contents(request, identifier_w_vn_nr):
-    submission = get_object_or_404(
-        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
-    )
-    context = {"submission": submission,}
-    return render(request, "edadmin/_hx_submission_details_contents.html", context)
-
-
 #################
 # Admissibility #
 #################

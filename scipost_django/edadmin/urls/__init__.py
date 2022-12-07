@@ -19,5 +19,15 @@ urlpatterns = [
         base._hx_submissions_in_stage,
         name="_hx_submissions_in_stage",
     ),
+    path(
+        "<identifier:identifier_w_vn_nr>/",
+        include([
+            path(
+                "_hx_submission_edadmin",
+                incoming._hx_submission_edadmin,
+                name="_hx_submission_edadmin",
+            ),
+        ]),
+    ),
     path("incoming/", include("edadmin.urls.incoming")),
 ]

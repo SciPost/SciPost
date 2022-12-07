@@ -37,3 +37,13 @@ def _hx_submissions_in_stage(request, stage):
         "submissions": operator.attrgetter(f"in_stage_{stage}")(submissions)(),
     }
     return render(request, "edadmin/_hx_submissions_list.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_submission_edadmin(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    context = {"submission": submission,}
+    return render(request, "edadmin/_hx_submission_edadmin.html", context)

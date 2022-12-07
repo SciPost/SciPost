@@ -22,11 +22,6 @@ urlpatterns = [
                 name="_hx_submission_admissibility",
             ),
             path(
-                "_hx_submission_details_contents",
-                incoming._hx_submission_details_contents,
-                name="_hx_submission_details_contents",
-            ),
-            path(
                 "_hx_plagiarism_internal",
                 incoming._hx_plagiarism_internal,
                 name="_hx_plagiarism_internal",

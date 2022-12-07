@@ -29,8 +29,8 @@
 	</div>
       </div>
     </summary>
-    <div id="submission-{{ submission.pk }}-details-contents"
-	 hx-get="{% url 'edadmin:_hx_submission_details_contents' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+    <div id="submission-{{ submission.pk }}-edadmin"
+	 hx-get="{% url 'edadmin:_hx_submission_edadmin' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	 hx-trigger="toggle once from:#submission-{{ submission.pk }}-details, submission-{{ submission.pk }}-details-updated"
     >
     </div>
