@@ -11,7 +11,7 @@
 {% if recs_to_vote_on %}
     <br/>
     <h3>Recommendations for you to vote on</h3>
-    <p>Please go to the <a href="https://{{ domain }}{% url 'submissions:pool' %}">pool</a> to cast your vote on:</p>
+    <p>Please go to the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">pool</a> to cast your vote on:</p>
     <ul>
       {% for rec in recs_to_vote_on %}
           <li>{{ rec.submission.title }}</li>
@@ -26,7 +26,7 @@
     {% for assignment in assignments_to_consider %}
         <li>
             On submission: {{ assignment.submission }}<br>
-            <a href="https://{{ domain }}{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+            <a href="https://{{ domain }}{% url 'submissions:pool:assignment_request' assignment.id %}">Accept or decline here</a>
         </li>
     {% endfor %}
     </ul>
@@ -65,7 +65,7 @@
     <ul>
       {% for assignment in assignments_upcoming_deadline %}
           <li>
-            <h3><a href="https://{{ domain }}{% url 'submissions:pool' assignment.submission.preprint.identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
+            <h3><a href="https://{{ domain }}{% url 'submissions:pool:pool' assignment.submission.preprint.identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
             <p>
               <em>by {{ assignment.submission.author_list }}</em>
             </p>

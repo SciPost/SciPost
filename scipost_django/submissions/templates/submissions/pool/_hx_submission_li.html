@@ -36,7 +36,7 @@
 	    <li>Seeking assignment</li>
 	  {% else %}
             <li>You can
-	      <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>
+	      <a href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>
 	    </li>
 	  {% endif %}
 	  {% if request.user.contributor.is_active_senior_fellow %}
@@ -107,14 +107,14 @@
     {% if invitations %}
       <div class="border border-warning mt-1 py-1 px-2">
         <span class="mt-1 px-1 text-danger">{% include 'bi/exclamation.html' %}</i>
-          You are invited to become Editor-in-charge of this Submission. <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">You can reply to this invitation here</a>.
+          You are invited to become Editor-in-charge of this Submission. <a href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">You can reply to this invitation here</a>.
       </div>
     {% endif %}
   {% endif %}
 
   <div id="details_{{ submission.id }}" class="mt-2">
     <button type="button" class="btn btn-primary p-1 mx-auto"
-	    hx-get="{% url 'submissions:pool_hx_submission_li_details' submission.preprint.identifier_w_vn_nr %}"
+	    hx-get="{% url 'submissions:pool:_hx_submission_li_details' submission.preprint.identifier_w_vn_nr %}"
 	    hx-target="#details_{{ submission.id }}"
 	    hx-indicator="#indicator-details-{{ submission.id }}"
     >

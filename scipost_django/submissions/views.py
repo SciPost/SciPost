@@ -893,7 +893,7 @@ def pool_hx_submissions_list(request):
     count = paginator.count
     start_index = page_obj.start_index
     context = {"count": count, "page_obj": page_obj, "start_index": start_index,}
-    return render(request, "submissions/pool/hx_submissions_list.html", context)
+    return render(request, "submissions/pool/_hx_submissions_list.html", context)
 
 
 @login_required
@@ -932,7 +932,7 @@ def add_remark(request, identifier_w_vn_nr):
         messages.success(request, "Your remark has succesfully been posted")
     else:
         messages.warning(request, "The form was invalidly filled.")
-    return redirect(reverse("submissions:pool", args=(identifier_w_vn_nr,)))
+    return redirect(reverse("submissions:pool:pool", args=(identifier_w_vn_nr,)))
 
 
 @permission_required("scipost.can_manage_ontology", raise_exception=True)
@@ -1003,7 +1003,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
                 submission.editor_in_charge.user.last_name,
             ),
         )
-        return redirect("submissions:pool")
+        return redirect("submissions:pool:pool")
     elif submission.status == submission.ASSIGNMENT_FAILED:
         messages.success(
             request,
@@ -1012,7 +1012,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
                 " This Submission has failed assignment and has been rejected."
             ),
         )
-        return redirect("submissions:pool")
+        return redirect("submissions:pool:pool")
 
     if assignment_id:
         # Process existing EditorialAssignment.
@@ -1065,7 +1065,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
         else:
             # Fellow declined the invitation.
             msg = "Thank you for considering"
-            url = reverse("submissions:pool")
+            url = reverse("submissions:pool:pool")
 
         # Form submitted; redirect user
         messages.success(request, msg)
@@ -1093,7 +1093,7 @@ def assignment_request(request, assignment_id):
     )
     return redirect(
         reverse(
-            "submissions:editorial_assignment",
+            "submissions:pool:editorial_assignment",
             kwargs={
                 "identifier_w_vn_nr": assignment.submission.preprint.identifier_w_vn_nr,
                 "assignment_id": assignment.id,
@@ -1130,7 +1130,7 @@ def update_authors_assignment(request, identifier_w_vn_nr, nrweeks):
         )
         messages.success(request, "Authors have been updated by email.")
         mail_editor_view.send_mail()
-        return redirect(reverse("submissions:pool"))
+        return redirect(reverse("submissions:pool:pool"))
     return mail_editor_view.interrupt()
 
 
@@ -1174,7 +1174,7 @@ def assignment_failed(request, identifier_w_vn_nr):
         )
         messages.success(request, "Authors have been informed by email.")
         mail_editor_view.send_mail()
-        return redirect(reverse("submissions:pool"))
+        return redirect(reverse("submissions:pool:pool"))
     return mail_editor_view.interrupt()
 
 
@@ -1898,7 +1898,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         elif comtype == "AtoE":
             return redirect(submission.get_absolute_url())
         elif comtype == "StoE":
-            return redirect(reverse("submissions:pool"))
+            return redirect(reverse("submissions:pool:pool"))
         return redirect(submission.get_absolute_url())
 
     context = {
@@ -2395,7 +2395,6 @@ def vote_on_rec(request, rec_id):
                 messages.warning(
                     request, "You have already abstained on this Recommendation."
                 )
-                # return redirect(reverse('submissions:pool'))
                 pass
         votechanged = previous_vote and form.cleaned_data["vote"] != previous_vote
         if form.cleaned_data["remark"] or votechanged:
@@ -2422,7 +2421,7 @@ def vote_on_rec(request, rec_id):
             remark.save()
         recommendation.save()
         messages.success(request, "Thank you for your vote.")
-        return redirect(reverse("submissions:pool"))
+        return redirect(reverse("submissions:pool:pool"))
 
     context = {
         "recommendation": recommendation,
@@ -2464,7 +2463,7 @@ def remind_Fellows_to_vote(request, rec_id):
     context = {
         "ack_message": Template(ack_message).render(Context({})),
         "followup_message": "Return to the ",
-        "followup_link": reverse("submissions:pool"),
+        "followup_link": reverse("submissions:pool:pool"),
         "followup_link_label": "Submissions pool",
     }
     return render(request, "scipost/acknowledgement.html", context)
@@ -2544,7 +2543,7 @@ class SubmissionReassignmentView(
     template_name = "submissions/admin/submission_reassign.html"
     form_class = SubmissionReassignmentForm
     editorial_page = True
-    success_url = reverse_lazy("submissions:pool")
+    success_url = reverse_lazy("submissions:pool:pool")
     success_message = "Editor successfully replaced."
 
 
@@ -2564,7 +2563,7 @@ def _hx_submission_update_target_journal(request, identifier_w_vn_nr):
             )
         return redirect(
             reverse(
-                "submissions:pool_hx_submission_li_details",
+                "submissions:pool:_hx_submission_li_details",
                 args=(submission.preprint.identifier_w_vn_nr,),
             )
         )
@@ -2590,7 +2589,7 @@ def _hx_submission_update_target_proceedings(request, identifier_w_vn_nr):
             )
         return redirect(
             reverse(
-                "submissions:pool_hx_submission_li_details",
+                "submissions:pool:_hx_submission_li_details",
                 args=(submission.preprint.identifier_w_vn_nr,),
             )
         )
@@ -2624,7 +2623,7 @@ def _hx_submission_update_preprint_file(request, identifier_w_vn_nr):
                 )
             return redirect(
                 reverse(
-                    "submissions:pool_hx_submission_li_details",
+                    "submissions:pool:_hx_submission_li_details",
                     args=(preprint.identifier_w_vn_nr,),
                 )
             )
@@ -2644,7 +2643,7 @@ class PreassignmentView(SubmissionAdminViewMixin, UpdateView):
     template_name = "submissions/admin/submission_preassignment.html"
     form_class = SubmissionPreassignmentForm
     editorial_page = True
-    success_url = reverse_lazy("submissions:pool")
+    success_url = reverse_lazy("submissions:pool:pool")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -2658,7 +2657,7 @@ class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
     permission_required = "scipost.can_run_preassignment"
     template_name = "submissions/admin/submission_conflicts.html"
     editorial_page = True
-    success_url = reverse_lazy("submissions:pool")
+    success_url = reverse_lazy("submissions:pool:pool")
 
 
 class EICRecommendationDetailView(
@@ -2853,7 +2852,7 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
             )
         )
 
-        return redirect("submissions:pool")
+        return redirect("submissions:pool:pool")
     else:
         return mail_request.interrupt()
 

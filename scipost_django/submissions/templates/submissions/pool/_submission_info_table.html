@@ -50,7 +50,7 @@
 	    <li>Seeking assignment</li>
 	  {% else %}
             <li>You can
-	      <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>
+	      <a href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>
 	    </li>
 	  {% endif %}
 	  {% if request.user.contributor.is_active_senior_fellow %}

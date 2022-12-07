@@ -62,7 +62,7 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
 
     def get_absolute_url(self):
         """Return the url of the assignment's processing page."""
-        return reverse("submissions:assignment_request", args=(self.id,))
+        return reverse("submissions:pool:assignment_request", args=(self.id,))
 
     @property
     def preassigned(self):

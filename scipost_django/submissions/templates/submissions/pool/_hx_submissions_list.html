@@ -7,7 +7,7 @@
   <li>No Submission could be found</li>
 {% endfor %}
 {% if page_obj.has_next %}
-  <li hx-post="{% url 'submissions:pool_hx_submissions_list' %}?page={{ page_obj.next_page_number }}"
+  <li hx-post="{% url 'submissions:pool:_hx_submissions_list' %}?page={{ page_obj.next_page_number }}"
       hx-include="#search-form"
       hx-trigger="revealed"
       hx-swap="afterend"

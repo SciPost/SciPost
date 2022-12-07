@@ -11,7 +11,7 @@
     <div class="container">
       <nav class="breadcrumb hidden-sm-down">
         {% block breadcrumb_items %}
-          <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+          <a href="{% url 'submissions:pool:pool' %}" class="breadcrumb-item">Pool</a>
         {% endblock %}
       </nav>
     </div>
@@ -44,7 +44,7 @@
       <ul>
         {% for assignment in assignments_to_consider %}
           <li>On submission: {{ assignment.submission }}<br>
-            <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+            <a href="{% url 'submissions:pool:assignment_request' assignment.id %}">Accept or decline here</a>
           </li>
         {% endfor %}
       </ul>
@@ -81,7 +81,7 @@
     </div>
     <div class="card-body">
       <form
-	  hx-post="{% url 'submissions:pool_hx_submissions_list' %}"
+	  hx-post="{% url 'submissions:pool:_hx_submissions_list' %}"
 	  hx-trigger="load, keyup delay:500ms, change"
 	  hx-target="#search-results"
 	  hx-indicator="#indicator-search"

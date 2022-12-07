@@ -7,19 +7,19 @@ from django.urls import include, path
 from ..views import incoming
 
 
-urlpatterns = [
-    path( # "incoming/<identifier>/"
+urlpatterns = [ # building on /edadmin/incoming/
+    path( # <identifier>/
         "<identifier:identifier_w_vn_nr>/",
         include([
-            path( # "incoming/<identifier>/admissibility"
+            path( # incoming/<identifier>/admissibility
                 "admissibility",
                 incoming._hx_submission_admissibility,
                 name="_hx_submission_admissibility",
             ),
-            path( # "incoming/<identifier>/plagiarism/"
+            path( # incoming/<identifier>/plagiarism/
                 "plagiarism/",
                 include([
-                    path( # "incoming/<identifier>/plagiarism/internal/"
+                    path( # incoming/<identifier>/plagiarism/internal/
                         "internal/",
                         include([
                             path(
@@ -33,8 +33,8 @@ urlpatterns = [
                                 name="_hx_plagiarism_internal_assess",
                             ),
                             ]),
-                    ), # end "internal/"
-                    path( # "incoming/<identifier>/plagiarism/iThenticate/"
+                    ), # end internal/
+                    path( # incoming/<identifier>/plagiarism/iThenticate/
                         "iThenticate/",
                         include([
                             path(
@@ -48,10 +48,10 @@ urlpatterns = [
                                 name="_hx_plagiarism_iThenticate_assess",
                             ),
                         ]),
-                    ), # end "iThenticate/"
+                    ), # end iThenticate/
                 ]),
-            ), # end "plagiarism/"
-            path( # "incoming/<identifier>/admission"
+            ), # end plagiarism/
+            path( # incoming/<identifier>/admission
                 "admission",
                 incoming._hx_submission_admission,
                 name="_hx_submission_admission",

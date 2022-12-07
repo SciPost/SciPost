@@ -2,16 +2,20 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import path, re_path
+from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 
-from . import views
+from .. import views
 
 app_name = "submissions"
 
 
 urlpatterns = [
+
+    # nested namespaces
+    path("pool/", include("submissions.urls.pool", namespace="pool")),
+
     # Autocomplete
     path(
         "submission-autocomplete",
@@ -238,44 +242,6 @@ urlpatterns = [
         "withdraw_manuscript/<identifier:identifier_w_vn_nr>/",
         views.withdraw_manuscript,
         name="withdraw_manuscript",
-    ),
-    # Pool
-    path("pool", views.pool, name="pool"),
-    path(
-        "pool/<identifier:identifier_w_vn_nr>/",
-        views.pool,
-        name="pool",
-    ),
-    path(
-        "pool/submissions",
-        views.pool_hx_submissions_list,
-        name="pool_hx_submissions_list",
-    ),
-    path(
-        "pool/submissions/<identifier:identifier_w_vn_nr>",
-        views.pool_hx_submission_li_details,
-        name="pool_hx_submission_li_details",
-    ),
-    path(
-        "add_remark/<identifier:identifier_w_vn_nr>",
-        views.add_remark,
-        name="add_remark",
-    ),
-    # Assignment of Editor-in-charge
-    path(
-        "pool/assignment_request/<int:assignment_id>",
-        views.assignment_request,
-        name="assignment_request",
-    ),
-    path(
-        "pool/<identifier:identifier_w_vn_nr>/editorial_assignment/",
-        views.editorial_assignment,
-        name="editorial_assignment",
-    ),
-    path(
-        "pool/<identifier:identifier_w_vn_nr>/editorial_assignment/<int:assignment_id>/",
-        views.editorial_assignment,
-        name="editorial_assignment",
     ),
     path(
         "update_authors_assignment/<identifier:identifier_w_vn_nr>/<int:nrweeks>",
