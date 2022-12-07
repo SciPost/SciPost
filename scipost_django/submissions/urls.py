@@ -253,8 +253,8 @@ urlpatterns = [
     ),
     path(
         "pool/submissions/<identifier:identifier_w_vn_nr>",
-        views.pool_hx_submission_details,
-        name="pool_hx_submission_details",
+        views.pool_hx_submission_li_details,
+        name="pool_hx_submission_li_details",
     ),
     path(
         "add_remark/<identifier:identifier_w_vn_nr>",

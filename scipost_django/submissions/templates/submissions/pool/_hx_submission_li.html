@@ -114,7 +114,7 @@
 
   <div id="details_{{ submission.id }}" class="mt-2">
     <button type="button" class="btn btn-primary p-1 mx-auto"
-	    hx-get="{% url 'submissions:pool_hx_submission_details' submission.preprint.identifier_w_vn_nr %}"
+	    hx-get="{% url 'submissions:pool_hx_submission_li_details' submission.preprint.identifier_w_vn_nr %}"
 	    hx-target="#details_{{ submission.id }}"
 	    hx-indicator="#indicator-details-{{ submission.id }}"
     >
