@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.urls import include, path
 
-from .. import views
+import submissions.views.pool as views_pool
 
 app_name = "pool"
 
@@ -13,12 +13,12 @@ app_name = "pool"
 urlpatterns = [ # building on /submissions/pool/
     path(
         "",
-        views.pool,
+        views_pool.pool,
         name="pool",
     ),
     path( # <identifier>/
         "<identifier:identifier_w_vn_nr>/",
-        views.pool,
+        views_pool.pool,
         name="pool",
     ),
     path(
@@ -26,25 +26,25 @@ urlpatterns = [ # building on /submissions/pool/
         include([
             path(
                 "",
-                views.pool_hx_submissions_list,
+                views_pool.pool_hx_submissions_list,
                 name="_hx_submissions_list",
             ),
             path(
                 "<identifier:identifier_w_vn_nr>",
-                views.pool_hx_submission_li_details,
+                views_pool.pool_hx_submission_li_details,
                 name="_hx_submission_li_details",
             ),
         ]),
     ),
     path(
         "add_remark/<identifier:identifier_w_vn_nr>",
-        views.add_remark,
+        views_pool.add_remark,
         name="add_remark",
     ),
     # Assignment of Editor-in-charge
     path(
         "assignment_request/<int:assignment_id>",
-        views.assignment_request,
+        views_pool.assignment_request,
         name="assignment_request",
     ),
     path(
@@ -52,12 +52,12 @@ urlpatterns = [ # building on /submissions/pool/
         include([
             path(
                 "",
-                views.editorial_assignment,
+                views_pool.editorial_assignment,
                 name="editorial_assignment",
             ),
             path(
                 "<int:assignment_id>/",
-                views.editorial_assignment,
+                views_pool.editorial_assignment,
                 name="editorial_assignment",
             ),
         ]),
