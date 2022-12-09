@@ -1,0 +1,106 @@
+<div class="row mb-0">
+  <div class="col col-md-9">
+    <table>
+      <tbody>
+	<tr>
+	  <td><strong class="text-primary">{{ submission.title }}</strong></td>
+	</tr>
+	<tr class="mt-1">
+	  <td><strong><em>by {{ submission.author_list }}</em></strong></td>
+	</tr>
+      </tbody>
+    </table>
+    <div class="row mt-2 mb-0">
+      <div class="col">
+	<small class="text-muted">Submitted to</small><br>
+	{{ submission.submitted_to }}
+      </div>
+      <div class="col">
+	{% if submission.is_resubmission_of %}
+	  <table class="m-0 p-0">
+	    <tr>
+	      <td>
+		<small class="text-muted">
+		  Resubmission:
+		</small>
+	      </td>
+	      <td class="ms-2">{{ submission.submission_date|date:"Y-m-d" }}</td>
+	    </tr>
+	    <tr>
+	      <td>
+		<small class="text-muted">Original submission:</small>
+	      </td>
+	      <td class="ms-2">{{ submission.original_submission_date|date:'Y-m-d' }}</td>
+	    </tr>
+	  </table>
+	{% else %}
+	  <small class="text-muted">Submission date</small>
+	  <br>
+	  {{ submission.submission_date|date:'Y-m-d' }}
+	{% endif %}
+      </div>
+      <div class="col">
+	<small class="text-muted">Submission Status</small>
+	<br>
+	{{ submission.get_status_display }}</span>
+	{% with recommendation=submission.eicrecommendations.active.first %}
+	  {% if recommendation %}
+	    <br>
+	    <small class="text-muted">EIC Recommendation &amp; Status</small>
+	    <br>
+	    {{ recommendation.get_full_status_display }}
+	    <br>
+	    <small class="text-muted">{{ recommendation.eligible_to_vote.count }} voting: {{ recommendation.voted_for.count }} agreed, {{ recommendation.voted_against.count }} disagreed, {{ recommendation.voted_abstain.count }} abstained</small>
+	  {% endif %}
+	{% endwith %}
+	{% if submission.editorial_decision %}
+	  <br>
+	  <small class="text-muted">Editorial Decision Status</small>
+	  <br>
+	  {{ submission.editorial_decision.get_status_display }}
+	{% endif %}
+      </div>
+    </div>
+    {% if submission.stage_preassignment_completed %}
+      <div class="row mt-2 mb-0">
+	{% if submission.editor_in_charge %}
+	  <div class="col-md-4">
+	    <small class="text-muted">Editor-in-charge</small>
+	    <br>
+	    {% if submission.editor_in_charge == request.user.contributor %}
+	      <strong>You are the EIC</strong>
+	    {% else %}
+	      <strong>{{ submission.editor_in_charge }}</strong>
+	    {% endif %}
+	  </div>
+	{% elif request.user.contributor.is_ed_admin or request.user.contributor.is_active_senior_fellow %}
+	  <div class="col-md-4">
+	    <a class="btn btn-primary" href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}"><small>View/update invitations</small></a>
+	  </div>
+	{% else %}
+	  <div class="col-md-4">
+	    <a class="btn btn-success" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><small>Volunteer as EiC</small></a>
+	  </div>
+	{% endif %}
+      </div>
+    {% endif %}
+  </div>
+  <div class="col col-md-3 border-start">
+    <ul class="ms-2 p-0">
+      {% for specialty in submission.specialties.all %}
+	<li><small>{{ specialty }}</small></li>
+      {% endfor %}
+    </ul>
+    <ul class="ms-2 list list-unstyled">
+      <li class="mb-2"><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">{% include "bi/arrow-right-square-fill.html" %}submission page</a></li>
+      {% if request.user.contributor.is_ed_admin or request.user.contributor == submission.editor_in_charge %}
+      <li class="mb-2"><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">
+	<span class="text-danger">
+	  {% include "bi/arrow-right-square-fill.html" %}
+	  editorial page
+	</span>
+      </a></li>
+      {% endif %}
+    </ul>
+  </div>
+</div>

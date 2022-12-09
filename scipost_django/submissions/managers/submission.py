@@ -120,6 +120,9 @@ class SubmissionQuerySet(models.QuerySet):
     def stage_decisionmaking_completed(self):
         return self.filter(status__in=self.model.STAGE_DECIDED)
 
+    def in_state_in_production(self):
+        return self.filter(status__in=self.model.STAGE_IN_PRODUCTION)
+
     #### Other managers mixing statuses ####
 
     def under_consideration(self):

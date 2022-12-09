@@ -1,0 +1,27 @@
+<table class="submission summary">
+  <thead class="bg-info">
+    <th colspan="2" class="px-1 bg-info">Ontological classification</th>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Academic field:</td>
+      <td>{{ submission.acad_field }}</td>
+    </tr>
+    <tr>
+      <td>Specialties:</td>
+      <td>
+	<ul class="m-0 ps-4">
+	  {% for specialty in submission.specialties.all %}
+	    <li>{{ specialty }}</li>
+	  {% endfor %}
+	</ul>
+      </td>
+    </tr>
+    {% if submission.approaches %}
+      <tr>
+	<td>Approach{% if submission.approaches|length > 1 %}es{% endif %}:</td>
+	<td>{% for approach in submission.approaches %}{% if not forloop.first %}, {% endif %}{{ approach|capfirst }}{% endfor %}</td>
+      </tr>
+    {% endif %}
+  </tbody>
+</table>

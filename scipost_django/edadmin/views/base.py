@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 import operator
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 
@@ -33,8 +34,18 @@ def _hx_submissions_in_stage(request, stage):
     if stage not in Submission.STAGE_SLUGS:
         raise Http404(f"This Submission stage does not exist: {stage}")
     submissions = get_objects_for_user(request.user, "submissions.take_edadmin_actions")
+    submissions = operator.attrgetter(f"in_stage_{stage}")(submissions)()
+    paginator = Paginator(submissions, 16)
+    page_nr = request.GET.get("page")
+    page_obj = paginator.get_page(page_nr)
+    count = paginator.count
+    start_index = page_obj.start_index
     context = {
-        "submissions": operator.attrgetter(f"in_stage_{stage}")(submissions)(),
+        "stage": stage,
+        "count": count,
+        "page_obj":
+        page_obj,
+        "start_index": start_index,
     }
     return render(request, "edadmin/_hx_submissions_list.html", context)
 

@@ -1,33 +1,14 @@
-<h3 class="m-4">{{ submissions|length }} Submissions in this stage</h3>
-{% for submission in submissions %}
+{% for submission in page_obj %}
+
+  <div class="ms-3 mt-3"><strong>{{ forloop.counter0|add:start_index }} of {{ count }}</strong></div>
 
   <details id="submission-{{ submission.pk }}-details"
-	   class="border border-2 m-4"
+	   class="border border-2 mx-3"
   >
-    <summary class="px-4 py-2 bg-primary bg-opacity-10">
-      <div class="row">
-	<div class="col col-lg-10">
-	  <table>
-	    <tbody>
-	      <tr>
-		<td>{{ submission.title }}</td>
-	      </tr>
-	      <tr>
-		<td>{{ submission.author_list }}</td>
-	      </tr>
-	      <tr>
-		<td>Submitted {{ submission.submission_date|date:"Y-m-d" }} to {{ submission.submitted_to }}</td>
-	      </tr>
-	    </tbody>
-	  </table>
-	</div>
-	<div class="col col-lg-2">
-	  <ul class="list list-unstyled">
-	    <li class="mb-2"><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">{% include "bi/arrow-right-square-fill.html" %}submission page</a></li>
-	    <li class="mb-2"><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank" class="text-danger">{% include "bi/arrow-right-square-fill.html" %}editorial page</a></li>
-	  </ul>
-	</div>
-      </div>
+    <summary style="list-style: none;"
+	     class="p-2 bg-primary bg-opacity-10"
+    >
+      {% include "submissions/pool/_submission_details_summary_contents.html" with submission=submission %}
     </summary>
     <div id="submission-{{ submission.pk }}-edadmin"
 	 hx-get="{% url 'edadmin:_hx_submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
@@ -38,3 +19,17 @@
 {% empty %}
   <p><strong>No Submission found</strong></p>
 {% endfor %}
+{% if page_obj.has_next %}
+  <div hx-get="{% url 'edadmin:_hx_submissions_in_stage' stage=stage %}?page={{ page_obj.next_page_number }}"
+       hx-trigger="revealed"
+       hx-swap="afterend"
+       hx-indicator="#indicator-search-page-{{ page_obj.number }}"
+  >
+    <div id="indicator-search-page-{{ page_obj.number }}" class="htmx-indicator p-2">
+      <button class="btn btn-warning" type="button" disabled>
+	<strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </div>
+  </div>
+{% endif %}
