@@ -88,7 +88,7 @@ from submissions.models import (
     EditorialAssignment,
     EICRecommendation,
 )
-from submissions.forms import SubmissionSearchForm, ReportSearchForm
+from submissions.forms import PortalSubmissionSearchForm, ReportSearchForm
 from theses.models import ThesisLink
 from theses.forms import ThesisSearchForm
 
@@ -288,7 +288,7 @@ def portal_hx_publications_page(request):
 
 def portal_hx_submissions(request):
     reports_needed = request.GET.get("reports_needed", False)
-    form = SubmissionSearchForm(
+    form = PortalSubmissionSearchForm(
         acad_field_slug=request.session.get("session_acad_field_slug", None),
         specialty_slug=request.session.get("session_specialty_slug", None),
         reports_needed=reports_needed,
@@ -301,7 +301,7 @@ def portal_hx_submissions_page(request):
     session_acad_field_slug = request.session.get("session_acad_field_slug", None)
     session_specialty_slug = request.session.get("session_specialty_slug", None)
     reports_needed = request.GET.get("reports_needed", False)
-    form = SubmissionSearchForm(
+    form = PortalSubmissionSearchForm(
         request.POST or None,
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,

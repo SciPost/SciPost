@@ -18,7 +18,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
 
-from .constants import (
+from ..constants import (
     ASSIGNMENT_BOOL,
     ASSIGNMENT_REFUSAL_REASONS,
     REPORT_ACTION_CHOICES,
@@ -51,9 +51,9 @@ from .constants import (
     STATUS_ACCEPTED,
     STATUS_DECLINED,
 )
-from . import exceptions, helpers
-from .helpers import to_ascii_only
-from .models import (
+from .. import exceptions, helpers
+from ..helpers import to_ascii_only
+from ..models import (
     PreprintServer,
     Submission,
     RefereeInvitation,
@@ -65,7 +65,7 @@ from .models import (
     iThenticateReport,
     EditorialCommunication,
 )
-from .regexes import CHEMRXIV_DOI_PATTERN
+from ..regexes import CHEMRXIV_DOI_PATTERN
 
 from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings
@@ -87,7 +87,7 @@ FIGSHARE_IDENTIFIER_PATTERN = r"^[0-9]+\.v[0-9]{1,2}$"
 OSFPREPRINTS_IDENTIFIER_PATTERN = r"^[a-z0-9]+$"
 
 
-class SubmissionSearchForm(forms.Form):
+class PortalSubmissionSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     submitted_to = forms.ModelChoiceField(
