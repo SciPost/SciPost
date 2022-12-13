@@ -6,13 +6,7 @@
 {% is_ed_admin request.user as is_ed_admin %}
 
 
-<button type="button" class="btn btn-primary p-1"
-	data-bs-toggle="collapse" data-bs-target="#collapse_{{ submission.id }}"
-	aria-expanded="true" aria-controls="collapse_{{ submission.id }}">
-  <small>Toggle details visibility</small>
-</button>
-
-<div class="collapse show bg-light submission-detail mt-1 p-2" id="collapse_{{ submission.id }}">
+<div class="bg-light submission-detail mt-1 p-2" id="collapse_{{ submission.id }}">
   <div class="card-body px-0">
     <div class="row">
       <div class="col-md-8">
@@ -234,11 +228,5 @@
     </div>
 
   </div>
-
-  <button type="button" class="btn btn-primary p-1"
-		data-bs-toggle="collapse" data-bs-target="#collapse_{{ submission.id }}"
-		aria-expanded="true" aria-controls="collapse_{{ submission.id }}">
-    <small>Toggle details visibility</small>
-  </button>
 
 </div>

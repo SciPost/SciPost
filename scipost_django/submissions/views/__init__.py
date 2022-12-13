@@ -2361,7 +2361,7 @@ def _hx_submission_update_target_journal(request, identifier_w_vn_nr):
             )
         return redirect(
             reverse(
-                "submissions:pool:_hx_submission_li_details",
+                "submissions:pool:_hx_submission_details_contents",
                 args=(submission.preprint.identifier_w_vn_nr,),
             )
         )
@@ -2387,7 +2387,7 @@ def _hx_submission_update_target_proceedings(request, identifier_w_vn_nr):
             )
         return redirect(
             reverse(
-                "submissions:pool:_hx_submission_li_details",
+                "submissions:pool:_hx_submission_details_contents",
                 args=(submission.preprint.identifier_w_vn_nr,),
             )
         )
@@ -2421,7 +2421,7 @@ def _hx_submission_update_preprint_file(request, identifier_w_vn_nr):
                 )
             return redirect(
                 reverse(
-                    "submissions:pool:_hx_submission_li_details",
+                    "submissions:pool:_hx_submission_details_contents",
                     args=(preprint.identifier_w_vn_nr,),
                 )
             )

@@ -47,14 +47,14 @@ def _hx_submissions_in_stage(request, stage):
         page_obj,
         "start_index": start_index,
     }
-    return render(request, "edadmin/_hx_submissions_list.html", context)
+    return render(request, "edadmin/_hx_submissions.html", context)
 
 
 @login_required
 @user_passes_test(is_edadmin)
-def _hx_submission(request, identifier_w_vn_nr):
+def _hx_submission_details_contents(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
     context = {"submission": submission,}
-    return render(request, "edadmin/_hx_submission.html", context)
+    return render(request, "edadmin/_hx_submission_details_contents.html", context)

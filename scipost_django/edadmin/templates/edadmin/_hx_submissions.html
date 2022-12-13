@@ -2,20 +2,8 @@
 
   <div class="ms-3 mt-3"><strong>{{ forloop.counter0|add:start_index }} of {{ count }}</strong></div>
 
-  <details id="submission-{{ submission.pk }}-details"
-	   class="border border-2 mx-3"
-  >
-    <summary style="list-style: none;"
-	     class="p-2 bg-primary bg-opacity-10"
-    >
-      {% include "submissions/pool/_submission_details_summary_contents.html" with submission=submission %}
-    </summary>
-    <div id="submission-{{ submission.pk }}-edadmin"
-	 hx-get="{% url 'edadmin:_hx_submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	 hx-trigger="toggle once from:#submission-{{ submission.pk }}-details, submission-{{ submission.pk }}-details-updated"
-    >
-    </div>
-  </details>
+  {% include "edadmin/_submission_details.html" with submission=submission %}
+
 {% empty %}
   <p><strong>No Submission found</strong></p>
 {% endfor %}

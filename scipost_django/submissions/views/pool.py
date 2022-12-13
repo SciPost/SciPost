@@ -72,13 +72,13 @@ def pool_hx_submissions_list(request):
 
 @login_required
 @fellowship_or_admin_required()
-def pool_hx_submission_li_details(request, identifier_w_vn_nr):
+def pool_hx_submission_details_contents(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission.objects.in_pool(request.user, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     context = {"remark_form": RemarkForm(), "submission": submission}
-    return render(request, "submissions/pool/_hx_submission_li_details.html", context)
+    return render(request, "submissions/pool/_hx_submission_details_contents.html", context)
 
 
 @login_required

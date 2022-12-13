@@ -1,3 +1,5 @@
+{% load submissions_pool %}
+
 <div class="row mb-0">
   <div class="col col-md-9">
     <table>
@@ -73,13 +75,14 @@
 	      <strong>{{ submission.editor_in_charge }}</strong>
 	    {% endif %}
 	  </div>
-	{% elif request.user.contributor.is_ed_admin or request.user.contributor.is_active_senior_fellow %}
-	  <div class="col-md-4">
-	    <a class="btn btn-primary" href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}"><small>View/update invitations</small></a>
-	  </div>
 	{% else %}
+	  {% if request.user.contributor.is_ed_admin or request.user.contributor.is_active_senior_fellow %}
+	    <div class="col-md-4">
+	      <a class="btn btn-primary" href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}"><small>View/update invitations</small></a>
+	    </div>
+	  {% endif %}
 	  <div class="col-md-4">
-	    <a class="btn btn-success" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><small>Volunteer as EiC</small></a>
+	    <a class="btn btn-success text-white" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><small>Volunteer as EiC</small></a>
 	  </div>
 	{% endif %}
       </div>
@@ -94,13 +97,41 @@
     <ul class="ms-2 list list-unstyled">
       <li class="mb-2"><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">{% include "bi/arrow-right-square-fill.html" %}submission page</a></li>
       {% if request.user.contributor.is_ed_admin or request.user.contributor == submission.editor_in_charge %}
-      <li class="mb-2"><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">
-	<span class="text-danger">
-	  {% include "bi/arrow-right-square-fill.html" %}
-	  editorial page
-	</span>
-      </a></li>
+	<li class="mb-2"><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">
+	  <span class="text-danger">
+	    {% include "bi/arrow-right-square-fill.html" %}
+	    editorial page
+	  </span>
+	</a></li>
       {% endif %}
     </ul>
   </div>
 </div>
+
+{% if request.user.contributor.is_ed_admin and submission.has_inadequate_fellowship_composition %}
+  <div class="border border-danger text-danger mt-1 py-1 px-2">
+    <strong>
+      {% include 'bi/exclamation-triangle-fill.html' %}
+      Notice to admin: The current editor is not assigned to the pool. Therefore, the editor will not be able to reach the editorial page.
+    </strong>
+  </div>
+{% endif %}
+
+{% if submission.cycle.has_required_actions %}
+  <div class="card-text bg-danger text-white mt-1 py-1 px-2">
+    <button type="button" class="btn p-0" disabled>
+      <small class="text-white">This Submission contains required actions.</small>
+    </button>
+    {% if request.user.contributor.is_ed_admin %}{% include 'submissions/pool/_required_actions_tooltip.html' with submission=submission classes='text-white' %}{% endif %}
+  </div>
+{% endif %}
+
+{% if submission.status == 'seeking_assignment' %}
+  {% get_editor_invitations submission request.user as invitations %}
+  {% if invitations %}
+    <div class="border border-warning mt-1 py-1 px-2">
+      <span class="mt-1 px-1 text-danger">{% include 'bi/exclamation.html' %}</i>
+        You are invited to become Editor-in-charge of this Submission. <a href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">You can reply to this invitation here</a>.
+    </div>
+  {% endif %}
+{% endif %}

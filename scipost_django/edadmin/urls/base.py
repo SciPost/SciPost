@@ -21,9 +21,9 @@ urlpatterns = [
         "<identifier:identifier_w_vn_nr>/",
         include([
             path(
-                "",
-                base._hx_submission,
-                name="_hx_submission",
+                "details/contents",
+                base._hx_submission_details_contents,
+                name="_hx_submission_details_contents",
             ),
         ]),
     ),

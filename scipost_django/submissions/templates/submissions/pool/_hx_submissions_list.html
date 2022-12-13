@@ -1,5 +1,5 @@
 {% for submission in page_obj %}
-  <span>{% if not forloop.first %} class="mt-4"{% endif %}><strong>{{ forloop.counter0|add:start_index }} of {{ count }}</strong></span>
+  <div class="ms-3 mt-3"><strong>{{ forloop.counter0|add:start_index }} of {{ count }}</strong></div>
   {% include 'submissions/pool/_hx_submission_details.html' with submission=submission %}
 {% empty %}
   <strong>No Submission could be found</strong>

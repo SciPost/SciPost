@@ -31,8 +31,8 @@ urlpatterns = [ # building on /submissions/pool/
             ),
             path(
                 "<identifier:identifier_w_vn_nr>",
-                views_pool.pool_hx_submission_li_details,
-                name="_hx_submission_li_details",
+                views_pool.pool_hx_submission_details_contents,
+                name="_hx_submission_details_contents",
             ),
         ]),
     ),

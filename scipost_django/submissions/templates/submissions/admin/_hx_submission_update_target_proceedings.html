@@ -3,7 +3,7 @@
   <p><strong>Update the target Proceedings</strong>
     <button
       type="button" class="ms-2 px-1 py-0 btn btn-sm btn-outline-danger"
-	    hx-get="{% url 'submissions:pool:_hx_submission_li_details' form.instance.preprint.identifier_w_vn_nr %}"
+	    hx-get="{% url 'submissions:pool:_hx_submission_details_contents' form.instance.preprint.identifier_w_vn_nr %}"
 	    hx-target="#details_{{ form.instance.id }}"
     >
       cancel
