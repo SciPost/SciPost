@@ -18,8 +18,33 @@ urlpatterns = [ # building on /submissions/pool/
     ),
     path( # <identifier>/
         "<identifier:identifier_w_vn_nr>/",
-        views_pool.pool,
-        name="pool",
+        include([
+            path(
+                "",
+                views_pool.pool,
+                name="pool",
+            ),
+            path(
+                "add_remark",
+                views_pool.add_remark,
+                name="add_remark",
+            ),
+            path(
+                "editorial_assignment/",
+                include([
+                    path(
+                        "",
+                        views_pool.editorial_assignment,
+                        name="editorial_assignment",
+                    ),
+                    path(
+                        "<int:assignment_id>/",
+                        views_pool.editorial_assignment,
+                        name="editorial_assignment",
+                    ),
+                ]),
+            ),
+        ])
     ),
     path(
         "submissions/",
@@ -36,30 +61,10 @@ urlpatterns = [ # building on /submissions/pool/
             ),
         ]),
     ),
-    path(
-        "add_remark/<identifier:identifier_w_vn_nr>",
-        views_pool.add_remark,
-        name="add_remark",
-    ),
     # Assignment of Editor-in-charge
     path(
         "assignment_request/<int:assignment_id>",
         views_pool.assignment_request,
         name="assignment_request",
-    ),
-    path(
-        "pool/<identifier:identifier_w_vn_nr>/editorial_assignment/",
-        include([
-            path(
-                "",
-                views_pool.editorial_assignment,
-                name="editorial_assignment",
-            ),
-            path(
-                "<int:assignment_id>/",
-                views_pool.editorial_assignment,
-                name="editorial_assignment",
-            ),
-        ]),
     ),
 ]

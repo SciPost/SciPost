@@ -16,13 +16,16 @@ from colleges.permissions import (
     fellowship_required,
     fellowship_or_admin_required,
 )
-
+from mails.utils import DirectMailUtil
 from submissions.models import (
     EditorialAssignment,
     EICRecommendation,
     Submission,
 )
-from submissions.forms import SubmissionPoolSearchForm
+from submissions.forms import (
+    SubmissionPoolSearchForm,
+    EditorialAssignmentForm,
+)
 from submissions.utils import SubmissionUtils
 
 

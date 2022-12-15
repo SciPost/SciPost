@@ -84,6 +84,7 @@
 	  <div class="col-md-4">
 	    <a class="btn btn-success text-white" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><small>Volunteer as EiC</small></a>
 	  </div>
+
 	{% endif %}
       </div>
     {% endif %}
@@ -105,6 +106,14 @@
 	</a></li>
       {% endif %}
     </ul>
+    {% if submission.cycle.has_required_actions %}
+      <li>
+	<button class="btn btn-sm btn-danger text-white">
+	  Required actions
+	</button>
+	{% if request.user.contributor.is_ed_admin %}{% include 'submissions/pool/_required_actions_tooltip.html' with submission=submission classes='text-white' %}{% endif %}
+      </ul>
+    {% endif %}
   </div>
 </div>
 
@@ -117,14 +126,6 @@
   </div>
 {% endif %}
 
-{% if submission.cycle.has_required_actions %}
-  <div class="card-text bg-danger text-white mt-1 py-1 px-2">
-    <button type="button" class="btn p-0" disabled>
-      <small class="text-white">This Submission contains required actions.</small>
-    </button>
-    {% if request.user.contributor.is_ed_admin %}{% include 'submissions/pool/_required_actions_tooltip.html' with submission=submission classes='text-white' %}{% endif %}
-  </div>
-{% endif %}
 
 {% if submission.status == 'seeking_assignment' %}
   {% get_editor_invitations submission request.user as invitations %}
