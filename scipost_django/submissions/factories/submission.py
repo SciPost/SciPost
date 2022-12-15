@@ -13,7 +13,7 @@ from comments.factories import SubmissionCommentFactory
 from journals.models import Journal
 from ontology.models import Specialty, AcademicField
 
-from ..models import Submission
+from ..models import Submission, EditorialAssignment
 
 
 class SubmissionFactory(factory.django.DjangoModelFactory):
@@ -301,7 +301,9 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
         if create:
             from submissions.factories import EditorialAssignmentFactory
             EditorialAssignmentFactory(
-                submission=self, to=self.editor_in_charge, status=STATUS_COMPLETED
+                submission=self,
+                to=self.editor_in_charge,
+                status=EditorialAssignment.STATUS_COMPLETED,
             )
 
     @factory.post_generation

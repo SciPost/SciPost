@@ -19,8 +19,6 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
 from ..constants import (
-    ASSIGNMENT_BOOL,
-    ASSIGNMENT_REFUSAL_REASONS,
     REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES,
     REPORT_POST_EDREC,
@@ -44,12 +42,6 @@ from ..constants import (
     STATUS_VETTED,
     DECISION_FIXED,
     DEPRECATED,
-    STATUS_COMPLETED,
-    STATUS_PREASSIGNED,
-    STATUS_REPLACED,
-    STATUS_DEPRECATED,
-    STATUS_ACCEPTED,
-    STATUS_DECLINED,
 )
 from .. import exceptions, helpers
 from ..helpers import to_ascii_only
@@ -1466,7 +1458,7 @@ class SubmissionForm(forms.ModelForm):
         EditorialAssignment.objects.create(
             submission=submission,
             to=previous_submission.editor_in_charge,
-            status=STATUS_ACCEPTED,
+            status=EditorialAssignment.STATUS_ACCEPTED,
         )
 
     def set_fellowship(self, submission):
@@ -1646,7 +1638,7 @@ class SubmissionReassignmentForm(forms.ModelForm):
         )
         if old_assignment:
             EditorialAssignment.objects.filter(id=old_assignment.id).update(
-                status=STATUS_REPLACED
+                status=EditorialAssignment.STATUS_REPLACED
             )
 
         # Update Submission and update/create Editorial Assignments
@@ -1654,7 +1646,7 @@ class SubmissionReassignmentForm(forms.ModelForm):
         assignment = EditorialAssignment.objects.create(
             submission=self.submission,
             to=self.cleaned_data["new_editor"],
-            status=STATUS_ACCEPTED,
+            status=EditorialAssignment.STATUS_ACCEPTED,
             date_invited=now,
             date_answered=now,
         )
@@ -1784,7 +1776,7 @@ class SubmissionPreassignmentForm(forms.ModelForm):
         elif self.cleaned_data["decision"] == self.FAIL:
             EditorialAssignment.objects.filter(
                 submission=self.instance
-            ).invited().update(status=STATUS_DEPRECATED)
+            ).invited().update(status=EditorialAssignment.STATUS_DEPRECATED)
             Submission.objects.filter(id=self.instance.id).update(
                 status=Submission.PREASSIGNMENT_FAILED,
                 visible_pool=False,
@@ -1848,10 +1840,10 @@ class WithdrawSubmissionForm(forms.Form):
             # Update all assignments
             EditorialAssignment.objects.filter(
                 submission=self.submission
-            ).need_response().update(status=STATUS_DEPRECATED)
+            ).need_response().update(status=EditorialAssignment.STATUS_DEPRECATED)
             EditorialAssignment.objects.filter(
                 submission=self.submission
-            ).accepted().update(status=STATUS_COMPLETED)
+            ).accepted().update(status=EditorialAssignment.STATUS_COMPLETED)
 
             # Deprecate any outstanding recommendations
             if EICRecommendation.objects.filter(submission=self.submission).exists():
@@ -1898,7 +1890,7 @@ class EditorialAssignmentForm(forms.ModelForm):
     refereeing_cycle = forms.ChoiceField(
         widget=forms.RadioSelect, choices=CYCLE_CHOICES, initial=CYCLE_DEFAULT
     )
-    refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS)
+    refusal_reason = forms.ChoiceField(choices=EditorialAssignment.REFUSAL_REASONS)
 
     class Meta:
         model = EditorialAssignment
@@ -1974,30 +1966,19 @@ class EditorialAssignmentForm(forms.ModelForm):
                 self.instance.submission = Submission.objects.get(id=self.submission.id)
 
             # Implicitly or explicity accept the assignment and deprecate others.
-            assignment.status = STATUS_ACCEPTED
+            assignment.status = EditorialAssignment.STATUS_ACCEPTED
 
             # Update all other 'open' invitations
             EditorialAssignment.objects.filter(
                 submission=self.submission
-            ).need_response().exclude(id=assignment.id).update(status=STATUS_DEPRECATED)
+            ).need_response().exclude(id=assignment.id).update(
+                status=EditorialAssignment.STATUS_DEPRECATED,
+            )
         else:
-            assignment.status = STATUS_DECLINED
+            assignment.status = EditorialAssignment.STATUS_DECLINED
             assignment.refusal_reason = self.cleaned_data["refusal_reason"]
         assignment.save()  # Save again to register acceptance
         return assignment
-
-
-class ConsiderAssignmentForm(forms.Form):
-    """Process open EditorialAssignment."""
-
-    accept = forms.ChoiceField(
-        widget=forms.RadioSelect,
-        choices=ASSIGNMENT_BOOL,
-        label="Are you willing to take charge of this Submission?",
-    )
-    refusal_reason = forms.ChoiceField(
-        choices=ASSIGNMENT_REFUSAL_REASONS, required=False
-    )
 
 
 class RefereeSearchForm(forms.Form):
@@ -2021,11 +2002,11 @@ class RefereeSearchForm(forms.Form):
 class ConsiderRefereeInvitationForm(forms.Form):
     accept = forms.ChoiceField(
         widget=forms.RadioSelect,
-        choices=ASSIGNMENT_BOOL,
+        choices=((True, "Accept"), (False, "Decline")),
         label="Are you willing to referee this Submission?",
     )
     refusal_reason = forms.ChoiceField(
-        choices=ASSIGNMENT_REFUSAL_REASONS, required=False
+        choices=EditorialAssignment.REFUSAL_REASONS, required=False
     )
 
 
@@ -2478,7 +2459,7 @@ class EICRecommendationForm(forms.ModelForm):
 
             if self.assignment:
                 # The EIC has fulfilled this editorial assignment.
-                self.assignment.status = STATUS_COMPLETED
+                self.assignment.status = EditorialAssignment.STATUS_COMPLETED
                 self.assignment.save()
 
             # Add SubmissionEvents for both Author and EIC
@@ -2673,8 +2654,9 @@ class RestartRefereeingForm(forms.Form):
                 latest_activity=timezone.now(),
             )
             self.submission.editorial_assignments.filter(
-                to=self.submission.editor_in_charge, status=STATUS_COMPLETED
-            ).update(status=STATUS_ACCEPTED)
+                to=self.submission.editor_in_charge,
+                status=EditorialAssignment.STATUS_COMPLETED,
+            ).update(status=EditorialAssignment.STATUS_ACCEPTED)
             self.submission.eicrecommendations.active().update(status=DEPRECATED)
             self.submission.editorialdecision_set.update(status=EditorialDecision.DEPRECATED)
 

@@ -293,8 +293,11 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(needs_conflicts_update=True)
 
     def has_editor_invitations_to_be_sent(self):
+        from submissions.models import EditorialAssignment
         """Return Submissions that have EditorialAssignments that still need to be sent."""
-        return self.filter(editorial_assignments__status=constants.STATUS_PREASSIGNED)
+        return self.filter(
+            editorial_assignments__status=EditorialAssignment.STATUS_PREASSIGNED,
+        )
 
     def candidate_for_resubmission(self, user):
         """

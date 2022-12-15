@@ -6,8 +6,6 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from .. import constants
-
 
 class EditorialAssignmentQuerySet(models.QuerySet):
 
@@ -51,26 +49,26 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 
         return (
             self.filter(
-                submission__id=submission_id, status=constants.STATUS_PREASSIGNED
+                submission__id=submission_id, status=self.model.STATUS_PREASSIGNED
             )
             .order_by("invitation_order")
             .first()
         )
 
     def preassigned(self):
-        return self.filter(status=constants.STATUS_PREASSIGNED)
+        return self.filter(status=self.model.STATUS_PREASSIGNED)
 
     def invited(self):
-        return self.filter(status=constants.STATUS_INVITED)
+        return self.filter(status=self.model.STATUS_INVITED)
 
     def need_response(self):
         """Return EdAssignments that are non-deprecated or without response."""
         return self.filter(
-            status__in=[constants.STATUS_PREASSIGNED, constants.STATUS_INVITED]
+            status__in=[self.model.STATUS_PREASSIGNED, self.model.STATUS_INVITED]
         )
 
     def ongoing(self):
-        return self.filter(status=constants.STATUS_ACCEPTED)
+        return self.filter(status=self.model.STATUS_ACCEPTED)
 
     def with_required_actions(self):
         ids = [o.id for o in self if o.submission.cycle.has_required_actions()]
@@ -78,18 +76,18 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 
     def accepted(self):
         return self.filter(
-            status__in=[constants.STATUS_ACCEPTED, constants.STATUS_COMPLETED]
+            status__in=[self.model.STATUS_ACCEPTED, self.model.STATUS_COMPLETED]
         )
 
     def declined(self):
-        return self.filter(status=constants.STATUS_DECLINED)
+        return self.filter(status=self.model.STATUS_DECLINED)
 
     def declined_red(self):
         """Return EditorialAssignments declined with a 'red-label reason'."""
         return self.declined().filter(refusal_reason__in=["NIE", "DNP"])
 
     def deprecated(self):
-        return self.filter(status=constants.STATUS_DEPRECATED)
+        return self.filter(status=self.model.STATUS_DEPRECATED)
 
     def completed(self):
-        return self.filter(status=constants.STATUS_COMPLETED)
+        return self.filter(status=self.model.STATUS_COMPLETED)

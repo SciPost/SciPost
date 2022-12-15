@@ -41,8 +41,6 @@ from ..constants import (
     STATUS_VETTED,
     STATUS_DRAFT,
     CYCLE_DIRECT_REC,
-    STATUS_COMPLETED,
-    STATUS_DEPRECATED,
     EIC_REC_PUBLISH,
     EIC_REC_REJECT,
     DECISION_FIXED,
@@ -72,7 +70,6 @@ from ..forms import (
     SubmissionPoolSearchForm,
     SubmissionOldSearchForm,
     RecommendationVoteForm,
-    ConsiderAssignmentForm,
     EditorialAssignmentForm,
     VetReportForm,
     SetRefereeingDeadlineForm,
@@ -955,7 +952,7 @@ def assignment_failed(request, identifier_w_vn_nr):
     if mail_editor_view.is_valid():
         # Deprecate old Editorial Assignments
         EditorialAssignment.objects.filter(submission=submission).invited().update(
-            status=STATUS_DEPRECATED
+            status=EditorialAssignment.STATUS_DEPRECATED,
         )
 
         # Update status of Submission
@@ -2621,7 +2618,7 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
     # Update Editorial Assignment statuses.
     EditorialAssignment.objects.filter(
         submission=submission, to=submission.editor_in_charge
-    ).update(status=STATUS_COMPLETED)
+    ).update(status=EditorialAssignment.STATUS_COMPLETED)
 
     mail_request = MailEditorSubview(
         request,

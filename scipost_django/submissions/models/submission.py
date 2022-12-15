@@ -25,7 +25,6 @@ from comments.models import Comment
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
-    STATUS_PREASSIGNED,
     SUBMISSION_CYCLES,
     CYCLE_DEFAULT,
     CYCLE_SHORT,
@@ -756,7 +755,7 @@ class Submission(models.Model):
         if self.status != self.SEEKING_ASSIGNMENT:
             return False
 
-        return self.editorial_assignments.filter(status=STATUS_PREASSIGNED).exists()
+        return self.editorial_assignments.preassigned().exists()
 
     def has_inadequate_fellowship_composition(self):
         """

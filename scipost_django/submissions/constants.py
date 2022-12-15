@@ -11,37 +11,6 @@ ED_COMM_CHOICES = (
     ("StoE", "SciPost Editorial Administration to Editor-in-charge"),
 )
 
-ASSIGNMENT_BOOL = ((True, "Accept"), (False, "Decline"))
-ASSIGNMENT_NULLBOOL = ((None, "Response pending"), (True, "Accept"), (False, "Decline"))
-
-ASSIGNMENT_REFUSAL_REASONS = (
-    ("BUS", "Too busy"),
-    ("VAC", "Away on vacation"),
-    ("COI", "Conflict of interest: coauthor in last 5 years"),
-    ("CCC", "Conflict of interest: close colleague"),
-    ("NIR", "Cannot give an impartial assessment"),
-    ("OFE", "Outside of my field of expertise"),
-    ("NIE", "Not interested enough"),
-    ("DNP", "SciPost should not even consider this paper"),
-)
-
-STATUS_PREASSIGNED = "preassigned"
-STATUS_INVITED = "invited"
-STATUS_ACCEPTED = "accepted"
-STATUS_DECLINED = "declined"
-STATUS_COMPLETED = "completed"
-STATUS_DEPRECATED = "deprecated"
-STATUS_REPLACED = "replaced"
-ASSIGNMENT_STATUSES = (
-    (STATUS_PREASSIGNED, "Pre-assigned"),
-    (STATUS_INVITED, "Invited"),
-    (STATUS_ACCEPTED, "Accepted"),
-    (STATUS_DECLINED, "Declined"),
-    (STATUS_COMPLETED, "Completed"),
-    (STATUS_DEPRECATED, "Deprecated"),
-    (STATUS_REPLACED, "Replaced"),
-)
-
 REFEREE_QUALIFICATION = (
     (None, "-"),
     (4, "expert in this subject"),
