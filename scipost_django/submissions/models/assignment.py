@@ -17,6 +17,7 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     Consideration of a Fellow to become Editor-in-Charge of a Submission.
     """
 
+    REFUSE_OUTSIDE_EXPERTISE = "OFE"
     REFUSE_TOO_BUSY = "BUS"
     REFUSE_ON_VACATION = "VAC"
     REFUSE_COI_COAUTHOR = "COI"
@@ -24,10 +25,10 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     REFUSE_COI_COMPETITOR = "CCM"
     REFUSE_COI_OTHER = "COT"
     REFUSE_NOT_IMPARTIAL = "NIR"
-    REFUSE_OUTSIDE_EXPERTISE = "OFE"
     REFUSE_NOT_INTERESTED = "NIE"
     REFUSE_DESK_REJECT = "DNP"
     REFUSAL_REASONS = (
+        (REFUSE_OUTSIDE_EXPERTISE, "Outside of my field of expertise"),
         (REFUSE_TOO_BUSY, "Too busy"),
         (REFUSE_ON_VACATION, "Away on vacation"),
         (REFUSE_COI_COAUTHOR, "Conflict of interest: coauthor in last 5 years"),
@@ -35,7 +36,6 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
         (REFUSE_COI_COMPETITOR, "Conflict of interest: close competitor"),
         (REFUSE_COI_OTHER, "Conflict of interest: other"),
         (REFUSE_NOT_IMPARTIAL, "Cannot give an impartial assessment"),
-        (REFUSE_OUTSIDE_EXPERTISE, "Outside of my field of expertise"),
         (REFUSE_NOT_INTERESTED, "Not interested enough"),
         (
             REFUSE_DESK_REJECT,
@@ -46,6 +46,8 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     STATUS_PREASSIGNED = "preassigned"
     STATUS_INVITED = "invited"
     STATUS_ACCEPTED = "accepted"
+    STATUS_ACCEPT_IF_NOBODY_ELSE = "accifnobodyelse"
+    STATUS_ACCEPT_IF_TRANSFERRED = "acciftransferred"
     STATUS_PERHAPS_LATER = "askagainlater"
     STATUS_DECLINED = "declined"
     STATUS_COMPLETED = "completed"
@@ -55,6 +57,11 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
         (STATUS_PREASSIGNED, "Preassigned"),
         (STATUS_INVITED, "Invited"),
         (STATUS_ACCEPTED, "Accepted"),
+        (STATUS_ACCEPT_IF_NOBODY_ELSE, "Accept (if nobody else does)"),
+        (
+            STATUS_ACCEPT_IF_TRANSFERRED,
+            "Accept (if transferred to non-flagship journal)",
+        ),
         (STATUS_PERHAPS_LATER, "Perhaps; ask again later"),
         (STATUS_DECLINED, "Declined"),
         (STATUS_COMPLETED, "Completed"),
