@@ -117,17 +117,17 @@
   </div>
 </div>
 
-{% if request.user.contributor.is_ed_admin and submission.has_inadequate_fellowship_composition %}
+{% if request.user.contributor.is_ed_admin and submission.eic_not_in_fellowship %}
   <div class="border border-danger text-danger mt-1 py-1 px-2">
     <strong>
       {% include 'bi/exclamation-triangle-fill.html' %}
-      Notice to admin: The current editor is not assigned to the pool. Therefore, the editor will not be able to reach the editorial page.
+      Notice to admin: The current editor is not assigned to this Submission's fellowship and will not be able to reach the editorial page.
     </strong>
   </div>
 {% endif %}
 
 
-{% if submission.status == 'seeking_assignment' %}
+{% if submission.in_stage_assignment %}
   {% get_editor_invitations submission request.user as invitations %}
   {% if invitations %}
     <div class="border border-warning mt-1 py-1 px-2">

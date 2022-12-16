@@ -757,7 +757,7 @@ class Submission(models.Model):
 
         return self.editorial_assignments.preassigned().exists()
 
-    def has_inadequate_fellowship_composition(self):
+    def eic_not_in_fellowship(self):
         """
         Check whether the EIC is actually in the fellowship of the Submission.
         """
