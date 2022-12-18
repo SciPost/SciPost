@@ -25,6 +25,11 @@ urlpatterns = [
                 base._hx_submission_details_contents,
                 name="_hx_submission_details_contents",
             ),
+            path(
+                "tab/edadmin",
+                base._hx_submission_tab_contents_edadmin,
+                name="_hx_submission_tab_contents_edadmin",
+            ),
         ]),
     ),
 ]

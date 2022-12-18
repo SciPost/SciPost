@@ -8,14 +8,14 @@
 
   </summary>
 
-  <div id="details_{{ submission.id }}"
-       class="mt-2"
-       hx-get="{% url 'submissions:pool:_hx_submission_details_contents' submission.preprint.identifier_w_vn_nr %}"
+  <div id="tabs-{{ submission.id }}"
+       class="m-2 p-2"
+       hx-get="{% url 'submissions:pool:_hx_submission_tab' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='info' %}"
        hx-trigger="toggle once from:#submission-{{ submission.pk }}-details"
-       hx-indicator="#indicator-details-{{ submission.id }}"
+       hx-indicator="#indicator-tabs-{{ submission.id }}"
     >
   </div>
-  <span id="indicator-details-{{ submission.id }}" class="htmx-indicator p-1">
+  <span id="indicator-tabs-{{ submission.id }}" class="htmx-indicator p-1">
     <button class="btn btn-sm btn-warning p-2" type="button" disabled>
       <small><strong>Loading...</strong></small>
       <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>

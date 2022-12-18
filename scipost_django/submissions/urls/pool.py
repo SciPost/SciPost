@@ -25,6 +25,11 @@ urlpatterns = [ # building on /submissions/pool/
                 name="pool",
             ),
             path(
+                "tab/<slug:tab>",
+                views_pool._hx_submission_tab,
+                name="_hx_submission_tab",
+            ),
+            path(
                 "add_remark",
                 views_pool.add_remark,
                 name="add_remark",
@@ -51,8 +56,8 @@ urlpatterns = [ # building on /submissions/pool/
         include([
             path(
                 "",
-                views_pool.pool_hx_submissions_list,
-                name="_hx_submissions_list",
+                views_pool.pool_hx_submission_list,
+                name="_hx_submission_list",
             ),
             path(
                 "<identifier:identifier_w_vn_nr>",

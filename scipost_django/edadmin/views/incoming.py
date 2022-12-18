@@ -56,7 +56,7 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
         submission.refresh_from_db()
         # trigger re-rendering of the details-contents div
         response = HttpResponse()
-        response["HX-Trigger"] = f"submission-{submission.pk}-details-updated"
+        response["HX-Trigger"] = f"submission-{submission.pk}-tab-edadmin-updated"
         return response
     context = {"submission": submission, "form": form,}
     return render(request, "edadmin/_hx_submission_admissibility_form.html", context)
@@ -123,7 +123,7 @@ def _hx_plagiarism_internal_assess(request, identifier_w_vn_nr):
     if form.is_valid(): # trigger re-rendering of details-contents div
         assessment = form.save()
         response = HttpResponse()
-        response["HX-Trigger"] = f"submission-{submission.pk}-details-updated"
+        response["HX-Trigger"] = f"submission-{submission.pk}-tab-edadmin-updated"
         return response
     context = {
         "submission": submission,
@@ -173,7 +173,7 @@ def _hx_plagiarism_iThenticate_assess(request, identifier_w_vn_nr):
     if form.is_valid(): # trigger re-rendering of details-contents div
         assessment = form.save()
         response = HttpResponse()
-        response["HX-Trigger"] = f"submission-{submission.pk}-details-updated"
+        response["HX-Trigger"] = f"submission-{submission.pk}-tab-edadmin-updated"
         return response
     context = {
         "submission": submission,
@@ -218,7 +218,7 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
         submission.refresh_from_db()
         # redirect to the edadmin page so that all is refreshed
         response = HttpResponse()
-        response["HX-Redirect"] = reverse("edadmin:edadmin")
+        response["HX-Redirect"] = reverse("submissions:pool:pool")
         return response
     context = {"submission": submission, "form": form,}
     return render(request, "edadmin/_hx_submission_admission_form.html", context)

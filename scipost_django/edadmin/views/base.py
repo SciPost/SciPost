@@ -58,3 +58,13 @@ def _hx_submission_details_contents(request, identifier_w_vn_nr):
     )
     context = {"submission": submission,}
     return render(request, "edadmin/_hx_submission_details_contents.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_submission_tab_contents_edadmin(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    context = {"submission": submission,}
+    return render(request, "edadmin/_hx_submission_tab_contents_edadmin.html", context)

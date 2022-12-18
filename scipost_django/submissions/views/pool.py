@@ -58,7 +58,7 @@ def pool(request, identifier_w_vn_nr=None):
 
 @login_required
 @fellowship_or_admin_required()
-def pool_hx_submissions_list(request):
+def pool_hx_submission_list(request):
     form = SubmissionPoolSearchForm(request.POST or None, request=request)
     if form.is_valid():
         submissions = form.search_results(request.user)
@@ -70,7 +70,7 @@ def pool_hx_submissions_list(request):
     count = paginator.count
     start_index = page_obj.start_index
     context = {"count": count, "page_obj": page_obj, "start_index": start_index,}
-    return render(request, "submissions/pool/_hx_submissions_list.html", context)
+    return render(request, "submissions/pool/_hx_submission_list.html", context)
 
 
 @login_required
@@ -82,6 +82,19 @@ def pool_hx_submission_details_contents(request, identifier_w_vn_nr):
     )
     context = {"remark_form": RemarkForm(), "submission": submission}
     return render(request, "submissions/pool/_hx_submission_details_contents.html", context)
+
+
+@login_required
+@fellowship_or_admin_required()
+def _hx_submission_tab(request, identifier_w_vn_nr, tab):
+    submission = get_object_or_404(
+        Submission.objects.in_pool(request.user, historical=True),
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+    context = {"submission": submission, "tab": tab,}
+    if tab == "remarks":
+        context["remark_form"] = RemarkForm()
+    return render(request, "submissions/pool/_hx_submission_tab.html", context)
 
 
 @login_required

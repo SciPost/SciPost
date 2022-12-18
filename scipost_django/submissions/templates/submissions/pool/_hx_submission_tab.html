@@ -1,0 +1,92 @@
+<ul class="nav nav-pills justify-content-center">
+  <li class="nav-item">
+    <a class="nav-link{% if tab == "info" %} active{% endif %}"
+       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='info' %}"
+       hx-target="#tabs-{{ submission.id }}"
+    >Submission<br>information</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if tab == "refereeing" %} active{% endif %}"
+       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='refereeing' %}"
+       hx-target="#tabs-{{ submission.id }}"
+    >Refereeing<br>history</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if tab == "remarks" %} active{% endif %}"
+       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='remarks' %}"
+       hx-target="#tabs-{{ submission.id }}"
+    >Remarks</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if tab == "graph" %} active{% endif %}"
+       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='graph' %}"
+       hx-target="#tabs-{{ submission.id }}"
+    >Graph</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link{% if tab == "events" %} active{% endif %}"
+       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='events' %}"
+       hx-target="#tabs-{{ submission.id }}"
+    >Events</a>
+  </li>
+  {% if request.user.contributor.is_ed_admin %}
+    <li class="nav-item">
+      <a class="nav-link{% if tab == "edadmin" %} active{% endif %}"
+	 hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='edadmin' %}"
+	 hx-target="#tabs-{{ submission.id }}"
+      >EdAdmin</a>
+    </li>
+  {% endif %}
+  <li class="nav-item">
+    <a class="nav-link{% if tab == "old" %} active{% endif %}"
+       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='old' %}"
+       hx-target="#tabs-{{ submission.id }}"
+    >Old version</a>
+  </li>
+</ul>
+<hr>
+<div class="tab-content">
+  {% if tab == "info" %}
+    {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
+
+  {% elif tab == "remarks" %}
+    {% if remark_form %}
+      {% include 'submissions/pool/_remark_form.html' with submission=submission form=remark_form auto_show=1 %}
+    {% endif %}
+    <p class="mb-1">Current remarks:</p>
+    <ul>
+      {% for rem in submission.remarks.all %}
+        {% include 'scipost/_remark_li.html' with remark=rem %}
+      {% empty %}
+        <li>No Remarks found.</li>
+      {% endfor %}
+    </ul>
+
+  {% elif tab == "graph" %}
+    {% include "submissions/_hx_submission_workflow_diagram.html" with submission=submission %}
+
+  {% elif tab == "events" %}
+    <div id="eventslist">
+      {% if request.user.contributor.is_ed_admin %}
+	{% include 'submissions/_submission_events.html' with events=submission.events.for_edadmin %}
+      {% elif request.user.contributor == submission.editor_in_charge %}
+	{% include 'submissions/_submission_events.html' with events=submission.events.for_eic %}
+      {% else %}
+	{% include 'submissions/_submission_events.html' with events=submission.events.for_author %}
+      {% endif %}
+    </div>
+
+  {% elif tab == 'edadmin' and request.user.contributor.is_ed_admin %}
+    <div id="submission-{{ submission.pk }}-tab-contents-edadmin"
+	 hx-get="{% url 'edadmin:_hx_submission_tab_contents_edadmin' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-trigger="load, submission-{{ submission.pk }}-tab-edadmin-updated"
+    >
+    </div>
+
+  {% elif tab == "old" %}
+    {% include "submissions/pool/_hx_submission_details_contents.html" with submission=submission %}
+
+  {% else %}
+    Unknown tab
+  {% endif %}
+</div>

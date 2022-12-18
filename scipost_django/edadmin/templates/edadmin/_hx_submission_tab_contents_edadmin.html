@@ -1,0 +1,4 @@
+<h1>Editorial administration</h1>
+{% if submission.in_stage_incoming %}
+  {% include "edadmin/_submission_incoming.html" with submission=submission %}
+{% endif %}
