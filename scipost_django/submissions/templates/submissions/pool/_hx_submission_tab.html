@@ -1,47 +1,36 @@
 <ul class="nav nav-pills justify-content-center">
-  <li class="nav-item">
-    <a class="nav-link{% if tab == "info" %} active{% endif %}"
-       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='info' %}"
-       hx-target="#tabs-{{ submission.id }}"
-    >Submission<br>information</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == "refereeing" %} active{% endif %}"
-       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='refereeing' %}"
-       hx-target="#tabs-{{ submission.id }}"
-    >Refereeing<br>history</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == "remarks" %} active{% endif %}"
-       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='remarks' %}"
-       hx-target="#tabs-{{ submission.id }}"
-    >Remarks</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == "graph" %} active{% endif %}"
-       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='graph' %}"
-       hx-target="#tabs-{{ submission.id }}"
-    >Graph</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link{% if tab == "events" %} active{% endif %}"
-       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='events' %}"
-       hx-target="#tabs-{{ submission.id }}"
-    >Events</a>
-  </li>
   {% if request.user.contributor.is_ed_admin %}
     <li class="nav-item">
-      <a class="nav-link{% if tab == "edadmin" %} active{% endif %}"
-	 hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='edadmin' %}"
-	 hx-target="#tabs-{{ submission.id }}"
-      >EdAdmin</a>
+      {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="edadmin" text="EdAdmin" %}
     </li>
   {% endif %}
   <li class="nav-item">
-    <a class="nav-link{% if tab == "old" %} active{% endif %}"
-       hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='old' %}"
-       hx-target="#tabs-{{ submission.id }}"
-    >Old version</a>
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="info" text="Submission information" %}
+  </li>
+  <li class="nav-item">
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="refereeing" text="Refereeing history" %}
+  </li>
+  <li class="nav-item">
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="remarks" text="Remarks" %}
+  </li>
+  <li class="nav-item">
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="graph" text="Graphs" %}
+  </li>
+  <li class="nav-item">
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="events" text="Events" %}
+  </li>
+  <li class="nav-item">
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="old" text="Old version" %}
+  </li>
+  <li class="nav-item">
+    <span id="tabs-{{ submission.id }}-indicator"
+	  class="htmx-indicator p-2"
+    >
+      <button class="btn btn-sm btn-warning" type="button" disabled>
+	<small><strong>Loading...</strong></small>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </span>
   </li>
 </ul>
 <hr>

@@ -1,25 +1,22 @@
 <details id="submission-{{ submission.pk }}-details"
-	 class="border border-2 mx-3"
+	 class="border border-2 mx-3 p-2 bg-primary bg-opacity-10"
 >
   <summary  style="list-style: none;"
-	    class="p-2 bg-primary bg-opacity-10"
+	    class="p-2"
   >
     {% include "submissions/pool/_submission_details_summary_contents.html" with submission=submission %}
 
   </summary>
 
   <div id="tabs-{{ submission.id }}"
-       class="m-2 p-2"
+       class="m-2 p-2 bg-white"
        hx-get="{% url 'submissions:pool:_hx_submission_tab' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab='info' %}"
        hx-trigger="toggle once from:#submission-{{ submission.pk }}-details"
-       hx-indicator="#indicator-tabs-{{ submission.id }}"
-    >
-  </div>
-  <span id="indicator-tabs-{{ submission.id }}" class="htmx-indicator p-1">
-    <button class="btn btn-sm btn-warning p-2" type="button" disabled>
+  >
+    <button class="htmx-indicator btn btn-sm btn-warning p-2" type="button" disabled>
       <small><strong>Loading...</strong></small>
       <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
     </button>
-  </span>
+  </div>
 
 </details>
