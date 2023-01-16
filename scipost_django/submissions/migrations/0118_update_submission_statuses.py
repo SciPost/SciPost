@@ -66,10 +66,10 @@ def update_submission_status(apps, schema_editor):
         open_for_reporting=True
     ).filter(refereeing_cycle="").update(open_for_reporting=False)
 
-    # Repair case where voting in prep but open for reporting
+    # Repair case where voting in prep or ongoing, but open for reporting
     eic_assigned.filter(open_for_reporting=True).filter(
         id__in=[ r.submission.id for r in EICRecommendation.objects.filter(
-            status=VOTING_IN_PREP)]
+            status__in=[VOTING_IN_PREP, PUT_TO_VOTING])]
     ).update(open_for_reporting=False)
 
     # Repair case where EiC is assigned, but not in set of revreq,
