@@ -18,6 +18,8 @@ from .communication import EditorialCommunication
 
 from .preprint_server import PreprintServer
 
+from .qualification import Qualification
+
 from .referee_invitation import RefereeInvitation
 
 from .report import Report

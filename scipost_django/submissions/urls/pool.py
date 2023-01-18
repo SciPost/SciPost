@@ -5,9 +5,9 @@ __license__ = "AGPL v3"
 from django.urls import include, path
 
 import submissions.views.pool as views_pool
+import submissions.views.appraisal as views_appraisal
 
 app_name = "pool"
-
 
 
 urlpatterns = [ # building on /submissions/pool/
@@ -23,6 +23,21 @@ urlpatterns = [ # building on /submissions/pool/
                 "",
                 views_pool.pool,
                 name="pool",
+            ),
+            path(
+                "appraisal/",
+                include([
+                    path(
+                        "",
+                        views_appraisal._hx_appraisal,
+                        name="_hx_appraisal",
+                    ),
+                    path(
+                        "qualification_form",
+                        views_appraisal._hx_qualification_form,
+                        name="_hx_qualification_form",
+                    ),
+                ]),
             ),
             path(
                 "tab/<slug:tab>",

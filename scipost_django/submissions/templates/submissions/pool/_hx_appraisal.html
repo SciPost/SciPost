@@ -1,0 +1,28 @@
+{% load submissions_pool %}
+
+{% get_fellow_qualification submission session_fellowship as qualification %}
+
+<div class="row">
+  <div id="submission-{{ submission.id }}-qualification-form"
+       class="col-lg-6"
+       hx-get="{% url 'submissions:pool:_hx_qualification_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+       hx-trigger="revealed"
+  >
+  </div>
+  {% if qualification and qualification.is_qualified %}
+    <div class="col-lg-6">
+      <div>
+	<a class="btn btn-sm btn-success text-white" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">I will take charge of this Submission</a>
+      </div>
+      <div>
+	<a class="btn btn-sm btn-danger text-white" href="">
+	  I have a conflict of interest
+	</a>
+      </div>
+      <div>
+	readiness form
+      </div>
+    </div>
+
+  {% endif %}
+</div>

@@ -8,6 +8,9 @@
     {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="info" text="Submission information" %}
   </li>
   <li class="nav-item">
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="qualifications" text="Fellow qualifications" %}
+  </li>
+  <li class="nav-item">
     {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="refereeing" text="Refereeing history" %}
   </li>
   <li class="nav-item">
@@ -37,6 +40,27 @@
 <div class="tab-content">
   {% if tab == "info" %}
     {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
+
+  {% elif tab == "qualifications" %}
+    <table class="table table-bordered">
+      <thead>
+	<tr>
+	  <th>Fellow</th><th>Qualification</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for qualification in submission.qualification_set.all %}
+	  <tr>
+	    <td>{{ qualification.fellow }}</td>
+	    <td>{{ qualification.get_expertise_level_display }}</td>
+	  </tr>
+	{% empty %}
+	  <tr>
+	    <td colspan="2">No Fellow has specified their qualification</td>
+	  </tr>
+	{% endfor %}
+      </tbody>
+    </table>
 
   {% elif tab == "remarks" %}
     {% if remark_form %}

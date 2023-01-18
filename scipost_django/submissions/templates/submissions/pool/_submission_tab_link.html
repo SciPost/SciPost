@@ -1,0 +1,5 @@
+<a class="nav-link{% if tab == target %} active{% endif %}"
+   hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab=target %}"
+   hx-target="#tabs-{{ submission.id }}"
+   hx-indicator="#tabs-{{ submission.id }}-indicator"
+>{{ text }}</a>

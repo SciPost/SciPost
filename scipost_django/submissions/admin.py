@@ -22,6 +22,7 @@ from submissions.models import (
     iThenticateReport,
     InternalPlagiarismAssessment,
     iThenticatePlagiarismAssessment,
+    Qualification,
     PreprintServer,
 )
 from scipost.models import Contributor
@@ -60,6 +61,16 @@ class InternalPlagiarismAssessmentInline(admin.StackedInline):
 
 class iThenticatePlagiarismAssessmentInline(admin.StackedInline):
     model = iThenticatePlagiarismAssessment
+
+
+class QualificationInline(admin.StackedInline):
+    model = Qualification
+    extra = 0
+    min_num = 0
+    autocomplete_fields = [
+        "submission",
+        "fellow",
+    ]
 
 
 class SubmissionTieringInline(admin.StackedInline):
@@ -112,6 +123,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     inlines = [
         InternalPlagiarismAssessmentInline,
         iThenticatePlagiarismAssessmentInline,
+        QualificationInline,
         SubmissionTieringInline,
     ]
 

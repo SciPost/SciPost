@@ -1,0 +1,9 @@
+{% load crispy_forms_tags %}
+
+<form
+    hx-post="{% url 'submissions:pool:_hx_qualification_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+    hx-target="#submission-{{ submission.id }}-qualification-form"
+    hx-trigger="change"
+>
+  {% crispy form %}
+</form>

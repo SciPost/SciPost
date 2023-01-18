@@ -8,6 +8,8 @@ from .communication import EditorialCommunicationQuerySet
 
 from .decision import EditorialDecisionQuerySet
 
+from .qualification import QualificationQuerySet
+
 from .recommendation import EICRecommendationQuerySet
 
 from .referee_invitation import RefereeInvitationQuerySet
