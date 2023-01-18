@@ -1,7 +1,9 @@
 {% include 'colleges/_hx_nominations_invitations_tablist.html' with selected=selected %}
 
 {% for invitation in invitations.all %}
-  <details class="m-2 mt-4 border border-2">
+  <details id="invitation-{{ invitation.id }}-details"
+	   class="m-2 mt-4 border border-2"
+  >
     <summary class="bg-light p-2">{{ invitation }}</summary>
     <details class="m-2 mt-4 border">
       <summary class="p-2 bg-light">Events for this nomination</summary>
@@ -30,7 +32,7 @@
       <h4>Update the response to this invitation:</h4>
       <div id="invitation-{{ invitation.id }}-update-response"
 	   hx-get="{% url 'colleges:_hx_fellowship_invitation_update_response' invitation_id=invitation.id %}"
-	   hx-trigger="revealed"
+	   hx-trigger="toggle from:#invitation-{{ invitation.id }}-details"
 	   hx-target="this"
       >
       </div>

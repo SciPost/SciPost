@@ -960,7 +960,6 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
                 form.cleaned_data["response"],
             )
         )
-
     context = {"invitation": invitation, "form": form,}
     return render(
         request,

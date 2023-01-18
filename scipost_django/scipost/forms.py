@@ -204,7 +204,7 @@ class RegistrationForm(forms.Form):
             )
 
         profile = Profile.objects.filter(
-            emails__email__icontains=self.cleaned_data["email"]
+            emails__email__iexact=self.cleaned_data["email"]
         ).first()
         try:
             if profile and profile.contributor:
