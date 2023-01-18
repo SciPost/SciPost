@@ -5,7 +5,7 @@
     <h2>
       iThenticate checks&emsp;
       {% if submission.iThenticate_plagiarism_assessment %}
-	{% include "edadmin/plagiarism_assessment_status_span.html" with assessment=submission.iThenticate_plagiarism_assessment %}
+	{% include "edadmin/incoming/plagiarism_assessment_status_span.html" with assessment=submission.iThenticate_plagiarism_assessment %}
       {% else %}
 	<span class="text-danger">[not started]</span>
       {% endif %}
@@ -53,7 +53,7 @@
       {% else %}
 	<form
 	    class="mt-3" enctype="multipart/form-data"
-	    hx-post="{% url 'edadmin:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	    hx-post="{% url 'edadmin:incoming:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	    hx-target="#submission-{{ submission.pk }}-plagiarism-iThenticate"
 	    hx-indicator="#indicator-{{ submission.pk }}-plagiarism-iThenticate"
 	>
@@ -74,7 +74,7 @@
   <div id="submission-{{ submission.pk }}-plagiarism-iThenticate-assessment"
        class="m-2 p-2 border border-2 border-warning"
   >
-    {% include "edadmin/_hx_plagiarism_assessment.html" with submission=submission assessment=submission.iThenticate_plagiarism_assessment method="iThenticate" %}
+    {% include "edadmin/incoming/_hx_plagiarism_assessment.html" with submission=submission assessment=submission.iThenticate_plagiarism_assessment method="iThenticate" %}
   </div>
 
 </details>

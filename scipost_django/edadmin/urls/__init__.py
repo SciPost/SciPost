@@ -9,5 +9,12 @@ app_name = "edadmin"
 
 urlpatterns = [
     path("", include("edadmin.urls.base")),
-    path("incoming/", include("edadmin.urls.incoming")),
+    path(
+        "incoming/",
+        include("edadmin.urls.incoming", namespace="incoming"),
+    ),
+    path(
+        "preassignment/",
+        include("edadmin.urls.preassignment", namespace="preassignment"),
+    ),
 ]

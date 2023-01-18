@@ -59,7 +59,11 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
         response["HX-Trigger"] = f"submission-{submission.pk}-tab-edadmin-updated"
         return response
     context = {"submission": submission, "form": form,}
-    return render(request, "edadmin/_hx_submission_admissibility_form.html", context)
+    return render(
+        request,
+        "edadmin/incoming/_hx_submission_admissibility_form.html",
+        context,
+    )
 
 
 
@@ -100,7 +104,7 @@ def _hx_plagiarism_internal(request, identifier_w_vn_nr):
                     "ratio_abstract": pub_match["ratio_abstract"],
                 }
             )
-    return render(request, "edadmin/_hx_plagiarism_internal.html", context)
+    return render(request, "edadmin/incoming/_hx_plagiarism_internal.html", context)
 
 
 @login_required
@@ -129,7 +133,11 @@ def _hx_plagiarism_internal_assess(request, identifier_w_vn_nr):
         "submission": submission,
         "form": form,
     }
-    return render(request, "edadmin/_hx_plagiarism_internal_assess.html", context)
+    return render(
+        request,
+        "edadmin/incoming/_hx_plagiarism_internal_assess.html",
+        context,
+    )
 
 
 ###########################
@@ -150,7 +158,7 @@ def _hx_plagiarism_iThenticate(request, identifier_w_vn_nr):
         "submission": submission,
         "form": form,
     }
-    return render(request, "edadmin/_hx_plagiarism_iThenticate.html", context)
+    return render(request, "edadmin/incoming/_hx_plagiarism_iThenticate.html", context)
 
 
 @login_required
@@ -179,7 +187,11 @@ def _hx_plagiarism_iThenticate_assess(request, identifier_w_vn_nr):
         "submission": submission,
         "form": form,
     }
-    return render(request, "edadmin/_hx_plagiarism_iThenticate_assess.html", context)
+    return render(
+        request,
+        "edadmin/incoming/_hx_plagiarism_iThenticate_assess.html",
+        context,
+    )
 
 
 #############
@@ -221,4 +233,8 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
         response["HX-Redirect"] = reverse("submissions:pool:pool")
         return response
     context = {"submission": submission, "form": form,}
-    return render(request, "edadmin/_hx_submission_admission_form.html", context)
+    return render(
+        request,
+        "edadmin/incoming/_hx_submission_admission_form.html",
+        context,
+    )

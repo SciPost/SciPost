@@ -2,7 +2,7 @@
 <h3>Update assessment of internal plagiarism</h3>
 <form
     class="mt-3"
-    hx-post="{% url 'edadmin:_hx_plagiarism_internal_assess' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+    hx-post="{% url 'edadmin:incoming:_hx_plagiarism_internal_assess' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
     hx-target="#submission-{{ submission.pk }}-plagiarism-internal-assessment"
     hx-confirm="Confirm this assessment of internal plagiarism?"
 >

@@ -6,20 +6,22 @@ from django.urls import include, path
 
 from ..views import incoming
 
+app_name = "incoming"
+
 
 urlpatterns = [ # building on /edadmin/incoming/
     path( # <identifier>/
         "<identifier:identifier_w_vn_nr>/",
         include([
-            path( # incoming/<identifier>/admissibility
+            path( # /edadmin/incoming/<identifier>/admissibility
                 "admissibility",
                 incoming._hx_submission_admissibility,
                 name="_hx_submission_admissibility",
             ),
-            path( # incoming/<identifier>/plagiarism/
+            path( # /edadmin/incoming/<identifier>/plagiarism/
                 "plagiarism/",
                 include([
-                    path( # incoming/<identifier>/plagiarism/internal/
+                    path( # /edadmin/incoming/<identifier>/plagiarism/internal/
                         "internal/",
                         include([
                             path(
@@ -34,7 +36,7 @@ urlpatterns = [ # building on /edadmin/incoming/
                             ),
                             ]),
                     ), # end internal/
-                    path( # incoming/<identifier>/plagiarism/iThenticate/
+                    path( # /edadmin/incoming/<identifier>/plagiarism/iThenticate/
                         "iThenticate/",
                         include([
                             path(
@@ -51,7 +53,7 @@ urlpatterns = [ # building on /edadmin/incoming/
                     ), # end iThenticate/
                 ]),
             ), # end plagiarism/
-            path( # incoming/<identifier>/admission
+            path( # /edadmin/incoming/<identifier>/admission
                 "admission",
                 incoming._hx_submission_admission,
                 name="_hx_submission_admission",

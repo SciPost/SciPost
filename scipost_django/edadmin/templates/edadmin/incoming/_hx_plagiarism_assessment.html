@@ -4,14 +4,14 @@
   Assessment
   {% if assessment %}
     <span class="ms-4">
-      {% include "edadmin/plagiarism_assessment_status_span.html" with assessment=assessment %}
+      {% include "edadmin/incoming/plagiarism_assessment_status_span.html" with assessment=assessment %}
       {% if assessment.date_set %}
 	&emsp;<span>set on {{ assessment.date_set }}</span>&emsp;
       {% endif %}
     </span>
   {% endif %}
   <button class="m-2 btn btn-primary"
-	  hx-get="{% if method == 'internal' %}{% url 'edadmin:_hx_plagiarism_internal_assess' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}{% elif method == 'iThenticate' %}{% url 'edadmin:_hx_plagiarism_iThenticate_assess' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}{% endif %}"
+	  hx-get="{% if method == 'internal' %}{% url 'edadmin:incoming:_hx_plagiarism_internal_assess' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}{% elif method == 'iThenticate' %}{% url 'edadmin:incoming:_hx_plagiarism_iThenticate_assess' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}{% endif %}"
 	  hx-target="#submission-{{ submission.pk }}-plagiarism-{{ method }}-assessment"
 	  hx-trigger="click"
 	  hx-indicator="#indicator-{{ submission.pk }}-plagiarism-{{ method }}-assess"

@@ -3,7 +3,7 @@
     <h2>
       Internal plagiarism checks&emsp;
       {% if submission.internal_plagiarism_assessment %}
-	{% include "edadmin/plagiarism_assessment_status_span.html" with assessment=submission.internal_plagiarism_assessment %}
+	{% include "edadmin/incoming/plagiarism_assessment_status_span.html" with assessment=submission.internal_plagiarism_assessment %}
       {% else %}
 	<span class="text-danger">[not started]</span>
       {% endif %}
@@ -87,7 +87,7 @@
   <div id="submission-{{ submission.pk }}-plagiarism-internal-assessment"
        class="m-2 p-2 border border-2 border-warning"
   >
-    {% include "edadmin/_hx_plagiarism_assessment.html" with submission=submission assessment=submission.internal_plagiarism_assessment method="internal" %}
+    {% include "edadmin/incoming/_hx_plagiarism_assessment.html" with submission=submission assessment=submission.internal_plagiarism_assessment method="internal" %}
   </div>
 
 </details>

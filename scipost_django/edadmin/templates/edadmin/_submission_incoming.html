@@ -4,7 +4,7 @@
   {% if submission.status == submission.INCOMING %}
     <div id="submission-{{ submission.pk }}-admissibility-form"
 	 class="m-2"
-	 hx-get="{% url 'edadmin:_hx_submission_admissibility' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-get="{% url 'edadmin:incoming:_hx_submission_admissibility' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	 hx-trigger="load"
     >
     </div>
@@ -21,7 +21,7 @@
   <div class="p-2 mb-4">
     <div id="submission-{{ submission.pk }}-plagiarism-internal"
 	 class="m-2"
-	 hx-get="{% url 'edadmin:_hx_plagiarism_internal' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-get="{% url 'edadmin:incoming:_hx_plagiarism_internal' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	 hx-trigger="load"
     >
     </div>
@@ -29,7 +29,7 @@
   <div class="p-2">
     <div id="submission-{{ submission.pk }}-plagiarism-iThenticate"
 	 class="m-2"
-	 hx-get="{% url 'edadmin:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-get="{% url 'edadmin:incoming:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	 hx-trigger="load"
     >
     </div>
@@ -43,7 +43,7 @@
     >
       <div id="submission-{{ submission.pk }}-admission-form"
 	   class="m-2"
-	   hx-get="{% url 'edadmin:_hx_submission_admission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	   hx-get="{% url 'edadmin:incoming:_hx_submission_admission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	   hx-trigger="load"
       >
       </div>

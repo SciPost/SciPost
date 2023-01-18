@@ -2,7 +2,7 @@
 <h3>Assess admissibility of this Submission</h3>
 <form
     class="mt-3"
-    hx-post="{% url 'edadmin:_hx_submission_admissibility' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+    hx-post="{% url 'edadmin:incoming:_hx_submission_admissibility' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
     hx-target="#submission-{{ submission.pk }}-admissibility-form"
 >
   {% crispy form %}
