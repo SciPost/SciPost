@@ -84,7 +84,9 @@
   </details>
 
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
-    <details class="border border-danger border-2 mt-4">
+    <details id="ensure-specialties-details"
+      class="border border-danger border-2 mt-4"
+    >
       <summary class="bg-danger bg-opacity-10 p-2">
 	<h2 class="ms-2">
 	  <strong class="text-danger">EdAdmin/Senior Fellows</strong>:
@@ -93,21 +95,23 @@
       <div class="p-2 mt-2">
 	<div id="nominations_needing_specialties"
 	     hx-get="{% url 'colleges:_hx_nominations_needing_specialties' %}"
-	     hx-trigger="revealed"
+	     hx-trigger="toggle from:#ensure-specialties-details"
 	>
 	</div>
       </div>
     </details>
   {% endif %}
 
-  <details class="border border-primary border-2 mt-4">
+  <details id="voting-details"
+	   class="border border-primary border-2 mt-4"
+  >
     <summary class="bg-primary bg-opacity-10 p-2">
       <h2 class="ms-2 text-primary">Vote{% if 'edadmin' in user_roles %}&emsp;<span class="text-danger">(EdAdmin: manage voting)</span>{% endif %}</h2>
     </summary>
     <div class="p-2 mt-2">
       <div id="voting_tablist"
 	   hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab={% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}"
-	   hx-trigger="load"
+	   hx-trigger="toggle from:#voting-details"
 	   hx-target="this"
 	   hx-swap="innerHTML"
       >
@@ -116,7 +120,9 @@
   </details>
 
   {% if "edadmin" in user_roles %}
-    <details class="border border-success border-2 mt-4">
+    <details id="invitations-details"
+	     class="border border-success border-2 mt-4"
+    >
       <summary class="bg-success bg-opacity-10 p-2">
 	<h2 class="ms-2">
 	  <strong class="text-success">EdAdmin</strong>:
@@ -125,7 +131,7 @@
       <div class="p-2 mt-2">
 	<div id="invitations_tablist"
 	     hx-get="{% url 'colleges:_hx_nominations_invitations' %}?response=notyetinvited"
-	     hx-trigger="load"
+	     hx-trigger="toggle from:#invitations-details"
 	     hx-target="this"
 	     hx-swap="innerHTML"
 	>
@@ -134,14 +140,16 @@
     </details>
   {% endif %}
 
-  <details class="border border-2 mt-4">
+  <details id="list-details"
+	   class="border border-2 mt-4"
+  >
     <summary class="bg-light p-2">
       <h2 class="ms-2">List / filter</h2>
     </summary>
     <div class="p-2 mt-2">
       <form
 	  hx-post="{% url 'colleges:_hx_nominations' %}"
-	  hx-trigger="load, keyup delay:500ms, change"
+	  hx-trigger="toggle from:#list-details, keyup delay:500ms, change"
 	  hx-target="#search-nominations-results"
 	  hx-indicator="#indicator-search"
       >
