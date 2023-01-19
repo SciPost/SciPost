@@ -25,3 +25,10 @@
   </div>
 
 </details>
+
+<div id="submission-{{ submission.pk }}-preassignment-decision"
+     class="m-2"
+     hx-get="{% url 'edadmin:preassignment:_hx_submission_preassignment_decision' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+     hx-trigger="load, submission-{{ submission.pk }}-author-profiles-details-updated from:body"
+>
+</div>

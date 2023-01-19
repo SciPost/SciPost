@@ -33,6 +33,11 @@ urlpatterns = [ # building on /edadmin/preassigmnent/
                 preassignment._hx_author_profile_action,
                 name="_hx_author_profile_action",
             ),
+            path( # /edadmin/preassignment/<identifier>/decision
+                "decision",
+                preassignment._hx_submission_preassignment_decision,
+                name="_hx_submission_preassignment_decision",
+            ),
         ])
     ),
 ]

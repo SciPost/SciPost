@@ -1,0 +1,18 @@
+{% load crispy_forms_tags %}
+
+{% if submission.preassignment_tasks_done %}
+  <hr class="my-2">
+
+  <div id="submission-{{ submission.pk }}-preassignment-decision-form"
+       class="p-2 mb-4 border border-2 border-warning"
+  >
+    <h1>Preassignment decision</h1>
+    <form class="mt-3"
+	  hx-post="{% url 'edadmin:preassignment:_hx_submission_preassignment_decision' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	  hx-target="#submission-{{ submission.pk }}-preassignment-decision-form"
+	  hx-confirm="Proceed with this Preassignment decision?"
+    >
+      {% crispy form %}
+    </form>
+  </div>
+{% endif %}

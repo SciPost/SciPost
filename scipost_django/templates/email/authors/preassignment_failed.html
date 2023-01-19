@@ -1,0 +1,17 @@
+{% load automarkup %}
+<p>Dear {{ object.submitted_by.profile.get_title_display }} {{ object.submitted_by.user.last_name }},</p>
+<p>We regret to inform you that your recent Submission to {{ object.submitted_to }},</p>
+<p>{{ object.title }}</p>
+<p>by {{ object.author_list }}</p>
+<p>has not passed the Preassignment stage.</p>
+{% if comments_for_authors %}
+  {% automarkup comments_for_authors %}
+{% endif %}
+<p>In view of this, we are unable to proceed further with the handling of your manuscript. We hope you can easily find an alternative publishing venue.</p>
+<p>Despite this unsuccessful outcome, we thank you very much for your contribution, and hope to be able to be of service to you in the future.</p>
+<p>Sincerely,</p>
+<p>The SciPost Team.</p>
+
+{% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid.html' with submission=object %}

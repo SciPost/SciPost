@@ -623,6 +623,15 @@ class Submission(models.Model):
                 self.plagiarism_iThenticate_tests_passed)
 
     @property
+    def all_authors_have_matching_profiles(self):
+        return (self.author_profiles.filter(profile__isnull=False).count() ==
+                len(self.authors_as_list))
+
+    @property
+    def preassignment_tasks_done(self):
+        return self.all_authors_have_matching_profiles
+
+    @property
     def eic_recommendation_required(self):
         """Return if Submission requires a EICRecommendation to be formulated."""
         return not self.eicrecommendations.active().exists()

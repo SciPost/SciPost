@@ -8,9 +8,12 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 
 from colleges.permissions import is_edadmin
+from mails.utils import DirectMailUtil
 from profiles.models import Profile
 from profiles.forms import ProfileDynSelForm
 from submissions.models import Submission, SubmissionAuthorProfile
+
+from edadmin.forms import SubmissionPreassignmentDecisionForm
 
 
 ###########################
@@ -134,3 +137,49 @@ def _hx_author_profile_action(
         )
     )
     return response
+
+
+##########################
+# Preassignment decision #
+##########################
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    form = SubmissionPreassignmentDecisionForm(request.POST or None)
+    if form.is_valid():
+        if form.cleaned_data["choice"] == "pass":
+            Submission.objects.filter(pk=submission.id).update(
+                status=Submission.SEEKING_ASSIGNMENT
+            )
+            # send authors admission passed email
+            mail_util = DirectMailUtil(
+                "authors/preassignment_completed",
+                submission=submission,
+                comments_for_authors=form.cleaned_data["comments_for_authors"],
+            )
+        else: # inadmissible, inform authors and set status to PREASSIGNMENT_FAILED
+            Submission.objects.filter(pk=submission.id).update(
+                status=Submission.PREASSIGNMENT_FAILED
+            )
+            # send authors admission failed email
+            mail_util = DirectMailUtil(
+                "authors/preassignment_failed",
+                submission=submission,
+                comments_for_authors=form.cleaned_data["comments_for_authors"],
+            )
+            mail_util.send_mail()
+        submission.refresh_from_db()
+        # redirect to the edadmin page so that all is refreshed
+        response = HttpResponse()
+        response["HX-Redirect"] = reverse("submissions:pool:pool")
+        return response
+    context = {"submission": submission, "form": form,}
+    return render(
+        request,
+        "edadmin/preassignment/_hx_submission_preassignment_decision.html",
+        context,
+    )
