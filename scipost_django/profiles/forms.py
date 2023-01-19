@@ -229,6 +229,7 @@ class ProfileDynSelForm(forms.Form):
     action_url_name = forms.CharField()
     action_url_base_kwargs = forms.JSONField(required=False)
     action_target_element_id = forms.CharField()
+    action_target_swap = forms.CharField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -238,6 +239,7 @@ class ProfileDynSelForm(forms.Form):
             Field("action_url_name", type="hidden"),
             Field("action_url_base_kwargs", type="hidden"),
             Field("action_target_element_id", type="hidden"),
+            Field("action_target_swap", type="hidden"),
         )
 
     def search_results(self):

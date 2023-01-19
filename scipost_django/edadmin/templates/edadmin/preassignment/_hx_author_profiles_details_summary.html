@@ -1,0 +1,3 @@
+{% with submission.authors_as_list|length as nr_authors %}
+  <h2>Author Profiles <small class="{% if matches == nr_authors %}bg-success{% else %}bg-warning{% endif %} ms-4 p-1 text-white">matched: {{ matches }} out of {{ nr_authors }}</small></h2>
+{% endwith %}

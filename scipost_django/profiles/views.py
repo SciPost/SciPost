@@ -350,6 +350,7 @@ def _hx_profile_dynsel_list(request):
             else {}
         ),
         "action_target_element_id": form.cleaned_data["action_target_element_id"],
+        "action_target_swap": form.cleaned_data["action_target_swap"],
     }
     return render(request, "profiles/_hx_profile_dynsel_list.html", context)
 

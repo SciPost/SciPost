@@ -1,0 +1,28 @@
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Name (from author list)</th>
+      <th>Order</th>
+      <th>Matched Profile</th>
+      <th>Candidate Profiles</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in matches_list %}
+      <tr id="submission-{{ submission.pk }}-author-profile-row-{{ item.1 }}"
+	  class="{% if item.2 %}bg-success{% else %}bg-warning{% endif %} bg-opacity-10"
+	  hx-get="{% url 'edadmin:preassignment:_hx_author_profile_row' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr order=item.1 %}"
+	  hx-swap="outerHTML"
+	  hx-trigger="revealed"
+      >
+      </tr>
+    {% empty %}
+      <tr>
+	<td colspan="4">None found</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h3 class="mb-2">Needed Profiles not found?</h3>
+<p>Then add to our database by <a href="{% url 'profiles:profile_create' %}" target="_blank">creating a new Profile</a> (opens in new window).</p>

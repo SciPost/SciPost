@@ -9,6 +9,7 @@ from django import forms
 from guardian.admin import GuardedModelAdmin
 
 from submissions.models import (
+    SubmissionAuthorProfile,
     Submission,
     EditorialAssignment,
     RefereeInvitation,
@@ -73,6 +74,15 @@ class QualificationInline(admin.StackedInline):
     ]
 
 
+class SubmissionAuthorProfileInline(admin.TabularInline):
+    model = SubmissionAuthorProfile
+    extra = 0
+    autocomplete_fields = [
+        "profile",
+        "affiliations",
+    ]
+
+
 class SubmissionTieringInline(admin.StackedInline):
     model = SubmissionTiering
     extra = 0
@@ -123,6 +133,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     inlines = [
         InternalPlagiarismAssessmentInline,
         iThenticatePlagiarismAssessmentInline,
+        SubmissionAuthorProfileInline,
         QualificationInline,
         SubmissionTieringInline,
     ]

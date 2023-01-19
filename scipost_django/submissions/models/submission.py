@@ -41,6 +41,47 @@ from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
 from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 
 
+class SubmissionAuthorProfile(models.Model):
+
+    submission = models.ForeignKey(
+        "submissions.Submission",
+        on_delete=models.CASCADE,
+        related_name="author_profiles",
+    )
+    profile = models.ForeignKey(
+        "profiles.Profile", on_delete=models.PROTECT, blank=True, null=True,
+    )
+    affiliations = models.ManyToManyField("organizations.Organization", blank=True)
+    order = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ("submission", "order",)
+
+    def __str__(self):
+        return str(self.profile)
+
+    def save(self, *args, **kwargs):
+        """Auto increment order number if not explicitly set."""
+        if not self.order:
+            self.order = self.submission.author_profiles.count() + 1
+        return super().save(*args, **kwargs)
+
+    @property
+    def is_registered(self):
+        """Check if author is registered at SciPost."""
+        return self.profile.contributor is not None
+
+    @property
+    def first_name(self):
+        """Return first name of author."""
+        return self.profile.first_name
+
+    @property
+    def last_name(self):
+        """Return last name of author."""
+        return self.profile.last_name
+
+
 class Submission(models.Model):
     """
     A Submission is a preprint sent to SciPost for consideration.

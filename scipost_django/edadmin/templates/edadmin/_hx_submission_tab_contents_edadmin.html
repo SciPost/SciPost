@@ -1,4 +1,6 @@
 <h1>Editorial administration</h1>
 {% if submission.in_stage_incoming %}
   {% include "edadmin/incoming/_submission_incoming.html" with submission=submission %}
+{% elif submission.in_stage_preassignment %}
+  {% include "edadmin/preassignment/_submission_preassignment.html" with submission=submission %}
 {% endif %}
