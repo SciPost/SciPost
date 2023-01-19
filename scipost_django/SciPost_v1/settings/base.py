@@ -110,6 +110,7 @@ INSTALLED_APPS = [
     "common",
     "conflicts",
     "edadmin",
+    "ethics",
     "finances",
     "forums",
     "funders",
