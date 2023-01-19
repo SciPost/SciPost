@@ -39,6 +39,13 @@
 	    For Journal {{ submission.editorial_decision.for_journal }}: {{ submission.editorial_decision.get_decision_display }}
 	    <br>
 	    (status: {{ submission.editorial_decision.get_status_display }})
+	  {% elif submission.editorialdecision_set.deprecated %}
+	    Deprecated decisions:
+	    <ul>
+	      {% for decision in submission.editorialdecision_set.deprecated %}
+		<li>{{ decision }}</li>
+	      {% endfor %}
+	    </ul>
 	  {% else %}
 	    <span class="label label-secondary">No Editorial Decision has been taken yet.</span>
 	  {% endif %}

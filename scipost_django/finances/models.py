@@ -241,3 +241,7 @@ class PeriodicReport(models.Model):
 
     def __str__(self):
         return f"{self.for_year} {self._type}"
+
+    def get_absolute_url(self):
+        if self._file:
+            return reverse("finances:periodicreport_file", kwargs={"pk": self.id})

@@ -132,6 +132,16 @@
 	      {% else %}
 		<a class="btn btn-primary" href="{% url 'submissions:editorial_decision_detail' recommendation.submission.preprint.identifier_w_vn_nr %}" role="button">View the editorial decision <small>(status: {{ recommendation.submission.editorial_decision.get_status_display }})</small></a>
 	      {% endif %}
+	      {% if recommendation.submission.editorialdecision_set.deprecated %}
+		<div class="m-2 p-2 text-danger">
+		  <h3>Deprecated decisions:</h3>
+		  <ul>
+		    {% for decision in recommendation.submission.editorialdecision_set.deprecated %}
+		      <li>{{ decision }}</li>
+		    {% endfor %}
+		  </ul>
+		</div>
+	      {% endif %}
             </li>
 	    <li class="list-item my-2">
 	      <a class="btn btn-warning" href="{% url 'submissions:restart_refereeing' recommendation.submission.preprint.identifier_w_vn_nr %}" role="button">Restart the latest refereeing round (leads to confirmation page)</a>

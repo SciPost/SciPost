@@ -197,7 +197,7 @@ class SubmissionPoolSearchForm(forms.Form):
         queryset=Proceedings.objects.order_by("-submissions_close"), required=False
     )
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
-    title = forms.CharField(max_length=100, required=False)
+    title = forms.CharField(max_length=512, required=False)
     identifier = forms.CharField(max_length=128, required=False)
     status = forms.ChoiceField(
         choices=(
@@ -276,6 +276,18 @@ class SubmissionPoolSearchForm(forms.Form):
         ),
         initial="current",
     )
+    ordering = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=(
+            (
+                "Submission date", (
+                    ("recent", "most recent first"),
+                    ("oldest", "oldest first"),
+                ),
+            ),
+        ),
+        initial="recent",
+    )
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user")
@@ -322,7 +334,11 @@ class SubmissionPoolSearchForm(forms.Form):
                 ),
                 css_class="row mb-0",
             ),
-            Div(Div(InlineRadios("search_set"), css_class="col"), css_class="row mb-0"),
+            Div(
+                Div(InlineRadios("search_set"), css_class="col"),
+                Div(InlineRadios("ordering"), css_class="col"),
+                css_class="row mb-0",
+            ),
         )
 
     def search_results(self, user):
@@ -437,6 +453,10 @@ class SubmissionPoolSearchForm(forms.Form):
             submissions = submissions.filter(
                 editor_in_charge=self.cleaned_data.get("editor_in_charge").contributor
             )
+
+        if self.cleaned_data.get("ordering") == "oldest":
+            submissions = submissions.order_by("submission_date")
+
         return submissions
 
 

@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import { ref, computed } from '@vue/composition-api'
+import { ref, computed } from 'vue'
 
 export default {
     name: "highlight-text",

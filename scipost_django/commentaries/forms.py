@@ -211,6 +211,7 @@ class VetCommentaryForm(forms.Form):
     REFUSAL_PAPER_EXISTS = -1
     REFUSAL_UNTRACEBLE = -2
     REFUSAL_ARXIV_EXISTS = -3
+    REFUSAL_OUT_OF_SCOPE = -4
     COMMENTARY_REFUSAL_CHOICES = (
         (REFUSAL_EMPTY, "-"),
         (REFUSAL_PAPER_EXISTS, "a commentary on this paper already exists"),
@@ -218,6 +219,10 @@ class VetCommentaryForm(forms.Form):
         (
             REFUSAL_ARXIV_EXISTS,
             "there exists a more revent version of this arXiv preprint",
+        ),
+        (
+            REFUSAL_OUT_OF_SCOPE,
+            "this paper is outside the scope of SciPost",
         ),
     )
     COMMENTARY_REFUSAL_DICT = dict(COMMENTARY_REFUSAL_CHOICES)

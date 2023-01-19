@@ -73,6 +73,7 @@ os.environ["wsgi.url_scheme"] = "https"
 INSTALLED_APPS = [
     "dal",  # django-autocomplete-light
     "dal_select2",  # dal with Select2
+    # Django
     "django.contrib.admin",
     "django.contrib.admindocs",
     "django.contrib.auth",
@@ -82,12 +83,23 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    # external
+    "corsheaders",
     "crispy_forms",
     "crispy_bootstrap5",
+    "django_celery_results",
+    "django_celery_beat",
     "django_countries",
     "django_extensions",
     "django_filters",
+    "guardian",
     "haystack",
+    "maintenancemode",
+    "oauth2_provider",
+    "rest_framework",
+    "sitesserved",
+    "webpack_loader",
+    # own apps
     "affiliates",
     "api",
     "apimail",
@@ -97,14 +109,11 @@ INSTALLED_APPS = [
     "comments",
     "common",
     "conflicts",
-    "corsheaders",
-    "django_celery_results",
-    "django_celery_beat",
+    "edadmin",
     "finances",
     "forums",
     "funders",
     "guides",
-    "guardian",
     "helpdesk",
     "invitations",
     "journals",
@@ -112,7 +121,6 @@ INSTALLED_APPS = [
     "mails",
     "markup",
     "news",
-    "oauth2_provider",
     "ontology",
     "organizations",
     "petitions",
@@ -120,7 +128,6 @@ INSTALLED_APPS = [
     "proceedings",
     "production",
     "profiles",
-    "rest_framework",
     "scipost",
     "security",
     "series",
@@ -128,10 +135,7 @@ INSTALLED_APPS = [
     "stats",
     "submissions",
     "theses",
-    "sitesserved",
     "webinars",
-    "webpack_loader",
-    "maintenancemode",
 ]
 
 SITE_ID = 1

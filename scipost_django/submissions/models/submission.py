@@ -13,6 +13,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+from guardian.models import UserObjectPermissionBase
+from guardian.models import GroupObjectPermissionBase
+
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
@@ -167,6 +170,11 @@ class Submission(models.Model):
         blank=True,
         related_name="to_submission",
     )
+    internal_plagiarism_matches = models.JSONField(
+        default=dict,
+        blank=True,
+        null=True,
+    )
 
     pdf_refereeing_pack = models.FileField(
         upload_to="UPLOADS/REFEREE/%Y/%m/", max_length=200, blank=True
@@ -191,6 +199,10 @@ class Submission(models.Model):
     class Meta:
         app_label = "submissions"
         ordering = ["-submission_date"]
+        permissions = [
+            ("take_edadmin_actions", "Take editorial admin actions"),
+            ("view_edadmin_info", "View editorial admin information"),
+        ]
 
     def save(self, *args, **kwargs):
         """Prefill some fields before saving."""
@@ -340,6 +352,11 @@ class Submission(models.Model):
     def submission_date_ymd(self):
         """Return the submission date in YYYY-MM-DD format."""
         return self.submission_date.date()
+
+    @property
+    def original_submission_date_ymd(self):
+        """Return the submission date in YYYY-MM-DD format."""
+        return self.original_submission_date.date()
 
     @property
     def original_submission_date(self):
@@ -522,9 +539,21 @@ class Submission(models.Model):
     @property
     def editorial_decision(self):
         """Returns the latest EditorialDecision (if it exists)."""
-        if self.editorialdecision_set.exists():
-            return self.editorialdecision_set.latest_version()
+        if self.editorialdecision_set.nondeprecated().exists():
+            return self.editorialdecision_set.nondeprecated().latest_version()
         return None
+
+
+# The next two models are for optimization of django guardian object-level permissions
+# using direct foreign keys instead of generic ones
+# (see https://django-guardian.readthedocs.io/en/stable/userguide/performance.html)
+
+class SubmissionUserObjectPermission(UserObjectPermissionBase):
+    content_object = models.ForeignKey(Submission, on_delete=models.CASCADE)
+
+class SubmissionGroupObjectPermission(GroupObjectPermissionBase):
+    content_object = models.ForeignKey(Submission, on_delete=models.CASCADE)
+
 
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):

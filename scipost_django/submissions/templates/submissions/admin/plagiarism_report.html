@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-  <h1>Plagiarism Report for <a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}</a></h1>
+  <h1>iThenticate Plagiarism Report for <a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}</a></h1>
   <h2>{{  submission.title }}</h2>
   <h3 class="mb-4">by {{ submission.author_list }}</h3>
   {% if submission.plagiarism_report %}

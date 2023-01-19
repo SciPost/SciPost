@@ -699,6 +699,17 @@ def submission_detail(request, identifier_w_vn_nr):
     return render(request, "submissions/submission_detail.html", context)
 
 
+def _hx_submission_workflow_diagram(request, identifier_w_vn_nr=None):
+    """Mermaid workflow diagram of Submission."""
+    context = {}
+    if identifier_w_vn_nr:
+        submission = get_object_or_404(
+            Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+        )
+        context["submission"]= submission
+    return render(request, "submissions/_hx_submission_workflow_diagram.html", context)
+
+
 def report_attachment(request, identifier_w_vn_nr, report_nr):
     """Download the attachment of a Report if available."""
     report = get_object_or_404(
@@ -941,14 +952,15 @@ def submission_add_topic(request, identifier_w_vn_nr):
     )
     select_topic_form = SelectTopicForm(request.POST or None)
     if select_topic_form.is_valid():
-        submission.topics.add(select_topic_form.cleaned_data["topic"])
+        for topic in select_topic_form.cleaned_data["topic"]:
+            submission.topics.add(topic)
         for sub in submission.get_other_versions():
-            sub.topics.add(select_topic_form.cleaned_data["topic"])
+            for topic in select_topic_form.cleaned_data["topic"]:
+                sub.topics.add(topic)
         try:
             for publication in submission.publications.all():
-                publication.topics.add(
-                    select_topic_form.cleaned_data["topic"]
-                )
+                for topic in select_topic_form.cleaned_data["topic"]:
+                    publication.topics.add(topic)
         except:
             pass
         messages.success(request, "Successfully linked Topic to this Submission")
@@ -2977,50 +2989,33 @@ class PlagiarismInternalView(SubmissionAdminViewMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         submission = self.get_object()
-        ratio_threshold = 0.7
 
-        # Submissions:
-        submission_matches = []
-        for sub in Submission.objects.exclude(pk=submission.id):
-            sub_title_sm = SequenceMatcher(None, submission.title, sub.title)
-            ratio_title = sub_title_sm.ratio()
-            ratio_authors = SequenceMatcher(
-                None, submission.author_list, sub.author_list
-            ).ratio()
-            ratio_abstract = SequenceMatcher(
-                None, submission.abstract, sub.abstract
-            ).ratio()
-            if ratio_title > ratio_threshold or ratio_abstract > ratio_threshold:
-                submission_matches.append(
+        context["submission_matches"] = []
+        if "submission_matches" in submission.internal_plagiarism_matches:
+            for sub_match in submission.internal_plagiarism_matches["submission_matches"]:
+                context["submission_matches"].append(
                     {
-                        "submission": sub,
-                        "ratio_title": ratio_title,
-                        "ratio_authors": ratio_authors,
-                        "ratio_abstract": ratio_abstract,
+                        "submission": Submission.objects.get(
+                            preprint__identifier_w_vn_nr=sub_match["identifier_w_vn_nr"],
+                        ),
+                        "ratio_title": sub_match["ratio_title"],
+                        "ratio_authors": sub_match["ratio_authors"],
+                        "ratio_abstract": sub_match["ratio_abstract"],
                     }
                 )
-        context["submission_matches"] = submission_matches
 
-        # Publications:
-        publication_matches = []
-        for pub in Publication.objects.all():
-            ratio_title = SequenceMatcher(None, submission.title, pub.title).ratio()
-            ratio_authors = SequenceMatcher(
-                None, submission.author_list, pub.author_list
-            ).ratio()
-            ratio_abstract = SequenceMatcher(
-                None, submission.abstract, pub.abstract
-            ).ratio()
-            if ratio_title > ratio_threshold or ratio_abstract > ratio_threshold:
-                publication_matches.append(
+        context["publication_matches"] = []
+        if "publication_matches" in submission.internal_plagiarism_matches:
+            for pub_match in submission.internal_plagiarism_matches["publication_matches"]:
+                context["publication_matches"].append(
                     {
-                        "publication": pub,
-                        "ratio_title": ratio_title,
-                        "ratio_authors": ratio_authors,
-                        "ratio_abstract": ratio_abstract,
+                        "publication": Publication.objects.get(doi_label=pub_match["doi_label"]),
+                        "ratio_title": pub_match["ratio_title"],
+                        "ratio_authors": pub_match["ratio_authors"],
+                        "ratio_abstract": pub_match["ratio_abstract"],
                     }
                 )
-        context["publication_matches"] = publication_matches
+
         return context
 
 

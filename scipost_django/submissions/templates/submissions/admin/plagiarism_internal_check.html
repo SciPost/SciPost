@@ -15,6 +15,9 @@
   <h3 class="mb-4">by {{ submission.author_list }}</h3>
 
   <h1 class="highlight">Submission matches</h1>
+  {% if not "submission_matches" in submission.internal_plagiarism_matches %}
+    <h2 class="text-danger border border-danger m-2 p-2">This automated internal plagiarism check has not finished running yet; please come back later!</h2>
+  {% endif %}
   <table class="table">
     <thead>
       <tr>
@@ -28,7 +31,9 @@
       {% for match in submission_matches %}
 	<tr>
 	  <td>
-	    {{ match.submission.preprint.identifier_w_vn_nr }}<br>
+	    {{ match.submission.preprint.identifier_w_vn_nr }}
+	    &emsp;<small class="text-muted">Thread hash: {{ match.submission.thread_hash }}</small>
+	    <br>
 	    <a href="{{ match.submission.get_absolute_url }}" target="_blank">{{ match.submission.title }}</a><br>
 	    {{ match.submission.author_list }}
 	  </td>
@@ -43,6 +48,9 @@
   </table>
 
   <h1 class="highlight">Publication matches</h1>
+  {% if not "publication_matches" in submission.internal_plagiarism_matches %}
+    <h2 class="text-danger border border-danger m-2 p-2">This automated internal plagiarism check has not finished running yet; please come back later!</h2>
+  {% endif %}
   <table class="table">
     <thead>
       <tr>
