@@ -9,20 +9,27 @@
        hx-trigger="revealed"
   >
   </div>
+
   {% if qualification and qualification.is_qualified %}
     <div class="col-lg-6">
-      <div>
-	<a class="btn btn-sm btn-success text-white" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">I will take charge of this Submission</a>
-      </div>
-      <div>
-	<a class="btn btn-sm btn-danger text-white" href="">
-	  I have a conflict of interest
-	</a>
-      </div>
-      <div>
-	readiness form
+      <div id="submission-{{ submission.pk }}-ethics"
+	   hx-get="{% url 'ethics:_hx_submission_ethics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	   hx-trigger="revealed"
+      >
       </div>
     </div>
-
   {% endif %}
 </div>
+
+
+{% if qualification and qualification.is_qualified %}
+  <div class="row">
+    <div class="col">
+      <a class="btn btn-sm btn-success text-white" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">I will take charge of this Submission</a>
+    </div>
+    <div class=""col">
+      Not ready to take charge? Please specify:
+      readiness form
+    </div>
+  </div>
+{% endif %}

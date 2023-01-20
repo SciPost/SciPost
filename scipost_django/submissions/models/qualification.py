@@ -41,6 +41,7 @@ class Qualification(models.Model):
     expertise_level = models.CharField(
         max_length=32,
         choices=EXPERTISE_LEVEL_CHOICES,
+        blank=True,
     )
 
     comments = models.TextField(blank=True)

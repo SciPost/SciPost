@@ -27,6 +27,7 @@ class CompetingInterestAdmin(admin.ModelAdmin):
     autocomplete_fields = (
         "profile",
         "related_profile",
+        "declared_by",
         "affected_submissions",
         "affected_publications",
     )

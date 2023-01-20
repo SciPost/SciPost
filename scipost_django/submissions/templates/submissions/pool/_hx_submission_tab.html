@@ -8,7 +8,7 @@
     {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="info" text="Submission information" %}
   </li>
   <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="qualifications" text="Fellow qualifications" %}
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="appraisals" text="Fellow appraisals" %}
   </li>
   <li class="nav-item">
     {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="refereeing" text="Refereeing history" %}
@@ -39,37 +39,20 @@
 <hr>
 <div class="tab-content">
   {% if tab == "info" %}
-    {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
+    {% include "submissions/_submission_summary.html" with submission=submission hide_title=1 show_abstract=1 %}
 
-  {% elif tab == "qualifications" %}
-    <table class="table table-bordered">
-      <thead>
-	<tr>
-	  <th>Fellow</th><th>Qualification</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for qualification in submission.qualification_set.all %}
-	  <tr>
-	    <td>{{ qualification.fellow }}</td>
-	    <td>{{ qualification.get_expertise_level_display }}</td>
-	  </tr>
-	{% empty %}
-	  <tr>
-	    <td colspan="2">No Fellow has specified their qualification</td>
-	  </tr>
-	{% endfor %}
-      </tbody>
-    </table>
+  {% elif tab == "appraisals" %}
+    {% include "submissions/pool/_submission_qualifications_details.html" with submission=submission %}
+    {% include "ethics/_submission_competing_interests_details.html" with submission=submission %}
 
   {% elif tab == "remarks" %}
     {% if remark_form %}
-      {% include 'submissions/pool/_remark_form.html' with submission=submission form=remark_form auto_show=1 %}
+      {% include "submissions/pool/_remark_form.html" with submission=submission form=remark_form auto_show=1 %}
     {% endif %}
     <p class="mb-1">Current remarks:</p>
     <ul>
       {% for rem in submission.remarks.all %}
-        {% include 'scipost/_remark_li.html' with remark=rem %}
+        {% include "scipost/_remark_li.html" with remark=rem %}
       {% empty %}
         <li>No Remarks found.</li>
       {% endfor %}
@@ -81,15 +64,15 @@
   {% elif tab == "events" %}
     <div id="eventslist">
       {% if request.user.contributor.is_ed_admin %}
-	{% include 'submissions/_submission_events.html' with events=submission.events.for_edadmin %}
+	{% include "submissions/_submission_events.html" with events=submission.events.for_edadmin %}
       {% elif request.user.contributor == submission.editor_in_charge %}
-	{% include 'submissions/_submission_events.html' with events=submission.events.for_eic %}
+	{% include "submissions/_submission_events.html" with events=submission.events.for_eic %}
       {% else %}
-	{% include 'submissions/_submission_events.html' with events=submission.events.for_author %}
+	{% include "submissions/_submission_events.html" with events=submission.events.for_author %}
       {% endif %}
     </div>
 
-  {% elif tab == 'edadmin' and request.user.contributor.is_ed_admin %}
+  {% elif tab == "edadmin" and request.user.contributor.is_ed_admin %}
     <div id="submission-{{ submission.pk }}-tab-contents-edadmin"
 	 hx-get="{% url 'edadmin:_hx_submission_tab_contents_edadmin' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	 hx-trigger="load, submission-{{ submission.pk }}-tab-edadmin-updated"

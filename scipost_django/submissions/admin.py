@@ -28,6 +28,7 @@ from submissions.models import (
 )
 from scipost.models import Contributor
 from colleges.models import Fellowship
+from ethics.models import SubmissionClearance
 
 
 def submission_short_title(obj):
@@ -71,6 +72,17 @@ class QualificationInline(admin.StackedInline):
     autocomplete_fields = [
         "submission",
         "fellow",
+    ]
+
+
+class SubmissionClearanceInline(admin.StackedInline):
+    model = SubmissionClearance
+    extra = 0
+    min_num = 0
+    autocomplete_fields = [
+        "profile",
+        "submission",
+        "asserted_by",
     ]
 
 
@@ -135,6 +147,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         iThenticatePlagiarismAssessmentInline,
         SubmissionAuthorProfileInline,
         QualificationInline,
+        SubmissionClearanceInline,
         SubmissionTieringInline,
     ]
 

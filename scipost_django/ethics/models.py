@@ -8,7 +8,51 @@ from django.utils import timezone
 from ethics.managers import CompetingInterestQuerySet
 
 
+class SubmissionClearance(models.Model):
+    """
+    Assertion that a Profile has no competing interests with regards to a Submission.
+    """
+
+    profile = models.ForeignKey(
+        "profiles.Profile",
+        on_delete=models.CASCADE,
+        related_name="submission_clearances",
+    )
+
+    submission = models.ForeignKey(
+        "submissions.Submission",
+        on_delete=models.CASCADE,
+        related_name="clearances",
+    )
+
+    asserted_by = models.ForeignKey(
+        "scipost.Contributor",
+        on_delete=models.CASCADE,
+        related_name="asserted_submission_clearances",
+    )
+    asserted_on = models.DateTimeField(default=timezone.now)
+
+    comments = models.TextField(blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["profile", "submission"],
+                name="unique_together_profile_submission",
+            ),
+        ]
+        ordering =["submission", "profile"]
+
+
+    def __str__(self):
+        return f"{self.profile} clearance for {self.submission}"
+
+
 class CompetingInterest(models.Model):
+    """
+    Competing interest relating two Profiles, affecting Submissions and Publications.
+    """
+
     COAUTHOR = "coauthor"
     COLLEAGUE = "colleague"
     PhD_SUPERVISOR = "PhD_supervisor"

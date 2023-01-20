@@ -75,16 +75,6 @@
 	      <strong>{{ submission.editor_in_charge }}</strong>
 	    {% endif %}
 	  </div>
-	{% else %}
-	  {% if request.user.contributor.is_ed_admin or request.user.contributor.is_active_senior_fellow %}
-	    <div class="col-md-4">
-	      <a class="btn btn-primary" href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}"><small>View/update invitations</small></a>
-	    </div>
-	  {% endif %}
-	  <div class="col-md-4">
-	    <a class="btn btn-success text-white" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><small>Volunteer as EiC</small></a>
-	  </div>
-
 	{% endif %}
       </div>
     {% endif %}

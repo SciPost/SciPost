@@ -1,0 +1,20 @@
+{% load crispy_forms_tags %}
+
+<div class="border border-danger p-2">
+  <h3>
+    Declare a competing interest
+    <a class="ms-4 px-1 py-0 btn btn-sm btn-warning text-white"
+       hx-get="{% url 'ethics:_hx_submission_ethics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+       hx-target="#submission-{{ submission.pk }}-ethics"
+    >
+      Cancel
+    </a>
+  </h3>
+  <form class="mt-2"
+	hx-post="{% url 'ethics:_hx_submission_competing_interest_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	hx-target="#submission-{{ submission.id }}-competing-interest-form"
+	hx-confirm="Declare this competing interest?<br><strong>(this Submission will not be visible to you anymore)</strong>"
+  >
+    {% crispy form %}
+  </form>
+</div>

@@ -1,0 +1,37 @@
+<details class="border border-2 mx-3 my-2">
+  <summary class="bg-primary bg-opacity-10 p-2">
+    <h2>
+      Competing Interests
+    </h2>
+  </summary>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+	<th>Fellow</th>
+	<th>Nature</th>
+	<th>Related author Profile</th>
+	{% if request.user.contributor.is_ed_admin %}
+	  <th>EdAdmin actions</th>
+	{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for ci in submission.competing_interests.all %}
+	<tr>
+	  <td>{{ ci.profile }}</td>
+	  <td>{{ ci.get_nature_display }}</td>
+	  <td>{{ ci.related_profile }}
+	    {% if request.user.contributor.is_ed_admin %}
+	      <td>
+		Delete
+	      </td>
+	    {% endif %}
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="2">No Fellow has declared competing interests</td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</details>
