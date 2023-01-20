@@ -1,0 +1,9 @@
+{% load crispy_forms_tags %}
+
+<div class="m-2 p-2">
+  <form hx-post="{% url 'colleges:_hx_submission_add_fellowship' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	hx-target="#submission-{{ submission.pk }}-fellows-details"
+  >
+    {% crispy form %}
+  </form>
+</div>

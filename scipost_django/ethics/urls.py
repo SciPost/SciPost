@@ -11,7 +11,7 @@ app_name = "ethics"
 
 urlpatterns = [
     path(
-        "<identifier:identifier_w_vn_nr>/_hx_submission_ethics/",
+        "<identifier:identifier_w_vn_nr>/",
         include([
             path(
                 "",
@@ -37,6 +37,11 @@ urlpatterns = [
                 "_hx_submission_competing_interest_form",
                 views._hx_submission_competing_interest_form,
                 name="_hx_submission_competing_interest_form",
+            ),
+            path(
+                "_hx_submission_competing_interest_delete/<int:pk>",
+                views._hx_submission_competing_interest_delete,
+                name="_hx_submission_competing_interest_delete",
             ),
         ]),
     ),

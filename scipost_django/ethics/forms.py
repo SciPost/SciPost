@@ -34,12 +34,12 @@ class SubmissionCompetingInterestForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.submission = kwargs.pop("submission")
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
         self.fields["related_profile"].label = "With which author?"
         self.fields["related_profile"].queryset = Profile.objects.filter(
             id__in=[ap.profile.id for ap in self.submission.author_profiles.all()]
         )
         self.fields["nature"].label = "Nature? You are/have..."
+        self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
                 Div(Field("related_profile"), css_class="col-lg-6"),

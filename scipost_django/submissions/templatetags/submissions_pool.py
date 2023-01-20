@@ -28,3 +28,15 @@ def get_fellow_qualification(submission, fellow):
         return Qualification.objects.get(submission=submission, fellow=fellow)
     except Qualification.DoesNotExist:
         return None
+
+
+@register.simple_tag
+def get_fellow_qualification_expertise_level_display(submission, fellow):
+    """
+    Return the Qualification for this Submission, Fellow parameters.
+    """
+    try:
+        q = Qualification.objects.get(submission=submission, fellow=fellow)
+        return q.get_expertise_level_display()
+    except Qualification.DoesNotExist:
+        return "?"

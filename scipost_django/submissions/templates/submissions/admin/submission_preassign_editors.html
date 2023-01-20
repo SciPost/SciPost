@@ -35,7 +35,6 @@
     <div class="border border-danger mt-3 p-2">
       <h3>Editorial Administration</h3>
       <ul>
-	<li><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this Submission's Fellowship</a></li>
 	<li><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a></li>
 	{% if submission.status == 'incoming' %}
 	  <li><a href="{% url 'submissions:do_preassignment' submission.preprint.identifier_w_vn_nr %}">Go to preassignment page</a></li>

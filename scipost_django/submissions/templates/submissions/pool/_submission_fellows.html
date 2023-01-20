@@ -1,0 +1,76 @@
+{% load submissions_pool %}
+{% load ethics_extras %}
+
+<h2>
+  This Submission's Fellowship
+</h2>
+
+{% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+  <div id="submission-{{ submission.pk }}-add-fellow"
+  >
+    <a class="btn btn-sm btn-primary m-2"
+       hx-get="{% url 'colleges:_hx_submission_add_fellowship' submission.preprint.identifier_w_vn_nr %}"
+       hx-target="#submission-{{ submission.pk }}-add-fellow"
+    >
+      Add a Fellow to this Submission's fellowship
+    </a>
+  </div>
+{% endif %}
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Fellow</th>
+      <th>Fellowship<br>status</th>
+      <th>Qualification</th>
+      {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+	<th>Competing<br>interests</th>
+        <th>Actions</th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for fellowship in submission.fellows.all %}
+      <tr>
+        <td>{{ fellowship.contributor }}</td>
+        <td>{{ fellowship.get_status_display }}</td>
+	<td>{% get_fellow_qualification_expertise_level_display submission fellowship %}</td>
+	{% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+	  <td>
+	    {% get_profile_clearance submission fellowship.contributor.profile as clearance %}
+	    {% if clearance %}
+	      <span class="text-success">all clear</span>
+	      &nbsp;<en>(asserted by {{ clearance.asserted_by }})
+	    {% else %}
+		{% get_profile_competing_interests submission fellowship.contributor.profile as ci_qs %}
+		{% if ci_qs %}
+		  <ul>
+		    {% for ci in ci_qs %}
+		      <li>
+			{{ ci }}
+			{% if request.user.contributor.is_ed_admin %}
+			    <a class="btn btn-sm btn-danger px-1 py-0"
+			       hx-get="{% url 'ethics:_hx_submission_competing_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=ci.pk %}"
+			       hx-confirm="Delete this competing interest?"
+			       hx-target="#submission-{{ submission.pk }}-competing-interests-details"
+			    >
+			      <small>remove</small>
+			    </a>
+			{% endif %}
+		      </li>
+		    {% endfor %}
+		  </ul>
+		{% else %}
+		  <em class="text-danger">unknown</em>
+		{% endif %}
+	    {% endif %}
+	  </td>
+          <td>
+            <a class="btn btn-sm btn-danger px-1 py-0"
+	       href="{% url 'colleges:fellowship_remove_submission' fellowship.id submission.preprint.identifier_w_vn_nr %}">{% include "bi/trash-fill.html" %}</a>
+          </td>
+	{% endif %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -12,7 +12,7 @@
   </h3>
   <form class="mt-2"
 	hx-post="{% url 'ethics:_hx_submission_competing_interest_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	hx-target="#submission-{{ submission.id }}-competing-interest-form"
+	hx-target="#submission-{{ submission.id }}-appraisal"
 	hx-confirm="Declare this competing interest?<br><strong>(this Submission will not be visible to you anymore)</strong>"
   >
     {% crispy form %}
