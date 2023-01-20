@@ -263,7 +263,8 @@ class SubmissionPoolSearchForm(forms.Form):
         ),
     )
     editor_in_charge = forms.ModelChoiceField(
-        queryset=Fellowship.objects.active(), required=False
+        queryset=Fellowship.objects.active().select_related("contributor__user"),
+        required=False,
     )
     versions = forms.ChoiceField(
         widget=forms.RadioSelect,
@@ -477,7 +478,7 @@ class SubmissionPoolSearchForm(forms.Form):
         elif self.cleaned_data.get("ordering") == "activity_oldest":
             submissions = submissions.order_by("latest_activity")
 
-        return submissions
+        return submissions.prefetch_related("fellows__contributor__user")
 
 
 class ReportSearchForm(forms.Form):
