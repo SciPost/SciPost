@@ -8,7 +8,7 @@
 	</span>
 	<a class="text-danger ms-4"
 	   hx-get="{% url 'ethics:_hx_submission_clearance_revoke' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	   hx-target="#submission-{{ submission.pk }}-ethics"
+	   hx-target="#submission-{{ submission.pk }}-appraisal"
 	>{% include "bi/trash-fill.html" %}&nbsp;<em>Revoke this declaration</em></a>
       </div>
     {% else %}
@@ -17,7 +17,7 @@
 	<div class="col">
 	  <a class="btn btn-sm btn-success text-white my-auto"
 	     hx-get="{% url 'ethics:_hx_submission_clearance_assert' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	     hx-target="#submission-{{ submission.pk }}-ethics"
+	     hx-target="#submission-{{ submission.pk }}-appraisal"
 	     hx-confirm="Confirm that you have no competing interest with regards to this Submission?"
 	  >I have no competing interest<br>with regards to this Submission</a>
 	</div>

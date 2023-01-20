@@ -1,4 +1,5 @@
 {% load submissions_pool %}
+{% load ethics_extras %}
 
 {% get_fellow_qualification submission session_fellowship as qualification %}
 
@@ -21,15 +22,21 @@
   {% endif %}
 </div>
 
-
 {% if qualification and qualification.is_qualified %}
-  <div class="row">
-    <div class="col">
-      <a class="btn btn-sm btn-success text-white" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">I will take charge of this Submission</a>
+  {% get_profile_clearance submission.clearances request.user.contributor.profile as clearance %}
+  {% if clearance %}
+    <div class="row border border-danger bg-danger bg-opacity-10 p-2 pb-0">
+      <div class="col-lg-6">
+	<h3>Please assert your readiness to take charge</h3>
+	<a class="btn btn-sm btn-success text-white" href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">I will take charge of this Submission</a>
+      </div>
+      <div class="col-lg-6">
+	<div id="submission-{{ submission.id }}-readiness-form"
+	     hx-get="{% url 'submissions:pool:_hx_readiness_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	     hx-trigger="revealed"
+	>
+	</div
+      </div>
     </div>
-    <div class=""col">
-      Not ready to take charge? Please specify:
-      readiness form
-    </div>
-  </div>
+  {% endif %}
 {% endif %}

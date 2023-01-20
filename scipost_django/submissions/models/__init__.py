@@ -25,6 +25,8 @@ from .preprint_server import PreprintServer
 
 from .qualification import Qualification
 
+from .readiness import Readiness
+
 from .referee_invitation import RefereeInvitation
 
 from .report import Report

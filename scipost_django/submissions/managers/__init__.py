@@ -10,6 +10,8 @@ from .decision import EditorialDecisionQuerySet
 
 from .qualification import QualificationQuerySet
 
+from .readiness import ReadinessQuerySet
+
 from .recommendation import EICRecommendationQuerySet
 
 from .referee_invitation import RefereeInvitationQuerySet

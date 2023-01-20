@@ -47,12 +47,17 @@ def _hx_submission_clearance_assert(request, identifier_w_vn_nr):
         submission=submission,
         asserted_by=request.user.contributor,
     )
-    return redirect(
-        reverse(
-            "ethics:_hx_submission_ethics",
-            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
-        )
+    return render(
+        request,
+        "submissions/pool/_hx_appraisal.html",
+        context={"submission": submission},
     )
+    # return redirect(
+    #     reverse(
+    #         "ethics:_hx_submission_ethics",
+    #         kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
+    #     )
+    # )
 
 
 @login_required
@@ -66,12 +71,17 @@ def _hx_submission_clearance_revoke(request, identifier_w_vn_nr):
         submission=submission,
         asserted_by=request.user.contributor, # can only revoke own clearances
     ).delete()
-    return redirect(
-        reverse(
-            "ethics:_hx_submission_ethics",
-            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
-        )
+    return render(
+        request,
+        "submissions/pool/_hx_appraisal.html",
+        context={"submission": submission},
     )
+    # return redirect(
+    #     reverse(
+    #         "ethics:_hx_submission_ethics",
+    #         kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
+    #     )
+    # )
 
 
 #######################
