@@ -91,7 +91,10 @@ def _hx_submission_tab(request, identifier_w_vn_nr, tab):
         Submission.objects.in_pool(request.user, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
-    context = {"submission": submission, "tab": tab,}
+    context = {
+        "submission": submission,
+        "tab": tab,
+    }
     if tab == "remarks":
         context["remark_form"] = RemarkForm()
     return render(request, "submissions/pool/_hx_submission_tab.html", context)

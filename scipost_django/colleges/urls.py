@@ -61,9 +61,14 @@ urlpatterns = [
         name="fellowship_email_start",
     ),
     path(
-        "fellowships/submissions/<identifier:identifier_w_vn_nr>/add",
+        "submission/<identifier:identifier_w_vn_nr>/fellowship/add",
         views._hx_submission_add_fellowship,
         name="_hx_submission_add_fellowship",
+    ),
+    path(
+        "submission/<identifier:identifier_w_vn_nr>/fellowship/<int:pk>/remove",
+        views._hx_submission_remove_fellowship,
+        name="_hx_submission_remove_fellowship",
     ),
     path(
         "fellowships/<int:id>/submissions/<identifier:identifier_w_vn_nr>/remove",

@@ -321,6 +321,22 @@ def _hx_submission_add_fellowship(request, identifier_w_vn_nr):
 
 
 @login_required
+@user_passes_test(is_edadmin)
+def _hx_submission_remove_fellowship(request, identifier_w_vn_nr, pk):
+    """Remove Fellowship from a Submission's Fellowship."""
+    submission = get_object_or_404(
+        Submission.objects.in_pool(request.user),
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+    submission.fellows.remove(pk)
+    return render(
+        request,
+        "submissions/pool/_submission_fellows.html",
+        context={"submission": submission,},
+    )
+
+
+@login_required
 @permission_required("scipost.can_manage_college_composition", raise_exception=True)
 def fellowship_remove_submission(request, id, identifier_w_vn_nr):
     """Remove Submission from the Fellowship."""

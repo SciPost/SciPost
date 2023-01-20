@@ -10,22 +10,19 @@ register = template.Library()
 
 
 @register.simple_tag
-def get_profile_clearance(submission, profile):
+def get_profile_clearance(clearances, profile):
     """
     Return the SubmissionClearance for this Profile, or None.
     """
-    return SubmissionClearance.objects.filter(
-        submission=submission,
-        profile=profile,
-    ).first()
+    return clearances.filter(profile=profile).first()
 
 
 @register.simple_tag
-def get_profile_competing_interests(submission, profile):
+def get_profile_competing_interests(competing_interests, profile):
     """
     Return all CompetingInterest for this Submission, Profile parameters.
     """
     from django.db.models import Q
-    return CompetingInterest.objects.filter(affected_submissions=submission).filter(
+    return competing_interests.filter(
         Q(profile=profile) | Q(related_profile=profile),
     )

@@ -10,6 +10,15 @@ from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
 
 
 class FellowQuerySet(models.QuerySet):
+    ########################################
+    # select_related template accelerators #
+    ########################################
+    def select_related_contributor__user_and_profile(self):
+        return self.select_related(
+            "contributor__user",
+            "contributor__profile",
+        )
+
     def guests(self):
         from .models import Fellowship
 

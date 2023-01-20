@@ -379,6 +379,7 @@ class Submission(models.Model):
             )
         return header
 
+
     ##########################################
     # Shortcut properties for stage checking #
     ##########################################
