@@ -127,7 +127,9 @@
   {% endif %}
 
   {% if session_fellowship %}
-    <div id="submission-{{ submission.id }}-appraisal">
+    <div id="submission-{{ submission.id }}-appraisal"
+	 class="mb-0"
+    >
       {% include "submissions/pool/_hx_appraisal.html" with submission=submission %}
     </div>
   {% endif %}

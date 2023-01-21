@@ -38,14 +38,21 @@ class QualificationForm(forms.ModelForm):
 
 
 class ReadinessForm(forms.ModelForm):
+    choice = forms.ChoiceField(
+        choices=(
+            [('', '---------'), ("yes", "Yes, let me take charge now"),] +
+            list(Readiness.STATUS_CHOICES)
+        ),
+    )
 
     class Meta:
         model = Readiness
         fields = [
             "submission",
             "fellow",
-            "status",
+            # "status",
             # "comments",
+            "choice",
         ]
         widgets = {
             "submission": forms.HiddenInput(),
@@ -54,10 +61,22 @@ class ReadinessForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        if "instance" in kwargs and kwargs["instance"]:
+            self.fields["choice"].initial = kwargs["instance"].status
         self.helper = FormHelper()
-        self.fields["status"].label = "Not ready to take charge? Please specify:"
+        # self.fields["status"].label = "Not ready to take charge? Please specify:"
+        self.fields["choice"].label = "Ready to take charge?"
+
         self.helper.layout = Layout(
             Field("submission"),
             Field("fellow"),
-            FloatingField("status"),
+            # FloatingField("status"),
+            FloatingField("choice"),
         )
+
+    def save(self):
+        instance = super().save(commit=False)
+        # The "yes" choice must be handled separately in the view before calling save
+        instance.status = self.cleaned_data["choice"]
+        instance.save()
+        return instance

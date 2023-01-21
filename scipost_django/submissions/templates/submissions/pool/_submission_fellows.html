@@ -21,7 +21,7 @@
   <thead>
     <tr>
       <th>Fellow</th>
-      <th>Fellowship<br>status</th>
+      <th>Status</th>
       <th>Qualification</th>
       {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
 	<th>Competing<br>interests</th>
@@ -29,6 +29,7 @@
           <th>Actions</th>
 	{% endif %}
       {% endif %}
+      <th>Readiness to take charge</th>
     </tr>
   </thead>
   <tbody>
@@ -77,6 +78,7 @@
             </td>
 	  {% endif %}
 	{% endif %}
+	<td>{% get_fellow_readiness_status_display submission fellowship %}</td>
       </tr>
     {% endfor %}
   </tbody>

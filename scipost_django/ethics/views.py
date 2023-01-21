@@ -52,12 +52,6 @@ def _hx_submission_clearance_assert(request, identifier_w_vn_nr):
         "submissions/pool/_hx_appraisal.html",
         context={"submission": submission},
     )
-    # return redirect(
-    #     reverse(
-    #         "ethics:_hx_submission_ethics",
-    #         kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
-    #     )
-    # )
 
 
 @login_required
@@ -76,12 +70,6 @@ def _hx_submission_clearance_revoke(request, identifier_w_vn_nr):
         "submissions/pool/_hx_appraisal.html",
         context={"submission": submission},
     )
-    # return redirect(
-    #     reverse(
-    #         "ethics:_hx_submission_ethics",
-    #         kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
-    #     )
-    # )
 
 
 #######################

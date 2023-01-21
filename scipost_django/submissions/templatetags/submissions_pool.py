@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django import template
 
-from ..models import EditorialAssignment, Qualification
+from ..models import EditorialAssignment, Qualification, Readiness
 
 register = template.Library()
 
@@ -39,4 +39,16 @@ def get_fellow_qualification_expertise_level_display(submission, fellow):
         q = Qualification.objects.get(submission=submission, fellow=fellow)
         return q.get_expertise_level_display()
     except Qualification.DoesNotExist:
-        return "?"
+        return ""
+
+
+@register.simple_tag
+def get_fellow_readiness_status_display(submission, fellow):
+    """
+    Return the Readiness for this Submission, Fellow parameters.
+    """
+    try:
+        r = Readiness.objects.get(submission=submission, fellow=fellow)
+        return r.get_status_display()
+    except Readiness.DoesNotExist:
+        return ""

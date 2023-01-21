@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 
@@ -79,6 +80,13 @@ def _hx_readiness_form(request, identifier_w_vn_nr=None):
     if request.method == "POST":
         form = ReadinessForm(request.POST, instance=instance)
         if form.is_valid():
+            if form.cleaned_data["choice"] == "yes":
+               response = HttpResponse()
+               response["HX-Redirect"] = reverse(
+                   "submissions:pool:editorial_assignment",
+                   kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,}
+               )
+               return response
             form.save()
             response = render(
                 request,
