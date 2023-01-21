@@ -125,6 +125,22 @@ class PublicationAutocompleteView(autocomplete.Select2QuerySetView):
         )
 
 
+class OwnPublicationAutocompleteView(PublicationAutocompleteView):
+    """
+    View to feed the Select2 widget, specialized to user's own publications.
+    """
+
+    def get_queryset(self):
+        qs = self.request.user.contributor.profile.publications()
+        if self.q:
+            qs = qs.filter(
+                Q(title__icontains=self.q)
+                | Q(doi_label__icontains=self.q)
+                | Q(author_list__icontains=self.q)
+            )
+        return qs.order_by("-publication_date")
+
+
 def _hx_publication_dynsel_list(request):
     form = PublicationDynSelForm(request.POST or None)
     if form.is_valid():

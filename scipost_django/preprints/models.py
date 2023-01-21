@@ -6,7 +6,6 @@ import requests
 
 from django.urls import reverse
 from django.db import models
-from django.http import Http404
 
 from common.utils import get_current_domain
 from submissions.exceptions import PreprintDocumentNotFoundError
@@ -48,7 +47,7 @@ class Preprint(models.Model):
             return self.url
         if self._file:
             return reverse("preprints:pdf", args=(self.identifier_w_vn_nr,))
-        raise Http404
+        return None
 
     def get_document(self):
         """

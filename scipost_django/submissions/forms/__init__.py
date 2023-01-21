@@ -64,7 +64,7 @@ from ..regexes import CHEMRXIV_DOI_PATTERN
 
 from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings
-from journals.models import Journal
+from journals.models import Journal, Publication
 from journals.constants import (
     PUBLISHABLE_OBJECT_TYPE_ARTICLE,
     PUBLISHABLE_OBJECT_TYPE_CODEBASE,
@@ -1137,6 +1137,18 @@ class SubmissionForm(forms.ModelForm):
         label="Specialties",
         help_text="Type to search, click to include",
     )
+    followup_of = forms.ModelMultipleChoiceField(
+        queryset=Publication.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url="/journals/own-publication-autocomplete",
+            attrs={
+                "data-html": True,
+                "data-placeholder": "Optional",
+            }
+        ),
+        required=False,
+        help_text="<strong>Does this Submission follow up on some of your earlier publications?<br>(for example: this Submission is a new codebase release for a previous Codebases publication)<br>If so, select them here.</strong>"
+    )
     preprint_server = forms.ModelChoiceField(
         queryset=PreprintServer.objects.all(), widget=forms.HiddenInput()
     )
@@ -1163,6 +1175,7 @@ class SubmissionForm(forms.ModelForm):
             "title",
             "author_list",
             "abstract",
+            "followup_of",
             "code_repository_url",
             "data_repository_url",
             "author_comments",

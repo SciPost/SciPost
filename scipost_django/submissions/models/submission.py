@@ -249,6 +249,8 @@ class Submission(models.Model):
     )
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
+
+    # Link to previous Submission, or existing bundle member
     is_resubmission_of = models.ForeignKey(
         "self",
         blank=True,
@@ -257,6 +259,12 @@ class Submission(models.Model):
         related_name="successor",
     )
     thread_hash = models.UUIDField(default=uuid.uuid4)
+    followup_of = models.ManyToManyField(
+        "journals.Publication",
+        blank=True,
+        related_name="followups",
+    )
+
     refereeing_cycle = models.CharField(
         max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True
     )

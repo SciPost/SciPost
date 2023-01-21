@@ -20,7 +20,9 @@
     <meta name="citation_author" content="{{ author }}"/>
   {% endfor %}
   <meta name="citation_online_date" content="{{ submission.submission_date|date:'Y/m/d' }}"/>
-  <meta name="citation_pdf_url" content="{{ submission.preprint.citation_pdf_url }}"/>
+  {% if submission.preprint.citation_pdf_url %}
+    <meta name="citation_pdf_url" content="{{ submission.preprint.citation_pdf_url }}"/>
+  {% endif %}
 {% endblock headsup %}
 
 
