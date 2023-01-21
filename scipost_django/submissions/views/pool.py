@@ -118,7 +118,6 @@ def add_remark(request, identifier_w_vn_nr):
         remark = Remark(
             contributor=request.user.contributor,
             submission=submission,
-            date=timezone.now(),
             remark=remark_form.cleaned_data["remark"],
         )
         remark.save()

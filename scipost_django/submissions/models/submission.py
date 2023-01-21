@@ -283,6 +283,7 @@ class Submission(models.Model):
             "to set things up."
         ),
     )
+
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:

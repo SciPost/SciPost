@@ -65,6 +65,11 @@ from ..regexes import CHEMRXIV_DOI_PATTERN
 from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings
 from journals.models import Journal
+from journals.constants import (
+    PUBLISHABLE_OBJECT_TYPE_ARTICLE,
+    PUBLISHABLE_OBJECT_TYPE_CODEBASE,
+    PUBLISHABLE_OBJECT_TYPE_DATASET,
+)
 from mails.utils import DirectMailUtil
 from ontology.models import AcademicField, Specialty
 from preprints.helpers import get_new_scipost_identifier
@@ -1141,7 +1146,8 @@ class SubmissionForm(forms.ModelForm):
         help_text=(
             "Please submit the processed .pdf (not the source files; "
             "these will only be required at the post-acceptance proofs stage)"
-        )
+        ),
+        required=False,
     )
 
     class Meta:
@@ -1282,13 +1288,7 @@ class SubmissionForm(forms.ModelForm):
                 self.requested_by, cleaned_data["is_resubmission_of"]
             )
 
-        if "Codeb" in cleaned_data["submitted_to"].doi_label:
-            if not ("code_repository_url" in cleaned_data and cleaned_data["code_repository_url"]):
-                msg = (
-                    "You must specify a code repository if you submit to %s"
-                    % cleaned_data["submitted_to"].name
-                )
-                self.add_error("code_repository_url", msg)
+        self.clear_submission_object_types()
 
         if "Proc" not in cleaned_data["submitted_to"].doi_label:
             try:
@@ -1297,6 +1297,31 @@ class SubmissionForm(forms.ModelForm):
                 # No proceedings returned to data
                 pass
         return cleaned_data
+
+    def clear_submission_object_types(self):
+        """
+        Check that the submitted material fits one of the Journal's options.
+        """
+        submitted_types = []
+        if (self.cleaned_data.get("preprint_file", None) or
+            self.cleaned_data.get("preprint_link", None)):
+            submitted_types.append(PUBLISHABLE_OBJECT_TYPE_ARTICLE)
+        if self.cleaned_data.get("code_repository_url", None):
+            submitted_types.append(PUBLISHABLE_OBJECT_TYPE_CODEBASE)
+        if self.cleaned_data.get("data_repository_url", None):
+            submitted_types.append(PUBLISHABLE_OBJECT_TYPE_DATASET)
+        submitted_types.sort() # not needed here, but for future safety
+        submitted_types_code = ' + '.join(submitted_types)
+        options = self.cleaned_data["submitted_to"].submission_object_types["options"]
+        if submitted_types_code not in options:
+            self.add_error(
+                None,
+                (
+                    f"You are trying to submit document types: {submitted_types_code}, "
+                    "but this Journal requires one of the following options: "
+                    f"{', '.join(options)}"
+                )
+            )
 
     def clean_author_list(self):
         """

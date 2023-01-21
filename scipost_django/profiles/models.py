@@ -9,7 +9,6 @@ from django.shortcuts import get_object_or_404
 
 from scipost.behaviors import orcid_validator
 from scipost.constants import TITLE_CHOICES, TITLE_DR
-from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 
 from comments.models import Comment
