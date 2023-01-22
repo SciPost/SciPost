@@ -149,6 +149,9 @@ class TopicAutocompleteView(autocomplete.Select2QuerySetView):
 
     def get_queryset(self):
         qs = Topic.objects.all()
+        specialties = self.forwarded.get("specialties", None)
+        if specialties:
+            qs = qs.filter(specialties__in=specialties)
         if self.q:
             qs = qs.filter(name__icontains=self.q)
         return qs

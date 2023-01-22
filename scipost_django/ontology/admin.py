@@ -27,6 +27,9 @@ admin.site.register(AcademicField, AcademicFieldAdmin)
 
 class SpecialtyAdmin(admin.ModelAdmin):
     search_fields = ["name"]
+    autocomplete_fields = [
+        "topics",
+    ]
 
 
 admin.site.register(Specialty, SpecialtyAdmin)

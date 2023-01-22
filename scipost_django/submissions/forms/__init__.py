@@ -71,7 +71,7 @@ from journals.constants import (
     PUBLISHABLE_OBJECT_TYPE_DATASET,
 )
 from mails.utils import DirectMailUtil
-from ontology.models import AcademicField, Specialty
+from ontology.models import AcademicField, Specialty, Topic
 from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
 from proceedings.models import Proceedings
@@ -483,7 +483,7 @@ class SubmissionPoolSearchForm(forms.Form):
         elif self.cleaned_data.get("ordering") == "activity_oldest":
             submissions = submissions.order_by("latest_activity")
 
-        return submissions.prefetch_related("fellows__contributor__user")
+        return submissions
 
 
 class ReportSearchForm(forms.Form):
@@ -1137,6 +1137,15 @@ class SubmissionForm(forms.ModelForm):
         label="Specialties",
         help_text="Type to search, click to include",
     )
+    topics = forms.ModelMultipleChoiceField(
+        queryset=Topic.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url="/ontology/topic-autocomplete",
+            attrs={"data-html": True},
+            forward=["specialties",],
+        ),
+        help_text="Type to search, click to include",
+    )
     followup_of = forms.ModelMultipleChoiceField(
         queryset=Publication.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
@@ -1171,6 +1180,7 @@ class SubmissionForm(forms.ModelForm):
             "proceedings",
             "acad_field",
             "specialties",
+            "topics",
             "approaches",
             "title",
             "author_list",

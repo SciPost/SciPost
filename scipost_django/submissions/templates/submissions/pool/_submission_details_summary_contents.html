@@ -87,7 +87,7 @@
     </ul>
     <ul class="ms-2 list list-unstyled">
       <li class="mb-2"><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">{% include "bi/arrow-right-square-fill.html" %}submission page</a></li>
-      {% if request.user.contributor.is_ed_admin or request.user.contributor == submission.editor_in_charge %}
+      {% if "edadmin" in user_roles or request.user.contributor == submission.editor_in_charge %}
 	<li class="mb-2"><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">
 	  <span class="text-danger">
 	    {% include "bi/arrow-right-square-fill.html" %}
@@ -111,7 +111,7 @@
   </div>
 </div>
 
-{% if request.user.contributor.is_ed_admin and submission.eic_not_in_fellowship %}
+{% if "edadmin" in user_roles and submission.eic_not_in_fellowship %}
   <div class="border border-danger text-danger mt-1 py-1 px-2">
     <strong>
       {% include 'bi/exclamation-triangle-fill.html' %}

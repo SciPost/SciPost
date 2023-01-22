@@ -1,5 +1,5 @@
 <ul class="nav nav-pills justify-content-center">
-  {% if request.user.contributor.is_ed_admin %}
+  {% if "edadmin" in user_roles %}
     <li class="nav-item">
       {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="edadmin" text="EdAdmin" %}
     </li>
@@ -64,7 +64,7 @@
 
   {% elif tab == "events" %}
     <div id="eventslist">
-      {% if request.user.contributor.is_ed_admin %}
+      {% if "edadmin" in user_roles %}
 	{% include "submissions/_submission_events.html" with events=submission.events.for_edadmin %}
       {% elif request.user.contributor == submission.editor_in_charge %}
 	{% include "submissions/_submission_events.html" with events=submission.events.for_eic %}
@@ -73,7 +73,7 @@
       {% endif %}
     </div>
 
-  {% elif tab == "edadmin" and request.user.contributor.is_ed_admin %}
+  {% elif tab == "edadmin" and "edadmin" in user_roles %}
     <div id="submission-{{ submission.pk }}-tab-contents-edadmin"
 	 hx-get="{% url 'edadmin:_hx_submission_tab_contents_edadmin' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	 hx-trigger="load, submission-{{ submission.pk }}-tab-edadmin-updated"
