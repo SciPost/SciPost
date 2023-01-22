@@ -33,7 +33,7 @@ def get_fellow_qualification(submission, fellow):
 @register.simple_tag
 def get_fellow_qualification_expertise_level_display(submission, fellow):
     """
-    Return the Qualification for this Submission, Fellow parameters.
+    Return the Qualification expertise_level display.
     """
     try:
         q = Qualification.objects.get(submission=submission, fellow=fellow)
@@ -43,9 +43,20 @@ def get_fellow_qualification_expertise_level_display(submission, fellow):
 
 
 @register.simple_tag
-def get_fellow_readiness_status_display(submission, fellow):
+def get_fellow_readiness(submission, fellow):
     """
     Return the Readiness for this Submission, Fellow parameters.
+    """
+    try:
+        return Readiness.objects.get(submission=submission, fellow=fellow)
+    except Readiness.DoesNotExist:
+        return None
+
+
+@register.simple_tag
+def get_fellow_readiness_status_display(submission, fellow):
+    """
+    Return the Readiness status display for this Submission, Fellow parameters.
     """
     try:
         r = Readiness.objects.get(submission=submission, fellow=fellow)

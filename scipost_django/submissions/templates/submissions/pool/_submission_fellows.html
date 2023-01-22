@@ -47,22 +47,38 @@
 	    {% else %}
 		{% get_profile_competing_interests submission.competing_interests fellowship.contributor.profile as ci_qs %}
 		{% if ci_qs %}
-		  <ul>
-		    {% for ci in ci_qs %}
-		      <li>
-			{{ ci }}
+		  <table class="table table-bordered bg-danger bg-opacity-10 mb-0">
+		    <thead>
+		      <tr>
+			<th>Related Profile / <em>(nature)</em></th>
 			{% if "edadmin" in user_roles %}
-			  <a class="btn btn-sm btn-danger px-1 py-0"
-			     hx-get="{% url 'ethics:_hx_submission_competing_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=ci.pk %}"
-			     hx-confirm="Delete this competing interest?"
-			     hx-target="#submission-{{ submission.pk }}-competing-interests-details"
-			  >
-			    <small>remove</small>
-			  </a>
+			  <th>Actions</th>
 			{% endif %}
-		      </li>
-		    {% endfor %}
-		  </ul>
+		      </tr>
+		    </thead>
+		    <tbody>
+		      {% for ci in ci_qs %}
+			<tr>
+			  <td>
+			    {{ ci.related_profile }}
+			    <br>
+			    <em>({{ ci.get_nature_display }})</em>
+			  </td>
+			  <td>
+			    {% if "edadmin" in user_roles %}
+			      <a class="btn btn-sm btn-danger px-1 py-0"
+				 hx-get="{% url 'ethics:_hx_submission_competing_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=ci.pk %}"
+				 hx-confirm="Delete this competing interest?"
+				 hx-target="#submission-{{ submission.pk }}-fellows-details"
+			      >
+				{% include "bi/trash-fill.html" %}
+			      </a>
+			    {% endif %}
+			  </td>
+			</tr>
+		      {% endfor %}
+		    </tbody>
+		  </table>
 		{% else %}
 		  <em class="text-danger">unknown</em>
 		{% endif %}

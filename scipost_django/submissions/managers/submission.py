@@ -198,10 +198,12 @@ class SubmissionQuerySet(models.QuerySet):
         elif user.contributor.is_active_fellow:
             qs = qs.exclude(status__in=[self.model.INCOMING, self.model.PREASSIGNMENT])
 
-        # remove Fellows with a competing interest:
+        # remove Submissions for which a competing interest exists:
         qs = qs.exclude(
             competing_interests__profile=user.contributor.profile,
-        ).exclude(competing_interests__related_profile=user.contributor.profile)
+        ).exclude(
+            competing_interests__related_profile=user.contributor.profile,
+        )
         return qs.remove_COI(user)
 
 

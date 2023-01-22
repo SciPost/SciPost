@@ -82,26 +82,23 @@ def _hx_submission_competing_interest_form(request, identifier_w_vn_nr):
         Submission.objects.in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
+    initial={
+        "profile": request.user.contributor.profile,
+        "declared_by": request.user.contributor,
+    }
+    if submission.author_profiles.count() == 1:
+        initial["related_profile"] = submission.author_profiles.first().profile
     form = SubmissionCompetingInterestForm(
         request.POST or None,
         submission=submission,
-        initial={
-            "profile": request.user.contributor.profile,
-            "declared_by": request.user.contributor,
-        }
+        initial=initial,
     )
     if form.is_valid():
         instance = form.save()
         instance.affected_submissions.add(submission)
-        submission.fellows.remove(request.user.contributor.session_fellowship(request))
-        return redirect(reverse("submissions:pool:pool"))
-        response = render(
-            request,
-            "submissions/pool/_hx_appraisal.html",
-            context={"submission": submission},
-        )
+        response = HttpResponse()
+        response["HX-Trigger-After-Settle"] = "search-conditions-updated"
         return response
-
     context = {
         "submission": submission,
         "form": form,
@@ -121,13 +118,13 @@ def _hx_submission_competing_interest_delete(request, identifier_w_vn_nr, pk):
     )
     competing_interest = get_object_or_404(CompetingInterest, pk=pk)
     competing_interest.affected_submissions.remove(submission)
-    submission.fellows.add(request.user.contributor.session_fellowship(request))
+    #submission.fellows.add(request.user.contributor.session_fellowship(request))
     if (competing_interest.affected_submissions.count() == 0 and
         competing_interest.affected_publications.count() == 0):
         competing_interest.delete()
-    context = {"submission": submission, }
+    context = {"submission": submission,}
     return render(
         request,
-        "ethics/_submission_competing_interests_details.html",
+        "submissions/pool/_submission_fellows.html",
         context,
     )

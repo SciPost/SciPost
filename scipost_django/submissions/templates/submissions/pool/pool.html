@@ -82,7 +82,7 @@
     <div class="card-body">
       <form
 	  hx-post="{% url 'submissions:pool:_hx_submission_list' %}"
-	  hx-trigger="load, keyup delay:500ms, change"
+	  hx-trigger="load, keyup delay:500ms, change, search-conditions-updated from:body"
 	  hx-target="#search-results"
 	  hx-indicator="#indicator-search"
       >

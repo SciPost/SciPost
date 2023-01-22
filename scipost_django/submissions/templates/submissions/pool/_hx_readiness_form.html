@@ -1,5 +1,9 @@
 {% load crispy_forms_tags %}
 
+{% if not form.instance %}
+  <div class="border border-danger px-2">
+    <span class="text-danger">Please specify!</span>
+{% endif %}
 <form
     hx-post="{% url 'submissions:pool:_hx_readiness_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
     hx-target="#submission-{{ submission.id }}-readiness-form"
@@ -7,6 +11,6 @@
 >
   {% crispy form %}
 </form>
-{% if not form.initial.expertise_level %}
+{% if not form.instance %}
   </div>
 {% endif %}
