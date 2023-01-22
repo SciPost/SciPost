@@ -223,7 +223,6 @@
 
 {% block footer_script %}
   {{ block.super }}
-  {{ select_topic_form.media }}
   <script type="module" nonce="{{ request.csp_nonce }}">
    import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
    mermaid.initialize({ startOnLoad: false });

@@ -51,20 +51,26 @@ urlpatterns = [
         name="submission_wo_vn_nr",
     ),
     path(
-        "<identifier:identifier_w_vn_nr>/", views.submission_detail, name="submission"
-    ),
-    path(
-        "<identifier:identifier_w_vn_nr>/_hx_submission_topics/",
+        "<identifier:identifier_w_vn_nr>/",
         include([
             path(
-                "",
-                views._hx_submission_topics,
-                name="_hx_submission_topics",
-            ),
+                "", views.submission_detail, name="submission",
+                ),
+            # Topics
             path(
-                "<slug:topic_slug>/action/<str:action>",
-                views._hx_submission_topic_action,
-                name="_hx_submission_topic_action",
+                "_hx_submission_topics/",
+                include([
+                    path(
+                        "",
+                        views._hx_submission_topics,
+                        name="_hx_submission_topics",
+                    ),
+                    path(
+                        "<slug:topic_slug>/action/<str:action>",
+                        views._hx_submission_topic_action,
+                        name="_hx_submission_topic_action",
+                    ),
+                ]),
             ),
         ]),
     ),
@@ -92,17 +98,6 @@ urlpatterns = [
         "<identifier:identifier_w_vn_nr>/reports/pdf",
         views.submission_refereeing_package_pdf,
         name="refereeing_package_pdf",
-    ),
-    # Topics
-    path(
-        "submission_add_topic/<identifier:identifier_w_vn_nr>/",
-        views.submission_add_topic,
-        name="submission_add_topic",
-    ),
-    path(
-        "submission_remove_topic/<identifier:identifier_w_vn_nr>/<slug:slug>/",
-        views.submission_remove_topic,
-        name="submission_remove_topic",
     ),
     # Editorial Administration
     path(

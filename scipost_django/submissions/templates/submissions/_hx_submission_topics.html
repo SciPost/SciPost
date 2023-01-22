@@ -28,8 +28,15 @@
 
   {% if perms.scipost.can_manage_ontology %}
     <div class="col-lg-4">
-      <div class="border border-2 border-warning p-2">
-	<strong>Add a Topic to this Submission</strong>
+      <div class="border border-2 border-warning my-4 p-2">
+	<p>
+	  <strong>Add a Topic to this Submission</strong>
+	  <br>
+	  (can't find the Topic you need?&nbsp;
+	  <a href="{% url 'ontology:topic_create' %}" target="_blank">
+	    {% include "bi/arrow-right-square-fill.html" %}&nbsp;create it
+	  </a>)
+	</p>
 	<form class="mt-1"
 	      hx-post="{% url 'ontology:_hx_topic_dynsel_list' %}"
 	      hx-trigger="keyup delay:200ms, change"
@@ -42,13 +49,6 @@
 	  </div>
 	</form>
 	<div id="submission-{{ submission.pk }}-topic-search-results" class="border border-light m-2 p-1"></div>
-	<div>
-	  Can't find the Topic you need?&nbsp;
-	  <a href="{% url 'ontology:topic_create' %}" target="_blank">
-	    {% include "bi/arrow-right-square-fill.html" %}&nbsp;create it
-	  </a>
-	</div>
-
       </div>
     </div>
   {% endif %}

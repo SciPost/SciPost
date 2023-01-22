@@ -606,7 +606,6 @@ def submission_detail(request, identifier_w_vn_nr):
     )
     context = {
         "can_read_editorial_information": False,
-        "select_topic_form": SelectTopicForm(),
     }
 
     # Check if Contributor is author of the Submission
@@ -711,14 +710,27 @@ def _hx_submission_topics(request, identifier_w_vn_nr):
 @login_required
 @permission_required("scipost.can_manage_ontology")
 def _hx_submission_topic_action(request, identifier_w_vn_nr, topic_slug, action):
+    """
+    Add or remove a predefined Topic to an existing Submission object.
+    This also adds the Topic to all Submissions predating this one,
+    and to any existing associated Publication object.
+    """
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
     topic = get_object_or_404(Topic, slug=topic_slug)
     if action == "add":
         submission.topics.add(topic)
+        for sub in submission.get_other_versions():
+            sub.topics.add(topic)
+        for publication in submission.publications.all():
+            publication.topics.add(topic)
     if action == "remove":
         submission.topics.remove(topic)
+        for sub in submission.get_other_versions():
+            sub.topics.remove(topic)
+        for publication in submission.publications.all():
+            publication.topics.remove(topic)
     return redirect(reverse(
         "submissions:_hx_submission_topics",
         kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
@@ -883,55 +895,6 @@ def editorial_workflow(request):
     of the actions to take to handle Submissions.
     """
     return render(request, "submissions/editorial_workflow.html")
-
-
-@permission_required("scipost.can_manage_ontology", raise_exception=True)
-def submission_add_topic(request, identifier_w_vn_nr):
-    """
-    Add a predefined Topic to an existing Submission object.
-    This also adds the Topic to all Submissions predating this one,
-    and to any existing associated Publication object.
-    """
-    submission = get_object_or_404(
-        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
-    )
-    select_topic_form = SelectTopicForm(request.POST or None)
-    if select_topic_form.is_valid():
-        for topic in select_topic_form.cleaned_data["topic"]:
-            submission.topics.add(topic)
-        for sub in submission.get_other_versions():
-            for topic in select_topic_form.cleaned_data["topic"]:
-                sub.topics.add(topic)
-        try:
-            for publication in submission.publications.all():
-                for topic in select_topic_form.cleaned_data["topic"]:
-                    publication.topics.add(topic)
-        except:
-            pass
-        messages.success(request, "Successfully linked Topic to this Submission")
-    return redirect(submission.get_absolute_url())
-
-
-@permission_required("scipost.can_manage_ontology", raise_exception=True)
-def submission_remove_topic(request, identifier_w_vn_nr, slug):
-    """
-    Remove the Topic from the Submission, from all associated Submissions
-    and from any existing associated Publication object.
-    """
-    submission = get_object_or_404(
-        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
-    )
-    topic = get_object_or_404(Topic, slug=slug)
-    submission.topics.remove(topic)
-    for sub in submission.get_other_versions():
-        sub.topics.remove(topic)
-    try:
-        for publication in submission.publications.all():
-            publication.topics.remove(topic)
-    except:
-        pass
-    messages.success(request, "Successfully removed Topic")
-    return redirect(submission.get_absolute_url())
 
 
 @login_required
