@@ -80,6 +80,33 @@ class SelectTagsForm(forms.Form):
     )
 
 
+class TopicForm(forms.ModelForm):
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url="/ontology/specialty-autocomplete", attrs={"data-html": True}
+        ),
+        label="Specialties",
+        help_text="Type to search, click to include",
+    )
+
+    class Meta:
+        model = Topic
+        fields = [
+            "specialties",
+            "name",
+            "slug",
+            "tags",
+        ]
+
+    def save(self):
+        instance = super().save()
+        for specialty in self.cleaned_data["specialties"].all():
+            specialty.topics.add(instance)
+        return instance
+
+
+
 class SelectTopicForm(forms.Form):
     topic = forms.ModelMultipleChoiceField(
         queryset=Topic.objects.all(),

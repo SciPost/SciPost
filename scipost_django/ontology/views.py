@@ -19,6 +19,7 @@ from .forms import (
     SessionAcademicFieldForm,
     SessionSpecialtyForm,
     SelectTagsForm,
+    TopicForm,
     SelectLinkedTopicForm,
     AddRelationAsymForm,
 )
@@ -175,8 +176,9 @@ class TopicCreateView(PermissionsMixin, CreateView):
 
     permission_required = "scipost.can_manage_ontology"
     model = Topic
-    fields = "__all__"
-    template_name = "ontology/topic_form.html"
+    form_class = TopicForm
+    # fields = "__all__"
+    # template_name = "ontology/topic_form.html"
     success_url = reverse_lazy("ontology:topics")
 
 
