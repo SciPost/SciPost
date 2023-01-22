@@ -109,7 +109,11 @@
       <h3 class="mt-4">Submission summary</h3>
       {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
-      {% include 'submissions/_submission_topics.html' with submission=submission %}
+      <div id="submission-{{ submission.pk }}-topics"
+	   hx-get="{% url 'submissions:_hx_submission_topics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	   hx-trigger="revealed"
+      >
+      </div>
 
       {% include 'submissions/_submission_status.html' with submission=submission %}
 

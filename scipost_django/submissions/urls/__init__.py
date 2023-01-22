@@ -54,6 +54,21 @@ urlpatterns = [
         "<identifier:identifier_w_vn_nr>/", views.submission_detail, name="submission"
     ),
     path(
+        "<identifier:identifier_w_vn_nr>/_hx_submission_topics/",
+        include([
+            path(
+                "",
+                views._hx_submission_topics,
+                name="_hx_submission_topics",
+            ),
+            path(
+                "<slug:topic_slug>/action/<str:action>",
+                views._hx_submission_topic_action,
+                name="_hx_submission_topic_action",
+            ),
+        ]),
+    ),
+    path(
         "workflow_diagram",
         views._hx_submission_workflow_diagram,
         name="_hx_submission_workflow_diagram"

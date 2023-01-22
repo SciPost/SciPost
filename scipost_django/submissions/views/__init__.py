@@ -110,7 +110,7 @@ from journals.models import Journal, Publication
 from mails.utils import DirectMailUtil
 from mails.views import MailEditorSubview
 from ontology.models import Topic
-from ontology.forms import SelectTopicForm
+from ontology.forms import SelectTopicForm, TopicDynSelForm
 from preprints.models import Preprint
 from production.forms import ProofsDecisionForm
 from production.utils import get_or_create_production_stream
@@ -686,6 +686,43 @@ def submission_detail(request, identifier_w_vn_nr):
         }
     )
     return render(request, "submissions/submission_detail.html", context)
+
+
+def _hx_submission_topics(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    context = {"submission": submission,}
+    if request.user.has_perm("scipost.can_manage_ontology"):
+        form = TopicDynSelForm(
+            initial={
+                "action_url_name": "submissions:_hx_submission_topic_action",
+                "action_url_base_kwargs": {
+                    "identifier_w_vn_nr": identifier_w_vn_nr,
+                    "action": "add",
+                },
+                "action_target_element_id": f"submission-{submission.pk}-topics",
+            }
+        )
+        context["topic_search_form"] = form
+    return render(request, "submissions/_hx_submission_topics.html", context)
+
+
+@login_required
+@permission_required("scipost.can_manage_ontology")
+def _hx_submission_topic_action(request, identifier_w_vn_nr, topic_slug, action):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    topic = get_object_or_404(Topic, slug=topic_slug)
+    if action == "add":
+        submission.topics.add(topic)
+    if action == "remove":
+        submission.topics.remove(topic)
+    return redirect(reverse(
+        "submissions:_hx_submission_topics",
+        kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
+    ))
 
 
 def _hx_submission_workflow_diagram(request, identifier_w_vn_nr=None):

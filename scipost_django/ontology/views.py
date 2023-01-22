@@ -20,6 +20,7 @@ from .forms import (
     SessionSpecialtyForm,
     SelectTagsForm,
     TopicForm,
+    TopicDynSelForm,
     SelectLinkedTopicForm,
     AddRelationAsymForm,
 )
@@ -156,6 +157,25 @@ class TopicAutocompleteView(autocomplete.Select2QuerySetView):
         if self.q:
             qs = qs.filter(name__icontains=self.q)
         return qs
+
+
+def _hx_topic_dynsel_list(request):
+    form = TopicDynSelForm(request.POST or None)
+    if form.is_valid():
+        topics = form.search_results()
+    else:
+        topics = Topic.objects.none()
+    context = {
+        "topics": topics,
+        "action_url_name": form.cleaned_data["action_url_name"],
+        "action_url_base_kwargs": (
+            form.cleaned_data["action_url_base_kwargs"]
+            if "action_url_base_kwargs" in form.cleaned_data
+            else {}
+        ),
+        "action_target_element_id": form.cleaned_data["action_target_element_id"],
+    }
+    return render(request, "ontology/_hx_topic_dynsel_list.html", context)
 
 
 class TopicLinkedAutocompleteView(TopicAutocompleteView):

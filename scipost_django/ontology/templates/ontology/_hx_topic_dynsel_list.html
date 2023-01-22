@@ -1,0 +1,20 @@
+{% load ontology_extras %}
+
+<ul class="list list-unstyled dynsel-list">
+  {% for topic in topics|slice:":11" %}
+    {% if forloop.counter == 11 %}
+      <li>&emsp;...</li>
+    {% else  %}
+      <li class="m-1">
+	<a
+	    hx-get="{% topic_dynsel_action_url topic %}"
+	    hx-target="#{{ action_target_element_id }}"
+	    hx-swap="{{ action_target_swap }}"
+	    hx-indicator="#{{ action_target_element_id }}-indicator"
+	>
+	  {{ topic }}
+	</a>
+      </li>
+    {% endif %}
+  {% endfor %}
+</ul>
