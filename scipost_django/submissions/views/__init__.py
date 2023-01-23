@@ -692,6 +692,10 @@ def _hx_submission_topics(request, identifier_w_vn_nr):
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
     context = {"submission": submission,}
+    if request.GET.get("include_matches", None):
+        context["matching_topics"] = submission.topics.filter(
+            slug__in=[t.slug for t in request.user.contributor.profile.topics.all()],
+        )
     if request.user.has_perm("scipost.can_manage_ontology"):
         form = TopicDynSelForm(
             initial={
@@ -731,10 +735,12 @@ def _hx_submission_topic_action(request, identifier_w_vn_nr, topic_slug, action)
             sub.topics.remove(topic)
         for publication in submission.publications.all():
             publication.topics.remove(topic)
-    return redirect(reverse(
-        "submissions:_hx_submission_topics",
-        kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
-    ))
+    return redirect(
+        reverse(
+            "submissions:_hx_submission_topics",
+            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
+        ) + "?include_matches=1",
+    )
 
 
 def _hx_submission_workflow_diagram(request, identifier_w_vn_nr=None):

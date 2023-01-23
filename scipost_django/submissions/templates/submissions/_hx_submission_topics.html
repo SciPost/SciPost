@@ -24,6 +24,19 @@
     {% empty %}
       <div>No Topic has yet been associated to this Submission</div>
     {% endfor %}
+    {% if matching_topics %}
+      <div class="ms-2 my-2 p-1">
+	<strong class="d-inline-flex bg-info bg-opacity-75 my-2 p-1">Matching your interests:</strong>
+	<br>
+	{% for topic in matching_topics.all %}
+	  <span class="label label-secondary ms-2 mb-2">
+	    <a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>
+	{% empty %}
+	    No matches
+	{% endfor %}
+      </div>
+    {% endif %}
+
   </div>
 
   {% if perms.scipost.can_manage_ontology %}

@@ -41,7 +41,7 @@
   {% if tab == "info" %}
     {% include "submissions/_submission_summary.html" with submission=submission hide_title=1 show_abstract=1 %}
     <div id="submission-{{ submission.pk }}-topics"
-	 hx-get="{% url 'submissions:_hx_submission_topics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-get="{% url 'submissions:_hx_submission_topics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}?include_matches=1"
 	 hx-trigger="revealed"
     >
     </div>
