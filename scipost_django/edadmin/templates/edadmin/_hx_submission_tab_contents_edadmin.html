@@ -1,6 +1,24 @@
-<h1>Editorial administration</h1>
+
 {% if submission.in_stage_incoming %}
   {% include "edadmin/incoming/_submission_incoming.html" with submission=submission %}
-{% elif submission.in_stage_preassignment %}
-  {% include "edadmin/preassignment/_submission_preassignment.html" with submission=submission %}
+{% else %}
 {% endif %}
+
+{% if submission.in_stage_preassignment %}
+  {% include "edadmin/preassignment/_submission_preassignment.html" with submission=submission %}
+{% elif submission.in_stage_assignment %}
+  {% include "edadmin/assignment/_submission_assignment.html" with submission=submission %}
+{% endif %}
+
+
+
+<div id="submission-{{ submission.id }}-edadmin-subtabs"
+     class="m-2 mt-4 p-2 border border-success bg-white"
+     hx-get="{% url 'edadmin:subtabs:_hx_submission_edadmin_subtab' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr subtab="incoming" %}"
+     hx-trigger="load"
+>
+  <button class="htmx-indicator btn btn-sm btn-warning p-2" type="button" disabled>
+    <small><strong>Loading...</strong></small>
+    <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+  </button>
+</div>

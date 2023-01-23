@@ -17,4 +17,9 @@ urlpatterns = [
         "preassignment/",
         include("edadmin.urls.preassignment", namespace="preassignment"),
     ),
+    path(
+        "incoming/",
+        include("edadmin.urls.subtabs", namespace="subtabs"),
+    ),
+
 ]
