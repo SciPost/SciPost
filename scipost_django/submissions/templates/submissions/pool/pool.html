@@ -38,6 +38,15 @@
     </div>
   </div>
 
+  <div id="unavailability"
+       class="p-2"
+       hx-get="{% url 'scipost:_hx_unavailability' %}"
+       hx-trigger="load"
+       hx-target="#unavailability"
+  >
+  </div>
+
+
   <details class="border border-success bg-success bg-opacity-10 my-4 mx-2">
     <summary class="bg-success bg-opacity-10 p-2">
       Tips for Fellows
@@ -49,6 +58,7 @@
       <p>As a Fellow, the most important change is that the (email) editorial invitations to take charge of a specific Submission are being phased out to reduce email noise.</p>
       <p><strong>You are thus in complete control of your involvement.</strong></p>
       <p>That said, to make it all work, you will be <strong>expected (and reminded) to regularly visit the pool</strong> to make sure things don't get stuck.</p>
+      <p>In particular, please make sure you <strong>maintain info on your unavailability periods</strong>, which you can do either at the top of this page, or from your <a href="{% url 'scipost:personal_page' %}" target="_blank">personal page</a> (Account tab). This info is used here.</p>
       <p>During the Assignment stage, the workflow is now:
 	<ul>
 	  <li>For each Submission overlapping with your specialties, <strong>you are asked to appraise your</strong>:
@@ -127,7 +137,7 @@
       <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
     </button>
   </div>
-  <h4 class="ms-4"><em>Tip: click anywhere on the light blue background to expand detailed tabs</em></h4>
+  <h4 class="bg-primary bg-opacity-10 p-2"><span class="text-primary">{% include "bi/info-circle-fill.html" %}</span>&emsp;<em>Tip: click anywhere on a Submission header's light blue background to expand detailed tabs</em></h4>
   <div id="search-results" class="mt-2"></div>
 
 {% endblock content %}
