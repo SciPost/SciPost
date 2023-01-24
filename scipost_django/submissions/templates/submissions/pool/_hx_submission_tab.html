@@ -11,7 +11,7 @@
     {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="fellows" text="Fellows" %}
   </li>
   <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="refereeing" text="Refereeing history" %}
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="refereeing" text="Refereeing" %}
   </li>
   <li class="nav-item">
     {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="remarks" text="Remarks" %}
@@ -50,6 +50,9 @@
     <div id="submission-{{ submission.pk }}-fellows-details">
       {% include "submissions/pool/_submission_fellows.html" with submission=submission %}
     </div>
+
+  {% elif tab == "refereeing" %}
+    {% include 'submissions/pool/_submission_refereeing.html' with submission=submission %}
 
   {% elif tab == "remarks" %}
     {% if remark_form %}
