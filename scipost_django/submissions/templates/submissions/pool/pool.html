@@ -38,6 +38,37 @@
     </div>
   </div>
 
+  <details class="border border-success bg-success bg-opacity-10 my-4 mx-2">
+    <summary class="bg-success bg-opacity-10 p-2">
+      Tips for Fellows
+    </summary>
+    <div class="p-2">
+      <p>As of January 2023, there has been a big update of the internal editorial handling tools, in order to increase the efficiency of our workflows.</p>
+      <p>You will first notice that the <strong>presentation of information in the pool has been modified</strong>: clicking on the light blue background of a summary box will expand a series of informative tabs.</p>
+      <p>One of the tabs to explore is the <strong>Graphs</strong> tab, which contains an illustration of our editorial processes. In the pool, the graphs are submission-specific and (will, in the course of time) contain detailed information about steps taken, timescales, events etc (filtered versions will be visible to authors and site visitors; a generic version is also publicly visible on the <a href="{% url 'submissions:editorial_procedure' %}" target="_blank">editorial procedure</a> page).</p>
+      <p>As a Fellow, the most important change is that the (email) editorial invitations to take charge of a specific Submission are being phased out to reduce email noise.</p>
+      <p><strong>You are thus in complete control of your involvement.</strong></p>
+      <p>That said, to make it all work, you will be <strong>expected (and reminded) to regularly visit the pool</strong> to make sure things don't get stuck.</p>
+      <p>During the Assignment stage, the workflow is now:
+	<ul>
+	  <li>For each Submission overlapping with your specialties, <strong>you are asked to appraise your</strong>:
+	    <ul>
+	      <li><strong>qualification</strong> / level of relevant expertise</li>
+	      <li><strong>competing interests</strong> (aka conflicts of interest)</li>
+	      <li><strong>readiness</strong> to take charge</li>
+	    </ul>
+	  </li>
+	  <li>Submissions which are taken charge of then proceed to the Refereeing in preparation stage.</li>
+	  <li>For Submissions which are <em>not</em> taken charge of after one week, authors will be emailed with information on appraisals.</li>
+	  <li>After two weeks without being taken charge of, authors are emailed again, and given the choice to withdraw or wait longer.</li>
+	  <li>After a longer wait (default: two additional weeks), EdAdmin will desk reject, unless the authors specifically request otherwise.</li>
+	</ul>
+      </p>
+      <p>This will enable us to unblock the assignment stage, which has historically been our greatest source of delays.</p>
+      <p>Thanks a lot for your patience and involvement!</p>
+    </div>
+  </details>
+
   {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
     {% if assignments_to_consider %}
       <h3>Your open Assignment Requests <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
