@@ -16,7 +16,7 @@ class Readiness(models.Model):
     STATUS_PERHAPS_LATER = "perhaps_later"
     STATUS_COULD_IF_TRANSFERRED = "could_if_transferred"
     STATUS_TOO_BUSY = "too_busy"
-    STATUS_ON_VACATION = "on_vacation"
+    STATUS_UNAVAILABLE = "unavailable"
     STATUS_NOT_INTERESTED = "not_interested"
     STATUS_DESK_REJECT = "desk_reject"
     STATUS_CHOICES = (
@@ -26,7 +26,7 @@ class Readiness(models.Model):
             "I could (but only if transferred to lower journal)",
         ),
         (STATUS_TOO_BUSY, "Interesting, but I'm currently too busy"),
-        (STATUS_ON_VACATION, "Interesting, but I'm currently on vacation"),
+        (STATUS_UNAVAILABLE, "I'm currently unavailable"),
         (STATUS_NOT_INTERESTED, "I won't: I'm not interested enough"),
         (STATUS_DESK_REJECT, "I won't, and vote for desk rejection"),
     )

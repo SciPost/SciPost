@@ -50,8 +50,6 @@ class ReadinessForm(forms.ModelForm):
         fields = [
             "submission",
             "fellow",
-            # "status",
-            # "comments",
             "choice",
         ]
         widgets = {
@@ -64,13 +62,11 @@ class ReadinessForm(forms.ModelForm):
         if "instance" in kwargs and kwargs["instance"]:
             self.fields["choice"].initial = kwargs["instance"].status
         self.helper = FormHelper()
-        # self.fields["status"].label = "Not ready to take charge? Please specify:"
         self.fields["choice"].label = "Ready to take charge?"
 
         self.helper.layout = Layout(
             Field("submission"),
             Field("fellow"),
-            # FloatingField("status"),
             FloatingField("choice"),
         )
 
