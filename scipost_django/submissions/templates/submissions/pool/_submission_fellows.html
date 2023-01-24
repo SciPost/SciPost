@@ -22,6 +22,7 @@
     <tr>
       <th>Fellow</th>
       <th>Status</th>
+      <th>Currently<br>available</th>
       <th>Qualification</th>
       {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
 	<th>Competing<br>interests</th>
@@ -37,6 +38,7 @@
       <tr>
         <td>{{ fellowship.contributor }}</td>
         <td>{{ fellowship.get_status_display }}</td>
+	<td>{% if fellowship.contributor.is_currently_available %}<span class="text-success">{% include "bi/check-square-fill.html" %}</span>{% else %}<span class="text-danger">{% include "bi/x-square-fill.html" %}</span>{% endif %}</td>
 	<td>{% get_fellow_qualification_expertise_level_display submission fellowship %}</td>
 	{% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
 	  <td>

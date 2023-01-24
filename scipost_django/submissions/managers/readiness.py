@@ -16,9 +16,6 @@ class ReadinessQuerySet(models.QuerySet):
     def too_busy(self):
         return self.filter(status=self.model.STATUS_TOO_BUSY)
 
-    def on_vacation(self):
-        return self.filter(status=self.model.STATUS_ON_VACATION)
-
     def not_interested(self):
         return self.filter(status=self.model.STATUS_NOT_INTERESTED)
 
