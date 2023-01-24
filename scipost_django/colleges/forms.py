@@ -233,9 +233,7 @@ class SubmissionAddFellowshipForm(forms.ModelForm):
         pool = self.instance.fellows.values_list("id", flat=True)
         self.fields["fellowship"].label = ""
         self.fields["fellowship"].queryset = Fellowship.objects.active(
-        ).filter(college=self.instance.submitted_to.college).specialties_overlap(
-            [s.slug for s in self.instance.specialties.all()]
-        ).exclude(id__in=pool)
+        ).filter(college=self.instance.submitted_to.college).exclude(id__in=pool)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
