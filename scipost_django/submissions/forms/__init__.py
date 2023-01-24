@@ -1523,22 +1523,23 @@ class SubmissionForm(forms.ModelForm):
         Set the default set of (guest) Fellows for this Submission.
         """
         qs = Fellowship.objects.active()
-        fellows = (
-            qs.regular_or_senior()
-            .filter(
-                college=submission.submitted_to.college,
-                contributor__profile__specialties__in=submission.specialties.all(),
-            )
-            .return_active_for_submission(submission)
-        )
-        submission.fellows.set(fellows)
-
         if submission.proceedings:
-            # Add (Regular or Guest) Fellowships if the Submission is a Proceedings manuscript
-            guest_fellows = qs.filter(
+            # Add only Proceedings-related Fellowships
+            fellows = qs.filter(
                 proceedings=submission.proceedings
             ).return_active_for_submission(submission)
-            submission.fellows.add(*guest_fellows)
+            submission.fellows.set(fellows)
+
+        else:
+            fellows = (
+                qs.regular_or_senior()
+                .filter(
+                    college=submission.submitted_to.college,
+                    contributor__profile__specialties__in=submission.specialties.all(),
+                )
+                .return_active_for_submission(submission)
+            )
+            submission.fellows.set(fellows)
 
 
 class SubmissionReportsForm(forms.ModelForm):
