@@ -210,7 +210,16 @@ class Submission(models.Model):
     )
 
     author_comments = models.TextField(blank=True)
-    author_list = models.CharField(max_length=10000, verbose_name="author list")
+    author_list = models.CharField(
+        max_length=10000,
+        verbose_name="author list",
+        help_text=(
+            "Please use full first names (we <strong>beg</strong> you!): "
+            "<em>Abe Cee, Dee Efgee, Haich Idjay Kay</em>"
+            "<br>(not providing full first names makes metadata handling "
+            "unnecessarily work-intensive for us)"
+        ),
+    )
 
     # Ontology-based semantic linking
     acad_field = models.ForeignKey(
