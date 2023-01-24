@@ -286,6 +286,7 @@ CSP_SCRIPT_SRC = (
     "static.mendeley.com",
     "cdn.plot.ly",
     "unpkg.com/htmx.org@1.6.0",
+    "unpkg.com/mermaid@9",
 )
 CSP_STYLE_SRC = (
     "'self'",
