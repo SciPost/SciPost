@@ -225,7 +225,10 @@ class ProfileSelectForm(forms.Form):
 
 
 class ProfileDynSelForm(forms.Form):
-    q = forms.CharField(max_length=32, label="Search (by name)")
+    q = forms.CharField(
+        max_length=32,
+        label="Search (by name); split multiple search terms by a space, e.g. Abe Cee",
+    )
     action_url_name = forms.CharField()
     action_url_base_kwargs = forms.JSONField(required=False)
     action_target_element_id = forms.CharField()
@@ -244,7 +247,7 @@ class ProfileDynSelForm(forms.Form):
 
     def search_results(self):
         if self.cleaned_data["q"]:
-            splitwords = self.cleaned_data["q"].split(" ")
+            splitwords = self.cleaned_data["q"].replace(",", "").split(" ")
             query = Q()
             for word in splitwords:
                 query = query & (
