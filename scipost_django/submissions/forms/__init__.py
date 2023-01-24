@@ -50,6 +50,7 @@ from .. import exceptions, helpers
 from ..helpers import to_ascii_only
 from ..models import (
     PreprintServer,
+    SubmissionAuthorProfile,
     Submission,
     RefereeInvitation,
     Report,
@@ -1142,6 +1143,7 @@ class SubmissionForm(forms.ModelForm):
             forward=["specialties",],
         ),
         help_text="Type to search, click to include",
+        required=False,
     )
     followup_of = forms.ModelMultipleChoiceField(
         queryset=Publication.objects.all(),
@@ -1456,6 +1458,14 @@ class SubmissionForm(forms.ModelForm):
         submission.preprint = preprint
 
         submission.save()
+
+        # Add the submitter's AuthorProfile:
+        author_profile = SubmissionAuthorProfile(
+            submission=submission,
+            profile=self.requested_by.contributor.profile,
+        )
+        author_profile.save()
+        submission.author_profiles.add(author_profile)
 
         # Explicitly handle specialties (otherwise they are not saved)
         submission.specialties.set(self.cleaned_data["specialties"])

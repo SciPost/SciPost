@@ -123,7 +123,7 @@
     <div class="card-body">
       <form
 	  hx-post="{% url 'submissions:pool:_hx_submission_list' %}"
-	  hx-trigger="load, keyup delay:500ms, change, search-conditions-updated from:body"
+	  hx-trigger="load, keyup delay:500ms, change, search-conditions-updated from:body, click from:#refresh-button"
 	  hx-target="#search-results"
 	  hx-indicator="#indicator-search"
       >
@@ -131,12 +131,20 @@
       </form>
     </div>
   </div>
-  <div id="indicator-search" class="htmx-indicator p-2">
-    <button class="btn btn-warning" type="button" disabled>
-      <strong>Loading...</strong>
-      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-    </button>
+  <div class="row">
+    <div class="col">
+      <em>The list should update automatically. Feels stuck? <a id="refresh-button" class="m-2 btn btn-primary">{% include "bi/arrow-clockwise.html" %}&nbsp;Refresh</a>
+    </div>
+    <div class="col">
+      <div id="indicator-search" class="htmx-indicator p-2">
+	<button class="btn btn-warning" type="button" disabled>
+	  <strong>Loading...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </div>
+    </div>
   </div>
+
   <h4 class="bg-primary bg-opacity-10 p-2"><span class="text-primary">{% include "bi/info-circle-fill.html" %}</span>&emsp;<em>Tip: click anywhere on a Submission header's light blue background to expand detailed tabs</em></h4>
   <div id="search-results" class="mt-2"></div>
 

@@ -363,6 +363,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     def form_valid(self, form):
         """Redirect and send out mails if all data is valid."""
         submission = form.save()
+
         submission.add_general_event("Submitted to %s." % str(submission.submitted_to))
 
         text = (
