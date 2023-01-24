@@ -1,0 +1,25 @@
+<div class="card">
+  <div class="card-header">
+    Decision-making-related maintenance
+  </div>
+  <div class="card-content p-2">
+    <ul class="ps-3">
+      {% if submission.eicrecommendations.exists %}
+        <li class="pb-2">See Editorial Recommendations:
+          <ul class="ps-3">
+	    {% for rec in submission.eicrecommendations.all %}
+	      <li>
+		<a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ rec.get_full_status_display }}</a>
+		{% if is_ed_admin %}
+		  {% if rec.voting_in_preparation %}
+		    <a class="btn btn-sm btn-primary ms-4 px-1 py-0" role="button" href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a>
+		  {% endif %}
+		{% endif %}
+	      </li>
+	    {% endfor %}
+          </ul>
+	</li>
+      {% endif %}
+    </ul>
+  </div>
+</div>

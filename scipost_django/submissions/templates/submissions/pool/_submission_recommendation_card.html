@@ -15,7 +15,7 @@
 		<a href="{% url 'submissions:vote_on_rec' rec_id=rec.id %}">
 		  See Recommendation, view votes and/or revise your vote
 		</a>
-	      {% elif not is_ed_admin %}
+	      {% elif not "edadmin" in user_roles %}
 		<div id="rights-{{ rec.id }}">
 		  <button type="button" class="btn btn-sm btn-success text-white m-2"
 			  hx-get="{% url 'submissions:claim_voting_right' rec_id=rec.id %}"
@@ -28,7 +28,7 @@
 		<a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">See Recommendation</a>
 	      {% endif %}
 	    {% elif rec.decision_fixed %}
-	      {% if is_ed_admin or rec|user_can_vote:request.user %}
+	      {% if "edadmin" in user_roles or rec|user_can_vote:request.user %}
 		<a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=rec.submission.preprint.identifier_w_vn_nr %}">
 		  See Recommendation
 		</a>

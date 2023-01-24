@@ -1,0 +1,47 @@
+<div class="card">
+  <div class="card-header">
+    General maintenance
+  </div>
+  <div class="card-content p-2">
+    <ul class="ps-3">
+      <li>
+	<a class="a-hx-get"
+	   hx-get="{% url 'submissions:_hx_submission_update_target_journal' submission.preprint.identifier_w_vn_nr %}"
+	   hx-target="this"
+	   hx-swap="outerHTML"
+	>
+	  Update the target Journal&emsp;<em>(currently:&emsp;{{ submission.submitted_to }})</em>
+	</a>
+      </li>
+      {% if 'Proceedings' in submission.submitted_to.name %}
+	<li>
+	  <a class="a-hx-get"
+	     hx-get="{% url 'submissions:_hx_submission_update_target_proceedings' submission.preprint.identifier_w_vn_nr %}"
+	     hx-target="this"
+	     hx-swap="outerHTML"
+	  >
+	    Update the target Proceedings&emsp;<em>(currently:&emsp;{{ submission.proceedings }})</em>
+	  </a>
+	</li>
+      {% endif %}
+      {% if submission.preprint.has_file %}
+	<li>
+	  <a class="a-hx-get"
+	     hx-get="{% url 'submissions:_hx_submission_update_preprint_file' submission.preprint.identifier_w_vn_nr %}"
+	     hx-target="this"
+	     hx-swap="outerHTML"
+	  >
+	    Update the submitted pdf
+	  </a>
+	</li>
+      {% endif %}
+      {% if submission.editor_in_charge and perms.scipost.can_reassign_submissions %}
+	<li><a href="{% url 'submissions:reassign_submission' submission.preprint.identifier_w_vn_nr %}">Reassign Editor-in-charge</a></li>
+      {% endif %}
+      {% if submission.editor_in_charge %}
+        <li class="pb-2"><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></li>
+      {% endif %}
+
+    </ul>
+  </div>
+</div>

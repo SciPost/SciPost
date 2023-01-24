@@ -1,0 +1,11 @@
+<div class="card">
+  <div class="card-header">
+    Production-related maintenance
+  </div>
+  <div class="card-content p-2">
+    <ul class="ps-3">
+      <li class="pb-2"><a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
+      <li class="pb-2"><a href="{% url 'journals:create_publication' submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
+    </ul>
+  </div>
+</div>

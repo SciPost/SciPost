@@ -1,4 +1,21 @@
 
+<div class="row row-cols-1 row-cols-md-2 g-4 p-2">
+  <div class="col">
+    {% include "edadmin/_submission_maintenance_card_general.html" with submission=submission %}
+  </div>
+  {% if submission.in_stage_assignment %}
+    <div class="col">
+      {% include "edadmin/assignment/_submission_maintenance_card_assignment.html" with submission=submission %}
+    </div>
+  {% endif %}
+  {% if submission.in_stage_decisionmaking or submission.eicrecommendations.exists %}
+    {% include "edadmin/decisionmaking/_submission_maintenance_card_decisionmaking.html" with submission=submission %}
+  {% endif %}
+  {% if submission.in_stage_in_production %}
+    {% include "edadmin/in_production/_submission_maintenance_card_in_production.html" %}
+  {% endif %}
+</div>
+
 {% if submission.in_stage_incoming %}
   {% include "edadmin/incoming/_submission_incoming.html" with submission=submission %}
 {% else %}
@@ -6,8 +23,6 @@
 
 {% if submission.in_stage_preassignment %}
   {% include "edadmin/preassignment/_submission_preassignment.html" with submission=submission %}
-{% elif submission.in_stage_assignment %}
-  {% include "edadmin/assignment/_submission_assignment.html" with submission=submission %}
 {% endif %}
 
 
