@@ -244,10 +244,14 @@ class ProfileDynSelForm(forms.Form):
 
     def search_results(self):
         if self.cleaned_data["q"]:
-            profiles = Profile.objects.filter(
-                Q(last_name__icontains=self.cleaned_data["q"])
-                | Q(first_name__icontains=self.cleaned_data["q"])
-            ).distinct()
+            splitwords = self.cleaned_data["q"].split(" ")
+            query = Q()
+            for word in splitwords:
+                query = query & (
+                    Q(last_name__icontains=word) |
+                    Q(first_name__icontains=word)
+                )
+            profiles = Profile.objects.filter(query).distinct()
             return profiles
         else:
             return Profile.objects.none()
