@@ -12,7 +12,7 @@
     <p>
       {% if not submission.editor_in_charge %}
         No Editor-in-charge is assigned yet. The SciPost administration will inform you as soon as one is assigned.
-      {% elif submission.in_refereeing %}
+      {% elif submission.in_stage_in_refereeing %}
         The refereeing round has started. The current deadline is set to {{ submission.reporting_deadline|date:'j F Y' }}.
       {% elif submission.eicrecommendations.active.first %}
         An Editorial Recommendation has been formulated. See its status details below.
