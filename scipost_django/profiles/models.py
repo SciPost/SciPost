@@ -2,10 +2,13 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django.urls import reverse
 from django.db import models
 from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from scipost.behaviors import orcid_validator
 from scipost.constants import TITLE_CHOICES, TITLE_DR
@@ -138,6 +141,23 @@ class Profile(models.Model):
         Returns all the Theses associated to this Profile.
         """
         return ThesisLink.objects.filter(author_as_cont__profile=self)
+
+    @property
+    def responsiveness_as_referee(self):
+        """Simple stats on last 5 years' responsiveness as a referee."""
+        invitations = self.refereeinvitation_set.all()
+        if self.contributor:
+            invitations = invitations | self.contributor.referee_invitations.all()
+
+        invitations = invitations.distinct(
+        ).filter(date_invited__gt=timezone.now() - datetime.timedelta(days=1825))
+        return {
+            "sent": invitations.count(),
+            "accepted": invitations.accepted().count(),
+            "declined": invitations.declined().count(),
+            "cancelled": invitations.filter(cancelled=True).count(),
+            "fulfilled": invitations.filter(fulfilled=True).count(),
+        }
 
 
 class ProfileEmail(models.Model):
