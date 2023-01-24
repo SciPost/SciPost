@@ -1,0 +1,46 @@
+{% load crispy_forms_tags %}
+
+<div class="row g-4">
+  <div class="col">
+    <h3 class="mb-3">Unavailability periods</h3>
+    <p>To help with the editorial workflow, you can inform us of any periods during which you are unavailable. We will do our best to respect these. These are the ones we have on our records:</p>
+    <table class="table table-bordered">
+      <tr>
+	<th>Start <small class="text-muted">(YYYY-MM-DD)</small></th>
+	<th>End</th>
+	<th></th>
+      </tr>
+      {% for unav in request.user.contributor.unavailability_periods.future %}
+	<tr>
+	  <td>{{ unav.start }}</td>
+	  <td>{{ unav.end }}</td>
+	  <td>
+	    <a class="text-danger px-1 py-0"
+	       hx-get="{% url 'scipost:_hx_unavailability' pk=unav.id %}"
+	       hx-confirm="Remove this unavailability?"
+	       hx-target="#unavailability"
+	    >
+	      {% include 'bi/x-square-fill.html' %}
+	    </a>
+	  </td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="2">
+	    No upcoming unavailability periods on record
+	  </td>
+	</tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="col">
+    <div class="border border-warning m-4 p-2">
+      <h3 class="mb-3">Mark a period as unavailable:</h3>
+      <form hx-post="{% url 'scipost:_hx_unavailability' %}"
+	    hx-target="#unavailability"
+      >
+	{% crispy form %}
+      </form>
+    </div>
+  </div>
+</div>

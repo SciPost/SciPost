@@ -17,6 +17,8 @@ from django.http import Http404
 from django.utils import timezone
 from django.utils.dates import MONTHS
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from dal import autocomplete
 
 from .behaviors import orcid_validator
@@ -607,6 +609,20 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["start"].widget.attrs.update({"placeholder": "YYYY-MM-DD"})
         self.fields["end"].widget.attrs.update({"placeholder": "YYYY-MM-DD"})
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("start"), css_class="col"),
+                Div(Field("end"), css_class="col"),
+                Div(
+                    ButtonHolder(
+                        Submit("submit", "Submit", css_class="btn btn-primary"),
+                    ),
+                    css_class="col",
+                ),
+                css_class="row",
+            )
+        )
 
     def clean_end(self):
         now = timezone.now()

@@ -996,32 +996,19 @@ class SciPostPasswordResetConfirmView(PasswordResetConfirmView):
 
 @login_required
 @is_contributor_user()
-def mark_unavailable_period(request):
-    """Form view to mark period unavailable for Contributor."""
-    unav_form = UnavailabilityPeriodForm(request.POST or None)
-    if unav_form.is_valid():
-        unav = unav_form.save(commit=False)
+def _hx_unavailability(request, pk: int=None):
+    if pk: # delete UnavaiabilityPeriod, if asked by associated Contributor
+        UnavailabilityPeriod.objects.filter(
+            contributor=request.user.contributor,
+            pk=pk,
+        ).delete()
+    form = UnavailabilityPeriodForm(request.POST or None)
+    if form.is_valid():
+        unav = form.save(commit=False)
         unav.contributor = request.user.contributor
         unav.save()
-        messages.success(request, "Unavailability period registered")
-        return redirect("scipost:personal_page")
-
-    # Template acts as a backup in case the form is invalid.
-    context = {"form": unav_form}
-    return render(request, "scipost/unavailability_period_form.html", context)
-
-
-@require_POST
-@login_required
-@is_contributor_user()
-def delete_unavailable_period(request, period_id):
-    """Delete period unavailable registered."""
-    unav = get_object_or_404(
-        UnavailabilityPeriod, contributor=request.user.contributor, id=int(period_id)
-    )
-    unav.delete()
-    messages.success(request, "Unavailability period deleted")
-    return redirect("scipost:personal_page")
+    context = {"form": form}
+    return render(request, "scipost/personal_page/_hx_unavailability.html", context)
 
 
 @is_contributor_user()
@@ -1051,10 +1038,6 @@ def personal_page_hx_account(request):
     contributor = request.user.contributor
     context = {
         "contributor": contributor,
-        "unavailability_form": UnavailabilityPeriodForm(),
-        "unavailabilities": contributor.unavailability_periods.future().order_by(
-            "start"
-        ),
     }
     return render(request, "scipost/personal_page/_hx_account.html", context)
 
