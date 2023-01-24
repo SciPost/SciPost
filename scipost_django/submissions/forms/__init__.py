@@ -322,9 +322,6 @@ class SubmissionPoolSearchForm(forms.Form):
             self.fields["submitted_to"].queryset = Journal.objects.filter(
                 college__in=college_id_list
             )
-        self.fields["editor_in_charge"].initial = (
-            user.contributor.session_fellowship(request)
-        )
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
