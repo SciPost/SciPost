@@ -124,6 +124,8 @@ def _hx_author_profile_action(
     )
     if action == "match":
         author_profile.profile = profile
+        # add Submission's topics to profile:
+        profile.topics.add(*submission.topics.all())
     elif action == "unmatch":
         author_profile.profile = None
     author_profile.save()
