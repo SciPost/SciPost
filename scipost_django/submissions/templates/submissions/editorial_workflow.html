@@ -1,5 +1,7 @@
 {% extends 'submissions/base.html' %}
 
+{% load render_bundle from webpack_loader %}
+
 {% block breadcrumb_items %}
   {{ block.super }}
   <span class="breadcrumb-item">Editorial Workflow Summary</span>
@@ -170,11 +172,5 @@
 {% endblock %}
 
 {% block footer_script %}
-  <script type="module" nonce="{{ request.csp_nonce }}">
-   import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
-   mermaid.initialize({ startOnLoad: false });
-   document.body.addEventListener("htmx:afterSettle", function(evt) {
-       mermaid.init(".workflowDiagram");
-   });
-  </script>
+  {% render_bundle 'mermaid' %}
 {% endblock footer_script %}

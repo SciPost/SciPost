@@ -1,5 +1,7 @@
 {% extends 'submissions/base.html' %}
 
+{% load render_bundle from webpack_loader %}
+
 {% load scipost_extras %}
 {% load user_groups %}
 {% load submissions_extras %}
@@ -220,14 +222,7 @@
 
 {% endblock content %}
 
-
 {% block footer_script %}
   {{ block.super }}
-  <script type="module" nonce="{{ request.csp_nonce }}">
-   import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
-   mermaid.initialize({ startOnLoad: false });
-   document.body.addEventListener("htmx:afterSettle", function(evt) {
-       mermaid.init(".workflowDiagram");
-   });
-  </script>
+  {% render_bundle 'mermaid' %}
 {% endblock footer_script %}

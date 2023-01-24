@@ -1,3 +1,5 @@
+{% load render_bundle from webpack_loader %}
+
 {% for submission in page_obj %}
   <div class="ms-3 mt-3"><strong>{{ forloop.counter0|add:start_index }} of {{ count }}</strong></div>
   {% include 'submissions/pool/_hx_submission_details.html' with submission=submission %}
@@ -21,11 +23,5 @@
 {% endif %}
 
 {% block footer_script %}
-  <script type="module" nonce="{{ request.csp_nonce }}">
-   import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
-   mermaid.initialize({ startOnLoad: false });
-   document.body.addEventListener("htmx:afterSettle", function(evt) {
-       mermaid.init(".workflowDiagram");
-   });
-  </script>
+  {% render_bundle 'mermaid' %}
 {% endblock footer_script %}
