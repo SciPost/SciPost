@@ -1,0 +1,27 @@
+<details id="submission-{{ submission.id }}-author-profiles-details"
+	 class="border border-2"
+>
+  <summary class="bg-primary bg-opacity-10 p-2">
+    <span id="submission-{{ submission.pk }}-author-profiles-details-summary"
+	  hx-get="{% url 'edadmin:preassignment:_hx_author_profiles_details_summary' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	  hx-trigger="load, submission-{{ submission.pk }}-author-profiles-details-updated from:body"
+    >
+    </span>
+  </summary>
+
+  <div id="submission-{{ submission.pk }}-author-profiles-details-contents"
+       class="p-2"
+       hx-get="{% url 'edadmin:preassignment:_hx_author_profiles_details_contents' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+       hx-trigger="toggle once from:#submission-{{ submission.pk }}-author-profiles-details"
+  >
+  </div>
+  <div id="submission-{{ submission.pk }}-author-profiles-details-contents-indicator"
+       class="htmx-indicator"
+  >
+    <button class="btn btn-sm btn-warning" type="button" disabled>
+      <strong>Loading form...</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+    </button>
+  </div>
+
+</details>
