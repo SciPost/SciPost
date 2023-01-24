@@ -1156,7 +1156,7 @@ class SubmissionForm(forms.ModelForm):
             }
         ),
         required=False,
-        help_text="<strong>Does this Submission follow up on some of your earlier publications?<br>(for example: this Submission is a new codebase release for a previous Codebases publication)<br>If so, select them here.</strong>"
+        help_text="<strong>Does this Submission follow up on some of your earlier publications?<br>(for example: this Submission is a new codebase release for a previous Codebases publication)<br>If so, select them here.</strong><br><strong>This is NOT FOR SPECIFYING A RESUBMISSION: to resubmit a manuscript, choose the resubmission route after clicking the Submit button in the navbar."
     )
     preprint_server = forms.ModelChoiceField(
         queryset=PreprintServer.objects.all(), widget=forms.HiddenInput()
