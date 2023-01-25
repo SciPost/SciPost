@@ -2875,7 +2875,7 @@ class iThenticateReportForm(forms.ModelForm):
         return None
 
     def upload_document(self):
-        from .plagiarism import iThenticate
+        from ..plagiarism import iThenticate
 
         plagiarism = iThenticate()
         data = plagiarism.upload_submission(self.document, self.submission)
