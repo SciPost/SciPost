@@ -211,11 +211,11 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
                 status=Submission.PREASSIGNMENT
             )
             # send authors admission passed email
-            mail_util = DirectMailUtil(
-                "authors/admission_passed",
-                submission=submission,
-                comments_for_authors=form.cleaned_data["comments_for_authors"],
-            )
+            # mail_util = DirectMailUtil(
+            #     "authors/admission_passed",
+            #     submission=submission,
+            #     comments_for_authors=form.cleaned_data["comments_for_authors"],
+            # )
         else: # inadmissible, inform authors and set status to ADMISSION_FAILED
             Submission.objects.filter(pk=submission.id).update(
                 status=Submission.ADMISSION_FAILED
