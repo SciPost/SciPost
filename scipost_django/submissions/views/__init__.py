@@ -1010,7 +1010,7 @@ def editorial_page(request, identifier_w_vn_nr):
     for both the Editor-in-charge of the Submission and the Editorial Administration.
     """
     submission = get_object_or_404(
-        Submission.objects.in_pool(request.user, historical=True),
+        Submission.objects.in_pool(request.user, latest=False, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
