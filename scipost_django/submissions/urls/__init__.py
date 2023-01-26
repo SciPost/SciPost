@@ -109,14 +109,29 @@ urlpatterns = [
         name="_hx_submission_update_target_journal",
     ),
     path(
+        "admin/<identifier:identifier_w_vn_nr>/_hx_submission_update_target_journal_form",
+        views._hx_submission_update_target_journal_form,
+        name="_hx_submission_update_target_journal_form",
+    ),
+    path(
         "admin/<identifier:identifier_w_vn_nr>/_hx_submission_update_target_proceedings",
         views._hx_submission_update_target_proceedings,
         name="_hx_submission_update_target_proceedings",
     ),
     path(
+        "admin/<identifier:identifier_w_vn_nr>/_hx_submission_update_target_proceedings_form",
+        views._hx_submission_update_target_proceedings_form,
+        name="_hx_submission_update_target_proceedings_form",
+    ),
+    path(
         "admin/<identifier:identifier_w_vn_nr>/_hx_submission_update_preprint_file",
         views._hx_submission_update_preprint_file,
         name="_hx_submission_update_preprint_file",
+    ),
+    path(
+        "admin/<identifier:identifier_w_vn_nr>/_hx_submission_update_preprint_file_form",
+        views._hx_submission_update_preprint_file_form,
+        name="_hx_submission_update_preprint_file_form",
     ),
     path(
         "admin/<identifier:identifier_w_vn_nr>/preassignment",

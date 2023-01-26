@@ -1,0 +1,6 @@
+<a class="a-hx-get"
+   hx-get="{% url 'submissions:_hx_submission_update_target_proceedings_form' submission.preprint.identifier_w_vn_nr %}"
+   hx-target="#submission-{{ submission.id }}-update-target-proceedings"
+>
+  Update the target Proceedings&emsp;<em>(currently:&emsp;{{ submission.proceedings }})</em>
+</a>

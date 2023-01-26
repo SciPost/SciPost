@@ -4,35 +4,17 @@
   </div>
   <div class="card-content p-2">
     <ul class="ps-3">
-      <li>
-	<a class="a-hx-get"
-	   hx-get="{% url 'submissions:_hx_submission_update_target_journal' submission.preprint.identifier_w_vn_nr %}"
-	   hx-target="this"
-	   hx-swap="outerHTML"
-	>
-	  Update the target Journal&emsp;<em>(currently:&emsp;{{ submission.submitted_to }})</em>
-	</a>
+      <li id="submission-{{ submission.id }}-update-target-journal">
+	{% include "submissions/admin/_submission_update_target_journal.html" with submission=submission %}
       </li>
       {% if 'Proceedings' in submission.submitted_to.name %}
-	<li>
-	  <a class="a-hx-get"
-	     hx-get="{% url 'submissions:_hx_submission_update_target_proceedings' submission.preprint.identifier_w_vn_nr %}"
-	     hx-target="this"
-	     hx-swap="outerHTML"
-	  >
-	    Update the target Proceedings&emsp;<em>(currently:&emsp;{{ submission.proceedings }})</em>
-	  </a>
+	<li id="submission-{{ submission.id }}-update-target-proceedings">
+	  {% include "submissions/admin/_submission_update_target_proceedings.html" with submission=submission %}
 	</li>
       {% endif %}
       {% if submission.preprint.has_file %}
-	<li>
-	  <a class="a-hx-get"
-	     hx-get="{% url 'submissions:_hx_submission_update_preprint_file' submission.preprint.identifier_w_vn_nr %}"
-	     hx-target="this"
-	     hx-swap="outerHTML"
-	  >
-	    Update the submitted pdf
-	  </a>
+	<li id="submission-{{ submission.id }}-update-preprint-file">
+	  {% include "submissions/admin/_submission_update_preprint_file.html" with submission=submission %}
 	</li>
       {% endif %}
       {% if submission.editor_in_charge and perms.scipost.can_reassign_submissions %}

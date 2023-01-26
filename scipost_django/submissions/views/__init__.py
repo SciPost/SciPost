@@ -2354,8 +2354,21 @@ def _hx_submission_update_target_journal(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
+    return render(
+        request,
+        "submissions/admin/_submission_update_target_journal.html",
+        context={"submission": submission,},
+    )
+
+
+@permission_required("scipost.can_fix_College_decision")
+def _hx_submission_update_target_journal_form(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
     target_old = submission.submitted_to.name
     form = SubmissionTargetJournalForm(request.POST or None, instance=submission)
+    context={"submission": submission,}
     if form.is_valid():
         form.save()
         if form.has_changed():
@@ -2363,15 +2376,14 @@ def _hx_submission_update_target_journal(request, identifier_w_vn_nr):
                 "The target Journal has been changed from %s to %s"
                 % (target_old, submission.submitted_to.name)
             )
-        return redirect(
-            reverse(
-                "submissions:pool:_hx_submission_details_contents",
-                args=(submission.preprint.identifier_w_vn_nr,),
-            )
-        )
-    context = {"form": form}
+        return  render(
+        request,
+        "submissions/admin/_submission_update_target_journal.html",
+        context,
+    )
+    context["form"] = form
     return render(
-        request, "submissions/admin/_hx_submission_update_target_journal.html", context
+        request, "submissions/admin/_hx_submission_update_target_journal_form.html", context
     )
 
 
@@ -2380,8 +2392,21 @@ def _hx_submission_update_target_proceedings(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
+    return render(
+        request,
+        "submissions/admin/_submission_update_target_proceedings.html",
+        context={"submission": submission,},
+    )
+
+
+@permission_required("scipost.can_fix_College_decision")
+def _hx_submission_update_target_proceedings_form(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
     target_old = str(submission.proceedings)
     form = SubmissionTargetProceedingsForm(request.POST or None, instance=submission)
+    context={"submission": submission,}
     if form.is_valid():
         form.save()
         if form.has_changed():
@@ -2389,26 +2414,38 @@ def _hx_submission_update_target_proceedings(request, identifier_w_vn_nr):
                 "The target Proceedings has been changed from %s to %s"
                 % (target_old, str(submission.proceedings))
             )
-        return redirect(
-            reverse(
-                "submissions:pool:_hx_submission_details_contents",
-                args=(submission.preprint.identifier_w_vn_nr,),
-            )
+        return  render(
+        request,
+        "submissions/admin/_submission_update_target_proceedings.html",
+        context,
         )
-    context = {"form": form}
+    context["form"] = form
     return render(
         request,
-        "submissions/admin/_hx_submission_update_target_proceedings.html",
+        "submissions/admin/_hx_submission_update_target_proceedings_form.html",
         context,
     )
 
 
 @permission_required("scipost.can_fix_College_decision")
 def _hx_submission_update_preprint_file(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    return render(
+        request,
+        "submissions/admin/_submission_update_preprint_file.html",
+        context={"submission": submission,},
+    )
+
+
+@permission_required("scipost.can_fix_College_decision")
+def _hx_submission_update_preprint_file_form(request, identifier_w_vn_nr):
     preprint = get_object_or_404(Preprint, identifier_w_vn_nr=identifier_w_vn_nr)
     filedata_old = (
         f'{preprint._file.name.rpartition("/")[2]} ({preprint._file.size//1024} kb)'
     )
+    context = {"submission": preprint.submission,}
     if request.method == "POST":
         form = SubmissionPreprintFileForm(
             request.POST, request.FILES, instance=preprint
@@ -2417,23 +2454,23 @@ def _hx_submission_update_preprint_file(request, identifier_w_vn_nr):
             form.save()
             if form.has_changed():
                 preprint.submission.add_general_event(
-                    "The preprint file has been changed from %s to %s"
-                    % (
-                        filedata_old,
-                        f'{preprint._file.name.rpartition("/")[2]} ({preprint._file.size//1024} kb)',
-                    )
+                    f"The preprint file has been changed from "
+                    f"{filedata_old} to "
+                    f"{preprint._file.name.rpartition('/')[2]} "
+                    f"({preprint._file.size//1024} kb)"
                 )
-            return redirect(
-                reverse(
-                    "submissions:pool:_hx_submission_details_contents",
-                    args=(preprint.identifier_w_vn_nr,),
-                )
+            return render(
+                request,
+                "submissions/admin/_submission_update_preprint_file.html",
+                context,
             )
     else:
         form = SubmissionPreprintFileForm(instance=preprint)
-    context = {"submission": preprint.submission, "form": form}
+    context["form"] = form
     return render(
-        request, "submissions/admin/_hx_submission_update_preprint_file.html", context
+        request,
+        "submissions/admin/_hx_submission_update_preprint_file_form.html",
+        context,
     )
 
 
