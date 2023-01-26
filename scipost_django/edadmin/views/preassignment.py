@@ -173,7 +173,7 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
                 submission=submission,
                 comments_for_authors=form.cleaned_data["comments_for_authors"],
             )
-            mail_util.send_mail()
+        mail_util.send_mail()
         submission.refresh_from_db()
         response = HttpResponse()
         # trigger refresh of pool listing
