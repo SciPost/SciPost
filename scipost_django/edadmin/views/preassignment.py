@@ -175,9 +175,9 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
             )
             mail_util.send_mail()
         submission.refresh_from_db()
-        # redirect to the edadmin page so that all is refreshed
         response = HttpResponse()
-        response["HX-Redirect"] = reverse("submissions:pool:pool")
+        # trigger refresh of pool listing
+        response["HX-Trigger-After-Settle"] = "search-conditions-updated"
         return response
     context = {"submission": submission, "form": form,}
     return render(
