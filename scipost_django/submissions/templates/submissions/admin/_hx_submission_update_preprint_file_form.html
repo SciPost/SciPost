@@ -12,7 +12,7 @@
   </p>
   <form id="submission-{{ submission.id }}-update-preprint-form"
 	hx-encoding="multipart/form-data"
-	hx-post="{% url 'submissions:_hx_submission_update_preprint_file' submission.preprint.identifier_w_vn_nr %}"
+	hx-post="{% url 'submissions:_hx_submission_update_preprint_file_form' submission.preprint.identifier_w_vn_nr %}"
 	hx-target="#submission-{{ submission.id }}-update-preprint-file"
   >
     {% crispy form %}

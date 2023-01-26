@@ -1781,7 +1781,7 @@ class SubmissionPreprintFileForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            "_file",
+            Field("_file"),
             ButtonHolder(Submit("submit", "Update", css_class="btn btn-danger")),
         )
 
