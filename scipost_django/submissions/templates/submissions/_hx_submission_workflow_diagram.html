@@ -57,8 +57,7 @@ flowchart LR
         PreCOI --> PrePa(Listing of<br>potential<br>Editors-in-charge)
     end
     AdmissPassed --> PreTop
-    PrePa --no qualified<br>Fellows--> PreFail("Preassignment<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
-    PrePa --"∃ qualified<br>Fellows"--> PrePass("Preassignment<br>passed ✉<small>A</small>") --> Assignment[[Goto:<br>Assignment]]
+    PrePa --> Assignment[[Goto:<br>Assignment]]
       </pre>
     </details>
   </div>
