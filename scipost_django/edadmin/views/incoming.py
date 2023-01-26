@@ -150,7 +150,11 @@ def _hx_plagiarism_iThenticate(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
-    form = iThenticateReportForm(submission, request.POST or None)
+    form = iThenticateReportForm(
+        submission,
+        request.POST or None,
+        instance=submission.iThenticate_plagiarism_report,
+    )
     if form.is_valid():
         form.save()
         submission.refresh_from_db()
