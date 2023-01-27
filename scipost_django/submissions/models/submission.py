@@ -571,6 +571,7 @@ class Submission(models.Model):
         comma_separated = comma_separated.replace(" and ", ", ")
         comma_separated = comma_separated.replace(", & ", ", ")
         comma_separated = comma_separated.replace(" & ", ", ")
+        comma_separated = comma_separated.replace(";", ", ")
         return [e.lstrip().rstrip() for e in comma_separated.split(",")]
 
     def touch(self):
