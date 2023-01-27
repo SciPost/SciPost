@@ -567,14 +567,11 @@ class Submission(models.Model):
     @property
     def authors_as_list(self):
         """Returns a python list of the authors, extracted from author_list field."""
-        # Start by separating in comma's
-        comma_separated = self.author_list.split(",")
-        authors_as_list = []
-        for entry in comma_separated:
-            and_separated = entry.split(" and ")
-            for subentry in and_separated:
-                authors_as_list.append(subentry.lstrip().rstrip())
-        return authors_as_list
+        comma_separated = self.author_list.replace(", and", ", ")
+        comma_separated = comma_separated.replace(" and ", ", ")
+        comma_separated = comma_separated.replace(", & ", ", ")
+        comma_separated = comma_separated.replace(" & ", ", ")
+        return [e.lstrip().rstrip() for e in comma_separated.split(",")]
 
     def touch(self):
         """Update latest activity timestamp."""
