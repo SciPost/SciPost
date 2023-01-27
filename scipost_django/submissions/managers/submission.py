@@ -176,7 +176,7 @@ class SubmissionQuerySet(models.QuerySet):
         Finally, filter out the COI.
         """
         if not (hasattr(user, "contributor") and
-                user.has_perm("scipost.can_view_pool")):
+                (user.contributor.is_ed_admin or user.contributor.is_active_fellow)):
             return self.none()
 
         qs = self
