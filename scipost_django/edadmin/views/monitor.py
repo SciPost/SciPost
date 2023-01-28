@@ -21,7 +21,7 @@ def fellow_activity(request):
     Monitor activity of Fellows for the Colleges to which this user belongs.
     """
     if request.user.contributor.is_ed_admin:
-        colleges = College.objects.exclude(slug="multidisciplinary")
+        colleges = College.objects.all()
     else:
         colleges = College.objects.filter(pk__in=[
             f.college.id for f in request.user.contributor.fellowships.all()
@@ -37,7 +37,7 @@ def fellow_activity(request):
 
 
 @login_required
-@user_passes_test(is_edadmin_or_senior_fellow)
+@user_passes_test(is_edadmin_senior_fellow)
 def _hx_college_fellow_activity_table(request, college):
     form = EdAdminFellowshipSearchForm(request.POST or None, college=college)
     form.is_valid()
