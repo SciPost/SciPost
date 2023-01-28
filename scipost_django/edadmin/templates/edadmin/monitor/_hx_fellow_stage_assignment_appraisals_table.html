@@ -1,0 +1,45 @@
+{% load submissions_pool %}
+{% load ethics_extras %}
+
+<table class="m-2 table table-dark table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Submission<br>&nbsp;</th>
+      <th>Qualification<br>&nbsp;</th>
+      <th>Competing<br>interests</th>
+      <th>Readiness<br>to&nbsp;take&nbsp;charge</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for submission in fellowship.pool.in_stage_assignment.all %}
+      <tr>
+	<td>
+	  <a class="text-info" href="{{ submission.get_absolute_url }}" target="_blank">{{ submission.title }}</a>
+	  <br>
+	  <em>{{ submission.author_list }}</em>
+	  <br>
+	  <small class="text-secondary">
+	    Submitted on
+	    {{ submission.submission_date|date:'Y-m-d' }}
+	    to {{ submission.submitted_to }}
+	  </small>
+	</td>
+	<td>{% get_fellow_qualification_expertise_level_display submission fellowship %}</td>
+	<td>
+	  {% get_profile_clearance submission.clearances fellowship.contributor.profile as clearance %}
+	  {% if clearance %}
+	    <span class="text-success">all clear</span>
+	  {% else %}
+	    {% get_profile_competing_interests submission.competing_interests fellowship.contributor.profile as ci_qs %}
+	    {% if ci_qs %}
+	      <span class="text-danger">has competing interest</span
+	    {% else %}
+	      <em class="text-danger">unknown</em>
+	    {% endif %}
+	  {% endif %}
+	</td>
+	<td>{% get_fellow_readiness_status_display submission fellowship %}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

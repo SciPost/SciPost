@@ -21,5 +21,9 @@ urlpatterns = [
         "incoming/",
         include("edadmin.urls.subtabs", namespace="subtabs"),
     ),
+    path(
+        "monitor/",
+        include("edadmin.urls.monitor", namespace="monitor"),
+    ),
 
 ]

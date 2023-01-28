@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import re
+
 from django import template
 from django.urls import reverse
 
@@ -22,3 +24,10 @@ def replace(text, args):
         return text
     a, b = args.split("|")
     return text.replace(a, b)
+
+
+@register.filter
+def rstrip_minutes(text):
+    if "day" in text or "hour" in text:
+        return re.split("[0-9]+\xa0minutes", text, 1)[0].rstrip(", ")
+    return text
