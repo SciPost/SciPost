@@ -1,4 +1,5 @@
 {% extends "scipost/base.html" %}
+
 {% load common_extras %}
 {% load colleges_extras %}
 
@@ -10,92 +11,20 @@
 
   {% for college in colleges %}
     <details class="border border-2 my-4"
-	     id="college-{{ college.slug }}-fellow-activity"
+	     id="college-{{ college.slug }}-fellow-activity-details"
 	     {% if not "edadmin" in user_roles %}open{% endif %}
     >
       <summary class="bg-primary bg-opacity-10 px-4 py-2">
 	{{ college }}
       </summary>
 
-      <table class="table table-striped table-bordered">
-	<thead>
-	  <tr>
-	    <th>Fellow</th>
-	    <th>Specialties</th>
-	    <th>Status</th>
-	    <th>
-	      <small class="text-muted text-center" style="writing-mode: vertical-rl">Currently<br>available</small>
-	    </th>
-	    <th>
-	      <small class="text-muted text-center" style="writing-mode: vertical-rl">
-		As&nbsp;EIC:&nbsp;nr&nbsp;currently<br>in&nbsp;refereeing
-	      </small>
-	    </th>
-	    <th>
-	      <small class="text-muted text-center" style="writing-mode: vertical-rl">
-		Nr of Submissions<br>currently visible in<br>Assignment stage
-	      </small>
-	    </th>
-	    <th>
-	      <small class="text-muted text-center" style="writing-mode: vertical-rl">
-		Nr appraised<br>&nbsp;
-	      </small>
-	    </th>
-	    <th>Latest appraisal<br>datetime</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% get_active_fellowships_with_prefetch_data college as fellowships  %}
-	  {% for fellowship in fellowships.all %}
-	    <tr>
-	      <td>{{ fellowship.contributor }}</td>
-	      <td>
-		{% for specialty in fellowship.contributor.profile.specialties.all %}
-		  <div class="single d-inline" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}
-		  </div>
-		{% endfor %}
-	      </td>
-	      <td>{{ fellowship.get_status_display }}</td>
-	      <td class="text-center">
-		{% if fellowship.contributor.current_unavailability_periods %}
-		  <span class="text-danger">{% include "bi/x-square-fill.html" %}</span>
-		{% else %}
-		  <span class="text-success">{% include "bi/check-square-fill.html" %}</span>
-		{% endif %}
-	      </td>
-	      <td class="text-center">
-		{{ fellowship.contributor.EIC_in_stage_in_refereeing|length }}
-	      </td>
-	      {% if fellowship.contributor.current_unavailability_periods %}
-		<td colspan="2"><em class="text-muted">unavailable</em></td>
-	      {% else %}
-		<td class="text-center">{{ fellowship.nr_visible }}</td>
-		<td class="text-center">
-		  <span class="{% if fellowship.nr_appraised == fellowship.nr_visible %}bg-success{% elif fellowship.nr_appraised > 0 %}bg-warning{% else %}bg-danger{% endif %} text-white px-2 py-1">{{ fellowship.nr_appraised }}</span>
-		</td>
-	      {% endif %}
-	      <td>{{ fellowship.latest_appraisal_datetime|date:"Y-m-d H:i" }}{% if fellowship.latest_appraisal_datetime %}&emsp;<em class="text-muted">({{ fellowship.latest_appraisal_datetime|timesince|rstrip_minutes }} ago)</em>{% endif %}</td>
-	    </tr>
-	    <tr>
-	      <td colspan="5">
-		<details id="fellow-{{ fellowship.id }}-appraisals-details">
-		  <summary>&nbsp;see details of current appraisals</summary>
-		  <div id="fellow-{{ fellowship.id }}-appraisals-table"
-		       hx-get="{% url 'edadmin:monitor:_hx_fellow_stage_assignment_appraisals_table' fellowship_id=fellowship.id %}"
-		       hx-target="#fellow-{{ fellowship.id }}-appraisals-table"
-		       hx-trigger="toggle once from:#fellow-{{ fellowship.id }}-appraisals-details"
-		  >
-		  </div>
-		</details>
-	      </td>
-	    </tr>
-	  {% empty %}
-	    <tr>
-	      <td>No Fellow in this College</td>
-	    </tr>
-	  {% endfor %}
-	</tbody>
-      </table>
+      <div hx-get="{% url 'edadmin:monitor:_hx_college_fellow_activity_table' college=college.slug %}"
+	   hx-target="#college-{{ college.slug }}-fellow-activity-table"
+	   hx-trigger="{% if 'edadmin' in user_roles %}toggle once from:#college-{{ college.slug }}-fellow-activity-details{% else %}revealed{% endif %}"
+      >
+      </div>
+      <div id="college-{{ college.slug }}-fellow-activity-table"></div>
+
     </details>
 
   {% endfor %}

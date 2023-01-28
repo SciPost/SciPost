@@ -16,6 +16,11 @@ urlpatterns = [
         name="fellow_activity",
     ),
     path(
+        "_hx_college_fellow_activity_table/<college:college>",
+        monitor_views._hx_college_fellow_activity_table,
+        name="_hx_college_fellow_activity_table",
+    ),
+    path(
         "<int:fellowship_id>/_hx_fellow_stage_assignment_appraisals_table",
         monitor_views._hx_fellow_stage_assignment_appraisals_table,
         name="_hx_fellow_stage_assignment_appraisals_table",
