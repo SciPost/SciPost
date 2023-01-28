@@ -162,6 +162,12 @@ class Contributor(models.Model):
         return not self.unavailability_periods.today().exists()
 
     @property
+    def available_again_after_date(self):
+        unav = self.unavailability_periods.today().first()
+        if unav:
+            return unav.end
+
+    @property
     def is_scipost_admin(self):
         """Check if Contributor is a SciPost Administrator."""
         return (

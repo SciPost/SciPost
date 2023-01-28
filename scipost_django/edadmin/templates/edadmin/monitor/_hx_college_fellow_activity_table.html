@@ -69,7 +69,7 @@
 	  {{ fellowship.contributor.EIC_in_stage_in_refereeing|length }}
 	</td>
 	{% if fellowship.contributor.current_unavailability_periods %}
-	  <td colspan="2"><em class="text-muted">unavailable</em></td>
+	  <td colspan="2" class="text-center"><em class="text-muted">unavailable up to {{ fellowship.contributor.available_again_after_date }}</em></td>
 	{% else %}
 	  <td class="text-center">{{ fellowship.nr_visible }}</td>
 	  <td class="text-center">
