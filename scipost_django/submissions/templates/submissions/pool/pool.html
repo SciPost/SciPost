@@ -38,6 +38,19 @@
     </div>
   </div>
 
+  {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+    <ul class="mx-2 border border-2 border-danger">
+      <li>
+	{% if "edadmin" in user_roles %}
+	  As EdAdmin: consult the
+	{% else %}
+	  As Senior Fellow: you have the right to consult the
+	{% endif %}
+	<a href="{% url 'edadmin:monitor:fellow_activity' %}" target="_blank">Fellow activity monitor</a>
+      </li>
+    </ul>
+  {% endif %}
+
   <div id="unavailability"
        class="p-2"
        hx-get="{% url 'scipost:_hx_unavailability' %}"

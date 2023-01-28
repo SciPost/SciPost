@@ -68,7 +68,9 @@
       <h3>Submissions assignments</h3>
       <ul>
         <li><a href="{% url 'submissions:assignments' %}">Your assignments</a></li>
-        <li><a href="{% url 'colleges:fellowships' %}">Assignments overview</a></li>
+	{% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+          <li><a href="{% url 'edadmin:monitor:fellow_activity' %}">Fellow activity monitor</a></li>
+	{% endif %}
 
         {% if perms.scipost.can_assign_submissions %}
           <li>Assign Submissions via the <a href="{% url 'submissions:pool:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
@@ -90,20 +92,20 @@
         </ul>
       {% endif %}
     </div>
-  {% endif %}
-
-  <div class="col-md-4">
-    {% if perms.scipost.can_manage_college_composition or perms.scipost.can_view_potentialfellowship_list %}
-      <h3>Colleges and Fellowships</h3>
-      <ul>
-	<li><a href="{% url 'colleges:colleges' %}">Editorial Colleges</a></li>
-	{% if perms.scipost.can_manage_college_composition %}
-          <li><a href="{% url 'colleges:fellowships' %}">Fellowships</a></li>
 	{% endif %}
-	<li><a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships: view{% if perms.scipost.can_manage_college_composition %} and manage{% endif %}</a></li>
-      </ul>
-    {% endif %}
-  </div>
+
+	<div class="col-md-4">
+	  {% if perms.scipost.can_manage_college_composition or perms.scipost.can_view_potentialfellowship_list %}
+	    <h3>Colleges and Fellowships</h3>
+	    <ul>
+	      <li><a href="{% url 'colleges:colleges' %}">Editorial Colleges</a></li>
+	      {% if perms.scipost.can_manage_college_composition %}
+		<li><a href="{% url 'colleges:fellowships' %}">Fellowships</a></li>
+	      {% endif %}
+	      <li><a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships: view{% if perms.scipost.can_manage_college_composition %} and manage{% endif %}</a></li>
+	    </ul>
+	  {% endif %}
+	</div>
 </div>
 
 {% if active_assignments %}

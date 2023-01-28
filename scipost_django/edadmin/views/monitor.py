@@ -37,7 +37,7 @@ def fellow_activity(request):
 
 
 @login_required
-@user_passes_test(is_edadmin_senior_fellow)
+@user_passes_test(is_edadmin_or_senior_fellow)
 def _hx_college_fellow_activity_table(request, college):
     form = EdAdminFellowshipSearchForm(request.POST or None, college=college)
     form.is_valid()
