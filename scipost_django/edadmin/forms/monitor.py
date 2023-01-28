@@ -74,6 +74,6 @@ class EdAdminFellowshipSearchForm(forms.Form):
             ),
             latest_appraisal_datetime=Max(
                 "qualification__datetime",
-                filter=Q(status=Submission.SEEKING_ASSIGNMENT),
+                filter=Q(pool__status=Submission.SEEKING_ASSIGNMENT),
             ),
         )

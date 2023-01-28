@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 from django import template
-from django.db.models import Count, Max, Prefetch, Q
 from django.utils.html import format_html, mark_safe
 from django.urls import reverse
 

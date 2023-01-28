@@ -1,7 +1,7 @@
 {% load crispy_forms_tags %}
 {% load common_extras %}
 
-<div class="m-2">
+<div class="ms-4 mt-2">
   <h4>Filter</h4>
   <form
       hx-post="{% url 'edadmin:monitor:_hx_college_fellow_activity_table' college=college.slug %}"
