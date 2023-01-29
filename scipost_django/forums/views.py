@@ -176,7 +176,10 @@ class ForumListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = get_objects_for_user(
             self.request.user, "forums.can_view_forum"
-        ).anchors()
+        ).anchors().select_related("meeting").prefetch_related(
+            "posts" + "__followup_posts" * 3,
+            "child_forums__posts" + "__followup_posts" * 7,
+        )
         return queryset
 
 

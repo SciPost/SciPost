@@ -45,7 +45,13 @@
 		{% endif %}
 		<span class="d-flex flex-wrap justify-content-between">
 		  <a href="{{ forum.get_absolute_url }}">{{ forum|truncatechars:30 }}</a>
-		  <span class="badge bg-primary rounded-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+		  {% with nr_posts=forum.nr_posts %}
+		    {% if nr_posts %}
+		      <span class="badge bg-primary rounded-pill">
+			{{ nr_posts }} post{{ nr_posts|pluralize }}
+		    {% endif %}
+		  {% endwith %}
+		  </span>
 		</span>
 	      </div>
 	      <div class="card-body">
@@ -54,7 +60,7 @@
 		  <hr/>
 		  <p>Descendants:</p>
 		  <ul class="list-unstyled forumList">
-		    {% for child in forum.child_forums.all %}
+		    {% for child in forum.child_forums.all reversed %}
 		      {% include 'forums/forum_as_li.html' with forum=child %}
 		    {% endfor %}
 		  </ul>
@@ -83,12 +89,16 @@
 	</thead>
 	<tbody>
 	  {% for forum in object_list %}
-	    <tr>
-	      <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
-	      <td>{{ forum.latest_post }}</td>
-	      <td>{{ forum.latest_post.posted_on|date:"Y-m-d" }}</td>
-	      <td><span class="badge bg-primary rounded-pill">{{ forum.nr_posts }}</span></td>
-	    </tr>
+	    {% with formul.latest_post as latest_post %}
+	      {% if latest_post %}
+		<tr>
+		  <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
+		  <td>{{ forum.latest_post }}</td>
+		  <td>{{ forum.latest_post.posted_on|date:"Y-m-d" }}</td>
+		  <td><span class="badge bg-primary rounded-pill">{{ forum.nr_posts }}</span></td>
+		</tr>
+	      {% endif %}
+	    {% endwith %}
 	  {% empty %}
 	    <tr>
 	      <td>No visible Posts found.</td>

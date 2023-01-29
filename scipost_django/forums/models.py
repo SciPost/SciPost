@@ -149,6 +149,11 @@ class Meeting(Forum):
     )
     objects = models.Manager()
 
+    class Meta:
+        ordering = [
+            "-date_until",
+        ]
+
     def __str__(self):
         return "%s, [%s to %s]" % (
             self.forum,
