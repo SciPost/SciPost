@@ -32,7 +32,8 @@ admin.site.register(Meeting, MeetingAdmin)
 
 
 class PostAdmin(admin.ModelAdmin):
-    search_fields = ["posted_by", "subject", "text"]
+    list_display = ["anchor", "posted_by", "posted_on"]
+    search_fields = ["posted_by__last_name", "subject", "text"]
     autocomplete_fields = [
         "posted_by",
         "vetted_by",
@@ -43,7 +44,7 @@ admin.site.register(Post, PostAdmin)
 
 
 class MotionAdmin(admin.ModelAdmin):
-    search_fields = ["posted_by", "subject", "text"]
+    search_fields = ["posted_by__last_name", "subject", "text"]
     autocomplete_fields = [
         "posted_by",
         "vetted_by",

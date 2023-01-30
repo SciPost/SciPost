@@ -72,6 +72,9 @@ class Forum(models.Model):
         related_query_name="parent_forums",
     )
 
+    # calculated fields
+    cf_nr_posts = models.PositiveSmallIntegerField(blank=True, null=True)
+
     objects = ForumQuerySet.as_manager()
 
     class Meta:
@@ -89,6 +92,11 @@ class Forum(models.Model):
     def get_absolute_url(self):
         return reverse("forums:forum_detail", kwargs={"slug": self.slug})
 
+    def update_cfs(self):
+        self.update_cf_nr_posts()
+        if self.parent:
+            self.parent.update_cfs()
+
     @property
     def nr_posts(self):
         """Recursively counts the number of posts in this Forum."""
@@ -98,6 +106,10 @@ class Forum(models.Model):
         if self.posts.all():
             nr += self.posts.all().count()
         return nr
+
+    def update_cf_nr_posts(self):
+        self.cf_nr_posts = self.nr_posts
+        self.save()
 
     def posts_hierarchy_id_list(self):
         id_list = []
@@ -112,14 +124,6 @@ class Forum(models.Model):
             return Post.objects.filter(id__in=id_list).order_by("-posted_on").first()
         except:
             return None
-
-    # @property
-    # def posts_all(self):
-    #     """
-    #     Return all posts in the hierarchy.
-    #     """
-    #     posts_id_list = self.posts_hierarchy_id_list()
-    #     return Post.objects.filter(id__in=posts_id_list)
 
 
 class Meeting(Forum):
@@ -258,6 +262,16 @@ class Post(models.Model):
     )
     absolute_url = models.URLField(blank=True)
 
+    # calculated fields
+    cf_nr_followups = models.PositiveSmallIntegerField(blank=True, null=True)
+    cf_latest_followup_in_hierarchy = models.ForeignKey(
+        "forums.Post",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="latest_followup_in_hierarchy_of",
+    )
+
     objects = PostQuerySet.as_manager()
 
     class Meta:
@@ -283,6 +297,12 @@ class Post(models.Model):
             self.save()
         return self.absolute_url
 
+    def update_cfs(self):
+        self.update_cf_nr_followups()
+        self.update_cf_latest_followup_in_hierarchy()
+        if self.parent:
+            self.parent.update_cfs()
+
     @property
     def nr_followups(self):
         nr = 0
@@ -291,6 +311,10 @@ class Post(models.Model):
         if self.followup_posts:
             nr += self.followup_posts.all().count()
         return nr
+
+    def update_cf_nr_followups(self):
+        self.cf_nr_followups = self.nr_followups
+        self.save()
 
     @property
     def latest_followup(self):
@@ -306,6 +330,10 @@ class Post(models.Model):
     def latest_followup_in_hierarchy(self):
         id_list = self.posts_hierarchy_id_list()
         return Post.objects.filter(pk__in=id_list).exclude(pk=self.id).last()
+
+    def update_cf_latest_followup_in_hierarchy(self):
+        self.cf_latest_followup_in_hierarchy = self.latest_followup_in_hierarchy
+        self.save()
 
     def get_anchor_forum_or_meeting(self):
         """
