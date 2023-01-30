@@ -121,12 +121,16 @@ class ForumDetailView(PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["groups_with_perms"] = get_groups_with_perms(self.object).order_by(
-            "name"
-        )
-        context["users_with_perms"] = get_users_with_perms(self.object)
-        context["group_permissions_form"] = ForumGroupPermissionsForm()
-        context["organization_permissions_form"] = ForumOrganizationPermissionsForm()
+        if self.request.user.has_perm("forums.add_forum"):
+            context["groups_with_perms"] = get_groups_with_perms(self.object).order_by(
+                "name"
+            )
+            context["users_with_perms"] = get_users_with_perms(
+                self.object,
+                attach_perms=True,
+            )
+            context["group_permissions_form"] = ForumGroupPermissionsForm()
+            context["organization_permissions_form"] = ForumOrganizationPermissionsForm()
         return context
 
 

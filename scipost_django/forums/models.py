@@ -59,6 +59,12 @@ class Forum(models.Model):
         object_id_field="parent_object_id",
         related_query_name="parent_forums",
     )
+    posts_all = GenericRelation(
+        "forums.Post",
+        content_type_field="anchor_content_type",
+        object_id_field="anchor_object_id",
+        related_query_name="anchor_forums",
+    )
     motions = GenericRelation(
         "forums.Motion",
         content_type_field="parent_content_type",
@@ -107,13 +113,13 @@ class Forum(models.Model):
         except:
             return None
 
-    @property
-    def posts_all(self):
-        """
-        Return all posts in the hierarchy.
-        """
-        posts_id_list = self.posts_hierarchy_id_list()
-        return Post.objects.filter(id__in=posts_id_list)
+    # @property
+    # def posts_all(self):
+    #     """
+    #     Return all posts in the hierarchy.
+    #     """
+    #     posts_id_list = self.posts_hierarchy_id_list()
+    #     return Post.objects.filter(id__in=posts_id_list)
 
 
 class Meeting(Forum):
@@ -237,6 +243,20 @@ class Post(models.Model):
             '<a href="/markup/help/" target="_blank">markup help</a> pages.'
         )
     )
+    # Accelerators: to avoid navigating the hierarchy of objects
+    anchor_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="forum_or_meeting_posts",
+    )
+    anchor_object_id = models.PositiveIntegerField(blank=True, null=True)
+    anchor = GenericForeignKey(
+        "anchor_content_type",
+        "anchor_object_id",
+    )
+    absolute_url = models.URLField(blank=True)
 
     objects = PostQuerySet.as_manager()
 
@@ -253,10 +273,15 @@ class Post(models.Model):
         )
 
     def get_absolute_url(self):
-        return "%s#post%s" % (
-            self.get_anchor_forum_or_meeting().get_absolute_url(),
-            self.id,
-        )
+        if not self.absolute_url:
+            if not self.anchor:
+                self.anchor = self.get_anchor_forum_or_meeting()
+            self.absolute_url = "%s#post%s" % (
+                self.anchor.get_absolute_url(),
+                self.id,
+            )
+            self.save()
+        return self.absolute_url
 
     @property
     def nr_followups(self):
@@ -287,6 +312,7 @@ class Post(models.Model):
         Climb back the hierarchy up to the original Forum.
         If no Forum is found, return None.
         """
+
         type_forum = ContentType.objects.get_by_natural_key("forums", "forum")
         type_meeting = ContentType.objects.get_by_natural_key("forums", "meeting")
         if (
