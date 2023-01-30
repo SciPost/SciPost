@@ -119,6 +119,29 @@ class ForumDetailView(PermissionRequiredMixin, DetailView):
     model = Forum
     template_name = "forums/forum_detail.html"
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.select_related(
+            "meeting",
+        )
+        qs = qs.prefetch_related(
+            "parent",
+            "child_forums",
+            "motions",
+            "posts__motion",
+            "posts__posted_by",
+            "posts__cf_latest_followup_in_hierarchy__posted_by",
+            "posts_all__posted_by",
+            "posts_all__motion",
+            "motions__posted_by",
+            "motions__in_agreement",
+            "motions__in_doubt",
+            "motions__in_disagreement",
+            "motions__in_abstain",
+            "motions__eligible_for_voting",
+        )
+        return qs
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         if self.request.user.has_perm("forums.add_forum"):
