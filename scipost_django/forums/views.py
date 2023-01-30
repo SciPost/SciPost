@@ -127,12 +127,8 @@ class ForumDetailView(PermissionRequiredMixin, DetailView):
         qs = qs.prefetch_related(
             "parent",
             "child_forums",
-            "motions",
             "posts__motion",
             "posts__posted_by",
-            "posts__cf_latest_followup_in_hierarchy__posted_by",
-            "posts_all__posted_by",
-            "posts_all__motion",
             "motions__posted_by",
             "motions__in_agreement",
             "motions__in_doubt",
