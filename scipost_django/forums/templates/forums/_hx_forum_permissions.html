@@ -1,0 +1,19 @@
+{% load guardian_tags %}
+
+<p><a href="{% url 'forums:forum_permissions' slug=forum.slug %}">Grant permissions to a new group</a></p>
+<p>Groups with permissions [click on the Group's name to manage permissions]:</p>
+<ul>
+  {% for group in groups_with_perms %}
+    {% get_obj_perms group for forum as "group_perms" %}
+    <li><a href="{% url 'forums:forum_permissions' slug=forum.slug group_id=group.id %}">{{ group.name }}</a>: {{ group_perms }}</li>
+  {% empty %}
+    <li>No group has permissions on this Forum</li>
+  {% endfor %}
+</ul>
+
+<p>Users with permissions:</p>
+<ul>
+  {% for u, u_perms in users_with_perms.items %}
+    <li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
+  {% endfor %}
+</ul>

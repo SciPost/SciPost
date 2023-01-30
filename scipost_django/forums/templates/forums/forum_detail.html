@@ -1,11 +1,8 @@
 {% extends 'forums/base.html' %}
 
 {% load bootstrap %}
-{% load guardian_tags %}
 {% load automarkup %}
-
 {% load scipost_extras %}
-
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -13,7 +10,6 @@
 {% endblock %}
 
 {% block pagetitle %}: {% if forum.meeting %}Meeting{% else %}Forum{% endif %} details{% endblock pagetitle %}
-
 
 {% block content %}
 
@@ -63,32 +59,30 @@
 	      {% endif %}
 	    </ul>
 
-	    <div class="card">
-	      <div class="card-header">
-		Permissions on this {% if meeting %}Meeting{% else %}Forum{% endif %} instance
-		<button class="btn btn-link small" data-bs-toggle="collapse" data-bs-target="#permissionsCard">
-		  View/manage</button>
-	      </div>
-	      <div class="card-body collapse" id="permissionsCard">
-		<p><a href="{% url 'forums:forum_permissions' slug=forum.slug %}">Grant permissions to a new group</a></p>
-		<p>Groups with permissions [click on the Group's name to manage permissions]:</p>
-		<ul>
-		  {% for group in groups_with_perms %}
-		    {% get_obj_perms group for forum as "group_perms" %}
-		    <li><a href="{% url 'forums:forum_permissions' slug=forum.slug group_id=group.id %}">{{ group.name }}</a>: {{ group_perms }}</li>
-		  {% empty %}
-		    <li>No group has permissions on this Forum</li>
-		  {% endfor %}
-		</ul>
+	    {% if can_change_forum %}
+	      <details id="forum-permissions-details"
+		       class="border border-danger bg-danger bg-opacity-10 m-2">
+		<summary class="bg-danger bg-opacity-10 p-2">
+		  Permissions on this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} instance (view/manage)
+		  <span id="forum-permissions-details-contents-indicator" class="htmx-indicator p-2">
+		    <button class="btn btn-warning" type="button" disabled>
+		      <strong>Loading...</strong>
+		      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+		    </button>
+		  </span>
+		</summary>
+		<div id="forum-permissions-details-contents"
+		     class="p-2"
+		     hx-get="{% url 'forums:_hx_forum_permissions' slug=forum.slug %}"
+		     hx-trigger="toggle once from:#forum-permissions-details"
+		     hx-target="#forum-permissions-details-contents"
+		     hx-indicator="#forum-permissions-details-contents-indicator"
+		>
+		</div>
 
-		<p>Users with permissions:</p>
-		<ul>
-		  {% for u, u_perms in users_with_perms.items %}
-		    <li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
-		  {% endfor %}
-		</ul>
-	      </div>
-	    </div>
+	      </details>
+	    {% endif %}
+
 	  </div>
 	{% endif %}
       </div>

@@ -142,18 +142,21 @@ class ForumDetailView(PermissionRequiredMixin, DetailView):
         )
         return qs
 
+
+class HXForumPermissionsView(PermissionRequiredMixin, DetailView):
+    permission_required = "forums.add_forum"
+    model = Forum
+    template_name = "forums/_hx_forum_permissions.html"
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        if self.request.user.has_perm("forums.add_forum"):
-            context["groups_with_perms"] = get_groups_with_perms(self.object).order_by(
-                "name"
-            )
-            context["users_with_perms"] = get_users_with_perms(
-                self.object,
-                attach_perms=True,
-            )
-            context["group_permissions_form"] = ForumGroupPermissionsForm()
-            context["organization_permissions_form"] = ForumOrganizationPermissionsForm()
+        context["groups_with_perms"] = get_groups_with_perms(self.object).order_by(
+            "name"
+        )
+        context["users_with_perms"] = get_users_with_perms(
+            self.object,
+            attach_perms=True,
+        )
         return context
 
 

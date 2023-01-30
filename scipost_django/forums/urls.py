@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 
@@ -21,18 +21,45 @@ urlpatterns = [
         name="meeting_create",
     ),
     path("meeting/add/", views.MeetingCreateView.as_view(), name="meeting_create"),
-    path("<slug:slug>/", views.ForumDetailView.as_view(), name="forum_detail"),
-    path("<slug:slug>/update/", views.ForumUpdateView.as_view(), name="forum_update"),
-    path("<slug:slug>/delete/", views.ForumDeleteView.as_view(), name="forum_delete"),
     path(
-        "<slug:slug>/permissions/<int:group_id>/",
-        views.ForumPermissionsView.as_view(),
-        name="forum_permissions",
-    ),
-    path(
-        "<slug:slug>/permissions/",
-        views.ForumPermissionsView.as_view(),
-        name="forum_permissions",
+        "<slug:slug>/",
+        include([
+            path(
+                "",
+                views.ForumDetailView.as_view(),
+                name="forum_detail",
+            ),
+            path(
+                "update/",
+                views.ForumUpdateView.as_view(),
+                name="forum_update",
+            ),
+            path(
+                "delete/",
+                views.ForumDeleteView.as_view(),
+                name="forum_delete",
+            ),
+            path(
+                "permissions/",
+                include([
+                    path(
+                        "",
+                        views.ForumPermissionsView.as_view(),
+                        name="forum_permissions",
+                    ),
+                    path(
+                        "<int:group_id>/",
+                        views.ForumPermissionsView.as_view(),
+                        name="forum_permissions",
+                    ),
+                    path(
+                        "_hx_forum_permissions/",
+                        views.HXForumPermissionsView.as_view(),
+                        name="_hx_forum_permissions",
+                    ),
+                ]),
+            ),
+        ]),
     ),
     path("", views.ForumListView.as_view(), name="forums"),
     path(
