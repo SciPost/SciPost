@@ -30,6 +30,16 @@ urlpatterns = [
                 name="forum_detail",
             ),
             path(
+                "quicklinks/all",
+                views.HXForumQuickLinksAllView.as_view(),
+                name="_hx_forum_quick_links_all",
+            ),
+            path(
+                "quicklinks/followups",
+                views.HXForumQuickLinksFollowupsView.as_view(),
+                name="_hx_forum_quick_links_followups",
+            ),
+            path(
                 "update/",
                 views.ForumUpdateView.as_view(),
                 name="forum_update",

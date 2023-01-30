@@ -79,7 +79,6 @@
 		     hx-indicator="#forum-permissions-details-contents-indicator"
 		>
 		</div>
-
 	      </details>
 	    {% endif %}
 
@@ -108,63 +107,51 @@
       </div>
     </div>
 
-    <div class="row">
-      <div class="col">
-	<div class="card">
-	  <div class="card-header">
-	    <button class="btn btn-primary btn-small" data-bs-toggle="collapse" data-bs-target="#recentPostsLinks">
-	      Quick links: all posts and motions (click to toggle)
+    <details id="forum-quick-links-all-details"
+	     class="border border-dark m-2">
+      <summary class="bg-dark text-white px-4 py-1">
+	<h3>
+	  Quick links: all posts and motions (click to toggle)
+	  <span id="forum-quick-links-all-details-contents-indicator" class="htmx-indicator p-2">
+	    <button class="btn btn-warning" type="button" disabled>
+	      <strong>Loading...</strong>
+	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
 	    </button>
-	  </div>
-	  <div class="card-body collapse" id="recentPostsLinks">
-	    <h3>(most recent first)</h3>
-	    <ul>
-	      {% for post in forum.posts_all.all reversed %}
-		<li>
-		  <a href="{{ post.get_absolute_url }}">{{ post.subject }}</a> posted by {{ post.posted_by.first_name }} {{ post.posted_by.last_name }} on {{ post.posted_on|date:"Y-m-d H:i" }}
-		  {% if post.parent and not post.motion %}
-		    - regarding <a href="{{ post.parent.get_absolute_url }}">{{ post.parent }}</a>
-		  {% endif %}
-		</li>
-	      {% endfor %}
-	    </ul>
-	  </div>
-	</div>
+	  </span>
+	</h3>
+      </summary>
+      <div id="forum-quick-links-all-details-contents"
+	   class="p-2"
+	   hx-get="{% url 'forums:_hx_forum_quick_links_all' slug=forum.slug %}"
+	   hx-trigger="toggle once from:#forum-quick-links-all-details"
+	   hx-target="#forum-quick-links-all-details-contents"
+	   hx-indicator="#forum-quick-links-all-details-contents-indicator"
+      >
       </div>
-    </div>
+    </details>
 
-    <div class="row">
-      <div class="col">
-	<div class="card">
-	  <div class="card-header">
-	    <button class="btn btn-primary btn-small" data-bs-toggle="collapse" data-bs-target="#anchorPostsLinks">
-	      Quick links: anchor posts, latest followup (click to toggle)
+    <details id="forum-quick-links-followups-details"
+	     class="border border-dark m-2">
+      <summary class="bg-dark text-white px-4 py-1">
+	<h3>
+	  Quick links: anchor posts, latest followup (click to toggle)
+	  <span id="forum-quick-links-followups-details-contents-indicator" class="htmx-indicator p-2">
+	    <button class="btn btn-warning" type="button" disabled>
+	      <strong>Loading...</strong>
+	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
 	    </button>
-	  </div>
-	  <div class="card-body collapse" id="anchorPostsLinks">
-	    <ul>
-	      {% for post in forum.posts.all %}
-		<li>
-		  <a href="{{ post.get_absolute_url }}">{{ post.subject }}</a> posted by {{ post.posted_by.first_name }} {{ post.posted_by.last_name }} on {{ post.posted_on|date:"Y-m-d H:i" }}
-		  <p>
-		    {{ post.cf_nr_followups }} followup{{ post.cf_nr_followups|pluralize }}
-		    {% with post.cf_latest_followup_in_hierarchy as latest_followup %}
-		      {% if latest_followup %}
-			,&emsp;latest: <a href="{{ latest_followup.get_absolute_url }}">
-			{{ latest_followup.subject }}</a>
-			posted by {{ latest_followup.posted_by.first_name }}
-			{{ latest_followup.posted_by.last_name }}
-			on {{ latest_followup.posted_on|date:"Y-m-d H:i" }}
-		      {% endif %}
-		    {% endwith %}
-		  </p>
-		</li>
-	      {% endfor %}
-	    </ul>
-	  </div>
-	</div>
+	  </span>
+	</h3>
+      </summary>
+      <div id="forum-quick-links-followups-details-contents"
+	   class="mx-2 mt-0"
+	   hx-get="{% url 'forums:_hx_forum_quick_links_followups' slug=forum.slug %}"
+	   hx-trigger="toggle once from:#forum-quick-links-followups-details"
+	   hx-target="#forum-quick-links-followups-details-contents"
+	   hx-indicator="#forum-quick-links-followups-details-contents-indicator"
+      >
       </div>
-    </div>
+    </details>
 
     <div class="row">
       <div class="col-12">

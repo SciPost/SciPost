@@ -1,0 +1,29 @@
+<table class="m-2 mt-1 table table-dark table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Posted by</th>
+      <th>Subject</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for post in forum.posts_all.all reversed %}
+      <tr>
+	<td>{{ post.posted_on|date:"Y-m-d H:i" }}</td>
+	<td>{{ post.posted_by.first_name }} {{ post.posted_by.last_name }}</td>
+	<td><a href="{{ post.get_absolute_url }}" class="text-info">{{ post.subject }}</a></td>
+      </tr>
+      <tr>
+	<td colspan="2"></td>
+	<td>
+	  {% if post.parent and not post.motion %}
+	    &emsp;{% include "bi/arrow-return-right.html" %}
+	    <small>
+	      regarding <a href="{{ post.parent.get_absolute_url }}" class="text-info">{{ post.parent }}</a>
+	    </small>
+	  {% endif %}
+	</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

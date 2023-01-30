@@ -143,6 +143,34 @@ class ForumDetailView(PermissionRequiredMixin, DetailView):
         return qs
 
 
+class HXForumQuickLinksAllView(PermissionRequiredMixin, DetailView):
+    permission_required = "forums.can_view_forum"
+    model = Forum
+    template_name = "forums/_hx_forum_quick_links_all.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.prefetch_related(
+            "posts_all__posted_by",
+            "posts__motion",
+        )
+        return qs
+
+
+class HXForumQuickLinksFollowupsView(PermissionRequiredMixin, DetailView):
+    permission_required = "forums.can_view_forum"
+    model = Forum
+    template_name = "forums/_hx_forum_quick_links_followups.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.prefetch_related(
+            "posts__posted_by",
+            "posts__cf_latest_followup_in_hierarchy__posted_by",
+        )
+        return qs
+
+
 class HXForumPermissionsView(PermissionRequiredMixin, DetailView):
     permission_required = "forums.add_forum"
     model = Forum
