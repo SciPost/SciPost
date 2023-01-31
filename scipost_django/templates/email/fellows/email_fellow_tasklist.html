@@ -14,22 +14,39 @@
     <p>Please go to the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">pool</a> to cast your vote on:</p>
     <ul>
       {% for rec in recs_to_vote_on %}
-          <li>{{ rec.submission.title }}</li>
+        <li>{{ rec.submission.title }}</li>
       {% endfor %}
     </ul>
 {% endif %}
 
+{% if nr_visible > 0 %}
+  <br>
+  {% if nr_appraised < nr_visible  %}
+    <h3>Appraisals required on Submissions seeking assignment</h3>
+    <p>
+      There are {{ nr_visible }} Submissions seeking assignment in the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">pool</a>, {% if nr_appraised == 0 %}all of which{% else %}of which {{ nr_appraisals_required }}{% endif %} require your quick appraisal of your expertise level, competing interest and readiness to take charge.
+    </p>
+    <p>Please visit the pool and provide this info (whose maintenance is crucial to the Assignment phase of our <a href="https://{{ domain }}{% url 'submissions:editorial_workflow' %}">editorial workflow</a>).
+    </p>
+  {% else %}
+    <h3>Submissions seeking assignment</h3>
+    <p>There are {{ nr_visible }} Submissions seeking assignment in the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">pool</a>; thank you
+      for having appraised your expertise level, competing interest and readiness to take charge for all of them. Great job!</p>
+  {% endif %}
+{% endif %}
+
 {% if assignments_to_consider %}
-    <br/>
-    <h3>Assignments for you to consider:</h3>
-    <ul>
+  <br/>
+  <h3>Assignments for you to consider:</h3>
+  <p><em>(note: these assignment requests are being phased out in favour of the appraisals system)</em></p>
+  <ul>
     {% for assignment in assignments_to_consider %}
-        <li>
-            On submission: {{ assignment.submission }}<br>
-            <a href="https://{{ domain }}{% url 'submissions:pool:assignment_request' assignment.id %}">Accept or decline here</a>
-        </li>
+      <li>
+        On submission: {{ assignment.submission }}<br>
+        <a href="https://{{ domain }}{% url 'submissions:pool:assignment_request' assignment.id %}">Accept or decline here</a>
+      </li>
     {% endfor %}
-    </ul>
+  </ul>
 {% endif %}
 
 {% if assignments_ongoing %}
