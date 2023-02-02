@@ -196,8 +196,14 @@
       <div class="col-12">
 	<h2 class="highlight" id="Posts">Posts</h2>
 	<ul>
-	  <li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Post</a></li>
+	  <li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Post (old link)</a></li>
+	  <li>
+	    <div id="new-post-form">
+	      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='forum' parent_id=forum.id %}
+	    </div>
+	  </li>
 	</ul>
+
 
 	{% for post in forum.posts.motions_excluded %}
 	  {% include 'forums/post_card.html' with forum=forum post=post can_change_forum=can_change_forum %}

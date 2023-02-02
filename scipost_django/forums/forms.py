@@ -2,12 +2,19 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django import forms
 from django.contrib.auth.models import Group
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field, Hidden, ButtonHolder, Submit
+from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
 from .models import Forum, Meeting, Post, Motion
+
+from markup.widgets import TextareaWithPreview
 from organizations.models import Organization
 
 
@@ -94,12 +101,34 @@ class PostForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
+        self.forum = kwargs.pop("forum")
         super().__init__(*args, **kwargs)
-        self.fields["posted_by"].widget = forms.HiddenInput()
-        self.fields["posted_on"].widget = forms.HiddenInput()
-        self.fields["needs_vetting"].widget = forms.HiddenInput()
-        self.fields["parent_content_type"].widget = forms.HiddenInput()
-        self.fields["parent_object_id"].widget = forms.HiddenInput()
+        self.fields["text"].widget = TextareaWithPreview()
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("posted_by", type="hidden"),
+            Field("posted_on", type="hidden"),
+            Field("needs_vetting", type="hidden"),
+            Field("parent_content_type", type="hidden"),
+            Field("parent_object_id", type="hidden"),
+            FloatingField("subject"),
+            Field("text"),
+            Submit("submit", "Submit"),
+        )
+
+    def clean_posted_on(self):
+        if self.forum.meeting:
+            if datetime.date.today() > self.forum.meeting.date_until:
+                self.add_error(
+                    "posted_on",
+                    "You cannot Post to a Meeting which is finished.",
+                )
+            elif datetime.date.today() < self.forum.meeting.date_from:
+                self.add_error(
+                    "posted_on",
+                    "This meeting has not started yet, please come back later!",
+                )
+        return self.cleaned_data["posted_on"]
 
 
 class MotionForm(PostForm):

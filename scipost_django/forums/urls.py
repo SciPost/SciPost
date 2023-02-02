@@ -3,6 +3,8 @@ __license__ = "AGPL v3"
 
 
 from django.urls import path, include
+from django.views.generic import TemplateView
+
 
 from . import views
 
@@ -31,12 +33,12 @@ urlpatterns = [
             ),
             path(
                 "quicklinks/all",
-                views.HXForumQuickLinksAllView.as_view(),
+                views.HX_ForumQuickLinksAllView.as_view(),
                 name="_hx_forum_quick_links_all",
             ),
             path(
                 "quicklinks/followups",
-                views.HXForumQuickLinksFollowupsView.as_view(),
+                views.HX_ForumQuickLinksFollowupsView.as_view(),
                 name="_hx_forum_quick_links_followups",
             ),
             path(
@@ -64,8 +66,23 @@ urlpatterns = [
                     ),
                     path(
                         "_hx_forum_permissions/",
-                        views.HXForumPermissionsView.as_view(),
+                        views.HX_ForumPermissionsView.as_view(),
                         name="_hx_forum_permissions",
+                    ),
+                ]),
+            ),
+            path(
+                "_hx_post_form/<str:parent_model>/<int:parent_id>",
+                include([
+                    path(
+                        "button",
+                        views._hx_post_form_button,
+                        name="_hx_post_form_button",
+                    ),
+                    path(
+                        "",
+                        views._hx_post_form,
+                        name="_hx_post_form",
                     ),
                 ]),
             ),

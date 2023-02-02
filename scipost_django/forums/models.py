@@ -287,9 +287,9 @@ class Post(models.Model):
         )
 
     def get_absolute_url(self):
+        if not self.anchor:
+            self.anchor = self.get_anchor_forum_or_meeting()
         if not self.absolute_url:
-            if not self.anchor:
-                self.anchor = self.get_anchor_forum_or_meeting()
             self.absolute_url = "%s#post%s" % (
                 self.anchor.get_absolute_url(),
                 self.id,
