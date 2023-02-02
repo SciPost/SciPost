@@ -98,19 +98,9 @@ urlpatterns = [
     ),
     path("", views.ForumListView.as_view(), name="forums"),
     path(
-        "<slug:slug>/post/<str:parent_model>/<int:parent_id>/add/",
-        views.PostCreateView.as_view(),
-        name="post_create",
-    ),
-    path(
         "<slug:slug>/motion/<str:parent_model>/<int:parent_id>/add/",
         views.MotionCreateView.as_view(),
         name="motion_create",
-    ),
-    path(
-        "<slug:slug>/post/<str:parent_model>/<int:parent_id>/add/confirm/",
-        views.PostConfirmCreateView.as_view(),
-        name="post_confirm_create",
     ),
     path(
         "<slug:slug>/motion/<str:parent_model>/<int:parent_id>/add/confirm/",
