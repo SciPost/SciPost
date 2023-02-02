@@ -72,7 +72,10 @@ urlpatterns = [
                 ]),
             ),
             path(
-                "_hx_post_form/<str:parent_model>/<int:parent_id>",
+                (
+                    "_hx_post_form/<str:parent_model>/<int:parent_id>/"
+                    "<str:target>/<str:text>/"
+                 ),
                 include([
                     path(
                         "button",

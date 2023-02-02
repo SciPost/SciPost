@@ -451,33 +451,48 @@ class MotionConfirmCreateView(PostConfirmCreateView):
 
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
-def _hx_post_form_button(request, slug, parent_model, parent_id):
-    context = {"slug": slug, "parent_model": parent_model, "parent_id": parent_id}
+def _hx_post_form_button(request, slug, parent_model, parent_id, target, text):
+    context = {
+        "slug": slug,
+        "parent_model": parent_model,
+        "parent_id": parent_id,
+        "target": target,
+        "text": text,
+    }
     return render(request, "forums/_hx_post_form_button.html", context)
 
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
-def _hx_post_form(request, slug, parent_model, parent_id):
+def _hx_post_form(request, slug, parent_model, parent_id, target, text):
     forum = get_object_or_404(Forum, slug=slug)
     context = {
         "slug": slug,
         "parent_model": parent_model,
         "parent_id": parent_id,
+        "target": target,
+        "text": text,
     }
     if request.method == "POST":
         form = PostForm(request.POST, forum=forum)
         if form.is_valid():
             post = form.save()
-            return HttpResponseRedirect(redirect_to=post.get_absolute_url())
+            print(f"Redirecting to {post.get_absolute_url() = }")
+            response = HttpResponseRedirect(redirect_to=post.get_absolute_url())
+            response["HX-Push-Url"] = post.get_absolute_url()
+            response["HX-Redirect"] = post.get_absolute_url()
+            # response["HX-Replace-Url"] = post.get_absolute_url()
+            return response
     else:
         subject = ""
         if parent_model == "forum":
             parent_content_type = ContentType.objects.get(
-                app_label="forums", model="forum"
+                app_label="forums",
+                model="forum",
             )
-        elif parent_model == "post":
+        elif parent_model in ["post", "motion"]:
             parent_content_type = ContentType.objects.get(
-                app_label="forums", model="post"
+                app_label="forums",
+                model=parent_model,
             )
             parent = parent_content_type.get_object_for_this_type(pk=parent_id)
             if parent.subject.startswith("Re: ..."):

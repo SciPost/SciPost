@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
 from colleges.permissions import fellowship_required

@@ -55,6 +55,7 @@ class Command(BaseCommand):
                 or assignments_ongoing_with_required_actions
                 or assignments_to_consider
                 or assignments_upcoming_deadline
+                or fellowship.nr_visible > fellowship.nr_appraised
             ):
                 mail_sender = DirectMailUtil(
                     "fellows/email_fellow_tasklist",

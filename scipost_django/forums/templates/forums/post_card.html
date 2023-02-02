@@ -18,12 +18,20 @@
     <div class="d-flex flex-wrap justify-content-end align-items-center">
       <div class="flex-grow-1">
 	{% if post.followup_posts.all|length > 0 %}
-	  <span class="badge bg-primary rounded-pill">{% with nr_followups=post.cf_nr_followups %}{{ nr_followups }} repl{{ nr_followups|pluralize:"y,ies" }}{% endwith %}</span>
-	{% endif %}&nbsp;
-	{% if post.post_ptr %}
-	  <a href="{% url 'forums:post_create' slug=forum.slug parent_model='post' parent_id=post.post_ptr.id %}">{% if post.motion %}Post a Comment on this Motion{% else %}Reply to the above post{% endif %}</a>
+	  <span class="badge bg-primary rounded-pill me-2">{% with nr_followups=post.cf_nr_followups %}{{ nr_followups }} repl{{ nr_followups|pluralize:"y,ies" }}{% endwith %}</span>
+	{% endif %}
+	{% if post.motion %}
+	  {% with id_str=post.id|stringformat:"s" %}
+	    {% with target="reply-to-motion-"|add:id_str %}
+	      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='motion' parent_id=post.id target=target text="Post a Comment on this Motion" %}
+	    {% endwith %}
+	  {% endwith %}
 	{% else %}
-	  <a href="{% url 'forums:post_create' slug=forum.slug parent_model='post' parent_id=post.id %}">{% if post.motion %}Post a Comment on this Motion{% else %}Reply to the above post{% endif %}</a>
+	  {% with id_str=post.id|stringformat:"s" %}
+	    {% with target="reply-to-post-"|add:id_str %}
+	      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='post' parent_id=post.id target=target text="Reply to the above Post" %}
+	    {% endwith %}
+	  {% endwith %}
 	{% endif %}
       </div>
 
@@ -70,7 +78,7 @@
       {% endif %}
     </div>
   </div>
-  {% if post.followup_posts.all|length > 0 %}
+  {% if post.followup_posts %}
     <div class="followupPosts{% if post.motion %}AfterMotion{% endif %}">
       {% for followup in post.followup_posts.all %}
 	{% include 'forums/post_card.html' with post=followup %}

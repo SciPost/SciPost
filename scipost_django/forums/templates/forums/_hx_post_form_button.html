@@ -1,6 +1,8 @@
-<button class="btn btn-sm btn-primary"
-	hx-get="{% url 'forums:_hx_post_form' slug=slug parent_model=parent_model parent_id=parent_id %}"
-	hx-target="#new-post-form"
+<button id="{{ target }}"
+	class="btn btn-sm btn-primary px-1 py-0"
+	hx-get="{% url 'forums:_hx_post_form' slug=slug parent_model=parent_model parent_id=parent_id  target=target text=text %}"
+	hx-target="#{{ target }}"
+	hx-swap="outerHTML"
 >
-  Add a new Post
+  <small>{{ text }}</small>
 </button>
