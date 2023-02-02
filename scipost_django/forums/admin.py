@@ -37,6 +37,7 @@ class PostAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "posted_by",
         "vetted_by",
+        "cf_latest_followup_in_hierarchy",
     ]
 
 

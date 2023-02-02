@@ -6,6 +6,7 @@ import datetime
 
 from django import forms
 from django.contrib.auth.models import Group
+from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Hidden, ButtonHolder, Submit
@@ -121,15 +122,15 @@ class PostForm(forms.ModelForm):
         if self.forum.meeting:
             if datetime.date.today() > self.forum.meeting.date_until:
                 self.add_error(
-                    "posted_on",
+                    None, # if set to "posted_on", does not show: field is hidden
                     "You cannot Post to a Meeting which is finished.",
                 )
             elif datetime.date.today() < self.forum.meeting.date_from:
                 self.add_error(
-                    "posted_on",
+                    None, # see comment above
                     "This meeting has not started yet, please come back later!",
                 )
-        return self.cleaned_data["posted_on"]
+        return timezone.now()
 
 
 class MotionForm(PostForm):

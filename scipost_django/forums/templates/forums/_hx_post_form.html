@@ -1,20 +1,21 @@
-{% load bootstrap %}
 {% load crispy_forms_tags %}
 
-<div id="{{ target }}" class="text-body bg-white m-2 p-2">
+<div id="{{ origin }}" class="text-body bg-white m-2 p-2">
   <h3 class="highlight">
     {{ text }}
     <a class="ms-4 px-1 py-0 btn btn-sm btn-warning text-white"
-       hx-get="{% url 'forums:_hx_post_form_button' slug=slug parent_model=parent_model parent_id=parent_id target=target text=text %}"
-       hx-target="#{{ target }}"
+       hx-get="{% url 'forums:_hx_post_form_button' slug=slug parent_model=parent_model parent_id=parent_id origin=origin target=target text=text %}"
+       hx-target="#{{ origin }}"
        hx-swap="outerHTML"
+       hx-trigger="click, newPost-{{ target }} from:body"
     >
       Cancel
     </a>
   </h3>
-  <form hx-post="{% url 'forums:_hx_post_form' slug=slug parent_model=parent_model parent_id=parent_id target=target text=text %}"
+  <form hx-post="{% url 'forums:_hx_post_form' slug=slug parent_model=parent_model parent_id=parent_id origin=origin target=target text=text %}"
 	hx-confirm="Create this Post?"
-	hx-target="body"
+	hx-target="#{{ target }}"
+	hx-swap="beforebegin"
   >
     {% crispy form %}
   </form>

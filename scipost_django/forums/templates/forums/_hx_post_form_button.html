@@ -1,8 +1,9 @@
-<button id="{{ target }}"
-	class="btn btn-sm btn-primary px-1 py-0"
-	hx-get="{% url 'forums:_hx_post_form' slug=slug parent_model=parent_model parent_id=parent_id  target=target text=text %}"
-	hx-target="#{{ target }}"
-	hx-swap="outerHTML"
->
-  <small>{{ text }}</small>
-</button>
+<div id="{{ origin }}">
+  <button class="btn btn-sm btn-primary ms-2 mt-1 px-1 py-0"
+	  hx-get="{% url 'forums:_hx_post_form' slug=slug parent_model=parent_model parent_id=parent_id  origin=origin target=target text=text %}"
+	  hx-target="#{{ origin }}"
+	  hx-swap="outerHTML"
+    >
+    {% include "bi/arrow-return-right.html" %} <small>{{ text }}</small>
+  </button>
+</div>

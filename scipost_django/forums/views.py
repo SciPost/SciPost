@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import json
 
 from django import forms
 from django.contrib import messages
@@ -456,11 +457,12 @@ class MotionConfirmCreateView(PostConfirmCreateView):
 
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
-def _hx_post_form_button(request, slug, parent_model, parent_id, target, text):
+def _hx_post_form_button(request, slug, parent_model, parent_id, origin, target, text):
     context = {
         "slug": slug,
         "parent_model": parent_model,
         "parent_id": parent_id,
+        "origin": origin,
         "target": target,
         "text": text,
     }
@@ -468,12 +470,13 @@ def _hx_post_form_button(request, slug, parent_model, parent_id, target, text):
 
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
-def _hx_post_form(request, slug, parent_model, parent_id, target, text):
+def _hx_post_form(request, slug, parent_model, parent_id, origin, target, text):
     forum = get_object_or_404(Forum, slug=slug)
     context = {
         "slug": slug,
         "parent_model": parent_model,
         "parent_id": parent_id,
+        "origin": origin,
         "target": target,
         "text": text,
     }
@@ -481,11 +484,20 @@ def _hx_post_form(request, slug, parent_model, parent_id, target, text):
         form = PostForm(request.POST, forum=forum)
         if form.is_valid():
             post = form.save()
-            print(f"Redirecting to {post.get_absolute_url() = }")
-            response = HttpResponseRedirect(redirect_to=post.get_absolute_url())
-            response["HX-Push-Url"] = post.get_absolute_url()
-            response["HX-Redirect"] = post.get_absolute_url()
-            # response["HX-Replace-Url"] = post.get_absolute_url()
+            response_url = reverse(
+                "forums:_hx_thread_from_post",
+                kwargs={
+                    "slug": forum.slug,
+                    "post_id": post.id if parent_model == "forum" else parent_id,
+                },
+            )
+            response = render(
+                request,
+                "forums/post_card.html",
+                context={"forum": forum, "post": post,},
+            )
+            response["HX-Trigger"] = f"newPost-{target}"
+            response["HX-Trigger-After-Settle"] = json.dumps({"newPost": target,})
             return response
     else:
         subject = ""
@@ -515,17 +527,24 @@ def _hx_post_form(request, slug, parent_model, parent_id, target, text):
             "parent_object_id": parent_id,
             "subject": subject,
         }
-        context["form"] = PostForm(initial=initial, forum=forum)
+        form = PostForm(initial=initial, forum=forum)
+    context["form"] = form
     return render(request, "forums/_hx_post_form.html", context)
 
 
-@permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
+@permission_required_or_403("forums.can_view_forum", (Forum, "slug", "slug"))
 def _hx_thread_from_post(request, slug, post_id):
     forum = get_object_or_404(Forum, slug=slug)
-    post = get_object_or_404(Post, pk=post_id)
+    post = Post.objects.filter(pk=post_id).select_related(
+        "motion",
+        "posted_by",
+    ).prefetch_related(
+        "parent",
+        "followup_posts",
+    ).first()
     context = {
         "forum": forum,
-        "post": post,
+        "post": post.motion if hasattr(post, "motion") else post,
     }
     return render(request, "forums/post_card.html", context)
 

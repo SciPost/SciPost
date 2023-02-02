@@ -42,6 +42,11 @@ urlpatterns = [
                 name="_hx_forum_quick_links_followups",
             ),
             path(
+                "_hx_thread_from_post/<int:post_id>",
+                views._hx_thread_from_post,
+                name="_hx_thread_from_post",
+            ),
+            path(
                 "update/",
                 views.ForumUpdateView.as_view(),
                 name="forum_update",
@@ -74,7 +79,7 @@ urlpatterns = [
             path(
                 (
                     "_hx_post_form/<str:parent_model>/<int:parent_id>/"
-                    "<str:target>/<str:text>/"
+                    "<str:origin>/<str:target>/<str:text>/"
                  ),
                 include([
                     path(
