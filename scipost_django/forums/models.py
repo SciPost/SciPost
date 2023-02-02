@@ -336,21 +336,25 @@ class Post(models.Model):
         self.cf_latest_followup_in_hierarchy = self.latest_followup_in_hierarchy
         self.save()
 
-    def get_anchor_forum_or_meeting(self):
+    def get_thread_initiator(self):
         """
-        Climb back the hierarchy up to the original Forum.
-        If no Forum is found, return None.
+        Climb back the hierarchy up to the first post in this thread.
         """
-
         type_forum = ContentType.objects.get_by_natural_key("forums", "forum")
         type_meeting = ContentType.objects.get_by_natural_key("forums", "meeting")
         if (
             self.parent_content_type == type_forum
             or self.parent_content_type == type_meeting
         ):
-            return self.parent
+            return self
         else:
-            return self.parent.get_anchor_forum_or_meeting()
+            return self.parent.get_thread_initiator()
+
+    def get_anchor_forum_or_meeting(self):
+        """
+        Climb back the hierarchy up to the original Forum.
+        """
+        return self.get_thread_initiator().parent
 
 
 class Motion(Post):

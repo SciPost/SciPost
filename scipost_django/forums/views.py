@@ -484,20 +484,32 @@ def _hx_post_form(request, slug, parent_model, parent_id, origin, target, text):
         form = PostForm(request.POST, forum=forum)
         if form.is_valid():
             post = form.save()
-            response_url = reverse(
-                "forums:_hx_thread_from_post",
-                kwargs={
-                    "slug": forum.slug,
-                    "post_id": post.id if parent_model == "forum" else parent_id,
-                },
-            )
+            thread_initiator = post.get_thread_initiator()
             response = render(
                 request,
                 "forums/post_card.html",
-                context={"forum": forum, "post": post,},
+                context={"forum": forum, "post": thread_initiator},
             )
-            response["HX-Trigger"] = f"newPost-{target}"
-            response["HX-Trigger-After-Settle"] = json.dumps({"newPost": target,})
+            # if the parent is a forum, then this is a new Motion or Post,
+            # and we keep the requested target and swap (== beforebegin).
+            # Otherwise, we retarget to the initiator post, and swap outerHTML.
+            # In both cases we refocus the browser after settle.
+            if parent_model in ["forum", "meeting"]:
+                # trigger new post form closure
+                response["HX-Trigger"] = f"newPost-{target}"
+                # refocus browser on new post
+                response["HX-Trigger-After-Settle"] = json.dumps(
+                    {"newPost": f"{target}",}
+                )
+            else:
+                # force rerendering of whole thread from initiator down
+                response["HX-Retarget"] = f"#thread-{thread_initiator.id}"
+                response["HX-Reswap"] = "outerHTML"
+                # refocus browser on initiator
+                response["HX-Trigger-After-Settle"] = json.dumps(
+                    {"newPost": f"thread-{thread_initiator.id}",}
+                )
+            print(f'{response["HX-Trigger-After-Settle"] = }')
             return response
     else:
         subject = ""
