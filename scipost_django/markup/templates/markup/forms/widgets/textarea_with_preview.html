@@ -1,0 +1,15 @@
+<div hx-post="{% url 'markup:_hx_process' field=widget.name %}"
+     hx-params="csrfmiddlewaretoken, {{ widget.name }}"
+     hx-target="#markup-preview-{{ widget.attrs.id }}"
+     hx-trigger="load, keyup from:#{{ widget.attrs.id }} delay:500ms"
+     hx-confirm="unset"
+>
+</div>
+
+<div id="markup-preview-{{ widget.attrs.id }}"
+     style="margin-bottom: 1rem;"
+></div>
+
+<textarea name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+  {% if widget.value %}{{ widget.value }}{% endif %}
+</textarea>

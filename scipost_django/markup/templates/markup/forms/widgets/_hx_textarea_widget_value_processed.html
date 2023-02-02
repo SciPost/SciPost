@@ -1,0 +1,13 @@
+<div style="border: 2px solid orange;">
+  <div style="margin: 1rem;">
+    <strong>Preview</strong>&nbsp;<em>(detected language: {{ markup.language }}</em>)
+    {% if markup.errors %}
+      <span style="text-color: red;">Errors: {{ markup.errors }}</span>
+    {% endif %}
+    {% if markup.warnings %}
+      <span style="text-color: orange;">Errors: {{ markup.warnings }}</span>
+    {% endif %}
+  </div>
+  <hr>
+  <div style="margin: 1rem;">{{ markup.processed|safe }}</div>
+</div>
