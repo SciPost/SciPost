@@ -82,6 +82,7 @@ class Forum(models.Model):
             "name",
         ]
         permissions = [
+            ("can_administer_forum", "Can administer Forum"),
             ("can_view_forum", "Can view Forum"),
             ("can_post_to_forum", "Can add Post to Forum"),
         ]

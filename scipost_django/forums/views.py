@@ -185,7 +185,7 @@ class HX_ForumPermissionsView(PermissionRequiredMixin, DetailView):
 
 
 class ForumPermissionsView(PermissionRequiredMixin, UpdateView):
-    permission_required = "forums.can_change_forum"
+    permission_required = "forums.can_administer_forum"
     model = Forum
     form_class = ForumGroupPermissionsForm
     template_name = "forums/forum_permissions.html"
@@ -204,6 +204,7 @@ class ForumPermissionsView(PermissionRequiredMixin, UpdateView):
             group = Group.objects.get(pk=self.kwargs.get("group_id"))
             perms = get_perms(group, self.object)
             initial["groups"] = group.id
+            initial["can_administer"] = "can_administer_forum" in perms
             initial["can_view"] = "can_view_forum" in perms
             initial["can_post"] = "can_post_to_forum" in perms
         except Group.DoesNotExist:
@@ -212,6 +213,10 @@ class ForumPermissionsView(PermissionRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         for group in form.cleaned_data["groups"]:
+            if form.cleaned_data["can_administer"]:
+                assign_perm("can_administer_forum", group, self.object)
+            else:
+                remove_perm("can_administer_forum", group, self.object)
             if form.cleaned_data["can_view"]:
                 assign_perm("can_view_forum", group, self.object)
             else:
@@ -512,6 +517,18 @@ def _hx_post_form(request, slug, parent_model, parent_id, target, text):
         }
         context["form"] = PostForm(initial=initial, forum=forum)
     return render(request, "forums/_hx_post_form.html", context)
+
+
+@permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
+def _hx_thread_from_post(request, slug, post_id):
+    forum = get_object_or_404(Forum, slug=slug)
+    post = get_object_or_404(Post, pk=post_id)
+    context = {
+        "forum": forum,
+        "post": post,
+    }
+    return render(request, "forums/post_card.html", context)
+
 
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))

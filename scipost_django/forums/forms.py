@@ -63,6 +63,7 @@ class ForumGroupPermissionsForm(forms.ModelForm):
         queryset=Group.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(url="/group-autocomplete"),
     )
+    can_administer = forms.BooleanField(required=False)
     can_view = forms.BooleanField(required=False)
     can_post = forms.BooleanField(required=False)
 
