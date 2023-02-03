@@ -395,7 +395,6 @@ def _hx_thread_from_post(request, slug, post_id):
     ).first()
     context = {
         "forum": forum,
-        # "post": post.motion if hasattr(post, "motion") else post,
         "post": post,
     }
     return render(request, "forums/post_card.html", context)
@@ -405,7 +404,13 @@ def _hx_thread_from_post(request, slug, post_id):
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
 def _hx_motion_voting(request, slug, motion_id):
     forum = get_object_or_404(Forum, slug=slug)
-    motion = get_object_or_404(Motion, pk=motion_id)
+    motion = get_object_or_404(Motion.objects.prefetch_related(
+        "eligible_for_voting__contributor__user",
+        "in_agreement__contributor__user",
+        "in_doubt__contributor__user",
+        "in_disagreement__contributor__user",
+        "in_abstain__contributor__user",
+    ), pk=motion_id)
     initial = {
         "user": request.user.id,
         "motion": motion.id,
