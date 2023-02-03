@@ -109,20 +109,20 @@
   </div>
 
   <details id="forum-quick-links-all-details"
-	   class="border border-dark m-2">
-    <summary class="bg-dark text-white px-4 py-1">
-      <h3>
-	Quick links: all posts and motions (click to toggle)
-	<span id="forum-quick-links-all-details-contents-indicator" class="htmx-indicator p-2">
-	  <button class="btn btn-warning" type="button" disabled>
-	    <strong>Loading...</strong>
-	    <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	  </button>
-	</span>
-      </h3>
+	   class="border border-dark m-1 mb-2">
+    <summary class="bg-dark text-white my-0 ps-4 py-1">
+      <strong>
+	Quick links: all posts and motions&emsp;(click to toggle)
+      </strong>
+      <span id="forum-quick-links-all-details-contents-indicator" class="htmx-indicator p-2">
+	<button class="btn btn-warning" type="button" disabled>
+	  <strong>Loading...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </span>
     </summary>
     <div id="forum-quick-links-all-details-contents"
-	 class="p-2"
+	 class="ps-1"
 	 hx-get="{% url 'forums:_hx_forum_quick_links_all' slug=forum.slug %}"
 	 hx-trigger="toggle once from:#forum-quick-links-all-details"
 	 hx-target="#forum-quick-links-all-details-contents"
@@ -132,17 +132,17 @@
   </details>
 
   <details id="forum-quick-links-followups-details"
-	   class="border border-dark m-2">
-    <summary class="bg-dark text-white px-4 py-1">
-      <h3>
-	Quick links: anchor posts, latest followup (click to toggle)
-	<span id="forum-quick-links-followups-details-contents-indicator" class="htmx-indicator p-2">
-	  <button class="btn btn-warning" type="button" disabled>
-	    <strong>Loading...</strong>
-	    <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	  </button>
-	</span>
-      </h3>
+	   class="border border-dark m-1 mb-4">
+    <summary class="bg-dark text-white my-0 ps-4 py-1">
+      <strong>
+	Quick links: anchor posts, latest followup&emsp;(click to toggle)
+      </strong>
+      <span id="forum-quick-links-followups-details-contents-indicator" class="htmx-indicator p-2">
+	<button class="btn btn-warning" type="button" disabled>
+	  <strong>Loading...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </span>
     </summary>
     <div id="forum-quick-links-followups-details-contents"
 	 class="mx-2 mt-0"

@@ -124,9 +124,13 @@
     {% if request.user in motion.in_agreement.all %}
       <label class="btn btn-success text-white" for="vote-Y">
 	<strong>Agree&nbsp;{% include "bi/check-square-fill.html" %}</strong>
+	<br>{{ motion.in_agreement.all|length }}
       </label>
     {% else %}
-      <label class="btn btn-success" for="vote-Y">Agree</label>
+      <label class="btn btn-success" for="vote-Y">
+	Agree&nbsp;{% include "bi/square.html" %}
+	<br>{{ motion.in_agreement.all|length }}
+      </label>
     {% endif %}
 
     <input type="radio" class="btn-check" name="vote"
@@ -138,9 +142,13 @@
     {% if request.user in motion.in_doubt.all %}
       <label class="btn btn-warning text-white" for="vote-M">
 	<strong>Doubt&nbsp;{% include "bi/check-square-fill.html" %}</strong>
+	<br>{{ motion.in_doubt.all|length }}
       </label>
     {% else %}
-      <label class="btn btn-warning" for="vote-M">Doubt</label>
+      <label class="btn btn-warning" for="vote-M">
+	Doubt&nbsp;{% include "bi/square.html" %}
+	<br>{{ motion.in_doubt.all|length }}
+      </label>
     {% endif %}
 
     <input type="radio" class="btn-check" name="vote"
@@ -152,9 +160,13 @@
     {% if request.user in motion.in_disagreement.all %}
       <label class="btn btn-danger text-white" for="vote-N">
 	<strong>Disagree&nbsp;{% include "bi/check-square-fill.html" %}</strong>
+	<br>{{ motion.in_disagreement.all|length }}
       </label>
     {% else %}
-      <label class="btn btn-danger text-dark" for="vote-N">Disagree </label>
+      <label class="btn btn-danger text-dark" for="vote-N">
+	Disagree&nbsp;{% include "bi/square.html" %}
+	<br>{{ motion.in_disagreement.all|length }}
+      </label>
     {% endif %}
 
     <input type="radio" class="btn-check" name="vote"
@@ -164,7 +176,13 @@
 	   {% endif %}
     >
     <label class="btn btn-secondary" for="vote-A">
-      Abstain{% if request.user in motion.in_abstain.all %} {% include "bi/check-square-fill.html" %}{% endif %}
+      Abstain&nbsp;
+      {% if request.user in motion.in_abstain.all %}
+	{% include "bi/check-square-fill.html" %}
+      {% else %}
+	{% include "bi/square.html" %}
+      {% endif %}
+      <br>{{ motion.in_abstain.all|length }}
     </label>
   </div>
 </form>
