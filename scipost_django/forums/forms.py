@@ -5,11 +5,12 @@ __license__ = "AGPL v3"
 import datetime
 
 from django import forms
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Hidden, ButtonHolder, Submit
+from crispy_forms.bootstrap import FieldWithButtons, StrictButton, InlineRadios
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
@@ -162,3 +163,61 @@ class MotionForm(PostForm):
             Field("voting_deadline", type="hidden"),
             Submit("submit", "Submit"),
         )
+
+
+class MotionVoteForm(forms.Form):
+    user = forms.ModelChoiceField(queryset=User.objects.all())
+    motion = forms.ModelChoiceField(queryset=Motion.objects.all())
+    vote = forms.ChoiceField(
+        choices=(
+            ("Y", "Agree"),
+            ("M", "Doubt"),
+            ("N", "Disagree"),
+            ("A", "Abstain"),
+        ),
+    )
+
+    def clean_motion(self):
+        print(f"in clean_motion: {self.cleaned_data = }")
+        print(f"{self.cleaned_data['motion'] = }")
+        if datetime.date.today() > self.cleaned_data["motion"].voting_deadline:
+            self.add_error("motion", "Motion is not open for voting anymore")
+            return None
+        return self.cleaned_data["motion"]
+
+    def clean_vote(self):
+        if self.cleaned_data["vote"] not in ["Y", "M", "N", "A"]:
+            self.add_error("vote", "Invalid vote")
+        return self.cleaned_data["vote"]
+
+    def clean(self):
+        self.cleaned_data = super().clean()
+        print(f"in clean: {self.cleaned_data = }")
+        if (
+                hasattr(self.cleaned_data, "user") and
+                hasattr(self.cleaned_data, "motion") and
+                (
+                    self.cleaned_data["user"] not in
+                    self.cleaned_data["motion"].eligible_for_voting.all()
+                )
+            ):
+            self.add_error("", "Not eligible to vote on this Motion")
+        return self.cleaned_data
+
+    def save(self):
+        user = self.cleaned_data["user"]
+        motion = self.cleaned_data["motion"]
+        vote = self.cleaned_data["vote"]
+        motion.in_agreement.remove(user)
+        motion.in_doubt.remove(user)
+        motion.in_disagreement.remove(user)
+        motion.in_abstain.remove(user)
+        if vote == "Y":
+            motion.in_agreement.add(user)
+        elif vote == "M":
+            motion.in_doubt.add(user)
+        elif vote == "N":
+            motion.in_disagreement.add(user)
+        elif vote == "A":
+            motion.in_abstain.add(user)
+        motion.save()

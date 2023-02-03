@@ -39,6 +39,7 @@ from .forms import (
     MeetingForm,
     PostForm,
     MotionForm,
+    MotionVoteForm,
 )
 
 from scipost.mixins import PermissionsMixin
@@ -401,26 +402,16 @@ def _hx_thread_from_post(request, slug, post_id):
 
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
-def motion_vote(request, slug, motion_id, vote):
+def _hx_motion_voting(request, slug, motion_id, vote=None):
+    forum = get_object_or_404(Forum, slug=slug)
     motion = get_object_or_404(Motion, pk=motion_id)
-    if datetime.date.today() > motion.voting_deadline:
-        messages.warning(request, "The voting deadline on this Motion has passed.")
-    elif motion.eligible_for_voting.filter(pk=request.user.id).exists():
-        motion.in_agreement.remove(request.user)
-        motion.in_doubt.remove(request.user)
-        motion.in_disagreement.remove(request.user)
-        motion.in_abstain.remove(request.user)
-        if vote == "Y":
-            motion.in_agreement.add(request.user)
-        elif vote == "M":
-            motion.in_doubt.add(request.user)
-        elif vote == "N":
-            motion.in_disagreement.add(request.user)
-        elif vote == "A":
-            motion.in_abstain.add(request.user)
-        else:
-            raise Http404
-        motion.save()
-    else:
-        messages.warning(request, "You do not have voting rights on this Motion.")
-    return redirect(motion.get_absolute_url())
+    initial = {
+        "user": request.user.id,
+        "motion": motion.id,
+    }
+    form = MotionVoteForm(request.POST or None, initial=initial)
+    if form.is_valid():
+        form.save()
+        motion.refresh_from_db()
+    context = { "forum": forum, "motion": motion, "form": form }
+    return render(request, "forums/_hx_motion_voting.html", context)

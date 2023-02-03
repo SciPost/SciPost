@@ -113,8 +113,18 @@ urlpatterns = [
     ),
     path("", views.ForumListView.as_view(), name="forums"),
     path(
-        "<slug:slug>/motion/<int:motion_id>/<str:vote>/",
-        views.motion_vote,
-        name="motion_vote",
+        "<slug:slug>/motion/<int:motion_id>/",
+        include([
+            path(
+                "<str:vote>/",
+                views._hx_motion_voting,
+                name="_hx_motion_voting",
+            ),
+            path(
+                "",
+                views._hx_motion_voting,
+                name="_hx_motion_voting",
+            ),
+        ]),
     ),
 ]
