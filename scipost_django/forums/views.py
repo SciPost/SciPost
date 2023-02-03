@@ -402,7 +402,7 @@ def _hx_thread_from_post(request, slug, post_id):
 
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
-def _hx_motion_voting(request, slug, motion_id, vote=None):
+def _hx_motion_voting(request, slug, motion_id):
     forum = get_object_or_404(Forum, slug=slug)
     motion = get_object_or_404(Motion, pk=motion_id)
     initial = {

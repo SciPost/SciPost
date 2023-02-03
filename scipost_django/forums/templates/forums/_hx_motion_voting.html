@@ -1,6 +1,79 @@
 {% load bootstrap %}
+{% load guardian_tags %}
 
-{% load crispy_forms_tags %}
+{% get_obj_perms request.user for forum as "forum_user_perms"  %}
+
+{% if "can_administer_forum" in forum_user_perms %}
+  <details class="bg-white">
+    <summary class="bg-danger bg-opacity-10 border border-danger text-dark p-2 my-1">
+      <strong>Voting results (forum admin view)</strong>
+      <button class="btn btn-sm btn-warning ms-4"
+	      hx-get="{% url 'forums:_hx_motion_voting' slug=forum.slug motion_id=motion.id %}"
+	      hx-target="#motion-{{ motion.id }}-voting"
+      >{% include "bi/arrow-clockwise.html" %}&nbsp;refresh</button>
+    </summary>
+    <table class="table table-bordered">
+      <thead>
+	<tr>
+	  <th>Eligible to vote</th>
+	  <th>Agreed</th>
+	  <th>Doubt</th>
+	  <th>Disagreed</th>
+	  <th>Abstained</th>
+	</tr>
+      </thead>
+      <tbody>
+	<tr>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.eligible_to_vote.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.in_agreement.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.in_doubt.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.in_disagreement.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.in_abstain.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	</tr>
+      </tbody>
+    </table>
+  </details>
+{% endif %}
 
 <div class="align-self-center px-2 py-1">
   Voting results&emsp;

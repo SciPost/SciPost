@@ -116,11 +116,6 @@ urlpatterns = [
         "<slug:slug>/motion/<int:motion_id>/",
         include([
             path(
-                "<str:vote>/",
-                views._hx_motion_voting,
-                name="_hx_motion_voting",
-            ),
-            path(
                 "",
                 views._hx_motion_voting,
                 name="_hx_motion_voting",
