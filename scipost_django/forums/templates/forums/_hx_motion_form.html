@@ -1,0 +1,22 @@
+{% load crispy_forms_tags %}
+
+<div id="new-motion-form" class="text-body bg-white m-2 p-2">
+  <h3 class="highlight">
+    Add a new Motion
+    <a class="ms-4 px-1 py-0 btn btn-sm btn-warning text-white"
+       hx-get="{% url 'forums:_hx_motion_form_button' slug=slug %}"
+       hx-target="#new-motion-form"
+       hx-swap="outerHTML"
+       hx-trigger="click, newMotion from:body"
+    >
+      Cancel
+    </a>
+  </h3>
+  <form hx-post="{% url 'forums:_hx_motion_form' slug=slug %}"
+		 hx-confirm="Create this Motion?"
+		 hx-target="#thread-motions"
+		 hx-swap="beforebegin"
+  >
+    {% crispy form %}
+  </form>
+</div>

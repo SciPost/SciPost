@@ -182,7 +182,11 @@
 	  {% elif forum.meeting.past %}
 	    <li><span class="text-danger">Adding Motions is deactivated</span> (Meeting is over)</li>
 	  {% else %}
-	    <li><a href="{% url 'forums:motion_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Motion</a></li>
+	    <li>
+	      <div id="new-motion-form">
+		{% include "forums/_hx_motion_form_button.html" with slug=forum.slug %}
+	      </div>
+	    </li>
 	  {% endif %}
 	</ul>
 	{% for motion in forum.motions.all %}

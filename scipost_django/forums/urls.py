@@ -94,19 +94,24 @@ urlpatterns = [
                     ),
                 ]),
             ),
+            path(
+                "_hx_motion_form/",
+                include([
+                    path(
+                        "button",
+                        views._hx_motion_form_button,
+                        name="_hx_motion_form_button",
+                    ),
+                    path(
+                        "",
+                        views._hx_motion_form,
+                        name="_hx_motion_form",
+                    ),
+                ]),
+            ),
         ]),
     ),
     path("", views.ForumListView.as_view(), name="forums"),
-    path(
-        "<slug:slug>/motion/<str:parent_model>/<int:parent_id>/add/",
-        views.MotionCreateView.as_view(),
-        name="motion_create",
-    ),
-    path(
-        "<slug:slug>/motion/<str:parent_model>/<int:parent_id>/add/confirm/",
-        views.MotionConfirmCreateView.as_view(),
-        name="motion_confirm_create",
-    ),
     path(
         "<slug:slug>/motion/<int:motion_id>/<str:vote>/",
         views.motion_vote,

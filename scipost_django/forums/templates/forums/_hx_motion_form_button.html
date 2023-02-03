@@ -1,0 +1,9 @@
+<div id="new-motion-form">
+  <button class="btn btn-sm btn-primary ms-2 mt-1 px-1 py-0"
+	  hx-get="{% url 'forums:_hx_motion_form' slug=slug %}"
+	  hx-target="#new-motion-form"
+	  hx-swap="outerHTML"
+  >
+    {% include "bi/arrow-return-right.html" %} <small>Add a new Motion</small>
+  </button>
+</div>

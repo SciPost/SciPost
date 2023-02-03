@@ -95,7 +95,6 @@ class PostForm(forms.ModelForm):
         fields = [
             "posted_by",
             "posted_on",
-            "needs_vetting",
             "parent_content_type",
             "parent_object_id",
             "subject",
@@ -110,7 +109,6 @@ class PostForm(forms.ModelForm):
         self.helper.layout = Layout(
             Field("posted_by", type="hidden"),
             Field("posted_on", type="hidden"),
-            Field("needs_vetting", type="hidden"),
             Field("parent_content_type", type="hidden"),
             Field("parent_object_id", type="hidden"),
             FloatingField("subject"),
@@ -143,7 +141,6 @@ class MotionForm(PostForm):
         fields = [
             "posted_by",
             "posted_on",
-            "needs_vetting",
             "parent_content_type",
             "parent_object_id",
             "subject",
@@ -154,5 +151,14 @@ class MotionForm(PostForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["eligible_for_voting"].widget = forms.HiddenInput()
-        self.fields["eligible_for_voting"].disabled = True
+        self.helper.layout = Layout(
+            Field("posted_by", type="hidden"),
+            Field("posted_on", type="hidden"),
+            Field("parent_content_type", type="hidden"),
+            Field("parent_object_id", type="hidden"),
+            FloatingField("subject"),
+            Field("text"),
+            Field("eligible_for_voting", type="hidden"),
+            Field("voting_deadline", type="hidden"),
+            Submit("submit", "Submit"),
+        )

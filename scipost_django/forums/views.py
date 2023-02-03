@@ -243,219 +243,6 @@ class ForumListView(LoginRequiredMixin, ListView):
         return queryset
 
 
-class PostCreateView(UserPassesTestMixin, CreateView):
-    """
-    First step of a two-step Post creation process.
-    This view, upon successful POST, redirects to the
-    PostConfirmCreateView confirmation view.
-
-    To transfer form data from this view to the next (confirmation) one,
-    two session variables are used, ``post_subject`` and ``post_text``.
-    """
-
-    model = Post
-    form_class = PostForm
-
-    def test_func(self):
-        if self.request.user.has_perm("forums.add_forum"):
-            return True
-        forum = get_object_or_404(Forum, slug=self.kwargs.get("slug"))
-        if not self.request.user.has_perm("can_post_to_forum", forum):
-            raise PermissionDenied
-        # Only allow posting if it's within a Forum, or within an ongoing meeting.
-        try:
-            if datetime.date.today() > forum.meeting.date_until:
-                raise Http404("You cannot Post to a Meeting which is finished.")
-            elif datetime.date.today() < forum.meeting.date_from:
-                raise Http404(
-                    "This meeting has not started yet, please come back later!"
-                )
-        except Meeting.DoesNotExist:
-            pass
-        return True
-
-    def get_initial(self, *args, **kwargs):
-        initial = super().get_initial(*args, **kwargs)
-        parent_model = self.kwargs.get("parent_model")
-        parent_object_id = self.kwargs.get("parent_id")
-        subject = ""
-        if parent_model == "forum":
-            parent_content_type = ContentType.objects.get(
-                app_label="forums", model="forum"
-            )
-        elif parent_model == "post":
-            parent_content_type = ContentType.objects.get(
-                app_label="forums", model="post"
-            )
-            parent = parent_content_type.get_object_for_this_type(pk=parent_object_id)
-            if parent.subject.startswith("Re: ..."):
-                subject = parent.subject
-            elif parent.subject.startswith("Re:"):
-                subject = "%s%s" % ("Re: ...", parent.subject.lstrip("Re:"))
-            else:
-                subject = "Re: %s" % parent.subject
-        else:
-            raise Http404
-        initial.update(
-            {
-                "posted_by": self.request.user,
-                "posted_on": timezone.now(),
-                "parent_content_type": parent_content_type,
-                "parent_object_id": parent_object_id,
-                "subject": subject,
-            }
-        )
-        return initial
-
-    def form_valid(self, form):
-        """
-        Save the form data to session variables only, redirect to confirmation view.
-        """
-        self.request.session["post_subject"] = form.cleaned_data["subject"]
-        self.request.session["post_text"] = form.cleaned_data["text"]
-        return redirect(
-            reverse(
-                "forums:post_confirm_create",
-                kwargs={
-                    "slug": self.kwargs.get("slug"),
-                    "parent_model": self.kwargs.get("parent_model"),
-                    "parent_id": self.kwargs.get("parent_id"),
-                },
-            )
-        )
-
-
-class MotionCreateView(PostCreateView):
-    """
-    Specialization of PostCreateView to Motion-class objects.
-
-    By default, all users who can create a Post on the associated
-    Forum are given voting rights.
-    """
-
-    model = Motion
-    form_class = MotionForm
-    template_name = "forums/motion_form.html"
-
-    def get_initial(self, *args, **kwargs):
-        initial = super().get_initial(*args, **kwargs)
-        forum = get_object_or_404(Forum, slug=self.kwargs.get("slug"))
-        voters = get_users_with_perms(forum)
-        ineligible_ids = []
-        for voter in voters.all():
-            if not voter.has_perm("can_post_to_forum", forum):
-                ineligible_ids.append(voter.id)
-        initial.update(
-            {
-                "eligible_for_voting": voters.exclude(id__in=ineligible_ids),
-            }
-        )
-        return initial
-
-    def form_valid(self, form):
-        """
-        Save the form data to session variables only, redirect to confirmation view.
-        """
-        self.request.session["post_subject"] = form.cleaned_data["subject"]
-        self.request.session["post_text"] = form.cleaned_data["text"]
-        self.request.session["eligible_for_voting_ids"] = list(
-            form.cleaned_data["eligible_for_voting"].values_list("pk", flat=True)
-        )
-        self.request.session["voting_deadline_year"] = form.cleaned_data[
-            "voting_deadline"
-        ].year
-        self.request.session["voting_deadline_month"] = form.cleaned_data[
-            "voting_deadline"
-        ].month
-        self.request.session["voting_deadline_day"] = form.cleaned_data[
-            "voting_deadline"
-        ].day
-        return redirect(
-            reverse(
-                "forums:motion_confirm_create",
-                kwargs={
-                    "slug": self.kwargs.get("slug"),
-                    "parent_model": self.kwargs.get("parent_model"),
-                    "parent_id": self.kwargs.get("parent_id"),
-                },
-            )
-        )
-
-
-class PostConfirmCreateView(PostCreateView):
-    """
-    Second (confirmation) step of Post creation process.
-
-    Upon successful POST, the Post object is saved and the
-    two session variables ``post_subject`` and ``post_text`` are deleted.
-    """
-
-    form_class = PostForm
-    template_name = "forums/post_confirm_create.html"
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        form.fields["subject"].widget = forms.HiddenInput()
-        form.fields["text"].widget = forms.HiddenInput()
-        return form
-
-    def get_initial(self, *args, **kwargs):
-        initial = super().get_initial(*args, **kwargs)
-        initial.update(
-            {
-                "subject": self.request.session.get("post_subject"),
-                "text": self.request.session.get("post_text"),
-            }
-        )
-        return initial
-
-    def form_valid(self, form):
-        """
-        After deleting the session variables used for the confirmation step,
-        simply perform the form_valid calls of form_valid from ancestor classes
-        ModelFormMixin and FormMixin, due to the fact that the form_valid
-        method in the PostCreateView superclass was overriden to a redirect.
-        """
-        del self.request.session["post_subject"]
-        del self.request.session["post_text"]
-        self.object = form.save()
-        return redirect(self.get_success_url())
-
-
-class MotionConfirmCreateView(PostConfirmCreateView):
-    """
-    Specialization of PostConfirmCreateView to Motion-class objects.
-    """
-
-    form_class = MotionForm
-    template_name = "forums/motion_confirm_create.html"
-
-    def get_initial(self, *args, **kwargs):
-        initial = super().get_initial(*args, **kwargs)
-        voting_deadline = datetime.date(
-            self.request.session.get("voting_deadline_year"),
-            self.request.session.get("voting_deadline_month"),
-            self.request.session.get("voting_deadline_day"),
-        )
-        eligible_for_voting_ids = self.request.session.get("eligible_for_voting_ids")
-        eligible_for_voting = User.objects.filter(id__in=eligible_for_voting_ids)
-        initial.update(
-            {
-                "eligible_for_voting": eligible_for_voting,
-                "voting_deadline": voting_deadline,
-            }
-        )
-        return initial
-
-    def form_valid(self, form):
-        del self.request.session["eligible_for_voting_ids"]
-        del self.request.session["voting_deadline_year"]
-        del self.request.session["voting_deadline_month"]
-        del self.request.session["voting_deadline_day"]
-        self.object = form.save()
-        return super().form_valid(form)
-
-
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
 def _hx_post_form_button(request, slug, parent_model, parent_id, origin, target, text):
     context = {
@@ -542,6 +329,57 @@ def _hx_post_form(request, slug, parent_model, parent_id, origin, target, text):
         form = PostForm(initial=initial, forum=forum)
     context["form"] = form
     return render(request, "forums/_hx_post_form.html", context)
+
+
+@permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
+def _hx_motion_form_button(request, slug):
+    context = { "slug": slug, }
+    return render(request, "forums/_hx_motion_form_button.html", context)
+
+
+@permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
+def _hx_motion_form(request, slug):
+    forum = get_object_or_404(Forum, slug=slug)
+    if request.method == "POST":
+        form = MotionForm(request.POST, forum=forum)
+        if form.is_valid():
+            motion = form.save()
+            response = render(
+                request,
+                "forums/post_card.html",
+                context={"forum": forum, "post": motion},
+            )
+            # trigger new motion form closure
+            response["HX-Trigger"] = f"newMotion"
+            # refocus browser on new Motion
+            response["HX-Trigger-After-Settle"] = json.dumps(
+                {"newPost": f"thread-{motion.id}",}
+            )
+            return response
+    else:
+        parent_content_type = ContentType.objects.get(
+            app_label="forums",
+            model="forum",
+        )
+        voters = get_users_with_perms(forum)
+        ineligible_ids = []
+        for voter in voters.all():
+            if not voter.has_perm("can_post_to_forum", forum):
+                ineligible_ids.append(voter.id)
+        initial = {
+            "posted_by": request.user,
+            "posted_on": timezone.now(),
+            "parent_content_type": parent_content_type,
+            "parent_object_id": forum.id,
+            "eligible_for_voting": voters.exclude(id__in=ineligible_ids),
+        }
+        initial["voting_deadline"] = (
+            (forum.meeting.date_until if forum.meeting else timezone.now()) +
+            datetime.timedelta(days=7)
+        )
+        form = MotionForm(initial=initial, forum=forum)
+    context = { "slug": slug, "form": form, }
+    return render(request, "forums/_hx_motion_form.html", context)
 
 
 @permission_required_or_403("forums.can_view_forum", (Forum, "slug", "slug"))
