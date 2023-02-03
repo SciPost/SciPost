@@ -190,17 +190,17 @@
 	  {% endif %}
 	</ul>
 	{% for motion in forum.motions.all %}
-	  <div id="thread-{{ motion.id }}"
-	       hx-get="{% url 'forums:_hx_thread_from_post' slug=forum.slug post_id=motion.id %}"
-	       hx-target="#thread-{{ motion.id }}"
+	  <div id="thread-{{ motion.post.id }}"
+	       hx-get="{% url 'forums:_hx_thread_from_post' slug=forum.slug post_id=motion.post.id %}"
+	       hx-target="#thread-{{ motion.post.id }}"
 	       hx-trigger="load"
 	  >
-	    <div id="thread-{{ motion.id }}-indicator"
+	    <div id="thread-{{ motion.post.id }}-indicator"
 		 class="htmx-indicator p-2"
 	    >
 	    </div>
 	    <button class="btn btn-warning" type="button" disabled>
-	      <strong>Loading thread {{ motion.id }}</strong>
+	      <strong>Loading thread {{ motion.post.id }}</strong>
 	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
 	    </button>
 	  </div>

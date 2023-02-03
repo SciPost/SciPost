@@ -348,13 +348,13 @@ def _hx_motion_form(request, slug):
             response = render(
                 request,
                 "forums/post_card.html",
-                context={"forum": forum, "post": motion},
+                context={"forum": forum, "post": motion.post},
             )
             # trigger new motion form closure
             response["HX-Trigger"] = f"newMotion"
             # refocus browser on new Motion
             response["HX-Trigger-After-Settle"] = json.dumps(
-                {"newPost": f"thread-{motion.id}",}
+                {"newPost": f"thread-{motion.post.id}",}
             )
             return response
     else:
@@ -395,7 +395,8 @@ def _hx_thread_from_post(request, slug, post_id):
     ).first()
     context = {
         "forum": forum,
-        "post": post.motion if hasattr(post, "motion") else post,
+        # "post": post.motion if hasattr(post, "motion") else post,
+        "post": post,
     }
     return render(request, "forums/post_card.html", context)
 
