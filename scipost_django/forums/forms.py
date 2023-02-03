@@ -178,8 +178,6 @@ class MotionVoteForm(forms.Form):
     )
 
     def clean_motion(self):
-        print(f"in clean_motion: {self.cleaned_data = }")
-        print(f"{self.cleaned_data['motion'] = }")
         if datetime.date.today() > self.cleaned_data["motion"].voting_deadline:
             self.add_error("motion", "Motion is not open for voting anymore")
             return None
@@ -192,7 +190,6 @@ class MotionVoteForm(forms.Form):
 
     def clean(self):
         self.cleaned_data = super().clean()
-        print(f"in clean: {self.cleaned_data = }")
         if (
                 hasattr(self.cleaned_data, "user") and
                 hasattr(self.cleaned_data, "motion") and
