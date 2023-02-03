@@ -2,6 +2,7 @@
   <thead>
     <tr>
       <th>Date<br><small><em>(most recent first)</em></small></th>
+      <th></th>
       <th>Posted by</th>
       <th>Subject</th>
     </tr>
@@ -10,16 +11,29 @@
     {% for post in forum.posts_all.all reversed %}
       <tr>
 	<td>{{ post.posted_on|date:"Y-m-d H:i" }}</td>
+	<td>
+	  {% if post.motion %}
+	    <span class="badge rounded-pill text-bg-info">Motion</span>
+	  {% else %}
+	    <span class="badge rounded-pill text-bg-light">Post</span>
+	  {% endif %}
+	</td>
 	<td>{{ post.posted_by.first_name }} {{ post.posted_by.last_name }}</td>
 	<td><a href="{{ post.get_absolute_url }}" class="text-info">{{ post.subject }}</a></td>
       </tr>
       <tr>
 	<td colspan="2"></td>
-	<td>
-	  {% if post.parent and not post.motion %}
+	<td colspan="2">
+	  {% if post.parent.parent and not post.motion %}
 	    &emsp;{% include "bi/arrow-return-right.html" %}
 	    <small>
-	      regarding <a href="{{ post.parent.get_absolute_url }}" class="text-info">{{ post.parent }}</a>
+	      regarding&nbsp;
+	      {% if post.parent.motion %}
+		<span class="badge rounded-pill text-bg-info">Motion</span>
+	      {% else %}
+		<span class="badge rounded-pill text-bg-light">Post</span>
+	      {% endif %}
+	      &nbsp;<a href="{{ post.parent.get_absolute_url }}" class="text-info">{{ post.parent }}</a>
 	    </small>
 	  {% endif %}
 	</td>
