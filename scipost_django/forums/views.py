@@ -57,15 +57,18 @@ class ForumCreateView(PermissionsMixin, CreateView):
         parent_model = self.kwargs.get("parent_model")
         parent_content_type = None
         parent_object_id = self.kwargs.get("parent_id")
+        parent = None
         if parent_model == "forum":
             parent_content_type = ContentType.objects.get(
                 app_label="forums", model="forum"
             )
+            parent = get_object_or_404(Forum, pk=parent_object_id)
         initial.update(
             {
                 "moderators": self.request.user,
                 "parent_content_type": parent_content_type,
                 "parent_object_id": parent_object_id,
+                "parent": parent,
             }
         )
         return initial
@@ -78,20 +81,14 @@ class MeetingCreateView(ForumCreateView):
 
 class ForumUpdateView(PermissionRequiredMixin, UpdateView):
     permission_required = "forums.update_forum"
+    model = Forum
+    form_class = ForumForm
     template_name = "forums/forum_form.html"
 
-    def get_object(self, queryset=None):
-        try:
-            return Meeting.objects.get(slug=self.kwargs["slug"])
-        except Meeting.DoesNotExist:
-            return Forum.objects.get(slug=self.kwargs["slug"])
 
-    def get_form(self, form_class=None):
-        try:
-            self.object.meeting
-            return MeetingForm(**self.get_form_kwargs())
-        except Meeting.DoesNotExist:
-            return ForumForm(**self.get_form_kwargs())
+class MeetingUpdateView(ForumUpdateView):
+    model = Meeting
+    form_class = MeetingForm
 
 
 class ForumDeleteView(PermissionRequiredMixin, DeleteView):

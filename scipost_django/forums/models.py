@@ -173,6 +173,9 @@ class Meeting(Forum):
             self.date_until.strftime("%Y-%m-%d"),
         )
 
+    def get_absolute_url(self):
+        return reverse("forums:forum_detail", kwargs={"slug": self.slug})
+
     @property
     def future(self):
         return datetime.date.today() < self.date_from

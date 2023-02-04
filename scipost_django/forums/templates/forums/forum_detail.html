@@ -46,7 +46,13 @@
 	<div class="container border border-danger m-2 p-2">
 	  <h4>Admin actions:</h4>
 	  <ul>
-	    <li><a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this {% if forum.meeting %}Meeting{% else %}Forum{% endif %}</a></li>
+	    <li>
+	      {% if forum.meeting %}
+		<a href="{% url 'forums:meeting_update' slug=forum.meeting.slug %}" class="text-warning">Update this Meeting</a>
+	      {% else %}
+		<a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this Forum</a>
+	      {% endif %}
+	    </li>
 	    <li>
 	      {% if not forum.child_forums.all|length > 0 %}
 		<a href="{% url 'forums:forum_delete' slug=forum.slug %}" class="text-danger">Delete this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} (and all Posts {% if forum.meeting %}and Motions {% endif %}it contains)</a>

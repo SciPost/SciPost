@@ -11,20 +11,41 @@ from . import views
 app_name = "forums"
 
 urlpatterns = [
+    path("", views.ForumListView.as_view(), name="forums"),
     path(
-        "forum/<str:parent_model>/<int:parent_id>/add/",
-        views.ForumCreateView.as_view(),
-        name="forum_create",
+        "forum/",
+        include([
+            path(
+                "<str:parent_model>/<int:parent_id>/add/",
+                views.ForumCreateView.as_view(),
+                name="forum_create",
+            ),
+            path(
+                "<slug:slug>/update/",
+                views.ForumUpdateView.as_view(),
+                name="forum_update",
+            ),
+            path("add/", views.ForumCreateView.as_view(), name="forum_create"),
+        ]),
     ),
-    path("add/", views.ForumCreateView.as_view(), name="forum_create"),
     path(
-        "meeting/<str:parent_model>/<int:parent_id>/add/",
-        views.MeetingCreateView.as_view(),
-        name="meeting_create",
+        "meeting/",
+        include([
+            path(
+                "<str:parent_model>/<int:parent_id>/add/",
+                views.MeetingCreateView.as_view(),
+                name="meeting_create",
+            ),
+            path(
+                "<slug:slug>/update/",
+                views.MeetingUpdateView.as_view(),
+                name="meeting_update",
+            ),
+            path("add/", views.MeetingCreateView.as_view(), name="meeting_create"),
+        ]),
     ),
-    path("meeting/add/", views.MeetingCreateView.as_view(), name="meeting_create"),
     path(
-        "<slug:slug>/",
+        "<slug:slug>/", # from here on, forum and meeting
         include([
             path(
                 "",
@@ -32,29 +53,62 @@ urlpatterns = [
                 name="forum_detail",
             ),
             path(
-                "quicklinks/all",
-                views.HX_ForumQuickLinksAllView.as_view(),
-                name="_hx_forum_quick_links_all",
-            ),
-            path(
-                "quicklinks/followups",
-                views.HX_ForumQuickLinksFollowupsView.as_view(),
-                name="_hx_forum_quick_links_followups",
-            ),
-            path(
-                "_hx_thread_from_post/<int:post_id>",
-                views._hx_thread_from_post,
-                name="_hx_thread_from_post",
-            ),
-            path(
-                "update/",
-                views.ForumUpdateView.as_view(),
-                name="forum_update",
-            ),
-            path(
                 "delete/",
                 views.ForumDeleteView.as_view(),
                 name="forum_delete",
+            ),
+            path("motions/",
+                 include([
+                     path(
+                         "_hx_motion_form/",
+                         include([
+                             path(
+                                 "button",
+                                 views._hx_motion_form_button,
+                                 name="_hx_motion_form_button",
+                             ),
+                             path(
+                                 "",
+                                 views._hx_motion_form,
+                                 name="_hx_motion_form",
+                             ),
+                         ]),
+                     ),
+                     path(
+                         "<int:motion_id>/voting",
+                         include([
+                             path(
+                                 "",
+                                 views._hx_motion_voting,
+                                 name="_hx_motion_voting",
+                             ),
+                         ]),
+                     ),
+                 ]),
+            ),
+            path("posts/",
+                 include([
+                     path(
+                         "_hx_thread_from_post/<int:post_id>",
+                         views._hx_thread_from_post,
+                         name="_hx_thread_from_post",
+                     ),
+                 ]),
+            ),
+            path(
+                "quicklinks/",
+                include([
+                    path(
+                        "all",
+                        views.HX_ForumQuickLinksAllView.as_view(),
+                        name="_hx_forum_quick_links_all",
+                    ),
+                    path(
+                        "followups",
+                        views.HX_ForumQuickLinksFollowupsView.as_view(),
+                        name="_hx_forum_quick_links_followups",
+                    ),
+                ]),
             ),
             path(
                 "permissions/",
@@ -93,32 +147,6 @@ urlpatterns = [
                         name="_hx_post_form",
                     ),
                 ]),
-            ),
-            path(
-                "_hx_motion_form/",
-                include([
-                    path(
-                        "button",
-                        views._hx_motion_form_button,
-                        name="_hx_motion_form_button",
-                    ),
-                    path(
-                        "",
-                        views._hx_motion_form,
-                        name="_hx_motion_form",
-                    ),
-                ]),
-            ),
-        ]),
-    ),
-    path("", views.ForumListView.as_view(), name="forums"),
-    path(
-        "<slug:slug>/motion/<int:motion_id>/",
-        include([
-            path(
-                "",
-                views._hx_motion_voting,
-                name="_hx_motion_voting",
             ),
         ]),
     ),

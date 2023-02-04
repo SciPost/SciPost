@@ -16,13 +16,16 @@ class ForumAdmin(GuardedModelAdmin):
         "moderators",
     ]
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).anchors()
+
 
 admin.site.register(Forum, ForumAdmin)
 
 
 class MeetingAdmin(GuardedModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
-    search_fields = ["name", "description", "preamble"]
+    search_fields = ["name", "description", "preamble", "minutes"]
     autocomplete_fields = [
         "moderators",
     ]
