@@ -86,7 +86,7 @@
       You have voted: <strong class="text-danger">Disagree</strong>
     {% elif request.user in motion.in_abstain.all %}
       You have <strong class="text-white">Abstained</strong>
-    {% elif request.user in motion.eligible_for_voting.all %}
+    {% elif request.user in motion.eligible_for_voting.all and motion.open_for_voting %}
       [click to vote]
     {% endif %}
   </span>
@@ -117,8 +117,8 @@
   <div class="btn-group" role="group" aria-label="motion voting buttons">
     <input type="radio" class="btn-check" name="vote"
 	   id="vote-Y" value="Y"
-	   {% if request.user in motion.in_agreement.all %}checked
-	   {% elif request.user not in motion.eligible_for_voting.all %}disabled
+	   {% if request.user in motion.in_agreement.all %}checked{% endif %}
+	   {% if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
 	   {% endif %}
     >
     {% if request.user in motion.in_agreement.all %}
@@ -135,8 +135,8 @@
 
     <input type="radio" class="btn-check" name="vote"
 	   id="vote-M" value="M"
-	   {% if request.user in motion.in_doubt.all %}checked
-	   {% elif request.user not in motion.eligible_for_voting.all %}disabled
+	   {% if request.user in motion.in_doubt.all %}checked{% endif %}
+	   {%  if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
 	   {% endif %}
     >
     {% if request.user in motion.in_doubt.all %}
@@ -153,8 +153,8 @@
 
     <input type="radio" class="btn-check" name="vote"
 	   id="vote-N" value="N"
-	   {% if request.user in motion.in_disagreement.all %}checked
-	   {% elif request.user not in motion.eligible_for_voting.all %}disabled
+	   {% if request.user in motion.in_disagreement.all %}checked{% endif %}
+	   {%  if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
 	   {% endif %}
     >
     {% if request.user in motion.in_disagreement.all %}
@@ -171,8 +171,8 @@
 
     <input type="radio" class="btn-check" name="vote"
 	   id="vote-A" value="A"
-	   {% if request.user in motion.in_abstain.all %}checked
-	   {% elif request.user not in motion.eligible_for_voting.all %}disabled
+	   {% if request.user in motion.in_abstain.all %}checked{% endif %}
+	   {%  if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
 	   {% endif %}
     >
     <label class="btn btn-secondary" for="vote-A">
@@ -188,5 +188,10 @@
 </form>
 
 <div class="align-self-center px-2 py-1">
-  Voting deadline:&emsp;{{ motion.voting_deadline|date:'Y-m-d' }}
+  Voting deadline:&emsp;{{ motion.voting_deadline|date:'Y-m-d' }}&emsp;
+  {% if motion.open_for_voting %}
+    <span class="badge rounded-pill text-bg-success text-white">open for voting</span>
+  {% else %}
+    <span class="badge rounded-pill text-bg-danger">voting closed</span>
+  {% endif %}
 </div>

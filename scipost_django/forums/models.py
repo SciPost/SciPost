@@ -6,9 +6,10 @@ import datetime
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.urls import reverse
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from .managers import ForumQuerySet, PostQuerySet
 
@@ -385,3 +386,7 @@ class Motion(Post):
     accepted = models.BooleanField(null=True)
 
     objects = models.Manager()
+
+    @cached_property
+    def open_for_voting(self):
+        return datetime.date.today() <= self.voting_deadline
