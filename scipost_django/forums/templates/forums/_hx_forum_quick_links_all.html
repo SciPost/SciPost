@@ -22,8 +22,8 @@
 	<td><a href="{{ post.get_absolute_url }}" class="text-info">{{ post.subject }}</a></td>
       </tr>
       <tr>
-	<td colspan="2"></td>
-	<td colspan="2">
+	<td colspan="3"></td>
+	<td>
 	  {% if post.parent.parent and not post.motion %}
 	    &emsp;{% include "bi/arrow-return-right.html" %}
 	    <small>
@@ -38,6 +38,9 @@
 	  {% endif %}
 	</td>
       </tr>
+      <tr><td colspan="4">&nbsp;</td></tr>
+    {% empty %}
+      <tr><td colspan="4">No posts yet</td></tr>
     {% endfor %}
   </tbody>
 </table>
