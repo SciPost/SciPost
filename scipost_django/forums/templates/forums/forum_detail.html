@@ -22,8 +22,8 @@
 	{% if forum.meeting %}
 	  {% with context_colors=forum.meeting.context_colors %}
 	    <span class="badge bg-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">
-	      {{ context_colors.message }}
-	      <span class="small text-muted"> [{{ forum.meeting.date_from|date:"Y-m-d" }} to {{ forum.meeting.date_until|date:"Y-m-d" }}]</span>
+	      {{ context_colors.message }}&emsp;
+	      <span class="small"> [{{ forum.meeting.date_from|date:"Y-m-d" }} to {{ forum.meeting.date_until|date:"Y-m-d" }}]</span>
 	    </span>
 	  {% endwith %}
 	  <br/>
