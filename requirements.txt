@@ -1,7 +1,7 @@
 # Core
 argon2-cffi==20.1.0		# 2021-07-18 Password hashing algorithm
 Babel==2.9.1			# 2022-01-23
-Django==3.2.16			# 2022-11-18
+Django==3.2.17			# 2023-02-05
 feedparser~=6.0.8     # Check: not updated since 2016. [JdW, 2021-09-25] Upgrade to v6; v5 fails.
 psycopg2==2.8.6	  		# 2020-09-19 PostgreSQL engine
 pytz==2021.3			# 2022-11-18 Timezone package
@@ -59,7 +59,7 @@ Whoosh==2.7.4
 ithenticate-api-python==0.8
 mailchimp3==2.0.15
 python-dateutil==2.6.0
-Pillow==9.0.1			# 2022-03-20
+Pillow==9.2.0			# 2023-02-05
 html2text
 
 
