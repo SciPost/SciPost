@@ -61,6 +61,8 @@ class MeetingForm(ForumForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["preamble"].widget = TextareaWithPreview()
+        self.fields["minutes"].widget = TextareaWithPreview()
         if self.instance:
             self.fields["parent"].initial = self.instance.parent
 

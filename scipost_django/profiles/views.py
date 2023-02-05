@@ -358,7 +358,7 @@ def _hx_profile_dynsel_list(request):
 @permission_required("scipost.can_create_profiles")
 def _hx_profile_specialties(request, profile_id):
     """
-Returns a snippet with current and possible specialties, with one-click actions.
+    Returns a snippet with current and possible specialties, with one-click actions.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
     if request.method == "POST":

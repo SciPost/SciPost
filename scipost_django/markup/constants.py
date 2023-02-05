@@ -2,6 +2,13 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+recognized_markup_languages = {
+    "plain": "plain",
+    "md": "Markdown",
+    "reST": "reStructuredText",
+}
+
+
 # Dictionary for regex expressions to recognize reStructuredText headers.
 # This follows the Python conventions: order is #, *, =, -, ", ^ and
 # for the first two levels (# and *), over- and underlining are necessary, while

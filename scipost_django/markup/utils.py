@@ -13,6 +13,7 @@ from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 from .constants import (
+    recognized_markup_languages,
     ReST_HEADER_REGEX_DICT,
     ReST_ROLES,
     ReST_DIRECTIVES,
@@ -375,7 +376,7 @@ def apply_markdown_preserving_displayed_maths(text):
     )
 
 
-def process_markup(text, language_forced=None, include_errors=False):
+def process_markup(text_given, language_forced=None, include_errors=False):
     """
     Process a text in a markup language into HTML.
 
@@ -385,16 +386,40 @@ def process_markup(text, language_forced=None, include_errors=False):
     Parameters:
     * `language_forced=None`: override language auto-detection
     """
-    markup_detector = detect_markup_language(text)
 
     markup = {"language": "plain", "errors": None, "warnings": None, "processed": ""}
 
-    if language_forced and language_forced != markup_detector["language"]:
-        markup["warnings"] = (
-            "Warning: markup language was forced to %s, while the detected one was %s."
-        ) % (language_forced, markup_detector["language"])
+    if not text_given:
+        return markup
 
-    language = language_forced if language_forced else markup_detector["language"]
+    # See if text_given contains a language coerce
+    coerced = False
+    if text_given.partition("\n")[0].startswith("#coerce:"):
+        language_requested_code = text_given.partition("\n")[0].partition("#coerce:")[2]
+        coerced = True
+        text = text_given.partition("\n")[2]
+        if language_requested_code not in recognized_markup_languages:
+            markup["errors"] = (
+                f"Unknown language ({language_requested_code}) requested for coerce.\n"
+                "Your options are: "
+                f"{recognized_markup_languages}\n"
+                "To coerce, at the start of the first line, write #coerce:[code] "
+                "with the language code, e.g. #coerce:reST"
+            )
+            return markup
+        language_requested = recognized_markup_languages[language_requested_code]
+        markup["warnings"] = f"Coercing language: {language_requested}"
+    else:
+        text = text_given
+
+    markup_detector = detect_markup_language(text)
+
+    if coerced and language_requested != markup_detector["language"]:
+        markup["warnings"] = (
+            "markup language was coerced to %s, while the detected one was %s."
+        ) % (language_requested, markup_detector["language"])
+
+    language = language_requested if coerced else markup_detector["language"]
     markup["language"] = language
     markup["errors"] = markup_detector["errors"]
 
@@ -409,7 +434,8 @@ def process_markup(text, language_forced=None, include_errors=False):
                 "%s</span><br><br>"
             ) % linebreaksbr(markup["errors"])
         markup["processed"] = mark_safe(error_msg + linebreaksbr(text))
-        return markup
+        if not coerced:
+            return markup
 
     if language == "reStructuredText":
         warnStream = StringIO()
