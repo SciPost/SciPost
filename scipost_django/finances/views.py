@@ -10,6 +10,15 @@ from csp.decorators import csp_update
 from plotly.offline import plot
 from plotly.graph_objs import Bar
 
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import io, base64
+from django.db.models.functions import TruncDay
+from matplotlib.ticker import LinearLocator
+
+
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -94,57 +103,78 @@ def recent_publishing_expenditures(months=6):
     return {"npub": npub_total, "expenditures": expenditures}
 
 
-@csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
+#@csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
 def finances(request):
     now = timezone.now()
-    years = [year for year in range(2016, int(now.strftime("%Y")) + 5)]
+    # for plotting up to last completed year: put nr_extra_years to 0;
+    # to plot in future (to see e.g. future subsidy coverage), add more
+    nr_extra_years = 5
+    years = [year for year in range(2016, int(now.strftime("%Y")) + nr_extra_years)]
     subsidies_dict = {}
     for year in years:
         subsidies_dict[str(year)] = total_subsidies_in_year(year)
     subsidies = [subsidies_dict[str(year)] for year in years]
     pub_data = publishing_expenditures()
     pubyears = [year for year in publishing_years()]
-    pub_expenditures = [pub_data[str(year)]["expenditures"] for year in pubyears]
-    base_expenditures = [-pub_data[str(year)]["expenditures"] for year in pubyears]
-    balance = [
-        subsidies_dict[str(year)] - pub_data[str(year)]["expenditures"]
-        for year in pubyears
+    pub_expenditures = [
+        (
+            pub_data[str(year)]["expenditures"] if str(year) in pub_data else 0
+        ) for year in years
     ]
+    # only compute balance up to last complete year; set to 0 afterwards
+    completed_years = pubyears
+    completed_years.pop()
+    balance = [
+        (subsidies_dict[str(year)] - pub_data[str(year)]["expenditures"]
+         if year in completed_years else 0) for year in years
+    ]
+    # similarly here, put cumulative to zero except for completed years
     cumulative_balance = list(accumulate(balance))
-    subsidies_plot = plot(
-        [
-            Bar(
-                x=pubyears, y=pub_expenditures, marker_color="red", name="expenditures"
-            ),
-            Bar(
-                x=years, y=subsidies, marker_color="dodgerblue", name="subsidy coverage"
-            ),
-            Bar(x=pubyears, y=balance, marker_color="indigo", name="balance (year)"),
-            Bar(
-                x=pubyears,
-                y=cumulative_balance,
-                marker_color="darkorange",
-                name="balance (cumulative)",
-            ),
-        ],
-        config={
-            "modeBarButtonsToRemove": [
-                "select2d",
-                "lasso2d",
-                "autoScale2d",
-                "toImage",
-                "zoom2d",
-                "zoomIn2d",
-                "zoomOut2d",
-            ],
-        },
-        output_type="div",
-        include_plotlyjs=False,
-        show_link=False,
-        link_text="",
+    cumulative_balance = (
+        cumulative_balance[:(len(years)-nr_extra_years)] +
+        [0]*nr_extra_years
     )
+    # matplotlib plot
+    width = 0.2
+    fig, ax = plt.subplots()
+    rects_exp = ax.bar(
+        [y - 1.5*width for y in years],
+        [e/1000 for e in pub_expenditures],
+        width,
+        label="Expenditures",
+        color="red",
+    )
+    rects_sub = ax.bar(
+        [y - 0.5*width for y in years],
+        [s/1000 for s in subsidies],
+        width,
+        label="Subsidies",
+        color="blue",
+    )
+    rects_bal = ax.bar(
+        [y + 0.5*width for y in years],
+        [b/1000 for b in balance],
+        width,
+        label="Balance",
+        color="green",
+    )
+    rects_sub = ax.bar(
+        [y + 1.5*width for y in years],
+        [c/1000 for c in cumulative_balance],
+        width,
+        label="Cumulative",
+        color="orange",
+    )
+    ax.legend()
+    ax.set_title('Financial balance')
+    ax.set_ylabel("\'000 euros")
+    ax.set_xlabel("year")
+
+    flike = io.BytesIO()
+    fig.savefig(flike)
+    subsidies_plot_b64 = base64.b64encode(flike.getvalue()).decode()
     context = {
-        "subsidies_plot": subsidies_plot,
+        "subsidies_plot": subsidies_plot_b64,
     }
     current_year = int(now.strftime("%Y"))
     future_subsidies = 0
