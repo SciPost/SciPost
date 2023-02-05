@@ -60,7 +60,7 @@ Whoosh==2.7.4
 # Python Utils
 ithenticate-api-python==0.8
 python-dateutil==2.8.2		# 2023-02-05
-Pillow==9.2.0			# 2023-02-05
+Pillow==9.4.0			# 2023-02-05
 html2text
 
 
