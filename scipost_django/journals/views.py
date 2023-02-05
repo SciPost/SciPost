@@ -10,11 +10,10 @@ import string
 import shutil
 import requests
 
-from csp.decorators import csp_update, csp_exempt
-
-# from plotly.offline import plot
-# from plotly.graph_objs import Bar
-import plotly.graph_objects as pgo
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io, base64
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -445,27 +444,14 @@ def about(request, doi_label):
 
 
 def provide_plot(x, y, name, nonce=None):
-    fig = pgo.Figure([pgo.Bar(x=x, y=y, name=name)]).to_html(
-        config={
-            "modeBarButtonsToRemove": [
-                "select2d",
-                "lasso2d",
-                "autoScale2d",
-                "toImage",
-                "zoom2d",
-                "zoomIn2d",
-                "zoomOut2d",
-            ],
-        },
-        full_html=False,
-        include_plotlyjs=False,
-    )
-    if nonce:
-        fig = fig.replace("<script ", f"<script nonce={nonce} ")
-    return fig
+    fig, ax = plt.subplots()
+    ax.bar(x, y)
+    ax.set_title(name)
+    flike = io.BytesIO()
+    fig.savefig(flike)
+    return base64.b64encode(flike.getvalue()).decode()
 
 
-@csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
 def metrics(request, doi_label, specialty=None):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {

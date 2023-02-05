@@ -6,18 +6,10 @@ import datetime
 from itertools import accumulate
 import mimetypes
 
-from csp.decorators import csp_update
-from plotly.offline import plot
-from plotly.graph_objs import Bar
-
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
 import io, base64
-from django.db.models.functions import TruncDay
-from matplotlib.ticker import LinearLocator
-
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
@@ -103,7 +95,6 @@ def recent_publishing_expenditures(months=6):
     return {"npub": npub_total, "expenditures": expenditures}
 
 
-#@csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
 def finances(request):
     now = timezone.now()
     # for plotting up to last completed year: put nr_extra_years to 0;
