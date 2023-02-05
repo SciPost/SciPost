@@ -19,42 +19,82 @@
 	in our Journals, the purpose being to determine the average expenditure per publication
 	which we have achieved.</p>
       <p><strong>N.B.</strong>: these numbers are indicative only (accurate to 3 digits);
-	see our yearly financial reports for a fully detailed breakwown of our expenses.</p>
+	see our yearly financial reports for a fully detailed breakdown of our expenses.</p>
       <table class="table">
 	{% for year in data.pubyears reversed %}
 	  {% for key, val in data.items %}
 	    {% if year == key|add:"0" %}
-	      <tr>
-		<td>{{ year }}{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</td>
-		<td>
-		  <table class="table">
-		    <thead>
-		      <tr>
-			<th>Journal</th>
-			<th class="text-end">Nr of publications{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
-			<th class="text-end">Expenditure per publication{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
-			<th class="text-end">Total expenditures{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
-		      </tr>
-		    </thead>
-		    <tbody>
-		      {% for journal, journaldata in val.items %}
-			{% if journaldata.npub > 0 %}
-			  <tr>
-			    <td>{{ journal }}</td>
-			    <td class="text-end">{{ journaldata.npub }}</td>
-			    <td class="text-end">{{ journaldata.cost_per_pub }}</td>
-			    <td class="text-end">{{ journaldata.expenditures }}</td>
-			  </tr>
-			{% endif %}
-		      {% endfor %}
-		      <tr class="table-info">
-			<td colspan="3">Total publishing expenditures{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</td>
-			<td class="text-end">{{ val.expenditures }}</td>
-		      </tr>
-		    </tbody>
-		  </table>
-		</td>
-	      </tr>
+	      {% if year == data.pubyears|last %}
+		<tr>
+		  <td>{{ year }}<br><em class="text-danger">(in progress)</em></td>
+		  <td>
+		    <table class="table">
+		      <thead>
+			<tr>
+			  <th>Journal</th>
+			  <th class="text-end">Nr of publications</th>
+			  <th class="text-end">Expenditure per publication</th>
+			  <th class="text-end">Total expenditures</th>
+			</tr>
+		      </thead>
+		      <tbody>
+			{% for journal, journaldata in val.items %}
+			  {% if journaldata.npub > 0 %}
+			    <tr>
+			      <td>{{ journal }}</td>
+			      <td class="text-end">{{ journaldata.npub }}</td>
+			      <td class="text-end">
+				<em class="text-danger">(in progress)
+			      </td>
+			      <td class="text-end">
+				<em class="text-danger">(in progress)
+			      </td>
+			    </tr>
+			  {% endif %}
+			{% endfor %}
+			<tr class="table-info">
+			  <td colspan="3">Total publishing expenditures</td>
+			  <td class="text-end">
+			    <em class="text-danger">(in progress)
+			  </td>
+			</tr>
+		      </tbody>
+		    </table>
+		  </td>
+		</tr>
+	      {% else %}
+		<tr>
+		  <td>{{ year }}{% if in_progress %}<br><em class="text-danger">(in progress)</em>{% endif %}</td>
+		  <td>
+		    <table class="table">
+		      <thead>
+			<tr>
+			  <th>Journal</th>
+			  <th class="text-end">Nr of publications</th>
+			  <th class="text-end">Expenditure per publication</th>
+			  <th class="text-end">Total expenditures</th>
+			</tr>
+		      </thead>
+		      <tbody>
+			{% for journal, journaldata in val.items %}
+			  {% if journaldata.npub > 0 %}
+			    <tr>
+			      <td>{{ journal }}</td>
+			      <td class="text-end">{{ journaldata.npub }}</td>
+			      <td class="text-end">{{ journaldata.cost_per_pub }}</td>
+			      <td class="text-end">{{ journaldata.expenditures }}</td>
+			    </tr>
+			  {% endif %}
+			{% endfor %}
+			<tr class="table-info">
+			  <td colspan="3">Total publishing expenditures</td>
+			  <td class="text-end">{{ val.expenditures }}</td>
+			</tr>
+		      </tbody>
+		    </table>
+		  </td>
+		</tr>
+	      {% endif %}
 	    {% endif %}
 	  {% endfor %}
 	{% endfor %}
