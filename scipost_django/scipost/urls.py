@@ -586,13 +586,13 @@ urlpatterns = [
     #######################
     path(
         "10.21468/<journal_doi_label:doi_label>",
-        journals_views.landing_page,
-        name="landing_page",
+        journals_views.journal_detail,
+        name="journal_detail",
     ),
     path(
         "<journal_doi_label:doi_label>",
-        journals_views.landing_page,
-        name="landing_page",
+        journals_views.journal_detail,
+        name="journal_detail",
     ),
     path(
         "arxiv_doi_feed/<journal_doi_label:doi_label>",

@@ -159,7 +159,7 @@ class Journal(models.Model):
 
     def get_absolute_url(self):
         """Return Journal's homepage url."""
-        return reverse("scipost:landing_page", args=(self.doi_label,))
+        return reverse("scipost:journal_detail", args=(self.doi_label,))
 
     @property
     def doi_string(self):

@@ -179,7 +179,7 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None, su
         return publication_detail(request, doi_label)
     if part_1 is None:
         # This DOI refers to a Journal landing page.
-        return landing_page(request, journal_tag)
+        return journal_detail(request, journal_tag)
     elif part_2 is None:
         doi_label = "{0}.{1}".format(journal_tag, part_1)
 
@@ -192,7 +192,7 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None, su
 
         # The third option: a `Issue and Volume Journal DOI` would lead to a "volume detail page",
         # but that does not exist. Redirect to the Journal landing page instead.
-        return landing_page(request, journal_tag)
+        return journal_detail(request, journal_tag)
     elif part_3 is None:
         doi_label = "{0}.{1}.{2}".format(journal_tag, part_1, part_2)
 
@@ -282,7 +282,7 @@ class PublicationListView(PaginationMixin, ListView):
         return context
 
 
-def landing_page(request, doi_label):
+def journal_detail(request, doi_label):
     """Journal details page.
 
     The landing page of a Journal lists either the latest and the current issue of a Journal
@@ -306,7 +306,7 @@ def landing_page(request, doi_label):
         .filter(pk__in=accepted_submission_ids)
         .order_by("-latest_activity"),
     }
-    return render(request, "journals/journal_landing_page.html", context)
+    return render(request, "journals/journal_detail.html", context)
 
 
 class VolumesAdminListView(PermissionsMixin, PaginationMixin, ListView):

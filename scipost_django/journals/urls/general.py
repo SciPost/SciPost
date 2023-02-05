@@ -44,7 +44,7 @@ urlpatterns = [
     path(
         "scipost_physics",
         RedirectView.as_view(
-            url=reverse_lazy("scipost:landing_page", args=["SciPostPhys"])
+            url=reverse_lazy("scipost:journal_detail", args=["SciPostPhys"])
         ),
     ),
     path(
