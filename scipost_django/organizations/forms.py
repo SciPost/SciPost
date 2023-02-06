@@ -31,6 +31,20 @@ class SelectOrganizationForm(forms.Form):
         label="",
     )
 
+
+
+class OrganizationUpdateRORForm(forms.ModelForm):
+
+    
+    class Meta:
+        model = Organization
+        fields = [
+            'ror_json',
+            ]
+
+        
+
+'''
 class OrganizationUpdateRORForm(forms.ModelForm):
     parent = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
@@ -83,7 +97,7 @@ class OrganizationUpdateRORForm(forms.ModelForm):
         #r.save()
 
         #self.fields["ror_json"].instance = '{"test": 123}'
-
+'''
 
 
 class OrganizationEventForm(forms.ModelForm):

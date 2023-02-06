@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.urls import path
 
 from . import views
+from .views import ror_view
 
 app_name = "organizations"
 
@@ -15,10 +16,11 @@ urlpatterns = [
         name="organization-autocomplete",
     ),
     path("", views.OrganizationListView.as_view(), name="organizations"),
-    path("ror/", views.OrganizationRorListView.as_view(), name="organization_ror"),
+    path("ror/", views.OrganizationsWithoutRorListView.as_view(), name="organizations_without_ror"),
+    path("<int:pk>/rorids/<str:name>", ror_view, name="organization_rorID_list"),
     path("add/", views.OrganizationCreateView.as_view(), name="organization_create"),
     path(
-        "<int:pk>/update_ror/",
+        "<int:pk>/update_ror/<str:ror_id>",
         views.OrganizationUpdateRORView.as_view(),
         name="organization_update_ror",
     ),

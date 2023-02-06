@@ -32,7 +32,7 @@
 	  <li><a href="{% url 'organizations:dashboard' %}">Go to the dashboard</a></li>
 	  <li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
 	  <li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
-	  <li><a href="{% url 'organizations:organization_ror' %}">View Organizations without a ROR ID</a></li>
+	  <li><a href="{% url 'organizations:organizations_without_ror' %}">View Organizations without a ROR ID</a></li>
 	</ul>
       {% endif %}
     </div>

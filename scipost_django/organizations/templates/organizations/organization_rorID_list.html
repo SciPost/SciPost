@@ -1,0 +1,79 @@
+{% extends 'organizations/base.html' %}
+
+{% block meta_description %}{{ block.super }} Organizations list{% endblock meta_description %}
+{% block pagetitle %}: Organizations{% endblock pagetitle %}
+
+{% load bootstrap %}
+{% load static %}
+{% load user_groups %}
+{% load add_get_parameters %}
+{% load organizations_extras %}
+{% load countries %}
+
+{% is_scipost_admin request.user as is_scipost_admin %}
+
+{% block headsup %}
+  <link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
+{% endblock headsup %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Organizations</span>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">ROR ID Candidates</h1>
+
+
+  <div class="row">
+    <div class="col-12">
+      <h3>This page lists Organizations which have benefitted from SciPost's publishing activities.</h3>
+    </div>
+  </div>
+
+
+
+
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-hover mb-5">
+	<thead class="table-light">
+	  <tr>
+	    <th>ROR ID</th>
+      <th>Name</th>
+      <th>Country</th>
+      <th>Select</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for ror_id, name, country in items %}
+	    <tr class="table-row">
+	      <td>{{ ror_id }}</td>
+          <td>{{ name }}</td>
+          <td>{{ country }}</td>
+          <td><a href="{% url 'organizations:organization_update_ror' pk=org_id ror_id=ror_id %}">Select</a></td>
+	    </tr>
+	  {% empty %}
+	    <tr><td colspan="4">No organizations found</td></tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+      {% if is_paginated %}
+	<div class="col-12">
+	  {% include '_pagination.html' with page_obj=page_obj %}
+	</div>
+      {% endif %}
+
+    </div>
+  </div>
+
+
+{% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row-blank.js' %}"></script>
+  {{ select_organization_form.media }}
+{% endblock %}

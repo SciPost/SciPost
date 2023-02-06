@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 import requests
 import json
 
+from django.http import HttpResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -109,56 +110,27 @@ class OrganizationCreateView(PermissionsMixin, CreateView):
     template_name = "organizations/organization_create.html"
     success_url = reverse_lazy("organizations:organizations")
 
-class OrganizationUpdateRORView(PermissionsMixin, UpdateView):#, pk):
+class OrganizationUpdateRORView(PermissionsMixin, UpdateView):
     """
     Update an Organization's ROR ID.
     """
-
-    #initial_ROR_ID = {"test":123}
-
     permission_required = "scipost.can_manage_organizations"
     model = Organization
-    form_class = OrganizationUpdateRORForm#() #initial=initial_ROR_ID
+    form_class = OrganizationUpdateRORForm
     template_name = "organizations/organization_update_ror.html"
     success_url = reverse_lazy("organizations:organizations")
 
-    # could load a separate RORResultsListView here
-    # display important fields 
-
+    # display important fields         
     def get_initial(self):
+
         initial = super().get_initial()
 
-        if initial=={}:
-            text = requests.get('https://api.ror.org/organizations?query=%spage=1' % (
-                    self.object,
-                )).json(),#.items(),
-            #)
-
-            first_item = text[0]['items'][0]['id']
-            ror_id_dev = first_item.split('/')[-1]
-
-            json_value = {"id": ror_id_dev}
-
-            self.object.ror_json=json.loads(json.dumps(json_value))
-            initial.update({"id": ror_id_dev, "action": ORGANIZATION_EVENT_COMMENT})
-            #self.instance.ror_json = json_value
-        return initial
-        #return self.object.ror_json
-
-    #print('test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test test')
-    #print(get_initial.json_value)
-        #print('TYPE OF INITIAL: ' + str(type(initial.id)))
-        #print(type(json.loads(json.dumps(json_value))))
-
+        json_value = {"id": self.kwargs['ror_id']}
         
-        #self.instance = {"test":ror_id_dev}
+        json_value = json.dumps(json_value)
+        initial['ror_json'] = json_value        
 
-        #for key in text[0]['items']:
-        #    print(key, ":", "test")
-
-        #return initial
-
-    # Load a new ListView with the API response
+        return initial
 
 
 class OrganizationUpdateView(PermissionsMixin, UpdateView):
@@ -183,14 +155,14 @@ class OrganizationDeleteView(PermissionsMixin, DeleteView):
     success_url = reverse_lazy("organizations:organizations")
 
 
-class OrganizationRorListView(PaginationMixin, ListView):
+class OrganizationsWithoutRorListView(PaginationMixin, ListView):
     """
     List Organizations without a ROR ID.
     """
 
     permission_required = "scipost.can_manage_organizations"
     form_class = OrganizationForm
-    template_name = "organizations/organization_ror_list.html"
+    template_name = "organizations/organizations_without_ror.html"
     success_url = reverse_lazy("organizations:organizations")
     model = Organization
     paginate_by = 50
@@ -233,13 +205,75 @@ class OrganizationRorListView(PaginationMixin, ListView):
 
 
 def get_organization_detail(request):
+
+    print(request.GET.__dict__)
+
     org_id = request.GET.get("organization", None)
     if org_id:
         return redirect(
             reverse("organizations:organization_detail", kwargs={"pk": org_id})
         )
     return redirect(reverse("organizations:organizations"))
+    # display important fields         
+    
+    def form_valid(self, form):
+        self.object.ror_json = form.cleaned_data['ror_json'] or {}
+        self.object.grid_json = form.cleaned_data['grid_json'] or {}
+
+        # save the changes to the database
+        self.object.save()
+        
+        # redirect to success URL
+        return redirect(self.get_success_url()) 
+
  
+def ror_view(request, pk, name): 
+
+    ROR_API_URL = 'https://api.ror.org/organizations'
+    query_params = {
+        'query': name, 
+        'page': 1
+    }
+    try:
+        data_dict = requests.get(ROR_API_URL, params=query_params).json()
+    except json.decoder.JSONDecodeError:
+        print(f"Unable to retrieve JSON results for {self.object}")
+    else:
+        # check if the query has returned any results
+        if data_dict['number_of_results'] == 0:
+            print(f"Unable to retrieve JSON results for ")
+            # do something here: add error to the form instance?
+            return
+
+        # parse the JSON data here, and add it to the form's initial data
+        id_list = []
+        name_list = []
+        country_list = []
+        
+        for i in range(10):
+            first_item = data_dict['items'][i]['id']
+            ror_id_dev = first_item.split('/')[-1]
+            json_id = {"id": ror_id_dev}
+            id_list.append(ror_id_dev)
+            
+            name = data_dict['items'][i]['name']
+            ror_name_dev = name.split('/')[-1]
+            json_name = {"name": ror_name_dev}
+            
+            name_list.append(ror_name_dev)
+
+            ctry = data_dict['items'][i]['country']['country_name']
+            ror_ctry_dev = ctry.split('/')[-1]
+            json_country = {"country": ror_ctry_dev}
+            
+            country_list.append(ror_ctry_dev)
+
+        items = list(zip(id_list, name_list, country_list))
+        context = {'items': items, 'org_id': pk}
+
+    return render(request, "organizations/organization_rorID_list.html", context) 
+    
+
 
 class OrganizationListView(PaginationMixin, ListView):
     model = Organization
@@ -282,6 +316,7 @@ class OrganizationListView(PaginationMixin, ListView):
 
 
 def get_organization_detail(request):
+    
     org_id = request.GET.get("organization", None)
     if org_id:
         return redirect(
