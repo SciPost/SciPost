@@ -308,6 +308,12 @@ class Post(models.Model):
         if self.parent:
             self.parent.update_cfs()
 
+    def get_followups(self):
+        # if this Post is in fact a Motion, the followups are attached to the Motion
+        if self.motion:
+            return self.motion.followup_posts.all()
+        return self.followup_posts.all()
+
     @property
     def nr_followups(self):
         nr = 0

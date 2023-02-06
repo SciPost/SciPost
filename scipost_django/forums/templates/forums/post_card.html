@@ -21,7 +21,7 @@
     <div class="card-footer">
       <div class="d-flex flex-wrap justify-content-end align-items-center">
 	<div class="flex-grow-1">
-	  {% with post.followup_posts.all|length as nr_followup_threads %}
+	  {% with post.get_followups|length as nr_followup_threads %}
 	    {% if nr_followup_threads > 0 %}
 	      <span class="badge bg-info rounded-pill text-dark me-2 px-2">{{ nr_followup_threads }} followup thread{{ nr_followup_threads|pluralize }}, {% with nr_followups=post.cf_nr_followups %}{{ nr_followups }} post{{ nr_followups|pluralize }}{% endwith %} in total</span>
 	    {% endif %}
@@ -64,26 +64,24 @@
 
     <div class="followupPosts{% if post.motion %}AfterMotion{% endif %}"
     >
-      {% if post.followup_posts %}
-	{% for followup in post.followup_posts.all %}
-	  <div id="thread-{{ followup.id }}"
-	       hx-get="{% url 'forums:_hx_thread_from_post' slug=forum.slug post_id=followup.id %}"
-	       hx-target="#thread-{{ followup.id }}"
-	       hx-swap="outerHTML"
-	       hx-trigger="load delay:1s"
-	       hx-indicator="#thread-{{ followup.id }}-indicator"
+      {% for followup in post.get_followups %}
+	<div id="thread-{{ followup.id }}"
+	     hx-get="{% url 'forums:_hx_thread_from_post' slug=forum.slug post_id=followup.id %}"
+	     hx-target="#thread-{{ followup.id }}"
+	     hx-swap="outerHTML"
+	     hx-trigger="load delay:1s"
+	     hx-indicator="#thread-{{ followup.id }}-indicator"
+	>
+	  <div id="thread-{{ followup.id }}-indicator"
+	       class="htmx-indicator p-2"
 	  >
-	    <div id="thread-{{ followup.id }}-indicator"
-		 class="htmx-indicator p-2"
-	    >
-	      <button class="btn btn-warning" type="button" disabled>
-		<strong>Loading thread {{ followup.id }}</strong>
-		<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	      </button>
-	    </div>
+	    <button class="btn btn-warning" type="button" disabled>
+	      <strong>Loading thread {{ followup.id }}</strong>
+	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	    </button>
 	  </div>
-	{% endfor %}
-      {% endif %}
+	</div>
+      {% endfor %}
       <div id="thread-{{ post.id }}-new" style="height: 0px;"></div>
     </div>
 
