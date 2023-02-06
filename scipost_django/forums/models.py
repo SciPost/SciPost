@@ -310,7 +310,7 @@ class Post(models.Model):
 
     def get_followups(self):
         # if this Post is in fact a Motion, the followups are attached to the Motion
-        if self.motion:
+        if hasattr(self, "motion"):
             return self.motion.followup_posts.all()
         return self.followup_posts.all()
 
