@@ -15,7 +15,7 @@
     <table class="table table-bordered">
       <thead>
 	<tr>
-	  <th>Eligible to vote</th>
+	  <th>Eligible for voting</th>
 	  <th>Agreed</th>
 	  <th>Doubt</th>
 	  <th>Disagreed</th>
@@ -26,7 +26,7 @@
 	<tr>
 	  <td>
 	    <ul class="list list-unstyled">
-	      {% for voter in motion.eligible_to_vote.all %}
+	      {% for voter in motion.eligible_for_voting.all %}
 		<li>{{ voter.contributor }}</li>
 	      {% empty %}
 		<li>None</li>
@@ -107,75 +107,77 @@
   {% endfor %}
 {% endif %}
 
-<form hx-post="{% url 'forums:_hx_motion_voting' slug=forum.slug motion_id=motion.id %}"
+<form id="motion-{{ motion.id }}-voting-form"
+      hx-post="{% url 'forums:_hx_motion_voting' slug=forum.slug motion_id=motion.id %}"
       hx-target="#motion-{{ motion.id }}-voting"
       hx-trigger="change"
 >
   {% csrf_token %}
-  <input type="hidden" name="user" value="{{ request.user.id }}" id="id_user">
-  <input type="hidden" name="motion" value="{{ motion.id }}" id="id_motion">
-  <div class="btn-group" role="group" aria-label="motion voting buttons">
+  <input type="hidden" name="user" value="{{ request.user.id }}" id="motion-{{ motion.id }}-id_user">
+  <input type="hidden" name="motion" value="{{ motion.id }}" id="motion-{{ motion.id }}-id_motion">
+  <div id="motion-{{ motion.id }}-voting-options"
+       class="btn-group" role="group" aria-label="motion voting buttons">
     <input type="radio" class="btn-check" name="vote"
-	   id="vote-Y" value="Y"
+	   id="motion-{{ motion.id }}-vote-Y" value="Y"
 	   {% if request.user in motion.in_agreement.all %}checked{% endif %}
 	   {% if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
 	   {% endif %}
     >
     {% if request.user in motion.in_agreement.all %}
-      <label class="btn btn-success text-white" for="vote-Y">
+      <label class="btn btn-success text-white" for="motion-{{ motion.id }}-vote-Y">
 	<strong>Agree&nbsp;{% include "bi/check-square-fill.html" %}</strong>
 	<br>{{ motion.in_agreement.all|length }}
       </label>
     {% else %}
-      <label class="btn btn-success" for="vote-Y">
+      <label class="btn btn-success" for="motion-{{ motion.id }}-vote-Y">
 	Agree&nbsp;{% include "bi/square.html" %}
 	<br>{{ motion.in_agreement.all|length }}
       </label>
     {% endif %}
 
     <input type="radio" class="btn-check" name="vote"
-	   id="vote-M" value="M"
+	   id="motion-{{ motion.id }}-vote-M" value="M"
 	   {% if request.user in motion.in_doubt.all %}checked{% endif %}
 	   {%  if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
 	   {% endif %}
     >
     {% if request.user in motion.in_doubt.all %}
-      <label class="btn btn-warning text-white" for="vote-M">
+      <label class="btn btn-warning text-white" for="motion-{{ motion.id }}-vote-M">
 	<strong>Doubt&nbsp;{% include "bi/check-square-fill.html" %}</strong>
 	<br>{{ motion.in_doubt.all|length }}
       </label>
     {% else %}
-      <label class="btn btn-warning" for="vote-M">
+      <label class="btn btn-warning" for="motion-{{ motion.id }}-vote-M">
 	Doubt&nbsp;{% include "bi/square.html" %}
 	<br>{{ motion.in_doubt.all|length }}
       </label>
     {% endif %}
 
     <input type="radio" class="btn-check" name="vote"
-	   id="vote-N" value="N"
+	   id="motion-{{ motion.id }}-vote-N" value="N"
 	   {% if request.user in motion.in_disagreement.all %}checked{% endif %}
 	   {%  if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
 	   {% endif %}
     >
     {% if request.user in motion.in_disagreement.all %}
-      <label class="btn btn-danger text-white" for="vote-N">
+      <label class="btn btn-danger text-white" for="motion-{{ motion.id }}-vote-N">
 	<strong>Disagree&nbsp;{% include "bi/check-square-fill.html" %}</strong>
 	<br>{{ motion.in_disagreement.all|length }}
       </label>
     {% else %}
-      <label class="btn btn-danger text-dark" for="vote-N">
+      <label class="btn btn-danger text-dark" for="motion-{{ motion.id }}-vote-N">
 	Disagree&nbsp;{% include "bi/square.html" %}
 	<br>{{ motion.in_disagreement.all|length }}
       </label>
     {% endif %}
 
     <input type="radio" class="btn-check" name="vote"
-	   id="vote-A" value="A"
+	   id="motion-{{ motion.id }}-vote-A" value="A"
 	   {% if request.user in motion.in_abstain.all %}checked{% endif %}
 	   {%  if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
 	   {% endif %}
     >
-    <label class="btn btn-secondary" for="vote-A">
+    <label class="btn btn-secondary" for="motion-{{ motion.id }}-vote-A">
       Abstain&nbsp;
       {% if request.user in motion.in_abstain.all %}
 	{% include "bi/check-square-fill.html" %}

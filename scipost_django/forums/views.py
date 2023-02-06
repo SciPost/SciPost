@@ -294,7 +294,6 @@ def _hx_post_form(request, slug, parent_model, parent_id, origin, target, text):
                 response["HX-Trigger-After-Settle"] = json.dumps(
                     {"newPost": f"thread-{thread_initiator.id}",}
                 )
-            print(f'{response["HX-Trigger-After-Settle"] = }')
             return response
     else:
         subject = ""
@@ -409,8 +408,8 @@ def _hx_motion_voting(request, slug, motion_id):
         "in_abstain__contributor__user",
     ), pk=motion_id)
     initial = {
-        "user": request.user.id,
-        "motion": motion.id,
+        "user": request.user,
+        "motion": motion,
     }
     form = MotionVoteForm(request.POST or None, initial=initial)
     if form.is_valid():
