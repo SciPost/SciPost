@@ -9,6 +9,7 @@ from django import forms
 from guardian.admin import GuardedModelAdmin
 
 from submissions.models import (
+    SubmissionAuthorProfile,
     Submission,
     EditorialAssignment,
     RefereeInvitation,
@@ -20,10 +21,15 @@ from submissions.models import (
     EditorialDecision,
     SubmissionEvent,
     iThenticateReport,
+    InternalPlagiarismAssessment,
+    iThenticatePlagiarismAssessment,
+    Qualification,
+    Readiness,
     PreprintServer,
 )
 from scipost.models import Contributor
 from colleges.models import Fellowship
+from ethics.models import SubmissionClearance
 
 
 def submission_short_title(obj):
@@ -50,6 +56,54 @@ class iThenticateReportAdmin(admin.ModelAdmin):
 
 
 admin.site.register(iThenticateReport, iThenticateReportAdmin)
+
+
+class InternalPlagiarismAssessmentInline(admin.StackedInline):
+    model = InternalPlagiarismAssessment
+
+
+class iThenticatePlagiarismAssessmentInline(admin.StackedInline):
+    model = iThenticatePlagiarismAssessment
+
+
+class QualificationInline(admin.StackedInline):
+    model = Qualification
+    extra = 0
+    min_num = 0
+    autocomplete_fields = [
+        "submission",
+        "fellow",
+    ]
+
+
+class ReadinessInline(admin.StackedInline):
+    model = Readiness
+    extra = 0
+    min_num = 0
+    autocomplete_fields = [
+        "submission",
+        "fellow",
+    ]
+
+
+class SubmissionClearanceInline(admin.StackedInline):
+    model = SubmissionClearance
+    extra = 0
+    min_num = 0
+    autocomplete_fields = [
+        "profile",
+        "submission",
+        "asserted_by",
+    ]
+
+
+class SubmissionAuthorProfileInline(admin.TabularInline):
+    model = SubmissionAuthorProfile
+    extra = 0
+    autocomplete_fields = [
+        "profile",
+        "affiliations",
+    ]
 
 
 class SubmissionTieringInline(admin.StackedInline):
@@ -96,10 +150,16 @@ class SubmissionAdmin(GuardedModelAdmin):
         "authors",
         "authors_claims",
         "authors_false_claims",
-        "plagiarism_report",
+        "iThenticate_plagiarism_report",
         "topics",
     ]
     inlines = [
+        InternalPlagiarismAssessmentInline,
+        iThenticatePlagiarismAssessmentInline,
+        SubmissionAuthorProfileInline,
+        QualificationInline,
+        ReadinessInline,
+        SubmissionClearanceInline,
         SubmissionTieringInline,
     ]
 
@@ -157,7 +217,6 @@ class SubmissionAdmin(GuardedModelAdmin):
                 "classes": ("collapse",),
                 "fields": (
                     "thread_hash",
-                    "is_current",
                     "is_resubmission_of",
                     "list_of_changes",
                 ),
@@ -167,7 +226,10 @@ class SubmissionAdmin(GuardedModelAdmin):
             "Plagiarism",
             {
                 "classes": ("collapse",),
-                "fields": ("internal_plagiarism_matches", "plagiarism_report"),
+                "fields": (
+                    "internal_plagiarism_matches",
+                    "iThenticate_plagiarism_report",
+                ),
             }
         ),
         (

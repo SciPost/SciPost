@@ -9,30 +9,78 @@ from django.utils import timezone
 from mails.utils import DirectMailUtil
 
 from ..behaviors import SubmissionRelatedObjectMixin
-from ..constants import (
-    ASSIGNMENT_STATUSES,
-    STATUS_PREASSIGNED,
-    STATUS_INVITED,
-    STATUS_REPLACED,
-    STATUS_ACCEPTED,
-    STATUS_DEPRECATED,
-    STATUS_COMPLETED,
-    ASSIGNMENT_REFUSAL_REASONS,
-)
 from ..managers import EditorialAssignmentQuerySet
 
 
 class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
-    """Fellow assignment to a Submission to become Editor-in-Charge."""
+    """
+    Consideration of a Fellow to become Editor-in-Charge of a Submission.
+    """
 
-    submission = models.ForeignKey("submissions.Submission", on_delete=models.CASCADE)
+    REFUSE_OUTSIDE_EXPERTISE = "OFE"
+    REFUSE_TOO_BUSY = "BUS"
+    REFUSE_ON_VACATION = "VAC"
+    REFUSE_COI_COAUTHOR = "COI"
+    REFUSE_COI_COLLEAGUE = "CCC"
+    REFUSE_COI_COMPETITOR = "CCM"
+    REFUSE_COI_OTHER = "COT"
+    REFUSE_NOT_IMPARTIAL = "NIR"
+    REFUSE_NOT_INTERESTED = "NIE"
+    REFUSE_DESK_REJECT = "DNP"
+    REFUSAL_REASONS = (
+        (REFUSE_OUTSIDE_EXPERTISE, "Outside of my field of expertise"),
+        (REFUSE_TOO_BUSY, "Too busy"),
+        (REFUSE_ON_VACATION, "Away on vacation"),
+        (REFUSE_COI_COAUTHOR, "Conflict of interest: coauthor in last 5 years"),
+        (REFUSE_COI_COLLEAGUE, "Conflict of interest: close colleague"),
+        (REFUSE_COI_COMPETITOR, "Conflict of interest: close competitor"),
+        (REFUSE_COI_OTHER, "Conflict of interest: other"),
+        (REFUSE_NOT_IMPARTIAL, "Cannot give an impartial assessment"),
+        (REFUSE_NOT_INTERESTED, "Not interested enough"),
+        (
+            REFUSE_DESK_REJECT,
+            "SciPost should desk reject this paper",
+        ),
+    )
+
+    STATUS_PREASSIGNED = "preassigned"
+    STATUS_INVITED = "invited"
+    STATUS_ACCEPTED = "accepted"
+    STATUS_ACCEPT_IF_NOBODY_ELSE = "accifnobodyelse"
+    STATUS_ACCEPT_IF_TRANSFERRED = "acciftransferred"
+    STATUS_PERHAPS_LATER = "askagainlater"
+    STATUS_DECLINED = "declined"
+    STATUS_COMPLETED = "completed"
+    STATUS_DEPRECATED = "deprecated"
+    STATUS_REPLACED = "replaced"
+    ASSIGNMENT_STATUSES = (
+        (STATUS_PREASSIGNED, "Preassigned"),
+        (STATUS_INVITED, "Invited"),
+        (STATUS_ACCEPTED, "Accepted"),
+        (STATUS_ACCEPT_IF_NOBODY_ELSE, "Accept (if nobody else does)"),
+        (
+            STATUS_ACCEPT_IF_TRANSFERRED,
+            "Accept (if transferred to non-flagship journal)",
+        ),
+        (STATUS_PERHAPS_LATER, "Perhaps; ask again later"),
+        (STATUS_DECLINED, "Declined"),
+        (STATUS_COMPLETED, "Completed"),
+        (STATUS_DEPRECATED, "Deprecated"),
+        (STATUS_REPLACED, "Replaced"),
+    )
+
+    submission = models.ForeignKey(
+        "submissions.Submission",
+        on_delete=models.CASCADE,
+    )
+
     to = models.ForeignKey("scipost.Contributor", on_delete=models.CASCADE)
 
     status = models.CharField(
         max_length=16, choices=ASSIGNMENT_STATUSES, default=STATUS_PREASSIGNED
     )
     refusal_reason = models.CharField(
-        max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, blank=True, null=True
+        max_length=3, choices=REFUSAL_REASONS, blank=True, null=True
     )
     invitation_order = models.PositiveSmallIntegerField(default=0)
 
@@ -62,40 +110,35 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
 
     def get_absolute_url(self):
         """Return the url of the assignment's processing page."""
-        return reverse("submissions:assignment_request", args=(self.id,))
-
-    @property
-    def notification_name(self):
-        """Return string representation of this EditorialAssigment as shown in Notifications."""
-        return self.submission.preprint.identifier_w_vn_nr
+        return reverse("submissions:pool:assignment_request", args=(self.id,))
 
     @property
     def preassigned(self):
-        return self.status == STATUS_PREASSIGNED
+        return self.status == self.STATUS_PREASSIGNED
 
     @property
     def invited(self):
-        return self.status == STATUS_INVITED
+        return self.status == self.STATUS_INVITED
 
     @property
     def replaced(self):
-        return self.status == STATUS_REPLACED
+        return self.status == self.STATUS_REPLACED
 
     @property
     def accepted(self):
-        return self.status == STATUS_ACCEPTED
+        return self.status == self.STATUS_ACCEPTED
 
     @property
     def deprecated(self):
-        return self.status == STATUS_DEPRECATED
+        return self.status == self.STATUS_DEPRECATED
 
     @property
     def completed(self):
-        return self.status == STATUS_COMPLETED
+        return self.status == self.STATUS_COMPLETED
 
     def send_invitation(self):
         """Send invitation and update status."""
-        if self.status != STATUS_PREASSIGNED:
+        if self.status != self.STATUS_PREASSIGNED:
             # Only send if status is appropriate to prevent double sending
             return False
 
@@ -106,7 +149,7 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
         mail_sender.send_mail()
 
         EditorialAssignment.objects.filter(id=self.id).update(
-            date_invited=timezone.now(), status=STATUS_INVITED
+            date_invited=timezone.now(), status=self.STATUS_INVITED
         )
 
         return True

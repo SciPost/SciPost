@@ -18,7 +18,7 @@ def send_editorial_assignment_invitations(self):
     """
     Send next queued editorial assignment invitation emails.
     """
-    qs = Submission.objects.unassigned().has_editor_invitations_to_be_sent().distinct()
+    qs = Submission.objects.seeking_assignment().has_editor_invitations_to_be_sent().distinct()
     submission_ids = qs.values_list("id", flat=True)
     submissions_count = len(submission_ids)
 
@@ -45,22 +45,22 @@ def send_editorial_assignment_invitations(self):
 @app.task(bind=True)
 def submit_submission_document_for_plagiarism(self):
     """Upload a new Submission document to iThenticate."""
-    submissions_to_upload = Submission.objects.plagiarism_report_to_be_uploaded()
-    submission_to_update = Submission.objects.plagiarism_report_to_be_updated()
+    submissions_to_upload = Submission.objects.iThenticate_plagiarism_report_to_be_uploaded()
+    submission_to_update = Submission.objects.iThenticate_plagiarism_report_to_be_updated()
 
     for submission in submissions_to_upload:
         report, __ = iThenticate.objects.get_or_create(to_submission=submission)
         # do it...
 
     for submission in submission_to_update:
-        report = submission.plagiarism_report
+        report = submission.iThenticate_plagiarism_report
         # do it...
 
 
 @app.task(bind=True)
 def check_for_internal_plagiarism_submission_matches(self, ratio_threshold=0.7):
     """
-    Check incoming Submissions for internal plagiarism with preexisting Submissions.
+    Check Submissions for internal plagiarism with preexisting Submissions.
     """
 
     submissions_to_check = Submission.objects.exclude(
@@ -98,7 +98,7 @@ def check_for_internal_plagiarism_submission_matches(self, ratio_threshold=0.7):
 @app.task(bind=True)
 def check_for_internal_plagiarism_publication_matches(self, ratio_threshold=0.7):
     """
-    Check incoming Submissions for internal plagiarism with existing Publications.
+    Check Submissions for internal plagiarism with existing Publications.
     """
 
     submissions_to_check = Submission.objects.exclude(

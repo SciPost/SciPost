@@ -1,7 +1,7 @@
 <table class="w-100 mb-1">
   <tr>
     <td style="min-width: 40%;">Version</td>
-    <td>{{ submission.thread_sequence_order }} ({% if submission.is_current %}current version{% else %}out of a sequence of {{ submission.thread|length }}{% endif %})</td>
+    <td>{{ submission.thread_sequence_order }} ({% if submission.is_latest %}latest version{% else %}out of a sequence of {{ submission.thread|length }}{% endif %})</td>
   </tr>
   {% if submission.preprint.url %}
     <tr>
@@ -45,12 +45,12 @@
     <td>Editor-in-charge</td>
     <td>
       <ul class="list list-unstyled">
-	{% if submission.status == 'unassigned' %}
+	{% if submission.status == 'seeking_assignment' %}
 	  {% if is_ed_admin %}
-	    <li>Unassigned</li>
+	    <li>Seeking assignment</li>
 	  {% else %}
             <li>You can
-	      <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>
+	      <a href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>
 	    </li>
 	  {% endif %}
 	  {% if request.user.contributor.is_active_senior_fellow %}
@@ -101,9 +101,9 @@
     <tr>
       <td>iThenticate plagiarism score</td>
       <td>
-        {% if submission.plagiarism_report %}
-          {{ submission.plagiarism_report.score }}%
-	  &emsp;<a href="{% url 'submissions:plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="ms-2 btn btn-default" target="_blank">View report pdf</a>
+        {% if submission.iThenticate_plagiarism_report %}
+          {{ submission.iThenticate_plagiarism_report.score }}%
+	  &emsp;<a href="{% url 'submissions:iThenticate_plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="ms-2 btn btn-default" target="_blank">View report pdf</a>
         {% else %}
           <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
         {% endif %}
@@ -120,13 +120,6 @@
 	{% endif %}
 	<a href="{% url 'submissions:plagiarism_internal' submission.preprint.identifier_w_vn_nr %}" target="_blank">View details</a>
       </td>
-    </tr>
-  {% endif %}
-
-  {% if perms.scipost.can_manage_college_composition %}
-    <tr>
-      <td>This Submission's Fellowship</td>
-      <td><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowship{{ submission.fellows.count|pluralize }}</a></td>
     </tr>
   {% endif %}
 

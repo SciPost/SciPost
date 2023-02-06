@@ -17,8 +17,9 @@
     <div class="col-12">
       <h4>Please use the following conventions:</h4>
       <ul>
-	<li>Start with a capital letter</li>
-	<li>Use plural words (<em>e.g.</em> <strong>superconductors</strong> instead of <strong>superconductor</strong>)</li>
+	<li>You can specify one or more Specialties to which this new Topic should belong</li>
+	<li>For the name, start with a capital letter</li>
+	<li>Use plural words (<em>e.g.</em> <strong>Superconductors</strong> instead of <strong>Superconductor</strong>)</li>
 	<li>If an acronym exists, put it in parentheses at the end (<em>e.g.</em> <strong>Renormalization group (RG)</strong>). <strong class="text-danger">Remove any parentheses from the slug!</strong></li>
 	<li>Mix equivalent words by using a slash, <em>e.g.</em> <strong>Superconductivity&frasl;superconductors</strong>. <strong class="text-danger">You will similarly need to remove the slash from the slug!</strong></li>
       </ul>
@@ -33,4 +34,5 @@
 
 {% block footer_script %}
   <script src="{% static 'scipost/slugify-name.js' %}"></script>
+  {{ form.media }}
 {% endblock footer_script %}

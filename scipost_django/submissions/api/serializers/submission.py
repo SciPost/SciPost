@@ -46,7 +46,6 @@ class SubmissionPublicSerializer(serializers.ModelSerializer):
             "topics",
             "approaches",
             "status",
-            "is_current",
             "submission_date",
             "original_submission_date",
             "submitted_to",

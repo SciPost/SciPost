@@ -22,7 +22,6 @@
     {% include "scipost/_private_info_as_table.html" with contributor=contributor %}
 
     {% if contributor %}
-      {# Scientist fields #}
       <h3 class="mt-3">Your main academic field:</h3>
       <ul><li>{{ contributor.profile.acad_field }}</li></ul>
 
@@ -40,13 +39,11 @@
 
   <div class="col-md-6">
     {% if contributor %}
-      {# Scientist fields #}
       {% if not contributor.is_currently_available %}
         <h3 class="text-warning">You are currently unavailable</h3>
         <p>Check your availability underneath if this should not be the case.</p>
         <hr>
       {% endif %}
-      {# END: Scientist fields #}
     {% endif %}
 
     {% if recommend_totp %}
@@ -150,7 +147,7 @@
           </li>
         {% endfor %}
       </ul>
-      <a href="{% url 'submissions:pool' %}" class="h3 text-primary ms-4 px-3 d-block-inline">Go to the Submissions Pool</a>
+      <a href="{% url 'submissions:pool:pool' %}" class="h3 text-primary ms-4 px-3 d-block-inline">Go to the Submissions Pool</a>
     {% endif %}
 
     <h3 class="mt-3">Update your personal data or password</h3>
@@ -172,48 +169,10 @@
   </div>
 </div>
 
-{% if unavailability_form %}
-  <hr>
-  <div class="row">
-    <div class="col">
-      <h2 class="highlight">Your Availability</h2>
-    </div>
-  </div>
-  <div class="row justify-content-center">
-    <div class="col-md-4 me-md-5">
-      <p>To help with the editorial workflow, you can inform us of any periods during which you are unavailable. We will do our best to respect these.</p>
-      <h3 class="mb-3">Mark a period as unavailable:</h3>
-      <form action="{% url 'scipost:mark_unavailable_period' %}" method="post">
-        {% csrf_token %}
-        {{ unavailability_form|bootstrap }}
-        <input class="btn btn-outline-secondary" type="submit" value="Submit" />
-      </form>
-    </div>
-    <div class="col-md-4 ms-md-5">
-      {% if unavailabilities %}
-        <h3>Your unavailability periods in our records</h3>
-        <p class="text-muted">(YYYY-MM-DD)</p>
-        <table class="table">
-          <tr>
-            <th>Start</th>
-            <th colspan="2">End</th>
-          </tr>
-          {% for unav in unavailabilities %}
-            <tr>
-              <td>{{ unav.start }}</td>
-              <td>{{ unav.end }}</td>
-              <td>
-                <form action="{% url 'scipost:delete_unavailable_period' unav.id %}" method="post">
-                  {% csrf_token %}
-                  <input class="btn btn-danger" type="submit" value="Delete" />
-                </form>
-              </td>
-            </tr>
-          {% endfor %}
-        </table>
-      {% else %}
-        <p>You don't have any upcoming unavailability periods on record.</p>
-      {% endif %}
-    </div>
-  </div>
-{% endif %}
+<h2 class="highlight">Your Availability</h2>
+<div id="unavailability"
+     hx-get="{% url 'scipost:_hx_unavailability' %}"
+     hx-trigger="load"
+     hx-target="#unavailability"
+>
+</div>

@@ -1,5 +1,7 @@
 {% extends 'submissions/base.html' %}
 
+{% load render_bundle from webpack_loader %}
+
 {% block breadcrumb_items %}
   {{ block.super }}
   <span class="breadcrumb-item">Editorial Workflow Summary</span>
@@ -36,7 +38,7 @@
     <div class="col-12">
       <h3 class="highlight">The Submissions Pool</h3>
       <p>
-        At any moment, you can peruse the <a href="{% url 'submissions:pool' %}">
+        At any moment, you can peruse the <a href="{% url 'submissions:pool:pool' %}">
         Submissions Pool</a> in order to view the status of all Submissions
         currently undergoing peer review in SciPost. Only members of the Editorial
         College and Editorial Administrators have access to this page.
@@ -52,13 +54,13 @@
       <p>You can become Editor-in-charge of a Submission by either:
         <ul>
           <li>accepting an assignment request (emailed to you by an Editorial Administrator)</li>
-          <li>volunteering directly from the <a href="{% url 'submissions:pool' %}">
+          <li>volunteering directly from the <a href="{% url 'submissions:pool:pool' %}">
             Submissions Pool</a>.</li>
         </ul>
         For each incoming Submission, assignment requests are emailed to a handful of
         Fellows whose expertise matches that of the Submission. You are never obliged
         to accept an assignment; we do however appreciate a quick response, including a
-        reason for declining (since this determines the results of the pre-screening stage:
+        reason for declining (since this determines the results of the assignment stage:
         if five Fellows decline for lack of interest, the paper is rejected at this stage).
       </p>
     </div>
@@ -170,11 +172,5 @@
 {% endblock %}
 
 {% block footer_script %}
-  <script type="module" nonce="{{ request.csp_nonce }}">
-   import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
-   mermaid.initialize({ startOnLoad: false });
-   document.body.addEventListener("htmx:afterSettle", function(evt) {
-       mermaid.init(".workflowDiagram");
-   });
-  </script>
+  {% render_bundle 'mermaid' %}
 {% endblock footer_script %}

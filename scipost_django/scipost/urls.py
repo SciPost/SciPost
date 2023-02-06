@@ -411,14 +411,19 @@ urlpatterns = [
     # Unavailabilities
     ###################
     path(
-        "unavailable_period",
-        views.mark_unavailable_period,
-        name="mark_unavailable_period",
-    ),
-    path(
-        "unavailable_period/<int:period_id>/delete",
-        views.delete_unavailable_period,
-        name="delete_unavailable_period",
+        "_hx_unavailability/",
+        include([
+            path(
+                "",
+                views._hx_unavailability,
+                name="_hx_unavailability",
+            ),
+            path(
+                "<int:pk>",
+                views._hx_unavailability,
+                name="_hx_unavailability",
+            ),
+        ]),
     ),
     #
     ####################
@@ -474,6 +479,11 @@ urlpatterns = [
     # Editorial College
     ####################
     path("EdCol_by-laws", views.EdCol_bylaws, name="EdCol_by-laws"),
+    path(
+        "EdCol_by-laws_Changes_2022_11",
+        views.EdCol_bylaws_Changes_2022_11,
+        name="EdCol_by-laws_Changes_2022_11",
+    ),
     path(
         "EdCol_by-laws_Changes_2021_04",
         views.EdCol_bylaws_Changes_2021_04,
@@ -576,13 +586,13 @@ urlpatterns = [
     #######################
     path(
         "10.21468/<journal_doi_label:doi_label>",
-        journals_views.landing_page,
-        name="landing_page",
+        journals_views.journal_detail,
+        name="journal_detail",
     ),
     path(
         "<journal_doi_label:doi_label>",
-        journals_views.landing_page,
-        name="landing_page",
+        journals_views.journal_detail,
+        name="journal_detail",
     ),
     path(
         "arxiv_doi_feed/<journal_doi_label:doi_label>",

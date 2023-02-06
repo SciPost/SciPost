@@ -1,0 +1,23 @@
+{% load submissions_extras %}
+{% load request_filters %}
+
+
+{% if submission.thread_full.first.publication and submission.thread_full.first.publication.is_published %}
+  <h4 class="my-4">
+    <span class="border border-2 border-success p-2">
+      Published as
+      <a href="{{ submission.thread_full.first.publication.get_absolute_url }}">
+	{{ submission.thread_full.first.publication.citation }}
+      </a>
+    </span>
+  </h4>
+{% endif %}
+
+<div class="row row-cols-1 row-cols-md-2 g-4">
+  <div class="col">
+    {% include "submissions/pool/_submission_refereeing_history_card.html" %}
+  </div>
+  <div class="col">
+    {% include "submissions/pool/_submission_recommendation_card.html" %}
+  </div>
+</div>

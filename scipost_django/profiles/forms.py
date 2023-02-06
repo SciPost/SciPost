@@ -176,6 +176,9 @@ class ProfileMergeForm(forms.Form):
         # Move all affiliations to the "new" profile
         profile_old.affiliations.all().update(profile=profile)
 
+        # Move all SubmissionAuthorProfile instances to the "new" profile
+        profile_old.submissionauthorprofile_set.all().update(profile=profile)
+
         # Move all PublicationAuthorsTable instances to the "new" profile
         profile_old.publicationauthorstable_set.all().update(profile=profile)
 
@@ -225,10 +228,14 @@ class ProfileSelectForm(forms.Form):
 
 
 class ProfileDynSelForm(forms.Form):
-    q = forms.CharField(max_length=32, label="Search (by name)")
+    q = forms.CharField(
+        max_length=32,
+        label="Search (by name); split multiple search terms by a space, e.g. Abe Cee",
+    )
     action_url_name = forms.CharField()
     action_url_base_kwargs = forms.JSONField(required=False)
     action_target_element_id = forms.CharField()
+    action_target_swap = forms.CharField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -238,14 +245,19 @@ class ProfileDynSelForm(forms.Form):
             Field("action_url_name", type="hidden"),
             Field("action_url_base_kwargs", type="hidden"),
             Field("action_target_element_id", type="hidden"),
+            Field("action_target_swap", type="hidden"),
         )
 
     def search_results(self):
         if self.cleaned_data["q"]:
-            profiles = Profile.objects.filter(
-                Q(last_name__icontains=self.cleaned_data["q"])
-                | Q(first_name__icontains=self.cleaned_data["q"])
-            ).distinct()
+            splitwords = self.cleaned_data["q"].replace(",", "").split(" ")
+            query = Q()
+            for word in splitwords:
+                query = query & (
+                    Q(last_name__icontains=word) |
+                    Q(first_name__icontains=word)
+                )
+            profiles = Profile.objects.filter(query).distinct()
             return profiles
         else:
             return Profile.objects.none()

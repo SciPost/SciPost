@@ -88,7 +88,7 @@ from submissions.models import (
     EditorialAssignment,
     EICRecommendation,
 )
-from submissions.forms import SubmissionSearchForm, ReportSearchForm
+from submissions.forms import PortalSubmissionSearchForm, ReportSearchForm
 from theses.models import ThesisLink
 from theses.forms import ThesisSearchForm
 
@@ -288,7 +288,7 @@ def portal_hx_publications_page(request):
 
 def portal_hx_submissions(request):
     reports_needed = request.GET.get("reports_needed", False)
-    form = SubmissionSearchForm(
+    form = PortalSubmissionSearchForm(
         acad_field_slug=request.session.get("session_acad_field_slug", None),
         specialty_slug=request.session.get("session_specialty_slug", None),
         reports_needed=reports_needed,
@@ -301,7 +301,7 @@ def portal_hx_submissions_page(request):
     session_acad_field_slug = request.session.get("session_acad_field_slug", None)
     session_specialty_slug = request.session.get("session_specialty_slug", None)
     reports_needed = request.GET.get("reports_needed", False)
-    form = SubmissionSearchForm(
+    form = PortalSubmissionSearchForm(
         request.POST or None,
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,
@@ -996,32 +996,19 @@ class SciPostPasswordResetConfirmView(PasswordResetConfirmView):
 
 @login_required
 @is_contributor_user()
-def mark_unavailable_period(request):
-    """Form view to mark period unavailable for Contributor."""
-    unav_form = UnavailabilityPeriodForm(request.POST or None)
-    if unav_form.is_valid():
-        unav = unav_form.save(commit=False)
+def _hx_unavailability(request, pk: int=None):
+    if pk: # delete UnavaiabilityPeriod, if asked by associated Contributor
+        UnavailabilityPeriod.objects.filter(
+            contributor=request.user.contributor,
+            pk=pk,
+        ).delete()
+    form = UnavailabilityPeriodForm(request.POST or None)
+    if form.is_valid():
+        unav = form.save(commit=False)
         unav.contributor = request.user.contributor
         unav.save()
-        messages.success(request, "Unavailability period registered")
-        return redirect("scipost:personal_page")
-
-    # Template acts as a backup in case the form is invalid.
-    context = {"form": unav_form}
-    return render(request, "scipost/unavailability_period_form.html", context)
-
-
-@require_POST
-@login_required
-@is_contributor_user()
-def delete_unavailable_period(request, period_id):
-    """Delete period unavailable registered."""
-    unav = get_object_or_404(
-        UnavailabilityPeriod, contributor=request.user.contributor, id=int(period_id)
-    )
-    unav.delete()
-    messages.success(request, "Unavailability period deleted")
-    return redirect("scipost:personal_page")
+    context = {"form": form}
+    return render(request, "scipost/personal_page/_hx_unavailability.html", context)
 
 
 @is_contributor_user()
@@ -1051,10 +1038,6 @@ def personal_page_hx_account(request):
     contributor = request.user.contributor
     context = {
         "contributor": contributor,
-        "unavailability_form": UnavailabilityPeriodForm(),
-        "unavailabilities": contributor.unavailability_periods.future().order_by(
-            "start"
-        ),
     }
     return render(request, "scipost/personal_page/_hx_account.html", context)
 
@@ -1105,7 +1088,7 @@ def personal_page_hx_edadmin(request):
     context = {}
     contributor = request.user.contributor
     if contributor.is_scipost_admin:
-        context["nr_submissions_to_assign"] = Submission.objects.prescreening().count()
+        context["nr_submissions_to_assign"] = Submission.objects.preassignment().count()
         context[
             "nr_recommendations_to_prepare_for_voting"
         ] = EICRecommendation.objects.voting_in_preparation().count()
@@ -1137,7 +1120,8 @@ def personal_page_hx_edadmin(request):
             Report.objects.accepted().filter(pdf_report="").count()
         )
         context["nr_treated_submissions_without_pdf"] = (
-            Submission.objects.treated().public().filter(pdf_refereeing_pack="").count()
+            Submission.objects.treated().public(
+            ).filter(pdf_refereeing_pack="").count()
         )
     return render(request, "scipost/personal_page/_hx_edadmin.html", context)
 
@@ -1178,8 +1162,7 @@ def personal_page_hx_submissions(request):
         .exclude(authors_false_claims=contributor)
         .count()
     )
-    context["own_submissions"] = contributor.submissions.filter(
-        is_current=True
+    context["own_submissions"] = contributor.submissions.latest(
     ).order_by("-submission_date")
     return render(request, "scipost/personal_page/_hx_submissions.html", context)
 
@@ -1812,6 +1795,8 @@ def send_precooked_email(request):
 def EdCol_bylaws(request):
     return render(request, "scipost/EdCol_by-laws.html")
 
+def EdCol_bylaws_Changes_2022_11(request):
+    return render(request, "scipost/EdCol_by-laws_Changes_2022-11.html")
 
 def EdCol_bylaws_Changes_2021_04(request):
     return render(request, "scipost/EdCol_by-laws_Changes_2021-04.html")

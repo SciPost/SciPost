@@ -10,7 +10,7 @@
 {% block breadcrumb_items %}
   {{ block.super }}
   {% if submission.status == 'incoming' %}
-    <a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</a>
+    <a href="{% url 'submissions:do_preassignment' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Preassignment {{ submission.preprint.identifier_w_vn_nr }}</a>
   {% else %}
     <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial page {{ submission.preprint.identifier_w_vn_nr }}</a>
   {% endif %}
@@ -35,14 +35,13 @@
     <div class="border border-danger mt-3 p-2">
       <h3>Editorial Administration</h3>
       <ul>
-	<li><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this Submission's Fellowship</a></li>
 	<li><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a></li>
 	{% if submission.status == 'incoming' %}
-	  <li><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Go to pre-screening page</a></li>
+	  <li><a href="{% url 'submissions:do_preassignment' submission.preprint.identifier_w_vn_nr %}">Go to preassignment page</a></li>
 	{% else %}
-	  <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">Update authors by email (1 week into screening)</a></li>
-	  <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">Update authors by email (2 weeks into screening)</a></li>
-	  <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
+	  <li><a href="{% url 'submissions:update_authors_assignment' submission.preprint.identifier_w_vn_nr 1 %}">Update authors by email (1 week into assignment)</a></li>
+	  <li><a href="{% url 'submissions:update_authors_assignment' submission.preprint.identifier_w_vn_nr 2 %}">Update authors by email (2 weeks into assignment)</a></li>
+	  <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: assignment failed (failure to find EIC)</a></li>
 	{% endif %}
       </ul>
     </div>
@@ -80,7 +79,7 @@
           <td>
             {% if submission.editorial_assignments.declined_red.count >= 3 %}
               <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %} {{ submission.editorial_assignments.declined_red.count }}</span>
-              &middot; <a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close screening: failure to find EIC</a>
+              &middot; <a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close assignment: failure to find EIC</a>
             {% else %}
               {{ submission.editorial_assignments.declined_red.count }}
             {% endif %}

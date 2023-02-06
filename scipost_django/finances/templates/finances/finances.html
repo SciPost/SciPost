@@ -1,10 +1,5 @@
 {% extends 'finances/base.html' %}
 
-{% block headsup %}
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-{% endblock %}
-
-
 {% load static %}
 {% load bootstrap %}
 
@@ -45,9 +40,8 @@
 	a given year are in general converged 3 months after the end of the year.</p>
       <p>Subsidies listed in future years originate from longer-term sponsorship
 	agreements which are already in place.</p>
-      {% autoescape off %}
-	{{ subsidies_plot }}
-      {% endautoescape %}
+
+      <img src="data:image/png;base64,{{ subsidies_plot }}">
 
       <h3 class="highlight">Current Resources & Sustainability Level</h3>
       <div class="container">

@@ -1,0 +1,5 @@
+<a class="nav-link{% if subtab == target %} active{% endif %}"
+   hx-get="{% url "edadmin:subtabs:_hx_submission_edadmin_subtab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr subtab=target %}"
+   hx-target="#submission-{{ submission.id }}-edadmin-subtabs"
+   hx-indicator="#submission-{{ submission.id }}-edadmin-subtabs-indicator"
+>{{ text }}</a>

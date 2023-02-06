@@ -1,0 +1,27 @@
+<details class="border border-2 mx-3 my-2">
+  <summary class="bg-primary bg-opacity-10 p-2">
+    <h2>
+      Qualifications
+    </h2>
+  </summary>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+	<th>Fellow</th>
+	<th>Qualification</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for qualification in submission.qualification_set.all %}
+	<tr>
+	  <td>{{ qualification.fellow }}</td>
+	  <td>{{ qualification.get_expertise_level_display }}</td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="2">No Fellow has specified their qualification</td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</details>

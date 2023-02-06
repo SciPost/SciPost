@@ -90,7 +90,6 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                     | Q(emails__email__in=contributor.user.email)
                 )
             elif from_type == "refereeinvitation":
-                print("Here refinv")
                 refinv = get_object_or_404(RefereeInvitation, pk=pk)
                 matching_profiles = matching_profiles.filter(
                     Q(last_name=refinv.last_name)
@@ -351,6 +350,7 @@ def _hx_profile_dynsel_list(request):
             else {}
         ),
         "action_target_element_id": form.cleaned_data["action_target_element_id"],
+        "action_target_swap": form.cleaned_data["action_target_swap"],
     }
     return render(request, "profiles/_hx_profile_dynsel_list.html", context)
 
@@ -358,7 +358,7 @@ def _hx_profile_dynsel_list(request):
 @permission_required("scipost.can_create_profiles")
 def _hx_profile_specialties(request, profile_id):
     """
-Returns a snippet with current and possible specialties, with one-click actions.
+    Returns a snippet with current and possible specialties, with one-click actions.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
     if request.method == "POST":

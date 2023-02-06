@@ -2,63 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-# All Submission statuses
-STATUS_INCOMING = "incoming"
-STATUS_UNASSIGNED = "unassigned"
-STATUS_FAILED_PRESCREENING = "failed_pre"
-STATUS_EIC_ASSIGNED = "assigned"
-STATUS_ASSIGNMENT_FAILED = "assignment_failed"
-STATUS_RESUBMITTED = "resubmitted"
-STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE = "puboffer_waiting"
-STATUS_ACCEPTED = "accepted"
-STATUS_REJECTED = "rejected"
-STATUS_WITHDRAWN = "withdrawn"
-STATUS_PUBLISHED = "published"
-
-# Deprecated statuses
-# TODO: Make sure cycles are chosen for this status:
-# STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
-
-
-# All possible Submission statuses
-SUBMISSION_STATUS = (
-    (STATUS_INCOMING, "Submission incoming, undergoing pre-screening"),
-    (STATUS_UNASSIGNED, "Unassigned, awaiting editor assignment"),
-    (STATUS_FAILED_PRESCREENING, "Failed pre-screening"),
-    (STATUS_EIC_ASSIGNED, "Editor-in-charge assigned"),
-    (
-        STATUS_ASSIGNMENT_FAILED,
-        "Failed to assign Editor-in-charge; manuscript rejected",
-    ),
-    (STATUS_RESUBMITTED, "Has been resubmitted"),
-    (STATUS_ACCEPTED, "Publication decision taken: accept"),
-    (
-        STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
-        "Accepted in other journal; awaiting puboffer acceptance",
-    ),
-    (STATUS_REJECTED, "Publication decision taken: reject"),
-    (STATUS_WITHDRAWN, "Withdrawn by the Authors"),
-    (STATUS_PUBLISHED, "Published"),
-)
-
-# Submissions which are currently under consideration
-SUBMISSION_UNDER_CONSIDERATION = [
-    STATUS_INCOMING,
-    STATUS_UNASSIGNED,
-    STATUS_EIC_ASSIGNED,
-    STATUS_RESUBMITTED,
-    STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
-]
-
-# Submissions with these statuses never have required actions.
-NO_REQUIRED_ACTION_STATUSES = [
-    STATUS_UNASSIGNED,
-    STATUS_FAILED_PRESCREENING,
-    STATUS_ASSIGNMENT_FAILED,
-    STATUS_REJECTED,
-    STATUS_WITHDRAWN,
-]
-
 ED_COMM_CHOICES = (
     ("EtoA", "Editor-in-charge to Author"),
     ("EtoR", "Editor-in-charge to Referee"),
@@ -66,36 +9,6 @@ ED_COMM_CHOICES = (
     ("AtoE", "Author to Editor-in-charge"),
     ("RtoE", "Referee to Editor-in-charge"),
     ("StoE", "SciPost Editorial Administration to Editor-in-charge"),
-)
-
-ASSIGNMENT_BOOL = ((True, "Accept"), (False, "Decline"))
-ASSIGNMENT_NULLBOOL = ((None, "Response pending"), (True, "Accept"), (False, "Decline"))
-
-ASSIGNMENT_REFUSAL_REASONS = (
-    ("BUS", "Too busy"),
-    ("VAC", "Away on vacation"),
-    ("COI", "Conflict of interest: coauthor in last 5 years"),
-    ("CCC", "Conflict of interest: close colleague"),
-    ("NIR", "Cannot give an impartial assessment"),
-    ("OFE", "Outside of my field of expertise"),
-    ("NIE", "Not interested enough"),
-    ("DNP", "SciPost should not even consider this paper"),
-)
-
-STATUS_PREASSIGNED = "preassigned"
-STATUS_INVITED = "invited"
-STATUS_DECLINED = "declined"
-STATUS_COMPLETED = "completed"
-STATUS_DEPRECATED = "deprecated"
-STATUS_REPLACED = "replaced"
-ASSIGNMENT_STATUSES = (
-    (STATUS_PREASSIGNED, "Pre-assigned"),
-    (STATUS_INVITED, "Invited"),
-    (STATUS_ACCEPTED, "Accepted"),
-    (STATUS_DECLINED, "Declined"),
-    (STATUS_COMPLETED, "Completed"),
-    (STATUS_DEPRECATED, "Deprecated"),
-    (STATUS_REPLACED, "Replaced"),
 )
 
 REFEREE_QUALIFICATION = (

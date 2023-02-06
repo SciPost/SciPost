@@ -3,11 +3,13 @@ __license__ = "AGPL v3"
 
 
 from django.core.management import BaseCommand
+from django.db.models import Count, Q
 
 from ...models import EICRecommendation
 
 from colleges.models import Fellowship, FellowshipNominationVotingRound
 from mails.utils import DirectMailUtil
+from submissions.models import Submission
 
 
 class Command(BaseCommand):
@@ -16,7 +18,18 @@ class Command(BaseCommand):
     help = "Sends an email to Fellows with current and upcoming tasks list"
 
     def handle(self, *args, **kwargs):
-        fellowships = Fellowship.objects.active()
+        fellowships = Fellowship.objects.active().annotate(
+            nr_visible=Count(
+                "pool",
+                filter=Q(pool__status=Submission.SEEKING_ASSIGNMENT),
+                distinct=True,
+            ),
+            nr_appraised=Count(
+                "qualification",
+                filter=Q(pool__status=Submission.SEEKING_ASSIGNMENT),
+                distinct=True,
+            ),
+        )
         count = 0
 
         for fellowship in fellowships:
@@ -42,6 +55,7 @@ class Command(BaseCommand):
                 or assignments_ongoing_with_required_actions
                 or assignments_to_consider
                 or assignments_upcoming_deadline
+                or fellowship.nr_visible > fellowship.nr_appraised
             ):
                 mail_sender = DirectMailUtil(
                     "fellows/email_fellow_tasklist",
@@ -53,6 +67,11 @@ class Command(BaseCommand):
                     recs_to_vote_on=recs_to_vote_on,
                     assignments_ongoing=assignments_ongoing,
                     assignments_to_consider=assignments_to_consider,
+                    nr_visible=fellowship.nr_visible,
+                    nr_appraised=fellowship.nr_appraised,
+                    nr_appraisals_required=(
+                        fellowship.nr_visible-fellowship.nr_appraised
+                    ),
                     assignments_upcoming_deadline=assignments_upcoming_deadline,
                 )
                 mail_sender.send_mail()

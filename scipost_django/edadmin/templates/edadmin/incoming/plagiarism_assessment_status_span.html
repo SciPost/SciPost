@@ -1,0 +1,1 @@
+<span class="px-2 py-1 bg-{% if assessment.ongoing %}warning{% elif assessment.passed %}success{% else %}danger{% endif %} text-white">{{ assessment.get_status_display }}</span>

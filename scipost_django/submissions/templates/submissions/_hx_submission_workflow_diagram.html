@@ -1,11 +1,14 @@
-<div class="border m-2 p-2">
-  <p><strong class="m-2">Workflow graphs{% if submission %} for <a href="{{ submission.get_absolute_url }}">{{ submission }}</a>{% else %}: Submission processing{% endif %}</strong></p>
+<details class="border border-2 my-2" open>
+  <summary class="p-2">
+    <p><strong class="m-2">Workflow graphs{% if submission %} for <a href="{{ submission.get_absolute_url }}">{{ submission }}</a>{% else %}: Submission processing{% endif %}</strong></p>
+  </summary>
   <details class="m-2 p-2 border">
     <summary><strong>Legend</strong></summary>
     <ul class="m-2 list list-unstyled">
       <li>✉=email sent</li>
-      <li>S=SciPost EdAdmin</li>
       <li>A=submitting Author</li>
+      <li>S=SciPost EdAdmin</li>
+      <li>SF=SFellow(s)</li>
       <li>F=Fellow(s)</li>
       <li>E=Editor-in-charge</li>
       <li>R=Referee(s)</li>
@@ -18,41 +21,84 @@
       </ul>
     </p>
   </details>
-  <div class="m-4">
-    <strong class="mt-2">Pre-screening</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Incoming</strong>
+	{% if submission %}{% if submission.in_stage_incoming %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_incoming_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     Sub([Submission{% if submission %}<br>{{ submission.submission_date }}<br>{{ submission.submission_date|timesince }} ago{% endif %}])
-    subgraph Pre-screening
-        Admiss(Admissibility<br>and plagiarism<br>checks) --pass--> PreTop(Topics<br>specification)
-        PreTop --> PreCOI(Conflict<br>of interest<br>checks)
+    subgraph Admission
+        Admiss(Admissibility<br>check)
+        Admiss --> PlagInt(internal plagiarism<br>check)
+        PlagInt --> PlagExt(external plagiarism<br>check)
+    end
+    Sub --> Admiss
+    PlagExt --fail--> AdmissFailed("Admission<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
+    PlagExt --pass--> AdmissPassed("Admission<br>passed ✉<small>A</small>") --> Preassignment[[Goto:<br>Preassignment]]
+    PlagInt --"pass<br>(authors created new submission<br>but this is a resubmission)"--> LinkResub("Link resubmission<br>to earlier thread") --> AdmissPassed2("Admission<br>passed ✉<small>A</small>") --> RefPrep[[Goto:<br>Refereeing<br>in preparation]]
+      </pre>
+    </details>
+  </div>
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Preassignment</strong>
+	{% if submission %}{% if submission.in_stage_preassignment %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_preassignment_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
+flowchart LR
+    AdmissPassed([Admission<br>passed])
+    subgraph Preassignment
+        PreTop(Submission<br>Topics<br>specification) --> ProfMatch(Author<br>Profiles<br>matching)
+        ProfMatch --> PreCOI(Conflict<br>of interest<br>checks)
         PreCOI --> PrePa(Listing of<br>potential<br>Editors-in-charge)
     end
-    Admiss --fail--> PreFailed(["Pre-screening<br>failed ✉<small>A</small>"])
-    Sub --> Admiss
-    PrePa --> PrePass(["Pre-screening<br>passed ✉<small>A</small>"]) --> Screening[[Goto:<br>Screening]]
-    </pre>
+    AdmissPassed --> PreTop
+    PrePa --> Assignment[[Goto:<br>Assignment]]
+      </pre>
+    </details>
   </div>
-  <div class="m-4">
-    <strong class="mt-2">Screening</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Assignment</strong>
+	{% if submission %}{% if submission.in_stage_assignment %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_assignment_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
-    subgraph Screening
-        ScrInv(["Fellows invited<br>to take charge ✉<small>F</small>"]) --> ScrDecl(Fellows decline)
-        ScrInv --> ScrNoAns(Fellows unresponsive)
-        ScrDecl --> NoEiC(No Editor-in-charge<br>found)
+    PrePass(["Preassignment<br>passed"])
+    subgraph Assignment
+        ScrList(["Submission listed<br>in Fellow's pool ✉<small>F</small>"])
+        ScrList --> ScrAppr(["<br>&nbsp;Fellows appraise their<br><ul><li>qualification</li><li>competing interests</li><li>readiness to take charge</li></ul>"])
+        style ScrAppr text-align:left
+        ScrAppr --> ScrNotQual("Fellows not sufficiently<br>qualified")
+        ScrAppr --> ScrConf("Fellows have a<br>competing interest")
+        ScrAppr --> ScrDecl("Fellows not ready<br>to take charge")
+        ScrAppr --> ScrNoAns(Fellows unresponsive)
+        ScrNotQual --> NoEiC(No Editor-in-charge<br>found)
+        ScrConf --> NoEiC
+        ScrDecl --> NoEiC
         ScrNoAns --> NoEiC
-        ScrInv --> ScrAcc(A Fellow accepts)
+        ScrAppr --> ScrAcc(A Fellow accepts<br>to take charge)
         ScrAcc --> ScrEiC("Editor-in-charge<br>appointed ✉<small>E</small>")
-        ScrVol(A Fellow<br>volunteers) --> ScrEiC
     end
-    NoEiC --> DeskRej(["Screening<br>failed ✉<small>A</small>"])
-    ScrEiC --> ScrPassed(["Screening<br>passed ✉<small>A</small>"]) --> RefPrep[[Goto:<br>Refereeing setup]]
-    </pre>
+    PrePass --> ScrList
+    NoEiC --> DeskRej("Assignment<br>failed ✉<small>A</small>") --> Close([Processing<br>closed])
+    ScrEiC --> ScrPassed("Assignment<br>passed ✉<small>A</small>") --> RefPrep[[Goto:<br>Refereeing<br>in preparation]]
+      </pre>
+
+    </details>
   </div>
-  <div class="m-4">
-    <strong class="mt-2">Refereeing setup</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Refereeing in preparation</strong>
+	{% if submission %}{% if submission.in_stage_refereeing_in_preparation %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_refereeing_in_preparation_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     subgraph ChooseCycle [Choose refereeing cycle]
         DirectRec(Direct recommendation)
@@ -60,18 +106,23 @@ flowchart LR
         ShortCycle(Short cycle)
     end
     ScrPassed --> DirectRec
-    ScrPassed([Screening passed]) --> RegCycle
-    Resub([Resubmission received<br>or restart refereeing]) --> RegCycle
+    ScrPassed([Assignment passed]) --> RegCycle
+    Resub([Resubmission received<br>or refereeing restarted]) --> RegCycle
     Resub --> ShortCycle
     Resub --> DirectRec
     DirectRec ----> EdRec[[Goto:<br>Editorial Recommendation]]
     RegCycle ----> Refereeing[[Goto:<br>Refereeing]]
     ShortCycle ----> Refereeing
-    </pre>
+      </pre>
+    </details>
   </div>
-  <div class="m-4">
-    <strong class="mt-2">Refereeing</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong class="mt-2">Refereeing</strong>
+	{% if submission %}{% if submission.in_stage_in_refereeing %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_in_refereeing_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     subgraph Ref [Refereeing]
         RefOpen([Refereeing<br>round open]) --> RefInv("Referees<br>invited ✉<small>R</small>")
@@ -84,36 +135,42 @@ flowchart LR
         AuthResp --> RefClosed(Refereeing round<br>closed)
     end
     RefClosed --> EiCRec[[Goto:<br>Editorial recommendation]]
-    </pre>
+      </pre>
+    </details>
   </div>
-  <div class="m-4">
-    <strong>Recommendation, voting and decision</strong>
-    <pre class="mermaid">
+  <div class="m-2 border">
+    <details open>
+      <summary class="p-2">
+	<strong>Recommendation, voting and decision</strong>
+	{% if submission %}{% if submission.in_stage_decisionmaking %}<span class="text-warning ms-4">Current stage of this Submission</span>{% elif submission.stage_decisionmaking_completed %}<span class="text-success ms-4">Completed</span>{% else %}<span class="text-primary ms-4">Not started</span>{% endif %}{% endif %}
+      </summary>
+      <pre class="mermaid workflowDiagram">
 flowchart LR
     subgraph EiCRec [Editorial recommendation]
         RefClosed([Refereeing round<br>closed]) --> EiCRecForm{% verbatim %}{{EiC Rec<br>Formulation}}{% endverbatim %}
         DirectRec([Direct<br>Recommendation]) --> EiCRecForm
     end
     subgraph EdColVote [Editorial College vote]
-        VotePrep(Voting<br>preparation) --> VotingInv(Fellows<br>invited to vote)
+        VotePrep(Voting<br>in preparation) --> VotingInv(Fellows<br>invited to vote)
         VotingInv --> Voting(Fellows voting)
     end
     EiCRecForm --minor/major revision--> Resub(Resubmission<br>required)
     EiCRecForm --accept/reject--> EdColVote
-    Resub --> Refereeing[[Goto: Refereeing setup:<br>Resubmission or restart refereeing]]
+    Resub --> Refereeing[[Goto: Refereeing in preparation:<br>Resubmission received or refereeing restarted]]
     subgraph EdDec ["Editorial decision ✉<small>A</small>"]
-        AcceptTarget(Accept<br>in target<br>Journal)
-        AcceptAlt(Accept<br>in alternative<br>Journal)
-        Reject
-        RestartRef(Restart<br>refereeing)
+        AcceptTarget{% verbatim %}{{Accept<br>in target<br>Journal}}{% endverbatim %}
+        AcceptAlt{% verbatim %}{{Accept<br>in alternative<br>Journal}}{% endverbatim %}
+        Reject{% verbatim %}{{Reject}}{% endverbatim %}
+        RestartRef{% verbatim %}{{Restart<br>refereeing}}{% endverbatim %}
     end
     EdColVote --> EdDec
     AcceptTarget --> Production([Production])
     AcceptAlt --> PubOffer("Publication<br>offer ✉<small>A</small>")
     PubOffer --accept--> Production[[Production stream<br>started]]
     PubOffer --decline--> Close([Processing<br>closed])
-    RestartRef(Restart<br>refereeing) --> Refereeing
+    RestartRef --> Refereeing
     Reject --> Close
-    </pre>
+      </pre>
+    </details>
   </div>
-</div>
+</details>

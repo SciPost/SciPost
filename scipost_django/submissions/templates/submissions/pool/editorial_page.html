@@ -66,7 +66,7 @@
           {% if not submission.eicrecommendations.all %}
             No Editorial Recommendation has been formulated yet.
           {% endif %}
-          {% if submission.in_refereeing_phase %}
+          {% if submission.in_stage_in_refereeing %}
             Refereeing is still in progress, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a> when the refereeing round is closed.
           {% elif not submission.reports.accepted %}
             Please make sure you have at least one vetted Report before you <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a>.
@@ -159,13 +159,13 @@
         {% endif %}
       </td>
     </tr>
-    {% if submission.plagiarism_report or perms.scipost.can_do_plagiarism_checks %}
+    {% if submission.iThenticate_plagiarism_report or perms.scipost.can_do_plagiarism_checks %}
       <tr>
         <td>Plagiarism report:</td>
         <td>
-          {% if submission.plagiarism_report %}
-            {% if submission.plagiarism_report.percent_match %}
-              <b>{{ submission.plagiarism_report.percent_match }}%</b>
+          {% if submission.iThenticate_plagiarism_report %}
+            {% if submission.iThenticate_plagiarism_report.percent_match %}
+              <b>{{ submission.iThenticate_plagiarism_report.percent_match }}%</b>
             {% else %}
               <em>Scan in progress</em>
               {% if perms.scipost.can_do_plagiarism_checks %}
@@ -209,7 +209,7 @@
             {% endif %}
           </span>
         {% endif %}
-        {% if submission.in_refereeing_phase %}
+        {% if submission.in_stage_in_refereeing %}
           {% if submission.reporting_deadline_has_passed %}
             <div class="mt-2 p-2 border">
               <span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span>
@@ -322,7 +322,7 @@
       <h3>All available actions</h3>
       <ul class="mb-5">
         {% if submission.refereeing_cycle != 'direct_rec' %}
-          {% if submission.in_refereeing_phase %}
+          {% if submission.in_stage_in_refereeing %}
             <li>
               {% if submission.referee_invitations.all %}
                 <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite an additional referee</a>
@@ -430,7 +430,7 @@
 
         {% if submission.eic_recommendation_required %}
           <p>
-            {% if submission.in_refereeing_phase %}
+            {% if submission.in_stage_in_refereeing %}
               Refereeing is still in progress, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation here</a> when the refereeing round is closed.
             {% elif not submission.reports.accepted %}
               Please make sure you have at least one vetted Report before you <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a>.

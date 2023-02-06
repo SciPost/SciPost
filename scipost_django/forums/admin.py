@@ -16,13 +16,16 @@ class ForumAdmin(GuardedModelAdmin):
         "moderators",
     ]
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).anchors()
+
 
 admin.site.register(Forum, ForumAdmin)
 
 
 class MeetingAdmin(GuardedModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
-    search_fields = ["name", "description", "preamble"]
+    search_fields = ["name", "description", "preamble", "minutes"]
     autocomplete_fields = [
         "moderators",
     ]
@@ -32,10 +35,12 @@ admin.site.register(Meeting, MeetingAdmin)
 
 
 class PostAdmin(admin.ModelAdmin):
-    search_fields = ["posted_by", "subject", "text"]
+    list_display = ["anchor", "posted_by", "posted_on"]
+    search_fields = ["posted_by__last_name", "subject", "text"]
     autocomplete_fields = [
         "posted_by",
         "vetted_by",
+        "cf_latest_followup_in_hierarchy",
     ]
 
 
@@ -43,7 +48,7 @@ admin.site.register(Post, PostAdmin)
 
 
 class MotionAdmin(admin.ModelAdmin):
-    search_fields = ["posted_by", "subject", "text"]
+    search_fields = ["posted_by__last_name", "subject", "text"]
     autocomplete_fields = [
         "posted_by",
         "vetted_by",

@@ -1,11 +1,14 @@
 {% extends 'scipost/base.html' %}
 
+{% load common_extras %}
+{% load render_bundle from webpack_loader %}
+
 {% block breadcrumb %}
   <div class="breadcrumb-container">
     <div class="container">
       <nav class="breadcrumb hidden-sm-down">
         {% block breadcrumb_items %}
-          <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">EdAdmin</a>
+          <a href="{% url 'edadmin:edadmin' %}" class="breadcrumb-item">EdAdmin</a>
         {% endblock %}
       </nav>
     </div>
@@ -16,26 +19,29 @@
 
 {% block content %}
 
-  <h2 class="highlight">Prescreening</h2>
-  {% for submission in prescreening %}
-    <details>
-      <summary>{{ submission }}</summary>
-      <button class="m-2 btn btn-primary workflowDiagram"
-	      id="submission-{{ submission.preprint.identifier_w_vn_nr }}-workflow-diagram"
-	      hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	      hx-swap="outerHTML"
-      >Load Submission processing workflow graphs</button>
+  {% for stage in stages %}
+    <details class="border border-2 my-4"
+	     id="{{ stage }}-details"
+    >
+      <summary class="bg-primary bg-opacity-10 px-4 py-2">
+	<h1>{{ stage|capfirst|replace:"_| " }}</h1>
+      </summary>
+      <span id="{{ stage }}-details-contents"
+	    hx-get="{% url 'edadmin:_hx_submissions_in_stage' stage=stage %}"
+	    hx-swap="outerHTML"
+	    hx-trigger="toggle once from:#{{ stage }}-details"
+	    hx-indicator="#indicator-submissions-{{ stage }}"
+      ></span>
+      <span id="indicator-submissions-{{ stage }}" class="htmx-indicator">
+	<button class="m-2 btn btn-sm btn-warning" type="button" disabled>
+	  <strong>Loading Submissions in stage {{ stage|replace:"_| " }}...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </span>
     </details>
   {% endfor %}
-
 {% endblock content %}
 
 {% block footer_script %}
-  <script type="module" nonce="{{ request.csp_nonce }}">
-   import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
-   mermaid.initialize({ startOnLoad: false });
-   document.body.addEventListener("htmx:afterSettle", function(evt) {
-       mermaid.init(".workflowDiagram");
-   });
-  </script>
+  {% render_bundle 'mermaid' %}
 {% endblock footer_script %}

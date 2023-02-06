@@ -27,6 +27,8 @@ from ..constants import (
 from ..models import Fellowship
 
 from common.utils import hslColorWheel
+from scipost.models import UnavailabilityPeriod
+from submissions.models import Submission
 
 
 register = template.Library()

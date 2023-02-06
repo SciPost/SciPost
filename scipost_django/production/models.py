@@ -119,10 +119,6 @@ class ProductionStream(models.Model):
         return self.status == PRODUCTION_STREAM_COMPLETED
 
     @property
-    def notification_name(self):
-        return self.submission.preprint.identifier_w_vn_nr
-
-    @property
     def latest_activity(self):
         if self.events.last():
             return self.events.last().noted_on
@@ -167,10 +163,6 @@ class ProductionEvent(models.Model):
             self.event in [EVENT_MESSAGE, EVENT_HOUR_REGISTRATION]
             and not self.stream.completed
         )
-
-    @property
-    def notification_name(self):
-        return self.stream.notification_name
 
 
 def production_event_upload_location(instance, filename):

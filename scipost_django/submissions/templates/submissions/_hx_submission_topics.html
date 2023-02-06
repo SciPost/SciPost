@@ -1,0 +1,78 @@
+{% load crispy_forms_tags %}
+
+<div class="row">
+
+  <div class="col-lg-{% if perms.scipost.can_manage_ontology %}8{% else %}12{% endif %}">
+    <strong class="d-inline-flex bg-info my-2 p-1">
+      Topics for this Submission
+      <small class="ms-4">(see full <a href="{% url 'ontology:ontology' %}">Ontology</a> or <a href="{% url 'ontology:topics' %}">Topics</a> database)</small>
+    </strong>
+    <br>
+    {% for topic in submission.topics.all %}
+      <span class="label label-secondary ms-2 mb-2">
+	<a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>
+	{% if perms.scipost.can_manage_ontology %}
+	  <a class="text-danger px-1 py-0"
+	     hx-get="{% url 'submissions:_hx_submission_topic_action' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr topic_slug=topic.slug action='remove' %}"
+	     hx-confirm="Remove topic - {{ topic }} - from this Submission?"
+	     hx-target="#submission-{{ submission.pk }}-topics"
+	  >
+	    {% include 'bi/x-square-fill.html' %}
+	  </a>
+	{% endif %}
+      </span>
+    {% empty %}
+      <div>No Topic has yet been associated to this Submission</div>
+    {% endfor %}
+    {% if matching_topics %}
+      <div class="ms-2 my-2 p-1">
+	<strong class="d-inline-flex bg-info bg-opacity-75 my-2 p-1">Matching your interests:</strong>
+	<br>
+	{% for topic in matching_topics.all %}
+	  <span class="label label-secondary ms-2 mb-2">
+	    <a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>
+	{% empty %}
+	    No matches
+	{% endfor %}
+      </div>
+    {% endif %}
+
+  </div>
+
+  {% if perms.scipost.can_manage_ontology %}
+    <div class="col-lg-4">
+      <div class="border border-2 border-warning my-4 p-2">
+	<p>
+	  <strong>Add a Topic to this Submission</strong>
+	  <br>
+	  (can't find the Topic you need?&nbsp;
+	  <a href="{% url 'ontology:topic_create' %}" target="_blank">
+	    {% include "bi/arrow-right-square-fill.html" %}&nbsp;create it
+	  </a>)
+	</p>
+	<form class="mt-1"
+	      hx-post="{% url 'ontology:_hx_topic_dynsel_list' %}"
+	      hx-trigger="keyup delay:200ms, change"
+	      hx-target="#submission-{{ submission.id }}-topic-search-results"
+	      hx-indicator="#submission-{{ submission.pk }}-topics-indicator"
+	>
+	  <div id="submission-{{ submission.id }}-topic-search-form"
+	       class="mb-0"
+	  >
+	    {% crispy topic_search_form %}
+	  </div>
+	</form>
+	<div id="submission-{{ submission.pk }}-topic-search-results" class="border border-light m-2 p-1"></div>
+	<div id="submission-{{ submission.id }}-topics-indicator"
+	     class="htmx-indicator p-2"
+	>
+	  <button class="btn btn-sm btn-warning" type="button" disabled>
+	    <strong>Loading...</strong>
+	    <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	  </button>
+	</div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>

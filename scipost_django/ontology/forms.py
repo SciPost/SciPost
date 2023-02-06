@@ -6,7 +6,7 @@ from django import forms
 from django.db.utils import ProgrammingError
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div
+from crispy_forms.layout import Layout, Field, Div
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
@@ -80,6 +80,33 @@ class SelectTagsForm(forms.Form):
     )
 
 
+class TopicForm(forms.ModelForm):
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url="/ontology/specialty-autocomplete", attrs={"data-html": True}
+        ),
+        label="Specialties",
+        help_text="Type to search, click to include",
+    )
+
+    class Meta:
+        model = Topic
+        fields = [
+            "specialties",
+            "name",
+            "slug",
+            "tags",
+        ]
+
+    def save(self):
+        instance = super().save()
+        for specialty in self.cleaned_data["specialties"].all():
+            specialty.topics.add(instance)
+        return instance
+
+
+
 class SelectTopicForm(forms.Form):
     topic = forms.ModelMultipleChoiceField(
         queryset=Topic.objects.all(),
@@ -92,6 +119,32 @@ class SelectTopicForm(forms.Form):
         self.fields["topic"].widget.attrs.update(
             {"placeholder": "type here to find topic"}
         )
+
+
+class TopicDynSelForm(forms.Form):
+    q = forms.CharField(max_length=32, label="Search")
+    action_url_name = forms.CharField()
+    action_url_base_kwargs = forms.JSONField(required=False)
+    action_target_element_id = forms.CharField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            FloatingField("q", autocomplete="off"),
+            Field("action_url_name", type="hidden"),
+            Field("action_url_base_kwargs", type="hidden"),
+            Field("action_target_element_id", type="hidden"),
+        )
+
+    def search_results(self):
+        if self.cleaned_data["q"]:
+            topics = Topic.objects.filter(
+                name__icontains=self.cleaned_data["q"]
+            )
+            return topics
+        else:
+            return Topic.objects.none()
 
 
 class SelectLinkedTopicForm(forms.Form):

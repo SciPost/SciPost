@@ -1,5 +1,7 @@
 {% extends 'submissions/base.html' %}
 
+{% load render_bundle from webpack_loader %}
+
 {% block meta_description %}{{ block.super }} Editorial Procedure{% endblock meta_description %}
 {% block pagetitle %}: editorial procedure{% endblock pagetitle %}
 
@@ -28,18 +30,21 @@
       <h2 id="pwr">Editorial procedure</h2>
       <p>All incoming Submissions to SciPost Journals are peer-reviewed using SciPost's <a href="/FAQ#pwr">peer-witnessed refereeing</a> process, which implements extremely high and stringent standards. The procedure follows this pattern (this is a summary; the official rules are set out in the <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a> under section <em>Submissions processing</em>):</p>
       <ol>
-        <li>
-	  <strong>Pre-screening: plagiarism and conflicts of interest</strong>
+	<li>
+	  <strong>Plagiarism and conflict of interest checks</strong>
 	  <br/>The Submission is checked by Editorial Administration for plagiarism and appropriate action (immediate rejection; request to authors for modified version) is taken if necessary. A thorough scan is performed to flag potential conflicts of interest of authors with Fellows.
 	</li>
+        <li>
+	  <strong>Preassignment</strong>
+	</li>
 	<li>
-	  <strong>Screening: finding an Editor-in-charge</strong>
+	  <strong>Assignment: finding an Editor-in-charge</strong>
 	  <br/>The Submission is internally forwarded to Fellows of the relevant Editorial College, for them to consider becoming Editor-in-charge. At this stage, qualified Fellows can exceptionally volunteer and immediately formulate a Recommendation for rejection without refereeing (this Recommendation is then processed according to the Editorial Recommendation rules below).
 	  As a special provision for our Core-class journals, members of the community can also be approached (in which case they become guest Fellows).
-	  If a (guest) Fellow expresses interest in the submission, they become Editor-in-charge. This screening process should occur on a timescale of 5 working days. Authors are contacted by our editorial administration in case of problems, in particular if extensions to the screening period prove necessary.</li>
+	  If a (guest) Fellow expresses interest in the submission, they become Editor-in-charge. This assignment process should occur on a timescale of 5 working days. Authors are contacted by our editorial administration in case of problems, in particular if extensions to the assignment period prove necessary.</li>
           <li>
 	    <strong>Activation of the Submission page</strong>
-	    <br/>Following successful screening, a Submission Page is activated. The Submission is immediately opened to Contributor Reports, Comments and Author Replies, all of which are vetted by an Editorial Fellow before appearing online.</li>
+	    <br/>Following successful assignment, a Submission Page is activated. The Submission is immediately opened to Contributor Reports, Comments and Author Replies, all of which are vetted by an Editorial Fellow before appearing online.</li>
 	    <li>
 	      <strong>Refereeing round</strong>
 	      <br/>The Editor-in-charge starts a refereeing round (whose duration depends on the Journal, see below), inviting specific Contributors (external referees) to provide an Invited Report.
@@ -78,11 +83,5 @@
 {% endblock content %}
 
 {% block footer_script %}
-  <script type="module" nonce="{{ request.csp_nonce }}">
-   import mermaid from 'https://unpkg.com/mermaid@9/dist/mermaid.esm.min.mjs';
-   mermaid.initialize({ startOnLoad: false });
-   document.body.addEventListener("htmx:afterSettle", function(evt) {
-       mermaid.init(".workflowDiagram");
-   });
-  </script>
+  {% render_bundle 'mermaid' %}
 {% endblock footer_script %}

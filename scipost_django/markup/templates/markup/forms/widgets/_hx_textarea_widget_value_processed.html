@@ -1,0 +1,12 @@
+<div style="border: 2px solid orange; padding: 0.5rem;">
+  <span style="padding: 0.5rem; background-color: #f3f6ff; color: #004057;">
+    <em><strong>Preview</strong>&emsp;(markup language: <strong>{{ markup.language }}</strong></em>)
+  </span>
+  {% if markup.errors %}
+    &emsp;<span style="color: red;">Errors: {{ markup.errors }}</span>
+  {% endif %}
+  {% if markup.warnings %}
+    &emsp;<span style="color: orange;">Warnings: {{ markup.warnings }}</span>
+  {% endif %}
+  <div style="margin: 1rem;">{{ markup.processed|safe }}</div>
+</div>

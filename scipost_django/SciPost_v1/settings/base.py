@@ -110,6 +110,7 @@ INSTALLED_APPS = [
     "common",
     "conflicts",
     "edadmin",
+    "ethics",
     "finances",
     "forums",
     "funders",
@@ -186,7 +187,7 @@ HAYSTACK_SIGNAL_PROCESSOR = "SciPost_v1.signalprocessors.SearchIndexingProcessor
 SHELL_PLUS_POST_IMPORTS = (
     ("theses.factories", ("ThesisLinkFactory")),
     ("comments.factories", ("CommentFactory")),
-    ("submissions.factories", ("SubmissionFactory", "EICassignedSubmissionFactory")),
+    ("submissions.factories", ("SubmissionFactory", "InRefereeingSubmissionFactory")),
     (
         "commentaries.factories",
         (
@@ -285,6 +286,7 @@ CSP_SCRIPT_SRC = (
     "static.mendeley.com",
     "cdn.plot.ly",
     "unpkg.com/htmx.org@1.6.0",
+    "unpkg.com/mermaid@9",
 )
 CSP_STYLE_SRC = (
     "'self'",

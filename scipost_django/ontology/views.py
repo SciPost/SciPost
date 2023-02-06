@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import messages
-from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -20,6 +19,8 @@ from .forms import (
     SessionAcademicFieldForm,
     SessionSpecialtyForm,
     SelectTagsForm,
+    TopicForm,
+    TopicDynSelForm,
     SelectLinkedTopicForm,
     AddRelationAsymForm,
 )
@@ -150,9 +151,31 @@ class TopicAutocompleteView(autocomplete.Select2QuerySetView):
 
     def get_queryset(self):
         qs = Topic.objects.all()
+        specialties = self.forwarded.get("specialties", None)
+        if specialties:
+            qs = qs.filter(specialties__in=specialties)
         if self.q:
             qs = qs.filter(name__icontains=self.q)
         return qs
+
+
+def _hx_topic_dynsel_list(request):
+    form = TopicDynSelForm(request.POST or None)
+    if form.is_valid():
+        topics = form.search_results()
+    else:
+        topics = Topic.objects.none()
+    context = {
+        "topics": topics,
+        "action_url_name": form.cleaned_data["action_url_name"],
+        "action_url_base_kwargs": (
+            form.cleaned_data["action_url_base_kwargs"]
+            if "action_url_base_kwargs" in form.cleaned_data
+            else {}
+        ),
+        "action_target_element_id": form.cleaned_data["action_target_element_id"],
+    }
+    return render(request, "ontology/_hx_topic_dynsel_list.html", context)
 
 
 class TopicLinkedAutocompleteView(TopicAutocompleteView):
@@ -173,8 +196,9 @@ class TopicCreateView(PermissionsMixin, CreateView):
 
     permission_required = "scipost.can_manage_ontology"
     model = Topic
-    fields = "__all__"
-    template_name = "ontology/topic_form.html"
+    form_class = TopicForm
+    # fields = "__all__"
+    # template_name = "ontology/topic_form.html"
     success_url = reverse_lazy("ontology:topics")
 
 

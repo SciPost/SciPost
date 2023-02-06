@@ -34,4 +34,4 @@ class Branch(models.Model):
 
     @property
     def submissions(self):
-        return Submission.objects.public_newest().filter(acad_field__branch=self.id)
+        return Submission.objects.public_latest().filter(acad_field__branch=self.id)

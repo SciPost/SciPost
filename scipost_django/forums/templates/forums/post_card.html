@@ -1,80 +1,91 @@
 {% load automarkup %}
+{% load guardian_tags %}
 
-<div class="card m-2 {% if post.motion %}text-white bg-dark{% else %}text-body{% endif %}" id="post{{ post.id }}">
-  <div class="card-header">
-    {{ post.subject }}
-    <div class="postInfo">
-      {{ post.posted_by.first_name }} {{ post.posted_by.last_name }} on {{ post.posted_on|date:"Y-m-d" }}
-      - <a href="{{ post.get_absolute_url }}"><span title="permalink to this Post">{% include 'bi/link.html' %}</span></a>
-      {% if post.parent and not post.motion %}
-	- regarding <a href="{{ post.parent.get_absolute_url }}">{{ post.parent }}</a>
-      {% endif %}
-    </div>
-  </div>
-  <div class="card-body">
-    {% automarkup post.text %}
-  </div>
-  <div class="card-footer">
-    <div class="d-flex flex-wrap justify-content-end align-items-center">
-      <div class="flex-grow-1">
-	{% if post.followup_posts.all|length > 0 %}
-	  <span class="badge bg-primary rounded-pill">{% with nr_followups=post.nr_followups %}{{ nr_followups }} repl{{ nr_followups|pluralize:"y,ies" }}{% endwith %}</span>
-	{% endif %}&nbsp;
-	{% if post.post_ptr %}
-	  <a href="{% url 'forums:post_create' slug=forum.slug parent_model='post' parent_id=post.post_ptr.id %}">{% if post.motion %}Post a Comment on this Motion{% else %}Reply to the above post{% endif %}</a>
-	{% else %}
-	  <a href="{% url 'forums:post_create' slug=forum.slug parent_model='post' parent_id=post.id %}">{% if post.motion %}Post a Comment on this Motion{% else %}Reply to the above post{% endif %}</a>
+{% get_obj_perms request.user for forum as "forum_user_perms"  %}
+
+<div id="thread-{{ post.id }}">
+  <div class="card m-2 {% if post.motion %}text-white bg-dark{% else %}text-body{% endif %}" id="post{{ post.id }}">
+    <div class="card-header">
+      {{ post.subject }}
+      <div class="postInfo">
+	{{ post.posted_by.first_name }} {{ post.posted_by.last_name }} on {{ post.posted_on|date:"Y-m-d" }}
+	- <a href="{{ post.get_absolute_url }}"><span title="permalink to this Post">{% include 'bi/link.html' %}</span></a>
+	{% if post.parent and not post.motion %}
+	  - regarding <a href="{{ post.parent.get_absolute_url }}">{{ post.parent }}</a>
 	{% endif %}
       </div>
-
-      {% if post.motion %}
-	<div class="align-self-center px-2">
-	  Voting results
-	  <span class="text-white-50">
-	    {% if request.user in post.motion.in_agreement.all %}
-	      <br/>You have voted <span class="text-success">Agree</span>
-	    {% elif request.user in post.motion.in_doubt.all %}
-	      <br/>You have voted <span class="text-warning">Doubt</span>
-	    {% elif request.user in post.motion.in_disagreement.all %}
-	      <br/>You have voted <span class="text-danger">Disagree</span>
-	    {% elif request.user in post.motion.in_abstain.all %}
-	      <br/>You have <span class="text-white-50">Abstained</span>
-	    {% elif request.user in post.motion.eligible_for_voting.all %}
-	      <br/>[click to vote]
+    </div>
+    <div class="card-body">
+      {% automarkup post.text %}
+    </div>
+    <div class="card-footer">
+      <div class="d-flex flex-wrap justify-content-end align-items-center">
+	<div class="flex-grow-1">
+	  {% with post.followup_posts.all|length as nr_followup_threads %}
+	    {% if nr_followup_threads > 0 %}
+	      <span class="badge bg-info rounded-pill text-dark me-2 px-2">{{ nr_followup_threads }} followup thread{{ nr_followup_threads|pluralize }}, {% with nr_followups=post.cf_nr_followups %}{{ nr_followups }} post{{ nr_followups|pluralize }}{% endwith %} in total</span>
 	    {% endif %}
-	  </span>
+	  {% endwith %}
 	</div>
-	<div>
-	  <form action="{% url 'forums:motion_vote' slug=forum.slug motion_id=post.motion.id vote='Y' %}" method="post">{% csrf_token %}
-	    <input type="submit" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Agree{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_agreement.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_agreement.all|length }}">
-	  </form>
+
+	{% if post.motion %}
+	  <div id="motion-{{ post.motion.id }}-voting-indicator"
+	       class="htmx-indicator p-2"
+	  >
+	    <button class="btn btn-warning" type="button" disabled>
+	      <strong>Loading voting data...</strong>
+	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	    </button>
+	  </div>
+	  <div id="motion-{{ post.motion.id }}-voting"
+	       class="align-self-center px-2"
+	       hx-get="{% url 'forums:_hx_motion_voting' slug=forum.slug motion_id=post.motion.id %}"
+	       hx-trigger="load"
+	       hx-target="#motion-{{ post.motion.id }}-voting"
+	       hx-swap="innerHTML"
+	       hx-indicator="#motion-{{ post.motion.id }}-voting-indicator"
+	  >
+	  </div>
+	{% endif %}
+      </div>
+    </div>
+
+    {% with id_str=post.id|stringformat:"s" %}
+      {% with thread_str="thread-"|add:id_str %}
+	<div id="{{ thread_str|add:'-origin' }}">
+	  {% if post.motion %}
+	    {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='motion' parent_id=post.id origin=thread_str|add:"-origin" target=thread_str|add:"-new" text="Comment on this Motion" %}
+	  {% else %}
+	    {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='post' parent_id=post.id origin=thread_str|add:"-origin" target=thread_str|add:"-new" text="Reply" %}
+	  {% endif %}
 	</div>
-	<div>
-	  <form action="{% url 'forums:motion_vote' slug=forum.slug motion_id=post.motion.id vote='M' %}" method="post">{% csrf_token %}
-	    <input type="submit" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Doubt{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_doubt.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_doubt.all|length }}">
-	  </form>
-	</div>
-	<div>
-	  <form action="{% url 'forums:motion_vote' slug=forum.slug motion_id=post.motion.id vote='N' %}" method="post">{% csrf_token %}
-	    <input type="submit" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Disagree{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_disagreement.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_disagreement.all|length }}">
-	  </form>
-	</div>
-	<div>
-	  <form action="{% url 'forums:motion_vote' slug=forum.slug motion_id=post.motion.id vote='A' %}" method="post">{% csrf_token %}
-	    <input type="submit" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Abstain{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_abstain.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_abstain.all|length }}">
-	  </form>
-	</div>
-	<div class="align-self-center px-2">
-	  Voting deadline:<br/>{{ post.motion.voting_deadline|date:'Y-m-d' }}
-	</div>
+      {% endwith %}
+    {% endwith %}
+
+    <div class="followupPosts{% if post.motion %}AfterMotion{% endif %}"
+    >
+      {% if post.followup_posts %}
+	{% for followup in post.followup_posts.all %}
+	  <div id="thread-{{ followup.id }}"
+	       hx-get="{% url 'forums:_hx_thread_from_post' slug=forum.slug post_id=followup.id %}"
+	       hx-target="#thread-{{ followup.id }}"
+	       hx-swap="outerHTML"
+	       hx-trigger="load delay:1s"
+	       hx-indicator="#thread-{{ followup.id }}-indicator"
+	  >
+	    <div id="thread-{{ followup.id }}-indicator"
+		 class="htmx-indicator p-2"
+	    >
+	      <button class="btn btn-warning" type="button" disabled>
+		<strong>Loading thread {{ followup.id }}</strong>
+		<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	      </button>
+	    </div>
+	  </div>
+	{% endfor %}
       {% endif %}
+      <div id="thread-{{ post.id }}-new" style="height: 0px;"></div>
     </div>
+
   </div>
-  {% if post.followup_posts.all|length > 0 %}
-    <div class="followupPosts{% if post.motion %}AfterMotion{% endif %}">
-      {% for followup in post.followup_posts.all %}
-	{% include 'forums/post_card.html' with post=followup %}
-      {% endfor %}
-    </div>
-  {% endif %}
 </div>

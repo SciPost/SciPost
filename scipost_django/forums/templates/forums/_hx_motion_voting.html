@@ -1,0 +1,197 @@
+{% load bootstrap %}
+{% load guardian_tags %}
+
+{% get_obj_perms request.user for forum as "forum_user_perms"  %}
+
+{% if "can_administer_forum" in forum_user_perms %}
+  <details class="bg-white">
+    <summary class="bg-danger bg-opacity-10 border border-danger text-dark p-2 my-1">
+      <strong>Voting results (forum admin view)</strong>
+      <button class="btn btn-sm btn-warning ms-4"
+	      hx-get="{% url 'forums:_hx_motion_voting' slug=forum.slug motion_id=motion.id %}"
+	      hx-target="#motion-{{ motion.id }}-voting"
+      >{% include "bi/arrow-clockwise.html" %}&nbsp;refresh</button>
+    </summary>
+    <table class="table table-bordered">
+      <thead>
+	<tr>
+	  <th>Eligible to vote</th>
+	  <th>Agreed</th>
+	  <th>Doubt</th>
+	  <th>Disagreed</th>
+	  <th>Abstained</th>
+	</tr>
+      </thead>
+      <tbody>
+	<tr>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.eligible_to_vote.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.in_agreement.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.in_doubt.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.in_disagreement.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	  <td>
+	    <ul class="list list-unstyled">
+	      {% for voter in motion.in_abstain.all %}
+		<li>{{ voter.contributor }}</li>
+	      {% empty %}
+		<li>None</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	</tr>
+      </tbody>
+    </table>
+  </details>
+{% endif %}
+
+<div class="align-self-center px-2 py-1">
+  Voting results&emsp;
+  <span class="text-white-50">
+    {% if request.user in motion.in_agreement.all %}
+      You have voted: <strong class="text-success">Agree</strong>
+    {% elif request.user in motion.in_doubt.all %}
+      You have voted: <strong class="text-warning">Doubt</strong>
+    {% elif request.user in motion.in_disagreement.all %}
+      You have voted: <strong class="text-danger">Disagree</strong>
+    {% elif request.user in motion.in_abstain.all %}
+      You have <strong class="text-white">Abstained</strong>
+    {% elif request.user in motion.eligible_for_voting.all and motion.open_for_voting %}
+      [click to vote]
+    {% endif %}
+  </span>
+</div>
+
+{% if form.errors %}
+  {% for field in form %}
+    {% for error in field.errors %}
+      <div class="alert alert-danger">
+	<strong>{{ field.name }} - {{ error|escape }}</strong>
+      </div>
+    {% endfor %}
+  {% endfor %}
+  {% for error in form.non_field_errors %}
+    <div class="alert alert-danger">
+      <strong>{{ error|escape }}</strong>
+    </div>
+  {% endfor %}
+{% endif %}
+
+<form hx-post="{% url 'forums:_hx_motion_voting' slug=forum.slug motion_id=motion.id %}"
+      hx-target="#motion-{{ motion.id }}-voting"
+      hx-trigger="change"
+>
+  {% csrf_token %}
+  <input type="hidden" name="user" value="{{ request.user.id }}" id="id_user">
+  <input type="hidden" name="motion" value="{{ motion.id }}" id="id_motion">
+  <div class="btn-group" role="group" aria-label="motion voting buttons">
+    <input type="radio" class="btn-check" name="vote"
+	   id="vote-Y" value="Y"
+	   {% if request.user in motion.in_agreement.all %}checked{% endif %}
+	   {% if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
+	   {% endif %}
+    >
+    {% if request.user in motion.in_agreement.all %}
+      <label class="btn btn-success text-white" for="vote-Y">
+	<strong>Agree&nbsp;{% include "bi/check-square-fill.html" %}</strong>
+	<br>{{ motion.in_agreement.all|length }}
+      </label>
+    {% else %}
+      <label class="btn btn-success" for="vote-Y">
+	Agree&nbsp;{% include "bi/square.html" %}
+	<br>{{ motion.in_agreement.all|length }}
+      </label>
+    {% endif %}
+
+    <input type="radio" class="btn-check" name="vote"
+	   id="vote-M" value="M"
+	   {% if request.user in motion.in_doubt.all %}checked{% endif %}
+	   {%  if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
+	   {% endif %}
+    >
+    {% if request.user in motion.in_doubt.all %}
+      <label class="btn btn-warning text-white" for="vote-M">
+	<strong>Doubt&nbsp;{% include "bi/check-square-fill.html" %}</strong>
+	<br>{{ motion.in_doubt.all|length }}
+      </label>
+    {% else %}
+      <label class="btn btn-warning" for="vote-M">
+	Doubt&nbsp;{% include "bi/square.html" %}
+	<br>{{ motion.in_doubt.all|length }}
+      </label>
+    {% endif %}
+
+    <input type="radio" class="btn-check" name="vote"
+	   id="vote-N" value="N"
+	   {% if request.user in motion.in_disagreement.all %}checked{% endif %}
+	   {%  if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
+	   {% endif %}
+    >
+    {% if request.user in motion.in_disagreement.all %}
+      <label class="btn btn-danger text-white" for="vote-N">
+	<strong>Disagree&nbsp;{% include "bi/check-square-fill.html" %}</strong>
+	<br>{{ motion.in_disagreement.all|length }}
+      </label>
+    {% else %}
+      <label class="btn btn-danger text-dark" for="vote-N">
+	Disagree&nbsp;{% include "bi/square.html" %}
+	<br>{{ motion.in_disagreement.all|length }}
+      </label>
+    {% endif %}
+
+    <input type="radio" class="btn-check" name="vote"
+	   id="vote-A" value="A"
+	   {% if request.user in motion.in_abstain.all %}checked{% endif %}
+	   {%  if not motion.open_for_voting or request.user not in motion.eligible_for_voting.all %}disabled
+	   {% endif %}
+    >
+    <label class="btn btn-secondary" for="vote-A">
+      Abstain&nbsp;
+      {% if request.user in motion.in_abstain.all %}
+	{% include "bi/check-square-fill.html" %}
+      {% else %}
+	{% include "bi/square.html" %}
+      {% endif %}
+      <br>{{ motion.in_abstain.all|length }}
+    </label>
+  </div>
+</form>
+
+<div class="align-self-center px-2 py-1">
+  Voting deadline:&emsp;{{ motion.voting_deadline|date:'Y-m-d' }}&emsp;
+  {% if motion.open_for_voting %}
+    <span class="badge rounded-pill text-bg-success text-white">open for voting</span>
+  {% else %}
+    <span class="badge rounded-pill text-bg-danger">voting closed</span>
+  {% endif %}
+</div>

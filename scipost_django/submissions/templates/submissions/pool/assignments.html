@@ -15,7 +15,7 @@
     <ul>
       {% for assignment in assignments_to_consider %}
         <li>On submission: {{ assignment.submission }}<br>
-          <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+          <a href="{% url 'submissions:pool:assignment_request' assignment.id %}">Accept or decline here</a>
         </li>
       {% endfor %}
     </ul>

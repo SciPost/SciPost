@@ -12,7 +12,7 @@
     <p>
       {% if not submission.editor_in_charge %}
         No Editor-in-charge is assigned yet. The SciPost administration will inform you as soon as one is assigned.
-      {% elif submission.in_refereeing_phase %}
+      {% elif submission.in_stage_in_refereeing %}
         The refereeing round has started. The current deadline is set to {{ submission.reporting_deadline|date:'j F Y' }}.
       {% elif submission.eicrecommendations.active.first %}
         An Editorial Recommendation has been formulated. See its status details below.
@@ -43,9 +43,9 @@
       <tr>
         <td>Submission is current version:</td>
         <td>
-          {% if submission.is_current %}
+          {% if submission.is_latest %}
             <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
-            <span class="text-muted">This is the current version.</span>
+            <span class="text-muted">This is the latest version.</span>
           {% else %}
             <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
             <span class="text-muted">This is not the current version.</span>

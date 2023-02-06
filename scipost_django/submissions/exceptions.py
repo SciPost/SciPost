@@ -10,6 +10,10 @@ class BaseCustomException(Exception):
         return self.name
 
 
+class StageNotDefinedError(BaseCustomException):
+    pass
+
+
 class CycleUpdateDeadlineError(BaseCustomException):
     pass
 

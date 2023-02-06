@@ -11,8 +11,8 @@ from django.utils import timezone
 from scipost.constants import TITLE_CHOICES
 
 from ..behaviors import SubmissionRelatedObjectMixin
-from ..constants import ASSIGNMENT_NULLBOOL, ASSIGNMENT_REFUSAL_REASONS
 from ..managers import RefereeInvitationQuerySet
+from ..models import EditorialAssignment
 
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
@@ -22,6 +22,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     or a non-registered scientist to write a Report for a specific Submission.
     The instance will register the response to the invitation and
     the current status of the refereeing duty if the invitation has been accepted.
+
     """
 
     profile = models.ForeignKey(
@@ -58,11 +59,15 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     accepted = models.BooleanField(
-        blank=True, null=True, choices=ASSIGNMENT_NULLBOOL, default=None
+        blank=True, null=True,
+        choices=((None, "Response pending"), (True, "Accept"), (False, "Decline")),
+        default=None,
     )
     date_responded = models.DateTimeField(blank=True, null=True)
     refusal_reason = models.CharField(
-        max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, blank=True, null=True
+        max_length=3,
+        choices=EditorialAssignment.REFUSAL_REASONS,
+        blank=True, null=True,
     )
     fulfilled = models.BooleanField(
         default=False
@@ -105,11 +110,6 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         if self.referee:
             return str(self.referee)
         return self.last_name + ", " + self.first_name
-
-    @property
-    def notification_name(self):
-        """Return string representation of this RefereeInvitation as shown in Notifications."""
-        return self.submission.preprint.identifier_w_vn_nr
 
     @property
     def related_report(self):

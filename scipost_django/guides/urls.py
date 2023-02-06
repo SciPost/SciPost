@@ -20,10 +20,10 @@ urlpatterns = [
         "editorial/submissions/submission_processing",
         permission_required("scipost.can_view_docs_scipost")(
             TemplateView.as_view(
-                template_name="guides/editorial/submissions/submission_prescreening.html"
+                template_name="guides/editorial/submissions/submission_preassignment.html"
             )
         ),
-        name="submission_prescreening",
+        name="submission_preassignment",
     ),
     path(
         "editorial/production/initial_production",

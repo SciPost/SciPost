@@ -1,0 +1,114 @@
+{% if submission.stage_incoming_completed %}
+
+  <h3>Info on completed stages</h3>
+
+  <ul class="nav nav-pills justify-content-center bg-success bg-opacity-10" >
+    <li class="nav-item">
+      {% include "edadmin/_submission_edadmin_subtab_link.html" with submission=submission subtab=subtab target="incoming" text="Incoming" %}
+    </li>
+    {% if submission.stage_preassignment_completed %}
+      <li class="nav-item">
+	{% include "edadmin/_submission_edadmin_subtab_link.html" with submission=submission subtab=subtab target="preassignment" text="Preassignment" %}
+      </li>
+    {% endif %}
+    {% if submission.stage_assignment_completed %}
+      <li class="nav-item">
+	{% include "edadmin/_submission_edadmin_subtab_link.html" with submission=submission subtab=subtab target="assignment" text="Assignment" %}
+      </li>
+    {% endif %}
+    {% if submission.stage_refereeing_in_preparation_completed %}
+      <li class="nav-item">
+	{% include "edadmin/_submission_edadmin_subtab_link.html" with submission=submission subtab=subtab target="refereeing_in_preparation" text="Refereeing <br>in preparation" %}
+      </li>
+    {% endif %}
+    {% if submission.stage_in_refereeing_completed %}
+      <li class="nav-item">
+	{% include "edadmin/_submission_edadmin_subtab_link.html" with submission=submission subtab=subtab target="in_refereeing" text="In refereeing" %}
+      </li>
+    {% endif %}
+    {% if submission.stage_decisionmaking_completed %}
+      <li class="nav-item">
+	{% include "edadmin/_submission_edadmin_subtab_link.html" with submission=submission subtab=subtab target="decisionmaking" text="Decision<br>making" %}
+      </li>
+    {% endif %}
+    {% if submission.stage_in_production_completed %}
+      <li class="nav-item">
+	{% include "edadmin/_submission_edadmin_subtab_link.html" with submission=submission subtab=subtab target="in_production" text="In production" %}
+      </li>
+    {% endif %}
+  </ul>
+
+  <div class="tab-content">
+    {% if subtab == "incoming" and submission.stage_incoming_completed %}
+      <table class="table">
+	<tr>
+	  <td>iThenticate plagiarism score</td>
+	  <td>
+            {% if submission.iThenticate_plagiarism_report %}
+              {{ submission.iThenticate_plagiarism_report.score }}%
+	      &emsp;<a href="{% url 'submissions:iThenticate_plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="ms-2 btn btn-default" target="_blank">View report pdf</a>
+            {% else %}
+              <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
+            {% endif %}
+	  </td>
+	</tr>
+	<tr>
+	  <td>Internal plagiarism matches</td>
+	  <td>
+	    {% if submission.internal_plagiarism_matches.submission_matches %}
+	      Sub: {{ submission.internal_plagiarism_matches.submission_matches|length }}&emsp;
+	    {% endif %}
+	    {% if submission.internal_plagiarism_matches.publication_matches %}
+	      Pub: {{ submission.internal_plagiarism_matches.publication_matches|length }}&emsp;
+	    {% endif %}
+	    {% if submission.internal_plagiarism_matches.submission_matches or submission.internal_plagiarism_matches.publication_matches %}
+	      <a href="{% url 'submissions:plagiarism_internal' submission.preprint.identifier_w_vn_nr %}" target="_blank">View details</a>
+	    {% else %}
+	      No matches
+	    {% endif %}
+	  </td>
+	</tr>
+      </table>
+    {% elif subtab == "preassignment" %}
+      {% if not submission.stage_preassignment_completed %}
+	This stage has not been completed yet.
+      {% else %}
+	<div class="m-2">
+	  {% include "edadmin/preassignment/_author_profiles_details.html" with submission=submission %}
+	</div>
+      {% endif %}
+    {% elif subtab == "assignment" %}
+      {% if not submission.stage_assignment_completed %}
+	This stage has not been completed yet.
+      {% else %}
+	<span class="text-warning">{% include "bi/cone-striped.html" %}</span>
+      {% endif %}
+    {% elif subtab == "refereeing_in_preparation" %}
+      {% if not submission.stage_refereeing_in_preparation_completed %}
+	This stage has not been completed yet.
+      {% else %}
+	<span class="text-warning">{% include "bi/cone-striped.html" %}</span>
+      {% endif %}
+    {% elif subtab == "in_refereeing" %}
+      {% if not submission.stage_in_refereeing_completed %}
+	This stage has not been completed yet.
+      {% else %}
+	<span class="text-warning">{% include "bi/cone-striped.html" %}</span>
+      {% endif %}
+    {% elif subtab == "decisionmaking" %}
+      {% if not submission.stage_decisionmaking_completed %}
+	This stage has not been completed yet.
+      {% else %}
+	<span class="text-warning">{% include "bi/cone-striped.html" %}</span>
+      {% endif %}
+    {% elif subtab == "in_production" %}
+      {% if not submission.stage_in_production_completed %}
+	This stage has not been completed yet.
+      {% else %}
+	<span class="text-warning">{% include "bi/cone-striped.html" %}</span>
+      {% endif %}
+    {% else %}
+      Unknown tab
+    {% endif %}
+  </div>
+{% endif %}

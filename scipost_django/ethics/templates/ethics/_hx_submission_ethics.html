@@ -1,0 +1,47 @@
+<div class="row">
+  <div class="col">
+    {% if clearance %}
+      <div class="bg-white d-inline-flex p-2">
+	<span class="text-success">
+	  {% include "bi/check-square-fill.html" %}
+	  &nbsp;You are free of competing interests
+	</span>
+	<a class="text-danger ms-4"
+	   hx-get="{% url 'ethics:_hx_submission_clearance_revoke' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	   hx-target="#submission-{{ submission.pk }}-appraisal"
+	>{% include "bi/trash-fill.html" %}&nbsp;<em>Revoke this declaration</em></a>
+      </div>
+    {% else %}
+      <div class="row border border-danger mb-0 p-2">
+	<div class="mb-1">
+	  Do you have any competing interest (aka conflict of interest)
+	  with regards to this Submission?
+	</div>
+	<div class="row mb-0">
+	  <div class="col">
+	    <a class="btn btn-sm btn-success text-white my-auto"
+	       hx-get="{% url 'ethics:_hx_submission_clearance_assert' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	       hx-target="#submission-{{ submission.pk }}-appraisal"
+	       hx-confirm="Confirm that you have no competing interest with regards to this Submission?"
+	    >
+	      I have no competing interest
+	    </a>
+	  </div>
+	  <div class="col">
+	    <a class="btn btn-sm btn-danger text-white my-auto"
+	       hx-get="{% url 'ethics:_hx_submission_competing_interest_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	       hx-target="#submission-{{ submission.pk }}-ethics"
+	    >
+	      I have a competing interest
+	    </a>
+	  </div>
+	</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<div id="submission-{{ submission.pk }}-competing-interest-form"
+     class="col-lg-12"
+>
+</div>

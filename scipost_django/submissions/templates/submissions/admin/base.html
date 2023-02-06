@@ -6,9 +6,9 @@
       <nav class="breadcrumb hidden-sm-down">
         {% block breadcrumb_items %}
           {% if submission %}
-            <a href="{% url 'submissions:pool' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Pool</a>
+            <a href="{% url 'submissions:pool:pool' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Pool</a>
           {% else %}
-            <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+            <a href="{% url 'submissions:pool:pool' %}" class="breadcrumb-item">Pool</a>
           {% endif %}
         {% endblock %}
       </nav>

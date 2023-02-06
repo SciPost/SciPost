@@ -1,0 +1,18 @@
+<div class="p-4">
+  <details>
+    <summary><h1>Submission details summary</h1></summary>
+    {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
+  </details>
+
+  {% if submission.in_stage_incoming %}
+    {% include "edadmin/incoming/_hx_submission_incoming.html" with submission=submission %}
+  {% endif %}
+
+  <hr class="my-2">
+  <h1>Workflow diagram</h1>
+  <button class="m-2 btn btn-primary workflowDiagram"
+	  id="submission-{{ submission.pk }}-workflow-diagram"
+	  hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	  hx-swap="outerHTML"
+  >Load Submission processing workflow graphs</button>
+</div>

@@ -10,7 +10,7 @@
     </tr>
   {% endif %}
   <tr>
-    <td>As Contributors:</td>
+    <td>Authors (as Contributors):</td>
     <td>
       {% for author in submission.authors.all %}
         {% if not forloop.first %}<span class="text-blue">&middot;</span> {% endif %}<a href="{% url 'scipost:contributor_info' author.id %}">{{ author.user.first_name }} {{ author.user.last_name }}</a>
@@ -19,98 +19,92 @@
       {% endfor %}
     </td>
   </tr>
-  {% if "arxiv.org" in submission.preprint.url %}
-    <tr>
-      <td>Arxiv Link:</td>
-      <td>
-        <a href="{{ submission.preprint.url }}" target="_blank" rel="noopener">{{ submission.preprint.url }}</a>&emsp;(<a href="{{ submission.preprint.citation_pdf_url }}" target="_blank" rel="noopener">pdf</a>)
-      </td>
-    </tr>
-  {% elif submission.preprint.get_absolute_url %}
-    <tr>
-      <td>Preprint link:</td>
-      <td>
-        <a href="{{ submission.preprint.get_absolute_url }}" target="_blank">{{ submission.preprint.identifier_w_vn_nr }}</a>
-      </td>
-    </tr>
-  {% endif %}
-  {% if submission.code_repository_url %}
-    <tr>
-      <td>Code repository:</td>
-      <td>
-	<a href="{{ submission.code_repository_url }}" target="_blank" rel="noopener">{{ submission.code_repository_url }}</a>
-      </td>
-    </tr>
-  {% endif %}
-  {% if submission.data_repository_url %}
-    <tr>
-      <td>Data repository:</td>
-      <td>
-	<a href="{{ submission.data_repository_url }}" target="_blank" rel="noopener">{{ submission.data_repository_url }}</a>
-      </td>
-    </tr>
-  {% endif %}
-  {% if submission.acceptance_date %}
-    <tr>
-      <td>Date accepted:</td>
-      <td>{{ submission.acceptance_date }}</td>
-    </tr>
-  {% endif %}
-  <tr>
-    <td>Date submitted:</td>
-    <td>{{ submission.submission_date }}</td>
-  </tr>
-  <tr>
-    <td>Submitted by:</td>
-    <td>{{ submission.submitted_by }}</td>
-  </tr>
-  <tr>
-    <td>Submitted to:</td>
-    <td>{{ submission.submitted_to }}</td>
-  </tr>
-  {% if submission.proceedings %}
-    <tr>
-      <td>Proceedings issue:</td>
-      <td>{{ submission.proceedings }}</td>
-    </tr>
-  {% endif %}
-  {% with ncollections=submission.collection_set.all|length %}
-    {% if ncollections > 0 %}
-    <tr>
-      <td></td>
-      <td>&nbsp;for consideration in Collection{{ ncollections|pluralize }}:
-	<ul class="mb-0 pb-0">
-	  {% for collection in submission.collection_set.all %}
-	    <li>
-	      <a href="{{ collection.get_absolute_url }}" target="_blank">{{ collection }}</a>
-	    </li>
-	  {% endfor %}
-	</ul>
-      </td>
-    </tr>
-    {% endif %}
-  {% endwith %}
-  <tr>
-    <td>Academic field:</td>
-    <td>{{ submission.acad_field }}</td>
-  </tr>
-  <tr>
-    <td>Specialties:</td>
-    <td>
-      <ul class="m-0 ps-4">
-	{% for specialty in submission.specialties.all %}
-	  <li>{{ specialty }}</li>
-	{% endfor %}
-      </ul>
-    </td>
-  </tr>
-  {% if submission.approaches %}
-  <tr>
-    <td>Approach{% if submission.approaches|length > 1 %}es{% endif %}:</td>
-    <td>{% for approach in submission.approaches %}{% if not forloop.first %}, {% endif %}{{ approach|capfirst }}{% endfor %}</td>
-  </tr>
-  {% endif %}
 </table>
+<div class="row mt-2">
+  <div class="mt-2 col col-xl-6">
+    <table class="submission summary">
+      <thead>
+	<th colspan="2" class="px-1 bg-info">Submission information</th>
+      </thead>
+      <tbody>
+	{% if "arxiv.org" in submission.preprint.url %}
+	  <tr>
+	    <td>Arxiv Link:</td>
+	    <td>
+              <a href="{{ submission.preprint.url }}" target="_blank" rel="noopener">{{ submission.preprint.url }}</a>&emsp;(<a href="{{ submission.preprint.citation_pdf_url }}" target="_blank" rel="noopener">pdf</a>)
+	    </td>
+	  </tr>
+	{% elif submission.preprint.get_absolute_url %}
+	  <tr>
+	    <td>Preprint link:</td>
+	    <td>
+              <a href="{{ submission.preprint.get_absolute_url }}" target="_blank">{{ submission.preprint.identifier_w_vn_nr }}</a>
+	    </td>
+	  </tr>
+	{% endif %}
+	{% if submission.code_repository_url %}
+	  <tr>
+	    <td>Code repository:</td>
+	    <td>
+	      <a href="{{ submission.code_repository_url }}" target="_blank" rel="noopener">{{ submission.code_repository_url }}</a>
+	    </td>
+	  </tr>
+	{% endif %}
+	{% if submission.data_repository_url %}
+	  <tr>
+	    <td>Data repository:</td>
+	    <td>
+	      <a href="{{ submission.data_repository_url }}" target="_blank" rel="noopener">{{ submission.data_repository_url }}</a>
+	    </td>
+	  </tr>
+	{% endif %}
+	{% if submission.acceptance_date %}
+	  <tr>
+	    <td>Date accepted:</td>
+	    <td>{{ submission.acceptance_date }}</td>
+	  </tr>
+	{% endif %}
+	<tr>
+	  <td>Date submitted:</td>
+	  <td>{{ submission.submission_date }}</td>
+	</tr>
+	<tr>
+	  <td>Submitted by:</td>
+	  <td>{{ submission.submitted_by }}</td>
+	</tr>
+	<tr>
+	  <td>Submitted to:</td>
+	  <td>{{ submission.submitted_to }}</td>
+	</tr>
+	{% if submission.proceedings %}
+	  <tr>
+	    <td>Proceedings issue:</td>
+	    <td>{{ submission.proceedings }}</td>
+	  </tr>
+	{% endif %}
+	{% with ncollections=submission.collection_set.all|length %}
+	  {% if ncollections > 0 %}
+	    <tr>
+	      <td></td>
+	      <td>&nbsp;for consideration in Collection{{ ncollections|pluralize }}:
+		<ul class="mb-0 pb-0">
+		  {% for collection in submission.collection_set.all %}
+		    <li>
+		      <a href="{{ collection.get_absolute_url }}" target="_blank">{{ collection }}</a>
+		    </li>
+		  {% endfor %}
+		</ul>
+	      </td>
+	    </tr>
+	  {% endif %}
+	{% endwith %}
+      </tbody>
+    </table>
+  </div>
+  <div class="mt-2 col col-xl-6">
+{% include "submissions/_submission_ontological_info_table.html" with submission=submission %}
+  </div>
+</div>
 
 {% if show_abstract %}
   {% if submission.pdf_refereeing_pack %}

@@ -27,8 +27,8 @@ class Command(BaseCommand):
 
         # Submissions, reports and publications
         submission_factories.SubmissionFactory.create_batch(20)
-        submission_factories.UnassignedSubmissionFactory.create_batch(20)
-        submission_factories.EICassignedSubmissionFactory.create_batch(20)
+        submission_factories.SeekingAssignmentSubmissionFactory.create_batch(20)
+        submission_factories.InRefereeingSubmissionFactory.create_batch(20)
         submission_factories.ResubmittedSubmissionFactory.create_batch(10)
         submission_factories.ResubmissionFactory.create_batch(10)
         submission_factories.PublishedSubmissionFactory.create_batch(20)

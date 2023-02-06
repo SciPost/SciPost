@@ -18,8 +18,8 @@ class RequiredActionsDict(dict):
     """
     A collection of required actions.
 
-    The required action, meant for the editors-in-charge know how to display itself in
-    various formats. Dictionary keys are the action-codes, the values are the texts
+    This dict, meant for the editors-in-charge, knows how to display itself in
+    various formats. Its keys are the action-codes, while its values are the texts
     to present to the user.
     """
 
@@ -60,7 +60,7 @@ class RequiredActionsDict(dict):
 
 
 class BaseAction:
-    """An item in the RequiredActionsDict dictionary for the Submission refereeing cycle."""
+    """An item in the RequiredActionsDict  for the Submission refereeing cycle."""
 
     txt = ""
     url = "#"
@@ -155,7 +155,7 @@ class OverdueAction(BaseAction):
     )
 
 
-class ChoiceCycleAction(BaseAction):
+class CycleChoiceAction(BaseAction):
     txt = "Choose the submission cycle to proceed with."
 
 
@@ -272,7 +272,7 @@ class BaseCycle:
 
         if not self._submission.refereeing_cycle:
             # Submission is a resubmission: EIC has to determine which cycle to proceed with.
-            self.add_action(ChoiceCycleAction())
+            self.add_action(CycleChoiceAction())
             return  # If no cycle is chosen. Make this a first priority!
 
         # The EIC is late with formulating a Recommendation.
@@ -293,7 +293,7 @@ class BaseCycle:
         for report in reports_to_vet:
             self.add_action(VettingAction(report))
 
-        if self.can_invite_referees and self._submission.in_refereeing_phase:
+        if self.can_invite_referees and self._submission.in_stage_in_refereeing:
             # Referees required in this cycle.
             referee_invitations_count = (
                 self._submission.referee_invitations.non_cancelled().count()
@@ -332,7 +332,7 @@ class BaseCycle:
             elif recommendation.status == constants.PUT_TO_VOTING:
                 texts.append("It is now put to voting in the college.")
 
-        if self._submission.status == constants.STATUS_RESUBMITTED:
+        if self._submission.status == self._submission.RESUBMITTED:
             new_sub_id = (
                 self._submission.get_latest_version().preprint.identifier_w_vn_nr
             )
@@ -346,32 +346,31 @@ class BaseCycle:
                     identifier=new_sub_id,
                 )
             )
-        elif self._submission.status == constants.STATUS_ACCEPTED:
+        elif self._submission.in_stage_in_production:
             texts.append(
                 "The SciPost production team is working on the proofs for publication."
             )
-        elif self._submission.status == constants.STATUS_REJECTED:
+        elif self._submission.status == self._submission.REJECTED:
             texts.append("The Submission is rejected for publication.")
-        elif self._submission.status == constants.STATUS_WITHDRAWN:
+        elif self._submission.status == self._submission.WITHDRAWN:
             texts.append("The authors have withdrawn the Submission.")
-        elif self._submission.status == constants.STATUS_PUBLISHED:
+        elif self._submission.status == self._submission.PUBLISHED:
             texts.append("The Submission has been published as ")
             for publication in self._submission.publications.published():
                 texts.append('<a href="{url}">{doi}</a> '.format(
                     url=publication.get_absolute_url(),
                     doi=publication.doi_label,
                 ))
-        elif self._submission.status == constants.STATUS_EIC_ASSIGNED:
-            if not self._submission.in_refereeing_phase:
-                if recommendation:
-                    texts.append("The refereeing round is closed.")
-                else:
-                    texts.append(
-                        (
-                            "The refereeing round is closed "
-                            "and you have not formulated an Editorial Recommendation."
-                        )
+        elif self._submission.status == self._submission.REFEREEING_CLOSED:
+            if recommendation:
+                texts.append("The refereeing round is closed.")
+            else:
+                texts.append(
+                    (
+                        "The refereeing round is closed "
+                        "and you have not formulated an Editorial Recommendation."
                     )
+                )
 
         if not self.required_actions and not texts:
             texts.append("No action required.")
@@ -384,21 +383,13 @@ class BaseCycle:
 
     def reset_refereeing_round(self):
         """
-        Set the Submission status to EIC_ASSIGNED and reset the reporting deadline.
+        Set the Submission status to IN_REFEREEING and reset the reporting deadline.
         """
         from .models import Submission  # Prevent circular import errors
-
-        if self._submission.status in [
-            constants.STATUS_INCOMING,
-            constants.STATUS_UNASSIGNED,
-        ]:
-            Submission.objects.filter(id=self._submission.id).update(
-                status=constants.STATUS_EIC_ASSIGNED
-            )
-
         deadline = timezone.now() + datetime.timedelta(days=self.days_for_refereeing)
         Submission.objects.filter(id=self._submission.id).update(
-            reporting_deadline=deadline
+            status=self._submission.IN_REFEREEING,
+            reporting_deadline=deadline,
         )
 
     def reinvite_referees(self, referees):

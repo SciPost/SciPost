@@ -29,7 +29,12 @@
   <div class="row">
     <div class="col-12">
       <h3 class="text-danger">Are you sure you want to withdraw this manuscript?</h3>
-      <p>This will terminate the editorial process for the above submission.</p>
+      {% if submission.stage_incoming_completed %}
+	<h4 class="text-danger">THIS WILL PERMANENTLY TERMINATE FURTHER EDITORIAL PROCESSING of this Submission (including its previous versions).</h4>
+	<p>You should definitely <strong class="text-danger">NOT</strong> click the button if you simply want to update your manuscript to a new version, while it is under consideration here.</p>
+      {% else %}
+	<p>This will terminate the editorial process for the above submission.</p>
+      {% endif %}
       <form action="{% url 'submissions:withdraw_manuscript' submission.preprint.identifier_w_vn_nr %}" method="post">
 	{% csrf_token %}
 	{{ form|bootstrap:'0,12' }}

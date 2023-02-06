@@ -9,9 +9,17 @@ from django.db.models import Avg, F
 from django.urls import reverse
 from django.utils import timezone
 
+from scipost.fields import ChoiceArrayField
 from series.models import Collection
 
-from ..constants import JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY
+from ..constants import (
+    PUBLISHABLE_OBJECT_TYPE_CHOICES,
+    get_publishable_object_types_default_list,
+    get_submission_object_types_default,
+    JOURNAL_STRUCTURE,
+    ISSUES_AND_VOLUMES,
+    ISSUES_ONLY,
+)
 from ..managers import JournalQuerySet
 from ..validators import doi_journal_validator
 
@@ -50,15 +58,28 @@ class Journal(models.Model):
         default="SciPost [abbrev]",
         help_text="Abbreviated name (for use in citations)",
     )
+
     doi_label = models.CharField(
         max_length=200, unique=True, db_index=True, validators=[doi_journal_validator]
     )
     issn = models.CharField(max_length=16, default="2542-4653", blank=True)
+
     active = models.BooleanField(default=True)
+
     submission_allowed = models.BooleanField(default=True)
+
+    publishable_object_types = ChoiceArrayField(
+        models.CharField(max_length=24, choices=PUBLISHABLE_OBJECT_TYPE_CHOICES),
+        default=get_publishable_object_types_default_list,
+    )
+    submission_object_types = models.JSONField(
+        default=get_submission_object_types_default,
+    )
+
     structure = models.CharField(
         max_length=2, choices=JOURNAL_STRUCTURE, default=ISSUES_AND_VOLUMES
     )
+
     refereeing_period = models.DurationField(default=datetime.timedelta(days=28))
 
     style = models.TextField(
@@ -78,6 +99,7 @@ class Journal(models.Model):
     list_order = models.PositiveSmallIntegerField(default=100)
 
     # For manuscript preparation: templates are given by the SubmissionTemplate related objects
+
     # For the author guidelines page:
     required_article_elements = models.TextField(
         default="[To be filled in; you can use markup]"
@@ -92,6 +114,7 @@ class Journal(models.Model):
     submission_insert = models.TextField(
         blank=True, null=True, default="[Optional; you can use markup]"
     )
+
     minimal_nr_of_reports = models.PositiveSmallIntegerField(
         help_text=(
             "Minimal number of substantial Reports required "
@@ -136,7 +159,7 @@ class Journal(models.Model):
 
     def get_absolute_url(self):
         """Return Journal's homepage url."""
-        return reverse("scipost:landing_page", args=(self.doi_label,))
+        return reverse("scipost:journal_detail", args=(self.doi_label,))
 
     @property
     def doi_string(self):

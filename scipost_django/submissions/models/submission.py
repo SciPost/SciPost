@@ -25,18 +25,6 @@ from comments.models import Comment
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
-    SUBMISSION_STATUS,
-    STATUS_INCOMING,
-    STATUS_UNASSIGNED,
-    STATUS_PREASSIGNED,
-    STATUS_EIC_ASSIGNED,
-    SUBMISSION_UNDER_CONSIDERATION,
-    STATUS_FAILED_PRESCREENING,
-    STATUS_RESUBMITTED,
-    STATUS_ACCEPTED,
-    STATUS_REJECTED,
-    STATUS_WITHDRAWN,
-    STATUS_PUBLISHED,
     SUBMISSION_CYCLES,
     CYCLE_DEFAULT,
     CYCLE_SHORT,
@@ -48,8 +36,50 @@ from ..constants import (
     EVENT_FOR_EIC,
     SUBMISSION_TIERS,
 )
+from ..exceptions import StageNotDefinedError
 from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
 from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
+
+
+class SubmissionAuthorProfile(models.Model):
+
+    submission = models.ForeignKey(
+        "submissions.Submission",
+        on_delete=models.CASCADE,
+        related_name="author_profiles",
+    )
+    profile = models.ForeignKey(
+        "profiles.Profile", on_delete=models.PROTECT, blank=True, null=True,
+    )
+    affiliations = models.ManyToManyField("organizations.Organization", blank=True)
+    order = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ("submission", "order",)
+
+    def __str__(self):
+        return str(self.profile)
+
+    def save(self, *args, **kwargs):
+        """Auto increment order number if not explicitly set."""
+        if not self.order:
+            self.order = self.submission.author_profiles.count() + 1
+        return super().save(*args, **kwargs)
+
+    @property
+    def is_registered(self):
+        """Check if author is registered at SciPost."""
+        return self.profile.contributor is not None
+
+    @property
+    def first_name(self):
+        """Return first name of author."""
+        return self.profile.first_name
+
+    @property
+    def last_name(self):
+        """Return last name of author."""
+        return self.profile.last_name
 
 
 class Submission(models.Model):
@@ -57,12 +87,139 @@ class Submission(models.Model):
     A Submission is a preprint sent to SciPost for consideration.
     """
 
+    # Possible statuses
+    INCOMING = "incoming"
+    ADMISSIBLE = "admissible"
+    ADMISSION_FAILED = "admission_failed"
+    PREASSIGNMENT = "preassignment"
+    PREASSIGNMENT_FAILED = "preassignment_failed"
+    SEEKING_ASSIGNMENT = "seeking_assignment"
+    ASSIGNMENT_FAILED = "assignment_failed"
+    REFEREEING_IN_PREPARATION = "refereeing_in_preparation"
+    IN_REFEREEING = "in_refereeing"
+    REFEREEING_CLOSED = "refereeing_closed"
+    AWAITING_RESUBMISSION = "awaiting_resubmission"
+    RESUBMITTED = "resubmitted"
+    VOTING_IN_PREPARATION = "voting_in_preparation"
+    IN_VOTING = "in_voting"
+    AWAITING_DECISION = "awaiting_decision"
+    ACCEPTED_IN_TARGET = "accepted_in_target"
+    ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE = "accepted_alt_puboffer_waiting"
+    ACCEPTED_IN_ALTERNATIVE = "accepted_alt"
+    REJECTED = "rejected"
+    WITHDRAWN = "withdrawn"
+    PUBLISHED = "published"
+
+    SUBMISSION_STATUSES = (
+        (INCOMING, "Submission incoming, awaiting EdAdmin"),
+        (ADMISSIBLE, "Admissible, undergoing further admission checks"),
+        (ADMISSION_FAILED, "Admission failed"),
+        (PREASSIGNMENT, "In preassignment"),
+        (PREASSIGNMENT_FAILED, "Preassignment failed"),
+        (SEEKING_ASSIGNMENT, "Seeking assignment"),
+        (
+            ASSIGNMENT_FAILED,
+            "Failed to assign Editor-in-charge; manuscript rejected",
+        ),
+        (REFEREEING_IN_PREPARATION, "Refereeing in preparation"),
+        (IN_REFEREEING, "In refereeing"),
+        (REFEREEING_CLOSED, "Refereeing closed (awaiting author replies and EdRec)"),
+        (AWAITING_RESUBMISSION, "Awaiting resubmission"),
+        (RESUBMITTED, "Has been resubmitted"),
+        (VOTING_IN_PREPARATION, "Voting in preparation"),
+        (IN_VOTING, "In voting"),
+        (AWAITING_DECISION, "Awaiting decision"),
+        (ACCEPTED_IN_TARGET, "Accepted in target Journal"),
+        (
+            ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
+            "Accepted in alternative Journal; awaiting puboffer acceptance",
+        ),
+        (ACCEPTED_IN_ALTERNATIVE, "Accepted in alternative Journal"),
+        (REJECTED, "Publication decision taken: reject"),
+        (WITHDRAWN, "Withdrawn by the Authors"),
+        (PUBLISHED, "Published"),
+    )
+
+    # Submissions which are currently under consideration
+    UNDER_CONSIDERATION = (
+        INCOMING,
+        ADMISSIBLE,
+        PREASSIGNMENT,
+        SEEKING_ASSIGNMENT,
+        REFEREEING_IN_PREPARATION,
+        IN_REFEREEING,
+        REFEREEING_CLOSED,
+        AWAITING_RESUBMISSION,
+        RESUBMITTED,
+        VOTING_IN_PREPARATION,
+        IN_VOTING,
+        AWAITING_DECISION,
+        ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
+    )
+
+    STAGE_SLUGS = ( # for converters
+        "incoming",
+        "preassignment",
+        "assignment",
+        "refereeing_in_preparation",
+        "in_refereeing",
+        "decisionmaking",
+        "in_production",
+    )
+
+    # Further handy sets
+    STAGE_INCOMING = (INCOMING, ADMISSIBLE)
+    STAGE_PREASSIGNMENT = (PREASSIGNMENT,)
+    STAGE_ASSIGNMENT = (SEEKING_ASSIGNMENT,)
+    STAGE_REFEREEING_IN_PREPARATION = (REFEREEING_IN_PREPARATION,)
+    STAGE_IN_REFEREEING = (IN_REFEREEING,)
+    STAGE_DECISIONMAKING = (
+        REFEREEING_CLOSED,
+        VOTING_IN_PREPARATION,
+        IN_VOTING,
+        AWAITING_DECISION,
+        ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
+    )
+    STAGE_DECIDED = (
+        ADMISSION_FAILED,
+        PREASSIGNMENT_FAILED,
+        ASSIGNMENT_FAILED,
+        AWAITING_RESUBMISSION,
+        RESUBMITTED,
+        ACCEPTED_IN_TARGET,
+        ACCEPTED_IN_ALTERNATIVE,
+        REJECTED,
+        WITHDRAWN,
+        PUBLISHED,
+    )
+    TREATED = (
+        ACCEPTED_IN_TARGET,
+        ACCEPTED_IN_ALTERNATIVE,
+        REJECTED,
+        WITHDRAWN,
+        PUBLISHED,
+    )
+    STAGE_IN_PRODUCTION = (
+        ACCEPTED_IN_TARGET,
+        ACCEPTED_IN_ALTERNATIVE,
+    )
+
+    # Fields
     preprint = models.OneToOneField(
         "preprints.Preprint", on_delete=models.CASCADE, related_name="submission"
     )
 
     author_comments = models.TextField(blank=True)
-    author_list = models.CharField(max_length=10000, verbose_name="author list")
+    author_list = models.CharField(
+        max_length=10000,
+        verbose_name="author list",
+        help_text=(
+            "Please use full first names (we <strong>beg</strong> you!): "
+            "<em>Abe Cee, Dee Efgee, Haich Idjay Kay</em>"
+            "<br>(not providing full first names makes metadata handling "
+            "unnecessarily work-intensive for us)"
+        ),
+    )
 
     # Ontology-based semantic linking
     acad_field = models.ForeignKey(
@@ -97,11 +254,12 @@ class Submission(models.Model):
 
     # Submission status fields
     status = models.CharField(
-        max_length=30, choices=SUBMISSION_STATUS, default=STATUS_INCOMING
+        max_length=30, choices=SUBMISSION_STATUSES, default=INCOMING
     )
-    is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
+
+    # Link to previous Submission, or existing bundle member
     is_resubmission_of = models.ForeignKey(
         "self",
         blank=True,
@@ -110,6 +268,12 @@ class Submission(models.Model):
         related_name="successor",
     )
     thread_hash = models.UUIDField(default=uuid.uuid4)
+    followup_of = models.ManyToManyField(
+        "journals.Publication",
+        blank=True,
+        related_name="followups",
+    )
+
     refereeing_cycle = models.CharField(
         max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True
     )
@@ -136,6 +300,7 @@ class Submission(models.Model):
             "to set things up."
         ),
     )
+
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:
@@ -161,21 +326,24 @@ class Submission(models.Model):
     # Comments can be added to a Submission
     comments = GenericRelation("comments.Comment", related_query_name="submissions")
 
-    # iThenticate and conflicts
+    # Conflicts of interest
     needs_conflicts_update = models.BooleanField(default=True)
-    plagiarism_report = models.OneToOneField(
-        "submissions.iThenticateReport",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="to_submission",
-    )
+
+    # Plagiarism
     internal_plagiarism_matches = models.JSONField(
         default=dict,
         blank=True,
         null=True,
     )
+    iThenticate_plagiarism_report = models.OneToOneField(
+        "submissions.iThenticateReport",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="to_submission",
+    )
 
+    # Refereeing pack
     pdf_refereeing_pack = models.FileField(
         upload_to="UPLOADS/REFEREE/%Y/%m/", max_length=200, blank=True
     )
@@ -218,7 +386,7 @@ class Submission(models.Model):
             title=self.title[:30],
             authors=self.author_list[:30],
         )
-        if self.is_current:
+        if self.is_latest:
             header += " (current version)"
         else:
             header += " (deprecated version " + str(self.thread_sequence_order) + ")"
@@ -229,17 +397,182 @@ class Submission(models.Model):
             )
         return header
 
+
+    ##########################################
+    # Shortcut properties for stage checking #
+    ##########################################
+    @property
+    def in_stage_incoming(self):
+        return self.status in self.STAGE_INCOMING
+
+    @property
+    def stage_incoming_completed_statuses(self):
+        return (
+            self.STAGE_PREASSIGNMENT +
+            self.STAGE_ASSIGNMENT +
+            self.STAGE_REFEREEING_IN_PREPARATION +
+            self.STAGE_IN_REFEREEING +
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+
+    @property
+    def stage_incoming_completed(self):
+        return self.status in self.stage_incoming_completed_statuses
+
+    @property
+    def in_stage_preassignment(self):
+        return self.status in self.STAGE_PREASSIGNMENT
+
+    @property
+    def stage_preassignment_completed_statuses(self):
+        return (
+            self.STAGE_ASSIGNMENT +
+            self.STAGE_REFEREEING_IN_PREPARATION +
+            self.STAGE_IN_REFEREEING +
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+
+    @property
+    def stage_preassignment_completed(self):
+        return self.status in self.stage_preassignment_completed_statuses
+
+    @property
+    def in_stage_assignment(self):
+        return self.status in self.STAGE_ASSIGNMENT
+
+    @property
+    def stage_assignment_completed_statuses(self):
+        return (
+            self.STAGE_REFEREEING_IN_PREPARATION +
+            self.STAGE_IN_REFEREEING +
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+
+    @property
+    def stage_assignment_completed(self):
+        return self.status in self.stage_assignment_completed_statuses
+
+    @property
+    def in_stage_refereeing_in_preparation(self):
+        return self.status in self.STAGE_REFEREEING_IN_PREPARATION
+
+    @property
+    def stage_refereeing_in_preparation_completed_statuses(self):
+        return (
+            self.STAGE_IN_REFEREEING +
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+
+    @property
+    def stage_refereeing_in_preparation_completed(self):
+        return self.status in self.stage_refereeing_in_preparation_completed_statuses
+
+    @property
+    def in_stage_in_refereeing(self):
+        return self.status in self.STAGE_IN_REFEREEING
+
+    @property
+    def stage_in_refereeing_completed_statuses(self):
+        return (
+            self.STAGE_DECISIONMAKING +
+            self.STAGE_DECIDED
+        )
+
+    @property
+    def stage_in_refereeing_completed(self):
+        return self.status in self.stage_in_refereeing_completed_statuses
+
+    @property
+    def in_stage_decisionmaking(self):
+        return self.status in self.STAGE_DECISIONMAKING
+
+    @property
+    def stage_decisionmaking_completed_statuses(self): # include for completeness
+        return self.STAGE_DECIDED
+
+    @property
+    def stage_decisionmaking_completed(self):
+        return self.in_stage_decided
+
+    @property
+    def in_stage_decided(self):
+        return self.status in self.STAGE_DECIDED
+
+    @property
+    def treated(self):
+        return self.status in self.TREATED
+
+    @property
+    def in_stage_in_production(self):
+        return self.status in self.STAGE_IN_PRODUCTION
+
+    @property
+    def stage(self):
+        if self.in_stage_incoming:
+            return "incoming"
+        elif self.in_stage_preassignment:
+            return "preassignment"
+        elif self.in_stage_assignment:
+            return "assignment"
+        elif self.in_stage_refereeing_in_preparation:
+            return "refereeing_in_preparation"
+        elif self.in_stage_in_refereeing:
+            return "in_refereeing"
+        elif self.in_stage_decisionmaking:
+            return "decisionmaking"
+        elif self.in_stage_decided:
+            return "decided"
+        elif self.in_stage_treated:
+            return "treated"
+        elif self.in_stage_in_production:
+            return "in_production"
+        raise StageNotDefinedError
+
+    @property
+    def get_stage_display(self):
+        if self.in_stage_incoming:
+            return "Incoming"
+        elif self.in_stage_preassignment:
+            return "Preassignment"
+        elif self.in_stage_assignment:
+            return "Assignment"
+        elif self.in_stage_refereeing_in_preparation:
+            return "Refereeing in preparation"
+        elif self.in_stage_in_refereeing:
+            return "In refereeing"
+        elif self.in_stage_decisionmaking:
+            return "Decisionmaking"
+        elif self.in_stage_decided:
+            return "Decided"
+        elif self.in_stage_treated:
+            return "Treated"
+        elif self.in_stage_in_production:
+            return "In production"
+        raise StageNotDefinedError
+
+
+    ###############################################
+    # End shortucut properties for stage checking #
+    ###############################################
+
+
+    @property
+    def is_latest(self):
+        return self.status != self.RESUBMITTED
+
     @property
     def authors_as_list(self):
         """Returns a python list of the authors, extracted from author_list field."""
-        # Start by separating in comma's
-        comma_separated = self.author_list.split(",")
-        authors_as_list = []
-        for entry in comma_separated:
-            and_separated = entry.split(" and ")
-            for subentry in and_separated:
-                authors_as_list.append(subentry.lstrip().rstrip())
-        return authors_as_list
+        comma_separated = self.author_list.replace(", and", ", ")
+        comma_separated = comma_separated.replace(" and ", ", ")
+        comma_separated = comma_separated.replace(", & ", ", ")
+        comma_separated = comma_separated.replace(" & ", ", ")
+        comma_separated = comma_separated.replace(";", ", ")
+        return [e.lstrip().rstrip() for e in comma_separated.split(",")]
 
     def touch(self):
         """Update latest activity timestamp."""
@@ -281,22 +614,39 @@ class Submission(models.Model):
             "submissions:submission", args=(self.preprint.identifier_w_vn_nr,)
         )
 
-    def get_notification_url(self, url_code):
-        """Return url related to the Submission by the `url_code` meant for Notifications."""
-        if url_code == "editorial_page":
-            return reverse(
-                "submissions:editorial_page", args=(self.preprint.identifier_w_vn_nr,)
-            )
-        return self.get_absolute_url()
-
     @property
     def is_resubmission(self):
         return self.is_resubmission_of is not None
 
     @property
-    def notification_name(self):
-        """Return string representation of this Submission as shown in Notifications."""
-        return self.preprint.identifier_w_vn_nr
+    def plagiarism_internal_tests_passed(self):
+        from submissions.models import InternalPlagiarismAssessment
+        try:
+            return self.internal_plagiarism_assessment.passed
+        except InternalPlagiarismAssessment.DoesNotExist:
+            return False
+
+    @property
+    def plagiarism_iThenticate_tests_passed(self):
+        from submissions.models import iThenticatePlagiarismAssessment
+        try:
+            return self.iThenticate_plagiarism_assessment.passed
+        except iThenticatePlagiarismAssessment.DoesNotExist:
+            return False
+
+    @property
+    def plagiarism_tests_passed(self):
+        return (self.plagiarism_internal_tests_passed and
+                self.plagiarism_iThenticate_tests_passed)
+
+    @property
+    def all_authors_have_matching_profiles(self):
+        return (self.author_profiles.filter(profile__isnull=False).count() ==
+                len(self.authors_as_list))
+
+    @property
+    def preassignment_tasks_done(self):
+        return self.all_authors_have_matching_profiles
 
     @property
     def eic_recommendation_required(self):
@@ -314,28 +664,22 @@ class Submission(models.Model):
         Check if the Submission is currently under consideration
         (in other words: is undergoing editorial processing).
         """
-        return self.status in SUBMISSION_UNDER_CONSIDERATION
+        return self.status in self.UNDER_CONSIDERATION
 
     @property
     def open_for_resubmission(self):
         """Check if Submission has fixed EICRecommendation asking for revision."""
-        if self.status != STATUS_EIC_ASSIGNED:
-            return False
-        return self.eicrecommendations.fixed().asking_revision().exists()
+        return self.status == self.AWAITING_RESUBMISSION
 
     @property
     def reporting_deadline_has_passed(self):
         """Check if Submission has passed its reporting deadline."""
-        if self.status in [STATUS_INCOMING, STATUS_UNASSIGNED]:
-            # These statuses do not have a deadline
-            return False
-
         return timezone.now() > self.reporting_deadline
 
     @property
     def reporting_deadline_approaching(self):
         """Check if reporting deadline is within 7 days from now but not passed yet."""
-        if self.status in [STATUS_INCOMING, STATUS_UNASSIGNED]:
+        if self.status != self.IN_REFEREEING:
             # These statuses do not have a deadline
             return False
 
@@ -370,49 +714,9 @@ class Submission(models.Model):
         )
 
     @property
-    def in_prescreening(self):
-        return self.status == STATUS_INCOMING
-
-    @property
-    def in_refereeing_phase(self):
-        """Check if Submission is in active refereeing phase.
-
-        This is not meant for functional logic, rather for explanatory functionality to the user.
-        """
-        if self.eicrecommendations.active().exists():
-            # Editorial Recommendation is formulated!
-            return False
-
-        if self.refereeing_cycle == CYCLE_DIRECT_REC:
-            # There's no refereeing in this cycle at all.
-            return False
-
-        if self.referee_invitations.in_process().exists():
-            # Some unfinished invitations exist still.
-            return True
-
-        if self.referee_invitations.awaiting_response().exists():
-            # Some invitations have been sent out without a response.
-            return True
-
-        # Maybe: Check for unvetted Reports?
-        return (
-            self.status == STATUS_EIC_ASSIGNED
-            and self.is_open_for_reporting_within_deadline
-        )
-
-    @property
     def can_reset_reporting_deadline(self):
         """Check if reporting deadline is allowed to be reset."""
-        blocked_statuses = [
-            STATUS_FAILED_PRESCREENING,
-            STATUS_RESUBMITTED,
-            STATUS_ACCEPTED,
-            STATUS_REJECTED,
-            STATUS_WITHDRAWN,
-            STATUS_PUBLISHED,
-        ]
-        if self.status in blocked_statuses:
+        if self.status in self.STAGE_DECIDED:
             return False
 
         if self.refereeing_cycle == CYCLE_DIRECT_REC:
@@ -514,27 +818,24 @@ class Submission(models.Model):
         return coauthorships
 
     def is_sending_editorial_invitations(self):
-        """Return whether editorial assignments are being send out."""
-        if self.status != STATUS_UNASSIGNED:
-            # Only if status is unassigned.
+        """Return whether editorial assignments are being sent out."""
+        if self.status != self.SEEKING_ASSIGNMENT:
             return False
 
-        return self.editorial_assignments.filter(status=STATUS_PREASSIGNED).exists()
+        return self.editorial_assignments.preassigned().exists()
 
-    def has_inadequate_pool_composition(self):
+    def eic_not_in_fellowship(self):
         """
-        Check whether the EIC actually in the pool of the Submission.
-
-        (Could happen on resubmission or reassignment after wrong Journal selection)
+        Check whether the EIC is actually in the fellowship of the Submission.
         """
         if not self.editor_in_charge:
             # None assigned yet.
             return False
 
-        pool_contributors_ids = Contributor.objects.filter(
+        contributors_ids = Contributor.objects.filter(
             fellowships__pool=self
         ).values_list("id", flat=True)
-        return self.editor_in_charge.id not in pool_contributors_ids
+        return self.editor_in_charge.id not in contributors_ids
 
     @property
     def editorial_decision(self):

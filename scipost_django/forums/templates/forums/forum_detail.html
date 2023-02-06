@@ -3,19 +3,18 @@
 {% load bootstrap %}
 {% load guardian_tags %}
 {% load automarkup %}
+{% load scipost_extras %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
   <span class="breadcrumb-item">{% if forum.meeting %}Meeting{% else %}Forum{% endif %} Details</span>
 {% endblock %}
 
-{% load scipost_extras %}
-
 {% block pagetitle %}: {% if forum.meeting %}Meeting{% else %}Forum{% endif %} details{% endblock pagetitle %}
 
-{% get_obj_perms request.user for forum as "user_perms" %}
-
 {% block content %}
+
+  {% get_obj_perms request.user for forum as "forum_user_perms" %}
 
   <div class="row">
     <div class="col-12">
@@ -23,8 +22,8 @@
 	{% if forum.meeting %}
 	  {% with context_colors=forum.meeting.context_colors %}
 	    <span class="badge bg-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">
-	      {{ context_colors.message }}
-	      <span class="small text-muted"> [{{ forum.meeting.date_from|date:"Y-m-d" }} to {{ forum.meeting.date_until|date:"Y-m-d" }}]</span>
+	      {{ context_colors.message }}&emsp;
+	      <span class="small"> [{{ forum.meeting.date_from|date:"Y-m-d" }} to {{ forum.meeting.date_until|date:"Y-m-d" }}]</span>
 	    </span>
 	  {% endwith %}
 	  <br/>
@@ -32,7 +31,7 @@
 
 	<span class="d-flex flex-wrap justify-content-between">
 	  <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
-	  <span class="badge bg-primary rounded-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+	  <span class="badge bg-primary rounded-pill">{{ forum.cf_nr_posts }} post{{ forum.cf_nr_posts|pluralize }}</span>
 	</span>
       </h2>
 
@@ -43,11 +42,17 @@
 	<p>Descendants: {% for child in forum.child_forums.all %}<a href="{{ child.get_absolute_url }}">{{ child }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
       {% endif %}
 
-      {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
+      {% if "can_administer_forum" in forum_user_perms %}
 	<div class="container border border-danger m-2 p-2">
 	  <h4>Admin actions:</h4>
 	  <ul>
-	    <li><a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this {% if forum.meeting %}Meeting{% else %}Forum{% endif %}</a></li>
+	    <li>
+	      {% if forum.meeting %}
+		<a href="{% url 'forums:meeting_update' slug=forum.meeting.slug %}" class="text-warning">Update this Meeting</a>
+	      {% else %}
+		<a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this Forum</a>
+	      {% endif %}
+	    </li>
 	    <li>
 	      {% if not forum.child_forums.all|length > 0 %}
 		<a href="{% url 'forums:forum_delete' slug=forum.slug %}" class="text-danger">Delete this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} (and all Posts {% if forum.meeting %}and Motions {% endif %}it contains)</a>
@@ -61,33 +66,29 @@
 	    {% endif %}
 	  </ul>
 
-	  <div class="card">
-	    <div class="card-header">
-	      Permissions on this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} instance
-	      <button class="btn btn-link small" data-bs-toggle="collapse" data-bs-target="#permissionsCard">
-		View/manage</button>
-	    </div>
-	    <div class="card-body collapse" id="permissionsCard">
-	      <p><a href="{% url 'forums:forum_permissions' slug=forum.slug %}">Grant permissions to a new group</a></p>
-	      <p>Groups with permissions [click on the Group's name to manage permissions]:</p>
-	      <ul>
-		{% for group in groups_with_perms %}
-		  {% get_obj_perms group for forum as "group_perms" %}
-		  <li><a href="{% url 'forums:forum_permissions' slug=forum.slug group_id=group.id %}">{{ group.name }}</a>: {{ group_perms }}</li>
-		{% empty %}
-		  <li>No group has permissions on this Forum</li>
-		{% endfor %}
-	      </ul>
+	  {% if "can_administer_forum" in forum_user_perms %}
+	    <details id="forum-permissions-details"
+		     class="border border-danger bg-danger bg-opacity-10 m-2">
+	      <summary class="bg-danger bg-opacity-10 p-2">
+		Permissions on this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} instance (view/manage)
+		<span id="forum-permissions-details-contents-indicator" class="htmx-indicator p-2">
+		  <button class="btn btn-warning" type="button" disabled>
+		    <strong>Loading...</strong>
+		    <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+		  </button>
+		</span>
+	      </summary>
+	      <div id="forum-permissions-details-contents"
+		   class="p-2"
+		   hx-get="{% url 'forums:_hx_forum_permissions' slug=forum.slug %}"
+		   hx-trigger="toggle once from:#forum-permissions-details"
+		   hx-target="#forum-permissions-details-contents"
+		   hx-indicator="#forum-permissions-details-contents-indicator"
+	      >
+	      </div>
+	    </details>
+	  {% endif %}
 
-	      <p>Users with permissions:</p>
-	      <ul>
-		{% for u in users_with_perms %}
-		  {% get_obj_perms u for forum as "u_perms" %}
-		  <li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
-		{% endfor %}
-	      </ul>
-	    </div>
-	  </div>
 	</div>
       {% endif %}
     </div>
@@ -113,65 +114,51 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col">
-      <div class="card">
-	<div class="card-header">
-	  <button class="btn btn-primary btn-small" data-bs-toggle="collapse" data-bs-target="#recentPostsLinks">
-	    Quick links: all posts and motions (click to toggle)
-	  </button>
-	</div>
-	<div class="card-body collapse" id="recentPostsLinks">
-	  <h3>(most recent first)</h3>
-	  <ul>
-	    {% for post in forum.posts_all.reverse %}
-	    <li>
-	      <a href="{{ post.get_absolute_url }}">{{ post.subject }}</a> posted by {{ post.posted_by.first_name }} {{ post.posted_by.last_name }} on {{ post.posted_on|date:"Y-m-d H:m" }}
-	      {% if post.parent and not post.motion %}
-		- regarding <a href="{{ post.parent.get_absolute_url }}">{{ post.parent }}</a>
-	      {% endif %}
-	    </li>
-	    {% endfor %}
-	  </ul>
-	</div>
-      </div>
+  <details id="forum-quick-links-all-details"
+	   class="border border-dark m-1 mb-2">
+    <summary class="bg-dark text-white my-0 ps-4 py-1">
+      <strong>
+	Quick links: all posts and motions&emsp;(click to toggle)
+      </strong>
+      <span id="forum-quick-links-all-details-contents-indicator" class="htmx-indicator p-2">
+	<button class="btn btn-warning" type="button" disabled>
+	  <strong>Loading...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </span>
+    </summary>
+    <div id="forum-quick-links-all-details-contents"
+	 class="mx-2 mt-0"
+	 hx-get="{% url 'forums:_hx_forum_quick_links_all' slug=forum.slug %}"
+	 hx-trigger="toggle once from:#forum-quick-links-all-details"
+	 hx-target="#forum-quick-links-all-details-contents"
+	 hx-indicator="#forum-quick-links-all-details-contents-indicator"
+    >
     </div>
-  </div>
+  </details>
 
-  <div class="row">
-    <div class="col">
-      <div class="card">
-	<div class="card-header">
-	  <button class="btn btn-primary btn-small" data-bs-toggle="collapse" data-bs-target="#anchorPostsLinks">
-	    Quick links: anchor posts, latest followup (click to toggle)
-	  </button>
-	</div>
-	<div class="card-body collapse" id="anchorPostsLinks">
-	  <ul>
-	    {% for post in forum.posts_all.anchors %}
-	      <li>
-		<a href="{{ post.get_absolute_url }}">{{ post.subject }}</a> posted by {{ post.posted_by.first_name }} {{ post.posted_by.last_name }} on {{ post.posted_on|date:"Y-m-d H:m" }}
-		<p>
-		  {% with post.nr_followups as nr_followups %}
-		    {{ nr_followups }} followup{{ nr_followups|pluralize }}
-		  {% endwith %}
-		  {% with post.latest_followup_in_hierarchy as latest_followup %}
-		    {% if latest_followup %}
-		      ,&emsp;latest: <a href="{{ latest_followup.get_absolute_url }}">
-		      {{ latest_followup.subject }}</a>
-		      posted by {{ latest_followup.posted_by.first_name }}
-		      {{ latest_followup.posted_by.last_name }}
-		      on {{ latest_followup.posted_on|date:"Y-m-d H:m" }}
-		    {% endif %}
-		  {% endwith %}
-		</p>
-	      </li>
-	    {% endfor %}
-	  </ul>
-	</div>
-      </div>
+  <details id="forum-quick-links-followups-details"
+	   class="border border-dark m-1 mb-4">
+    <summary class="bg-dark text-white my-0 ps-4 py-1">
+      <strong>
+	Quick links: anchor posts, latest followup&emsp;(click to toggle)
+      </strong>
+      <span id="forum-quick-links-followups-details-contents-indicator" class="htmx-indicator p-2">
+	<button class="btn btn-warning" type="button" disabled>
+	  <strong>Loading...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </span>
+    </summary>
+    <div id="forum-quick-links-followups-details-contents"
+	 class="mx-2 mt-0"
+	 hx-get="{% url 'forums:_hx_forum_quick_links_followups' slug=forum.slug %}"
+	 hx-trigger="toggle once from:#forum-quick-links-followups-details"
+	 hx-target="#forum-quick-links-followups-details-contents"
+	 hx-indicator="#forum-quick-links-followups-details-contents-indicator"
+    >
     </div>
-  </div>
+  </details>
 
   <div class="row">
     <div class="col-12">
@@ -201,26 +188,69 @@
 	  {% elif forum.meeting.past %}
 	    <li><span class="text-danger">Adding Motions is deactivated</span> (Meeting is over)</li>
 	  {% else %}
-	    <li><a href="{% url 'forums:motion_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Motion</a></li>
+	    <li>
+	      <div id="new-motion-form">
+		{% include "forums/_hx_motion_form_button.html" with slug=forum.slug %}
+	      </div>
+	    </li>
 	  {% endif %}
 	</ul>
 	{% for motion in forum.motions.all %}
-	  {% include 'forums/post_card.html' with forum=forum post=motion.post %}
+	  <div id="thread-{{ motion.post.id }}"
+	       hx-get="{% url 'forums:_hx_thread_from_post' slug=forum.slug post_id=motion.post.id %}"
+	       hx-target="#thread-{{ motion.post.id }}"
+	       hx-trigger="load"
+	  >
+	    <div id="thread-{{ motion.post.id }}-indicator"
+		 class="htmx-indicator p-2"
+	    >
+	    </div>
+	    <button class="btn btn-warning" type="button" disabled>
+	      <strong>Loading thread {{ motion.post.id }}</strong>
+	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	    </button>
+	  </div>
 	{% endfor %}
+
+	<div id="thread-motions"></div>
+
       </div>
     </div>
+
   {% endif %}
 
   <div class="row">
     <div class="col-12">
       <h2 class="highlight" id="Posts">Posts</h2>
       <ul>
-	<li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Post</a></li>
+	<li>
+	  <div id="new-post-form">
+	    {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='forum' parent_id=forum.id origin="new-post-form" target="thread-posts" text="Add a new Post" %}
+	  </div>
+	</li>
       </ul>
 
+
       {% for post in forum.posts.motions_excluded %}
-	{% include 'forums/post_card.html' with forum=forum post=post %}
+	<div id="thread-{{ post.id }}"
+	     hx-get="{% url 'forums:_hx_thread_from_post' slug=forum.slug post_id=post.id %}"
+	     hx-target="#thread-{{ post.id }}"
+	     hx-swap="outerHTML"
+	     hx-trigger="load"
+	     hx-indicator="#thread-{{ post.id }}-indicator"
+	>
+	  <div id="thread-{{ post.id }}-indicator"
+	       class="htmx-indicator p-2"
+	  >
+	  </div>
+	  <button class="btn btn-warning" type="button" disabled>
+	    <strong>Loading thread {{ post.id }}</strong>
+	    <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	  </button>
+	</div>
       {% endfor %}
+
+      <div id="thread-posts"></div>
 
     </div>
   </div>
@@ -237,3 +267,11 @@
   {% endif %}
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script nonce="{{ request.csp_nonce }}">
+   document.body.addEventListener("newPost", function(evt) {
+       document.getElementById(evt.detail.value).scrollIntoView()
+   });
+  </script>
+{% endblock %}

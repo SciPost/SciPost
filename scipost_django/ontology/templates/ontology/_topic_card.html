@@ -94,7 +94,7 @@
 	  </div>
 	  <div class="card-body">
 	    <ul>
-	      {% for sub in topic.submission_set.public_newest.unpublished %}
+	      {% for sub in topic.submission_set.public_latest.unpublished %}
     		<li>
     		  <a href="{{ sub.get_absolute_url }}">{{ sub.title }}</a>
     		  <br>by {{ sub.author_list }}

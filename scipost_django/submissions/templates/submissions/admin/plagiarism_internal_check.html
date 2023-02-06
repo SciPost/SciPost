@@ -4,7 +4,7 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item"><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</a></span>
+  <span class="breadcrumb-item"><a href="{% url 'submissions:do_preassignment' submission.preprint.identifier_w_vn_nr %}">Preassignment {{ submission.preprint.identifier_w_vn_nr }}</a></span>
   <span class="breadcrumb-item">Plagiarism (internal check) {{ submission.preprint.identifier_w_vn_nr }}</span>
 {% endblock %}
 

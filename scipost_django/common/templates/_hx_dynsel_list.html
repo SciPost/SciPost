@@ -1,0 +1,18 @@
+{% load common_extras %}
+
+<ul class="list list-unstyled">
+  {% for object in objects|slice:":11" %}
+    {% if forloop.counter == 11 %}
+      <li>&emsp;...</li>
+    {% else  %}
+      <li class="m-1">
+	<a
+	    hx-get="{% dynsel_action_url object %}"
+	    hx-target="#fellowships"
+	>
+	  {{ fellowship }}
+	</a>
+      </li>
+    {% endif %}
+  {% endfor %}
+</ul>

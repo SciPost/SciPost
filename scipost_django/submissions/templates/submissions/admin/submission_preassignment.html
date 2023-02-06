@@ -1,0 +1,94 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% load bootstrap %}
+{% load submissions_admin %}
+{% load scipost_extras %}
+{% load conflict_tags %}
+
+{% block pagetitle %}: preassignment ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Preassignment {{ submission.preprint.identifier_w_vn_nr }}</span>
+{% endblock %}
+
+{% block content %}
+  <h1 class="highlight">Preassignment of Submission</h1>
+  <h3><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
+  <h4>by {{ submission.author_list }}</h4>
+  {% include 'helpdesk/_ticket_for_object_link.html' with object=submission %}
+
+  <h3 class="mt-4">Submission summary</h3>
+  {% include 'submissions/pool/_submission_info_table_extended.html' with submission=submission %}
+
+  <h3 class="mt-4">Abstract</h3>
+  <p>{{ submission.abstract }}</p>
+
+  <h3 class="mt-4">Preassignment steps</h3>
+  <ul>
+    <li>
+      <span class="text-success">{% include 'bi/arrow-right.html' %}</span>
+      <a href="{% url 'submissions:conflicts' submission.preprint.identifier_w_vn_nr %}">See conflicts of interests</a>
+    </li>
+    <li>
+      <span class="text-success">{% include 'bi/arrow-right.html' %}</span>
+      <a href="{% url 'submissions:plagiarism_internal' submission.preprint.identifier_w_vn_nr %}">Check internal plagiarism</a>
+    </li>
+    <li>
+      {% if submission.iThenticate_plagiarism_report %}
+        <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
+        <a class="d-inline-block" href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Update plagiarism report</a>
+        <table>
+          <tr>
+            <td style="min-width: 150px;">iThenticate document</td>
+            <td>{{ submission.iThenticate_plagiarism_report.doc_id }}</td>
+          </tr>
+          <tr>
+            <td>Percent match</td>
+            <td>{{ submission.iThenticate_plagiarism_report.percent_match|default:'?' }}%</td>
+          </tr>
+          <tr>
+            <td>Processed</td>
+            <td>{{ submission.iThenticate_plagiarism_report.processed_time }}</td>
+          </tr>
+          <tr>
+            <td>Uploaded</td>
+            <td>{{ submission.iThenticate_plagiarism_report.uploaded_time }}</td>
+          </tr>
+          <tr>
+            <td>Latest update</td>
+            <td>{{ submission.iThenticate_plagiarism_report.latest_activity }}</td>
+          </tr>
+        </table>
+      {% else %}
+        {% include 'bi/square.html' %}
+        <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run iThenticate plagiarism check</a>
+      {% endif %}
+    </li>
+    <li>
+      {% if submission|has_editor %}
+        <span class="text-success">{% include 'bi/check-square-fill.html' %}</span><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">See assigned editor-in-charge</a>
+      {% elif submission|has_preassignments %}
+        <span class="text-success">{% include 'bi/check-square-fill.html' %}</span><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">See selected pre-assignments ({{ submission.editorial_assignments.all|length }} assignments)</a>
+      {% else %}
+        {% include 'bi/square.html' %}<a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Select pre-assignments</a>
+      {% endif %}
+    </li>
+  </ul>
+
+  <br>
+
+  <div class="p-3 border">
+    <h2>Take decision on preassignment</h2>
+    <p>If the decision is to pass preassignment, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">the preassignments system</a> will start inviting editors one-by-one.</p>
+    <br>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <input type="submit" class="btn btn-primary" value="Submit">
+    </form>
+  </div>
+
+
+
+{% endblock content %}

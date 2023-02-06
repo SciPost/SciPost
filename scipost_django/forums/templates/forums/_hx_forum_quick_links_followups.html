@@ -1,0 +1,50 @@
+<table class="table table-dark table-bordered table-hover">
+  <thead>
+    <tr>
+      <th>Date<br><small><em>(most recent first)</em></small></th>
+      <th></th>
+      <th>Posted by</th>
+      <th>Subject</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for post in forum.posts.all reversed %}
+      <tr>
+	<td>{{ post.posted_on|date:"Y-m-d H:i" }}</td>
+	<td>
+	  {% if post.motion %}
+	    <span class="badge rounded-pill text-bg-info">Motion</span>
+	  {% else %}
+	    <span class="badge rounded-pill text-bg-light">Post</span>
+	  {% endif %}
+	</td>
+	<td>{{ post.posted_by.first_name }} {{ post.posted_by.last_name }}</td>
+	<td><a href="{{ post.get_absolute_url }}" class="text-info">{{ post.subject }}</a></td>
+      </tr>
+      {% if post.cf_nr_followups > 0 %}
+	<tr class="pb-2">
+	  <td class="ps-4" colspan="2">
+	    {% include "bi/arrow-return-right.html" %}
+	    {{ post.cf_nr_followups }} followup{{ post.cf_nr_followups|pluralize }}
+	  </td>
+	  <td colspan="2" class="ps-4">
+	    {% with post.cf_latest_followup_in_hierarchy as latest_followup %}
+	      {% if latest_followup %}
+		<small>
+		  latest on {{ latest_followup.posted_on|date:"Y-m-d H:i" }}
+		  &emsp;by {{ latest_followup.posted_by.first_name }}
+		  {{ latest_followup.posted_by.last_name }}:
+		  &emsp;<a href="{{ latest_followup.get_absolute_url }}" class="text-info">
+		  {{ latest_followup.subject }}</a>
+		</small>
+	      {% endif %}
+	    {% endwith %}
+	  </td>
+	</tr>
+      {% endif %}
+      <tr><td colspan="4">&nbsp;</td></tr>
+    {% empty %}
+      <tr><td colspan="4">No posts yet</td></tr>
+    {% endfor %}
+  </tbody>
+</table>

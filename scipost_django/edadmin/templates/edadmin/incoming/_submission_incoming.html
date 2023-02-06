@@ -1,0 +1,62 @@
+<hr class="my-2">
+<h1>Admissibility</h1>
+<div class="p-2 mb-4" id="submission-{{ submission.pk }}-admissibility">
+  {% if submission.status == submission.INCOMING %}
+    <div id="submission-{{ submission.pk }}-admissibility-form"
+	 class="m-2"
+	 hx-get="{% url 'edadmin:incoming:_hx_submission_admissibility' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-trigger="load"
+    >
+    </div>
+  {% elif submission.status == submission.ADMISSIBLE %}
+    <span class="px-2 py-1 bg-success text-white">
+      Marked as admissible
+    </span>
+  {% endif %}
+</div>
+
+{% if submission.status == submission.ADMISSIBLE %}
+  <hr class="my-2">
+  <h1>Plagiarism</h1>
+  <div class="p-2 mb-4">
+    <div id="submission-{{ submission.pk }}-plagiarism-internal"
+	 class="m-2"
+	 hx-get="{% url 'edadmin:incoming:_hx_plagiarism_internal' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-trigger="load"
+    >
+    </div>
+  </div>
+  <div class="p-2">
+    <div id="submission-{{ submission.pk }}-plagiarism-iThenticate"
+	 class="m-2"
+	 hx-get="{% url 'edadmin:incoming:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	 hx-trigger="load"
+    >
+    </div>
+  </div>
+
+  {% if submission.plagiarism_tests_passed %}
+    <hr class="my-2">
+    <h1>Admission decision</h1>
+    <div  id="submission-{{ submission.pk }}-admission"
+	  class="p-2 mb-4 border border-2 border-warning"
+    >
+      <div id="submission-{{ submission.pk }}-admission-form"
+	   class="m-2"
+	   hx-get="{% url 'edadmin:incoming:_hx_submission_admission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	   hx-trigger="load"
+      >
+      </div>
+    </div>
+  {% endif %}
+{% elif submission.status == submission.PREASSIGNMENT %}
+  <span class="px-2 py-1 bg-success text-white">
+    Admission passed: admitted to next stage, Preassignment
+  </span>
+{% elif submission.status == submission.ADMISSION_FAILED %}
+  <span class="px-2 py-1 bg-danger text-white">
+    Admission failed (authors informed)
+  </span>
+{% elif submission.status != submission.INCOMING %}
+  <h1 class="text-danger">Submission not in incoming stage: status is {{ submission.get_status_display }}</h1>
+{% endif %}

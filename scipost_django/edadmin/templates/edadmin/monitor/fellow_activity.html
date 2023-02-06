@@ -1,0 +1,29 @@
+{% extends "scipost/base.html" %}
+
+{% block content %}
+
+  <h1 class="highlight">
+    Summary of recent Fellow activity
+  </h1>
+
+  {% for college in colleges %}
+    <details class="border border-2 my-4"
+	     id="college-{{ college.slug }}-fellow-activity-details"
+	     {% if not "edadmin" in user_roles %}open{% endif %}
+    >
+      <summary class="bg-primary bg-opacity-10 px-4 py-2">
+	{{ college }}
+      </summary>
+
+      <div hx-get="{% url 'edadmin:monitor:_hx_college_fellow_activity_table' college=college.slug %}"
+	   hx-target="#college-{{ college.slug }}-fellow-activity-table"
+	   hx-trigger="{% if 'edadmin' in user_roles %}toggle once from:#college-{{ college.slug }}-fellow-activity-details{% else %}revealed{% endif %}"
+      >
+      </div>
+      <div id="college-{{ college.slug }}-fellow-activity-table"></div>
+
+    </details>
+
+  {% endfor %}
+
+{% endblock content %}

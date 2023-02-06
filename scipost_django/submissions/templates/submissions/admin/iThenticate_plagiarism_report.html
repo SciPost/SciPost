@@ -1,0 +1,52 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: plagiarism report ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Plagiarism Report ({{ submission.preprint.identifier_w_vn_nr }})</span>
+{% endblock %}
+
+{% block content %}
+  <h1>iThenticate Plagiarism Report for <a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}</a></h1>
+  <h2>{{  submission.title }}</h2>
+  <h3 class="mb-4">by {{ submission.author_list }}</h3>
+  {% if submission.iThenticate_plagiarism_report %}
+    <table>
+      <tr>
+        <td style="min-width: 150px;">iThenticate document</td>
+        <td>{{ submission.iThenticate_plagiarism_report.doc_id }}</td>
+      </tr>
+      <tr>
+        <td>Percent match</td>
+        <td>{{ submission.iThenticate_plagiarism_report.percent_match }}%</td>
+      </tr>
+      <tr>
+        <td>Processed</td>
+        <td>{{ submission.iThenticate_plagiarism_report.processed_time }}</td>
+      </tr>
+      <tr>
+        <td>Uploaded</td>
+        <td>{{ submission.iThenticate_plagiarism_report.uploaded_time }}</td>
+      </tr>
+      <tr>
+        <td>Latest update</td>
+        <td>{{ submission.iThenticate_plagiarism_report.latest_activity }}</td>
+      </tr>
+    </table>
+  {% else %}
+    No Plagiarism Report found.
+  {% endif %}
+
+  <form method="post" class="mt-3" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit" class="btn btn-primary" value="{% if submission.iThenticate_plagiarism_report %}Update report status{% else %}Submit submission for plagiarism check{% endif %}">
+    {% if submission.iThenticate_plagiarism_report %}
+      <a href="{% url 'submissions:iThenticate_plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="ms-2 btn btn-default">Download report pdf</a>
+    {% endif %}
+  </form>
+
+{% endblock content %}

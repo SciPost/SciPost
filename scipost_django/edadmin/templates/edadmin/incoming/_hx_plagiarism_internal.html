@@ -1,0 +1,93 @@
+<details class="border border-2">
+  <summary class="bg-primary bg-opacity-10 p-2">
+    <h2>
+      Internal plagiarism checks&emsp;
+      {% if submission.internal_plagiarism_assessment %}
+	{% include "edadmin/incoming/plagiarism_assessment_status_span.html" with assessment=submission.internal_plagiarism_assessment %}
+      {% else %}
+	<span class="text-danger">[not started]</span>
+      {% endif %}
+    </h2>
+  </summary>
+  <details open>
+    <summary class="m-2 p-2">
+      Submission matches
+      {% if not "submission_matches" in submission.internal_plagiarism_matches %}
+	<span class="text-danger border border-danger m-2 p-2">This automated internal plagiarism check has not finished running yet; please come back later!</span>
+      {% endif %}
+    </summary>
+    <table class="table m-2">
+      <thead>
+	<tr>
+	  <th>Submission</th>
+	  <th>Title&nbsp;match&nbsp;&#37;</th>
+	  <th>Authors&nbsp;match&nbsp;&#37;</th>
+	  <th>Abstract&nbsp;match&nbsp;&#37;</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for match in submission_matches %}
+	  <tr>
+	    <td>
+	      {{ match.submission.preprint.identifier_w_vn_nr }}
+	      &emsp;<small class="text-muted">Thread hash: {{ match.submission.thread_hash }}</small>
+	      <br>
+	      <a href="{{ match.submission.get_absolute_url }}" target="_blank">{{ match.submission.title }}</a><br>
+	      {{ match.submission.author_list }}
+	      <br>
+	      <strong>Status</strong>:&emsp;{{ match.submission.get_status_display }}
+	    </td>
+	    <td>{{ match.ratio_title|floatformat:2 }}</td>
+	    <td>{{ match.ratio_authors|floatformat:2 }}</td>
+	    <td>{{ match.ratio_abstract|floatformat:2 }}</td>
+	  </tr>
+	{% empty %}
+	  <tr><td>No matching Submissions</td></tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </details>
+
+
+  <details open>
+    <summary class="m-2 p-2">
+      Publication matches
+      {% if not "publication_matches" in submission.internal_plagiarism_matches %}
+	<span class="text-danger border border-danger m-2 p-2">This automated internal plagiarism check has not finished running yet; please come back later!</span>
+      {% endif %}
+    </summary>
+    <table class="table m-2">
+      <thead>
+	<tr>
+	  <th>Publication</th>
+	  <th>Title&nbsp;match&nbsp;&#37;</th>
+	  <th>Authors&nbsp;match&nbsp;&#37;</th>
+	  <th>Abstract&nbsp;match&nbsp;&#37;</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for match in publication_matches %}
+	  <tr>
+	    <td>
+	      {{ match.publication.doi_label }}<br>
+	      <a href="{{ match.publication.get_absolute_url }}" target="_blank">{{ match.publication.title }}</a><br>
+	      {{ match.publication.author_list }}
+	    </td>
+	    <td>{{ match.ratio_title|floatformat:2 }}</td>
+	    <td>{{ match.ratio_authors|floatformat:2 }}</td>
+	    <td>{{ match.ratio_abstract|floatformat:2 }}</td>
+	  </tr>
+	{% empty %}
+	  <tr><td>No matching Publications</td></tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </details>
+
+  <div id="submission-{{ submission.pk }}-plagiarism-internal-assessment"
+       class="m-2 p-2 border border-2 border-warning"
+  >
+    {% include "edadmin/incoming/_hx_plagiarism_assessment.html" with submission=submission assessment=submission.internal_plagiarism_assessment method="internal" %}
+  </div>
+
+</details>

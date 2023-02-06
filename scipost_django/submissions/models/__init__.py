@@ -2,15 +2,30 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from .submission import Submission, SubmissionEvent, SubmissionTiering
+from .submission import (
+    SubmissionAuthorProfile,
+    Submission,
+    SubmissionEvent,
+    SubmissionTiering,
+)
 
-from .plagiarism import iThenticateReport
+from .plagiarism_assessment import (
+    PlagiarismAssessment,
+    InternalPlagiarismAssessment,
+    iThenticatePlagiarismAssessment,
+)
+
+from .iThenticate_report import iThenticateReport
 
 from .assignment import EditorialAssignment
 
 from .communication import EditorialCommunication
 
 from .preprint_server import PreprintServer
+
+from .qualification import Qualification
+
+from .readiness import Readiness
 
 from .referee_invitation import RefereeInvitation
 

@@ -1,0 +1,7 @@
+<ul class='mb-0 ps-3 text-start'>
+  {% for code, action in submission.cycle.required_actions.items %}
+    <li>{{ action|safe }}</li>
+  {% empty %}
+    <li>No action listed</li>
+  {% endfor %}
+</ul>

@@ -6,9 +6,10 @@ import datetime
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.urls import reverse
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from .managers import ForumQuerySet, PostQuerySet
 
@@ -59,12 +60,21 @@ class Forum(models.Model):
         object_id_field="parent_object_id",
         related_query_name="parent_forums",
     )
+    posts_all = GenericRelation(
+        "forums.Post",
+        content_type_field="anchor_content_type",
+        object_id_field="anchor_object_id",
+        related_query_name="anchor_forums",
+    )
     motions = GenericRelation(
         "forums.Motion",
         content_type_field="parent_content_type",
         object_id_field="parent_object_id",
         related_query_name="parent_forums",
     )
+
+    # calculated fields
+    cf_nr_posts = models.PositiveSmallIntegerField(blank=True, null=True)
 
     objects = ForumQuerySet.as_manager()
 
@@ -73,6 +83,7 @@ class Forum(models.Model):
             "name",
         ]
         permissions = [
+            ("can_administer_forum", "Can administer Forum"),
             ("can_view_forum", "Can view Forum"),
             ("can_post_to_forum", "Can add Post to Forum"),
         ]
@@ -83,6 +94,11 @@ class Forum(models.Model):
     def get_absolute_url(self):
         return reverse("forums:forum_detail", kwargs={"slug": self.slug})
 
+    def update_cfs(self):
+        self.update_cf_nr_posts()
+        if self.parent:
+            self.parent.update_cfs()
+
     @property
     def nr_posts(self):
         """Recursively counts the number of posts in this Forum."""
@@ -92,6 +108,10 @@ class Forum(models.Model):
         if self.posts.all():
             nr += self.posts.all().count()
         return nr
+
+    def update_cf_nr_posts(self):
+        self.cf_nr_posts = self.nr_posts
+        self.save()
 
     def posts_hierarchy_id_list(self):
         id_list = []
@@ -106,14 +126,6 @@ class Forum(models.Model):
             return Post.objects.filter(id__in=id_list).order_by("-posted_on").first()
         except:
             return None
-
-    @property
-    def posts_all(self):
-        """
-        Return all posts in the hierarchy.
-        """
-        posts_id_list = self.posts_hierarchy_id_list()
-        return Post.objects.filter(id__in=posts_id_list)
 
 
 class Meeting(Forum):
@@ -149,12 +161,20 @@ class Meeting(Forum):
     )
     objects = models.Manager()
 
+    class Meta:
+        ordering = [
+            "-date_until",
+        ]
+
     def __str__(self):
         return "%s, [%s to %s]" % (
             self.forum,
             self.date_from.strftime("%Y-%m-%d"),
             self.date_until.strftime("%Y-%m-%d"),
         )
+
+    def get_absolute_url(self):
+        return reverse("forums:forum_detail", kwargs={"slug": self.slug})
 
     @property
     def future(self):
@@ -232,6 +252,30 @@ class Post(models.Model):
             '<a href="/markup/help/" target="_blank">markup help</a> pages.'
         )
     )
+    # Accelerators: to avoid navigating the hierarchy of objects
+    anchor_content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="forum_or_meeting_posts",
+    )
+    anchor_object_id = models.PositiveIntegerField(blank=True, null=True)
+    anchor = GenericForeignKey(
+        "anchor_content_type",
+        "anchor_object_id",
+    )
+    absolute_url = models.URLField(blank=True)
+
+    # calculated fields
+    cf_nr_followups = models.PositiveSmallIntegerField(blank=True, null=True)
+    cf_latest_followup_in_hierarchy = models.ForeignKey(
+        "forums.Post",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="latest_followup_in_hierarchy_of",
+    )
 
     objects = PostQuerySet.as_manager()
 
@@ -248,10 +292,21 @@ class Post(models.Model):
         )
 
     def get_absolute_url(self):
-        return "%s#post%s" % (
-            self.get_anchor_forum_or_meeting().get_absolute_url(),
-            self.id,
-        )
+        if not self.anchor:
+            self.anchor = self.get_anchor_forum_or_meeting()
+        if not self.absolute_url:
+            self.absolute_url = "%s#post%s" % (
+                self.anchor.get_absolute_url(),
+                self.id,
+            )
+            self.save()
+        return self.absolute_url
+
+    def update_cfs(self):
+        self.update_cf_nr_followups()
+        self.update_cf_latest_followup_in_hierarchy()
+        if self.parent:
+            self.parent.update_cfs()
 
     @property
     def nr_followups(self):
@@ -261,6 +316,10 @@ class Post(models.Model):
         if self.followup_posts:
             nr += self.followup_posts.all().count()
         return nr
+
+    def update_cf_nr_followups(self):
+        self.cf_nr_followups = self.nr_followups
+        self.save()
 
     @property
     def latest_followup(self):
@@ -277,10 +336,13 @@ class Post(models.Model):
         id_list = self.posts_hierarchy_id_list()
         return Post.objects.filter(pk__in=id_list).exclude(pk=self.id).last()
 
-    def get_anchor_forum_or_meeting(self):
+    def update_cf_latest_followup_in_hierarchy(self):
+        self.cf_latest_followup_in_hierarchy = self.latest_followup_in_hierarchy
+        self.save()
+
+    def get_thread_initiator(self):
         """
-        Climb back the hierarchy up to the original Forum.
-        If no Forum is found, return None.
+        Climb back the hierarchy up to the first post in this thread.
         """
         type_forum = ContentType.objects.get_by_natural_key("forums", "forum")
         type_meeting = ContentType.objects.get_by_natural_key("forums", "meeting")
@@ -288,9 +350,15 @@ class Post(models.Model):
             self.parent_content_type == type_forum
             or self.parent_content_type == type_meeting
         ):
-            return self.parent
+            return self
         else:
-            return self.parent.get_anchor_forum_or_meeting()
+            return self.parent.get_thread_initiator()
+
+    def get_anchor_forum_or_meeting(self):
+        """
+        Climb back the hierarchy up to the original Forum.
+        """
+        return self.get_thread_initiator().parent
 
 
 class Motion(Post):
@@ -321,3 +389,7 @@ class Motion(Post):
     accepted = models.BooleanField(null=True)
 
     objects = models.Manager()
+
+    @cached_property
+    def open_for_voting(self):
+        return datetime.date.today() <= self.voting_deadline

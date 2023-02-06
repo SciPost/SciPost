@@ -1,0 +1,42 @@
+{% load submissions_extras %}
+
+{% if submission.eicrecommendations.exists %}
+  <div class="card">
+    <div class="card-header">
+      Editorial Recommendations
+    </div>
+    <div class="card-content">
+      <ul class="ps-3">
+	{% for rec in submission.eicrecommendations.all %}
+	  <li>
+	    {{ rec.get_full_status_display }}&emsp;
+	    {% if rec.undergoing_voting %}
+	      {% if rec|user_can_vote:request.user %}
+		<a href="{% url 'submissions:vote_on_rec' rec_id=rec.id %}">
+		  See Recommendation, view votes and/or revise your vote
+		</a>
+	      {% elif not "edadmin" in user_roles %}
+		<div id="rights-{{ rec.id }}">
+		  <button type="button" class="btn btn-sm btn-success text-white m-2"
+			  hx-get="{% url 'submissions:claim_voting_right' rec_id=rec.id %}"
+			  hx-target="#rights-{{ rec.id }}">
+		    <strong>Claim visibility and voting right</strong><br>
+		    <em><small>only if you can certify that you have no conflict of interest</small></em>
+		  </button>
+		</div>
+	      {% else %}
+		<a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">See Recommendation</a>
+	      {% endif %}
+	    {% elif rec.decision_fixed %}
+	      {% if "edadmin" in user_roles or rec|user_can_vote:request.user %}
+		<a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=rec.submission.preprint.identifier_w_vn_nr %}">
+		  See Recommendation
+		</a>
+	      {% endif %}
+	    {% endif %}
+	  </li>
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %}

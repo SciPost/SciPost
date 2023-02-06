@@ -1,0 +1,87 @@
+{% load bootstrap %}
+
+<details class="border border-2">
+  <summary class="bg-primary bg-opacity-10 p-2">
+    <h2>
+      iThenticate checks&emsp;
+      {% if submission.iThenticate_plagiarism_assessment %}
+	{% include "edadmin/incoming/plagiarism_assessment_status_span.html" with assessment=submission.iThenticate_plagiarism_assessment %}
+      {% else %}
+	<span class="text-danger">[not started]</span>
+      {% endif %}
+    </h2>
+  </summary>
+  <div class="row m-2">
+    <div class="col col-lg-4">
+      <h3>iThenticate report</h3>
+      {% if submission.iThenticate_plagiarism_report %}
+	<table>
+	  <tr>
+	    <td>Latest update</td>
+	    <td>{{ submission.iThenticate_plagiarism_report.latest_activity }}</td>
+	  </tr>
+	  <tr>
+	    <td style="min-width: 150px;">iThenticate document</td>
+	    <td>{{ submission.iThenticate_plagiarism_report.doc_id }}</td>
+	  </tr>
+	  <tr>
+	    <td>Uploaded</td>
+	    <td>{{ submission.iThenticate_plagiarism_report.uploaded_time }}</td>
+	  </tr>
+	  {% if submission.iThenticate_plagiarism_report.processed %}
+	    <tr>
+	      <td>Processed</td>
+	      <td>{{ submission.iThenticate_plagiarism_report.processed_time }}</td>
+	    </tr>
+	    <tr>
+	      <td>Percent match</td>
+	      <td>{{ submission.iThenticate_plagiarism_report.percent_match }}%</td>
+	    </tr>
+	  {% else %}
+	    <tr>
+	      <td>Report not yet received</td>
+	    </tr>
+	  {% endif %}
+	</table>
+      {% else %}
+	<p>No report yet</p>
+      {% endif %}
+    </div>
+    <div class="col col-lg-4">
+      <div class="row">
+	<div class="col">
+	  <form
+	      class="mt-3" enctype="multipart/form-data"
+	      hx-post="{% url 'edadmin:incoming:_hx_plagiarism_iThenticate' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	      hx-target="#submission-{{ submission.pk }}-plagiarism-iThenticate"
+	      hx-indicator="#indicator-{{ submission.pk }}-plagiarism-iThenticate"
+	  >
+	    {% csrf_token %}
+	    {{ form|bootstrap }}
+	    <input type="submit" class="btn btn-sm btn-primary" value="{% if submission.iThenticate_plagiarism_report %}Update report status{% else %}Submit document for plagiarism check{% endif %}">
+	  </form>
+	  <div id="indicator-{{ submission.pk }}-plagiarism-iThenticate"
+	       class="col htmx-indicator"
+	  >
+	    <button class="btn btn-sm btn-warning" type="button" disabled>
+	      <strong>Loading...</strong>
+	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	    </button>
+	  </div>
+	  {% if submission.iThenticate_plagiarism_report.processed %}
+	    <div class="col">
+	      <a href="{% url 'submissions:iThenticate_plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="btn btn-sm btn-success text-white" target="_blank">Download report pdf</a>
+	    </div>
+	  {% endif %}
+	</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="submission-{{ submission.pk }}-plagiarism-iThenticate-assessment"
+       class="m-2 p-2 border border-2 border-warning"
+  >
+    {% include "edadmin/incoming/_hx_plagiarism_assessment.html" with submission=submission assessment=submission.iThenticate_plagiarism_assessment method="iThenticate" %}
+  </div>
+
+</details>

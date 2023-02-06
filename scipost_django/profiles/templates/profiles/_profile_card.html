@@ -130,7 +130,7 @@
       </div>
       <div class="card-body">
 	<ul>
-	  {% for sub in profile.contributor.submissions.public_newest.unpublished %}
+	  {% for sub in profile.contributor.submissions.public_latest.unpublished %}
 	    <li><a href="{{ sub.get_absolute_url }}">{{ sub }}</a></li>
 	  {% empty %}
 	    <li>No ongoing Submission found</li>

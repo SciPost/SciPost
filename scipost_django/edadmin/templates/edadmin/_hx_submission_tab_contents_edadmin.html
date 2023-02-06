@@ -1,0 +1,40 @@
+
+<div class="row row-cols-1 row-cols-md-2 g-4 p-2">
+  <div class="col">
+    {% include "edadmin/_submission_maintenance_card_general.html" with submission=submission %}
+  </div>
+  {% if submission.in_stage_assignment %}
+    <div class="col">
+      {% include "edadmin/assignment/_submission_maintenance_card_assignment.html" with submission=submission %}
+    </div>
+  {% endif %}
+  {% if submission.in_stage_decisionmaking or submission.eicrecommendations.exists %}
+    {% include "edadmin/decisionmaking/_submission_maintenance_card_decisionmaking.html" with submission=submission %}
+  {% endif %}
+  {% if submission.in_stage_in_production %}
+    {% include "edadmin/in_production/_submission_maintenance_card_in_production.html" %}
+  {% endif %}
+</div>
+
+{% if submission.in_stage_incoming %}
+  {% include "edadmin/incoming/_submission_incoming.html" with submission=submission %}
+{% else %}
+{% endif %}
+
+{% if submission.in_stage_preassignment %}
+  {% include "edadmin/preassignment/_submission_preassignment.html" with submission=submission %}
+{% endif %}
+
+
+{% if submission.stage_incoming_completed %}
+  <div id="submission-{{ submission.id }}-edadmin-subtabs"
+       class="m-2 mt-4 p-2 border border-success bg-white"
+       hx-get="{% url 'edadmin:subtabs:_hx_submission_edadmin_subtab' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr subtab="incoming" %}"
+       hx-trigger="load"
+  >
+    <button class="htmx-indicator btn btn-sm btn-warning p-2" type="button" disabled>
+      <small><strong>Loading...</strong></small>
+      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+    </button>
+  </div>
+{% endif %}

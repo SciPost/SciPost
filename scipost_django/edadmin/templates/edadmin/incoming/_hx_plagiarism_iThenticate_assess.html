@@ -1,0 +1,10 @@
+{% load crispy_forms_tags %}
+<h3>Update assessment of iThenticate plagiarism</h3>
+<form
+    class="mt-3"
+    hx-post="{% url 'edadmin:incoming:_hx_plagiarism_iThenticate_assess' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+    hx-target="#submission-{{ submission.pk }}-plagiarism-iThenticate-assessment"
+    hx-confirm="Confirm this assessment of iThenticate plagiarism?"
+>
+  {% crispy form %}
+</form>

@@ -7,7 +7,6 @@ from django.utils import timezone
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
-    STATUS_EIC_ASSIGNED,
     EIC_REC_CHOICES,
     EIC_REC_STATUSES,
     DECISION_FIXED,
@@ -89,11 +88,6 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         is limited.
         """
         return self.submission.get_absolute_url()
-
-    @property
-    def notification_name(self):
-        """Return string representation of this EICRecommendation as shown in Notifications."""
-        return self.submission.preprint.identifier_w_vn_nr
 
     @property
     def nr_for(self):

@@ -34,6 +34,35 @@ CC_LICENSES_URI = (
 )
 
 
+PUBLISHABLE_OBJECT_TYPE_ARTICLE = "article"
+PUBLISHABLE_OBJECT_TYPE_CODEBASE = "codebase"
+PUBLISHABLE_OBJECT_TYPE_DATASET = "dataset"
+PUBLISHABLE_OBJECT_TYPE_CHOICES = (
+    (PUBLISHABLE_OBJECT_TYPE_ARTICLE, "Article"),
+    (PUBLISHABLE_OBJECT_TYPE_CODEBASE, "Codebase release"),
+    (PUBLISHABLE_OBJECT_TYPE_DATASET, "Dataset"),
+)
+
+def get_publishable_object_types_default_list():
+    return [PUBLISHABLE_OBJECT_TYPE_ARTICLE,]
+
+def get_submission_object_types_default():
+    return {
+        "options": [
+            ' + '.join(l) for l in [
+                [PUBLISHABLE_OBJECT_TYPE_ARTICLE,],
+                [PUBLISHABLE_OBJECT_TYPE_ARTICLE, PUBLISHABLE_OBJECT_TYPE_CODEBASE],
+                [PUBLISHABLE_OBJECT_TYPE_ARTICLE, PUBLISHABLE_OBJECT_TYPE_DATASET],
+                [
+                    PUBLISHABLE_OBJECT_TYPE_ARTICLE,
+                    PUBLISHABLE_OBJECT_TYPE_CODEBASE,
+                    PUBLISHABLE_OBJECT_TYPE_DATASET,
+                ],
+            ]
+        ]
+    }
+
+
 ISSUES_AND_VOLUMES = "IV"
 ISSUES_ONLY = "IO"
 INDIVIDUAL_PUBLICATIONS = "IP"

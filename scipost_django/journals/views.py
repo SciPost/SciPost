@@ -10,11 +10,10 @@ import string
 import shutil
 import requests
 
-from csp.decorators import csp_update, csp_exempt
-
-# from plotly.offline import plot
-# from plotly.graph_objs import Bar
-import plotly.graph_objects as pgo
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io, base64
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -88,7 +87,6 @@ from ontology.models import AcademicField, Topic
 from ontology.forms import SelectTopicForm
 from organizations.models import Organization
 from profiles.forms import ProfileSelectForm
-from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
@@ -124,6 +122,22 @@ class PublicationAutocompleteView(autocomplete.Select2QuerySetView):
             item.title,
             item.author_list,
         )
+
+
+class OwnPublicationAutocompleteView(PublicationAutocompleteView):
+    """
+    View to feed the Select2 widget, specialized to user's own publications.
+    """
+
+    def get_queryset(self):
+        qs = self.request.user.contributor.profile.publications()
+        if self.q:
+            qs = qs.filter(
+                Q(title__icontains=self.q)
+                | Q(doi_label__icontains=self.q)
+                | Q(author_list__icontains=self.q)
+            )
+        return qs.order_by("-publication_date")
 
 
 def _hx_publication_dynsel_list(request):
@@ -165,7 +179,7 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None, su
         return publication_detail(request, doi_label)
     if part_1 is None:
         # This DOI refers to a Journal landing page.
-        return landing_page(request, journal_tag)
+        return journal_detail(request, journal_tag)
     elif part_2 is None:
         doi_label = "{0}.{1}".format(journal_tag, part_1)
 
@@ -178,7 +192,7 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None, su
 
         # The third option: a `Issue and Volume Journal DOI` would lead to a "volume detail page",
         # but that does not exist. Redirect to the Journal landing page instead.
-        return landing_page(request, journal_tag)
+        return journal_detail(request, journal_tag)
     elif part_3 is None:
         doi_label = "{0}.{1}.{2}".format(journal_tag, part_1, part_2)
 
@@ -268,7 +282,7 @@ class PublicationListView(PaginationMixin, ListView):
         return context
 
 
-def landing_page(request, doi_label):
+def journal_detail(request, doi_label):
     """Journal details page.
 
     The landing page of a Journal lists either the latest and the current issue of a Journal
@@ -292,7 +306,7 @@ def landing_page(request, doi_label):
         .filter(pk__in=accepted_submission_ids)
         .order_by("-latest_activity"),
     }
-    return render(request, "journals/journal_landing_page.html", context)
+    return render(request, "journals/journal_detail.html", context)
 
 
 class VolumesAdminListView(PermissionsMixin, PaginationMixin, ListView):
@@ -430,27 +444,14 @@ def about(request, doi_label):
 
 
 def provide_plot(x, y, name, nonce=None):
-    fig = pgo.Figure([pgo.Bar(x=x, y=y, name=name)]).to_html(
-        config={
-            "modeBarButtonsToRemove": [
-                "select2d",
-                "lasso2d",
-                "autoScale2d",
-                "toImage",
-                "zoom2d",
-                "zoomIn2d",
-                "zoomOut2d",
-            ],
-        },
-        full_html=False,
-        include_plotlyjs=False,
-    )
-    if nonce:
-        fig = fig.replace("<script ", f"<script nonce={nonce} ")
-    return fig
+    fig, ax = plt.subplots()
+    ax.bar(x, y)
+    ax.set_title(name)
+    flike = io.BytesIO()
+    fig.savefig(flike)
+    return base64.b64encode(flike.getvalue()).decode()
 
 
-@csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
 def metrics(request, doi_label, specialty=None):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
@@ -1387,7 +1388,7 @@ def manage_report_metadata(request):
     if needing_update:
         reports = reports.filter(
             Q(needs_doi=None) | Q(needs_doi=True, doideposit_needs_updating=True)
-        ).filter(submission__status=STATUS_PUBLISHED)
+        ).filter(submission__status=Submission.PUBLISHED)
 
     paginator = Paginator(reports, 25)
     page = request.GET.get("page")

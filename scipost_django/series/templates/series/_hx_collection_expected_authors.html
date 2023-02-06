@@ -36,7 +36,6 @@
 	hx-trigger="keyup delay:200ms, change"
 	hx-target="#profile_search_results"
     >
-      {% csrf_token %}
       <div id="profile_search_form">{% crispy profile_search_form %}</div>
     </form>
     <div id="profile_search_results" class="border border-light m-2 p-1"></div>

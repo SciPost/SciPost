@@ -10,6 +10,7 @@ app_name = "markup"
 
 urlpatterns = [
     path("process/", views.process, name="process"),
+    path("_hx_process/<str:field>", views._hx_process, name="_hx_process"),
     path("help/", views.markup_help, name="help"),
     path("help/plaintext", views.plaintext_help, name="plaintext_help"),
     path("help/Markdown", views.markdown_help, name="markdown_help"),

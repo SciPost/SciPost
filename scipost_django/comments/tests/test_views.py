@@ -9,7 +9,7 @@ from django.http import Http404
 
 from scipost.factories import ContributorFactory
 from theses.factories import ThesisLinkFactory
-from submissions.factories import EICassignedSubmissionFactory
+from submissions.factories import InRefereeingSubmissionFactory
 from commentaries.factories import UnpublishedCommentaryFactory
 
 from ..factories import CommentFactory
@@ -66,7 +66,7 @@ class TestNewComment(TestCase):
     # AssertionError: 404 != 200 : Couldn't retrieve redirection page '/submissions/3963.08788v1/': response code was 404 (expected 200)
     # def test_submitting_comment_on_submission_creates_comment_and_redirects(self):
     #     contributor = ContributorFactory()
-    #     submission = EICassignedSubmissionFactory()
+    #     submission = InRefereeingSubmissionFactory()
     #     submission.open_for_commenting = True
     #     submission.save()
     #     valid_comment_data = model_form_data(CommentFactory, CommentForm)
@@ -130,7 +130,7 @@ class TestNewComment(TestCase):
         self,
     ):
         contributor = ContributorFactory()
-        submission = EICassignedSubmissionFactory()
+        submission = InRefereeingSubmissionFactory()
         submission.open_for_commenting = False
         submission.save()
         valid_comment_data = model_form_data(CommentFactory, CommentForm)

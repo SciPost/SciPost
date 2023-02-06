@@ -9,6 +9,7 @@
 	<a
 	    hx-get="{% profile_dynsel_action_url profile %}"
 	    hx-target="#{{ action_target_element_id }}"
+	    hx-swap="{{ action_target_swap }}"
 	    hx-indicator="#{{ action_target_element_id }}-indicator"
 	>
 	  {{ profile }}

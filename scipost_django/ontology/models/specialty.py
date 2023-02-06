@@ -14,6 +14,12 @@ class Specialty(models.Model):
         "ontology.AcademicField", on_delete=models.CASCADE, related_name="specialties"
     )
 
+    topics = models.ManyToManyField(
+        "ontology.Topic",
+        related_name="specialties",
+        blank=True,
+    )
+
     name = models.CharField(max_length=128)
 
     slug = models.SlugField(unique=True, allow_unicode=True)

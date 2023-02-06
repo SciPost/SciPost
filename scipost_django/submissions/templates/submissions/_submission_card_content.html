@@ -2,7 +2,7 @@
 
 {% block card_footer %}
   <p class="meta">
-    Version {{ submission.thread_sequence_order }} ({% if submission.is_current %}current version{% else %}out of a sequence of {{ submission.thread|length }}{% endif %})
+    Version {{ submission.thread_sequence_order }} ({% if submission.is_latest %}latest version{% else %}out of a sequence of {{ submission.thread|length }}{% endif %})
     <br>
     {% if submission.publications.published %}
       Published as

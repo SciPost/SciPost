@@ -11,7 +11,7 @@
     <div class="container">
       <nav class="breadcrumb hidden-sm-down">
         {% block breadcrumb_items %}
-          <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+          <a href="{% url 'submissions:pool:pool' %}" class="breadcrumb-item">Pool</a>
         {% endblock %}
       </nav>
     </div>
@@ -38,13 +38,67 @@
     </div>
   </div>
 
+  {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+    <ul class="mx-2 border border-2 border-danger">
+      <li>
+	{% if "edadmin" in user_roles %}
+	  As EdAdmin: consult the
+	{% else %}
+	  As Senior Fellow: you have the right to consult the
+	{% endif %}
+	<a href="{% url 'edadmin:monitor:fellow_activity' %}" target="_blank">Fellow activity monitor</a>
+      </li>
+    </ul>
+  {% endif %}
+
+  <div id="unavailability"
+       class="p-2"
+       hx-get="{% url 'scipost:_hx_unavailability' %}"
+       hx-trigger="load"
+       hx-target="#unavailability"
+  >
+  </div>
+
+
+  <details class="border border-success bg-success bg-opacity-10 my-4 mx-2">
+    <summary class="bg-success bg-opacity-10 p-2">
+      Tips for Fellows
+    </summary>
+    <div class="p-2">
+      <p>As of January 2023, there has been a big update of the internal editorial handling tools, in order to increase the efficiency of our workflows.</p>
+      <p>You will first notice that the <strong>presentation of information in the pool has been modified</strong>: clicking on the light blue background of a summary box will expand a series of informative tabs.</p>
+      <p>One of the tabs to explore is the <strong>Graphs</strong> tab, which contains an illustration of our editorial processes. In the pool, the graphs are submission-specific and (will, in the course of time) contain detailed information about steps taken, timescales, events etc (filtered versions will be visible to authors and site visitors; a generic version is also publicly visible on the <a href="{% url 'submissions:editorial_procedure' %}" target="_blank">editorial procedure</a> page).</p>
+      <p>As a Fellow, the most important change is that the (email) editorial invitations to take charge of a specific Submission are being phased out to reduce email noise.</p>
+      <p><strong>You are thus in complete control of your involvement.</strong></p>
+      <p>That said, to make it all work, you will be <strong>expected (and reminded) to regularly visit the pool</strong> to make sure things don't get stuck.</p>
+      <p>In particular, please make sure you <strong>maintain info on your unavailability periods</strong>, which you can do either at the top of this page, or from your <a href="{% url 'scipost:personal_page' %}" target="_blank">personal page</a> (Account tab). This info is used here.</p>
+      <p>During the Assignment stage, the workflow is now:
+	<ul>
+	  <li>For each Submission overlapping with your specialties, <strong>you are asked to appraise your</strong>:
+	    <ul>
+	      <li><strong>qualification</strong> / level of relevant expertise</li>
+	      <li><strong>competing interests</strong> (aka conflicts of interest)</li>
+	      <li><strong>readiness</strong> to take charge</li>
+	    </ul>
+	  </li>
+	  <li>Submissions which are taken charge of then proceed to the Refereeing in preparation stage.</li>
+	  <li>For Submissions which are <em>not</em> taken charge of after one week, authors will be emailed with information on appraisals.</li>
+	  <li>After two weeks without being taken charge of, authors are emailed again, and given the choice to withdraw or wait longer.</li>
+	  <li>After a longer wait (default: two additional weeks), EdAdmin will desk reject, unless the authors specifically request otherwise.</li>
+	</ul>
+      </p>
+      <p>This will enable us to unblock the assignment stage, which has historically been our greatest source of delays.</p>
+      <p>Thanks a lot for your patience and involvement!</p>
+    </div>
+  </details>
+
   {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
     {% if assignments_to_consider %}
       <h3>Your open Assignment Requests <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
       <ul>
         {% for assignment in assignments_to_consider %}
           <li>On submission: {{ assignment.submission }}<br>
-            <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+            <a href="{% url 'submissions:pool:assignment_request' assignment.id %}">Accept or decline here</a>
           </li>
         {% endfor %}
       </ul>
@@ -81,8 +135,8 @@
     </div>
     <div class="card-body">
       <form
-	  hx-post="{% url 'submissions:pool_hx_submissions_list' %}"
-	  hx-trigger="load, keyup delay:500ms, change"
+	  hx-post="{% url 'submissions:pool:_hx_submission_list' %}"
+	  hx-trigger="load, keyup delay:500ms, change, search-conditions-updated from:body, click from:#refresh-button"
 	  hx-target="#search-results"
 	  hx-indicator="#indicator-search"
       >
@@ -90,13 +144,22 @@
       </form>
     </div>
   </div>
-  <div id="indicator-search" class="htmx-indicator p-2">
-    <button class="btn btn-warning" type="button" disabled>
-      <strong>Loading...</strong>
-      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-    </button>
+  <div class="row">
+    <div class="col">
+      <em>The list should update automatically. Feels stuck?</em>&nbsp;<a id="refresh-button" class="m-2 btn btn-primary">{% include "bi/arrow-clockwise.html" %}&nbsp;Refresh</a>
+    </div>
+    <div class="col">
+      <div id="indicator-search" class="htmx-indicator p-2">
+	<button class="btn btn-warning" type="button" disabled>
+	  <strong>Loading...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </div>
+    </div>
   </div>
-  <ul id="search-results" class="list-unstyled pool-list mt-2"></ul>
+
+  <h4 class="bg-primary bg-opacity-10 p-2"><span class="text-primary">{% include "bi/info-circle-fill.html" %}</span>&emsp;<em>Tip: click anywhere on a Submission header's light blue background to expand detailed tabs</em></h4>
+  <div id="search-results" class="mt-2"></div>
 
 {% endblock content %}
 {% block footer_script %}

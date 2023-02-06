@@ -1,0 +1,28 @@
+<p>
+  Dear {{ submission.submitted_by.profile.get_title_display }} {{ submission.submitted_by.user.last_name }},
+</p>
+<p>
+  We would hereby like to give you another update on your recent SciPost submission,
+</p>
+<p>
+  {{ submission.title }}
+  <br/>
+  by {{ submission.author_list }}.
+</p>
+<p>
+  Your Submission is still in the assignment stage (during which an Editor-in-charge is sought). We have contacted {{ submission.editorial_assignments.all|length }} potential Fellows up to now but are still looking for one willing to take charge.
+</p>
+<p>
+  The target duration of the assignment phase is one week; since two weeks have now passed, we would like to inform you of the possible further courses of action:
+  <ul>
+    <li>We will by default keep trying to find an Editor-in-charge for one more week;</li>
+    <li>If you do not accept this longer wait, you can at any time withdraw your Submission (from your personal page, under the Submissions tab).</li>
+  </ul>
+</p>
+<p>If we still have not found an Editor-in-charge in the coming week, you will get another update from us.</p>
+<p>In the meantime, feel free to get in touch with our editorial administration if you have any questions.</p>
+<p>Sincerely,</p>
+<p>The SciPost Team</p>
+{% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid.html' with submission=submission %}
