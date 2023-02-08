@@ -2520,6 +2520,7 @@ class EICRecommendationForm(forms.ModelForm):
                 open_for_reporting=False,
                 open_for_commenting=False,
                 reporting_deadline=timezone.now(),
+                status=Submission.AWAITING_RESUBMISSION,
             )
 
             if self.assignment:
