@@ -2535,7 +2535,11 @@ class EICRecommendationForm(forms.ModelForm):
                     recommendation.get_recommendation_display(),
                 )
             )
-        else:
+
+        elif recommendation.recommendation in [
+            EIC_REC_PUBLISH,
+            EIC_REC_REJECT,
+        ]:
             # if rec is to publish, specify the tiering (deleting old ones first):
             if recommendation.recommendation == EIC_REC_PUBLISH:
                 tiering = SubmissionTiering(
@@ -2546,12 +2550,25 @@ class EICRecommendationForm(forms.ModelForm):
                 )
                 tiering.save()
 
+            # set correct status for Submission
+            Submission.objects.filter(id=self.submission.id).update(
+                open_for_reporting=False,
+                open_for_commenting=False,
+                reporting_deadline=timezone.now(),
+                status=Submission.VOTING_IN_PREPARATION,
+            )
+
             # Add SubmissionEvent for EIC only
             self.submission.add_event_for_eic(
                 event_text.format(
                     str(recommendation.for_journal),
                     recommendation.get_recommendation_display(),
                 )
+            )
+
+        else:
+            raise exceptions.InvalidRecommendationError(
+                recommendation.recommendation
             )
 
         if self.earlier_recommendations:

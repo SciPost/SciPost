@@ -22,6 +22,10 @@ class InvalidReportVettingValue(BaseCustomException):
     pass
 
 
+class InvalidRecommendationError(BaseCustomException):
+    pass
+
+
 class PreprintDocumentNotFoundError(BaseCustomException):
     pass
 
