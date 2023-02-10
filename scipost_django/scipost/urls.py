@@ -478,15 +478,24 @@ urlpatterns = [
     ####################
     # Editorial College
     ####################
-    path("EdCol_by-laws", views.EdCol_bylaws, name="EdCol_by-laws"),
+    path(
+        "EdCol_by-laws",
+         TemplateView.as_view(template_name="scipost/EdCol_by-laws.html"),
+         name="EdCol_by-laws",
+    ),
+    path(
+        "EdCol_by-laws_Changes_2023_02",
+        TemplateView.as_view(template_name="scipost/EdCol_by-laws_Changes_2023-02.html"),
+        name="EdCol_by-laws_Changes_2023_02",
+    ),
     path(
         "EdCol_by-laws_Changes_2022_11",
-        views.EdCol_bylaws_Changes_2022_11,
+        TemplateView.as_view(template_name="scipost/EdCol_by-laws_Changes_2022-11.html"),
         name="EdCol_by-laws_Changes_2022_11",
     ),
     path(
         "EdCol_by-laws_Changes_2021_04",
-        views.EdCol_bylaws_Changes_2021_04,
+        TemplateView.as_view(template_name="scipost/EdCol_by-laws_Changes_2021-04.html"),
         name="EdCol_by-laws_Changes_2021_04",
     ),
     #

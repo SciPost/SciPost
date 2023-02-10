@@ -1787,21 +1787,6 @@ def send_precooked_email(request):
     return render(request, "scipost/send_precooked_email.html", context)
 
 
-#####################
-# Editorial College #
-#####################
-
-
-def EdCol_bylaws(request):
-    return render(request, "scipost/EdCol_by-laws.html")
-
-def EdCol_bylaws_Changes_2022_11(request):
-    return render(request, "scipost/EdCol_by-laws_Changes_2022-11.html")
-
-def EdCol_bylaws_Changes_2021_04(request):
-    return render(request, "scipost/EdCol_by-laws_Changes_2021-04.html")
-
-
 #################
 # CSRF handling #
 #################

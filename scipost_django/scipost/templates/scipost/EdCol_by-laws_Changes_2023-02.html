@@ -25,17 +25,11 @@
     <div class="col-12">
       <h1 class="highlight">
 	SciPost Editorial Colleges By-laws
-	<br><br>
-	<span class="text-danger">[changes 2022-11]</span>
+      	<br><br>
+	<span class="text-danger">[changes 2023-02]</span>
 	&emsp;
 	<a href="{% url 'scipost:EdCol_by-laws' %}"><span class="text-primary">Go to current version</span></a>
       </h1>
-      <div class="bg-warning my-1 p-1">
-	<h4>
-	  Modifications (Foundation): the <em>Pre-screening</em> and <em>Screening</em> stages have been refactored into
-	  <em>Incoming</em>, <em>Preassignment</em> and <em>Assignment</em> to reduce confusion.
-	</h4>
-      </div>
 
       <p>
         Functioning of the SciPost Editorial Colleges is governed by the following set of by-laws.
@@ -58,6 +52,12 @@
                   For interdisciplinary submissions, the services of Fellows from distinct Colleges
                   can be called upon during the evaluation process.
                 </p>
+		<div class="bg-warning my-1 p-1">
+		  <h4>Adopted modification (VGM 2021-03): add the following paragraph</h4>
+		  <p>
+		    All Fellows of a College contribute to the Editorial activities in the corresponding academic field.
+		  </p>
+		</div>
 		<p>
 		  Within each College, a number of Fellows are marked as <em>Senior Fellows</em>.
 		  These are selected from existing Fellows,
@@ -190,6 +190,10 @@
                     <li>the Foundation terminating the appointment due to
                       conduct which it deems to be improper or in
                       conflict with the general aims and guiding principles of the Foundation.</li>
+		    <li class="bg-warning my-1 p-1">
+		      <h4>Adopted modification (VGM 2021-03): add the following item</h4>
+		      Appointments can also be terminated if a Fellow has not contributed to the Editorial activities for an extended period of time.
+		    </li>
                   </ul>
                 </p>
               </li>
@@ -260,11 +264,9 @@
                 <p>
                   Submissions in the pool can be in any of the following stages:
                   <ul>
-                    <li class="text-danger"><del>Pre-screening</del></li>
-                    <li class="text-danger"><del>Screening</del></li>
-		    <li class="text-warning">Incoming checks</li>
-                    <li class="text-warning">Preassignment</li>
-                    <li class="text-warning">Assignment</li>
+		    <li>Incoming checks</li>
+                    <li>Preassignment</li>
+                    <li>Assignment</li>
                     <li>Editor-in-charge appointed</li>
                     <li>Refereeing round open</li>
                     <li>Refereeing round closed</li>
@@ -277,7 +279,7 @@
                   </ul>
                 </p>
               </li>
-              <li><strong><span class="text-warning">Incoming checks</span> <del class="text-danger">Pre-screening</del></strong>
+              <li><strong>Incoming checks</strong>
                 <p>
                   For each Submission added to the pool, a thorough plagiarism check is performed
                   by SciPost's Editorial Administration. Appropriate action (immediate rejection;
@@ -287,7 +289,7 @@
                   availability.
                 </p>
 	      </li>
-	      <li><strong class="text-warning">Preassignment</strong>
+	      <li><strong>Preassignment</strong>
 		<p>
 		  Senior Fellows in the relevant specialty assist Editorial Administration
 		  in establishing this list of potential Editors-in-charge.
@@ -305,7 +307,7 @@
                   </ul>
                 </p>
               </li>
-              <li><strong class="text-warning">Assignment</strong> <del class="text-danger">Screening</del></strong>
+              <li><strong>Assignment</strong>
                 <p>
                   The preselected Fellows are sent an assignment request to become Editor-in-charge.
                   Other Fellows within the Editorial College do not receive an assignment request but
@@ -323,15 +325,14 @@
                 </p>
 		<p>
                   The Editorial College and Administration must make all reasonable efforts to ensure
-		  that the <span class="text-warning">assignment</span> <del class="text-danger">screening</del> process
+		  that the assignment process
                   be completed within 5 working days starting from the moment of submission.
 		  Senior Fellows in the relevant specialty can be consulted by Editorial Administration
 		  in order to assist in this endeavour.
                   If this timing proves impossible (for example due to a large influx of Submissions or current
                   unavailability of specialist (guest) Fellows), the authors are informed of the delay and
                   given the option of either withdrawing their Submission,
-                  or of accepting an extension to the duration of their Submission's
-		  <span class="text-warning">assignment</span> <del class="text-danger">screening</del> process.
+                  or of accepting an extension to the duration of their Submission's assignment process.
 		</p>
               </li>
               <li><strong>Appointment of Editor-in-charge</strong>
@@ -635,6 +636,7 @@
 	    </ul>
 	    <h3 class="mt-4">Deprecated versions:</h3>
 	    <ul>
+	      <li><a href="{% url 'scipost:EdCol_by-laws_Changes_2022_11' %}">Changes 2022-11</a></li>
 	      <li><a href="{% url 'scipost:EdCol_by-laws_Changes_2021_04' %}">Changes 2021-04</a></li>
 	    </ul>
 	  </div>
