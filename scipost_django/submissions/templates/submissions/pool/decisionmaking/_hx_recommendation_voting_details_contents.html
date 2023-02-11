@@ -1,0 +1,241 @@
+{% load submissions_pool %}
+{% load ethics_extras %}
+
+<h3>Voting</h3>
+<p>
+  <span class="text-warning">{% include "bi/cone-striped.html" %}</span>
+  &emsp;<strong>please use the old facilities for now (see top of page for your voting duties)</strong>
+</p>
+
+
+{% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+
+  <details class="border border-2 border-warning m-4" open>
+    <summary class="bg-warning bg-opacity-10 p-2">
+      <span class="h3">Voting management</span>
+      <span id="recommendation-{{ recommendation.id }}-voting-rights-indicator"
+	    class="htmx-indicator p-2"
+      >
+	<button class="btn btn-sm btn-warning" type="button" disabled>
+	  <small><strong>Loading...</strong></small>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </span>
+    </summary>
+
+    <div class="p-2">
+
+      <ul>
+	<li class="p-1">
+	  Grant voting rights to all Fellows in Specialty:
+	  {% for spec in recommendation.submission.specialties.all %}
+	    <a class="btn btn-sm btn-primary ms-2 px-1 py-0"
+	       hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_grant_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id spec_slug=spec.slug %}"
+	       hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
+	       hx-confirm="Confirm: grant voting right to all Fellows in {{ spec }}?"
+	       hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
+	    >
+	      {{ spec.code }}
+	    </a>
+	  {% endfor %}
+	</li>
+	<li class="p-1">
+	  Grant voting rights to all Senior Fellows in Specialty:
+	  {% for spec in recommendation.submission.specialties.all %}
+	    <a class="btn btn-sm btn-primary ms-2 px-1 py-0"
+	       hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_grant_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id spec_slug=spec.slug status='senior' %}"
+	       hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
+	       hx-confirm="Confirm: grant voting right to all Fellows in {{ spec }}?"
+	       hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
+	    >
+	      {{ spec.code }}
+	    </a>
+	  {% endfor %}
+	</li>
+	<li class="p-1">
+	  Grant voting rights to 4 random Fellows in Specialty:
+	  {% for spec in recommendation.submission.specialties.all %}
+	    <a class="btn btn-sm btn-primary ms-2 px-1 py-0"
+	       hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_grant_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id spec_slug=spec.slug nr=4 %}"
+	       hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
+	       hx-confirm="Confirm: grant voting right to 4 random Fellows in {{ spec }}?"
+	       hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
+	    >
+	      {{ spec.code }}
+	    </a>
+	  {% endfor %}
+	</li>
+	<li class="p-1">
+	  Revoke voting rights to all Fellows in Specialty:
+	  {% for spec in recommendation.submission.specialties.all %}
+	    <a class="btn btn-sm btn-danger ms-2 px-1 py-0"
+	       hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_revoke_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id spec_slug=spec.slug %}"
+	       hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
+	       hx-confirm="Confirm: revoke voting right to all Fellows in {{ spec }}?"
+	       hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
+	    >
+	      {{ spec.code }}
+	    </a>
+	  {% endfor %}
+	</li>
+	{% if recommendation.voting_in_preparation %}
+	  {% if "edadmin" in user_roles %}
+	    <li>
+	      <a class="btn btn-sm btn-success text-white"
+		 hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_open_voting' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id %}"
+		 hx-target="#submission-{{ recommendation.submission.pk }}-tab-contents-recommendations-and-voting"
+		 hx-confirm="Confirm: open voting on this Recommendation?"
+		 hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
+	      >
+		Open voting on this Recommendation
+	      </a>
+	    </li>
+	  {% endif %}
+	{% endif %}
+      </ul>
+
+      <h3>Fellows with voting rights on this Recommendation</h3>
+      <table class="table table-striped">
+	<thead>
+	  <tr>
+	    <th>Fellow</th>
+	    <th>Currently<br>available</th>
+	    <th>Specialties</th>
+	    <th>Voted for</th>
+	    <th>Voted against</th>
+	    <th>Voted abstain</th>
+	    <th>Actions</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for contributor in recommendation.eligible_to_vote.all %}
+	    <tr>
+	      <td>
+		{{ contributor }}
+		{% if contributor.is_active_senior_fellow %}&emsp;[SF]{% endif %}
+	      </td>
+	      <td>{% if contributor.is_currently_available %}<span class="text-success">{% include "bi/check-square-fill.html" %}</span>{% else %}<span class="text-danger">{% include "bi/x-square-fill.html" %}</span>{% endif %}</td>
+	      <td>
+		{% for specialty in contributor.profile.specialties.all %}
+		  {{ specialty.code }}&nbsp;
+		{% endfor %}
+	      </td>
+	      <td>
+		{% if contributor in recommendation.voted_for %}
+		  {% include "bi/check-square-fill.html" %}
+		{% endif %}
+	      </td>
+	      <td>
+		{% if contributor in recommendation.voted_against %}
+		  {% include "bi/check-square-fill.html" %}
+		{% endif %}
+	      </td>
+	      <td>
+		{% if contributor in recommendation.voted_abstain %}
+		  {% include "bi/check-square-fill.html" %}
+		{% endif %}
+	      </td>
+	      <td>
+		<a class="btn btn-sm btn-danger"
+		   hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_revoke_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id contributor_id=contributor.id %}"
+		   hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
+		   hx-confirm="Confirm: revoke voting right of {{ contributor }}?"
+		   hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
+		> Revoke voting right
+		</a>
+	      </td>
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td colspan="5">
+		No voting right has been granted
+	      </td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+
+      <h3>Fellowships in this Submission's pool (no voting right yet on this Recommendation)</h3>
+      <table class="table table-striped">
+	<thead>
+	  <tr>
+	    <th>Fellow</th>
+	    <th>Status</th>
+	    <th>Currently<br>available</th>
+	    <th>Specialties</th>
+	    <th>Qualification</th>
+	    <th>Competing<br>interests</th>
+	    <th>Readiness to take charge</th>
+	    <th>Actions</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for fellowship in submission.fellows.select_related_contributor__user_and_profile %}
+	    {% if fellowship.contributor not in recommendation.eligible_to_vote.all  %}
+	      <tr>
+		<td>{{ fellowship.contributor }}</td>
+		<td>{{ fellowship.get_status_display }}</td>
+		<td>{% if fellowship.contributor.is_currently_available %}<span class="text-success">{% include "bi/check-square-fill.html" %}</span>{% else %}<span class="text-danger">{% include "bi/x-square-fill.html" %}</span>{% endif %}</td>
+		<td>
+		  {% for specialty in fellowship.contributor.profile.specialties.all %}
+		    {{ specialty.code }}&nbsp;
+		  {% endfor %}
+		</td>
+		<td>{% get_fellow_qualification_expertise_level_display submission fellowship %}</td>
+		<td>
+		  {% get_profile_clearance submission.clearances fellowship.contributor.profile as clearance %}
+		  {% if clearance %}
+		    <span class="text-success">all clear</span>
+		    &nbsp;<em>(asserted by {{ clearance.asserted_by }})</em>
+		  {% else %}
+		    {% get_profile_competing_interests submission.competing_interests fellowship.contributor.profile as ci_qs %}
+		    {% if ci_qs %}
+		      <table class="table table-bordered bg-danger bg-opacity-10 mb-0">
+			<thead>
+			  <tr>
+			    <th>Related Profile / <em>(nature)</em></th>
+			    {% if "edadmin" in user_roles %}
+			      <th>Actions</th>
+			    {% endif %}
+			  </tr>
+			</thead>
+			<tbody>
+			  {% for ci in ci_qs %}
+			    <tr>
+			      <td>
+				{{ ci.related_profile }}
+				<br>
+				<em>({{ ci.get_nature_display }})</em>
+			      </td>
+			    </tr>
+			  {% endfor %}
+			</tbody>
+		      </table>
+		    {% else %}
+		      <em class="text-danger">unknown</em>
+		    {% endif %}
+		  {% endif %}
+		</td>
+		<td>{% get_fellow_readiness_status_display submission fellowship %}</td>
+		<td>
+		  <a class="btn btn-sm btn-primary"
+		     hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_grant_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id contributor_id=fellowship.contributor.id %}"
+		     hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
+		     hx-confirm="Confirm: grant voting right to {{ fellowship.contributor }}?"
+		     hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
+		  >
+		    Grant voting right
+		  </a>
+		</td>
+	      </tr>
+	    {% endif %}
+	  {% endfor %}
+	</tbody>
+      </table>
+
+    </div>
+
+  </details>
+
+{% endif %}

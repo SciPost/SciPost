@@ -5,7 +5,7 @@
     </li>
   {% endif %}
   <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="info" text="Submission information" %}
+    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="info" text="Submission<br>information" %}
   </li>
   <li class="nav-item">
     {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="fellows" text="Fellows" %}
@@ -13,6 +13,11 @@
   <li class="nav-item">
     {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="refereeing" text="Refereeing" %}
   </li>
+  {% if "edadmin" in user_roles %}
+    <li class="nav-item text-center">
+      {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="recommendations_and_voting" text="Recommendations<br>& Voting" %}
+    </li>
+  {% endif %}
   <li class="nav-item">
     {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="remarks" text="Remarks" %}
   </li>
@@ -52,7 +57,12 @@
     </div>
 
   {% elif tab == "refereeing" %}
-    {% include 'submissions/pool/_submission_refereeing.html' with submission=submission %}
+    {% include "submissions/pool/_submission_refereeing.html" with submission=submission %}
+
+  {% elif tab == "recommendations_and_voting" %}
+    <div id="submission-{{ submission.pk }}-tab-contents-recommendations-and-voting">
+      {% include "submissions/pool/decisionmaking/_recommendations_and_voting.html" with submission=submission %}
+    </div>
 
   {% elif tab == "remarks" %}
     {% if remark_form %}

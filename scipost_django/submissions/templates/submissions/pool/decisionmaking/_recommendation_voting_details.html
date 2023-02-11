@@ -1,0 +1,22 @@
+<details class="border border-2 mx-2 my-4" open>
+  <summary class="bg-primary bg-opacity-10 p-2">
+    <span class="h3">Voting</span>
+    <span id="recommendation-{{ recommendation.id }}-voting-indicator"
+	  class="htmx-indicator p-2"
+    >
+      <button class="btn btn-sm btn-warning" type="button" disabled>
+	<small><strong>Loading...</strong></small>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </span>
+  </summary>
+
+  <div id="recommendation-{{ recommendation.id }}-voting-details-contents"
+       class="p-2"
+       hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_voting_details_contents' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id %}"
+       hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
+       hx-trigger="load"
+       hx-indicator="#recommendation-{{ recommendation.id }}-voting-indicator"
+  >
+  </div>
+</details>

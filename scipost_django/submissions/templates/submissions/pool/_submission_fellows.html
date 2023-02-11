@@ -45,7 +45,7 @@
 	    {% get_profile_clearance submission.clearances fellowship.contributor.profile as clearance %}
 	    {% if clearance %}
 	      <span class="text-success">all clear</span>
-	      &nbsp;<en>(asserted by {{ clearance.asserted_by }})
+	      &nbsp;<em>(asserted by {{ clearance.asserted_by }})</em>
 	    {% else %}
 		{% get_profile_competing_interests submission.competing_interests fellowship.contributor.profile as ci_qs %}
 		{% if ci_qs %}

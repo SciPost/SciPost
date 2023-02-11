@@ -4,16 +4,16 @@ __license__ = "AGPL v3"
 
 from django.urls import include, path
 
-import submissions.views.pool as views_pool
+import submissions.views.pool.base as views_base
 import submissions.views.appraisal as views_appraisal
 
-app_name = "pool"
+#app_name = "pool_base"
 
 
 urlpatterns = [ # building on /submissions/pool/
     path(
         "",
-        views_pool.pool,
+        views_base.pool,
         name="pool",
     ),
     path( # <identifier>/
@@ -21,7 +21,7 @@ urlpatterns = [ # building on /submissions/pool/
         include([
             path(
                 "",
-                views_pool.pool,
+                views_base.pool,
                 name="pool",
             ),
             path(
@@ -46,12 +46,12 @@ urlpatterns = [ # building on /submissions/pool/
             ),
             path(
                 "tab/<slug:tab>",
-                views_pool._hx_submission_tab,
+                views_base._hx_submission_tab,
                 name="_hx_submission_tab",
             ),
             path(
                 "add_remark",
-                views_pool.add_remark,
+                views_base.add_remark,
                 name="add_remark",
             ),
             path(
@@ -59,12 +59,12 @@ urlpatterns = [ # building on /submissions/pool/
                 include([
                     path(
                         "",
-                        views_pool.editorial_assignment,
+                        views_base.editorial_assignment,
                         name="editorial_assignment",
                     ),
                     path(
                         "<int:assignment_id>/",
-                        views_pool.editorial_assignment,
+                        views_base.editorial_assignment,
                         name="editorial_assignment",
                     ),
                 ]),
@@ -76,12 +76,12 @@ urlpatterns = [ # building on /submissions/pool/
         include([
             path(
                 "",
-                views_pool.pool_hx_submission_list,
+                views_base.pool_hx_submission_list,
                 name="_hx_submission_list",
             ),
             path(
                 "<identifier:identifier_w_vn_nr>",
-                views_pool.pool_hx_submission_details_contents,
+                views_base.pool_hx_submission_details_contents,
                 name="_hx_submission_details_contents",
             ),
         ]),
@@ -89,7 +89,7 @@ urlpatterns = [ # building on /submissions/pool/
     # Assignment of Editor-in-charge
     path(
         "assignment_request/<int:assignment_id>",
-        views_pool.assignment_request,
+        views_base.assignment_request,
         name="assignment_request",
     ),
 ]

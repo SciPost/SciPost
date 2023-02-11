@@ -10,7 +10,7 @@
 	    {% for rec in submission.eicrecommendations.all %}
 	      <li>
 		<a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ rec.get_full_status_display }}</a>
-		{% if is_ed_admin %}
+		{% if "edadmin" in user_roles %}
 		  {% if rec.voting_in_preparation %}
 		    <a class="btn btn-sm btn-primary ms-4 px-1 py-0" role="button" href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a>
 		  {% endif %}

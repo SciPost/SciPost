@@ -1,0 +1,5 @@
+{% for recommendation in submission.eicrecommendations.all %}
+  {% include "submissions/pool/decisionmaking/_recommendation_details.html" with recommendation=recommendation %}
+{% empty %}
+  <h4>No Recommendation has yet been formulated</h4>
+{% endfor %}
