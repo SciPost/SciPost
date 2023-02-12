@@ -101,12 +101,13 @@ class Forum(models.Model):
 
     @property
     def nr_posts(self):
-        """Recursively counts the number of posts in this Forum."""
+        """Recursively counts the number of motions and posts in this Forum."""
         nr = 0
-        for post in self.posts.all():
-            nr += post.nr_followups
-        if self.posts.all():
-            nr += self.posts.all().count()
+        posts = self.posts.all() # gathers all Posts (including those with a Motion)
+        if posts:
+            nr += posts.count()
+            for post in self.posts.all():
+                nr += post.nr_followups
         return nr
 
     def update_cf_nr_posts(self):
@@ -317,10 +318,11 @@ class Post(models.Model):
     @property
     def nr_followups(self):
         nr = 0
-        for followup in self.followup_posts.all():
-            nr += followup.nr_followups
-        if self.followup_posts:
-            nr += self.followup_posts.all().count()
+        followups = self.get_followups()
+        if followups:
+            nr += followups.count()
+            for followup in followups.all():
+                nr += followup.nr_followups
         return nr
 
     def update_cf_nr_followups(self):
