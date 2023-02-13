@@ -10,6 +10,7 @@ from django.urls import reverse
 from guardian.shortcuts import get_objects_for_user
 
 from colleges.permissions import is_edadmin
+from journals.models import Publication
 from mails.utils import DirectMailUtil
 from submissions.models import (
     Submission,
