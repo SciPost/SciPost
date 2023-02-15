@@ -48,8 +48,11 @@ class SubsidyAttachmentForm(forms.ModelForm):
         fields = (
             "subsidy",
             "attachment",
+            "kind",
             "name",
-            "publicly_visible",
+            "description",
+            "name",
+            "visibility",
         )
 
 

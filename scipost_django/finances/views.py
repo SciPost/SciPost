@@ -398,27 +398,6 @@ class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
         )
 
 
-def subsidy_attachment_toggle_public_visibility(request, attachment_id):
-    """
-    Method to toggle the public visibility of an attachment to a Subsidy.
-    Callable by Admin and Contacts for the relevant Organization.
-    """
-    attachment = get_object_or_404(SubsidyAttachment, pk=attachment_id)
-    if not (
-        request.user.has_perm("scipost.can_manage_subsidies")
-        or request.user.has_perm(
-            "can_view_org_contacts", attachment.subsidy.organization
-        )
-    ):
-        raise PermissionDenied
-    attachment.publicly_visible = not attachment.publicly_visible
-    attachment.save()
-    messages.success(
-        request, "Attachment visibility set to %s" % attachment.publicly_visible
-    )
-    return redirect(attachment.subsidy.get_absolute_url())
-
-
 def subsidy_attachment(request, subsidy_id, attachment_id):
     attachment = get_object_or_404(
         SubsidyAttachment.objects, subsidy__id=subsidy_id, id=attachment_id

@@ -46,7 +46,9 @@
 	    </th>
 	    {% if perms.scipost.can_manage_subsidies %}
 	      <th>Status</th>
-	      <th><span class="small" style="writing-mode: vertical-lr;">attachments?</span></th>
+	      <th>Paid on</th>
+	      <th class="py-1"><span class="small" style="writing-mode: vertical-lr;">attachments?<br>Agreement</span></th>
+	      <th class="py-1"><span class="small" style="writing-mode: vertical-lr;">attachments?<br>Proof&nbsp;of&nbsp;payment</span></th>
 	    {% endif %}
 	    <th>From date
 	      {% if request.GET.ordering != 'asc' %}
@@ -89,7 +91,9 @@
 	      <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	      {% if perms.scipost.can_manage_subsidies %}
 		<td>{{ subsidy.get_status_display }}</td>
-		<td>{% if subsidy.attachments.all|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
+		<td>{% if subsidy.paid_on %}{{ subsidy.paid_on }}{% else %}<span class="text-warning">{% include "bi/cone-striped.html" %}</span>{% endif %}</td>
+		<td class="text-center">{% if subsidy.attachments.agreements|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
+		<td class="text-center">{% if subsidy.attachments.proofs_of_payment|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 	      {% endif %}
 	      <td>{{ subsidy.date }}</td>
 	      <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>

@@ -64,11 +64,6 @@ urlpatterns = [
         name="subsidyattachment_delete",
     ),
     path(
-        "subsidies/attachments/<int:attachment_id>/toggle_visibility/",
-        views.subsidy_attachment_toggle_public_visibility,
-        name="subsidy_attachment_toggle_public_visibility",
-    ),
-    path(
         "subsidies/<int:subsidy_id>/attachments/<int:attachment_id>",
         views.subsidy_attachment,
         name="subsidy_attachment",

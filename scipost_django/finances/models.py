@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 
 from .constants import SUBSIDY_TYPES, SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_STATUS
-from .managers import SubsidyQuerySet
+from .managers import SubsidyQuerySet, SubsidyAttachmentQuerySet
 from .utils import id_to_slug
 
 from scipost.storage import SecureFileStorage
@@ -47,6 +47,7 @@ class Subsidy(models.Model):
     amount = models.PositiveIntegerField(help_text="in &euro; (rounded)")
     amount_publicly_shown = models.BooleanField(default=True)
     status = models.CharField(max_length=32, choices=SUBSIDY_STATUS)
+    paid_on = models.DateField(blank=True, null=True)
     date = models.DateField()
     date_until = models.DateField(blank=True, null=True)
     renewable = models.BooleanField(null=True)
@@ -138,17 +139,52 @@ class SubsidyAttachment(models.Model):
     A document related to a Subsidy.
     """
 
+    KIND_AGREEMENT = "agreement"
+    KIND_PROOF_OF_PAYMENT = "proofofpayment"
+    KIND_OTHER = "other"
+    KIND_CHOICES = (
+        (KIND_AGREEMENT, "Agreement"),
+        (KIND_PROOF_OF_PAYMENT, "Proof of payment"),
+        (KIND_OTHER, "Other"),
+    )
+
+    VISIBILITY_PUBLIC = "public"
+    VISIBILITY_INTERNAL = "internal"
+    VISIBILITY_FINADMINONLY = "finadminonly"
+    VISIBILITY_CHOICES = (
+        (VISIBILITY_PUBLIC, "Publicly visible"),
+        (VISIBILITY_INTERNAL, "Internal (admin, Org Contacts)"),
+        (VISIBILITY_FINADMINONLY, "SciPost FinAdmin only"),
+    )
+
     attachment = models.FileField(
         upload_to=subsidy_attachment_path, storage=SecureFileStorage()
     )
+
+    kind = models.CharField(
+        max_length=32,
+        choices=KIND_CHOICES,
+        default=KIND_AGREEMENT,
+    )
+
     name = models.CharField(max_length=128)
+
+    description = models.TextField(blank=True)
+
     subsidy = models.ForeignKey(
         "finances.Subsidy",
         related_name="attachments",
         blank=True,
         on_delete=models.CASCADE,
     )
-    publicly_visible = models.BooleanField(default=False)
+
+    visibility = models.CharField(
+        max_length=32,
+        choices=VISIBILITY_CHOICES,
+        default=VISIBILITY_FINADMINONLY,
+    )
+
+    objects = SubsidyAttachmentQuerySet.as_manager()
 
     def __str__(self):
         return "%s, attachment to %s" % (self.name, self.subsidy)
@@ -158,6 +194,10 @@ class SubsidyAttachment(models.Model):
             return reverse(
                 "finances:subsidy_attachment", args=(self.subsidy.id, self.id)
             )
+
+    @property
+    def publicly_visible(self):
+        return self.visibility == self.VISIBILITY_PUBLIC
 
     def visible_to_user(self, current_user):
         if self.publicly_visible or current_user.has_perm(
