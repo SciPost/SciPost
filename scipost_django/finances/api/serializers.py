@@ -27,7 +27,7 @@ class SubsidyFinAdminSerializer(DynamicFieldsModelSerializer):
             "amount",
             "amount_publicly_shown",
             "status",
-            "date",
+            "date_from",
             "date_until",
             "renewable",
             "renewal_of",

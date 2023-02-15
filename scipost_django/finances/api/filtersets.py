@@ -32,7 +32,7 @@ class SubsidyFinAdminAPIFilterSet(df_filters.FilterSet):
                 "icontains",
             ],
             "amount": ["gte", "lte", "range"],
-            "date": [
+            "date_from": [
                 "year",
                 "month",
                 "exact",

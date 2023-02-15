@@ -138,7 +138,7 @@
 			<tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
 			  <td>{{ subsidy.get_subsidy_type_display }}</td>
 			  <td>&euro;{{ subsidy.amount }}</td>
-			  <td>{{ subsidy.date }}{% if subsidy.date_until %} until {{ subsidy.date_until }}{% endif %}</td>
+			  <td>{{ subsidy.date_from }}{% if subsidy.date_until %} until {{ subsidy.date_until }}{% endif %}</td>
 			</tr>
 		      {% endfor %}
 		      <tr style="border-top: 2px solid black">

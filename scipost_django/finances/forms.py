@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 import datetime
+import re
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -35,7 +36,8 @@ class SubsidyForm(forms.ModelForm):
             "amount",
             "amount_publicly_shown",
             "status",
-            "date",
+            "paid_on",
+            "date_from",
             "date_until",
             "renewable",
             "renewal_of",
@@ -50,10 +52,26 @@ class SubsidyAttachmentForm(forms.ModelForm):
             "attachment",
             "kind",
             "name",
+            "date",
             "description",
             "name",
             "visibility",
         )
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        name_regex = (
+            "^SciPost-[0-9]{4,}-[A-Z]{2,}--[\w]+--"
+            "(Agreement|Invoice|ProofOfPayment|Other)(-[0-9]{2,})?\.(pdf|docx|png)$"
+        )
+        pattern = re.compile(name_regex)
+        if not pattern.match(name):
+            self.add_error(
+                "name",
+                "The filename does not match the required regex pattern "
+                f"'{name_regex}'"
+            )
+        return name
 
 
 #############

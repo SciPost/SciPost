@@ -47,7 +47,7 @@ def publishing_years():
 def total_subsidies_in_year(year):
     total = 0
     for subsidy in Subsidy.objects.filter(
-        date__year__lte=year, date_until__year__gte=year
+        date_from__year__lte=year, date_until__year__gte=year
     ):
         total += subsidy.value_in_year(year)
     return total
@@ -291,9 +291,9 @@ class SubsidyListView(ListView):
         ordering = self.request.GET.get("ordering")
         if order_by == "amount":
             qs = qs.filter(amount_publicly_shown=True).order_by("amount")
-        elif order_by == "date":
-            qs = qs.order_by("date")
-        elif order_by == "until":
+        elif order_by == "date_from":
+            qs = qs.order_by("date_from")
+        elif order_by == "date_until":
             qs = qs.order_by("date_until")
         if ordering == "desc":
             qs = qs.reverse()

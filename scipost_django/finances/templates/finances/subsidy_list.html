@@ -52,12 +52,12 @@
 	    {% endif %}
 	    <th>From date
 	      {% if request.GET.ordering != 'asc' %}
-		<a href="?order_by=date&ordering=asc">{% include 'bi/sort-up.html' %}</a>
+		<a href="?order_by=date_from&ordering=asc">{% include 'bi/sort-up.html' %}</a>
 	      {% else %}
 		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-up.html' %}</a>
 	      {% endif %}
 	      {% if request.GET.ordering != 'desc' %}
-		<a href="?order_by=date&ordering=desc">{% include 'bi/sort-down.html' %}</a>
+		<a href="?order_by=date_from&ordering=desc">{% include 'bi/sort-down.html' %}</a>
 	      {% else %}
 		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-down.html' %}</i></a>
 	      {% endif %}
@@ -95,7 +95,7 @@
 		<td class="text-center">{% if subsidy.attachments.agreements|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 		<td class="text-center">{% if subsidy.attachments.proofs_of_payment|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 	      {% endif %}
-	      <td>{{ subsidy.date }}</td>
+	      <td>{{ subsidy.date_from }}</td>
 	      <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
 	      {% if perms.scipost.can_manage_subsidies %}
 		<td>

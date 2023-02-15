@@ -33,7 +33,7 @@ class Subsidy(models.Model):
     * a Collaboration Agreement
     * a donation
 
-    The date field represents the date at which the Subsidy was formally agreed,
+    The date_from field represents the date at which the Subsidy was formally agreed,
     or (e.g. for Sponsorship Agreements) the date at which the agreement enters into force.
     The date_until field is optional, and represents (where applicable) the date
     after which the object of the Subsidy is officially terminated.
@@ -48,7 +48,7 @@ class Subsidy(models.Model):
     amount_publicly_shown = models.BooleanField(default=True)
     status = models.CharField(max_length=32, choices=SUBSIDY_STATUS)
     paid_on = models.DateField(blank=True, null=True)
-    date = models.DateField()
+    date_from = models.DateField()
     date_until = models.DateField(blank=True, null=True)
     renewable = models.BooleanField(null=True)
     renewal_of = models.ManyToManyField(
@@ -59,19 +59,19 @@ class Subsidy(models.Model):
 
     class Meta:
         verbose_name_plural = "subsidies"
-        ordering = ["-date"]
+        ordering = ["-date_from"]
 
     def __str__(self):
         if self.amount_publicly_shown:
             return format_html(
                 "{}: &euro;{} from {}, for {}",
-                self.date,
+                self.date_from,
                 self.amount,
                 self.organization,
                 self.description,
             )
         return format_html(
-            "{}: from {}, for {}", self.date, self.organization, self.description
+            "{}: from {}, for {}", self.date_from, self.organization, self.description
         )
 
     def get_absolute_url(self):
@@ -82,12 +82,12 @@ class Subsidy(models.Model):
         Normalize the value of the subsidy per year.
         """
         if self.date_until is None:
-            if self.date.year == year:
+            if self.date_from.year == year:
                 return self.amount
             return 0
-        if self.date.year <= year and self.date_until.year >= year:
+        if self.date_from.year <= year and self.date_until.year >= year:
             # keep it simple: for all years covered, spread evenly
-            nr_years_covered = self.date_until.year - self.date.year + 1
+            nr_years_covered = self.date_until.year - self.date_from.year + 1
             return int(self.amount / nr_years_covered)
         return 0
 
@@ -128,7 +128,7 @@ def subsidy_attachment_path(instance, filename):
     Save the uploaded SubsidyAttachments to country-specific folders.
     """
     return "uploads/finances/subsidies/{0}/{1}/{2}".format(
-        instance.subsidy.date.strftime("%Y"),
+        instance.subsidy.date_from.strftime("%Y"),
         instance.subsidy.organization.country,
         filename,
     )
@@ -140,10 +140,12 @@ class SubsidyAttachment(models.Model):
     """
 
     KIND_AGREEMENT = "agreement"
+    KIND_INVOICE = "invoice"
     KIND_PROOF_OF_PAYMENT = "proofofpayment"
     KIND_OTHER = "other"
     KIND_CHOICES = (
         (KIND_AGREEMENT, "Agreement"),
+        (KIND_INVOICE, "Invoice"),
         (KIND_PROOF_OF_PAYMENT, "Proof of payment"),
         (KIND_OTHER, "Other"),
     )
@@ -168,6 +170,8 @@ class SubsidyAttachment(models.Model):
     )
 
     name = models.CharField(max_length=128)
+
+    date = models.DateField(blank=True, null=True)
 
     description = models.TextField(blank=True)
 

@@ -27,7 +27,7 @@
 	<td>Amount:</td><td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}{% if perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %} {% if subsidy.amount_publicly_shown %}<span class="text-success">publicly visible</span>{% else %}<span class="text-danger">publicly invisible</span>{% endif %}&nbsp;&nbsp;<a href="{% url 'finances:subsidy_toggle_amount_public_visibility' subsidy_id=subsidy.id %}" class="small">Make it {% if subsidy.amount_publicly_shown %}in{% endif %}visible</a>{% endif %}</td>
       </tr>
       <tr>
-	<td>Date:</td><td>{{ subsidy.date }}</td>
+	<td>Date from:</td><td>{{ subsidy.date_from }}</td>
       </tr>
       {% if subsidy.date_until %}
 	<tr>
@@ -41,6 +41,10 @@
 	<tr>
 	  <td>Status</td>
 	  <td>{{ subsidy.get_status_display }}</td>
+	</tr>
+	<tr>
+	  <td>Paid on</td>
+	  <td>{% if subsidy.paid_on %}{{ subsidy.paid_on }}{% else %}<span class="text-warning">{% include "bi/cone-striped.html" %}</span>{% endif %}</td>
 	</tr>
       {% endif %}
     </table>
@@ -68,30 +72,36 @@
       </ul>
     {% endif %}
     <table class="table">
-      <tr>
-	<th>File name</th>
-	{% if perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}
-	  <th>Visibility</th>
-	{% endif %}
-      </tr>
-      {% for att in subsidy.attachments.all %}
-	{% if att.publicly_visible or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}
-	  <tr>
-	    <td><a href="{{ att.get_absolute_url }}" target="_blank">{{ att.name }}</a></td>
-	    {% if perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}
-	      <td>{{ att.get_visibility_display }}</td>
-	      {% if perms.scipost.can_manage_subsidies %}
-		<td><a href="{% url 'finances:subsidyattachment_update' pk=att.id %}"><span class="text-warning">Update</span></a></td>
-		<td><a href="{% url 'finances:subsidyattachment_delete' pk=att.id %}"><span class="text-danger">Delete</span></a></td>
-	      {% endif %}
-	    {% endif %}
-	  </tr>
-	{% endif %}
-      {% empty %}
+      <thead>
 	<tr>
-	  <td>No attachment found</td>
+	  <th>File name</th>
+	  <th>Date</th>
+	  {% if perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}
+	    <th>Visibility</th>
+	  {% endif %}
 	</tr>
-      {% endfor %}
+      </thead>
+      <tbody>
+	{% for att in subsidy.attachments.all %}
+	  {% if att.publicly_visible or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}
+	    <tr>
+	      <td><a href="{{ att.get_absolute_url }}" target="_blank">{{ att.name }}</a></td>
+	      <td>{{ att.date }}</td>
+	      {% if perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}
+		<td>{{ att.get_visibility_display }}</td>
+		{% if perms.scipost.can_manage_subsidies %}
+		  <td><a href="{% url 'finances:subsidyattachment_update' pk=att.id %}"><span class="text-warning">Update</span></a></td>
+		  <td><a href="{% url 'finances:subsidyattachment_delete' pk=att.id %}"><span class="text-danger">Delete</span></a></td>
+		{% endif %}
+	      {% endif %}
+	    </tr>
+	  {% endif %}
+	{% empty %}
+	  <tr>
+	    <td>No attachment found</td>
+	  </tr>
+	{% endfor %}
+      </tbody>
     </table>
   </div>
 </div>
