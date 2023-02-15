@@ -297,7 +297,11 @@ class SubsidyListView(ListView):
             qs = qs.order_by("date_until")
         if ordering == "desc":
             qs = qs.reverse()
-        return qs
+        return qs.select_related("organization").prefetch_related(
+            "attachments",
+            "renewal_of__organization",
+            "renewed_by__organization",
+        )
 
 
 class SubsidyDetailView(DetailView):
