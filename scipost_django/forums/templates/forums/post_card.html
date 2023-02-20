@@ -50,17 +50,19 @@
       </div>
     </div>
 
-    {% with id_str=post.id|stringformat:"s" %}
-      {% with thread_str="thread-"|add:id_str %}
-	<div id="{{ thread_str|add:'-origin' }}">
-	  {% if post.motion %}
-	    {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='motion' parent_id=post.id origin=thread_str|add:"-origin" target=thread_str|add:"-new" text="Comment on this Motion" %}
-	  {% else %}
-	    {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='post' parent_id=post.id origin=thread_str|add:"-origin" target=thread_str|add:"-new" text="Reply" %}
-	  {% endif %}
-	</div>
+    {% if posting_open %}
+      {% with id_str=post.id|stringformat:"s" %}
+	{% with thread_str="thread-"|add:id_str %}
+	  <div id="{{ thread_str|add:'-origin' }}">
+	    {% if post.motion %}
+	      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='motion' parent_id=post.id origin=thread_str|add:"-origin" target=thread_str|add:"-new" text="Comment on this Motion" %}
+	    {% else %}
+	      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='post' parent_id=post.id origin=thread_str|add:"-origin" target=thread_str|add:"-new" text="Reply" %}
+	    {% endif %}
+	  </div>
+	{% endwith %}
       {% endwith %}
-    {% endwith %}
+    {% endif %}
 
     <div class="followupPosts{% if post.motion %}AfterMotion{% endif %}"
     >

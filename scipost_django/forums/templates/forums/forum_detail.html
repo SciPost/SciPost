@@ -222,14 +222,15 @@
   <div class="row">
     <div class="col-12">
       <h2 class="highlight" id="Posts">Posts</h2>
-      <ul>
-	<li>
-	  <div id="new-post-form">
-	    {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='forum' parent_id=forum.id origin="new-post-form" target="thread-posts" text="Add a new Post" %}
-	  </div>
-	</li>
-      </ul>
-
+      {% if not forum.meeting or forum.meeting.ongoing %}
+	<ul>
+	  <li>
+	    <div id="new-post-form">
+	      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='forum' parent_id=forum.id origin="new-post-form" target="thread-posts" text="Add a new Post" %}
+	    </div>
+	  </li>
+	</ul>
+      {% endif %}
 
       {% for post in forum.posts.motions_excluded %}
 	<div id="thread-{{ post.id }}"

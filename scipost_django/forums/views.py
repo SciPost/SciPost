@@ -382,6 +382,7 @@ def _hx_motion_form(request, slug):
 @permission_required_or_403("forums.can_view_forum", (Forum, "slug", "slug"))
 def _hx_thread_from_post(request, slug, post_id):
     forum = get_object_or_404(Forum, slug=slug)
+    posting_open = not forum.meeting or forum.meeting.ongoing
     post = Post.objects.filter(pk=post_id).select_related(
         "motion",
         "posted_by",
@@ -391,6 +392,7 @@ def _hx_thread_from_post(request, slug, post_id):
     ).first()
     context = {
         "forum": forum,
+        "posting_open": posting_open,
         "post": post,
     }
     return render(request, "forums/post_card.html", context)
