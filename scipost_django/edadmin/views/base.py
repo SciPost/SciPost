@@ -43,8 +43,7 @@ def _hx_submissions_in_stage(request, stage):
     context = {
         "stage": stage,
         "count": count,
-        "page_obj":
-        page_obj,
+        "page_obj": page_obj,
         "start_index": start_index,
     }
     return render(request, "edadmin/_hx_submissions.html", context)

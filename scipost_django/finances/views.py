@@ -308,6 +308,21 @@ class SubsidyDetailView(DetailView):
     model = Subsidy
 
 
+def _hx_subsidy_list(request):
+    subsidies = Subsidy.objects.all()
+    paginator = Paginator(subsidies, 16)
+    page_nr = request.GET.get("page")
+    page_obj = paginator.get_page(page_nr)
+    count = paginator.count
+    start_index = page_obj.start_index
+    context = {
+        "count": count,
+        "page_obj": page_obj,
+        "start_index": start_index,
+    }
+    return render(request, "finances/_hx_subsidy_list.html", context)
+
+
 def subsidy_toggle_amount_public_visibility(request, subsidy_id):
     """
     Method to toggle the public visibility of the amount of a Subsidy.

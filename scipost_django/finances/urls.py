@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import path
+from django.urls import path, include
 from django.views.generic import TemplateView
 
 from . import views
@@ -28,6 +28,16 @@ urlpatterns = [
         name="_hx_country_level_data",
     ),
     # Subsidies
+    path(
+        "subsidies/",
+        include([
+            path(
+                "_hx_subsidy_list",
+                views._hx_subsidy_list,
+                name="_hx_subsidy_list",
+            ),
+        ]),
+    ),
     path("subsidies/", views.SubsidyListView.as_view(), name="subsidies"),
     path("subsidies/add/", views.SubsidyCreateView.as_view(), name="subsidy_create"),
     path(

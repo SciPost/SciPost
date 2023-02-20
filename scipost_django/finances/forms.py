@@ -74,6 +74,10 @@ class SubsidyAttachmentForm(forms.ModelForm):
         return name
 
 
+class SubsidySearchForm(forms.Form):
+    pass
+
+
 #############
 # Work logs #
 #############
