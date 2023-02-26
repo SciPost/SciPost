@@ -1,0 +1,66 @@
+{% for subsidy in page_obj %}
+  <tr>
+    <td>
+      <a href="{{ subsidy.organization.get_absolute_url }}">
+	{{ subsidy.organization }}
+      </a>
+    </td>
+    <td>
+      <a href="{{ subsidy.get_absolute_url }}">
+	{{ subsidy.get_subsidy_type_display }}
+      </a>
+      {% if subsidy.renewal_of.all|length > 0 %}
+	<br/>
+	<span class="small text-muted">Renewal of:
+	  <ul class="list-unstyled">
+	    {% for prevsub in subsidy.renewal_of.all %}
+	      <li><a href="{{ prevsub.get_absolute_url }}">{{ prevsub }}</a></li>
+	    {% endfor %}
+	  </ul>
+	</span>
+      {% endif %}
+      {% if subsidy.renewed_by.all|length > 0 %}
+	<br/>
+	<span class="small text-muted">Renewed by:
+	  <ul class="list-unstyled">
+	    {% for newsub in subsidy.renewed_by.all %}
+	      <li><a href="{{ newsub.get_absolute_url }}">{{ newsub }}</a></li>
+	    {% endfor %}
+	  </ul>
+	</span>
+      {% endif %}
+    </td>
+    <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
+    <td>{{ subsidy.date_from }}</td>
+    <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
+  </tr>
+  {% if "finadmin" in user_roles %}
+    <tr>
+      <td colspan="5" class="ps-4 pb-4">
+	<details>
+	  <summary>Financial Administration</summary>
+	  Fin admin
+	</details>
+      </td>
+    </tr>
+  {% endif %}
+{% endfor %}
+{% if page_obj.has_next %}
+  <tr id="subsidy-table-next-rows"
+      hx-post="{% url 'finances:_hx_subsidy_list' %}?page={{ page_obj.next_page_number }}"
+      hx-include="#subsidy-search-form"
+      hx-trigger="revealed"
+      hx-target="#subsidy-table-next-rows"
+      hx-swap="outerHTML"
+      hx-indicator="#indicator-subsidy-page-{{ page_obj.number }}"
+  >
+    <td id="indicator-subsidy-page-{{ page_obj.number }}"
+	    class="htmx-indicator p-2"
+    >
+      <button class="btn btn-warning" type="button" disabled>
+	<strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </td>
+  </tr>
+{% endif %}

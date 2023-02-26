@@ -38,6 +38,7 @@ urlpatterns = [
             ),
         ]),
     ),
+    path("subsidies/", views.subsidy_list, name="subsidies"),
     path("subsidies/", views.SubsidyListView.as_view(), name="subsidies"),
     path("subsidies/add/", views.SubsidyCreateView.as_view(), name="subsidy_create"),
     path(

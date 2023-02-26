@@ -15,6 +15,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.http import Http404, HttpResponse
@@ -23,7 +24,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilterForm
+from .forms import SubsidyForm, SubsidySearchForm, SubsidyAttachmentForm, LogsFilterForm
 from .models import Subsidy, SubsidyAttachment, WorkLog, PeriodicReport
 from .utils import slug_to_id
 
@@ -308,14 +309,27 @@ class SubsidyDetailView(DetailView):
     model = Subsidy
 
 
+def subsidy_list(request):
+    form = SubsidySearchForm()
+    context = {
+        "form": form,
+    }
+    return render(request, "finances/subsidy_list.html", context)
+
+
 def _hx_subsidy_list(request):
-    subsidies = Subsidy.objects.all()
+    form = SubsidySearchForm(request.POST or None)
+    if form.is_valid():
+        subsidies = form.search_results(request.user)
+    else:
+        subsidies = Subsidy.objects.all()
     paginator = Paginator(subsidies, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
     count = paginator.count
     start_index = page_obj.start_index
     context = {
+        "form": form,
         "count": count,
         "page_obj": page_obj,
         "start_index": start_index,

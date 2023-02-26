@@ -1,5 +1,7 @@
 {% extends 'finances/base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block meta_description %}{{ block.super }} Subsidies List{% endblock meta_description %}
 {% block pagetitle %}: Subsidies{% endblock pagetitle %}
 
@@ -24,6 +26,49 @@
       {% endif %}
     </div>
   </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+	<div class="card-header">
+	  Search / filter
+	</div>
+	<div class="card-body">
+	  <form
+	      id="subsidy-search-form"
+	      hx-post="{% url 'finances:_hx_subsidy_list' %}"
+	      hx-trigger="load, keyup delay:500ms, change"
+	      hx-target="#subsidy-table-tbody"
+	      hx-indicator="#indicator-subsidy-list"
+	  >
+	    {% crispy form %}
+	  </form>
+	  <span id="indicator-subsidy-list"
+		class="htmx-indicator p-2"
+	  >
+	    <button class="btn btn-warning" type="button" disabled>
+	      <strong>Loading...</strong>
+	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	    </button>
+	  </span>
+	</div>
+      </div>
+      <table class="table table-hover">
+	<thead class="table-light">
+	  <tr>
+	    <th>From Organization</th>
+	    <th>Type</th>
+	    <th>Amount</th>
+	    <th>From</th>
+	    <th>Until</th>
+	  </tr>
+	<tbody id="subsidy-table-tbody">
+	</tbody>
+      </table>
+    </div>
+  </div>
+
+  <hr>
 
   <div class="row">
     <div class="col-12">

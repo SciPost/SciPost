@@ -7,8 +7,13 @@ import re
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.dates import MONTHS
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.utils import timezone
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field
+from crispy_forms.bootstrap import InlineRadios
+from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
 from dateutil.rrule import rrule, MONTHLY
@@ -75,7 +80,64 @@ class SubsidyAttachmentForm(forms.ModelForm):
 
 
 class SubsidySearchForm(forms.Form):
-    pass
+    organization_query = forms.CharField(
+        max_length=128,
+        required=False,
+        label="Organization name or acronym",
+    )
+    country = forms.CharField(
+        max_length=32,
+        required=False,
+        label="Country name or code",
+    )
+    ordering = forms.ChoiceField(
+        choices=(
+            ("amount", "Amount"),
+            ("date_from", "Date from"),
+            ("date_until", "Date until"),
+        ),
+        initial="date_from",
+        widget=forms.RadioSelect,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField("organization_query"), css_class="col-lg-6"),
+                Div(FloatingField("country"), css_class="col-lg-6"),
+                css_class="row",
+            ),
+            Div(
+                InlineRadios("ordering"),
+            ),
+        )
+
+    def search_results(self, user):
+        if user.groups.filter(name="Financial Administrators").exists():
+            subsidies = Subsidy.objects.all()
+        else:
+            subsidies = Subsidy.objects.obtained()
+        if self.cleaned_data["organization_query"]:
+            subsidies = subsidies.filter(
+                Q(organization__name__icontains=\
+                  self.cleaned_data["organization_query"]) |
+                Q(organization__acronym__icontains=\
+                  self.cleaned_data["organization_query"])
+            )
+        if self.cleaned_data["country"]:
+            subsidies = subsidies.filter(
+                organization__country__icontains=self.cleaned_data["country"],
+            )
+        if self.cleaned_data["ordering"]:
+            if self.cleaned_data["ordering"] == "amount":
+                subsidies = subsidies.order_by("-amount")
+            if self.cleaned_data["ordering"] == "date_from":
+                subsidies = subsidies.order_by("-date_from")
+            if self.cleaned_data["ordering"] == "date_until":
+                subsidies = subsidies.order_by("-date_until")
+        return subsidies
 
 
 #############
