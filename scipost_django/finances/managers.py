@@ -14,6 +14,14 @@ class SubsidyQuerySet(models.QuerySet):
         )
 
 
+class SubsidyPaymentQuerySet(models.QuerySet):
+    def outstanding(self):
+        return self.filter(proof_of_payment__isnull=True)
+
+    def paid(self):
+        return self.filter(proof_of_payment__isnull=False)
+
+
 class SubsidyAttachmentQuerySet(models.QuerySet):
 
     def agreements(self):

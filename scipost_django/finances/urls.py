@@ -36,6 +36,11 @@ urlpatterns = [
                 views._hx_subsidy_list,
                 name="_hx_subsidy_list",
             ),
+            path(
+                "_hx_subsidy_finadmin_details/<int:subsidy_id>",
+                views._hx_subsidy_finadmin_details,
+                name="_hx_subsidy_finadmin_details",
+            ),
         ]),
     ),
     path("subsidies/", views.subsidy_list, name="subsidies"),

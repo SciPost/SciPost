@@ -21,12 +21,20 @@
     <div class="col-12">
       <p><strong>N.B.:</strong> for attachments, please adopt the following format for the file names:</p>
       <p>
-	<em>SciPost-<span class="text-muted">[year]</span>-<span class="text-muted">[2-letter country code]</span>--<span class="text-muted">[Organization acronym or short name]</span>--<span class="text-muted">[document type](-##)</span>.<span class="text-muted">[filetype]</span></em>&emsp;<span class="text-danger">NOTE: <strong>TWO</strong> HYPHENS on both sides of the Org acronym!!</span>
+	<em>SciPost
+	  _<span class="text-muted">[year|yearstart-yearend]</span>
+	  _<span class="text-muted">[2-letter country code]</span>
+	  _<span class="text-muted">[Organization acronym or short name]</span>
+	  _<span class="text-muted">[document type]</span>
+	  <span class="text-muted">(-##)</span>
+	  .<span class="text-muted">[filetype]</span>
+	</em>&emsp;<span class="text-danger">NOTE: careful with hyphens and underscores!</span>
 	<br/>in which:
 	<ul>
-	  <li><span class="text-muted">[year]</span> is the year of validity of the Agreement</li>
-	  <li><span class="text-muted">[document type]</span> can be <em>Agreement</em>, <em>Invoice</em>, <em>ProofOfPayment</em> or other descriptive label</li>
-	  <li>(-##) represents an optional two-digit number (for example: for invoices)</li>
+	  <li><span class="text-muted">[year]</span> is the year or year range of validity of the Agreement</li>
+	  <li><span class="text-muted">[document type]</span> can be <em>Agreement</em>, <em>Invoice</em>, <em>ProofOfPayment</em> or <em>Other</em> (the last case should be explicited in the attachment's description)</li>
+	  <li>(-##) represents a two-digit number obligatory for invoices, but optional for other types</li>
+	  <li>the full filename must of course be unique</li>
 	</ul>
       </p>
     </div>
@@ -39,9 +47,9 @@
     </div>
     <div class="col-9">
       <ul class="list-unstyled">
-	<li><em>SciPost-2023-NL--UvA--Agreement.pdf</em>
+	<li><em>SciPost_2023-2027_NL_UvA_Agreement.pdf</em>
 	</li>
-	<li><em>SciPost-2019-DE--MPDL--Invoice-01.pdf</em></li>
+	<li><em>SciPost_2019_DE_MPDL_Invoice-01.pdf</em></li>
       </ul>
     </div>
   </div>

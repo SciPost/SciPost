@@ -1,0 +1,36 @@
+<details id="subsidy-{{ subsidy.id }}-finadmin-details"
+	 class="bg-danger bg-opacity-10"
+>
+  <summary class="bg-danger bg-opacity-10 p-2">Financial Administration</summary>
+  <div class="p-2">
+    <h3>Payment schedule</h3>
+    <table class="table table-bordered">
+      <thead>
+	<tr>
+	  <th>Reference</th>
+	  <th>Amount</th>
+	  <th>Date&nbsp;scheduled</th>
+	  <th>Invoiced?</th>
+	  <th>Invoice</th>
+	  <th>Paid?</th>
+	  <th>Proof&nbsp;of&nbsp;payment</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for payment in subsidy.payments.all %}
+	  <tr>
+	    <td>{{ payment.reference }}</td>
+	    <td>{{ payment.amount }}</td>
+	    <td>{{ payment.date_scheduled }}</td>
+	    <td>{{ payment.invoiced }}</td>
+	    <td>{{ payment.invoice }}</td>
+	    <td>{{ paymend.paid }}</td>
+	    <td>{{ payment.proof_of_payment }}</td>
+	  </tr>
+	{% empty %}
+	  <tr><td colspan="5">No payment has been scheduled</td></tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</details>

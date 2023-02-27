@@ -337,6 +337,19 @@ def _hx_subsidy_list(request):
     return render(request, "finances/_hx_subsidy_list.html", context)
 
 
+def _hx_subsidy_finadmin_details(request, subsidy_id: int):
+    subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
+    if not (
+        request.user.has_perm("scipost.can_manage_subsidies")
+        or request.user.has_perm("can_view_org_contacts", subsidy.organization)
+    ):
+        raise PermissionDenied
+    context = {
+        "subsidy": subsidy,
+    }
+    return render(request, "finances/_hx_subsidy_finadmin_details.html", context)
+
+
 def subsidy_toggle_amount_public_visibility(request, subsidy_id):
     """
     Method to toggle the public visibility of the amount of a Subsidy.

@@ -21,7 +21,7 @@ from dateutil.rrule import rrule, MONTHLY
 from organizations.models import Organization
 from scipost.fields import UserModelChoiceField
 
-from .models import Subsidy, SubsidyAttachment, WorkLog
+from .models import Subsidy, SubsidyPayment, SubsidyAttachment, WorkLog
 
 
 class SubsidyForm(forms.ModelForm):
@@ -47,36 +47,6 @@ class SubsidyForm(forms.ModelForm):
             "renewable",
             "renewal_of",
         ]
-
-
-class SubsidyAttachmentForm(forms.ModelForm):
-    class Meta:
-        model = SubsidyAttachment
-        fields = (
-            "subsidy",
-            "attachment",
-            "kind",
-            "name",
-            "date",
-            "description",
-            "name",
-            "visibility",
-        )
-
-    def clean_name(self):
-        name = self.cleaned_data["name"]
-        name_regex = (
-            "^SciPost-[0-9]{4,}-[A-Z]{2,}--[\w]+--"
-            "(Agreement|Invoice|ProofOfPayment|Other)(-[0-9]{2,})?\.(pdf|docx|png)$"
-        )
-        pattern = re.compile(name_regex)
-        if not pattern.match(name):
-            self.add_error(
-                "name",
-                "The filename does not match the required regex pattern "
-                f"'{name_regex}'"
-            )
-        return name
 
 
 class SubsidySearchForm(forms.Form):
@@ -136,6 +106,55 @@ class SubsidySearchForm(forms.Form):
             if self.cleaned_data["ordering"] == "date_until":
                 subsidies = subsidies.order_by("-date_until")
         return subsidies
+
+
+class SubsidyPaymentForm(forms.ModelForm):
+    class Meta:
+        model = SubsidyPayment
+        fields = (
+            "subsidy",
+            "reference",
+            "amount",
+            "date_scheduled",
+        )
+
+
+class SubsidyAttachmentForm(forms.ModelForm):
+    class Meta:
+        model = SubsidyAttachment
+        fields = (
+            "subsidy",
+            "attachment",
+            "kind",
+            "name",
+            "date",
+            "description",
+            "name",
+            "visibility",
+        )
+
+    def clean_attachment(self):
+        attachment = self.cleaned_data["attachment"]
+        print(f"{attachment.name = }")
+        return attachment
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        name_regex = (
+            "^SciPost_"
+            "[0-9]{4,}(-[0-9]{4,})?_[A-Z]{2,}_[\w]+_"
+            "(Agreement|Invoice|ProofOfPayment|Other)"
+            "(-[0-9]{2,})?\.(pdf|docx|png)$"
+        )
+        pattern = re.compile(name_regex)
+        if not pattern.match(name):
+            self.add_error(
+                "name",
+                "The filename does not match the required regex pattern "
+                f"'{name_regex}'"
+            )
+        return name
+
 
 
 #############
