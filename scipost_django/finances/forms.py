@@ -105,12 +105,10 @@ class SubsidySearchForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(FloatingField("organization_query"), css_class="col-lg-6"),
-                Div(FloatingField("country"), css_class="col-lg-6"),
+                Div(FloatingField("organization_query"), css_class="col-lg-5"),
+                Div(FloatingField("country"), css_class="col-lg-3"),
+                Div(InlineRadios("ordering"), css_class="col-lg-4"),
                 css_class="row",
-            ),
-            Div(
-                InlineRadios("ordering"),
             ),
         )
 
