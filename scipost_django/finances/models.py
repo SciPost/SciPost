@@ -220,6 +220,13 @@ class SubsidyAttachment(models.Model):
         (VISIBILITY_FINADMINONLY, "SciPost FinAdmin only"),
     )
 
+    subsidy = models.ForeignKey(
+        "finances.Subsidy",
+        related_name="attachments",
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+
     attachment = models.FileField(
         upload_to=subsidy_attachment_path, storage=SecureFileStorage()
     )
@@ -230,18 +237,9 @@ class SubsidyAttachment(models.Model):
         default=KIND_AGREEMENT,
     )
 
-    name = models.CharField(max_length=128)
-
     date = models.DateField(blank=True, null=True)
 
     description = models.TextField(blank=True)
-
-    subsidy = models.ForeignKey(
-        "finances.Subsidy",
-        related_name="attachments",
-        blank=True,
-        on_delete=models.CASCADE,
-    )
 
     visibility = models.CharField(
         max_length=32,
@@ -252,7 +250,7 @@ class SubsidyAttachment(models.Model):
     objects = SubsidyAttachmentQuerySet.as_manager()
 
     def __str__(self):
-        return "%s, attachment to %s" % (self.name, self.subsidy)
+        return "%s, attachment to %s" % (self.attachment.name, self.subsidy)
 
     def get_absolute_url(self):
         if self.subsidy:

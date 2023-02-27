@@ -116,6 +116,8 @@ class SubsidyPaymentForm(forms.ModelForm):
             "reference",
             "amount",
             "date_scheduled",
+            "invoice",
+            "proof_of_payment",
         )
 
 
@@ -126,34 +128,27 @@ class SubsidyAttachmentForm(forms.ModelForm):
             "subsidy",
             "attachment",
             "kind",
-            "name",
             "date",
             "description",
-            "name",
             "visibility",
         )
 
     def clean_attachment(self):
         attachment = self.cleaned_data["attachment"]
-        print(f"{attachment.name = }")
-        return attachment
-
-    def clean_name(self):
-        name = self.cleaned_data["name"]
-        name_regex = (
+        filename_regex = (
             "^SciPost_"
             "[0-9]{4,}(-[0-9]{4,})?_[A-Z]{2,}_[\w]+_"
             "(Agreement|Invoice|ProofOfPayment|Other)"
-            "(-[0-9]{2,})?\.(pdf|docx|png)$"
+            "(-[0-9]{2,})?(_[\w]+)?\.(pdf|docx|png)$"
         )
-        pattern = re.compile(name_regex)
-        if not pattern.match(name):
+        pattern = re.compile(filename_regex)
+        if not pattern.match(attachment.name):
             self.add_error(
-                "name",
+                "attachment",
                 "The filename does not match the required regex pattern "
-                f"'{name_regex}'"
+                f"'{filename_regex}'"
             )
-        return name
+        return attachment
 
 
 
