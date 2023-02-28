@@ -343,6 +343,7 @@ def _hx_subsidy_list(request):
     return render(request, "finances/_hx_subsidy_list.html", context)
 
 
+@permission_required("scipost.can_manage_subsidies", raise_exception=True)
 def _hx_subsidy_finadmin_details(request, subsidy_id: int):
     subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
     if not (
@@ -356,6 +357,17 @@ def _hx_subsidy_finadmin_details(request, subsidy_id: int):
     return render(request, "finances/_hx_subsidy_finadmin_details.html", context)
 
 
+@permission_required("scipost.can_manage_subsidies", raise_exception=True)
+def _hx_subsidypayment_button(request, subsidy_id: int):
+    subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
+    return render(
+        request,
+        "finances/_hx_subsidypayment_button.html",
+        context={"subsidy": subsidy,},
+    )
+
+
+@permission_required("scipost.can_manage_subsidies", raise_exception=True)
 def _hx_subsidypayment_form(request, subsidy_id: int, subsidypayment_id: int=None):
     subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
     if subsidypayment_id:
@@ -383,6 +395,7 @@ def _hx_subsidypayment_form(request, subsidy_id: int, subsidypayment_id: int=Non
     return render(request, "finances/_hx_subsidypayment_form.html", context)
 
 
+@permission_required("scipost.can_manage_subsidies", raise_exception=True)
 def _hx_subsidypayment_delete(request, subsidy_id: int, subsidypayment_id: int):
     subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
     SubsidyPayment.objects.filter(pk=subsidypayment_id).delete()

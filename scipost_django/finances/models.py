@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import os
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -258,6 +259,10 @@ class SubsidyAttachment(models.Model):
             return reverse(
                 "finances:subsidy_attachment", args=(self.subsidy.id, self.id)
             )
+
+    @property
+    def filename(self):
+        return os.path.basename(self.attachment.name)
 
     @property
     def publicly_visible(self):

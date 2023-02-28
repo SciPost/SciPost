@@ -1,0 +1,6 @@
+<a class="btn btn-sm btn-primary"
+   hx-get="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy.id %}"
+   hx-target="#subsidy-{{ subsidy.id }}-payment-form"
+>
+  Add a new payment
+</a>

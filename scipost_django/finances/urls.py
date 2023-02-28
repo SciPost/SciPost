@@ -48,6 +48,11 @@ urlpatterns = [
                         "payment/",
                         include([
                             path(
+                                "button",
+                                views._hx_subsidypayment_button,
+                                name="_hx_subsidypayment_button",
+                            ),
+                            path(
                                 "form",
                                 views._hx_subsidypayment_form,
                                 name="_hx_subsidypayment_form",

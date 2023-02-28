@@ -142,7 +142,7 @@ class SubsidyPaymentForm(forms.ModelForm):
                 Div(Field("proof_of_payment"), css_class="col-lg-6"),
                 css_class="row",
             ),
-            ButtonHolder(Submit("submit", "Submit")),
+            ButtonHolder(Submit("submit", "Submit", css_class="btn-sm")),
         )
 
 

@@ -1,15 +1,35 @@
 {% load crispy_forms_tags %}
 
-{% if form.instance.id %}
-  <form hx-post="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy.id subsidypayment_id=form.instance.id %}"
-	hx-target="#subsidy-{{ subsidy.id }}-new-payment-form"
-  >
-    {% crispy form %}
-  </form>
-{% else %}
-  <form hx-post="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy.id %}"
-	hx-target="#subsidy-{{ subsidy.id }}-new-payment-form"
-  >
-    {% crispy form %}
-  </form>
-{% endif %}
+<div class="border border-danger p-2">
+  {% if form.instance.id %}
+    <h3>
+      Update this payment
+      <a class="btn btn-sm btn-danger ms-4"
+	 hx-get="{% url 'finances:_hx_subsidypayment_button' subsidy_id=subsidy.id %}"
+	 hx-target="#subsidy-{{ subsidy.id }}-payment-form"
+      >
+	Cancel
+      </a>
+    </h3>
+    <form hx-post="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy.id subsidypayment_id=form.instance.id %}"
+	  hx-target="#subsidy-{{ subsidy.id }}-payment-form"
+    >
+      {% crispy form %}
+    </form>
+  {% else %}
+    <h3>
+      Add a payment to the schedule
+      <a class="btn btn-sm btn-danger ms-4"
+	 hx-get="{% url 'finances:_hx_subsidypayment_button' subsidy_id=subsidy.id %}"
+	 hx-target="#subsidy-{{ subsidy.id }}-payment-form"
+      >
+	Cancel
+      </a>
+    </h3>
+    <form hx-post="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy.id %}"
+		   hx-target="#subsidy-{{ subsidy.id }}-payment-form"
+    >
+      {% crispy form %}
+    </form>
+  {% endif %}
+</div>
