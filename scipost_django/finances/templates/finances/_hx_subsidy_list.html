@@ -37,10 +37,12 @@
   {% if "finadmin" in user_roles %}
     <tr>
       <td colspan="5" class="ps-4 pb-4">
-	<div hx-get="{% url 'finances:_hx_subsidy_finadmin_details' subsidy_id=subsidy.id %}"
-	     hx-trigger="revealed"
-	     hx-swap="outerHTML"
-	>
+	<div id="subsidy-{{ subsidy.id }}-finadmin-details">
+	  <div hx-get="{% url 'finances:_hx_subsidy_finadmin_details' subsidy_id=subsidy.id %}"
+	       hx-trigger="revealed"
+	       hx-target="#subsidy-{{ subsidy.id }}-finadmin-details"
+	    >
+	  </div>
 	</div>
       </td>
     </tr>

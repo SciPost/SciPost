@@ -11,7 +11,7 @@ from django.db.models import Q, Sum
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field
+from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from crispy_forms.bootstrap import InlineRadios
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
@@ -119,6 +119,32 @@ class SubsidyPaymentForm(forms.ModelForm):
             "invoice",
             "proof_of_payment",
         )
+
+    def __init__(self, *args, **kwargs):
+        subsidy = kwargs.pop("subsidy")
+        super().__init__(*args, **kwargs)
+        self.fields["subsidy"].initial = subsidy
+        self.fields["subsidy"].widget = forms.HiddenInput()
+        self.fields["invoice"].queryset = subsidy.attachments.invoices()
+        self.fields["proof_of_payment"].queryset =\
+            subsidy.attachments.proofs_of_payment()
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("subsidy"),
+            Div(
+                Div(FloatingField("reference"), css_class="col-lg-5"),
+                Div(FloatingField("amount"), css_class="col-lg-3"),
+                Div(Field("date_scheduled"), css_class="col-lg-4"),
+                css_class="row",
+            ),
+            Div(
+                Div(Field("invoice"), css_class="col-lg-6"),
+                Div(Field("proof_of_payment"), css_class="col-lg-6"),
+                css_class="row",
+            ),
+            ButtonHolder(Submit("submit", "Submit")),
+        )
+
 
 
 class SubsidyAttachmentForm(forms.ModelForm):

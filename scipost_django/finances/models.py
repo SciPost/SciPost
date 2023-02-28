@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
+from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -127,7 +128,7 @@ class Subsidy(models.Model):
         """
         Verify that there exist SubsidyPayment objects covering full amount.
         """
-        return self.amount == self.payments.annotate(sum=Sum('amount'))["sum"]
+        return self.amount == self.payments.aggregate(Sum("amount"))["amount__sum"]
 
 
 class SubsidyPayment(models.Model):

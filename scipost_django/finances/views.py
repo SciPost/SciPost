@@ -24,8 +24,14 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from .forms import SubsidyForm, SubsidySearchForm, SubsidyAttachmentForm, LogsFilterForm
-from .models import Subsidy, SubsidyAttachment, WorkLog, PeriodicReport
+from .forms import (
+    SubsidyForm,
+    SubsidySearchForm,
+    SubsidyPaymentForm,
+    SubsidyAttachmentForm,
+    LogsFilterForm,
+)
+from .models import Subsidy, SubsidyPayment, SubsidyAttachment, WorkLog, PeriodicReport
 from .utils import slug_to_id
 
 from comments.constants import EXTENTIONS_IMAGES, EXTENTIONS_PDF
@@ -348,6 +354,44 @@ def _hx_subsidy_finadmin_details(request, subsidy_id: int):
         "subsidy": subsidy,
     }
     return render(request, "finances/_hx_subsidy_finadmin_details.html", context)
+
+
+def _hx_subsidypayment_form(request, subsidy_id: int, subsidypayment_id: int=None):
+    subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
+    if subsidypayment_id:
+        instance = get_object_or_404(SubsidyPayment, pk=subsidypayment_id)
+    else:
+        instance=None
+    form = SubsidyPaymentForm(
+        request.POST or None,
+        subsidy=subsidy,
+        instance=instance,
+    )
+    if form.is_valid():
+        form.save()
+        response = render(
+            request,
+            "finances/_hx_subsidy_finadmin_details.html",
+            context={"subsidy": subsidy,},
+        )
+        response["HX-Retarget"] = f"#subsidy-{subsidy.id}-finadmin-details"
+        return response
+    context = {
+        "subsidy": subsidy,
+        "form": form,
+    }
+    return render(request, "finances/_hx_subsidypayment_form.html", context)
+
+
+def _hx_subsidypayment_delete(request, subsidy_id: int, subsidypayment_id: int):
+    subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
+    SubsidyPayment.objects.filter(pk=subsidypayment_id).delete()
+    response = render(
+        request,
+        "finances/_hx_subsidy_finadmin_details.html",
+        context={"subsidy": subsidy,},
+    )
+    return response
 
 
 def subsidy_toggle_amount_public_visibility(request, subsidy_id):

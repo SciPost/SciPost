@@ -1,7 +1,12 @@
-<details id="subsidy-{{ subsidy.id }}-finadmin-details"
-	 class="bg-danger bg-opacity-10"
->
-  <summary class="bg-danger bg-opacity-10 p-2">Financial Administration</summary>
+<details class="bg-danger bg-opacity-10">
+  <summary class="bg-danger bg-opacity-10 p-2">
+    Financial Administration
+    {% if subsidy.payments_all_scheduled %}
+      <span class="text-success bg-white ms-4 p-1">[all payments are scheduled]</span>
+    {% else %}
+      <span class="text-warning bg-white ms-4 p-1">[to be completed]</span>
+    {% endif %}
+  </summary>
   <div class="p-2">
     <h3>Payment schedule</h3>
     <table class="table table-bordered">
@@ -10,10 +15,9 @@
 	  <th>Reference</th>
 	  <th>Amount</th>
 	  <th>Date&nbsp;scheduled</th>
-	  <th>Invoiced?</th>
 	  <th>Invoice</th>
-	  <th>Paid?</th>
 	  <th>Proof&nbsp;of&nbsp;payment</th>
+	  <th>Actions</th>
 	</tr>
       </thead>
       <tbody>
@@ -22,15 +26,41 @@
 	    <td>{{ payment.reference }}</td>
 	    <td>{{ payment.amount }}</td>
 	    <td>{{ payment.date_scheduled }}</td>
-	    <td>{{ payment.invoiced }}</td>
 	    <td>{{ payment.invoice }}</td>
-	    <td>{{ paymend.paid }}</td>
 	    <td>{{ payment.proof_of_payment }}</td>
+	    <td>
+	      <a class="btn btn-sm btn-warning"
+		 hx-get="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy.id subsidypayment_id=payment.id %}"
+		 hx-target="#subsidy-{{ subsidy.id }}-payment-{{ payment.id }}-update-form"
+	      >
+		Update
+	      </a>
+	      <a class="btn btn-sm btn-danger ms-2 p-1"
+		 hx-get="{% url 'finances:_hx_subsidypayment_delete' subsidy_id=subsidy.id subsidypayment_id=payment.id %}"
+		 hx-target="#subsidy-{{ subsidy.id }}-finadmin-details"
+		 hx-confirm="Are you sure you want to delete this payment information?"
+	      >
+		{% include "bi/trash-fill.html" %}
+	      </a>
+	    </td>
 	  </tr>
+	  <tr>
+	    <td colspan="6"
+		id="subsidy-{{ subsidy.id }}-payment-{{ payment.id }}-update-form"
+	    >
+	    </td>
 	{% empty %}
 	  <tr><td colspan="5">No payment has been scheduled</td></tr>
 	{% endfor %}
       </tbody>
     </table>
+    <div id="subsidy-{{ subsidy.id }}-new-payment-form">
+      <a class="btn btn-sm btn-primary"
+	 hx-get="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy.id %}"
+	 hx-target="#subsidy-{{ subsidy.id }}-new-payment-form"
+      >
+	Add a new payment
+      </a>
+    </div>
   </div>
 </details>

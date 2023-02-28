@@ -6,6 +6,7 @@ from django.contrib import admin
 
 from .models import (
     Subsidy,
+    SubsidyPayment,
     SubsidyAttachment,
     WorkLog,
     PeriodicReportType,
@@ -13,12 +14,16 @@ from .models import (
 )
 
 
+class SubsidyPaymentInline(admin.TabularInline):
+    model = SubsidyPayment
+
 class SubsidyAttachmentInline(admin.TabularInline):
     model = SubsidyAttachment
 
 
 class SubsidyAdmin(admin.ModelAdmin):
     inlines = [
+        SubsidyPaymentInline,
         SubsidyAttachmentInline,
     ]
     autocomplete_fields = [

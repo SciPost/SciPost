@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+
+{% if form.instance.id %}
+  <form hx-post="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy.id subsidypayment_id=form.instance.id %}"
+	hx-target="#subsidy-{{ subsidy.id }}-new-payment-form"
+  >
+    {% crispy form %}
+  </form>
+{% else %}
+  <form hx-post="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy.id %}"
+	hx-target="#subsidy-{{ subsidy.id }}-new-payment-form"
+  >
+    {% crispy form %}
+  </form>
+{% endif %}

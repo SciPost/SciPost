@@ -27,5 +27,8 @@ class SubsidyAttachmentQuerySet(models.QuerySet):
     def agreements(self):
         return self.filter(kind=self.model.KIND_AGREEMENT)
 
+    def invoices(self):
+        return self.filter(kind=self.model.KIND_INVOICE)
+
     def proofs_of_payment(self):
         return self.filter(kind=self.model.KIND_PROOF_OF_PAYMENT)
