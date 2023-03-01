@@ -322,7 +322,7 @@ class BaseCycle:
         """Return a *short* description of the current status of the submission cycle."""
         texts = []
 
-        recommendation = self._submission.eicrecommendations.active().last()
+        recommendation = self._submission.recommendation
         if recommendation:
             texts.append("Thank you for formulating your Editorial Recommendation.")
             if recommendation.status == constants.VOTING_IN_PREP:

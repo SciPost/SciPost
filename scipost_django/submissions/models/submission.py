@@ -649,6 +649,10 @@ class Submission(models.Model):
         return self.all_authors_have_matching_profiles
 
     @property
+    def recommendation(self):
+        return self.eicrecommendations.active().first()
+
+    @property
     def eic_recommendation_required(self):
         """Return if Submission requires a EICRecommendation to be formulated."""
         return not self.eicrecommendations.active().exists()

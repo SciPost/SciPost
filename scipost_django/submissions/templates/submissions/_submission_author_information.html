@@ -14,7 +14,7 @@
         No Editor-in-charge is assigned yet. The SciPost administration will inform you as soon as one is assigned.
       {% elif submission.in_stage_in_refereeing %}
         The refereeing round has started. The current deadline is set to {{ submission.reporting_deadline|date:'j F Y' }}.
-      {% elif submission.eicrecommendations.active.first %}
+      {% elif submission.recommendation %}
         An Editorial Recommendation has been formulated. See its status details below.
       {% elif not submission.open_for_reporting %}
         The refereeing round is closed, but no Editorial Recommendation is formulated yet. The editor will formulate the Editorial Recommendation after all Reports have been received.
@@ -55,8 +55,8 @@
       <tr>
         <td>Recommendation status:</td>
         <td>
-          {% if submission.eicrecommendations.active.first %}
-            <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
+          {% if submission.recommendation %}
+            <span class="label label-secondary">{{ submission.recommendation.get_status_display }}</span>
           {% else %}
             <span class="label label-secondary">No Editorial Recommendation is formulated yet.</span>
           {% endif %}

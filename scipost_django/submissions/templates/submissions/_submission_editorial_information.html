@@ -25,8 +25,8 @@
       <tr>
         <td>Recommendation status:</td>
         <td>
-          {% if submission.eicrecommendations.active.first %}
-            <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
+          {% if submission.recommendation %}
+            <span class="label label-secondary">{{ submission.recommendation.get_status_display }}</span>
           {% else %}
             <span class="label label-secondary">No Editorial Recommendation is formulated yet.</span>
           {% endif %}

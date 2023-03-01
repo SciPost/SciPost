@@ -45,7 +45,7 @@
 	<small class="text-muted">Submission Status</small>
 	<br>
 	{{ submission.get_status_display }}</span>
-	{% with recommendation=submission.eicrecommendations.active.first %}
+	{% with recommendation=submission.recommendation %}
 	  {% if recommendation %}
 	    <br>
 	    <small class="text-muted">EIC Recommendation &amp; Status</small>
