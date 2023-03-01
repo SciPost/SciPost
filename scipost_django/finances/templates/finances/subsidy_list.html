@@ -34,7 +34,7 @@
 	<div class="card-header">
 	  Search / filter
 	  <span id="indicator-subsidy-list"
-		    class="htmx-indicator p-2"
+		class="htmx-indicator p-2"
 	  >
 	    <button class="btn btn-warning" type="button" disabled>
 	      <strong>Loading...</strong>
@@ -62,6 +62,12 @@
 	    <th>Amount</th>
 	    <th>From</th>
 	    <th>Until</th>
+	    {% if perms.scipost.can_manage_subsidies %}
+	      <th>Status</th>
+	      <th><span class="small" style="writing-mode: vertical-lr;">Renewable?</span></th>
+	      <th><span class="small" style="writing-mode: vertical-lr;">Renewed?</span></th>
+	      <th>Renewal<br/>action date</th>
+	    {% endif %}
 	  </tr>
 	<tbody id="subsidy-table-tbody">
 	</tbody>

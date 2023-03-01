@@ -33,15 +33,25 @@
     <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
     <td>{{ subsidy.date_from }}</td>
     <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
+    {% if perms.scipost.can_manage_subsidies %}
+      <td>{{ subsidy.get_status_display }}</td>
+      <td>
+	{% if subsidy.renewable == True %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% elif subsidy.renewable == False %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% else %}<span class="text-warning">{% include 'bi/question-circle-fill.html' %}</span>{% endif %}
+      </td>
+      <td>
+	{% if subsidy.renewed_by.all|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}
+      </td>
+      <td class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</td>
+    {% endif %}
   </tr>
   {% if "finadmin" in user_roles %}
     <tr>
-      <td colspan="5" class="ps-4 pb-4">
+      <td colspan="9" class="ps-4 pb-4">
 	<div id="subsidy-{{ subsidy.id }}-finadmin-details">
 	  <div hx-get="{% url 'finances:_hx_subsidy_finadmin_details' subsidy_id=subsidy.id %}"
 	       hx-trigger="revealed"
 	       hx-target="#subsidy-{{ subsidy.id }}-finadmin-details"
-	    >
+	  >
 	  </div>
 	</div>
       </td>
