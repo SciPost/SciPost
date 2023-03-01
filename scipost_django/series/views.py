@@ -54,6 +54,7 @@ def _hx_collection_expected_authors(request, slug):
             "action_url_name": "series:_hx_collection_expected_author_action",
             "action_url_base_kwargs": {"slug": collection.slug, "action": "add"},
             "action_target_element_id": "profiles",
+            "action_target_swap": "innerHTML",
         }
     )
     context = {"collection": collection, "profile_search_form": form}

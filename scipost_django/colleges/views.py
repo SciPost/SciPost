@@ -696,6 +696,7 @@ def nominations(request):
             "action_url_name": "colleges:_hx_nomination_form",
             "action_url_base_kwargs": {},
             "action_target_element_id": "nomination_form_response",
+            "action_target_swap": "innerHTML",
         }
     )
     context = {
