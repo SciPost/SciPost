@@ -288,6 +288,7 @@ class SubsidyDeleteView(PermissionsMixin, DeleteView):
 
 class SubsidyListView(ListView):
     model = Subsidy
+    template_name = "finances/subsidy_list_old.html"
 
     def get_queryset(self):
         qs = super().get_queryset()

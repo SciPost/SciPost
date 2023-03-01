@@ -79,7 +79,7 @@ urlpatterns = [
         ]),
     ),
     path("subsidies/", views.subsidy_list, name="subsidies"),
-    path("subsidies/", views.SubsidyListView.as_view(), name="subsidies"), #deprecated
+    path("subsidies/old", views.SubsidyListView.as_view(), name="subsidies_old"), #deprecated
     path("subsidies/add/", views.SubsidyCreateView.as_view(), name="subsidy_create"),
     path(
         "subsidies/<int:pk>/update/",

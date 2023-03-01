@@ -1,0 +1,123 @@
+{% extends 'finances/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block meta_description %}{{ block.super }} Subsidies List{% endblock meta_description %}
+{% block pagetitle %}: Subsidies{% endblock pagetitle %}
+
+{% load static %}
+{% load bootstrap %}
+
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Subsidies</span>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Subsidies</h1>
+      {% if perms.scipost.can_manage_subsidies %}
+	<ul>
+	  <li><a href="{% url 'finances:subsidy_create' %}">Add a Subsidy</a></li>
+	</ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-hover mb-5">
+	<thead class="table-light">
+	  <tr>
+	    <th>From Organization</th>
+	    <th>Type</th>
+	    <th>Amount
+	      {% if request.GET.ordering != 'asc' %}
+		<a href="?order_by=amount&ordering=asc">{% include 'bi/sort-up.html' %}</a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-up.html' %}</a>
+	      {% endif %}
+	      {% if request.GET.ordering != 'desc' %}
+		<a href="?order_by=amount&ordering=desc">{% include 'bi/sort-down.html' %}</a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-down.html' %}</a>
+	      {% endif %}
+	    </th>
+	    {% if perms.scipost.can_manage_subsidies %}
+	      <th>Status</th>
+	      <th>Paid on</th>
+	      <th class="py-1"><span class="small" style="writing-mode: vertical-lr;">attachments?<br>Agreement</span></th>
+	      <th class="py-1"><span class="small" style="writing-mode: vertical-lr;">attachments?<br>Proof&nbsp;of&nbsp;payment</span></th>
+	    {% endif %}
+	    <th>From date
+	      {% if request.GET.ordering != 'asc' %}
+		<a href="?order_by=date_from&ordering=asc">{% include 'bi/sort-up.html' %}</a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-up.html' %}</a>
+	      {% endif %}
+	      {% if request.GET.ordering != 'desc' %}
+		<a href="?order_by=date_from&ordering=desc">{% include 'bi/sort-down.html' %}</a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-down.html' %}</i></a>
+	      {% endif %}
+	    </th>
+	    <th>Until
+	      {% if request.GET.ordering != 'asc' %}
+		<a href="?order_by=until&ordering=asc">{% include 'bi/sort-up.html' %}</a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-up.html' %}</a>
+	      {% endif %}
+	      {% if request.GET.ordering != 'desc' %}
+		<a href="?order_by=until&ordering=desc">{% include 'bi/sort-down.html' %}</a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-down.html' %}</a>
+	      {% endif %}
+	    </th>
+	    {% if perms.scipost.can_manage_subsidies %}
+	      <th><span class="small" style="writing-mode: vertical-lr;">Renewable?</span></th>
+	      <th><span class="small" style="writing-mode: vertical-lr;">Renewed?</span></th>
+	      <th>Renewal<br/>action date</th>
+	    {% endif %}
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for subsidy in object_list %}
+	    <tr>
+	      <td><a href="{{ subsidy.organization.get_absolute_url }}">{{ subsidy.organization }}</a></td>
+	      <td><a href="{{ subsidy.get_absolute_url }}">{{ subsidy.get_subsidy_type_display }}</a>
+		{% if subsidy.renewal_of.all|length > 0 %}<br/><span class="small text-muted">Renewal of:<ul class="list-unstyled">{% for prevsub in subsidy.renewal_of.all %}<li><a href="{{ prevsub.get_absolute_url }}">{{ prevsub }}</a></li>{% endfor %}</ul></span>{% endif %}
+		{% if subsidy.renewed_by.all|length > 0 %}<br/><span class="small text-muted">Renewed by:<ul class="list-unstyled">{% for newsub in subsidy.renewed_by.all %}<li><a href="{{ newsub.get_absolute_url }}">{{ newsub }}</a></li>{% endfor %}</ul></span>{% endif %}	  </td>
+	      <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
+	      {% if perms.scipost.can_manage_subsidies %}
+		<td>{{ subsidy.get_status_display }}</td>
+		<td>{% if subsidy.paid_on %}{{ subsidy.paid_on }}{% else %}<span class="text-warning">{% include "bi/cone-striped.html" %}</span>{% endif %}</td>
+		<td class="text-center">{% if subsidy.attachments.agreements|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
+		<td class="text-center">{% if subsidy.attachments.proofs_of_payment|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
+	      {% endif %}
+	      <td>{{ subsidy.date_from }}</td>
+	      <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
+	      {% if perms.scipost.can_manage_subsidies %}
+		<td>
+		  {% if subsidy.renewable == True %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% elif subsidy.renewable == False %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% else %}<span class="text-warning">{% include 'bi/question-circle-fill.html' %}</span>{% endif %}
+		</td>
+		<td>
+		  {% if subsidy.renewed_by.all|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}
+		</td>
+		<td class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</td>
+	      {% endif %}
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td colspan="5">No Subsidy found</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+    </div>
+  </div>
+
+{% endblock content %}
