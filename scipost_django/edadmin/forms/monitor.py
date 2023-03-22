@@ -69,11 +69,15 @@ class EdAdminFellowshipSearchForm(forms.Form):
             ),
             nr_appraised=Count(
                 "qualification",
-                filter=Q(pool__status=Submission.SEEKING_ASSIGNMENT),
+                filter=Q(
+                    qualification__submission__status=Submission.SEEKING_ASSIGNMENT,
+                ),
                 distinct=True,
             ),
             latest_appraisal_datetime=Max(
                 "qualification__datetime",
-                filter=Q(pool__status=Submission.SEEKING_ASSIGNMENT),
+                filter=Q(
+                    qualification__submission__status=Submission.SEEKING_ASSIGNMENT,
+                ),
             ),
         )
