@@ -1,5 +1,6 @@
 {% load crispy_forms_tags %}
 {% load common_extras %}
+{% load edadmin_extras %}
 
 <div class="ms-4 mt-2">
   <h4>Filter</h4>
@@ -73,7 +74,7 @@
 	{% else %}
 	  <td class="text-center">{{ fellowship.nr_visible }}</td>
 	  <td class="text-center">
-	    <span class="{% if fellowship.nr_appraised == fellowship.nr_visible %}bg-success{% elif fellowship.nr_appraised > 0 %}bg-warning{% else %}bg-danger{% endif %} text-white px-2 py-1">{{ fellowship.nr_appraised }}</span>
+	    <span class="{% activity_level_bg_color fellowship.nr_visible fellowship.nr_appraised %} text-white px-2 py-1">{{ fellowship.nr_appraised }}</span>
 	  </td>
 	{% endif %}
 	<td>{{ fellowship.latest_appraisal_datetime|date:"Y-m-d H:i" }}{% if fellowship.latest_appraisal_datetime %}&emsp;<em class="text-muted">({{ fellowship.latest_appraisal_datetime|timesince|rstrip_minutes }} ago)</em>{% endif %}</td>
