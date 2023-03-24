@@ -619,25 +619,27 @@ class Submission(models.Model):
         return self.is_resubmission_of is not None
 
     @property
-    def plagiarism_internal_tests_passed(self):
+    def plagiarism_internal_tests_completed(self):
         from submissions.models import InternalPlagiarismAssessment
         try:
-            return self.internal_plagiarism_assessment.passed
+            return (self.internal_plagiarism_assessment.passed or
+                    self.internal_plagiarism_assessment.failed)
         except InternalPlagiarismAssessment.DoesNotExist:
             return False
 
     @property
-    def plagiarism_iThenticate_tests_passed(self):
+    def plagiarism_iThenticate_tests_completed(self):
         from submissions.models import iThenticatePlagiarismAssessment
         try:
-            return self.iThenticate_plagiarism_assessment.passed
+            return (self.iThenticate_plagiarism_assessment.passed or
+                    self.iThenticate_plagiarism_assessment.failed)
         except iThenticatePlagiarismAssessment.DoesNotExist:
             return False
 
     @property
-    def plagiarism_tests_passed(self):
-        return (self.plagiarism_internal_tests_passed and
-                self.plagiarism_iThenticate_tests_passed)
+    def plagiarism_tests_completed(self):
+        return (self.plagiarism_internal_tests_completed and
+                self.plagiarism_iThenticate_tests_completed)
 
     @property
     def all_authors_have_matching_profiles(self):
