@@ -10,7 +10,7 @@ import datetime
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
@@ -249,6 +249,7 @@ class SubmissionPoolSearchForm(forms.Form):
                     ("voting_1", "... in voting for > 1 week"),
                     ("voting_2", "... in voting for > 2 weeks"),
                     ("voting_4", "... in voting for > 4 weeks"),
+                    ("nr_voted_for_gte_4", "At least 4 votes cast in favour of EiC rec"),
                 ),
             ),
             (
@@ -464,6 +465,14 @@ class SubmissionPoolSearchForm(forms.Form):
             submissions = submissions.undergoing_voting(longer_than_days=14)
         elif status == "voting_4":
             submissions = submissions.undergoing_voting(longer_than_days=28)
+        elif status == "nr_voted_for_gte_4":
+            ids_list = [
+                r.submission.id
+                for r in EICRecommendation.objects.put_to_voting().annotate(
+                        nr_voted_for=Count("voted_for"),
+                ).filter(nr_voted_for__gte=4)
+            ]
+            submissions = submissions.undergoing_voting().filter(id__in=ids_list)
         else: # if an actual unmodified status is used, just filter on that
             submissions = submissions.filter(status=status)
 
