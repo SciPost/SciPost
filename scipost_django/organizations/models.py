@@ -404,7 +404,7 @@ class Organization(models.Model):
         Return the total subsidies for this Organization in that year.
         """
         total = 0
-        for subsidy in self.subsidy_set.obtained().filter(date__year__lte=year).filter(
+        for subsidy in self.subsidy_set.obtained().filter(date_from__year__lte=year).filter(
             models.Q(date_until=None) | models.Q(date_until__year__gte=year)
         ):
             total += subsidy.value_in_year(year)
