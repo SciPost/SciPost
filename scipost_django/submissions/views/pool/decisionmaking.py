@@ -63,7 +63,7 @@ def _hx_recommendation_grant_voting_right(
         conflicted_fellows_ids = [
             ci.fellowship.id for ci in submission.competing_interests.all()
         ]
-        voting_fellows_to_add = submission.fellows.filter(
+        voting_fellows_to_add = submission.fellows.active().filter(
             contributor__profile__specialties__slug=spec_slug,
         ).exclude(
             contributor__profile__competing_interests__affected_submissions=submission,

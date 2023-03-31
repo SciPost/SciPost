@@ -203,6 +203,36 @@ class Submission(models.Model):
         ACCEPTED_IN_TARGET,
         ACCEPTED_IN_ALTERNATIVE,
     )
+    STAGE_INCOMING_COMPLETED_STATUSES = (
+        STAGE_PREASSIGNMENT +
+        STAGE_ASSIGNMENT +
+        STAGE_REFEREEING_IN_PREPARATION +
+        STAGE_IN_REFEREEING +
+        STAGE_DECISIONMAKING +
+        STAGE_DECIDED
+    )
+    STAGE_PREASSIGNMENT_COMPLETED_STATUSES = (
+        STAGE_ASSIGNMENT +
+        STAGE_REFEREEING_IN_PREPARATION +
+        STAGE_IN_REFEREEING +
+        STAGE_DECISIONMAKING +
+        STAGE_DECIDED
+    )
+    STAGE_ASSIGNMENT_COMPLETED_STATUSES = (
+        STAGE_REFEREEING_IN_PREPARATION +
+        STAGE_IN_REFEREEING +
+        STAGE_DECISIONMAKING +
+        STAGE_DECIDED
+    )
+    STAGE_REFEREEING_IN_PREPARATION_COMPLETED_STATUSES = (
+        STAGE_IN_REFEREEING +
+        STAGE_DECISIONMAKING +
+        STAGE_DECIDED
+    )
+    STAGE_IN_REFEREEING_COMPLETED_STATUSES = (
+        STAGE_DECISIONMAKING +
+        STAGE_DECIDED
+    )
 
     # Fields
     preprint = models.OneToOneField(
@@ -406,85 +436,40 @@ class Submission(models.Model):
         return self.status in self.STAGE_INCOMING
 
     @property
-    def stage_incoming_completed_statuses(self):
-        return (
-            self.STAGE_PREASSIGNMENT +
-            self.STAGE_ASSIGNMENT +
-            self.STAGE_REFEREEING_IN_PREPARATION +
-            self.STAGE_IN_REFEREEING +
-            self.STAGE_DECISIONMAKING +
-            self.STAGE_DECIDED
-        )
-
-    @property
     def stage_incoming_completed(self):
-        return self.status in self.stage_incoming_completed_statuses
+        return self.status in self.STAGE_INCOMING_COMPLETED_STATUSES
 
     @property
     def in_stage_preassignment(self):
         return self.status in self.STAGE_PREASSIGNMENT
 
     @property
-    def stage_preassignment_completed_statuses(self):
-        return (
-            self.STAGE_ASSIGNMENT +
-            self.STAGE_REFEREEING_IN_PREPARATION +
-            self.STAGE_IN_REFEREEING +
-            self.STAGE_DECISIONMAKING +
-            self.STAGE_DECIDED
-        )
-
-    @property
     def stage_preassignment_completed(self):
-        return self.status in self.stage_preassignment_completed_statuses
+        return self.status in self.STAGE_PREASSIGNMENT_COMPLETED_STATUSES
 
     @property
     def in_stage_assignment(self):
         return self.status in self.STAGE_ASSIGNMENT
 
     @property
-    def stage_assignment_completed_statuses(self):
-        return (
-            self.STAGE_REFEREEING_IN_PREPARATION +
-            self.STAGE_IN_REFEREEING +
-            self.STAGE_DECISIONMAKING +
-            self.STAGE_DECIDED
-        )
-
-    @property
     def stage_assignment_completed(self):
-        return self.status in self.stage_assignment_completed_statuses
+        return self.status in self.STAGE_ASSIGNMENT_COMPLETED_STATUSES
 
     @property
     def in_stage_refereeing_in_preparation(self):
         return self.status in self.STAGE_REFEREEING_IN_PREPARATION
 
     @property
-    def stage_refereeing_in_preparation_completed_statuses(self):
-        return (
-            self.STAGE_IN_REFEREEING +
-            self.STAGE_DECISIONMAKING +
-            self.STAGE_DECIDED
-        )
-
-    @property
     def stage_refereeing_in_preparation_completed(self):
-        return self.status in self.stage_refereeing_in_preparation_completed_statuses
+        return self.status in self.STAGE_REFEREEING_IN_PREPARATION_COMPLETED_STATUSES
 
     @property
     def in_stage_in_refereeing(self):
         return self.status in self.STAGE_IN_REFEREEING
 
     @property
-    def stage_in_refereeing_completed_statuses(self):
-        return (
-            self.STAGE_DECISIONMAKING +
-            self.STAGE_DECIDED
-        )
-
-    @property
     def stage_in_refereeing_completed(self):
-        return self.status in self.stage_in_refereeing_completed_statuses
+        return self.status in self.STAGE_IN_REFEREEING_COMPLETED_STATUSES
 
     @property
     def in_stage_decisionmaking(self):

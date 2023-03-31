@@ -86,33 +86,33 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(status__in=self.model.STAGE_INCOMING)
 
     def stage_incoming_completed(self):
-        return self.filter(status__in=self.model.stage_incoming_completed_statuses)
+        return self.filter(status__in=self.model.STAGE_INCOMING_COMPLETED_STATUSES)
 
     def in_stage_preassignment(self):
         return self.filter(status__in=self.model.STAGE_PREASSIGNMENT)
 
     def stage_preassignment_completed(self):
-        return self.filter(status__in=self.model.stage_preassignment_completed_statuses)
+        return self.filter(status__in=self.model.STAGE_PREASSIGNMENT_COMPLETED_STATUSES)
 
     def in_stage_assignment(self):
         return self.filter(status__in=self.model.STAGE_ASSIGNMENT)
 
     def stage_assignment_completed(self):
-        return self.filter(status__in=self.model.stage_assignment_completed_statuses)
+        return self.filter(status__in=self.model.STAGE_ASSIGNMENT_COMPLETED_STATUSES)
 
     def in_stage_refereeing_in_preparation(self):
         return self.filter(status__in=self.model.STAGE_REFEREEING_IN_PREPARATION)
 
     def stage_refereeing_in_preparation_completed(self):
         return self.filter(
-            status__in=self.model.stage_refereeing_in_preparation_completed_statuses
+            status__in=self.model.STAGE_REFEREEING_IN_PREPARATION_COMPLETED_STATUSES
         )
 
     def in_stage_in_refereeing(self):
         return self.filter(status__in=self.model.STAGE_IN_REFEREEING)
 
     def stage_in_refereeing_completed(self):
-        return self.filter(status__in=self.model.stage_in_refereeing_completed_statuses)
+        return self.filter(status__in=self.model.STAGE_IN_REFEREEING_COMPLETED_STATUSES)
 
     def in_stage_decisionmaking(self):
         return self.filter(status__in=self.model.STAGE_DECISIONMAKING)

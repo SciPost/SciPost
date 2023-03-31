@@ -57,6 +57,7 @@ from ..models import (
     EditorialAssignment,
     SubmissionTiering,
     EditorialDecision,
+    PlagiarismAssessment,
     iThenticateReport,
     EditorialCommunication,
 )
@@ -188,86 +189,7 @@ class SubmissionPoolSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=512, required=False)
     identifier = forms.CharField(max_length=128, required=False)
-    status = forms.ChoiceField(
-        choices=(
-            ("All", (("all", "All Submissions"),)),
-            (
-                "Incoming",
-                (
-                    (Submission.INCOMING, "Incoming: awaiting EdAdmin checks"),
-                    (
-                        Submission.ADMISSIBLE,
-                        "Admissible; undergoing plagiarism checks",
-                    ),
-                ),
-            ),
-            (
-                "Preassignment",
-                (
-                    (Submission.PREASSIGNMENT, "In preassignment"),
-                    (Submission.PREASSIGNMENT_FAILED, "preassignment failed"),
-                ),
-            ),
-            (
-                "Assignment",
-                (
-                    (Submission.SEEKING_ASSIGNMENT, "Seeking editor assignment"),
-                    ("assignment_1", "... waiting for > 1 week"),
-                    ("assignment_2", "... waiting for > 2 weeks"),
-                    ("assignment_4", "... waiting for > 4 weeks"),
-                    (
-                        Submission.ASSIGNMENT_FAILED,
-                        "Failed to find Editor-in-charge; manuscript rejected",
-                    ),
-                ),
-            ),
-            (
-                "Refereeing",
-                (
-                    (Submission.REFEREEING_IN_PREPARATION, "Refereeing in preparation (cycle choice needed)"),
-                    ("in_refereeing", "In refereeing"),
-                    ("unvetted_reports", "... with unvetted Reports"),
-                    ("deadline_passed", "deadline passed, no recommendation yet"),
-                    ("refereeing_1", "Refereeing round ongoing for > 1 month"),
-                    ("refereeing_2", "Refereeing round ongoing for > 2 months"),
-                    ("refereeing_3", "Refereeing round ongoing for > 3 months"),
-                ),
-            ),
-            (
-                "Awaiting resubmission",
-                (
-                    (
-                        Submission.AWAITING_RESUBMISSION,
-                        "Awaiting resubmission (minor or major revision requested)"),
-                ),
-            ),
-            (
-                "Voting",
-                (
-                    ("voting_prepare", "Voting in preparation"),
-                    ("voting_ongoing", "Voting ongoing"),
-                    ("voting_1", "... in voting for > 1 week"),
-                    ("voting_2", "... in voting for > 2 weeks"),
-                    ("voting_4", "... in voting for > 4 weeks"),
-                    ("nr_voted_for_gte_4", "At least 4 votes cast in favour of EiC rec"),
-                ),
-            ),
-            (
-                "Decided",
-                (
-                    (Submission.ACCEPTED_IN_TARGET, "Accepted in target Journal"),
-                    (
-                        Submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
-                        "Accepted in other journal; awaiting puboffer acceptance",
-                    ),
-                    (Submission.ACCEPTED_IN_ALTERNATIVE, "Accepted in alternative Journal"),
-                    (Submission.REJECTED, "Rejected"),
-                    (Submission.WITHDRAWN, "Withdrawn by the Authors"),
-                ),
-            ),
-            ("Processed", ((Submission.PUBLISHED, "Published"),)),
-        ),
-    )
+    status = forms.ChoiceField(choices=())
     editor_in_charge = forms.ModelChoiceField(
         queryset=Fellowship.objects.active().select_related("contributor__user"),
         required=False,
@@ -315,6 +237,7 @@ class SubmissionPoolSearchForm(forms.Form):
         request = kwargs.pop("request")
         user = request.user
         super().__init__(*args, **kwargs)
+        self.fields["status"].choices = self.get_status_choices(user)
         if not user.contributor.is_ed_admin:
             # restrict journals to those of Colleges of user's Fellowships
             college_id_list = [
@@ -359,6 +282,138 @@ class SubmissionPoolSearchForm(forms.Form):
             ),
         )
 
+    def get_status_choices(self, user):
+        incoming = (
+            "Incoming",
+            (
+                (Submission.INCOMING, "Incoming: awaiting EdAdmin checks"),
+                (Submission.ADMISSION_FAILED, "Admission failed"),
+                (
+                    Submission.ADMISSIBLE,
+                    "Admissible; undergoing plagiarism checks",
+                ),
+                (
+                    "plagiarism_internal_failed_temporary",
+                    "Failed internal plagiarism checks (temporary)",
+                ),
+                (
+                    "plagiarism_internal_failed_permanent",
+                    "Failed internal plagiarism checks (permanent)",
+                ),
+                (
+                    "plagiarism_iThenticate_failed_temporary",
+                    "Failed iThenticate plagiarism checks (temporary)",
+                ),
+                (
+                    "plagiarism_iThenticate_failed_permanent",
+                    "Failed iThenticate plagiarism checks (permanent)",
+                ),
+            ),
+        )
+        preassignment = (
+            "Preassignment",
+            (
+                (Submission.PREASSIGNMENT, "In preassignment"),
+                (Submission.PREASSIGNMENT_FAILED, "preassignment failed"),
+            ),
+        )
+        assignment = (
+            "Assignment",
+            (
+                (Submission.SEEKING_ASSIGNMENT, "Seeking editor assignment"),
+                ("assignment_1", "... waiting for > 1 week"),
+                ("assignment_2", "... waiting for > 2 weeks"),
+                ("assignment_4", "... waiting for > 4 weeks"),
+                (
+                    Submission.ASSIGNMENT_FAILED,
+                    "Failed to find Editor-in-charge; manuscript rejected",
+                ),
+            ),
+        )
+        refereeing = (
+            "Refereeing",
+            (
+                (
+                    Submission.REFEREEING_IN_PREPARATION,
+                    "Refereeing in preparation (cycle choice needed)"
+                ),
+                ("in_refereeing", "In refereeing"),
+                ("unvetted_reports", "... with unvetted Reports"),
+                ("deadline_passed", "deadline passed, no recommendation yet"),
+                ("refereeing_1", "Refereeing round ongoing for > 1 month"),
+                ("refereeing_2", "Refereeing round ongoing for > 2 months"),
+                ("refereeing_3", "Refereeing round ongoing for > 3 months"),
+            ),
+        )
+        awaiting_resubmission = (
+            "Awaiting resubmission",
+            (
+                (
+                    Submission.AWAITING_RESUBMISSION,
+                    "Awaiting resubmission (minor or major revision requested)"),
+            ),
+        )
+        voting = (
+            "Voting",
+            (
+                ("voting_prepare", "Voting in preparation"),
+                ("voting_ongoing", "Voting ongoing"),
+                ("voting_1", "... in voting for > 1 week"),
+                ("voting_2", "... in voting for > 2 weeks"),
+                ("voting_4", "... in voting for > 4 weeks"),
+                ("nr_voted_for_gte_4", "At least 4 votes cast in favour of EiC rec"),
+            ),
+        )
+        decided = (
+            "Decided",
+            (
+                (Submission.ACCEPTED_IN_TARGET, "Accepted in target Journal"),
+                (
+                    Submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
+                    "Accepted in other journal; awaiting puboffer acceptance",
+                ),
+                (Submission.ACCEPTED_IN_ALTERNATIVE, "Accepted in alternative Journal"),
+                (Submission.REJECTED, "Rejected"),
+                (Submission.WITHDRAWN, "Withdrawn by the Authors"),
+            ),
+        )
+        processed = (
+            ("Processed", ((Submission.PUBLISHED, "Published"),)),
+        )
+        if user.contributor.is_ed_admin:
+            choices=(
+                ("All", (("all", "All Submissions"),)),
+                incoming,
+                preassignment,
+                assignment,
+                refereeing,
+                awaiting_resubmission,
+                voting,
+                decided,
+            )
+        elif user.contributor.is_active_senior_fellow:
+            choices=(
+                ("All", (("all", "All Submissions"),)),
+                preassignment,
+                assignment,
+                refereeing,
+                awaiting_resubmission,
+                voting,
+                decided,
+            )
+        else:
+            choices=(
+                ("All", (("all", "All Submissions"),)),
+                assignment,
+                refereeing,
+                awaiting_resubmission,
+                voting,
+                decided,
+            )
+
+        return choices
+
+
     def search_results(self, user):
         """
         Return all Submission objects fitting search criteria.
@@ -371,6 +426,10 @@ class SubmissionPoolSearchForm(forms.Form):
             latest=latest,
             historical=historical,
         )
+        if not user.contributor.is_ed_admin:
+            submissions = submissions.stage_incoming_completed()
+        #     if not user.contributor.is_active_senior_fellow:
+        #         submissions = submissions.stage_preassignment_completed()
         if search_set == "current_noawaitingresub":
             submissions = submissions.exclude(status=Submission.AWAITING_RESUBMISSION)
         if self.cleaned_data.get("specialties"):
@@ -404,6 +463,26 @@ class SubmissionPoolSearchForm(forms.Form):
         status = self.cleaned_data.get("status")
         if status == "all":
             pass
+        elif status == "plagiarism_internal_failed_temporary":
+            submissions = submissions.filter(
+                internal_plagiarism_assessment__status=\
+                PlagiarismAssessment.STATUS_FAILED_TEMPORARY,
+            )
+        elif status == "plagiarism_internal_failed_permanent":
+            submissions = submissions.filter(
+                internal_plagiarism_assessment__status=\
+                PlagiarismAssessment.STATUS_FAILED_PERMANENT,
+            )
+        elif status == "plagiarism_iThenticate_failed_temporary":
+            submissions = submissions.filter(
+                iThenticate_plagiarism_assessment__status=\
+                PlagiarismAssessment.STATUS_FAILED_TEMPORARY,
+            )
+        elif status == "plagiarism_iThenticate_failed_permanent":
+            submissions = submissions.filter(
+                iThenticate_plagiarism_assessment__status=\
+                PlagiarismAssessment.STATUS_FAILED_PERMANENT,
+            )
         elif status == "assignment_1":
             submissions = submissions.filter(
                 status=Submission.SEEKING_ASSIGNMENT,
