@@ -37,9 +37,20 @@
           <li><a href="{% url 'news:news' %}">News</a></li>
           <li><a href="{% url 'scipost:feeds' %}">Feeds</a></li>
 	  <li>
-            <a href="//twitter.com/scipost_dot_org" target="_blank" rel="noopener" title="Twitter">
-              Twitter
-            </a>
+	    <ul class="list-inline">
+	      <li class="list-inline-item">
+		<a href="https://scipost.social/@scipost" target="_blank" rel="noopener">
+		  {% include "bi/mastodon.html" %} Mastodon
+		</a>:&nbsp;
+	      </li>
+	      <li class="list-inline-item"><a href="https://scipost.social/@physics" target="_blank" rel="noopener">@physics</a></li>
+	      <li class="list-inline-item"><a href="https://scipost.social/@astro" target="_blank" rel="noopener">@astro</a></li>
+	      <li class="list-inline-item"><a href="https://scipost.social/@biology" target="_blank" rel="noopener">@biology</a></li>
+	      <li class="list-inline-item"><a href="https://scipost.social/@chemistry" target="_blank" rel="noopener">@chemistry</a></li>
+	      <li class="list-inline-item"><a href="https://scipost.social/@compsci" target="_blank" rel="noopener">@compsci</a></li>
+	      <li class="list-inline-item"><a href="https://scipost.social/@math" target="_blank" rel="noopener">@math</a></li>
+	      <li class="list-inline-item"><a href="https://scipost.social/@polsci" target="_blank" rel="noopener">@polsci</a></li>
+	    </ul>
 	  </li>
           <li><a href="https://disc.{{ request.get_host }}" target="_blank" rel="noopener">Community</a></li>
     	</ul>
