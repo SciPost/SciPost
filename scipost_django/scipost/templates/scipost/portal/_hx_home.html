@@ -132,6 +132,7 @@
 	      <li><a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
 	      <li><a href="{% url 'scipost:contact' %}">Contact us</a></li>
 	      <li><a href="{% url 'careers:jobopenings' %}">Careers&#64;SciPost</a></li>
+	      <li><a href="{% url 'blog:blog_index' %}">Blog</a></li>
 	    </ul>
 	  </div>
 	  <div class="col">
@@ -148,11 +149,36 @@
 
   </div>
 
-  <div class="col-md-8"
+  <div class="col-md-4"
        hx-get="{% url 'scipost:_hx_participates_in' %}"
        hx-push-url="false"
        hx-trigger="load"
   >
   </div>
+
+  {% if latest_blogpost %}
+    <div class="col-md-4">
+      <div class="card news">
+	<div class="card-header">
+	  <h2 class="my-2">Blog</h2>
+	</div>
+	<div class="card-body">
+	  <ul>
+	    <li>
+	      <div class="date">{{ latest_blogpost.date_posted|date:'d' }}<span class="month">{{ latest_blogpost.date_posted|date:'M' }}</span></div>
+	      <div>
+		<h3>
+		  <a href="{{ latest_blogpost.get_absolute_url }}">
+		    {{ latest_blogpost.title }}
+		  </a>
+		</h3>
+		<p>{{ latest_blogpost.blurb }}</p>
+	      </div>
+	    </li>
+	  </ul>
+	</div>
+      </div>
+    </div>
+  {% endif %}
 
 </div>

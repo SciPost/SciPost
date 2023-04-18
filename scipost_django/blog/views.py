@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.core.paginator import Paginator
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import DetailView
 
@@ -44,3 +45,10 @@ def _hx_posts(request):
 
 class BlogPostDetailView(DetailView):
     model = BlogPost
+
+    def get_object(self):
+        blogpost = super().get_object()
+        if (blogpost.status != blogpost.PUBLISHED
+            and not self.request.user.has_perm("blog.change_blogpost")):
+            raise Http404
+        return blogpost

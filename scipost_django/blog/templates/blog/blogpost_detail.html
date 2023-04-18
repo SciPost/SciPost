@@ -9,7 +9,7 @@
         {% block breadcrumb_items %}
           <a href="{% url 'blog:blog_index' %}" class="breadcrumb-item">Blog</a>
 	  <span class="breadcrumb-item">
-	    {{ object.date_posted|date:"Y-m-d" }}/{{ object.slug }}
+	    {{ blogpost.date_posted|date:"Y-m-d" }}/{{ blogpost.slug }}
 	  </span>
         {% endblock %}
       </nav>
@@ -19,30 +19,35 @@
 
 {% block content %}
   <h1 class="highlight">
-    {{ object.title }}
+    {{ blogpost.title }}
+    {% if blogpost.status == blogpost.DRAFT %}
+      <button class="btn btn-warning mt-1 float-end">Draft</button>
+    {% elif blogpost.status == blogpost.DELISTED %}
+      <button class="btn btn-danger mt-1 float-end">Delisted</button>
+    {% endif %}
   </h1>
   <div class="ms-2">
-    <small>{% for category in object.categories.all %}{{ category }}{% if not forloop.last %}&nbsp;-&nbsp;{% endif %}{% endfor %}</small>
+    <small>{% for category in blogpost.categories.all %}{{ category }}{% if not forloop.last %}&nbsp;-&nbsp;{% endif %}{% endfor %}</small>
     <br>
-    Posted on {{ object.date_posted|date:"Y-m-d" }}&emsp;
-    by {{ object.posted_by.first_name }} {{ object.posted_by.last_name }}
+    Posted on {{ blogpost.date_posted|date:"Y-m-d" }}&emsp;
+    by {{ blogpost.posted_by.first_name }} {{ blogpost.posted_by.last_name }}
   </div>
 
   <div class="row m-2 mt-5">
     <div class="col">
-      {% automarkup object.blurb %}
+      {% automarkup blogpost.blurb %}
     </div>
     <div class="col">
       <picture>
-	<img src="{{ object.blurb_image.url }}" alt="Image for {{ object.slug }}" width="400">
+	<img src="{{ blogpost.blurb_image.url }}" alt="Image for {{ blogpost.slug }}" width="400">
       </picture>
-      <p>{{ object.blurb_image_caption }}</p>
+      <p>{{ blogpost.blurb_image_caption }}</p>
     </div>
     <div class="col"></div>
   </div>
 
   <div class="ms-3 mt-5">
-    {% automarkup object.body %}
+    {% automarkup blogpost.body %}
   </div>
 
 {% endblock content %}

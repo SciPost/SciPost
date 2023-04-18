@@ -65,6 +65,7 @@ from .forms import (
 from .mixins import PermissionsMixin, PaginationMixin
 from .utils import EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
+from blog.models import BlogPost
 from colleges.permissions import fellowship_or_admin_required, is_edadmin_or_active_fellow
 from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
@@ -194,8 +195,10 @@ def portal_hx_home(request):
         news_items = NewsItem.objects.homepage().order_by("-date")[:3]
     else:
         news_items = NewsItem.objects.none()
+    latest_blogpost = BlogPost.objects.published().first()
     context = {
         "news_items": news_items,
+        "latest_blogpost": latest_blogpost,
         "publications": Publication.objects.published()
         .order_by("-publication_date", "-paper_nr")
         .prefetch_related(

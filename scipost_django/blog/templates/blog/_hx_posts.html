@@ -12,7 +12,14 @@
       <div class="col-md-10">
 	<div class="row">
 	  <div class="col-md-9 p-2">
-	    <h2 class="ms-2">{{ post.title }}</h2>
+	    <h2 class="ms-2">
+	      {{ post.title }}
+	      {% if post.status == post.DRAFT %}
+		<button class="btn btn-warning mt-1 float-end">Draft</button>
+	      {% elif post.status == post.DELISTED %}
+		<button class="btn btn-danger mt-1 float-end">Delisted</button>
+	      {% endif %}
+	    </h2>
 	    <span class="ms-3 text-muted"><small>{% for category in post.categories.all %}{{ category }}{% if not forloop.last %}&nbsp;-&nbsp;{% endif %}{% endfor %}</small></span>
 	  </div>
 	  <div class="col-md-3">
