@@ -1,0 +1,51 @@
+{% extends 'blog/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+          <a href="{% url 'blog:blog_index' %}" class="breadcrumb-item">Blog</a>
+        {% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <h1 class="highlight">
+    SciPost Blog
+  </h1>
+  <div class="m-2">
+    <p>Welcome to our blog, bringing you useful information and updates concerning our activities.</p>
+    <p>What you will find here supplements our <a href="{% url 'news:news' %}">news stream</a> (for newsworthy items) and our <a href="https://disc.{{ request.get_host }}" target="_blank" rel="noopener">Community discussion forum</a>.</p>
+  </div>
+
+  <div class="row m-2 p-2 pb-0 border border-primary">
+    <h2>Search/filter</h2>
+    <div class="col-lg-10">
+      <form
+	  hx-post="{% url 'blog:_hx_posts' %}"
+	  hx-trigger="load, change, keyup delay:500ms"
+	  hx-target="#blogpost-search-results"
+	  hx-indicator="#indicator-blogpost-search"
+	>
+	<div id="blogpost-search-form">{% crispy form %}</div>
+      </form>
+    </div>
+    <div class="col-lg-2">
+      <div id="indicator-blogpost-search" class="htmx-indicator p-2">
+	<button class="btn btn-warning" type="button" disabled>
+	  <strong>Loading posts...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="blogpost-search-results"></div>
+
+
+{% endblock content %}

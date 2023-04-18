@@ -1,0 +1,48 @@
+{% extends 'blog/base.html' %}
+
+{% load automarkup %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+          <a href="{% url 'blog:blog_index' %}" class="breadcrumb-item">Blog</a>
+	  <span class="breadcrumb-item">
+	    {{ object.date_posted|date:"Y-m-d" }}/{{ object.slug }}
+	  </span>
+        {% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <h1 class="highlight">
+    {{ object.title }}
+  </h1>
+  <div class="ms-2">
+    <small>{% for category in object.categories.all %}{{ category }}{% if not forloop.last %}&nbsp;-&nbsp;{% endif %}{% endfor %}</small>
+    <br>
+    Posted on {{ object.date_posted|date:"Y-m-d" }}&emsp;
+    by {{ object.posted_by.first_name }} {{ object.posted_by.last_name }}
+  </div>
+
+  <div class="row m-2 mt-5">
+    <div class="col">
+      {% automarkup object.blurb %}
+    </div>
+    <div class="col">
+      <picture>
+	<img src="{{ object.blurb_image.url }}" alt="Image for {{ object.slug }}" width="400">
+      </picture>
+      <p>{{ object.blurb_image_caption }}</p>
+    </div>
+    <div class="col"></div>
+  </div>
+
+  <div class="ms-3 mt-5">
+    {% automarkup object.body %}
+  </div>
+
+{% endblock content %}

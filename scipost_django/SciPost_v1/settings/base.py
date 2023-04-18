@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     "affiliates",
     "api",
     "apimail",
+    "blog",
     "careers",
     "colleges",
     "commentaries",

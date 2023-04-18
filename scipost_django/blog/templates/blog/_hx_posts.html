@@ -1,0 +1,55 @@
+{% load automarkup %}
+
+{% for post in page_obj %}
+  <div class="ms-3 mt-3"><strong>{{ forloop.counter0|add:start_index }} of {{ count }}</strong></div>
+  <div class="p-2 bg-primary bg-opacity-10 border border-2">
+    <div class="row gx-4 mb-0">
+      <div class="col-md-2">
+	<picture>
+	  <img src="{{ post.blurb_image.url }}" alt="Image for {{ post.slug }}" width="200">
+	</picture>
+      </div>
+      <div class="col-md-10">
+	<div class="row">
+	  <div class="col-md-9 p-2">
+	    <h2 class="ms-2">{{ post.title }}</h2>
+	    <span class="ms-3 text-muted"><small>{% for category in post.categories.all %}{{ category }}{% if not forloop.last %}&nbsp;-&nbsp;{% endif %}{% endfor %}</small></span>
+	  </div>
+	  <div class="col-md-3">
+	    <div class="float-end">
+	      Posted on {{ post.date_posted|date:"Y-m-d" }}
+	      <br>
+	      by {{ post.posted_by.first_name }} {{ post.posted_by.last_name }}
+	    </div>
+	  </div>
+	</div>
+	<div class="row ms-4 mt-1 mb-0">
+	  <div class="col-lg-9">{% automarkup post.blurb %}</div>
+	  <div class="col-lg-3">
+	    <a href="{{ post.get_absolute_url }}" class="btn btn-primary float-end">
+	      {% include "bi/arrow-right-square-fill.html" %}&nbsp;Read the full Post
+	    </a>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+{% empty %}
+  <strong>No posts found</strong>
+{% endfor %}
+
+{% if page_obj.has_next %}
+  <div hx-post="{% url 'blog:_hx_posts' %}?page={{ page_obj.next_page_number }}"
+       hx-include="#blogpost-search-form"
+       hx-trigger="revealed"
+       hx-swap="afterend"
+       hx-indicator="#indicator-blogpost-search-page-{{ page_obj.number }}"
+  >
+    <div id="indicator-blogpost-search-page-{{ page_obj.number }}" class="htmx-indicator p-2">
+      <button class="btn btn-warning" type="button" disabled>
+	<strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </div>
+  </div>
+{% endif %}

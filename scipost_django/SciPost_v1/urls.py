@@ -77,6 +77,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("affiliates/", include("affiliates.urls", namespace="affiliates")),
     path("api/", include("api.urls", namespace="api")),
+    path("blog/", include("blog.urls", namespace="blog")),
     path("mail/", include("apimail.urls", namespace="apimail")),
     path(
         "10.21468/<journal_doi_label:doi_label>/",
