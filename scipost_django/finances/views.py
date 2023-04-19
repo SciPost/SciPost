@@ -508,7 +508,7 @@ def subsidy_attachment(request, subsidy_id, attachment_id):
     content_type = content_type or "application/octet-stream"
     response = HttpResponse(attachment.attachment.read(), content_type=content_type)
     response["Content-Encoding"] = encoding
-    response["Content-Disposition"] = "filename=%s" % attachment.name
+    response["Content-Disposition"] = "filename=%s" % attachment.attachment.name
     return response
 
 
