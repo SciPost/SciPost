@@ -142,6 +142,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         "specialties",
         "preprint",
         "editor_in_charge",
+        "followup_of",
         "is_resubmission_of",
         "fellows",
         "submitted_by",
@@ -216,6 +217,7 @@ class SubmissionAdmin(GuardedModelAdmin):
             {
                 "classes": ("collapse",),
                 "fields": (
+                    "followup_of",
                     "thread_hash",
                     "is_resubmission_of",
                     "list_of_changes",
