@@ -18,6 +18,7 @@
 {% endblock %}
 
 {% block content %}
+  <p><a href="{% url 'blog:blog_index' %}">{% include "bi/arrow-left.html" %}&nbsp;Blog</a></p>
   <h1 class="highlight">
     {{ blogpost.title }}
     {% if blogpost.status == blogpost.DRAFT %}
@@ -25,6 +26,11 @@
     {% elif blogpost.status == blogpost.DELISTED %}
       <button class="btn btn-danger mt-1 float-end">Delisted</button>
     {% endif %}
+    <span class="m-2 float-end">
+      <a href="{{ blogpost.get_absolute_url }}">
+	{% include "bi/link.html" %}
+      </a>
+    </span>
   </h1>
   <div class="ms-2">
     <small>{% for category in blogpost.categories.all %}{{ category }}{% if not forloop.last %}&nbsp;-&nbsp;{% endif %}{% endfor %}</small>

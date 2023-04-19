@@ -23,6 +23,11 @@
 	    <span class="ms-3 text-muted"><small>{% for category in post.categories.all %}{{ category }}{% if not forloop.last %}&nbsp;-&nbsp;{% endif %}{% endfor %}</small></span>
 	  </div>
 	  <div class="col-md-3">
+	    <div class="m-2 float-end">
+	      <a href="{{ blogpost.get_absolute_url }}">
+		{% include "bi/link.html" %}
+	      </a>
+	    </div>
 	    <div class="float-end">
 	      Posted on {{ post.date_posted|date:"Y-m-d" }}
 	      <br>
