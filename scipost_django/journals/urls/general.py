@@ -259,6 +259,11 @@ urlpatterns = [
         name="allocate_orgpubfractions",
     ),
     path(
+        "preallocate_orgpubfractions_from_affiliations/<publication_doi_label:doi_label>",
+        journals_views.preallocate_orgpubfractions_from_affiliations,
+        name="preallocate_orgpubfractions_from_affiliations",
+    ),
+    path(
         "request_pubfrac_check/<publication_doi_label:doi_label>",
         journals_views.request_pubfrac_check,
         name="request_pubfrac_check",

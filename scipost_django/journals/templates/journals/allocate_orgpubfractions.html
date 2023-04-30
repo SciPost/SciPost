@@ -28,6 +28,10 @@
       <h3 class="highlight">Which Organizations supported the research in this publication?</h3>
       <p>Please indicate <strong>which Organizations should be credited with supporting the research published in this publication</strong>.<br/>Data provided here is indicative and does not need to be extremely accurate.<br/>Note however that this data <strong>is used</strong> to set the suggested level of support from external Organizations which SciPost needs to remain sustainable.<br/><br/>The Organizations listed here appear as either host institutions for the authors, or as acknowledged funders.<br/>Is the list of Organizations incomplete? <a href="mailto:edadmin@{{ request.get_host }}?subject=Missing Organizations for {{ publication.doi_label }}&body=[Please provide the missing data here]">Please email EdAdmin with details</a>.</p>
 
+      {% if "edadmin" in user_roles %}
+	<p><span class="text-danger">EdAdmin</span>: <a href="{% url 'journals:preallocate_orgpubfractions_from_affiliations' doi_label=publication.doi_label %}">preallocate fractions based on author affiliations</a>
+      {% endif %}
+
       <form method="post" action="{% url 'journals:allocate_orgpubfractions' doi_label=publication.doi_label %}">
 	{% csrf_token %}
 	{{ formset.management_form }}

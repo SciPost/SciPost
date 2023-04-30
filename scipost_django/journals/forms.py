@@ -927,7 +927,9 @@ class BaseOrgPubFractionsFormSet(BaseModelFormSet):
             form.is_valid()
             norm += 1000 * form.cleaned_data.get("fraction", 0)
         if norm != 1000:
-            raise forms.ValidationError("The fractions do not add up to one!")
+            raise forms.ValidationError(
+                f"The fractions do not add up to one! Getting {norm} / 1000"
+            )
 
 
 OrgPubFractionsFormSet = modelformset_factory(

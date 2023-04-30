@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from decimal import Decimal, getcontext
 import hashlib
 import json
 import os
@@ -1278,6 +1279,35 @@ def allocate_orgpubfractions(request, doi_label):
         "formset": formset,
     }
     return render(request, "journals/allocate_orgpubfractions.html", context)
+
+
+
+@login_required
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
+def preallocate_orgpubfractions_from_affiliations(request, doi_label):
+    """
+    Prefill the pubfractions based on the author affiliations.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    nr_authors = publication.authors.all().count()
+    # Reset all existing pubfracs to zero
+    OrgPubFraction.objects.filter(publication=publication).update(fraction=0)
+    fraction = {}
+    for org in publication.get_organizations():
+        fraction[org.id] = 0
+    for author in publication.authors.all():
+        nr_affiliations = author.affiliations.all().count()
+        for aff in author.affiliations.all():
+            fraction[aff.id] += 1.0/(nr_authors * nr_affiliations)
+    for org in publication.get_organizations():
+        OrgPubFraction.objects.filter(
+            publication=publication,
+            organization=org,
+        ).update(fraction=Decimal(fraction[org.id]))
+    return redirect(reverse(
+        "journals:allocate_orgpubfractions",
+        kwargs={"doi_label": doi_label},
+    ))
 
 
 @login_required
