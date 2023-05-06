@@ -7,6 +7,8 @@ import datetime
 from django import forms
 from django.contrib.auth import get_user_model
 
+from journals.models import Journal
+from proceedings.models import Proceedings
 from scipost.fields import UserModelChoiceField
 
 from . import constants
@@ -215,3 +217,78 @@ class ProofsDecisionForm(forms.ModelForm):
                 )
                 attachment.save()
         return proofs
+
+
+class ProductionStreamSearchForm(forms.Form):
+
+    accepted_in = forms.ModelChoiceField(
+        queryset=Journal.objects.active(),
+        required=False,
+    )
+    proceedings = forms.ModelChoiceField(
+        queryset=Proceedings.objects.order_by("-submissions_close"),
+        required=False,
+    )
+    author = forms.CharField(max_length=100, required=False, label="Author(s)")
+    title = forms.CharField(max_length=512, required=False)
+    identifier = forms.CharField(max_length=128, required=False)
+    officer = forms.ModelChoiceField(
+        queryset=ProductionUser.objects.active(),
+        required=False,
+    )
+    supervisor = forms.ModelChoiceField(
+        queryset=ProductionUser.objects.active(),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("accepted_in"), css_class="col-lg-6"),
+                Div(Field("proceedings"), css_class="col-lg-6"),
+                css_class="row",
+            ),
+            Div(
+                Div(FloatingField("author"), css_class="col-lg-6"),
+                Div(FloatingField("title"), css_class="col-lg-6"),
+                css_class="row",
+            ),
+            Div(
+                Div(FloatingField("identifier"), css_class="col-lg-6"),
+                css_class="row",
+            ),
+            Div(
+                Div(Field("officer"), css_class="col-lg-6"),
+                Div(Field("supervisor"), css_class="col-lg-6"),
+                css_class="row",
+            ),
+        )
+
+    def search_results(self):
+        streams = ProductionStream.objects.ongoing()
+        if self.cleaned_data.get("accepted_in"):
+            streams = streams.filter(
+                submission__editorialdecision_set__for_journal\
+                =self.cleaned_data.get("accepted_in"),
+            )
+        if self.cleaned_data.get("identifier"):
+            streams = streams.filter(
+                submission__preprint_identifier_w_vn_nr__icontains\
+                =self.cleaned_data.get("identifier"),
+            )
+        if self.cleaned_data.get("author"):
+            streams = streams.filter(
+                submission__author_list__icontains=self.cleaned_data.get("author"),
+            )
+        if self.cleaned_data.get("title"):
+            streams = streams.filter(
+                submission__title__icontains=self.cleaned_data.get("title"),
+            )
+        if self.cleaned_data.get("officer"):
+            streams = streams.filter(officer=self.cleaned_data.get("officer"))
+        if self.cleaned_data.get("supervisor"):
+            streams = streams.filter(supervisor=self.cleaned_data.get("supervisor"))
+
+        return streams
