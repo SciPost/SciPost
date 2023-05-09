@@ -80,7 +80,7 @@ celery==5.2.7 		            # 2022-11-18
 django-celery-results==2.4.0 	    # 2022-11-18
 django-celery-beat==2.4.0	    # 2022-11-18
 flower==1.2.0 			    # 2022-11-18
-
+mailchimp3==3.0.18         # 2023-05-09
 
 # Security-related packages
 django-referrer-policy==1.0	# 2020-09-19 no new updates for 3 years
