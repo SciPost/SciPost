@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 import factory
 
 from scipost.models import Contributor
-from submissions.constants import ASSIGNMENT_STATUSES
+from submissions.models.submission import Submission
 from submissions.models import EditorialAssignment
 
 
@@ -18,7 +18,7 @@ class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
 
     submission = None
     to = factory.Iterator(Contributor.objects.all())
-    status = factory.Iterator(ASSIGNMENT_STATUSES, getter=lambda c: c[0])
+    status = factory.Iterator(Submission.SUBMISSION_STATUSES, getter=lambda c: c[0])
     date_created = factory.lazy_attribute(lambda o: o.submission.latest_activity)
     date_answered = factory.lazy_attribute(lambda o: o.submission.latest_activity)
 

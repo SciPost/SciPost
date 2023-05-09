@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import factory
 import pytz
+import random
 
 from faker import Faker
 
@@ -46,6 +47,7 @@ class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
     @factory.post_generation
     def report(self, create, extracted, **kwargs):
         if create:
+            from submissions.factories import VettedReportFactory
             VettedReportFactory(submission=self.submission, author=self.referee)
 
 
