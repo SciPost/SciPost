@@ -7,6 +7,10 @@ import datetime
 from django import forms
 from django.contrib.auth import get_user_model
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field
+from crispy_bootstrap5.bootstrap5 import FloatingField
+
 from journals.models import Journal
 from proceedings.models import Proceedings
 from scipost.fields import UserModelChoiceField
@@ -242,6 +246,7 @@ class ProductionStreamSearchForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -290,5 +295,10 @@ class ProductionStreamSearchForm(forms.Form):
             streams = streams.filter(officer=self.cleaned_data.get("officer"))
         if self.cleaned_data.get("supervisor"):
             streams = streams.filter(supervisor=self.cleaned_data.get("supervisor"))
+
+        if not self.user.has_perm("scipost.can_view_all_production_streams"):
+            # Restrict stream queryset if user is not supervisor
+            streams = streams.filter_for_user(self.user.production_user)
+        streams = streams.order_by("opened")
 
         return streams

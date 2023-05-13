@@ -7,10 +7,11 @@ import mimetypes
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
-from django.urls import reverse
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import UpdateView, DeleteView
@@ -30,6 +31,7 @@ from .models import (
     ProductionEventAttachment,
 )
 from .forms import (
+    ProductionStreamSearchForm,
     ProductionEventForm,
     AssignOfficerForm,
     UserToOfficerForm,
@@ -43,8 +45,43 @@ from .permissions import is_production_user
 from .utils import proofs_slug_to_id, ProductionUtils
 
 
+################################
+# 2023-05 HTMX refactoring start
+################################
+
+
+@is_production_user()
+@permission_required("scipost.can_view_production", raise_exception=True)
+def production_new(request):
+    form = ProductionStreamSearchForm(user=request.user)
+    context = {"search_productionstreams_form": form,}
+    return render(request, "production/production_new.html", context)
+
+
+@is_production_user()
+@permission_required("scipost.can_view_production", raise_exception=True)
+def _hx_productionstream_list(request):
+    form = ProductionStreamSearchForm(request.POST or None, user=request.user)
+    if form.is_valid():
+        streams = form.search_results()
+    else:
+        streams = ProductionStream.objects.ongoing()
+    paginator = Paginator(streams, 16)
+    page_nr = request.GET.get("page")
+    page_obj = paginator.get_page(page_nr)
+    count = paginator.count
+    start_index = page_obj.start_index
+    context = {"count": count, "page_obj": page_obj, "start_index": start_index,}
+    return render(request, "production/_hx_productionstream_list.html", context)
+
+
+################################
+# 2023-05 HTMX refactoring end
+################################
+
+
 ######################
-# Production process #
+# Production process #  2023-05  ALL BELOW TO BE REFACTORED to htmx-driven views
 ######################
 
 

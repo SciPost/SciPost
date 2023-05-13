@@ -9,6 +9,18 @@ from production import views as production_views
 app_name = "production"
 
 urlpatterns = [
+    # refactoring 2023-05  htmx-driven production page
+    path(
+        "new",
+        production_views.production_new,
+        name="production_new",
+    ),
+    path(
+        "_hx_productionstream_list",
+        production_views._hx_productionstream_list,
+        name="_hx_productionstream_list",
+    ),
+    # end refactoring 2023-05
     path("", production_views.production, name="production"),
     path("<int:stream_id>", production_views.production, name="production"),
     path("completed", production_views.completed, name="completed"),

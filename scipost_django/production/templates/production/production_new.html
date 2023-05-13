@@ -1,0 +1,38 @@
+{% extends 'production/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Production streams</span>
+{% endblock %}
+
+{% block pagetitle %}: Production page{% endblock pagetitle %}
+
+
+{% block content %}
+
+  <form
+      hx-post="{% url 'production:_hx_productionstream_list' %}"
+      hx-trigger="keyup delay:500ms, change"
+      hx-target="#search-productionstreams-results"
+      hx-indicator="#indicator-search"
+  >
+    <div id="search-productionstreams-form">{% crispy search_productionstreams_form %}</div>
+  </form>
+
+  <div class="row">
+    <div class="col">
+      <h3>Production streams list</h3>
+    </div>
+    <div class="col">
+      <div id="indicator-search-productionstreams" class="htmx-indicator">
+	<button class="btn btn-sm btn-warning" type="button" disabled>
+	  <strong>Loading...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </div>
+    </div>
+  </div>
+  <div id="search-productionstreams-results" class="mt-2"></div>
+
+{% endblock content %}
