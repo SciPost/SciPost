@@ -275,12 +275,16 @@ class ProductionStreamSearchForm(forms.Form):
         streams = ProductionStream.objects.ongoing()
         if self.cleaned_data.get("accepted_in"):
             streams = streams.filter(
-                submission__editorialdecision_set__for_journal\
+                submission__editorialdecision__for_journal\
                 =self.cleaned_data.get("accepted_in"),
+            )
+        if self.cleaned_data.get("proceedings"):
+            streams = streams.filter(
+                submission__proceedings=self.cleaned_data.get("proceedings"),
             )
         if self.cleaned_data.get("identifier"):
             streams = streams.filter(
-                submission__preprint_identifier_w_vn_nr__icontains\
+                submission__preprint__identifier_w_vn_nr__icontains\
                 =self.cleaned_data.get("identifier"),
             )
         if self.cleaned_data.get("author"):

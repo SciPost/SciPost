@@ -1,0 +1,65 @@
+<div class="row mb-0">
+  <div class="col col-md-8">
+    <table>
+      <tbody>
+	<tr>
+	  <td><strong class="text-primary">{{ productionstream.submission.title }}</strong></td>
+	</tr>
+	<tr class="mt-1">
+	  <td><strong><em>by {{ productionstream.submission.author_list }}</em></strong></td>
+	</tr>
+      </tbody>
+    </table>
+    <div class="row mt-2 mb-0">
+      <div class="col">
+	<small class="text-muted">To be published in</small><br>
+	{{ productionstream.submission.editorial_decision.for_journal }}
+      </div>
+      <div class="col">
+	<small class="text-muted">Acceptance date</small><br>
+	{{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
+      </div>
+      <div class="col">
+	<small class="text-muted">Stream Status</small>
+	<br>
+        <div class="p-2 label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %}">{{ productionstream.get_status_display }}</div>
+	{% if productionstream.submission.editorial_decision.status == productionstream.submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}<br><strong class="text-danger">Wait! author<br>acceptance of puboffer<br>required!</strong>{% endif %}
+      </div>
+    </div>
+
+  </div>
+  <div class="col col-md-4 border-start">
+    <table class="table">
+      <tr>
+	<td><small class="text-muted">Latest activity</small></td>
+	<td>
+	  {{ productionstream.latest_activity|timesince }} ago
+	  <br>
+	  <span class="text-muted">(opened {{ productionstream.opened|timesince }} ago)</span>
+	</td>
+      </tr>
+      <tr>
+	<td><small class="text-muted">Supervisor</small></td>
+	<td>
+	  {% if productionstream.supervisor %}
+	    <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+	    {{ productionstream.supervisor }}
+	  {% else %}
+	    <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+	  {% endif %}
+	</td>
+      </tr>
+      <tr>
+	<td><small class="text-muted">Production officer</small></td>
+	<td>
+	  {% if productionstream.officer %}
+	    <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+	    {{ productionstream.officer }}
+	  {% else %}
+	    <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+	  {% endif %}
+	</td>
+      </tr>
+    </table>
+  </div>
+</div>

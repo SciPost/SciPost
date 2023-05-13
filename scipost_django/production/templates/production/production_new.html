@@ -11,18 +11,27 @@
 
 {% block content %}
 
-  <form
-      hx-post="{% url 'production:_hx_productionstream_list' %}"
-      hx-trigger="keyup delay:500ms, change"
-      hx-target="#search-productionstreams-results"
-      hx-indicator="#indicator-search"
-  >
-    <div id="search-productionstreams-form">{% crispy search_productionstreams_form %}</div>
-  </form>
+  <h1>Production Streams</h1>
+
+  <div class="card my-4">
+    <div class="card-header">
+      Search / filter
+    </div>
+    <div class="card-body">
+      <form
+	  hx-post="{% url 'production:_hx_productionstream_list' %}"
+	  hx-trigger="load, keyup delay:500ms, change, click from:#refresh-button"
+	  hx-target="#search-productionstreams-results"
+	  hx-indicator="#indicator-search-productionstreams"
+      >
+	<div id="search-productionstreams-form">{% crispy search_productionstreams_form %}</div>
+      </form>
+    </div>
+  </div>
 
   <div class="row">
     <div class="col">
-      <h3>Production streams list</h3>
+      <em>The list should update automatically. Feels stuck?</em>&nbsp;<a id="refresh-button" class="m-2 btn btn-primary">{% include "bi/arrow-clockwise.html" %}&nbsp;Refresh</a>
     </div>
     <div class="col">
       <div id="indicator-search-productionstreams" class="htmx-indicator">
