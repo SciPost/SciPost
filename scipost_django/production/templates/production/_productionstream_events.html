@@ -30,8 +30,22 @@
           {% if not non_editable %}
             {% if event.noted_by == request.user.production_user and event.editable %}
               <div class="ps-2">
-		<a href="{% url 'production:update_event' event.id %}"><span aria-hidden="true">{% include 'bi/pencil-square.html' %}</span></a>
-		<a class="text-danger" href="{% url 'production:delete_event' event.id %}"><span aria-hidden="true">{% include 'bi/trash-fill.html' %}</span></a>
+		<a hx-get="{% url 'production:_hx_event_form' productionstream_id=productionstream.id event_id=event.id %}"
+		   hx-target="#productionstream-{{ productionstream.id }}-event-{{ event.id }}-form"
+		>
+		  <span aria-hidden="true">
+		    {% include 'bi/pencil-square.html' %}
+		  </span>
+		</a>
+		<a class="text-danger"
+		   hx-get="{% url 'production:_hx_event_delete' productionstream_id=productionstream.id event_id=event.id %}"
+		   hx-target="#productionstream-{{ productionstream.id }}-details-contents"
+		   hx-confirm="Delete this Event?"
+		>
+		  <span aria-hidden="true">
+		    {% include 'bi/trash-fill.html' %}
+		  </span>
+		</a>
               </div>
             {% endif %}
           {% endif %}
@@ -56,6 +70,7 @@
               {% endfor %}
             </ul>
 	  {% endif %}
+	  <div id="productionstream-{{ productionstream.id }}-event-{{ event.id }}-form"></div>
 	</td>
       </tr>
     {% empty %}

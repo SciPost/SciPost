@@ -79,11 +79,9 @@ def _hx_productionstream_list(request):
 @is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
 def _hx_productionstream_details_contents(request, productionstream_id):
-    stream = get_object_or_404(ProductionStream, pk=productionstream_id)
-    productionevent_form = ProductionEventForm()
+    productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
     context = {
-        "productionstream": stream,
-        "productionevent_form": productionevent_form,
+        "productionstream": productionstream,
     }
     return render(
         request,
@@ -94,21 +92,44 @@ def _hx_productionstream_details_contents(request, productionstream_id):
 
 @is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
-def _hx_events_add(request, productionstream_id):
-    qs = ProductionStream.objects.ongoing()
-    if not request.user.has_perm("scipost.can_assign_production_officer"):
-        qs = qs.filter_for_user(request.user.production_user)
-
-    productionstream = get_object_or_404(qs, pk=productionstream_id)
-    prodevent_form = ProductionEventForm(request.POST or None)
-    if prodevent_form.is_valid():
-        prodevent = prodevent_form.save(commit=False)
-        prodevent.stream = productionstream
-        prodevent.noted_by = request.user.production_user
-        prodevent.save()
-        messages.success(request, "Comment added to Stream.")
+def _hx_event_form(request, productionstream_id, event_id=None):
+    """
+    Create or update a ProductionEvent.
+    """
+    productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
+    if event_id:
+        productionevent = get_object_or_404(ProductionEvent, pk=event_id)
     else:
-        messages.warning(request, "The form was invalidly filled.")
+        productionevent = None
+    if request.method == "POST":
+        form = ProductionEventForm(request.POST, instance=productionevent)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse(
+                "production:_hx_productionstream_details_contents",
+                kwargs={"productionstream_id": productionstream.id,},
+            ))
+    elif productionevent:
+        form = ProductionEventForm(instance=productionevent)
+    else:
+        form = ProductionEventForm(
+            initial={
+                "stream": productionstream,
+                "noted_by": request.user.production_user,
+            },
+        )
+    context = {
+        "productionstream": productionstream,
+        "productionevent_form": form,
+    }
+    return render(request, "production/_hx_productionstream_event_form.html", context)
+
+
+@is_production_user()
+@permission_required("scipost.can_view_production", raise_exception=True)
+def _hx_event_delete(request, productionstream_id, event_id):
+    productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
+    ProductionEvent.objects.filter(pk=event_id).delete()
     return redirect(reverse(
         "production:_hx_productionstream_details_contents",
         kwargs={"productionstream_id": productionstream.id,},

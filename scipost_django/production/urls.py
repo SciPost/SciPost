@@ -30,9 +30,33 @@ urlpatterns = [
                     name="_hx_productionstream_details_contents",
                 ),
                 path(
-                    "events/add",
-                    production_views._hx_events_add,
-                    name="_hx_events_add",
+                    "events/",
+                    include(
+                        [
+                            path(
+                                "form",
+                                production_views._hx_event_form,
+                                name="_hx_event_form",
+                            ),
+                            path(
+                                "<int:event_id>/",
+                                include(
+                                    [
+                                        path(
+                                            "update",
+                                            production_views._hx_event_form,
+                                            name="_hx_event_form",
+                                        ),
+                                        path(
+                                            "delete",
+                                            production_views._hx_event_delete,
+                                            name="_hx_event_delete",
+                                        ),
+                                    ]
+                                ),
+                            ),
+                        ]
+                    ),
                 ),
             ]
         ),

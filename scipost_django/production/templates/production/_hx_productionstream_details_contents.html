@@ -1,18 +1,18 @@
-{% load crispy_forms_tags %}
+
+<p>
+  <strong class="text-warning">While the new production page is being built</strong>: go the the <a href="{{ productionstream.get_absolute_url }}" target="_blank">(old) stream detail page</a> to manage this stream.
+</p>
+
 
 <h3>Events</h3>
-{% include 'production/_productionstream_events.html' with events=productionstream.events.all_without_duration %}
+{% include 'production/_productionstream_events.html' with productionstream=productionstream events=productionstream.events.all_without_duration %}
 
-<details class="border border-2 mt-4">
-  <summary class="bg-light p-2">Add a comment to this stream</summary>
-  <div class="p-2">
-    <form
-	hx-post="{% url 'production:_hx_events_add' productionstream_id=productionstream.id %}"
-	hx-target="#productionstream-{{ productionstream.id }}-details-contents"
-    >
-      <div id="productionevent-form">
-	{% crispy productionevent_form %}
-      </div>
-    </form>
-  </div>
-</details>
+
+<button
+    hx-get="{% url 'production:_hx_event_form' productionstream_id=productionstream.id %}"
+    hx-target="#productionstream-{{ productionstream.id }}-event-form"
+    hx-trigger="click"
+>
+  Add a comment to this stream
+</button>
+<div id="productionstream-{{ productionstream.id }}-event-form"></div>

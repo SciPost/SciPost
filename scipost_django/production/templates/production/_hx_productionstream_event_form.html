@@ -1,0 +1,17 @@
+{% load crispy_forms_tags %}
+
+{% if productionevent_form.instance and productionevent_form.instance.id %}
+  <form
+      hx-post="{% url 'production:_hx_event_form' productionstream_id=productionstream.id  event_id=productionevent_form.instance.id %}"
+      hx-target="#productionstream-{{ productionstream.id }}-details-contents"
+  >
+    {% crispy productionevent_form %}
+  </form>
+{% else %}
+  <form
+      hx-post="{% url 'production:_hx_event_form' productionstream_id=productionstream.id %}"
+      hx-target="#productionstream-{{ productionstream.id }}-details-contents"
+  >
+    {% crispy productionevent_form %}
+  </form>
+{% endif %}

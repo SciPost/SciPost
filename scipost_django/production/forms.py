@@ -32,7 +32,11 @@ today = datetime.datetime.today()
 class ProductionEventForm(forms.ModelForm):
     class Meta:
         model = ProductionEvent
-        fields = ("comments",)
+        fields = (
+            "stream",
+            "comments",
+            "noted_by",
+        )
         widgets = {
             "comments": TextareaWithPreview(attrs={"rows": 4}),
         }
@@ -41,7 +45,9 @@ class ProductionEventForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Field("stream", type="hidden"),
             Field("comments"),
+            Field("noted_by", type="hidden"),
             Submit("submit", "Submit"),
         )
 
