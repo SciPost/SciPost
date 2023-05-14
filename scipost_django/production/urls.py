@@ -20,6 +20,23 @@ urlpatterns = [
         production_views._hx_productionstream_list,
         name="_hx_productionstream_list",
     ),
+    path(
+        "productionstreams/<int:productionstream_id>/",
+        include(
+            [
+                path(
+                    "details_contents",
+                    production_views._hx_productionstream_details_contents,
+                    name="_hx_productionstream_details_contents",
+                ),
+                path(
+                    "events/add",
+                    production_views._hx_events_add,
+                    name="_hx_events_add",
+                ),
+            ]
+        ),
+    ),
     # end refactoring 2023-05
     path("", production_views.production, name="production"),
     path("<int:stream_id>", production_views.production, name="production"),

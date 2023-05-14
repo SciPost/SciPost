@@ -6,5 +6,21 @@
   >
     {% include "production/_productionstream_details_summary_contents.html" with productionstream=productionstream %}
   </summary>
-  Stream details
+
+  <button id="indicator-productionstream-{{ productionstream.id }}-details-contents"
+	  class="htmx-indicator btn btn-sm btn-warning p-2"
+	  type="button"
+  >
+    <small><strong>Loading...</strong></small>
+    <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+  </button>
+
+  <div id="productionstream-{{ productionstream.id }}-details-contents"
+       class="m-2 p-2 bg-white"
+       hx-get="{% url 'production:_hx_productionstream_details_contents' productionstream_id=productionstream.id %}"
+       hx-trigger="toggle once from:#productionstream-{{ productionstream.id }}-details"
+       hx-indicator="#indicator-productionstream-{{ productionstream.id }}-details-contents"
+  >
+  </div>
+
 </details>

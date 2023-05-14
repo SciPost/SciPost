@@ -1,0 +1,67 @@
+{% load scipost_extras %}
+{% load automarkup %}
+
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Event</th>
+      <th>Noted by</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for event in events %}
+      <tr>
+	<td>
+          {{ event.noted_on }}
+          {% if event.duration %}
+            <br>
+            <strong>Duration: {{ event.duration|duration }}</strong>
+          {% endif %}
+	</td>
+	<td>
+          {{ event.get_event_display|linebreaksbr }}
+	</td>
+	<td>
+          <strong>{{ event.noted_by.user.first_name }} {{ event.noted_by.user.last_name }}</strong>
+	</td>
+	<td>
+          {% if not non_editable %}
+            {% if event.noted_by == request.user.production_user and event.editable %}
+              <div class="ps-2">
+		<a href="{% url 'production:update_event' event.id %}"><span aria-hidden="true">{% include 'bi/pencil-square.html' %}</span></a>
+		<a class="text-danger" href="{% url 'production:delete_event' event.id %}"><span aria-hidden="true">{% include 'bi/trash-fill.html' %}</span></a>
+              </div>
+            {% endif %}
+          {% endif %}
+	</td>
+      </tr>
+      <tr>
+	<td colspan="4" class="ps-4 pb-4">
+	  {% if event.comments %}
+            <p class="mt-2 mb-0">
+              {% if event.noted_to %}
+		<strong>To: {{ event.noted_to.user.first_name }} {{ event.noted_to.user.last_name }}</strong>
+		<br>
+              {% endif %}
+	      {% automarkup event.comments %}
+            </p>
+	  {% endif %}
+
+	  {% if event.attachments.exists %}
+            <ul>
+              {% for attachment in event.attachments.all %}
+		<li><a href="{{ attachment.get_absolute_url }}" target="_blank">Download Attachment {{ forloop.counter }}</a></li>
+              {% endfor %}
+            </ul>
+	  {% endif %}
+	</td>
+      </tr>
+    {% empty %}
+      <tr>
+	<td>No events found</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

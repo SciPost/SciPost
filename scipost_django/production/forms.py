@@ -8,10 +8,11 @@ from django import forms
 from django.contrib.auth import get_user_model
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field
+from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from journals.models import Journal
+from markup.widgets import TextareaWithPreview
 from proceedings.models import Proceedings
 from scipost.fields import UserModelChoiceField
 
@@ -29,6 +30,23 @@ today = datetime.datetime.today()
 
 
 class ProductionEventForm(forms.ModelForm):
+    class Meta:
+        model = ProductionEvent
+        fields = ("comments",)
+        widgets = {
+            "comments": TextareaWithPreview(attrs={"rows": 4}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("comments"),
+            Submit("submit", "Submit"),
+        )
+
+
+class ProductionEventForm_deprec(forms.ModelForm):
     class Meta:
         model = ProductionEvent
         fields = ("comments",)

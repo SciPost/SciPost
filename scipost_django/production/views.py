@@ -33,6 +33,7 @@ from .models import (
 from .forms import (
     ProductionStreamSearchForm,
     ProductionEventForm,
+    ProductionEventForm_deprec,
     AssignOfficerForm,
     UserToOfficerForm,
     AssignSupervisorForm,
@@ -75,6 +76,45 @@ def _hx_productionstream_list(request):
     return render(request, "production/_hx_productionstream_list.html", context)
 
 
+@is_production_user()
+@permission_required("scipost.can_view_production", raise_exception=True)
+def _hx_productionstream_details_contents(request, productionstream_id):
+    stream = get_object_or_404(ProductionStream, pk=productionstream_id)
+    productionevent_form = ProductionEventForm()
+    context = {
+        "productionstream": stream,
+        "productionevent_form": productionevent_form,
+    }
+    return render(
+        request,
+        "production/_hx_productionstream_details_contents.html",
+        context,
+    )
+
+
+@is_production_user()
+@permission_required("scipost.can_view_production", raise_exception=True)
+def _hx_events_add(request, productionstream_id):
+    qs = ProductionStream.objects.ongoing()
+    if not request.user.has_perm("scipost.can_assign_production_officer"):
+        qs = qs.filter_for_user(request.user.production_user)
+
+    productionstream = get_object_or_404(qs, pk=productionstream_id)
+    prodevent_form = ProductionEventForm(request.POST or None)
+    if prodevent_form.is_valid():
+        prodevent = prodevent_form.save(commit=False)
+        prodevent.stream = productionstream
+        prodevent.noted_by = request.user.production_user
+        prodevent.save()
+        messages.success(request, "Comment added to Stream.")
+    else:
+        messages.warning(request, "The form was invalidly filled.")
+    return redirect(reverse(
+        "production:_hx_productionstream_details_contents",
+        kwargs={"productionstream_id": productionstream.id,},
+    ))
+
+
 ################################
 # 2023-05 HTMX refactoring end
 ################################
@@ -109,7 +149,7 @@ def production(request, stream_id=None):
             context["assign_officer_form"] = AssignOfficerForm()
             context["assign_invitiations_officer_form"] = AssignInvitationsOfficerForm()
             context["assign_supervisor_form"] = AssignSupervisorForm()
-            context["prodevent_form"] = ProductionEventForm()
+            context["prodevent_form"] = ProductionEventForm_deprec()
 
             if request.user.has_perm("scipost.can_view_all_production_streams"):
                 types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
@@ -155,7 +195,7 @@ def stream(request, stream_id):
         # Restrict stream queryset if user is not supervisor
         streams = streams.filter_for_user(request.user.production_user)
     stream = get_object_or_404(streams, id=stream_id)
-    prodevent_form = ProductionEventForm()
+    prodevent_form = ProductionEventForm_deprec()
     assign_officer_form = AssignOfficerForm()
     assign_invitiations_officer_form = AssignInvitationsOfficerForm()
     assign_supervisor_form = AssignSupervisorForm()
@@ -249,7 +289,7 @@ def add_event(request, stream_id):
         qs = qs.filter_for_user(request.user.production_user)
 
     stream = get_object_or_404(qs, pk=stream_id)
-    prodevent_form = ProductionEventForm(request.POST or None)
+    prodevent_form = ProductionEventForm_deprec(request.POST or None)
     if prodevent_form.is_valid():
         prodevent = prodevent_form.save(commit=False)
         prodevent.stream = stream
@@ -469,7 +509,7 @@ def remove_supervisor(request, stream_id, officer_id):
 )
 class UpdateEventView(UpdateView):
     model = ProductionEvent
-    form_class = ProductionEventForm
+    form_class = ProductionEventForm_deprec
     slug_field = "id"
     slug_url_kwarg = "event_id"
 

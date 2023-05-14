@@ -1,0 +1,18 @@
+{% load crispy_forms_tags %}
+
+<h3>Events</h3>
+{% include 'production/_productionstream_events.html' with events=productionstream.events.all_without_duration %}
+
+<details class="border border-2 mt-4">
+  <summary class="bg-light p-2">Add a comment to this stream</summary>
+  <div class="p-2">
+    <form
+	hx-post="{% url 'production:_hx_events_add' productionstream_id=productionstream.id %}"
+	hx-target="#productionstream-{{ productionstream.id }}-details-contents"
+    >
+      <div id="productionevent-form">
+	{% crispy productionevent_form %}
+      </div>
+    </form>
+  </div>
+</details>
