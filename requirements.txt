@@ -86,3 +86,6 @@ mailchimp3==3.0.18         # 2023-05-09
 django-referrer-policy==1.0	# 2020-09-19 no new updates for 3 years
 django-csp==3.7			# 2020-09-19
 django-feature-policy==3.4.0	# 2020-09-19
+
+# Version Control
+python-gitlab==3.14.0		# 2023-05-15
