@@ -570,3 +570,8 @@ DISCOURSE_SSO_SECRET = get_secret("DISCOURSE_SSO_SECRET")
 CORS_ALLOWED_ORIGINS = [
     "https://git.scipost.org",
 ]
+
+# GitLab API
+GITLAB_ROOT = "SciPost"
+GITLAB_URL = "https://git.scipost.org/"
+GITLAB_KEY = get_secret("GITLAB_KEY")

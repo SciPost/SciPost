@@ -13,7 +13,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db.models import Value
 from django.db.models.functions import Concat
-
+from django.conf import settings
 
 from .constants import (
     PRODUCTION_STREAM_STATUS,
@@ -300,7 +300,8 @@ class ProofsRepository(models.Model):
             "%Y-%m"
         ).split("-")
 
-        return "/Proofs/{journal}/{year}/{month}/{repo_name}".format(
+        return "{ROOT}/Proofs/{journal}/{year}/{month}/{repo_name}".format(
+            ROOT=settings.GITLAB_ROOT,
             journal=self.journal_path_abbrev,
             year=creation_year,
             month=creation_month,
@@ -309,7 +310,10 @@ class ProofsRepository(models.Model):
 
     @property
     def template_path(self) -> str:
-        return "Templates/{journal}".format(journal=self.journal_path_abbrev)
+        return "{ROOT}/Templates/{journal}".format(
+            ROOT=settings.GITLAB_ROOT,
+            journal=self.journal_path_abbrev,
+        )
 
     def __str__(self) -> str:
         return f"Proofs repo for {self.stream}"
