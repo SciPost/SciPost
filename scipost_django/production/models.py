@@ -284,36 +284,62 @@ class ProofsRepository(models.Model):
         )
 
     @property
-    def journal_path_abbrev(self) -> str:
+    def journal_abbrev(self) -> str:
         # The DOI label is used to determine the path of the repository and template
-        journal_abbrev = (
-            self.stream.submission.editorial_decision.for_journal.doi_label
-        )
-        return journal_abbrev
+        return self.stream.submission.editorial_decision.for_journal.doi_label
+
+    @property
+    def journal_subdivision(self) -> str:
+        """
+        Return the subdivision of the repository depending on the journal type.
+        Regular journals are subdivided per year and month,
+        while proceedings are subdivided per year and conference.
+        """
+
+        # TODO: Removing the whitespace should be more standardised
+        # Refactor: journal and year are common to both cases
+        # perhaps it is best to only return the subdivision month/conference
+        if proceedings_issue := self.stream.submission.proceedings:
+            return "{journal}/{year}/{conference}".format(
+                journal=self.journal_abbrev,
+                year=self.stream.submission.proceedings.event_end_date.year,
+                conference=proceedings_issue.event_suffix.replace(" ", ""),
+            )
+        else:
+            # Get creation date of the stream
+            # Warning: The month grouping of streams was done using the tasked date,
+            # but should now instead be the creation (opened) date.
+            opened_year, opened_month = self.stream.opened.strftime("%Y-%m").split("-")
+
+            return "{journal}/{year}/{month}".format(
+                journal=self.journal_abbrev,
+                year=opened_year,
+                month=opened_month,
+            )
 
     @property
     def git_path(self) -> str:
-        # Get creation date of the stream
-        # Warning: The month grouping of streams was done using the tasked date,
-        # but should now instead be the creation (opened) date.
-        creation_year, creation_month = self.stream.opened.strftime(
-            "%Y-%m"
-        ).split("-")
-
-        return "{ROOT}/Proofs/{journal}/{year}/{month}/{repo_name}".format(
+        return "{ROOT}/Proofs/{journal_subdivision}/{repo_name}".format(
             ROOT=settings.GITLAB_ROOT,
-            journal=self.journal_path_abbrev,
-            year=creation_year,
-            month=creation_month,
+            journal_subdivision=self.journal_subdivision,
             repo_name=self.name,
         )
 
     @property
     def template_path(self) -> str:
-        return "{ROOT}/Templates/{journal}".format(
-            ROOT=settings.GITLAB_ROOT,
-            journal=self.journal_path_abbrev,
-        )
+        """
+        Return the path to the template repository.
+        """
+        if self.stream.submission.proceedings is not None:
+            return "{ROOT}/Templates/{journal_subdivision}".format(
+                ROOT=settings.GITLAB_ROOT,
+                journal_subdivision=self.journal_subdivision,
+            )
+        else:
+            return "{ROOT}/Templates/{journal}".format(
+                ROOT=settings.GITLAB_ROOT,
+                journal=self.journal_abbrev,
+            )
 
     def __str__(self) -> str:
         return f"Proofs repo for {self.stream}"
