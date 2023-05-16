@@ -8,7 +8,7 @@ from django.test import TestCase
 # Create your tests here.
 
 from submissions.constants import EIC_REC_PUBLISH
-from journals.models import Journal
+from journals.models import Journal, Issue
 from submissions.models import Submission, EditorialDecision
 from production.models import ProductionStream, ProofsRepository
 from preprints.models import Preprint
@@ -16,9 +16,10 @@ from ontology.models import AcademicField, Branch, Specialty
 from colleges.models import College
 from scipost.models import Contributor
 from profiles.models import Profile
-
+from proceedings.models import Proceedings
 
 from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class TestProofRepository(TestCase):
@@ -89,9 +90,7 @@ class TestProofRepository(TestCase):
 
     def _create_submission(self):
         submission = Submission.objects.create(
-            preprint=Preprint.objects.get(
-                identifier_w_vn_nr="scipost_202101_00001v1"
-            ),
+            preprint=Preprint.objects.get(identifier_w_vn_nr="scipost_202101_00001v1"),
             submitted_to=Journal.objects.get(name="SciPost Physics"),
             title="Test submission",
             abstract="Test abstract",
@@ -100,9 +99,7 @@ class TestProofRepository(TestCase):
             # specialties=Specialty.objects.filter(name="Quantum Information"),
             submitted_by=Contributor.objects.get(user__username="testuser"),
         )
-        submission.authors.add(
-            Contributor.objects.get(user__username="testuser")
-        )
+        submission.authors.add(Contributor.objects.get(user__username="testuser"))
         submission.save()
 
     def _create_production_stream(self):
@@ -128,19 +125,14 @@ class TestProofRepository(TestCase):
         self._create_editorial_decision()
         self._create_production_stream()
 
-    def test_repo_scipostphys_existing_profile(self):
+    def test_repo_name_existing_profile(self):
         proofs_repo = ProofsRepository.objects.get(
             stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
         )
 
-        self.assertEqual(
-            proofs_repo.git_path,
-            "Proofs/SciPostPhys/2021/01/scipost_202101_00001v1_User",
-        )
+        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_User")
 
-        self.assertEqual(proofs_repo.template_path, "Templates/SciPostPhys")
-
-    def test_repo_scipostphys_nonexisting_profile(self):
+    def test_repo_name_nonexisting_profile(self):
         proofs_repo = ProofsRepository.objects.get(
             stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
         )
@@ -148,28 +140,92 @@ class TestProofRepository(TestCase):
         # delete profile
         Contributor.objects.get(user__username="testuser").profile.delete()
 
-        self.assertEqual(
-            proofs_repo.git_path,
-            "Proofs/SciPostPhys/2021/01/scipost_202101_00001v1_User",
-        )
-        self.assertEqual(proofs_repo.template_path, "Templates/SciPostPhys")
+        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_User")
 
-    def test_repo_scipostphys_double_last_name_profile(self):
+    def test_repo_name_double_last_name_profile(self):
         proofs_repo = ProofsRepository.objects.get(
             stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
         )
 
         proofs_repo.stream.submission.author_list = "Test Usable User"
 
-        user_profile = Contributor.objects.get(
-            user__username="testuser"
-        ).profile
+        user_profile = Contributor.objects.get(user__username="testuser").profile
         user_profile.last_name = "Usable User"
         user_profile.save()
 
-        self.assertEqual(
-            proofs_repo.git_path,
-            "Proofs/SciPostPhys/2021/01/scipost_202101_00001v1_User",
+        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_User")
+
+    def test_repo_name_two_authors(self):
+        proofs_repo = ProofsRepository.objects.get(
+            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
         )
 
-        self.assertEqual(proofs_repo.template_path, "Templates/SciPostPhys")
+        proofs_repo.stream.submission.author_list = (
+            "Another Personable Person, Test Usable User"
+        )
+
+        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_Person")
+
+    def test_repo_paths_scipostphys(self):
+        proofs_repo = ProofsRepository.objects.get(
+            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
+        )
+
+        settings.GITLAB_ROOT = "ProjectRoot"
+
+        self.assertEqual(
+            proofs_repo.git_path,
+            "ProjectRoot/Proofs/SciPostPhys/2021/01/scipost_202101_00001v1_User",
+        )
+
+        self.assertEqual(
+            proofs_repo.template_path,
+            "ProjectRoot/Templates/SciPostPhys",
+        )
+
+    def test_repo_paths_scipostphysproc(self):
+        proofs_repo = ProofsRepository.objects.get(
+            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
+        )
+
+        journal = Journal.objects.get(name="SciPost Physics")
+        journal.name = "SciPost Physics Proceedings"
+        journal.doi_label = "SciPostPhysProc"
+        journal.structure = "IO"  # proceedings, as Issues Only
+        journal.save()
+
+        issue = Issue.objects.create(
+            in_journal=journal,
+            number=1,
+            slug="proc-1",
+            doi_label="SciPostPhysProc.1",
+        )
+
+        proceedings = Proceedings.objects.create(
+            issue=issue,
+            submissions_open=datetime.datetime.now(),
+            submissions_close=datetime.datetime.now(),
+            submissions_deadline=datetime.datetime.now(),
+            event_end_date=datetime.datetime(2021, 5, 5),
+            event_start_date=datetime.datetime(2021, 5, 1),
+            event_suffix="ProcName21",
+        )
+
+        submission = Submission.objects.get(
+            preprint__identifier_w_vn_nr="scipost_202101_00001v1"
+        )
+
+        submission.proceedings = proceedings
+        submission.save()
+
+        settings.GITLAB_ROOT = "ProjectRoot"
+
+        self.assertEqual(
+            proofs_repo.git_path,
+            "ProjectRoot/Proofs/SciPostPhysProc/2021/ProcName21/scipost_202101_00001v1_User",
+        )
+
+        self.assertEqual(
+            proofs_repo.template_path,
+            "ProjectRoot/Templates/SciPostPhysProc/2021/ProcName21",
+        )
