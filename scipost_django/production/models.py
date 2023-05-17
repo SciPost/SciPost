@@ -351,7 +351,7 @@ class ProofsRepository(models.Model):
 @receiver(post_save, sender=ProductionStream)
 def production_stream_create_proofs_repo(sender, instance, created, **kwargs):
     """
-    If a ProductionStream instance is created, a Proofs Repository instance is created
+    When a ProductionStream instance is created, a ProofsRepository instance is created
     and linked to it.
     """
     if created:
@@ -362,3 +362,20 @@ def production_stream_create_proofs_repo(sender, instance, created, **kwargs):
 
 
 post_save.connect(production_stream_create_proofs_repo, sender=ProductionStream)
+
+
+@receiver(post_save, sender=ProofsRepository)
+def advance_repo_on_gitlab(sender, instance, created, **kwargs):
+    """
+    When a ProofsRepository instance is created, run the advance_git_repos command on it.
+    """
+    if created:
+        from django.core import management
+
+        management.call_command(
+            "advance_git_repos",
+            id=instance.stream.submission.preprint.identifier_w_vn_nr,
+        )
+
+
+post_save.connect(advance_repo_on_gitlab, sender=ProofsRepository)
