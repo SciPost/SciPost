@@ -1,13 +1,14 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from typing import Any, Dict, List
 from django.core.management.base import BaseCommand, CommandParser
 from django.conf import settings
 
 from common.utils import get_current_domain
 
 from gitlab import Gitlab
-from gitlab.v4.objects import Group
+from gitlab.v4.objects import Group, Project
 from gitlab.exceptions import GitlabGetError
 
 
@@ -15,6 +16,9 @@ from production.models import ProofsRepository
 from production.constants import (
     PROOFS_REPO_UNINITIALIZED,
     PROOFS_REPO_CREATED,
+    PROOFS_REPO_TEMPLATE_ONLY,
+    PROOFS_REPO_TEMPLATE_FORMATTED,
+    PROOFS_REPO_PRODUCTION_READY,
 )
 
 
@@ -137,6 +141,56 @@ class Command(BaseCommand):
             self.style.SUCCESS(f"Created git repository at {repo.git_path}")
         )
 
+    def _get_project_cloning_actions(self, project: Project) -> List[Dict[str, Any]]:
+        """
+        Return a list of gitlab actions required to fully clone a project.
+        """
+        files = list(map(lambda x: x["path"], project.repository_tree(get_all=True)))
+
+        actions = []
+        for filename in files:
+            try:
+                file = project.files.get(file_path=filename, ref="main")
+            except:
+                self.stdout.write(
+                    self.style.WARNING(f"File {filename} not found in {project.name}")
+                )
+                continue
+
+            actions.append(
+                {
+                    "action": "create",
+                    "file_path": filename,
+                    "content": file.content,
+                    "encoding": "base64",
+                }
+            )
+
+        return actions
+
+    def _copy_pure_templates(self, repo: ProofsRepository):
+        """
+        Copy the pure templates to the repo.
+        """
+        project = self.GL.projects.get(repo.git_path)
+
+        journal_template_project = self.GL.projects.get(repo.template_path)
+        base_template_project = self.GL.projects.get(
+            "{ROOT}/Templates/Base".format(ROOT=settings.GITLAB_ROOT)
+        )
+
+        base_actions = self._get_project_cloning_actions(base_template_project)
+        journal_actions = self._get_project_cloning_actions(journal_template_project)
+
+        # Commit the actions
+        project.commits.create(
+            {
+                "branch": "main",
+                "commit_message": "copy pure templates",
+                "actions": base_actions + journal_actions,
+            }
+        )
+
     def handle(self, *args, **options):
         # Limit the actions to a specific submission if requested
         if preprint_id := options.get("id"):
@@ -151,4 +205,11 @@ class Command(BaseCommand):
         for repo in repos_to_be_created:
             self._create_git_repo(repo)
             repo.status = PROOFS_REPO_CREATED
+            repo.save()
+
+        # Copy the pure templates
+        repos_to_be_templated = repos.filter(status=PROOFS_REPO_CREATED)
+        for repo in repos_to_be_templated:
+            self._copy_pure_templates(repo)
+            repo.status = PROOFS_REPO_TEMPLATE_ONLY
             repo.save()
