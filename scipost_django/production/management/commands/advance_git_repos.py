@@ -14,6 +14,11 @@ from gitlab import Gitlab
 from gitlab.v4.objects import Group, Project
 from gitlab.exceptions import GitlabGetError
 
+import arxiv
+import requests
+import tarfile
+from base64 import b64encode
+
 
 from production.models import ProofsRepository
 from production.constants import (
@@ -194,6 +199,10 @@ class Command(BaseCommand):
                 "commit_message": "copy pure templates",
                 "actions": base_actions + journal_actions,
             }
+        )
+
+        self.stdout.write(
+            self.style.SUCCESS(f"Copied pure templates to {repo.git_path}")
         )
 
     def _format_skeleton(self, repo: ProofsRepository):
@@ -386,6 +395,74 @@ class Command(BaseCommand):
             }
         )
 
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Successfully formatted the skeleton of {repo.git_path}"
+            )
+        )
+
+    def _copy_arxiv_source_files(self, repo: ProofsRepository):
+        paper = next(
+            arxiv.Search(
+                id_list=[repo.stream.submission.preprint.identifier_w_vn_nr]
+            ).results()
+        )
+        source_stream = requests.get(paper.pdf_url.replace("pdf", "src"), stream=True)
+
+        # Create file creation actions for each file in the source tar
+        actions = []
+        with tarfile.open(fileobj=source_stream.raw) as tar:
+            for member in tar:
+                if not member.isfile():
+                    continue
+
+                f = tar.extractfile(member)
+                try:
+                    bin_content = f.read()
+                    actions.append(
+                        {
+                            "action": "create",
+                            "file_path": member.name,
+                            "encoding": "base64",
+                            # Encode the binary content in base64, required by the API
+                            "content": b64encode(bin_content).decode("utf-8"),
+                        }
+                    )
+
+                except:
+                    self.stdout.write(
+                        self.style.ERROR(
+                            f"Could not read {member.name} from the arXiv source files, skipping..."
+                        )
+                    )
+
+        # Filter out the files that already exist in the repo to avoid conflicts
+        project = self.GL.projects.get(repo.git_path)
+        project_existing_filenames = list(
+            map(lambda x: x["path"], project.repository_tree(get_all=True))
+        )
+
+        non_existing_file_actions = [
+            action
+            for action in actions
+            if action["file_path"] not in project_existing_filenames
+        ]
+
+        # Commit the creation of the files
+        project.commits.create(
+            {
+                "branch": "main",
+                "commit_message": f"copy arXiv source files",
+                "actions": non_existing_file_actions,
+            }
+        )
+
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Successfully copied the author source files to {repo.git_path}"
+            )
+        )
+
     def handle(self, *args, **options):
         # Limit the actions to a specific submission if requested
         if preprint_id := options.get("id"):
@@ -415,3 +492,11 @@ class Command(BaseCommand):
             self._format_skeleton(repo)
             repo.status = PROOFS_REPO_TEMPLATE_FORMATTED
             repo.save()
+
+        # Copy the arXiv source files
+        repos_to_be_copied = repos.filter(status=PROOFS_REPO_TEMPLATE_FORMATTED)
+        for repo in repos_to_be_copied:
+            if "arxiv.org" in repo.stream.submission.preprint.url:
+                self._copy_arxiv_source_files(repo)
+                repo.status = PROOFS_REPO_PRODUCTION_READY
+                repo.save()
