@@ -6,6 +6,8 @@ import datetime
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.db.models import Max
+from django.db.models.functions import Greatest
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
@@ -248,8 +250,7 @@ class ProofsDecisionForm(forms.ModelForm):
 
 
 class ProductionStreamSearchForm(forms.Form):
-
-    accepted_in = forms.ModelChoiceField(
+    accepted_in = forms.ModelMultipleChoiceField(
         queryset=Journal.objects.active(),
         required=False,
     )
@@ -263,9 +264,37 @@ class ProductionStreamSearchForm(forms.Form):
     officer = forms.ModelChoiceField(
         queryset=ProductionUser.objects.active(),
         required=False,
+        empty_label="Any",
     )
     supervisor = forms.ModelChoiceField(
         queryset=ProductionUser.objects.active(),
+        required=False,
+        empty_label="Any",
+    )
+    status = forms.MultipleChoiceField(
+        choices=constants.PRODUCTION_STREAM_STATUS,
+        required=False,
+    )
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(
+            ("submission__editorial_decision__taken_on", "Date accepted"),
+            ("latest_activity_annot", "Latest activity"),
+            (
+                "status,submission__editorial_decision__taken_on",
+                "Status + Date accepted",
+            ),
+            ("status,latest_activity_annot", "Status + Latest activity"),
+        ),
+        required=False,
+    )
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=(
+            # FIXME: Emperically, the ordering appers to be reversed for dates?
+            ("-", "Ascending"),
+            ("+", "Descending"),
+        ),
         required=False,
     )
 
@@ -275,32 +304,50 @@ class ProductionStreamSearchForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(Field("accepted_in"), css_class="col-lg-6"),
-                Div(Field("proceedings"), css_class="col-lg-6"),
-                css_class="row",
-            ),
-            Div(
-                Div(FloatingField("author"), css_class="col-lg-6"),
+                Div(FloatingField("identifier"), css_class="col-lg-3"),
+                Div(FloatingField("author"), css_class="col-lg-3"),
                 Div(FloatingField("title"), css_class="col-lg-6"),
-                css_class="row",
+                css_class="row mb-0 mt-2",
             ),
             Div(
-                Div(FloatingField("identifier"), css_class="col-lg-6"),
-                css_class="row",
-            ),
-            Div(
-                Div(Field("officer"), css_class="col-lg-6"),
-                Div(Field("supervisor"), css_class="col-lg-6"),
-                css_class="row",
+                Div(
+                    Div(
+                        Div(Field("accepted_in", size=3), css_class="col-lg-8"),
+                        Div(Field("proceedings", size=3), css_class="col-lg-4"),
+                        css_class="row mb-0",
+                    ),
+                    Div(
+                        Div(Field("supervisor"), css_class="col-lg-6"),
+                        Div(Field("officer"), css_class="col-lg-6"),
+                        css_class="row mb-0",
+                    ),
+                    Div(
+                        Div(Field("orderby"), css_class="col-lg-6"),
+                        Div(Field("ordering"), css_class="col-lg-6"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col-lg-7",
+                ),
+                Div(
+                    Field("status", size=len(constants.PRODUCTION_STREAM_STATUS)),
+                    css_class="col-lg-5",
+                ),
+                css_class="row mb-0",
             ),
         )
 
     def search_results(self):
         streams = ProductionStream.objects.ongoing()
+
+        streams = streams.annotate(
+            latest_activity_annot=Greatest(Max("events__noted_on"), "opened", "closed")
+        )
+
         if self.cleaned_data.get("accepted_in"):
             streams = streams.filter(
-                submission__editorialdecision__for_journal\
-                =self.cleaned_data.get("accepted_in"),
+                submission__editorialdecision__for_journal=self.cleaned_data.get(
+                    "accepted_in"
+                ),
             )
         if self.cleaned_data.get("proceedings"):
             streams = streams.filter(
@@ -308,8 +355,9 @@ class ProductionStreamSearchForm(forms.Form):
             )
         if self.cleaned_data.get("identifier"):
             streams = streams.filter(
-                submission__preprint__identifier_w_vn_nr__icontains\
-                =self.cleaned_data.get("identifier"),
+                submission__preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get(
+                    "identifier"
+                ),
             )
         if self.cleaned_data.get("author"):
             streams = streams.filter(
@@ -323,10 +371,28 @@ class ProductionStreamSearchForm(forms.Form):
             streams = streams.filter(officer=self.cleaned_data.get("officer"))
         if self.cleaned_data.get("supervisor"):
             streams = streams.filter(supervisor=self.cleaned_data.get("supervisor"))
+        if self.cleaned_data.get("status"):
+            streams = streams.filter(status__in=self.cleaned_data.get("status"))
 
         if not self.user.has_perm("scipost.can_view_all_production_streams"):
             # Restrict stream queryset if user is not supervisor
             streams = streams.filter_for_user(self.user.production_user)
-        streams = streams.order_by("opened")
+
+        # Ordering of streams
+        # Only order if both fields are set
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            streams = streams.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
+                ]
+            )
 
         return streams
