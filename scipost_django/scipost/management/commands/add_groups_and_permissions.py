@@ -548,6 +548,12 @@ class Command(BaseCommand):
             ]
         )
 
+        NewsAdmin.permissions.set(
+            [
+                can_manage_news,
+            ]
+        )
+
         Ambassadors.permissions.set(
             [
                 can_create_registration_invitations,
