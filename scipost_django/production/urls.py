@@ -71,7 +71,6 @@ urlpatterns = [
         production_views.delete_officer,
         name="delete_officer",
     ),
-    # streams
     path(
         "streams/<int:stream_id>/",
         include(
@@ -122,36 +121,81 @@ urlpatterns = [
                 ),
                 path("events/add", production_views.add_event, name="add_event"),
                 path("logs/add", production_views.add_work_log, name="add_work_log"),
-                path("officer/add", production_views.add_officer, name="add_officer"),
                 path(
-                    "officer/<int:officer_id>/remove",
-                    production_views.remove_officer,
-                    name="remove_officer",
+                    "officer",
+                    include(
+                        [
+                            path(
+                                "add",
+                                production_views.add_officer,
+                                name="add_officer",
+                            ),
+                            path(
+                                "<int:officer_id>/remove",
+                                production_views.remove_officer,
+                                name="remove_officer",
+                            ),
+                            path(
+                                "update",
+                                production_views.update_officer,
+                                name="update_officer",
+                            ),
+                        ]
+                    ),
                 ),
                 path(
-                    "invitations_officer/add",
-                    production_views.add_invitations_officer,
-                    name="add_invitations_officer",
+                    "invitations_officer",
+                    include(
+                        [
+                            path(
+                                "add",
+                                production_views.add_invitations_officer,
+                                name="add_invitations_officer",
+                            ),
+                            path(
+                                "<int:officer_id>/remove",
+                                production_views.remove_invitations_officer,
+                                name="remove_invitations_officer",
+                            ),
+                            path(
+                                "update",
+                                production_views.update_invitations_officer,
+                                name="update_invitations_officer",
+                            ),
+                        ]
+                    ),
                 ),
                 path(
-                    "invitations_officer/<int:officer_id>/remove",
-                    production_views.remove_invitations_officer,
-                    name="remove_invitations_officer",
-                ),
-                path(
-                    "supervisor/add",
-                    production_views.add_supervisor,
-                    name="add_supervisor",
-                ),
-                path(
-                    "supervisor/<int:officer_id>/remove",
-                    production_views.remove_supervisor,
-                    name="remove_supervisor",
+                    "supervisor",
+                    include(
+                        [
+                            path(
+                                "add",
+                                production_views.add_supervisor,
+                                name="add_supervisor",
+                            ),
+                            path(
+                                "<int:officer_id>/remove",
+                                production_views.remove_supervisor,
+                                name="remove_supervisor",
+                            ),
+                            path(
+                                "update",
+                                production_views.update_supervisor,
+                                name="update_supervisor",
+                            ),
+                        ]
+                    ),
                 ),
                 path(
                     "mark_completed",
                     production_views.mark_as_completed,
                     name="mark_as_completed",
+                ),
+                path(
+                    "render_action_buttons/<str:key>",
+                    production_views.render_action_buttons,
+                    name="render_action_buttons",
                 ),
             ]
         ),
