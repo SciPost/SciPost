@@ -1640,7 +1640,10 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
     referee = None
     if comtype in ["EtoA", "EtoR", "EtoS"]:
         # Editor to {Author, Referee, Editorial Administration}
-        submissions_qs = Submission.objects.in_pool_filter_for_eic(request.user)
+        submissions_qs = Submission.objects.in_pool_filter_for_eic(
+            request.user,
+            historical=True,
+        )
     elif comtype == "AtoE":
         # Author to Editor
         submissions_qs = Submission.objects.filter_for_author(request.user)
@@ -1659,7 +1662,10 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         # Editorial Administration to Editor
         if not request.user.has_perm("scipost.can_oversee_refereeing"):
             raise PermissionDenied
-        submissions_qs = Submission.objects.in_pool(request.user)
+        submissions_qs = Submission.objects.in_pool(
+            request.user,
+            historical=True,
+        )
         referee = request.user.contributor
     else:
         # Invalid commtype in the url!
