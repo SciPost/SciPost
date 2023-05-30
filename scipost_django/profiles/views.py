@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from functools import reduce
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse, reverse_lazy
@@ -51,12 +52,18 @@ class ProfileAutocompleteView(autocomplete.Select2QuerySetView):
             return None
         qs = Profile.objects.all()
         if self.q:
-            qs = qs.filter(
-                Q(first_name__icontains=self.q)
-                | Q(last_name__icontains=self.q)
-                | Q(emails__email__icontains=self.q)
-                | Q(orcid_id__icontains=self.q)
-            ).distinct()
+            # Iteratively filter by each word in the query
+            qs = reduce(
+                lambda qs, q: qs.filter(
+                    Q(first_name__icontains=q)
+                    | Q(last_name__icontains=q)
+                    | Q(emails__email__icontains=q)
+                    | Q(orcid_id__icontains=q)
+                ).distinct(),
+                self.q.split(),
+                qs,
+            )
+
         return qs
 
 
@@ -368,9 +375,9 @@ def _hx_profile_specialties(request, profile_id):
         elif request.POST.get("action") == "remove":
             profile.specialties.remove(specialty)
     current_spec_slugs = [s.slug for s in profile.specialties.all()]
-    other_specialties = Specialty.objects.filter(
-        acad_field=profile.acad_field
-    ).exclude(slug__in=profile.specialties.values_list("slug"))
+    other_specialties = Specialty.objects.filter(acad_field=profile.acad_field).exclude(
+        slug__in=profile.specialties.values_list("slug")
+    )
     context = {
         "profile": profile,
         "other_specialties": other_specialties,
