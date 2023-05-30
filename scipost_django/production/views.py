@@ -1144,3 +1144,18 @@ def render_stream_assignees_status(request, stream_id):
         "production/_hx_productionstream_summary_assignees_status.html",
         context,
     )
+
+
+def render_stream_events(request, stream_id):
+    productionstream = get_object_or_404(ProductionStream, pk=stream_id)
+
+    context = {
+        "productionstream": productionstream,
+        "events": productionstream.events.all_without_duration,
+    }
+
+    return render(
+        request,
+        "production/_productionstream_events.html",
+        context,
+    )

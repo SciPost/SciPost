@@ -202,6 +202,11 @@ urlpatterns = [
                     production_views.render_stream_assignees_status,
                     name="render_stream_assignees_status",
                 ),
+                path(
+                    "render_stream_events",
+                    production_views.render_stream_events,
+                    name="render_stream_events",
+                ),
             ]
         ),
     ),

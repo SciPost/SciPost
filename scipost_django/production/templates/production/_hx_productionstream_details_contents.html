@@ -11,13 +11,15 @@
     <h3>Actions</h3>
     {% if "can_perform_supervisory_actions" in sub_perms %}
       <div class="container">
-        <h4>Change:</h4>
-        <div class="border-primary border-start ps-2">
-          {% include "production/_hx_productionstream_change_status.html" with form=status_form stream=productionstream %}
-          {% include "production/_hx_productionstream_change_supervisor.html" with form=supervisor_form stream=productionstream %}
-          {% include "production/_hx_productionstream_change_prodofficer.html" with form=prod_officer_form stream=productionstream %}
-          {% include "production/_hx_productionstream_change_invofficer.html" with form=inv_officer_form stream=productionstream %}
-        </div>
+        <details class="mb-3">
+          <summary class="fs-6">Change stream property</summary>
+          <div class="border-primary border-start ps-2 pt-4">
+            {% include "production/_hx_productionstream_change_status.html" with form=status_form stream=productionstream %}
+            {% include "production/_hx_productionstream_change_supervisor.html" with form=supervisor_form stream=productionstream %}
+            {% include "production/_hx_productionstream_change_prodofficer.html" with form=prod_officer_form stream=productionstream %}
+            {% include "production/_hx_productionstream_change_invofficer.html" with form=inv_officer_form stream=productionstream %}
+          </div>
+        </details>
       </div>
     {% endif %}
     <ul>
@@ -31,13 +33,19 @@
 
   <div id="productionstream-{{ productionstream.id }}-event-container"
        class="col-lg-6 h-100 overflow-scroll">
+    {% comment %} This might be better to refactor with an OOB response on each event addition {% endcomment %}
     <h3>Events</h3>
-    {% include "production/_productionstream_events.html" with productionstream=productionstream events=productionstream.events.all_without_duration %}
+    <div id="productionstream-{{ productionstream.id }}-event-list"
+         hx-get="{% url 'production:render_stream_events' productionstream.id %}"
+         hx-trigger="load, submit from:#productionstream-{{ productionstream.id }}-details target:form delay:500">
+    </div>
     <div id="productionstream-{{ productionstream.id }}-event-new-comment-form">
       <button hx-get="{% url 'production:_hx_event_form' productionstream_id=productionstream.id %}"
               hx-target="#productionstream-{{ productionstream.id }}-event-new-comment-form"
               hx-trigger="click"
-              hx-swap="outerHTML">Add a comment to this stream</button>
+              hx-swap="outerHTML"
+              class="btn btn-primary">Add a comment to this stream</button>
     </div>
   </div>
+ 
 </div>
