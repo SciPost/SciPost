@@ -1,0 +1,38 @@
+<table class="table">
+  <tr>
+    <td>
+      <small class="text-muted">Latest activity</small>
+    </td>
+    <td>
+      {{ productionstream.latest_activity|timesince }} ago
+      <br>
+      <span class="text-muted">(opened {{ productionstream.opened|timesince }} ago)</span>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <small class="text-muted">Supervisor</small>
+    </td>
+    <td>
+      {% if productionstream.supervisor %}
+        <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+        {{ productionstream.supervisor }}
+      {% else %}
+        <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <small class="text-muted">Production officer</small>
+    </td>
+    <td>
+      {% if productionstream.officer %}
+        <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+        {{ productionstream.officer }}
+      {% else %}
+        <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+      {% endif %}
+    </td>
+  </tr>
+</table>

@@ -1118,3 +1118,17 @@ def render_action_buttons(request, stream_id, key):
             "new_option": new_option_str,
         },
     )
+
+
+def render_stream_assignees_status(request, stream_id):
+    productionstream = get_object_or_404(ProductionStream, pk=stream_id)
+
+    context = {
+        "productionstream": productionstream,
+    }
+
+    return render(
+        request,
+        "production/_hx_productionstream_summary_assignees_status.html",
+        context,
+    )

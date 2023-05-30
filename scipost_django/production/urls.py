@@ -197,6 +197,11 @@ urlpatterns = [
                     production_views.render_action_buttons,
                     name="render_action_buttons",
                 ),
+                path(
+                    "render_stream_assignees_status",
+                    production_views.render_stream_assignees_status,
+                    name="render_stream_assignees_status",
+                ),
             ]
         ),
     ),
