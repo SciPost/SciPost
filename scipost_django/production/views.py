@@ -87,16 +87,21 @@ def _hx_productionstream_list(request):
 def _hx_productionstream_details_contents(request, productionstream_id):
     productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
     status_form = StreamStatusForm(
-        instance=productionstream, production_user=request.user.production_user
+        instance=productionstream,
+        production_user=request.user.production_user,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
     )
     supervisor_form = AssignSupervisorForm(
         instance=productionstream,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
     )
     inv_officer_form = AssignInvitationsOfficerForm(
         instance=productionstream,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
     )
     prod_officer_form = AssignOfficerForm(
         instance=productionstream,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
     )
 
     context = {
@@ -361,6 +366,7 @@ def update_status(request, stream_id):
             request.POST or None,
             instance=productionstream,
             production_user=request.user.production_user,
+            auto_id=f"productionstream_{productionstream.id}_id_%s",
         )
 
         if status_form.is_valid():
@@ -460,7 +466,9 @@ def update_officer(request, stream_id):
         }
     else:
         prod_officer_form = AssignOfficerForm(
-            request.POST or None, instance=productionstream
+            request.POST or None,
+            instance=productionstream,
+            auto_id=f"productionstream_{productionstream.id}_id_%s",
         )
         if prod_officer_form.is_valid():
             prod_officer_form.save()
@@ -601,7 +609,9 @@ def update_invitations_officer(request, stream_id):
         }
     else:
         inv_officer_form = AssignInvitationsOfficerForm(
-            request.POST or None, instance=productionstream
+            request.POST or None,
+            instance=productionstream,
+            auto_id=f"productionstream_{productionstream.id}_id_%s",
         )
         if inv_officer_form.is_valid():
             inv_officer_form.save()
@@ -731,7 +741,9 @@ def update_supervisor(request, stream_id):
         ProductionStream.objects.ongoing(), pk=stream_id
     )
     supervisor_form = AssignSupervisorForm(
-        request.POST or None, instance=productionstream
+        request.POST or None,
+        instance=productionstream,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
     )
     prev_supervisor = productionstream.supervisor
 

@@ -1,15 +1,21 @@
 {% load bootstrap %}
 
 {% if perms.scipost.can_take_decisions_related_to_proofs and form.fields.status.choices|length > 0 %}
-<div id="productionstream-update-status">
-    <form hx-post="{% url 'production:update_status' stream.id %}" hx-target="#productionstream-update-status" hx-swap="outerHTML" class="row">
+
+    <form id="productionstream-update-status"
+          hx-post="{% url 'production:update_status' stream.id %}"
+          hx-target="this"
+          hx-swap="outerHTML"
+          class="row">
         {% csrf_token %}
-        <div class="col">
-            {{form|bootstrap_purely_inline}}
-        </div>
-        <div class="col-auto h-100" hx-post="{% url 'production:render_action_buttons' stream.id 'status' %}" hx-swap="innerHTML" class="col-auto" hx-trigger="load, change from:select#id_status" hx-target="this">
-        </div>
-        <div class="text-primary">{{message}}</div>
+        <div class="col">{{ form|bootstrap_purely_inline }}</div>
+        <div class="col-auto h-100"
+             hx-post="{% url 'production:render_action_buttons' stream.id 'status' %}"
+             hx-swap="innerHTML"
+             class="col-auto"
+             hx-trigger="load, change from:select#productionstream_{{ stream.id }}_id_status"
+             hx-target="this"></div>
+        <div class="text-primary">{{ message }}</div>
     </form>
-</div>
+
 {% endif %}
