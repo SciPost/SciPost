@@ -200,3 +200,13 @@ $theme-colors: (
 );
 
 $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
+
+
+// Browser specific fixes
+// Select summary in details with list-style: none and remove triangle for safari
+.summary-unstyled {
+  list-style: none;
+  &::-webkit-details-marker {
+    display: none;
+  }
+}

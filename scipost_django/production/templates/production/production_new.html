@@ -2,11 +2,11 @@
 
 {% load crispy_forms_tags %}
 
-{% block breadcrumb_items %}
-  <span class="breadcrumb-item">Production streams</span>
-{% endblock %}
+{% block breadcrumb_items %}<span class="breadcrumb-item">Production streams</span>{% endblock %}
 
-{% block pagetitle %}: Production page{% endblock pagetitle %}
+{% block pagetitle %}
+  : Production page
+{% endblock pagetitle %}
 
 
 {% block content %}
@@ -14,33 +14,40 @@
   <h1>Production Streams</h1>
 
   <div class="card my-4">
-    <div class="card-header">
-      Search / filter
-    </div>
+    <div class="card-header">Search / filter</div>
     <div class="card-body">
-      <form
-	  hx-post="{% url 'production:_hx_productionstream_list' %}"
-	  hx-trigger="load, keyup delay:500ms, change, click from:#refresh-button"
-	  hx-target="#search-productionstreams-results"
-	  hx-indicator="#indicator-search-productionstreams"
-      >
-	<div id="search-productionstreams-form">{% crispy search_productionstreams_form %}</div>
+      <form hx-post="{% url 'production:_hx_productionstream_list' %}"
+            hx-trigger="load, keyup delay:500ms, change, click from:#refresh-button"
+            hx-target="#search-productionstreams-results"
+            hx-indicator="#indicator-search-productionstreams">
+	
+        <div id="search-productionstreams-form">{% crispy search_productionstreams_form %}</div>
       </form>
     </div>
   </div>
 
   <div class="row">
+
     <div class="col">
-      <em>The list should update automatically. Feels stuck?</em>&nbsp;<a id="refresh-button" class="m-2 btn btn-primary">{% include "bi/arrow-clockwise.html" %}&nbsp;Refresh</a>
+      <em class="d-none d-md-inline">The list should update automatically. Feels stuck?</em>&nbsp;<a id="refresh-button" class="m-2 btn btn-primary">
+        {% include "bi/arrow-clockwise.html" %}
+      &nbsp;Refresh</a>
     </div>
-    <div class="col">
+
+    <div class="col-auto">
       <div id="indicator-search-productionstreams" class="htmx-indicator">
-	<button class="btn btn-sm btn-warning" type="button" disabled>
-	  <strong>Loading...</strong>
-	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	</button>
+	
+        <button class="btn btn-sm btn-warning" type="button" disabled>
+          <strong>Loading...</strong>
+ 
+          <div class="spinner-grow spinner-grow-sm ms-2"
+               role="status"
+               aria-hidden="true"></div>
+	
+        </button>
       </div>
     </div>
+ 
   </div>
   <div id="search-productionstreams-results" class="mt-2"></div>
 

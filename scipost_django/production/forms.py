@@ -304,33 +304,33 @@ class ProductionStreamSearchForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(FloatingField("identifier"), css_class="col-lg-3"),
-                Div(FloatingField("author"), css_class="col-lg-3"),
-                Div(FloatingField("title"), css_class="col-lg-6"),
+                Div(FloatingField("identifier"), css_class="col-md-3 col-4"),
+                Div(FloatingField("author"), css_class="col-md-3 col-8"),
+                Div(FloatingField("title"), css_class="col-md-6"),
                 css_class="row mb-0 mt-2",
             ),
             Div(
                 Div(
                     Div(
-                        Div(Field("accepted_in", size=3), css_class="col-lg-8"),
-                        Div(Field("proceedings", size=3), css_class="col-lg-4"),
+                        Div(Field("accepted_in", size=3), css_class="col-12 col-sm-7"),
+                        Div(Field("proceedings", size=3), css_class="col-12 col-sm-5"),
                         css_class="row mb-0",
                     ),
                     Div(
-                        Div(Field("supervisor"), css_class="col-lg-6"),
-                        Div(Field("officer"), css_class="col-lg-6"),
+                        Div(Field("supervisor"), css_class="col-6"),
+                        Div(Field("officer"), css_class="col-6"),
                         css_class="row mb-0",
                     ),
                     Div(
-                        Div(Field("orderby"), css_class="col-lg-6"),
-                        Div(Field("ordering"), css_class="col-lg-6"),
+                        Div(Field("orderby"), css_class="col-6"),
+                        Div(Field("ordering"), css_class="col-6"),
                         css_class="row mb-0",
                     ),
-                    css_class="col-lg-7",
+                    css_class="col-md-7",
                 ),
                 Div(
                     Field("status", size=len(constants.PRODUCTION_STREAM_STATUS)),
-                    css_class="col-lg-5",
+                    css_class="col-md-5",
                 ),
                 css_class="row mb-0",
             ),

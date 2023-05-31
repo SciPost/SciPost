@@ -1,6 +1,6 @@
 <div class="row mb-0">
-    <div class="col col-md-8">
-        <table>
+    <div class="col mb-2">
+        <table class="mb-0">
             <tbody>
 
                 <tr>
@@ -27,28 +27,14 @@
                 <br>
                 {{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
             </div>
-            <div class="col">
-                <small class="text-muted">Stream Status</small>
-                <br>
-                <div class="p-2 label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %}">
-                    {{ productionstream.get_status_display }}
-                </div>
-	
-                {% if productionstream.submission.editorial_decision.status == productionstream.submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}
-                    <br>
-                    <strong class="text-danger">Wait! author
-                        <br>
-                        acceptance of puboffer
-                        <br>
-                    required!</strong>
-                {% endif %}
- 
-            </div>
         </div>
 
     </div>
+
+    <div class="d-none d-md-block vr p-0 me-2"></div>
+
     <div id="productionstream-{{ productionstream.id }}-summary-assignees"
-         class="col col-md-4 border-start"
+         class="col-md-6"
          hx-get="{% url 'production:render_stream_assignees_status' productionstream.id %}"
          hx-trigger="load, submit from:#productionstream-{{ productionstream.id }}-details target:form delay:500">
     </div>

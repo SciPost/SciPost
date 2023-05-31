@@ -1,38 +1,58 @@
-<table class="table">
-  <tr>
-    <td>
-      <small class="text-muted">Latest activity</small>
-    </td>
-    <td>
-      {{ productionstream.latest_activity|timesince }} ago
-      <br>
-      <span class="text-muted">(opened {{ productionstream.opened|timesince }} ago)</span>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <small class="text-muted">Supervisor</small>
-    </td>
-    <td>
-      {% if productionstream.supervisor %}
-        <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
-        {{ productionstream.supervisor }}
-      {% else %}
-        <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
-      {% endif %}
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <small class="text-muted">Production officer</small>
-    </td>
-    <td>
-      {% if productionstream.officer %}
-        <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
-        {{ productionstream.officer }}
-      {% else %}
-        <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
-      {% endif %}
-    </td>
-  </tr>
-</table>
+{% load scipost_extras %}
+
+<div class="row mb-0">
+  <div class="order-3 order-sm-1 order-md-3 order-xl-1 col-sm-6 col-md-12 col-xl-6">
+    <div class="row justify-content-between">
+      <small class="col text-muted text-nowrap">Stream opened</small>
+      <div class="col-auto">{{ productionstream.opened|timesince }} ago</div>
+    </div>
+  </div>
+  <div class="order-2 order-sm-4 order-md-2 order-xl-4 col-sm-6 col-md-12 col-xl-6">
+    <div class="row justify-content-between">
+      <small class="col text-muted text-nowrap">Officer</small>
+      <div class="col-auto text-nowrap text-truncate">
+        {% if productionstream.officer %}
+          <span class="text-success ">{% include 'bi/check-circle-fill.html' %}</span>
+          {{ productionstream.officer }}
+        {% else %}
+          <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="order-4 order-sm-3 order-md-4 order-xl-3 col-sm-6 col-md-12 col-xl-6">
+    <div class="row justify-content-between">
+      <small class="col text-muted text-nowrap">Latest activity</small>
+      <div class="col-auto">{{ productionstream.latest_activity|timesince }} ago</div>
+    </div>
+  </div>
+  <div class="order-1 order-sm-2 order-md-1 order-xl-2 col-sm-6 col-md-12 col-xl-6">
+    <div class="row justify-content-between">
+      <small class="col text-muted text-nowrap">Supervisor</small>
+      <div class="col-auto text-nowrap text-truncate">
+        {% if productionstream.supervisor %}
+          <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+          {{ productionstream.supervisor }}
+        {% else %}
+          <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="order-5 order-sm-5 order-md-5 order-xl-5 col-sm-6 col-md-12 col-xl-6">
+    <div class="row mb-0 justify-content-between align-items-center">
+      <small class="col text-muted text-nowrap">Stream Status</small>
+      <div class="col-auto">
+        <div class="p-2 badge bg-{% if productionstream.status == 'initiated' %}danger{% else %}primary{% endif %}">
+          {{ productionstream.status|readable_str|title }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="indicator-productionstream-{{ productionstream.id }}-details-contents"
+       class="order-last col-sm-6 col-md-12 col-xl d-none d-sm-flex d-md-none d-xl-flex htmx-indicator justify-content-end">
+    <small class="text-white bg-warning px-2 py-1 ">
+      <strong>Loading...</strong>
+      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    </small>
+  </div>
