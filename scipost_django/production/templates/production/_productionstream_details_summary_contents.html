@@ -2,7 +2,6 @@
     <div class="col mb-2">
         <table class="mb-0">
             <tbody>
-
                 <tr>
                     <td>
                         <strong class="text-primary">{{ productionstream.submission.title }}</strong>
@@ -21,6 +20,9 @@
                 <small class="text-muted">To be published in</small>
                 <br>
                 {{ productionstream.submission.editorial_decision.for_journal }}
+                {% if productionstream.submission.proceedings %}
+                    - {{ productionstream.submission.proceedings.event_suffix }}
+                {% endif %}
             </div>
             <div class="col">
                 <small class="text-muted">Acceptance date</small>
@@ -28,7 +30,6 @@
                 {{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
             </div>
         </div>
-
     </div>
 
     <div class="d-none d-md-block vr p-0 me-2"></div>
