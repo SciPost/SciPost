@@ -104,12 +104,15 @@ def _hx_productionstream_details_contents(request, productionstream_id):
         auto_id=f"productionstream_{productionstream.id}_id_%s",
     )
 
+    upload_proofs_form = ProofsUploadForm()
+
     context = {
         "" "productionstream": productionstream,
         "status_form": status_form,
         "supervisor_form": supervisor_form,
         "inv_officer_form": inv_officer_form,
         "prod_officer_form": prod_officer_form,
+        "upload_proofs_form": upload_proofs_form,
     }
     return render(
         request,

@@ -1,29 +1,46 @@
-{% extends 'production/base.html' %}
-
-{% block breadcrumb_items %}
-  {{block.super}}
-  <span class="breadcrumb-item">Upload Proofs</span>
-{% endblock %}
-
 {% load bootstrap %}
 
-{% block content %}
 
-  <div class="row">
-    <div class="col-12">
-      <h1 class="highlight">Upload Proofs</h1>
-      {% include 'submissions/_submission_card_content.html' with submission=stream.submission %}
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-12">
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <input type="submit" class="btn btn-outline-secondary" name="submit" value="Upload">
-      </form>
-    </ul>
-    </div>
-  </div>
+<h3>Proofs</h3>
+<ul>
+  {% for proofs in stream.proofs.all %}
+    <li class="py-1">
+      <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Version {{ proofs.version }}</a> &middot; <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
+      <br>
+      Uploaded by: {{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}
+      <br>
+      Accessible for authors: {{ proofs.accessible_for_authors|yesno:'<strong>Yes</strong>,No'|safe }}
+      <br>
 
-{% endblock content %}
+      {% if perms.scipost.can_run_proofs_by_authors %}
+        {% if proofs.status == 'uploaded' %}
+          <strong><span class="text-danger">See details for open actions:</span></strong>
+          <ul>
+            <li>
+              <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Accept or decline proofs</a>
+            </li>
+          </ul>
+        {% elif proofs.status == 'accepted_sup' %}
+          <strong><span class="text-danger">See details for open actions:</span></strong>
+          <ul>
+            <li>
+              <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Send proofs to authors</a>
+            </li>
+          </ul>
+        {% endif %}
+      {% endif %}
+    </li>
+  {% empty %}
+    <li>No Proofs found.</li>
+  {% endfor %}
+</ul>
+
+<div class="row">
+  <div class="col-12">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form|bootstrap_purely_inline }}
+      <input type="submit" class="btn btn-primary" name="submit" value="Upload">
+    </form>
+  </div>
+</div>
