@@ -1,18 +1,18 @@
 {% comment %} Only show something if the option is about to change {% endcomment %}
 {% if not current_option == new_option %}
-    {% comment %} If selected option is None, it is being removed {% endcomment %}
-    {% if new_option == "None" %}
-    <button type="submit" class="btn btn-danger">
-        Remove
-    </button>
-    {% comment %} Otherwise differentiate between changing or adding based on current option {% endcomment %}
-    {% else %}
-    <button type="submit" class="btn btn-primary">
-        {% if current_option == "None" %}
-            Add
+    <div class="row m-0 d-none-empty">
+        {% comment %} If selected option is None, it is being removed {% endcomment %}
+        {% if new_option == "None" %}
+            <button type="submit" class="btn btn-danger">Remove</button>
+            {% comment %} Otherwise differentiate between changing or adding based on current option {% endcomment %}
         {% else %}
-            Change
+            <button type="submit" class="btn btn-primary">
+                {% if current_option == "None" %}
+                    Add
+                {% else %}
+                    Change
+                {% endif %}
+            </button>
         {% endif %}
-    </button>
-    {% endif %}
+    </div>
 {% endif %}

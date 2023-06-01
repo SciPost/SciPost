@@ -210,3 +210,9 @@ $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
     display: none;
   }
 }
+
+// Utilities for common display issues
+// Hide div
+.d-none-empty:empty {
+  display: none;
+}
