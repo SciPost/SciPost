@@ -825,20 +825,26 @@ class DeleteEventView(DeleteView):
 @permission_required("scipost.can_publish_accepted_submission", raise_exception=True)
 @transaction.atomic
 def mark_as_completed(request, stream_id):
-    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
-    stream.status = constants.PRODUCTION_STREAM_COMPLETED
-    stream.closed = timezone.now()
-    stream.save()
+    productionstream = get_object_or_404(
+        ProductionStream.objects.ongoing(), pk=stream_id
+    )
+    productionstream.status = constants.PRODUCTION_STREAM_COMPLETED
+    productionstream.closed = timezone.now()
+    productionstream.save()
 
-    prodevent = ProductionEvent(
-        stream=stream,
+    production_event = ProductionEvent(
+        stream=productionstream,
         event="status",
         comments=" marked the Production Stream as completed.",
         noted_by=request.user.production_user,
     )
-    prodevent.save()
-    messages.success(request, "Stream marked as completed.")
-    return redirect(reverse("production:production"))
+    production_event.save()
+
+    return HttpResponse(
+        r"""<summary class="text-white bg-success summary-unstyled p-3">
+                Production Stream has been marked as completed.
+            </summary>"""
+    )
 
 
 @is_production_user()

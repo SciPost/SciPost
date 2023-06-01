@@ -24,8 +24,30 @@
     {% endif %}
     <ul>
       <li>Worklog</li>
-      <li>Completed</li>
-      <li>Upload proofs</li>
+
+      {% if perms.scipost.can_publish_accepted_submission %}
+        <div class="row">
+          <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
+            <div class="row m-0 d-none-empty">
+              <button class="btn btn-sm btn-warning text-white" hx-get="{% url 'production:mark_as_completed' stream_id=productionstream.id %}" hx-confim="Are you sure you want to mark this stream as completed?" hx-target="#productionstream-{{ productionstream.id }}-details">
+                Mark this stream as completed
+              </button>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+ 
+      {% if perms.scipost.can_draft_publication and stream.status == 'accepted' %}
+        <div class="row">
+          <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
+            <div class="row m-0 d-none-empty">
+              <a class="btn btn-sm btn-primary text-white" href="{% url 'journals:create_publication' productionstream.submission.preprint.identifier_w_vn_nr %}">
+                Draft publication
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
       <li>Accessibility</li>
       <li>Send Proofs</li>
     </ul>
