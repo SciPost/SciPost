@@ -30,6 +30,11 @@ urlpatterns = [
                     name="_hx_productionstream_details_contents",
                 ),
                 path(
+                    "actions_change_properties",
+                    production_views._hx_productionstream_actions_change_properties,
+                    name="_hx_productionstream_actions_change_properties",
+                ),
+                path(
                     "events/",
                     include(
                         [

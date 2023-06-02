@@ -107,7 +107,7 @@ def _hx_productionstream_details_contents(request, productionstream_id):
     upload_proofs_form = ProofsUploadForm()
 
     context = {
-        "" "productionstream": productionstream,
+        "productionstream": productionstream,
         "status_form": status_form,
         "supervisor_form": supervisor_form,
         "inv_officer_form": inv_officer_form,
@@ -117,6 +117,42 @@ def _hx_productionstream_details_contents(request, productionstream_id):
     return render(
         request,
         "production/_hx_productionstream_details_contents.html",
+        context,
+    )
+
+
+@is_production_user()
+@permission_required("scipost.can_view_production", raise_exception=True)
+def _hx_productionstream_actions_change_properties(request, productionstream_id):
+    productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
+    status_form = StreamStatusForm(
+        instance=productionstream,
+        production_user=request.user.production_user,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
+    )
+    supervisor_form = AssignSupervisorForm(
+        instance=productionstream,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
+    )
+    invitations_officer_form = AssignInvitationsOfficerForm(
+        instance=productionstream,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
+    )
+    officer_form = AssignOfficerForm(
+        instance=productionstream,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
+    )
+
+    context = {
+        "productionstream": productionstream,
+        "status_form": status_form,
+        "supervisor_form": supervisor_form,
+        "officer_form": officer_form,
+        "invitations_officer_form": invitations_officer_form,
+    }
+    return render(
+        request,
+        "production/_hx_productionstream_actions_change_properties.html",
         context,
     )
 
@@ -362,7 +398,10 @@ def update_status(request, stream_id):
     if not checker.has_perm("can_perform_supervisory_actions", productionstream):
         context = {
             "stream": productionstream,
-            "message": "You do not have permission to perform this action. ",
+            "message": {
+                "type": "danger",
+                "text": "You do not have permission to perform this action. ",
+            },
         }
     else:
         status_form = StreamStatusForm(
@@ -375,9 +414,16 @@ def update_status(request, stream_id):
         if status_form.is_valid():
             stream = status_form.save()
             status_form.fields["status"].choices = status_form.get_available_statuses()
-            message = "Production Stream succesfully changed status."
+            message = {
+                "type": "success",
+                "text": "Production Stream succesfully changed status.",
+            }
+
         else:
-            message = "\\n".join(status_form.errors.values())
+            message = {
+                "type": "danger",
+                "text": "\\n".join(status_form.errors.values()),
+            }
 
         context = {
             "stream": productionstream,
@@ -468,19 +514,22 @@ def update_officer(request, stream_id):
             "message": "You do not have permission to perform this action. ",
         }
     else:
-        prod_officer_form = AssignOfficerForm(
+        officer_form = AssignOfficerForm(
             request.POST or None,
             instance=productionstream,
             auto_id=f"productionstream_{productionstream.id}_id_%s",
         )
-        if prod_officer_form.is_valid():
-            prod_officer_form.save()
-            officer = prod_officer_form.cleaned_data.get("officer")
+        if officer_form.is_valid():
+            officer_form.save()
+            officer = officer_form.cleaned_data.get("officer")
 
             # Add officer to stream if they exist.
             if officer is not None:
                 assign_perm("can_work_for_stream", officer.user, productionstream)
-                message = f"Officer {officer} has been assigned."
+                message = {
+                    "type": "success",
+                    "text": f"Officer {officer} has been assigned.",
+                }
 
                 event = ProductionEvent(
                     stream=productionstream,
@@ -499,20 +548,25 @@ def update_officer(request, stream_id):
             # Remove old officer.
             else:
                 remove_perm("can_work_for_stream", prev_officer.user, productionstream)
-                message = f"Officer {prev_officer} has been removed."
-
+                message = {
+                    "type": "success",
+                    "text": f"Officer {prev_officer} has been removed.",
+                }
         else:
-            message = "\\n".join(prod_officer_form.errors.values())
+            message = {
+                "type": "danger",
+                "text": "\\n".join(officer_form.errors.values()),
+            }
 
         context = {
             "stream": productionstream,
-            "form": prod_officer_form,
+            "form": officer_form,
             "message": message,
         }
 
     return render(
         request,
-        "production/_hx_productionstream_change_prodofficer.html",
+        "production/_hx_productionstream_change_officer.html",
         context,
     )
 
@@ -608,22 +662,30 @@ def update_invitations_officer(request, stream_id):
     if not checker.has_perm("can_perform_supervisory_actions", productionstream):
         context = {
             "stream": productionstream,
-            "message": "You do not have permission to perform this action. ",
+            "message": {
+                "type": "danger",
+                "text": "You do not have permission to perform this action. ",
+            },
         }
     else:
-        inv_officer_form = AssignInvitationsOfficerForm(
+        invitations_officer_form = AssignInvitationsOfficerForm(
             request.POST or None,
             instance=productionstream,
             auto_id=f"productionstream_{productionstream.id}_id_%s",
         )
-        if inv_officer_form.is_valid():
-            inv_officer_form.save()
-            inv_officer = inv_officer_form.cleaned_data.get("invitations_officer")
+        if invitations_officer_form.is_valid():
+            invitations_officer_form.save()
+            inv_officer = invitations_officer_form.cleaned_data.get(
+                "invitations_officer"
+            )
 
             # Add invitations officer to stream if they exist.
             if inv_officer is not None:
                 assign_perm("can_work_for_stream", inv_officer.user, productionstream)
-                message = f"Invitations Officer {inv_officer} has been assigned."
+                message = {
+                    "type": "success",
+                    "text": f"Invitations Officer {inv_officer} has been assigned.",
+                }
 
                 event = ProductionEvent(
                     stream=productionstream,
@@ -644,20 +706,26 @@ def update_invitations_officer(request, stream_id):
                 remove_perm(
                     "can_work_for_stream", prev_inv_officer.user, productionstream
                 )
-                message = f"Invitations Officer {prev_inv_officer} has been removed."
+                message = {
+                    "type": "success",
+                    "text": f"Invitations Officer {prev_inv_officer} has been removed.",
+                }
 
         else:
-            message = "\\n".join(inv_officer_form.errors.values())
+            message = {
+                "type": "danger",
+                "text": "\\n".join(invitations_officer_form.errors.values()),
+            }
 
         context = {
             "stream": productionstream,
-            "form": inv_officer_form,
+            "form": invitations_officer_form,
             "message": message,
         }
 
     return render(
         request,
-        "production/_hx_productionstream_change_invofficer.html",
+        "production/_hx_productionstream_change_invitations_officer.html",
         context,
     )
 
@@ -756,7 +824,10 @@ def update_supervisor(request, stream_id):
 
         # Add supervisor to stream if they exist.
         if supervisor is not None:
-            message = f"Supervisor {supervisor} has been assigned."
+            message = {
+                "type": "success",
+                "text": f"Supervisor {supervisor} has been assigned.",
+            }
 
             assign_perm("can_work_for_stream", supervisor.user, productionstream)
             assign_perm(
@@ -785,10 +856,16 @@ def update_supervisor(request, stream_id):
                 prev_supervisor.user,
                 productionstream,
             )
-            message = f"Supervisor {supervisor} has been removed."
+            message = {
+                "type": "success",
+                "text": f"Supervisor {prev_supervisor} has been removed.",
+            }
 
     else:
-        message = "\\n".join(supervisor_form.errors.values())
+        message = {
+            "type": "danger",
+            "text": "\\n".join(supervisor_form.errors.values()),
+        }
 
     context = {
         "stream": productionstream,
@@ -843,6 +920,11 @@ def mark_as_completed(request, stream_id):
     )
     production_event.save()
 
+    messages.success(
+        request,
+        "Production Stream has been marked as completed.",
+    )
+
     return HttpResponse(
         r"""<summary class="text-white bg-success summary-unstyled p-3">
                 Production Stream has been marked as completed.
@@ -891,7 +973,7 @@ def upload_proofs(request, stream_id):
         prodevent.save()
         return redirect(stream.get_absolute_url())
 
-    context = {"stream": stream, "form": form}
+    context = {"stream": stream, "form": form, "total_proofs": stream.proofs.count()}
     return render(request, "production/upload_proofs.html", context)
 
 

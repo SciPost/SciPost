@@ -8,7 +8,7 @@
 </p>
 
 <div class="row">
-  <div class="col-12 col-md-6">
+  <div class="col-12 col-md-6 mb-3">
  
     <div class="accordion px-2"
          id="productionstream-{{ productionstream.id }}-actions-accordion">
@@ -17,26 +17,26 @@
       {% if perms.scipost.can_take_decisions_related_to_proofs %}
         <div class="accordion-item">
           <h2 class="accordion-header"
-              id="productionstream-{{ productionstream.id }}-change-stream-property-header">
+              id="productionstream-{{ productionstream.id }}-change-stream-properties-header">
             <button class="accordion-button fs-6 collapsed"
                     type="button"
                     data-bs-toggle="collapse"
-                    data-bs-target="#productionstream-{{ productionstream.id }}-change-stream-property"
+                    data-bs-target="#productionstream-{{ productionstream.id }}-change-stream-properties"
                     aria-expanded="true"
-                    aria-controls="productionstream-{{ productionstream.id }}-change-stream-property">
-              Change stream property
+                    aria-controls="productionstream-{{ productionstream.id }}-change-stream-properties"
+                    hx-get="{% url 'production:_hx_productionstream_actions_change_properties' productionstream_id=productionstream.id %}"
+                    hx-trigger="click once, submit from:#productionstream-{{ productionstream.id }}-details-contents target:form delay:1000"
+                    hx-target="#productionstream-{{ productionstream.id }}-change-stream-properties-body">
+              Change stream properties
             </button>
           </h2>
-          <div id="productionstream-{{ productionstream.id }}-change-stream-property"
+          <div id="productionstream-{{ productionstream.id }}-change-stream-properties"
                class="accordion-collapse collapse"
-               aria-labelledby="productionstream-{{ productionstream.id }}-change-stream-property-header"
+               aria-labelledby="productionstream-{{ productionstream.id }}-change-stream-properties-header"
                data-bs-parent="#productionstream-{{ productionstream.id }}-actions-accordion">
-            <div id="productionstream-{{ productionstream.id }}-change-stream-property-body"
-                 class="accordion-body">
-              {% include "production/_hx_productionstream_change_status.html" with form=status_form stream=productionstream %}
-              {% include "production/_hx_productionstream_change_supervisor.html" with form=supervisor_form stream=productionstream %}
-              {% include "production/_hx_productionstream_change_prodofficer.html" with form=prod_officer_form stream=productionstream %}
-              {% include "production/_hx_productionstream_change_invofficer.html" with form=inv_officer_form stream=productionstream %}
+            <div class="accordion-body">
+              <div id="productionstream-{{ productionstream.id }}-change-stream-properties-body"></div>
+              <div id="productionstream-{{ productionstream.id }}-actions-message"></div>
             </div>
           </div>
         </div>
@@ -162,7 +162,7 @@
   </div>
 
   <div id="productionstream-{{ productionstream.id }}-event-container"
-       class="col-12 col-md-6 d-flex flex-column">
+       class="col-12 col-md-6 d-flex flex-column px-3">
     {% comment %} This might be better to refactor with an OOB response on each event addition {% endcomment %}
     <h3>Events</h3>
     <div id="productionstream-{{ productionstream.id }}-event-list"

@@ -2,9 +2,78 @@
 
 
 <h3>Proofs</h3>
-<ul>
+<div class="accordion"
+     id="productionstream-{{ stream.id }}-proofs-list-accordion">
   {% for proofs in stream.proofs.all %}
-    <li class="py-1">
+    <div class="accordion-item">
+      <h4 class="accordion-header">
+        <button class="accordion-button {% if forloop.counter0|add:1 != total_proofs %}collapsed{% endif %}"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ forloop.counter0 }}"
+                aria-expanded="false"
+                aria-controls="productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ forloop.counter0 }}">
+          <div class="row w-100 m-0 pe-2 align-items-center">
+            <div class="col-6 col-sm col-lg-6 col-xl fs-6">Version {{ proofs.version }}</div>
+            <div class="col-6 col-sm-auto col-md-12 col-lg-6 col-xl-auto">{{ proofs.created|date:"DATE_FORMAT" }}</div>
+            <div class="col-12 col-sm-auto badge bg-secondary">{{ proofs.get_status_display|title }}</div>
+          </div>
+        </button>
+      </h4>
+      <div id="productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ forloop.counter0 }}"
+           class="accordion-collapse collapse {% if forloop.counter0|add:1 == total_proofs %}show{% endif %}"
+           data-bs-parent="#productionstream-{{ stream.id }}-proofs-list-accordion">
+        <div class="accordion-body">
+          <div class="row">
+            <div class="col">Uploaded by:</div>
+            <div class="col-auto">{{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}</div>
+          </div>
+          <div class="row">
+            <div class="col">Accessible for authors:</div>
+            <div class="col-auto">
+              {{ proofs.accessible_for_authors|yesno:'<strong>Yes</strong>,No'|safe }}
+            </div>
+          </div>
+ 
+          {% comment %} Buttons {% endcomment %}
+          <div class="row g-2">
+            <div class="col-12 col-sm-6 col-md-12 col-lg-6 h-100 d-none-empty">
+              <div class="row m-0 d-none-empty">
+                <button class="btn btn-sm btn-secondary"
+                        hx-get="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">
+                  Download Proofs
+                </button>
+              </div>
+            </div>
+            {% if proofs.status == 'uploaded' %}
+              <div class="col-6 col-sm-3 col-md-6 col-lg-3 h-100 d-none-empty">
+                <div class="row m-0 d-none-empty">
+                  <button class="btn btn-sm btn-primary">Accept</button>
+                </div>
+              </div>
+              <div class="col-6 col-sm-3 col-md-6 col-lg-3 h-100 d-none-empty">
+                <div class="row m-0 d-none-empty">
+                  <button class="btn btn-sm btn-danger">Decline</button>
+                </div>
+              </div>
+            </div>
+          {% elif proofs.status == 'accepted_sup' %}
+            <div class="col-12 col-sm-6 col-md-12 col-lg-6 h-100 d-none-empty">
+              <div class="row m-0 d-none-empty">
+                <button class="btn btn-sm btn-warning"
+                        hx-get="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">
+                  Send proofs to authors
+                </button>
+              </div>
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+ 
+ 
+    {% comment %} <li class="py-1">
       <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Version {{ proofs.version }}</a> &middot; <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
       <br>
       Uploaded by: {{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}
@@ -29,13 +98,13 @@
           </ul>
         {% endif %}
       {% endif %}
-    </li>
+    </li> {% endcomment %}
   {% empty %}
-    <li>No Proofs found.</li>
+    <div>No Proofs found.</div>
   {% endfor %}
-</ul>
+</div>
 
-<div class="row">
+<div class="row mt-3">
   <div class="col-12">
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}

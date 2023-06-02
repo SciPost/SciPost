@@ -1,0 +1,47 @@
+{% load bootstrap %}
+{% load scipost_extras %}
+
+{% comment %} {% if status_form|all_fields_have_choices %}
+    <form id="productionstream-{{ productionstream.id }}-update-status" hx-post="{% url 'production:update_status' productionstream.id %}" hx-target="this" hx-swap="outerHTML" hx-trigger="submit">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">{{ status_form|bootstrap_purely_inline }}</div>
+            <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty" hx-post="{% url 'production:render_action_buttons' productionstream.id 'status' %}" hx-swap="innerHTML" hx-trigger="load, change from:select#productionstream_{{ productionstream.id }}_id_status" hx-target="this"></div>
+        </div>
+    </form>
+{% endif %}
+
+{% if supervisor_form|all_fields_have_choices %}
+    <form id="productionstream-{{ productionstream.id }}-update-supervisor" hx-post="{% url 'production:update_supervisor' productionstream.id %}" hx-target="this" hx-swap="outerHTML" hx-trigger="submit">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">{{ supervisor_form|bootstrap_purely_inline }}</div>
+            <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty" hx-post="{% url 'production:render_action_buttons' productionstream.id 'supervisor' %}" hx-swap="innerHTML" hx-trigger="load, change from:select#productionstream_{{ productionstream.id }}_id_supervisor" hx-target="this"></div>
+        </div>
+    </form>
+{% endif %}
+
+{% if officer_form|all_fields_have_choices %}
+    <form id="productionstream-{{ productionstream.id }}-update-officer" hx-post="{% url 'production:update_officer' productionstream.id %}" hx-target="this" hx-swap="outerHTML" hx-trigger="submit">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">{{ officer_form|bootstrap_purely_inline }}</div>
+            <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty" hx-post="{% url 'production:render_action_buttons' productionstream.id 'officer' %}" hx-swap="innerHTML" hx-trigger="load, change from:select#productionstream_{{ productionstream.id }}_id_officer" hx-target="this"></div>
+        </div>
+    </form>
+{% endif %}
+
+{% if invitations_officer_form|all_fields_have_choices %}
+    <form id="productionstream-{{ productionstream.id }}-update-invitations_officer" hx-post="{% url 'production:update_invitations_officer' productionstream.id %}" hx-target="this" hx-swap="outerHTML" hx-trigger="submit">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">{{ invitations_officer_form|bootstrap_purely_inline }}</div>
+            <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty" hx-post="{% url 'production:render_action_buttons' productionstream.id 'invitations_officer' %}" hx-swap="innerHTML" hx-trigger="load, change from:select#productionstream_{{ productionstream.id }}_id_invitations_officer" hx-target="this"></div>
+        </div>
+    </form>
+{% endif %} {% endcomment %}
+
+{% include "production/_hx_productionstream_change_status.html" with form=status_form stream=productionstream %}
+{% include "production/_hx_productionstream_change_supervisor.html" with form=supervisor_form stream=productionstream %}
+{% include "production/_hx_productionstream_change_officer.html" with form=officer_form stream=productionstream %}
+{% include "production/_hx_productionstream_change_invitations_officer.html" with form=invitations_officer_form stream=productionstream %}

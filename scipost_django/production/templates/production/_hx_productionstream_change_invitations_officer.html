@@ -13,7 +13,13 @@
                  hx-swap="innerHTML"
                  hx-trigger="change from:select#productionstream_{{ stream.id }}_id_invitations_officer"
                  hx-target="this"></div>
-            <div class="text-primary">{{ message }}</div>
         </form>
     </div>
+{% endif %}
+
+{% if message %}
+    <div id="productionstream-{{ stream.id }}-actions-message"
+         class="alert alert-{{ message.type }}"
+         role="alert"
+         hx-swap-oob="true">{{ message.text }}</div>
 {% endif %}
