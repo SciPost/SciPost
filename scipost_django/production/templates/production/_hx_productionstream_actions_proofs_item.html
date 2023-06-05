@@ -64,6 +64,17 @@
                                     class="btn btn-sm btn-warning">Send proofs to authors</button>
                         </div>
                     </div>
+                {% else %}
+                    <div class="col-12 col-sm-6 col-md-12 col-lg-6 h-100 d-none-empty">
+                        <div class="row m-0 d-none-empty">
+                            <button hx-get="{% url 'production:toggle_accessibility' proofs.stream.id proofs.version %}"
+                                    hx-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-item"
+                                    hx-swap="outerHTML"
+                                    class="btn btn-sm btn-primary">
+                                {{ proofs.accessible_for_authors|yesno:'Hide,Make accessible' }} for authors
+                            </button>
+                        </div>
+                    </div>
                 {% endif %}
 
             </div>

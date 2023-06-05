@@ -1103,7 +1103,16 @@ def toggle_accessibility(request, stream_id, version):
     proofs.accessible_for_authors = not proofs.accessible_for_authors
     proofs.save()
     messages.success(request, "Proofs accessibility updated.")
-    return redirect(stream.get_absolute_url())
+    return render(
+        request,
+        "production/_hx_productionstream_actions_proofs_item.html",
+        {
+            "stream": stream,
+            "proofs": proofs,
+            "total_proofs": stream.proofs.count(),
+            "active_id": proofs.version,
+        },
+    )
 
 
 @is_production_user()
