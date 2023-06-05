@@ -20,7 +20,7 @@ from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm, remove_perm
 
 from finances.forms import WorkLogForm
-from mails.views import MailEditorSubview
+from mails.views import MailEditorSubviewHTMX
 
 from . import constants
 from .models import (
@@ -1145,7 +1145,16 @@ def decision(request, stream_id, version, decision):
     )
     prodevent.save()
     messages.success(request, "Proofs have been {decision}.".format(decision=decision))
-    return redirect(reverse("production:proofs", args=(stream.id, proofs.version)))
+    return render(
+        request,
+        "production/_hx_productionstream_actions_proofs_item.html",
+        {
+            "stream": stream,
+            "proofs": proofs,
+            "total_proofs": stream.proofs.count(),
+            "active_id": proofs.version,
+        },
+    )
 
 
 @is_production_user()
@@ -1176,7 +1185,9 @@ def send_proofs(request, stream_id, version):
         stream.status = constants.PROOFS_SENT
         stream.save()
 
-    mail_request = MailEditorSubview(request, "production_send_proofs", proofs=proofs)
+    mail_request = MailEditorSubviewHTMX(
+        request, "production_send_proofs", proofs=proofs
+    )
     if mail_request.is_valid():
         proofs.save()
         stream.save()

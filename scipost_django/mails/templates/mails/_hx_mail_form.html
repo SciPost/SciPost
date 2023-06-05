@@ -1,0 +1,21 @@
+{% load bootstrap %}
+
+<h2 class="text-danger">HTMX send mail view is not working ATM.</h2>
+<form enctype="multipart/form-data"
+      method="post"
+      class="border border-danger p-2">
+    {% csrf_token %}
+    {% if transfer_data_form %}{{ transfer_data_form }}{% endif %}
+    {{ form|bootstrap }}
+    <div class="form-group row">
+        <div class="offset-md-2 col-md-10">
+            <input class="btn btn-outline-secondary me-2"
+                   type="reset"
+                   value="Reset to default">
+            <button class="btn btn-primary me-2"
+                    type="submit"
+                    name="save"
+                    value="send_from_editor">Send mail</button>
+        </div>
+    </div>
+</form>

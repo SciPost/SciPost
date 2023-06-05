@@ -1,0 +1,72 @@
+<div id="productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-item"
+     class="accordion-item">
+    <h4 class="accordion-header">
+        <button class="accordion-button {% if proofs.version != active_id %}collapsed{% endif %}"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-body-container"
+                aria-expanded="false"
+                aria-controls="productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-body-container">
+            <div class="row w-100 m-0 pe-2 align-items-center">
+                <div class="col-6 col-sm col-lg-6 col-xl fs-6">Version {{ proofs.version }}</div>
+                <div class="col-6 col-sm-auto col-md-12 col-lg-6 col-xl-auto">{{ proofs.created|date:"DATE_FORMAT" }}</div>
+                <div class="col-12 col-sm-auto badge bg-secondary">{{ proofs.get_status_display|title }}</div>
+            </div>
+        </button>
+    </h4>
+    <div id="productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-body-container"
+         class="accordion-collapse collapse {% if proofs.version == active_id %}show{% endif %}"
+         data-bs-parent="#productionstream-{{ stream.id }}-proofs-list-accordion">
+        <div class="accordion-body">
+            <div class="row">
+                <div class="col">Uploaded by:</div>
+                <div class="col-auto">{{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}</div>
+            </div>
+            <div class="row">
+                <div class="col">Accessible for authors:</div>
+                <div class="col-auto">
+                    {{ proofs.accessible_for_authors|yesno:'<strong>Yes</strong>,No'|safe }}
+                </div>
+            </div>
+ 
+            {% comment %} Buttons {% endcomment %}
+            <div id="productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-action-row"
+                 class="row g-2">
+                <div class="col-12 col-sm-6 col-md-12 col-lg-6 h-100 d-none-empty">
+                    <a class="row m-0 d-none-empty"
+                       href="{% url 'production:proofs_pdf' proofs.slug %}">
+                        <button class="btn btn-sm btn-secondary">Download Proofs</button>
+                    </a>
+                </div>
+                {% if proofs.status == 'uploaded' %}
+                    <div class="col-6 col-sm-3 col-md-6 col-lg-3 h-100 d-none-empty">
+                        <div class="row m-0 d-none-empty">
+                            <button hx-get="{% url 'production:decision' proofs.stream.id proofs.version 'accept' %}"
+                                    hx-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-item"
+                                    hx-swap="outerHTML"
+                                    class="btn btn-sm btn-primary proof-action-button">Accept</button>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3 col-md-6 col-lg-3 h-100 d-none-empty">
+                        <div class="row m-0 d-none-empty">
+                            <button hx-get="{% url 'production:decision' proofs.stream.id proofs.version 'decline' %}"
+                                    hx-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-item"
+                                    hx-swap="outerHTML"
+                                    class="btn btn-sm btn-danger proof-action-button">Decline</button>
+                        </div>
+                    </div>
+                {% elif proofs.status == 'accepted_sup' %}
+                    <div class="col-12 col-sm-6 col-md-12 col-lg-6 h-100 d-none-empty">
+                        <div class="row m-0 d-none-empty">
+                            <button hx-get="{% url 'production:send_proofs' proofs.stream.id proofs.version %}"
+                                    hx-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-action-row"
+                                    hx-swap="afterend"
+                                    class="btn btn-sm btn-warning">Send proofs to authors</button>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
