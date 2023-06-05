@@ -1,19 +1,29 @@
-<div class="row mb-0">
-    <div class="col mb-2">
-        <table class="mb-0">
-            <tbody>
-                <tr>
-                    <td>
-                        <strong class="text-primary">{{ productionstream.submission.title }}</strong>
-                    </td>
-                </tr>
-                <tr class="mt-1">
-                    <td>
-                        <strong><em>by {{ productionstream.submission.author_list }}</em></strong>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+<div class="row">
+    <div class="col">
+        <div class="row mb-0 align-items-center">
+            <div class="col-auto">
+                <input type="checkbox"
+                       class="form-check-input checkbox-lg"
+                       name="productionstream-{{ productionstream.id }}-checkbox"
+                       id="productionstream-{{ productionstream.id }}-checkbox">
+            </div>
+            <div class="col">
+                <table class="mb-0">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong class="text-primary">{{ productionstream.submission.title }}</strong>
+                            </td>
+                        </tr>
+                        <tr class="mt-1">
+                            <td>
+                                <strong><em>by {{ productionstream.submission.author_list }}</em></strong>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
  
         <div class="row mt-2 mb-0">
             <div class="col">

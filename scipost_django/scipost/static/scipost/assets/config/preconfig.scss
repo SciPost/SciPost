@@ -216,3 +216,8 @@ $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
 .d-none-empty:empty {
   display: none;
 }
+
+.checkbox-lg {
+  width: 1.5em !important;
+  height: 1.5em !important;
+}
