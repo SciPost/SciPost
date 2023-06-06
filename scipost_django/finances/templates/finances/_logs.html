@@ -1,29 +1,27 @@
 {% load scipost_extras %}
 
-<ul class="list-unstyled">
-  {% for log in logs %}
-    <li id="log_{{ log.slug }}" class="pb-2">
-      <div class="d-flex justify-content-between">
-        <div>
-          <strong>{{ log.user.first_name }} {{ log.user.last_name }}</strong>
-          <br>
-          <span class="text-muted">{{ log.log_type }}</span>
-          <br>
-          {{ log.comments|linebreaksbr }}
-        </div>
-        <div class="text-muted text-end d-flex justify-content-end">
-          <div>
-            {{ log.work_date }}
-            <br>
-            <strong>Duration: {{ log.duration|duration }}</strong>
-          </div>
-          <div class="ps-2">
-            <a class="text-danger" href="{% url 'finances:log_delete' log.slug %}"><span aria-hidden="true">{% include 'bi/trash-fill.html' %}</a>
-          </div>
-        </div>
+{% for log in logs %}
+  <div id="log_{{ log.slug }}" class="row">
+    <div class="col">
+      <strong>{{ log.user.first_name }} {{ log.user.last_name }}</strong>
+      <br>
+      <span class="text-muted">{{ log.log_type }}</span>
+      <br>
+      {{ log.comments|linebreaksbr }}
+    </div>
+    <div class="text-muted text-end col-auto d-flex">
+      <div class="">
+        {{ log.work_date }}
+        <br>
+        <strong>Duration: {{ log.duration|duration }}</strong>
       </div>
-    </li>
-  {% empty %}
-    <li>No logs were found.</li>
-  {% endfor %}
-</ul>
+      <div class="ps-2">
+        <a class="text-danger" href="{% url 'finances:log_delete' log.slug %}"><span aria-hidden="true">
+          {% include 'bi/trash-fill.html' %}
+        </a>
+      </div>
+    </div>
+  </div>
+{% empty %}
+  No logs were found.
+{% endfor %}

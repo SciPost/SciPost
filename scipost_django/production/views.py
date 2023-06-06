@@ -387,6 +387,42 @@ def add_work_log(request, stream_id):
 
 
 @is_production_user()
+@permission_required("scipost.can_view_production", raise_exception=True)
+def _hx_productionstream_actions_work_log(request, productionstream_id):
+    productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm("can_work_for_stream", productionstream):
+        return redirect(productionstream.get_absolute_url())
+
+    if request.user.has_perm("scipost.can_view_all_production_streams"):
+        types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+    else:
+        types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+    work_log_form = WorkLogForm(request.POST or None, log_types=types)
+
+    if work_log_form.is_valid():
+        log = work_log_form.save(commit=False)
+        log.content = productionstream
+        log.user = request.user
+        log.save()
+        messages.success(request, "Work Log added to Stream.")
+    else:
+        # messages.warning(request, "The form was invalidly filled.")
+        pass
+
+    context = {
+        "productionstream": productionstream,
+        "work_log_form": work_log_form,
+    }
+
+    return render(
+        request,
+        "production/_hx_productionstream_actions_work_log.html",
+        context,
+    )
+
+
+@is_production_user()
 @permission_required(
     "scipost.can_take_decisions_related_to_proofs", raise_exception=True
 )

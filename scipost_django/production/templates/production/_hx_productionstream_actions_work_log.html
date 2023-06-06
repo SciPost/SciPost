@@ -1,0 +1,31 @@
+{% load guardian_tags %}
+{% load scipost_extras %}
+{% load bootstrap %}
+
+<div class="row">
+    <h3 class="col">Work Logs</h3>
+    {% include 'finances/_logs.html' with logs=productionstream.work_logs.all|dictsort:"created" %}
+ 
+    {% if productionstream.total_duration %}
+        <div class="col-auto ms-auto me-5 border-primary border-top pt-2">
+            Total: <strong>{{ productionstream.total_duration|duration }}</strong>
+        </div>
+
+    {% endif %}
+</div>
+
+{% if work_log_form %}
+    <div class="row mb-0">
+
+        <h4>Add hours to the Stream</h4>
+        <form id="productionstream-{{ productionstream.id }}-work_log_form"
+              hx-post="{% url 'production:_hx_productionstream_actions_work_log' productionstream_id=productionstream.id %}"
+              hx-target="#productionstream-{{ productionstream.id }}-work-log-body"
+              class="mb-2">
+            {% csrf_token %}
+            {{ work_log_form|bootstrap }}
+            <input type="submit" class="btn btn-primary" name="submit" value="Log">
+        </form>
+
+    </div>
+{% endif %}
