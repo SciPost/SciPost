@@ -23,10 +23,15 @@
                     </tbody>
                 </table>
             </div>
+            <div class="col-auto">
+                <small class="text-muted">Acceptance date</small>
+                <br>
+                {{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
+            </div>
         </div>
  
         <div class="row">
-            <div class="col">
+            <div class="col-12 col-sm-6 col-md-12 col-xl">
                 <small class="text-muted">To be published in</small>
                 <br>
                 {{ productionstream.submission.editorial_decision.for_journal }}
@@ -34,12 +39,20 @@
                     - {{ productionstream.submission.proceedings.event_suffix }}
                 {% endif %}
             </div>
+
             <div class="col-auto">
-                <small class="text-muted">Acceptance date</small>
+                <small class="text-muted">Go to page:</small>
                 <br>
-                {{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
+                <div class="d-inline-flex">
+                    <a href="{{ productionstream.submission.get_absolute_url }}">Submission</a>
+                    &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
+                    <a href="{% url 'submissions:editorial_page' productionstream.submission.preprint.identifier_w_vn_nr %}">Editorial</a>
+                    &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
+                    <a class="text-muted">Git Repo</a>
+                </div>
             </div>
         </div>
+
     </div>
 
     <div class="d-none d-md-block vr p-0 me-2"></div>
