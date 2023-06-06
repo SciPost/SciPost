@@ -1,6 +1,6 @@
-<div class="row">
+<div class="row mb-0">
     <div class="col">
-        <div class="row mb-0 align-items-center">
+        <div class="row align-items-center">
             <div class="col-auto">
                 <input type="checkbox"
                        class="form-check-input checkbox-lg"
@@ -8,7 +8,7 @@
                        id="productionstream-{{ productionstream.id }}-checkbox">
             </div>
             <div class="col">
-                <table class="mb-0">
+                <table>
                     <tbody>
                         <tr>
                             <td>
@@ -25,7 +25,7 @@
             </div>
         </div>
  
-        <div class="row mt-2 mb-0">
+        <div class="row">
             <div class="col">
                 <small class="text-muted">To be published in</small>
                 <br>
@@ -34,7 +34,7 @@
                     - {{ productionstream.submission.proceedings.event_suffix }}
                 {% endif %}
             </div>
-            <div class="col">
+            <div class="col-auto">
                 <small class="text-muted">Acceptance date</small>
                 <br>
                 {{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
