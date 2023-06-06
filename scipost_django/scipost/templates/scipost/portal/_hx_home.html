@@ -44,7 +44,14 @@
 	    <div class="date">{{ news.date|date:'d' }}<span class="month">{{ news.date|date:'M' }}</span></div>
 	    <div>
               <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
-              <p>{{ news.blurb_short }}</p>
+	      {% if news.image %}
+		<div class="p-2">
+		  <img class="mb-3 mb-sm-0 {{ news.image.css_class }}"
+		       style="max-height: 80%; max-width: 80%;"
+		       src="{{ news.image.url }}" alt="image"/>
+		</div>
+	      {% endif %}
+              <p>{{ news.blurb_short|linebreaksbr }}</p>
 	    </div>
       	  </li>
       	{% endfor %}

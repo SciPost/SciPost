@@ -9,11 +9,11 @@
 	     src="{{ news.image.url }}" alt="image"/>
       </div>
       <div class="col-sm-9 col-lg-10">
-        <p class="mb-0">{{ news.blurb|safe }}</p>
+        <p class="mb-0">{{ news.blurb|safe|linebreaksbr }}</p>
       </div>
     </div>
   {% else %}
-    <p class="mb-0">{{ news.blurb|safe }}</p>
+    <p class="mb-0">{{ news.blurb|safe|linebreaksbr }}</p>
   {% endif %}
   {% if news.followup_link %}
     <a class="mt-3 d-inline-block" href="{{ news.followup_link }}">
