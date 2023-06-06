@@ -51,7 +51,7 @@
 		       src="{{ news.image.url }}" alt="image"/>
 		</div>
 	      {% endif %}
-              <p>{{ news.blurb_short|linebreaksbr }}</p>
+              <p>{{ news.blurb_short|safe|linebreaksbr }}</p>
 	    </div>
       	  </li>
       	{% endfor %}
