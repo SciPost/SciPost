@@ -77,7 +77,7 @@
                   aria-expanded="false"
                   aria-controls="productionstream-{{ productionstream.id }}-work-log"
                   hx-get="{% url 'production:_hx_productionstream_actions_work_log' productionstream_id=productionstream.id %}"
-                  hx-trigger="click once"
+                  hx-trigger="load, htmx:trigger from:#productionstream-{{ productionstream.id }}-work-log-body target:a.work_log_delete_btn delay:1000"
                   hx-target="#productionstream-{{ productionstream.id }}-work-log-body">Work Log</button>
         </h2>
         <div id="productionstream-{{ productionstream.id }}-work-log"

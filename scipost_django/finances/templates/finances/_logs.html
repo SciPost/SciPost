@@ -1,27 +1,38 @@
 {% load scipost_extras %}
 
-{% for log in logs %}
-  <div id="log_{{ log.slug }}" class="row">
-    <div class="col">
-      <strong>{{ log.user.first_name }} {{ log.user.last_name }}</strong>
-      <br>
-      <span class="text-muted">{{ log.log_type }}</span>
-      <br>
-      {{ log.comments|linebreaksbr }}
-    </div>
-    <div class="text-muted text-end col-auto d-flex">
-      <div class="">
-        {{ log.work_date }}
+<div class="container">
+  {% for log in logs %}
+    <div id="log_{{ log.slug }}" class="row">
+      <div class="col">
+        <strong>{{ log.user.first_name }} {{ log.user.last_name }}</strong>
         <br>
-        <strong>Duration: {{ log.duration|duration }}</strong>
+        <span class="text-muted">{{ log.log_type }}</span>
+        <br>
+        {{ log.comments|linebreaksbr }}
       </div>
-      <div class="ps-2">
-        <a class="text-danger" href="{% url 'finances:log_delete' log.slug %}"><span aria-hidden="true">
-          {% include 'bi/trash-fill.html' %}
-        </a>
+      <div class="text-muted text-end col-auto d-flex">
+        <div class="">
+          {{ log.work_date }}
+          <br>
+          <strong>Duration: {{ log.duration|duration }}</strong>
+        </div>
+        <div class="ps-2">
+          {% if log.user == request.user %}
+            <a id="log_{{ log.slug }}_delete_btn"
+               class="text-danger work_log_delete_btn"
+               hx-get="{% url 'finances:log_delete' log.slug %}"
+               hx-target="#log_{{ log.slug }}"
+               hx-confirm="Delete this log?">
+              <span aria-hidden="true">{% include 'bi/trash-fill.html' %}</span>
+            </a>
+          {% else %}
+            <span class="opacity-0">{% include 'bi/trash-fill.html' %}</span>
+          {% endif %}
+        </div>
+ 
       </div>
     </div>
-  </div>
-{% empty %}
-  No logs were found.
-{% endfor %}
+  {% empty %}
+    <div>No logs were found.</div>
+  {% endfor %}
+</div>

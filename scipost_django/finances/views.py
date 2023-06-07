@@ -551,6 +551,18 @@ class LogDeleteView(LoginRequiredMixin, DeleteView):
         return self.object.content.get_absolute_url()
 
 
+@permission_required("scipost.can_view_production", raise_exception=True)
+def _hx_worklog_delete(request, slug):
+    log = get_object_or_404(WorkLog, pk=slug_to_id(slug))
+    log.delete()
+
+    return HttpResponse(
+        r"""<div class="text-danger border border-danger p-3">
+                Work log has been deleted.
+            </div>"""
+    )
+
+
 ###################
 # PeriodicReports #
 ###################

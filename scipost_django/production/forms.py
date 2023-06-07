@@ -71,7 +71,10 @@ class AssignOfficerForm(forms.ModelForm):
     def save(self, commit=True):
         stream = super().save(False)
         if commit:
-            if stream.status == constants.PRODUCTION_STREAM_INITIATED:
+            if stream.status in [
+                constants.PRODUCTION_STREAM_INITIATED,
+                constants.PROOFS_SOURCE_REQUESTED,
+            ]:
                 stream.status = constants.PROOFS_TASKED
             stream.save()
         return stream
@@ -107,13 +110,15 @@ class StreamStatusForm(forms.ModelForm):
 
     def get_available_statuses(self):
         if self.instance.status in [
-            constants.PRODUCTION_STREAM_INITIATED,
             constants.PRODUCTION_STREAM_COMPLETED,
+            constants.PROOFS_SOURCE_REQUESTED,
             constants.PROOFS_ACCEPTED,
             constants.PROOFS_CITED,
         ]:
             # No status change can be made by User
             return ()
+        elif self.instance.status == constants.PRODUCTION_STREAM_INITIATED:
+            return ((constants.PROOFS_SOURCE_REQUESTED, "Source files requested"),)
         elif self.instance.status == constants.PROOFS_TASKED:
             return ((constants.PROOFS_PRODUCED, "Proofs have been produced"),)
         elif self.instance.status == constants.PROOFS_PRODUCED:
@@ -125,6 +130,7 @@ class StreamStatusForm(forms.ModelForm):
             return (
                 (constants.PROOFS_SENT, "Proofs sent to Authors"),
                 (constants.PROOFS_CORRECTED, "Corrections implemented"),
+                (constants.PROOFS_SOURCE_REQUESTED, "Source files requested"),
             )
         elif self.instance.status == constants.PROOFS_SENT:
             return (

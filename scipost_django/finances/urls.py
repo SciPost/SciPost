@@ -122,7 +122,7 @@ urlpatterns = [
     # Timesheets
     path("timesheets", views.timesheets, name="timesheets"),
     path("timesheets/detailed", views.timesheets_detailed, name="timesheets_detailed"),
-    path("logs/<slug:slug>/delete", views.LogDeleteView.as_view(), name="log_delete"),
+    path("logs/<slug:slug>/delete", views._hx_worklog_delete, name="log_delete"),
     # PeriodicReports
     path("periodicreport/<int:pk>/file", views.periodicreport_file, name="periodicreport_file"),
 ]

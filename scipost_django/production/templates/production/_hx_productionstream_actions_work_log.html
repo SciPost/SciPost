@@ -6,7 +6,7 @@
     <h3 class="col">Work Logs</h3>
     {% include 'finances/_logs.html' with logs=productionstream.work_logs.all|dictsort:"created" %}
  
-    {% if productionstream.total_duration %}
+    {% if productionstream.total_duration and productionstream.work_logs.all.count > 1 %}
         <div class="col-auto ms-auto me-5 border-primary border-top pt-2">
             Total: <strong>{{ productionstream.total_duration|duration }}</strong>
         </div>
