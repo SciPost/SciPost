@@ -36,7 +36,27 @@
                aria-labelledby="productionstream-{{ productionstream.id }}-change-stream-properties-header"
                data-bs-parent="#productionstream-{{ productionstream.id }}-actions-accordion">
             <div class="accordion-body">
-              <div id="productionstream-{{ productionstream.id }}-change-stream-properties-body"></div>
+              <div id="productionstream-{{ productionstream.id }}-change-stream-properties-body">
+ 
+                {% comment %} Placeholder before HTMX content loads {% endcomment %}
+                <div class="placeholder-glow">
+                  {% for i_repeat in '1234' %}
+                    <div class="row ">
+                      <div class="col-2">
+                        <div class="w-100 py-1 placeholder"></div>
+                      </div>
+                      <div class="col-8">
+                        <div class="w-100 pb-4 pt-2 placeholder"></div>
+                      </div>
+                      <div class="col-2">
+                        <div class="w-100 pb-4 pt-2 placeholder"></div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+                {% comment %} End placeholder {% endcomment %}
+
+              </div>
               <div id="productionstream-{{ productionstream.id }}-actions-message"></div>
             </div>
           </div>
@@ -62,7 +82,28 @@
                aria-labelledby="productionstream-{{ productionstream.id }}-upload-proofs-header"
                data-bs-parent="#productionstream-{{ productionstream.id }}-actions-accordion">
             <div id="productionstream-{{ productionstream.id }}-upload-proofs-body"
-                 class="accordion-body"></div>
+                 class="accordion-body">
+ 
+              {% comment %} Placeholder before HTMX content loads {% endcomment %}
+              <div class="placeholder-glow">
+                <h3>
+                  <span class="placeholder">Proofs</span>
+                </h3>
+                <div class="w-100 mb-2 py-4 placeholder"></div>
+                <div class="w-100 mb-2 py-4 placeholder"></div>
+                <div class="row">
+                  <div class="col-3">
+                    <div class="w-100 py-3 placeholder"></div>
+                  </div>
+                  <div class="col-9">
+                    <div class="w-100 py-3 placeholder"></div>
+                  </div>
+                </div>
+                <div class="w-25 px-1 py-3 placeholder"></div>
+              </div>
+              {% comment %} End placeholder {% endcomment %}
+
+            </div>
           </div>
         </div>
       {% endif %}
@@ -77,18 +118,60 @@
                   aria-expanded="false"
                   aria-controls="productionstream-{{ productionstream.id }}-work-log"
                   hx-get="{% url 'production:_hx_productionstream_actions_work_log' productionstream_id=productionstream.id %}"
-                  hx-trigger="load, htmx:trigger from:#productionstream-{{ productionstream.id }}-work-log-body target:a.work_log_delete_btn delay:1000"
-                  hx-target="#productionstream-{{ productionstream.id }}-work-log-body">Work Log</button>
+                  hx-trigger="click once, htmx:trigger from:#productionstream-{{ productionstream.id }}-work-log-body target:a.work_log_delete_btn delay:1000"
+                  hx-target="#productionstream-{{ productionstream.id }}-work-log-body"
+                  hx-swap="innerHTML">Work Log</button>
         </h2>
         <div id="productionstream-{{ productionstream.id }}-work-log"
              class="accordion-collapse collapse"
              aria-labelledby="productionstream-{{ productionstream.id }}-work-log-header"
              data-bs-parent="#productionstream-{{ productionstream.id }}-actions-accordion">
           <div id="productionstream-{{ productionstream.id }}-work-log-body"
-               class="accordion-body"></div>
+               class="accordion-body">
+ 
+            {% comment %} Placeholder before HTMX content loads {% endcomment %}
+            <div class="placeholder-glow">
+              <div class="row">
+                <div class="col-3">
+                  <div class="w-100 placeholder"></div>
+                </div>
+              </div>
+
+              {% for i_repeat in '12' %}
+                <div class="row">
+                  <div class="col-9">
+                    <div class="g-2">
+                      <div class="col-6 placeholder"></div>
+                      <div class="col-8 placeholder"></div>
+                    </div>
+                  </div>
+                  <div class="col-3">
+                    <div class="g-2">
+                      <div class="col-12 placeholder"></div>
+                      <div class="offset-4 col-8 placeholder"></div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+
+              <div class="w-75 py-1 mb-3 placeholder"></div>
+
+              {% for i_repeat in '123' %}
+                <div class="row">
+                  <div class="col-2">
+                    <div class="w-100 py-1 placeholder"></div>
+                  </div>
+                  <div class="col-10">
+                    <div class="w-100 pb-4 placeholder"></div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            {% comment %} End placeholder {% endcomment %}
+
+          </div>
         </div>
       </div>
-
 
     </div>
 
@@ -124,27 +207,6 @@
       </div>
     {% endif %}
 
-    {% comment %} <h3>Actions</h3>
-    <ul>
-      <li>Worklog</li>
-
-      
-
-      {% if "can_work_for_stream" in sub_perms %}
-        {% if perms.scipost.can_upload_proofs and upload_proofs_form %}
-          <div class="row">
-            <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
-              <div class="row m-0 d-none-empty">
-                <button class="btn btn-sm btn-primary text-white" hx-post="{% url 'production:upload_proofs' stream_id=productionstream.id %}" hx-target="#productionstream-{{ productionstream.id }}-details">Upload Proofs</button>
-              </div>
-            </div>
-          </div>
-        {% endif %}
-      {% endif %}
-
-      <li>Accessibility</li>
-      <li>Send Proofs</li>
-    </ul> {% endcomment %}
   </div>
 
   <div id="productionstream-{{ productionstream.id }}-event-container"
@@ -156,7 +218,43 @@
          style="max-height: max(50vh, 40em)"
          hx-get="{% url 'production:render_stream_events' productionstream.id %}"
          hx-trigger="load, submit from:#productionstream-{{ productionstream.id }}-details target:form delay:500,  click from:#productionstream-{{ productionstream.id }}-details target:.proof-action-button delay:500">
+
+      {% comment %} Placeholder before HTMX content loads {% endcomment %}
+      <table class="table table-bordered table-striped overflow-scroll mb-0"
+             aria-hidden="true">
+        <tr>
+          <th>Date</th>
+          <th>Event</th>
+          <th>Noted by</th>
+          <th>Actions</th>
+        </tr>
+        {% for p in '12345' %}
+          <tr class="placeholder-glow">
+            <td>
+              <div class="placeholder w-100 bg-secondary"></div>
+            </td>
+            <td>
+              <div class="placeholder w-75 bg-secondary"></div>
+            </td>
+            <td>
+              <div class="placeholder w-75 bg-secondary"></div>
+            </td>
+            <td>
+              <div class="placeholder w-100 bg-secondary"></div>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="placeholder-wave">
+              <div class="placeholder w-25 bg-secondary"></div>
+              <div class="placeholder w-75 bg-secondary"></div>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      {% comment %} End placeholder {% endcomment %}
+
     </div>
+
     <div id="productionstream-{{ productionstream.id }}-event-new-comment-form">
       <button hx-get="{% url 'production:_hx_event_form' productionstream_id=productionstream.id %}"
               hx-target="#productionstream-{{ productionstream.id }}-event-new-comment-form"
