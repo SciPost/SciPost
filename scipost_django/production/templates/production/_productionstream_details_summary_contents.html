@@ -4,8 +4,10 @@
             <div class="col-auto">
                 <input type="checkbox"
                        class="form-check-input checkbox-lg"
-                       name="productionstream-{{ productionstream.id }}-checkbox"
-                       id="productionstream-{{ productionstream.id }}-checkbox">
+                       name="productionstream-bulk-action"
+                       value="{{ productionstream.id }}"
+                       id="productionstream-{{ productionstream.id }}-checkbox"
+                       form="productionstreams-bulk-action-form">
             </div>
             <div class="col text-truncate">
                 <span class="text-truncate">
