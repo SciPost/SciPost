@@ -13,7 +13,9 @@
 
 <div class="row mt-3">
   <div class="col-12">
-    <form method="post" enctype="multipart/form-data">
+    <form enctype="multipart/form-data"
+          hx-post="{% url 'production:upload_proofs' stream_id=stream.id %}"
+          hx-target="#productionstream-{{ stream.id }}-upload-proofs-body">
       {% csrf_token %}
       {{ form|bootstrap_purely_inline }}
       <input type="submit"

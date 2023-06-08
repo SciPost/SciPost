@@ -106,6 +106,25 @@ def _hx_productionstream_details_contents(request, productionstream_id):
 
     upload_proofs_form = ProofsUploadForm()
 
+    # Determine which accordion tab to open by default
+    accordion_default_open = ""
+    if request.user.production_user == productionstream.supervisor:
+        if productionstream.status in [
+            constants.PROOFS_ACCEPTED,
+        ]:
+            accordion_default_open = "upload-proofs"
+        else:
+            accordion_default_open = "change-properties"
+
+    if request.user.production_user == productionstream.officer:
+        if not productionstream.work_logs.all():
+            accordion_default_open = "work-log"
+        elif not productionstream.proofs.all():
+            accordion_default_open = "upload-proofs"
+
+    if productionstream.status == constants.PRODUCTION_STREAM_INITIATED:
+        accordion_default_open = "change-properties"
+
     context = {
         "productionstream": productionstream,
         "status_form": status_form,
@@ -113,6 +132,7 @@ def _hx_productionstream_details_contents(request, productionstream_id):
         "inv_officer_form": inv_officer_form,
         "prod_officer_form": prod_officer_form,
         "upload_proofs_form": upload_proofs_form,
+        "accordion_default_open": accordion_default_open,
     }
     return render(
         request,
@@ -405,7 +425,6 @@ def _hx_productionstream_actions_work_log(request, productionstream_id):
         log.content = productionstream
         log.user = request.user
         log.save()
-        messages.success(request, "Work Log added to Stream.")
     else:
         # messages.warning(request, "The form was invalidly filled.")
         pass
@@ -979,7 +998,11 @@ def upload_proofs(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_work_for_stream", stream):
-        return redirect(reverse("production:production"))
+        return HttpResponse(
+            r"""<div class="text-danger border border-danger p-3">
+                You are forbidden from working in this stream.
+            </div>"""
+        )
 
     form = ProofsUploadForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -990,7 +1013,6 @@ def upload_proofs(request, stream_id):
         Proofs.objects.filter(stream=stream).exclude(version=proofs.version).exclude(
             status=constants.PROOFS_ACCEPTED
         ).update(status=constants.PROOFS_RENEWED)
-        messages.success(request, "Proof uploaded.")
 
         # Update Stream status
         if stream.status == constants.PROOFS_TASKED:
@@ -1007,7 +1029,6 @@ def upload_proofs(request, stream_id):
             noted_by=request.user.production_user,
         )
         prodevent.save()
-        return redirect(stream.get_absolute_url())
 
     context = {"stream": stream, "form": form, "total_proofs": stream.proofs.count()}
     return render(request, "production/upload_proofs.html", context)

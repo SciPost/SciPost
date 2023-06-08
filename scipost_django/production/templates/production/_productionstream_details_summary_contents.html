@@ -53,48 +53,48 @@
     <div id="productionstream-{{ productionstream.id }}-summary-assignees"
          class="col-md-6"
          hx-get="{% url 'production:render_stream_assignees_status' productionstream.id %}"
-         hx-trigger="intersect, submit from:#productionstream-{{ productionstream.id }}-details target:form delay:500, click from:#productionstream-{{ productionstream.id }}-details target:.proof-action-button delay:500">
+         hx-trigger="intersect once, submit from:#productionstream-{{ productionstream.id }}-details target:form delay:500, click from:#productionstream-{{ productionstream.id }}-details target:.proof-action-button delay:500">
 
         {% comment %} Placeholder while HTMX is loading {% endcomment %}
         <div class="row mb-0 placeholder-glow">
             <div class="order-3 order-sm-1 order-md-3 order-xl-1 col-sm-6 col-md-12 col-xl-6">
                 <div class="row justify-content-between">
-                    <small class="col-4 text-muted text-nowrap placeholder">Stream opened</small>
+                    <small class="col-4 text-muted text-nowrap">Stream opened</small>
                     <div class="col-8">
-                        <div class="w-100 placeholder"></div>
+                        <div class="ms-2 w-100 placeholder"></div>
                     </div>
                 </div>
             </div>
             <div class="order-2 order-sm-4 order-md-2 order-xl-4 col-sm-6 col-md-12 col-xl-6">
                 <div class="row justify-content-between">
-                    <small class="col-4 text-muted text-nowrap placeholder">Officer</small>
+                    <small class="col-4 text-muted text-nowrap">Officer</small>
                     <div class="col-8 text-nowrap text-truncate">
-                        <div class="w-100 placeholder"></div>
+                        <div class="ms-2 w-100 placeholder"></div>
                     </div>
                 </div>
             </div>
             <div class="order-4 order-sm-3 order-md-4 order-xl-3 col-sm-6 col-md-12 col-xl-6">
                 <div class="row justify-content-between">
-                    <small class="col-4 text-muted text-nowrap placeholder">Latest activity</small>
+                    <small class="col-4 text-muted text-nowrap">Latest activity</small>
                     <div class="col-8">
-                        <div class="w-100 placeholder"></div>
+                        <div class="ms-2 w-100 placeholder"></div>
                     </div>
                 </div>
             </div>
             <div class="order-1 order-sm-2 order-md-1 order-xl-2 col-sm-6 col-md-12 col-xl-6">
                 <div class="row justify-content-between">
-                    <small class="col-4 text-muted text-nowrap placeholder">Supervisor</small>
+                    <small class="col-4 text-muted text-nowrap">Supervisor</small>
                     <div class="col-8 text-nowrap text-truncate">
-                        <div class="w-100 placeholder"></div>
+                        <div class="ms-2 w-100 placeholder"></div>
                     </div>
                 </div>
             </div>
             <div class="order-5 order-sm-5 order-md-5 order-xl-5 col-sm-6 col-md-12 col-xl-6">
                 <div class="row mb-0 justify-content-between align-items-center">
-                    <small class="col-4 text-muted text-nowrap placeholder">Stream Status</small>
-                    <div class="col-8">
-                        <div class="badge bg-secondary w-50">
-                            <div class="w-100 placeholder"></div>
+                    <small class="col-4 text-muted text-nowrap">Stream Status</small>
+                    <div class="offset-5 col-3">
+                        <div class="badge bg-primary w-100">
+                            <div class="placeholder py-2"></div>
                         </div>
                     </div>
                 </div>
