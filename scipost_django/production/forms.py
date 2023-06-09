@@ -16,6 +16,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from journals.models import Journal
 from markup.widgets import TextareaWithPreview
 from proceedings.models import Proceedings
+from proceedings.forms import ProceedingsMultipleChoiceField
 from scipost.fields import UserModelChoiceField
 
 from . import constants
@@ -260,7 +261,7 @@ class ProductionStreamSearchForm(forms.Form):
         queryset=Journal.objects.active(),
         required=False,
     )
-    proceedings = forms.ModelChoiceField(
+    proceedings = ProceedingsMultipleChoiceField(
         queryset=Proceedings.objects.order_by("-submissions_close"),
         required=False,
     )
@@ -278,7 +279,11 @@ class ProductionStreamSearchForm(forms.Form):
         empty_label="Any",
     )
     status = forms.MultipleChoiceField(
-        choices=constants.PRODUCTION_STREAM_STATUS,
+        # Use short status names from their internal (code) name
+        choices=[
+            (status_code_name, status_code_name.replace("_", " ").title())
+            for status_code_name, _ in constants.PRODUCTION_STREAM_STATUS
+        ],
         required=False,
     )
     orderby = forms.ChoiceField(
@@ -318,8 +323,8 @@ class ProductionStreamSearchForm(forms.Form):
             Div(
                 Div(
                     Div(
-                        Div(Field("accepted_in", size=3), css_class="col-12 col-sm-7"),
-                        Div(Field("proceedings", size=3), css_class="col-12 col-sm-5"),
+                        Div(Field("accepted_in", size=3), css_class="col-sm-8"),
+                        Div(Field("proceedings", size=3), css_class="col-sm-4"),
                         css_class="row mb-0",
                     ),
                     Div(
@@ -332,11 +337,11 @@ class ProductionStreamSearchForm(forms.Form):
                         Div(Field("ordering"), css_class="col-6"),
                         css_class="row mb-0",
                     ),
-                    css_class="col-md-7",
+                    css_class="col-sm-9",
                 ),
                 Div(
                     Field("status", size=len(constants.PRODUCTION_STREAM_STATUS)),
-                    css_class="col-md-5",
+                    css_class="col-sm-3",
                 ),
                 css_class="row mb-0",
             ),
@@ -349,36 +354,28 @@ class ProductionStreamSearchForm(forms.Form):
             latest_activity_annot=Greatest(Max("events__noted_on"), "opened", "closed")
         )
 
-        if self.cleaned_data.get("accepted_in"):
+        if accepted_in := self.cleaned_data.get("accepted_in"):
             streams = streams.filter(
-                submission__editorialdecision__for_journal=self.cleaned_data.get(
-                    "accepted_in"
-                ),
+                submission__editorialdecision__for_journal__in=accepted_in,
             )
-        if self.cleaned_data.get("proceedings"):
+        if proceedings := self.cleaned_data.get("proceedings"):
+            streams = streams.filter(submission__proceedings__in=proceedings)
+
+        if identifier := self.cleaned_data.get("identifier"):
             streams = streams.filter(
-                submission__proceedings=self.cleaned_data.get("proceedings"),
+                submission__preprint__identifier_w_vn_nr__icontains=identifier,
             )
-        if self.cleaned_data.get("identifier"):
-            streams = streams.filter(
-                submission__preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get(
-                    "identifier"
-                ),
-            )
-        if self.cleaned_data.get("author"):
-            streams = streams.filter(
-                submission__author_list__icontains=self.cleaned_data.get("author"),
-            )
-        if self.cleaned_data.get("title"):
-            streams = streams.filter(
-                submission__title__icontains=self.cleaned_data.get("title"),
-            )
-        if self.cleaned_data.get("officer"):
-            streams = streams.filter(officer=self.cleaned_data.get("officer"))
-        if self.cleaned_data.get("supervisor"):
-            streams = streams.filter(supervisor=self.cleaned_data.get("supervisor"))
-        if self.cleaned_data.get("status"):
-            streams = streams.filter(status__in=self.cleaned_data.get("status"))
+        if author := self.cleaned_data.get("author"):
+            streams = streams.filter(submission__author_list__icontains=author)
+        if title := self.cleaned_data.get("title"):
+            streams = streams.filter(submission__title__icontains=title)
+
+        if officer := self.cleaned_data.get("officer"):
+            streams = streams.filter(officer=officer)
+        if supervisor := self.cleaned_data.get("supervisor"):
+            streams = streams.filter(supervisor=supervisor)
+        if status := self.cleaned_data.get("status"):
+            streams = streams.filter(status__in=status)
 
         if not self.user.has_perm("scipost.can_view_all_production_streams"):
             # Restrict stream queryset if user is not supervisor

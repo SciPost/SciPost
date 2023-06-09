@@ -23,3 +23,8 @@ class ProceedingsForm(forms.ModelForm):
             "submissions_close",
             "template_latex_tgz",
         )
+
+
+class ProceedingsMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return obj.event_suffix or obj.event_name

@@ -31,7 +31,12 @@
                 <br>
                 {{ productionstream.submission.editorial_decision.for_journal }}
                 {% if productionstream.submission.proceedings %}
-                    - {{ productionstream.submission.proceedings.event_suffix }}
+                    -
+                    {% if productionstream.submission.proceedings.event_suffix %}
+                        {{ productionstream.submission.proceedings.event_suffix }}
+                    {% else %}
+                        {{ productionstream.submission.proceedings.event_name }}
+                    {% endif %}
                 {% endif %}
             </div>
 
