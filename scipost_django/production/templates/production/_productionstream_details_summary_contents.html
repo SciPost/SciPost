@@ -48,7 +48,7 @@
                     &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
                     <a href="{% url 'submissions:editorial_page' productionstream.submission.preprint.identifier_w_vn_nr %}">Editorial</a>
                     &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
-                    <a class="text-muted">Git Repo</a>
+                    <a href="{{ productionstream.proofs_repository.git_url }}">Git Repo</a>
                 </div>
             </div>
         </div>
