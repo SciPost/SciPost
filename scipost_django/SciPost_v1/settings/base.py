@@ -573,5 +573,5 @@ CORS_ALLOWED_ORIGINS = [
 
 # GitLab API
 GITLAB_ROOT = "SciPost"
-GITLAB_URL = "https://git.scipost.org/"
+GITLAB_URL = "git.scipost.org"
 GITLAB_KEY = get_secret("GITLAB_KEY")

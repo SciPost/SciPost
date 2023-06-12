@@ -326,6 +326,20 @@ class ProofsRepository(models.Model):
         )
 
     @property
+    def git_url(self) -> str:
+        return "https://{GITLAB_URL}/{git_path}".format(
+            GITLAB_URL=settings.GITLAB_URL,
+            git_path=self.git_path,
+        )
+
+    @property
+    def git_ssh_clone_url(self) -> str:
+        return "git:{GITLAB_URL}/{git_path}.git".format(
+            GITLAB_URL=settings.GITLAB_URL,
+            git_path=self.git_path,
+        )
+
+    @property
     def template_path(self) -> str:
         """
         Return the path to the template repository.
