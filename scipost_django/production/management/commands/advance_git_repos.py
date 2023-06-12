@@ -69,7 +69,10 @@ class Command(BaseCommand):
                 "Constant `GITLAB_URL` is either not present in secret file or empty, please add it."
             )
 
-        GL = Gitlab(url=settings.GITLAB_URL, private_token=settings.GITLAB_KEY)
+        GL = Gitlab(
+            url="https://" + settings.GITLAB_URL,
+            private_token=settings.GITLAB_KEY,
+        )
 
         try:
             GL.auth()
@@ -101,9 +104,9 @@ class Command(BaseCommand):
                 # Guard against the root group not existing
                 if parent_group is None:
                     raise AssertionError(
-                        f"The parent group of {path_up_to_segment_i} does not exist. \
-                        This should not happen normally (and would not be fixable \
-                        because GitLab does not allow root groups to be created)."
+                        f"The parent group of {path_up_to_segment_i} does not exist. "
+                        "This should not happen normally (and would not be fixable "
+                        "because GitLab does not allow root groups to be created)."
                     )
 
                 # Create the group
@@ -300,7 +303,7 @@ class Command(BaseCommand):
 
         def format_affiliations(authors: List[str]) -> str:
             """
-            Format the affiliations of the authors in the submission,\
+            Format the affiliations of the authors in the submission,
             by including the author's name and the affiliation number.
             There is one affiliation per author by default.
             """
