@@ -475,28 +475,56 @@ class Command(BaseCommand):
         # Create the repos
         repos_to_be_created = repos.filter(status=PROOFS_REPO_UNINITIALIZED)
         for repo in repos_to_be_created:
-            self._create_git_repo(repo)
-            repo.status = PROOFS_REPO_CREATED
-            repo.save()
+            try:
+                self._create_git_repo(repo)
+                repo.status = PROOFS_REPO_CREATED
+                repo.save()
+            except Exception as e:
+                self.stdout.write(
+                    self.style.ERROR(
+                        f"Could not create the git repo for {repo.git_path}, error: {e}"
+                    )
+                )
 
         # Copy the pure templates
         repos_to_be_templated = repos.filter(status=PROOFS_REPO_CREATED)
         for repo in repos_to_be_templated:
-            self._copy_pure_templates(repo)
-            repo.status = PROOFS_REPO_TEMPLATE_ONLY
-            repo.save()
+            try:
+                self._copy_pure_templates(repo)
+                repo.status = PROOFS_REPO_TEMPLATE_ONLY
+                repo.save()
+            except Exception as e:
+                self.stdout.write(
+                    self.style.ERROR(
+                        f"Could not copy the pure templates to {repo.git_path}, error: {e}"
+                    )
+                )
 
         # Format the skeleton files
         repos_to_be_formatted = repos.filter(status=PROOFS_REPO_TEMPLATE_ONLY)
         for repo in repos_to_be_formatted:
-            self._format_skeleton(repo)
-            repo.status = PROOFS_REPO_TEMPLATE_FORMATTED
-            repo.save()
+            try:
+                self._format_skeleton(repo)
+                repo.status = PROOFS_REPO_TEMPLATE_FORMATTED
+                repo.save()
+            except Exception as e:
+                self.stdout.write(
+                    self.style.ERROR(
+                        f"Could not format the skeleton of {repo.git_path}, error: {e}"
+                    )
+                )
 
         # Copy the arXiv source files
         repos_to_be_copied = repos.filter(status=PROOFS_REPO_TEMPLATE_FORMATTED)
         for repo in repos_to_be_copied:
-            if "arxiv.org" in repo.stream.submission.preprint.url:
-                self._copy_arxiv_source_files(repo)
-                repo.status = PROOFS_REPO_PRODUCTION_READY
-                repo.save()
+            try:
+                if "arxiv.org" in repo.stream.submission.preprint.url:
+                    self._copy_arxiv_source_files(repo)
+                    repo.status = PROOFS_REPO_PRODUCTION_READY
+                    repo.save()
+            except Exception as e:
+                self.stdout.write(
+                    self.style.ERROR(
+                        f"Could not copy the arXiv source files to {repo.git_path}, error: {e}"
+                    )
+                )
