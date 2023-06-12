@@ -12,6 +12,7 @@ from django.db.models.functions import Greatest
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
+from django.urls import reverse
 
 from journals.models import Journal
 from markup.widgets import TextareaWithPreview
@@ -399,3 +400,41 @@ class ProductionStreamSearchForm(forms.Form):
             )
 
         return streams
+
+
+class BulkAssignOfficersForm(forms.Form):
+    officer = forms.ModelChoiceField(
+        queryset=ProductionUser.objects.active().filter(
+            user__groups__name="Production Officers"
+        ),
+        required=False,
+        empty_label="Unchanged",
+    )
+    supervisor = forms.ModelChoiceField(
+        queryset=ProductionUser.objects.active().filter(
+            user__groups__name="Production Supervisor"
+        ),
+        required=False,
+        empty_label="Unchanged",
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.productionstreams = kwargs.pop("productionstreams", None)
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_id = "productionstreams-bulk-action-form"
+        self.helper.attrs = {
+            "hx-post": reverse(
+                "production:_hx_productionstream_actions_bulk_assign_officers"
+            ),
+            "hx-target": "#productionstream-bulk-assign-officers-container",
+            "hx-swap": "outerHTML",
+            "hx-confirm": "Are you sure you want to assign the selected production streams to the selected officers?",
+        }
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("supervisor"), css_class="col-6 col-md-4 col-lg-3"),
+                Div(Field("officer"), css_class="col-6 col-md-4 col-lg-3"),
+                css_class="row mb-0",
+            ),
+        )

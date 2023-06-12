@@ -13,7 +13,7 @@
 
   <h1>Production Streams</h1>
 
-  <details class="card my-4">
+  <details id="productionstreams-filter-details" class="card my-4">
     <summary class="card-header fs-6 d-inline-flex align-items-center">
       Search / Filter / Bulk Actions
       <div class="d-none d-sm-inline-flex ms-auto align-items-center">
@@ -45,6 +45,13 @@
 	
         <div id="search-productionstreams-form">{% crispy search_productionstreams_form %}</div>
       </form>
+
+      {% comment %} Bulk Action buttons {% endcomment %}
+      <hr>
+
+      <div hx-get="{% url 'production:_hx_productionstream_actions_bulk_assign_officers' %}"
+           hx-trigger="load"></div>
+ 
     </div>
   </details>
 

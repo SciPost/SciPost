@@ -21,6 +21,11 @@ urlpatterns = [
         name="_hx_productionstream_list",
     ),
     path(
+        "_hx_productionstream_actions_bulk_assign_officers",
+        production_views._hx_productionstream_actions_bulk_assign_officers,
+        name="_hx_productionstream_actions_bulk_assign_officers",
+    ),
+    path(
         "productionstreams/<int:productionstream_id>/",
         include(
             [

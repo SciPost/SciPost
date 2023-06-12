@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+
+<div id="productionstream-bulk-assign-officers-container">
+    <h3>Bulk Assign Officers</h3>
+    <div>{% crispy form %}</div>
+    <div class="row mb-0">
+        <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
+            <div class="row m-0 d-none-empty">
+                <button id="productionstreams-bulk-action-form-button"
+                        class="btn btn-primary"
+                        form="productionstreams-bulk-action-form">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>

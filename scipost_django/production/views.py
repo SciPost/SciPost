@@ -31,6 +31,7 @@ from .models import (
     ProductionEventAttachment,
 )
 from .forms import (
+    BulkAssignOfficersForm,
     ProductionStreamSearchForm,
     ProductionEventForm,
     ProductionEventForm_deprec,
@@ -54,9 +55,11 @@ from .utils import proofs_slug_to_id, ProductionUtils
 @is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
 def production_new(request):
-    form = ProductionStreamSearchForm(user=request.user)
+    search_productionstreams_form = ProductionStreamSearchForm(user=request.user)
+    bulk_assign_officer_form = BulkAssignOfficersForm()
     context = {
-        "search_productionstreams_form": form,
+        "search_productionstreams_form": search_productionstreams_form,
+        "bulk_assign_officer_form": bulk_assign_officer_form,
     }
     return render(request, "production/production_new.html", context)
 
@@ -1325,5 +1328,106 @@ def render_stream_events(request, stream_id):
     return render(
         request,
         "production/_productionstream_events.html",
+        context,
+    )
+
+
+def _hx_productionstream_actions_bulk_assign_officers(request):
+    if request.POST:
+        productionstream_ids = (
+            request.POST.getlist("productionstream-bulk-action-selected") or []
+        )
+        productionstreams = ProductionStream.objects.filter(pk__in=productionstream_ids)
+
+        form = BulkAssignOfficersForm(
+            request.POST,
+            productionstreams=productionstreams,
+            auto_id="productionstreams-bulk-action-form-%s",
+        )
+
+    else:
+        form = BulkAssignOfficersForm()
+
+    if form.is_valid():
+        # Create events, update permissions, send emails for each stream
+        if officer := form.cleaned_data["officer"]:
+            for productionstream in form.productionstreams:
+                old_officer = productionstream.officer
+
+                if old_officer == officer:
+                    continue
+
+                if productionstream.status in [
+                    constants.PRODUCTION_STREAM_INITIATED,
+                    constants.PROOFS_SOURCE_REQUESTED,
+                ]:
+                    productionstream.status = constants.PROOFS_TASKED
+
+                productionstream.officer = officer
+                productionstream.save()
+
+                event = ProductionEvent(
+                    stream=productionstream,
+                    event="assignment",
+                    comments=" tasked Production Officer with proofs production:",
+                    noted_to=officer,
+                    noted_by=request.user.production_user,
+                )
+                event.save()
+
+                # Update permissions
+                assign_perm("can_work_for_stream", officer.user, productionstream)
+                remove_perm("can_work_for_stream", old_officer.user, productionstream)
+
+                # Temp fix.
+                # TODO: Implement proper email
+                ProductionUtils.load({"request": request, "stream": productionstream})
+                ProductionUtils.email_assigned_production_officer()
+
+        if supervisor := form.cleaned_data["supervisor"]:
+            for productionstream in form.productionstreams:
+                old_supervisor = productionstream.supervisor
+
+                if old_supervisor == supervisor:
+                    continue
+
+                productionstream.supervisor = supervisor
+                productionstream.save()
+
+                event = ProductionEvent(
+                    stream=productionstream,
+                    event="assignment",
+                    comments=" assigned Production Supervisor:",
+                    noted_to=supervisor,
+                    noted_by=request.user.production_user,
+                )
+                event.save()
+
+                # Update permissions
+                assign_perm("can_work_for_stream", supervisor.user, productionstream)
+                assign_perm(
+                    "can_perform_supervisory_actions", supervisor.user, productionstream
+                )
+                remove_perm(
+                    "can_work_for_stream", old_supervisor.user, productionstream
+                )
+                remove_perm(
+                    "can_perform_supervisory_actions",
+                    old_supervisor.user,
+                    productionstream,
+                )
+
+                # Temp fix.
+                # TODO: Implement proper email
+                ProductionUtils.load({"request": request, "stream": productionstream})
+                ProductionUtils.email_assigned_supervisor()
+
+    context = {
+        "form": form,
+    }
+
+    return render(
+        request,
+        "production/_hx_productionstream_actions_bulk_assign_officer.html",
         context,
     )
