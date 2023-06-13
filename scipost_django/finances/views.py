@@ -563,6 +563,13 @@ def _hx_worklog_delete(request, slug):
     )
 
 
+def personal_timesheet(request):
+    """
+    Overview of the user's timesheets across all production streams.
+    """
+    return render(request, "finances/personal_timesheet.html")
+
+
 ###################
 # PeriodicReports #
 ###################

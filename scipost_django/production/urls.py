@@ -16,6 +16,11 @@ urlpatterns = [
         name="production_new",
     ),
     path(
+        "team",
+        production_views.production_team,
+        name="production_team",
+    ),
+    path(
         "_hx_productionstream_list",
         production_views._hx_productionstream_list,
         name="_hx_productionstream_list",

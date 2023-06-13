@@ -1,0 +1,45 @@
+{% extends 'production/base.html' %}
+
+{% block pagetitle %}
+    : Production team
+{% endblock pagetitle %}
+
+{% load scipost_extras %}
+{% load bootstrap %}
+
+{% block content %}
+    {% if perms.scipost.can_promote_user_to_production_officer %}
+        <h2 class="highlight mb-4">Production Team</h2>
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <h3>Current Production Team</h3>
+                <ul>
+                    {% for officer in production_officers %}
+                        <li>
+                            {{ officer }}
+                            <form action="{% url 'production:update_officer' officer.id %}"
+                                  class="d-inline px-1"
+                                  method="post">
+                                {% csrf_token %}
+                                <input type="submit" class="btn btn-danger mb-1" value="Remove Officer">
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% if new_officer_form %}
+                <div class="col-12 col-md-6">
+                    <h3>Promote user to Production Officer</h3>
+                    <form action="{% url 'production:user_to_officer' %}" method="post">
+                        {% csrf_token %}
+                        {{ new_officer_form|bootstrap }}
+                        <input type="submit"
+                               class="btn btn-primary"
+                               value="Promote to Production Officer">
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+
+    {% endif %}
+{% endblock content %}

@@ -1431,3 +1431,15 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
         "production/_hx_productionstream_actions_bulk_assign_officer.html",
         context,
     )
+
+
+@permission_required(
+    "scipost.can_promote_user_to_production_officer", raise_exception=True
+)
+def production_team(request):
+    context = {
+        "production_officers": ProductionUser.objects.active(),
+        "new_officer_form": UserToOfficerForm(),
+    }
+
+    return render(request, "production/production_team.html", context)
