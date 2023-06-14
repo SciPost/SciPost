@@ -90,25 +90,6 @@ def _hx_productionstream_list(request):
 @permission_required("scipost.can_view_production", raise_exception=True)
 def _hx_productionstream_details_contents(request, productionstream_id):
     productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
-    status_form = StreamStatusForm(
-        instance=productionstream,
-        production_user=request.user.production_user,
-        auto_id=f"productionstream_{productionstream.id}_id_%s",
-    )
-    supervisor_form = AssignSupervisorForm(
-        instance=productionstream,
-        auto_id=f"productionstream_{productionstream.id}_id_%s",
-    )
-    inv_officer_form = AssignInvitationsOfficerForm(
-        instance=productionstream,
-        auto_id=f"productionstream_{productionstream.id}_id_%s",
-    )
-    prod_officer_form = AssignOfficerForm(
-        instance=productionstream,
-        auto_id=f"productionstream_{productionstream.id}_id_%s",
-    )
-
-    upload_proofs_form = ProofsUploadForm()
 
     # Determine which accordion tab to open by default
     accordion_default_open = ""
@@ -131,11 +112,6 @@ def _hx_productionstream_details_contents(request, productionstream_id):
 
     context = {
         "productionstream": productionstream,
-        "status_form": status_form,
-        "supervisor_form": supervisor_form,
-        "inv_officer_form": inv_officer_form,
-        "prod_officer_form": prod_officer_form,
-        "upload_proofs_form": upload_proofs_form,
         "accordion_default_open": accordion_default_open,
     }
     return render(
@@ -149,6 +125,7 @@ def _hx_productionstream_details_contents(request, productionstream_id):
 @permission_required("scipost.can_view_production", raise_exception=True)
 def _hx_productionstream_actions_change_properties(request, productionstream_id):
     productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
+
     status_form = StreamStatusForm(
         instance=productionstream,
         production_user=request.user.production_user,
