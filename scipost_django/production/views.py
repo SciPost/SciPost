@@ -428,9 +428,7 @@ def _hx_productionstream_actions_work_log(request, productionstream_id):
         log.content = productionstream
         log.user = request.user
         log.save()
-    else:
-        # messages.warning(request, "The form was invalidly filled.")
-        pass
+        messages.success(request, "Work Log added to Stream.")
 
     context = {
         "productionstream": productionstream,
@@ -469,25 +467,18 @@ def update_status(request, stream_id):
             auto_id=f"productionstream_{productionstream.id}_id_%s",
         )
 
-        if status_form.is_valid():
-            stream = status_form.save()
-            status_form.fields["status"].choices = status_form.get_available_statuses()
-            message = {
-                "type": "success",
-                "text": "Production Stream succesfully changed status.",
-            }
+    if status_form.is_valid():
+        status_form.save()
+        status_form.fields["status"].choices = status_form.get_available_statuses()
+        messages.success(request, "Production Stream succesfully changed status.")
 
-        else:
-            message = {
-                "type": "danger",
-                "text": "\\n".join(status_form.errors.values()),
-            }
+    else:
+        messages.error(request, "\\n".join(status_form.errors.values()))
 
-        context = {
-            "stream": productionstream,
-            "form": status_form,
-            "message": message,
-        }
+    context = {
+        "stream": productionstream,
+        "form": status_form,
+    }
 
     return render(
         request,
@@ -581,13 +572,10 @@ def update_officer(request, stream_id):
             officer_form.save()
             officer = officer_form.cleaned_data.get("officer")
 
-            # Add officer to stream if they exist.
-            if officer is not None:
-                assign_perm("can_work_for_stream", officer.user, productionstream)
-                message = {
-                    "type": "success",
-                    "text": f"Officer {officer} has been assigned.",
-                }
+        # Add officer to stream if they exist.
+        if officer is not None:
+            assign_perm("can_work_for_stream", officer.user, productionstream)
+            messages.success(request, f"Officer {officer} has been assigned.")
 
                 event = ProductionEvent(
                     stream=productionstream,
@@ -603,24 +591,18 @@ def update_officer(request, stream_id):
                 ProductionUtils.load({"request": request, "stream": productionstream})
                 ProductionUtils.email_assigned_production_officer()
 
-            # Remove old officer.
-            else:
-                remove_perm("can_work_for_stream", prev_officer.user, productionstream)
-                message = {
-                    "type": "success",
-                    "text": f"Officer {prev_officer} has been removed.",
-                }
+        # Remove old officer.
         else:
-            message = {
-                "type": "danger",
-                "text": "\\n".join(officer_form.errors.values()),
-            }
+            remove_perm("can_work_for_stream", prev_officer.user, productionstream)
+            messages.success(request, "Officer {prev_officer} has been removed.")
 
-        context = {
-            "stream": productionstream,
-            "form": officer_form,
-            "message": message,
-        }
+    else:
+        messages.error(request, "\\n".join(officer_form.errors.values()))
+
+    context = {
+        "stream": productionstream,
+        "form": officer_form,
+    }
 
     return render(
         request,
@@ -737,13 +719,12 @@ def update_invitations_officer(request, stream_id):
                 "invitations_officer"
             )
 
-            # Add invitations officer to stream if they exist.
-            if inv_officer is not None:
-                assign_perm("can_work_for_stream", inv_officer.user, productionstream)
-                message = {
-                    "type": "success",
-                    "text": f"Invitations Officer {inv_officer} has been assigned.",
-                }
+        # Add invitations officer to stream if they exist.
+        if inv_officer is not None:
+            assign_perm("can_work_for_stream", inv_officer.user, productionstream)
+            messages.success(
+                request, f"Invitations Officer {inv_officer} has been assigned."
+            )
 
                 event = ProductionEvent(
                     stream=productionstream,
@@ -759,27 +740,19 @@ def update_invitations_officer(request, stream_id):
                 ProductionUtils.load({"request": request, "stream": productionstream})
                 ProductionUtils.email_assigned_invitation_officer()
 
-            # Remove old invitations officer.
-            else:
-                remove_perm(
-                    "can_work_for_stream", prev_inv_officer.user, productionstream
-                )
-                message = {
-                    "type": "success",
-                    "text": f"Invitations Officer {prev_inv_officer} has been removed.",
-                }
-
+        # Remove old invitations officer.
         else:
-            message = {
-                "type": "danger",
-                "text": "\\n".join(invitations_officer_form.errors.values()),
-            }
+            remove_perm("can_work_for_stream", prev_inv_officer.user, productionstream)
+            messages.success(
+                request, f"Invitations Officer {prev_inv_officer} has been removed."
+            )
+    else:
+        messages.error(request, "\\n".join(invitations_officer_form.errors.values()))
 
-        context = {
-            "stream": productionstream,
-            "form": invitations_officer_form,
-            "message": message,
-        }
+    context = {
+        "stream": productionstream,
+        "form": invitations_officer_form,
+    }
 
     return render(
         request,
@@ -882,10 +855,7 @@ def update_supervisor(request, stream_id):
 
         # Add supervisor to stream if they exist.
         if supervisor is not None:
-            message = {
-                "type": "success",
-                "text": f"Supervisor {supervisor} has been assigned.",
-            }
+            messages.success(request, f"Supervisor {supervisor} has been assigned.")
 
             assign_perm("can_work_for_stream", supervisor.user, productionstream)
             assign_perm(
@@ -914,21 +884,14 @@ def update_supervisor(request, stream_id):
                 prev_supervisor.user,
                 productionstream,
             )
-            message = {
-                "type": "success",
-                "text": f"Supervisor {prev_supervisor} has been removed.",
-            }
+            messages.success(request, f"Supervisor {prev_supervisor} has been removed.")
 
     else:
-        message = {
-            "type": "danger",
-            "text": "\\n".join(supervisor_form.errors.values()),
-        }
+        messages.error(request, "\\n".join(supervisor_form.errors.values()))
 
     context = {
         "stream": productionstream,
         "form": supervisor_form,
-        "message": message,
     }
 
     return render(
