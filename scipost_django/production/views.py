@@ -21,6 +21,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 
 from finances.forms import WorkLogForm
 from mails.views import MailEditorSubviewHTMX
+from scipost.views import HTMXPermissionsDenied
 
 from . import constants
 from .models import (
@@ -415,7 +416,7 @@ def _hx_productionstream_actions_work_log(request, productionstream_id):
     productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_work_for_stream", productionstream):
-        return redirect(productionstream.get_absolute_url())
+        return HTMXPermissionsDenied("You cannot work in this stream.")
 
     if request.user.has_perm("scipost.can_view_all_production_streams"):
         types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
@@ -450,22 +451,19 @@ def update_status(request, stream_id):
     productionstream = get_object_or_404(
         ProductionStream.objects.ongoing(), pk=stream_id
     )
+
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_perform_supervisory_actions", productionstream):
-        context = {
-            "stream": productionstream,
-            "message": {
-                "type": "danger",
-                "text": "You do not have permission to perform this action. ",
-            },
-        }
-    else:
-        status_form = StreamStatusForm(
-            request.POST or None,
-            instance=productionstream,
-            production_user=request.user.production_user,
-            auto_id=f"productionstream_{productionstream.id}_id_%s",
+        return HTMXPermissionsDenied(
+            "You cannot perform supervisory actions in this stream."
         )
+
+    status_form = StreamStatusForm(
+        request.POST or None,
+        instance=productionstream,
+        production_user=request.user.production_user,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
+    )
 
     if status_form.is_valid():
         status_form.save()
@@ -555,41 +553,41 @@ def update_officer(request, stream_id):
         ProductionStream.objects.ongoing(), pk=stream_id
     )
     prev_officer = productionstream.officer
-    checker = ObjectPermissionChecker(request.user)
 
+    checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_perform_supervisory_actions", productionstream):
-        context = {
-            "stream": productionstream,
-            "message": "You do not have permission to perform this action. ",
-        }
-    else:
-        officer_form = AssignOfficerForm(
-            request.POST or None,
-            instance=productionstream,
-            auto_id=f"productionstream_{productionstream.id}_id_%s",
+        return HTMXPermissionsDenied(
+            "You cannot perform supervisory actions in this stream."
         )
-        if officer_form.is_valid():
-            officer_form.save()
-            officer = officer_form.cleaned_data.get("officer")
+
+    officer_form = AssignOfficerForm(
+        request.POST or None,
+        instance=productionstream,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
+    )
+
+    if officer_form.is_valid():
+        officer_form.save()
+        officer = officer_form.cleaned_data.get("officer")
 
         # Add officer to stream if they exist.
         if officer is not None:
             assign_perm("can_work_for_stream", officer.user, productionstream)
             messages.success(request, f"Officer {officer} has been assigned.")
 
-                event = ProductionEvent(
-                    stream=productionstream,
-                    event="assignment",
-                    comments=" tasked Production Officer with proofs production:",
-                    noted_to=officer,
-                    noted_by=request.user.production_user,
-                )
-                event.save()
+            event = ProductionEvent(
+                stream=productionstream,
+                event="assignment",
+                comments=" tasked Production Officer with proofs production:",
+                noted_to=officer,
+                noted_by=request.user.production_user,
+            )
+            event.save()
 
-                # Temp fix.
-                # TODO: Implement proper email
-                ProductionUtils.load({"request": request, "stream": productionstream})
-                ProductionUtils.email_assigned_production_officer()
+            # Temp fix.
+            # TODO: Implement proper email
+            ProductionUtils.load({"request": request, "stream": productionstream})
+            ProductionUtils.email_assigned_production_officer()
 
         # Remove old officer.
         else:
@@ -700,24 +698,18 @@ def update_invitations_officer(request, stream_id):
     checker = ObjectPermissionChecker(request.user)
 
     if not checker.has_perm("can_perform_supervisory_actions", productionstream):
-        context = {
-            "stream": productionstream,
-            "message": {
-                "type": "danger",
-                "text": "You do not have permission to perform this action. ",
-            },
-        }
-    else:
-        invitations_officer_form = AssignInvitationsOfficerForm(
-            request.POST or None,
-            instance=productionstream,
-            auto_id=f"productionstream_{productionstream.id}_id_%s",
+        return HTMXPermissionsDenied(
+            "You cannot perform supervisory actions in this stream."
         )
-        if invitations_officer_form.is_valid():
-            invitations_officer_form.save()
-            inv_officer = invitations_officer_form.cleaned_data.get(
-                "invitations_officer"
-            )
+
+    invitations_officer_form = AssignInvitationsOfficerForm(
+        request.POST or None,
+        instance=productionstream,
+        auto_id=f"productionstream_{productionstream.id}_id_%s",
+    )
+    if invitations_officer_form.is_valid():
+        invitations_officer_form.save()
+        inv_officer = invitations_officer_form.cleaned_data.get("invitations_officer")
 
         # Add invitations officer to stream if they exist.
         if inv_officer is not None:
@@ -726,19 +718,19 @@ def update_invitations_officer(request, stream_id):
                 request, f"Invitations Officer {inv_officer} has been assigned."
             )
 
-                event = ProductionEvent(
-                    stream=productionstream,
-                    event="assignment",
-                    comments=" tasked Invitations Officer with invitations:",
-                    noted_to=inv_officer,
-                    noted_by=request.user.production_user,
-                )
-                event.save()
+            event = ProductionEvent(
+                stream=productionstream,
+                event="assignment",
+                comments=" tasked Invitations Officer with invitations:",
+                noted_to=inv_officer,
+                noted_by=request.user.production_user,
+            )
+            event.save()
 
-                # Temp fix.
-                # TODO: Implement proper email
-                ProductionUtils.load({"request": request, "stream": productionstream})
-                ProductionUtils.email_assigned_invitation_officer()
+            # Temp fix.
+            # TODO: Implement proper email
+            ProductionUtils.load({"request": request, "stream": productionstream})
+            ProductionUtils.email_assigned_invitation_officer()
 
         # Remove old invitations officer.
         else:
@@ -962,13 +954,10 @@ def upload_proofs(request, stream_id):
     Upload the production version .pdf of a submission.
     """
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_work_for_stream", stream):
-        return HttpResponse(
-            r"""<div class="text-danger border border-danger p-3">
-                You are forbidden from working in this stream.
-            </div>"""
-        )
+        return HTMXPermissionsDenied("You cannot work in this stream.")
 
     form = ProofsUploadForm(request.POST or None, request.FILES or None)
     if form.is_valid():
