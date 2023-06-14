@@ -156,6 +156,7 @@ urlpatterns = [
         TemplateView.as_view(template_name="scipost/acknowledgement.html"),
         name="acknowledgement",
     ),
+    path("messages", views._hx_messages, name="_hx_messages"),
     #
     #######
     # Info

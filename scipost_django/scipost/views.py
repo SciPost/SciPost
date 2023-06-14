@@ -175,6 +175,10 @@ def trigger_error(request):
     division_by_zero = 1 / 0
 
 
+def _hx_messages(request):
+    return render(request, "scipost/_hx_messages.html")
+
+
 #############
 # Main view
 #############
