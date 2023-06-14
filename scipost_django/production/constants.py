@@ -74,16 +74,3 @@ PRODUCTION_ALL_WORK_LOG_TYPES = (
         "Cited people have been notified/invited to SciPost",
     ),
 )
-
-PROOFS_REPO_UNINITIALIZED = "uninitialized"
-PROOFS_REPO_CREATED = "created"
-PROOFS_REPO_TEMPLATE_ONLY = "template_only"
-PROOFS_REPO_TEMPLATE_FORMATTED = "template_formatted"
-PROOFS_REPO_PRODUCTION_READY = "production_ready"
-PROOFS_REPO_STATUSES = (
-    (PROOFS_REPO_UNINITIALIZED, "The repository does not exist"),
-    (PROOFS_REPO_CREATED, "The repository exists but is empty"),
-    (PROOFS_REPO_TEMPLATE_ONLY, "The repository contains the bare template"),
-    (PROOFS_REPO_TEMPLATE_FORMATTED, "The repository contains the automatically formatted template"),
-    (PROOFS_REPO_PRODUCTION_READY, "The repository is ready for production"),
-)
