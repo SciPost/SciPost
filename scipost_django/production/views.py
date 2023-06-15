@@ -21,7 +21,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 
 from finances.forms import WorkLogForm
 from mails.views import MailEditorSubviewHTMX
-from scipost.views import HTMXPermissionsDenied
+from scipost.views import HTMXPermissionsDenied, HTMXResponse
 
 from . import constants
 from .models import (
@@ -343,6 +343,26 @@ def user_to_officer(request):
 
 
 @is_production_user()
+@permission_required("scipost.can_promote_user_to_production_officer")
+def _hx_team_promote_user(request):
+    form = UserToOfficerForm(request.POST or None)
+    if form.is_valid():
+        if (officer := form.save()) and (user := getattr(officer, "user", None)):
+            # Add permission group
+            group = Group.objects.get(name="Production Officers")
+            user.groups.add(group)
+            messages.success(
+                request, "{user} promoted to Production Officer".format(user=officer)
+            )
+
+    return render(
+        request,
+        "production/_hx_team_promote_user.html",
+        {"form": form},
+    )
+
+
+@is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
 def add_event(request, stream_id):
     qs = ProductionStream.objects.ongoing()
@@ -601,6 +621,27 @@ def delete_officer(request, officer_id):
         request, "{user} removed as Production Officer".format(user=production_user)
     )
     return redirect(reverse("production:production"))
+
+
+@is_production_user()
+@permission_required("scipost.can_promote_user_to_production_officer")
+def _hx_team_delete_officer(request, officer_id):
+    production_user = get_object_or_404(ProductionUser.objects.active(), id=officer_id)
+    production_user.name = "{first_name} {last_name}".format(
+        first_name=production_user.user.first_name,
+        last_name=production_user.user.last_name,
+    )
+    production_user.user = None
+    production_user.save()
+
+    messages.success(
+        request, "{user} removed as Production Officer".format(user=production_user)
+    )
+
+    return HTMXResponse(
+        "Production Officer {user} has been removed.".format(user=production_user),
+        tag="danger",
+    )
 
 
 @is_production_user()
@@ -1367,8 +1408,21 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
 )
 def production_team(request):
     context = {
-        "production_officers": ProductionUser.objects.active(),
+        "production_officers": ProductionUser.objects.active().filter(
+            user__groups__name="Production Officers"
+        ),
         "new_officer_form": UserToOfficerForm(),
     }
-
     return render(request, "production/production_team.html", context)
+
+
+@permission_required(
+    "scipost.can_promote_user_to_production_officer", raise_exception=True
+)
+def production_team_list(request):
+    context = {
+        "officers": ProductionUser.objects.active().filter(
+            user__groups__name="Production Officers"
+        ),
+    }
+    return render(request, "production/production_team_list.html", context)

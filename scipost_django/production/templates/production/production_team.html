@@ -5,40 +5,29 @@
 {% endblock pagetitle %}
 
 {% load scipost_extras %}
-{% load bootstrap %}
 
 {% block content %}
     {% if perms.scipost.can_promote_user_to_production_officer %}
-        <h2 class="highlight mb-4">Production Team</h2>
-        <div class="row">
-            <div class="col-12 col-md-6">
-                <h3>Current Production Team</h3>
-                <ul>
-                    {% for officer in production_officers %}
-                        <li>
-                            {{ officer }}
-                            <form action="{% url 'production:update_officer' officer.id %}"
-                                  class="d-inline px-1"
-                                  method="post">
-                                {% csrf_token %}
-                                <input type="submit" class="btn btn-danger mb-1" value="Remove Officer">
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
+        <h2 class="highlight mb-4 d-flex flex-row">
+            Production Team
+            <div class="htmx-indicator ms-auto" id="production-team-indicator">
+                <button class="btn btn-sm btn-warning" type="button" disabled>
+                    <strong>Loading...</strong>
+                    <div class="spinner-grow spinner-grow-sm ms-2"
+                         role="status"
+                         aria-hidden="true"></div>
+                </button>
             </div>
-            {% if new_officer_form %}
-                <div class="col-12 col-md-6">
-                    <h3>Promote user to Production Officer</h3>
-                    <form action="{% url 'production:user_to_officer' %}" method="post">
-                        {% csrf_token %}
-                        {{ new_officer_form|bootstrap }}
-                        <input type="submit"
-                               class="btn btn-primary"
-                               value="Promote to Production Officer">
-                    </form>
-                </div>
-            {% endif %}
+        </h2>
+        <div class="row">
+            <div id="production-team-delete-officer"
+                 class="col-12 col-md-6"
+                 hx-get="{% url 'production:production_team_list' %}"
+                 hx-trigger="load, submit from:body target:form delay:1000"
+                 hx-indicator="#production-team-indicator"></div>
+            <div id="production-team-promote-user" class="col-12 col-md-6">
+                {% include 'production/_hx_team_promote_user.html' with form=new_officer_form %}
+            </div>
         </div>
 
     {% endif %}

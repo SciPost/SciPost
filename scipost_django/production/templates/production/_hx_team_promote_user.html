@@ -1,0 +1,15 @@
+{% load bootstrap %}
+
+<h3>Promote user to Production Officer</h3>
+{% if form %}
+  <form hx-post="{% url 'production:_hx_team_promote_user' %}"
+        hx-target="#production-team-promote-user"
+        hx-trigger="submit, htmx:trigger from:body delay:1000"
+        hx-indicator="#production-team-indicator">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit"
+           class="btn btn-primary"
+           value="Promote to Production Officer">
+  </form>
+{% endif %}

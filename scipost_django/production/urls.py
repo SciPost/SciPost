@@ -17,8 +17,30 @@ urlpatterns = [
     ),
     path(
         "team",
-        production_views.production_team,
-        name="production_team",
+        include(
+            [
+                path(
+                    "",
+                    production_views.production_team,
+                    name="production_team",
+                ),
+                path(
+                    "list",
+                    production_views.production_team_list,
+                    name="production_team_list",
+                ),
+                path(
+                    "_hx_delete_officer/<int:officer_id>/",
+                    production_views._hx_team_delete_officer,
+                    name="_hx_team_delete_officer",
+                ),
+                path(
+                    "_hx_promote_user",
+                    production_views._hx_team_promote_user,
+                    name="_hx_team_promote_user",
+                ),
+            ]
+        ),
     ),
     path(
         "_hx_productionstream_list",

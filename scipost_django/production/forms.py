@@ -180,20 +180,28 @@ class UserToOfficerForm(forms.ModelForm):
     user = UserModelChoiceField(
         queryset=get_user_model()
         .objects.filter(production_user__isnull=True)
-        .order_by("last_name")
+        .order_by("last_name"),
+        required=False,
     )
 
     class Meta:
         model = ProductionUser
         fields = ("user",)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["user"].queryset = (
-            self.fields["user"]
-            .queryset.filter(production_user__isnull=True)
-            .order_by("last_name")
-        )
+    def save(self, commit=True):
+        if user := self.cleaned_data["user"]:
+            existing_production_user = ProductionUser.objects.filter(
+                name=f"{user.first_name} {user.last_name}"
+            ).first()
+            if existing_production_user:
+                existing_production_user.user = user
+                existing_production_user.save()
+
+            else:
+                production_user = ProductionUser.objects.create(
+                    name=f"{user.first_name} {user.last_name}", user=user
+                )
+                production_user.save()
 
 
 class ProofsUploadForm(forms.ModelForm):
