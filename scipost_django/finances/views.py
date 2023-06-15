@@ -39,6 +39,7 @@ from comments.utils import validate_file_extention
 from journals.models import Journal, Publication
 from organizations.models import Organization
 from scipost.mixins import PermissionsMixin
+from scipost.views import HTMXPermissionsDenied, HTMXResponse
 
 
 def publishing_years():
@@ -554,13 +555,15 @@ class LogDeleteView(LoginRequiredMixin, DeleteView):
 @permission_required("scipost.can_view_production", raise_exception=True)
 def _hx_worklog_delete(request, slug):
     log = get_object_or_404(WorkLog, pk=slug_to_id(slug))
+
+    if request.user != log.user:
+        return HTMXPermissionsDenied(
+            "You do not have permission to delete this work log."
+        )
+
     log.delete()
 
-    return HttpResponse(
-        r"""<div class="text-danger border border-danger p-3">
-                Work log has been deleted.
-            </div>"""
-    )
+    return HTMXResponse("Work log has been deleted.", tag="danger")
 
 
 def personal_timesheet(request):
