@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import factory
 import pytz
+import random
 
 from faker import Faker
 
@@ -308,6 +309,11 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
 
     @factory.post_generation
     def referee_invites(self, create, extracted, **kwargs):
+        from submissions.factories import (
+            FulfilledRefereeInvitationFactory,
+            CancelledRefereeInvitationFactory
+        )
+        
         for i in range(random.randint(2, 4)):
             FulfilledRefereeInvitationFactory(submission=self)
         for i in range(random.randint(0, 2)):

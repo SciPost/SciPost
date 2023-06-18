@@ -88,3 +88,8 @@ CSP_REPORT_ONLY = False
 CORS_ALLOWED_ORIGINS = [
     "https://git.scipost.org",
 ]
+
+# GitLab API
+GITLAB_ROOT = "SciPost"
+GITLAB_URL = "git.scipost.org"
+GITLAB_KEY = get_secret("GITLAB_KEY")

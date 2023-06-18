@@ -12,6 +12,7 @@ from .models import (
     ProductionUser,
     Proofs,
     ProductionEventAttachment,
+    ProofsRepository,
 )
 
 
@@ -95,3 +96,17 @@ admin.site.register(Proofs, ProductionProofsAdmin)
 
 
 admin.site.register(ProductionEventAttachment)
+
+
+class ProofsRepositoryAdmin(GuardedModelAdmin):
+    search_fields = [
+        "stream__submission__author_list",
+        "stream__submission__title",
+        "stream__submission__preprint__identifier_w_vn_nr",
+    ]
+    list_filter = ["status"]
+    list_display = ["stream", "status", "git_path"]
+    readonly_fields = ["template_path", "git_path"]
+
+
+admin.site.register(ProofsRepository, ProofsRepositoryAdmin)

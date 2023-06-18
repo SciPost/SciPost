@@ -3,7 +3,7 @@ argon2-cffi==20.1.0		# 2021-07-18 Password hashing algorithm
 Babel==2.9.1			# 2022-01-23
 Django==3.2.18			# 2023-05-06
 feedparser~=6.0.8     # Check: not updated since 2016. [JdW, 2021-09-25] Upgrade to v6; v5 fails.
-psycopg2==2.8.6	  		# 2020-09-19 PostgreSQL engine
+psycopg2==2.9.5	  		# 2020-09-19 PostgreSQL engine -- 2023-05-10 update for python 3.11
 pytz==2021.3			# 2022-11-18 Timezone package
 # djangorestframework==3.9.3	# DEPREC, see next entry -- 2019-12-05  IMPORTANT: update templates/rest_framework/base.html if corresponding file rest_framework/templates/rest_framework/base.html has changed
 git+https://github.com/SciPost/django-rest-framework.git@bootstrap-v5
@@ -80,9 +80,15 @@ celery==5.2.7 		            # 2022-11-18
 django-celery-results==2.4.0 	    # 2022-11-18
 django-celery-beat==2.4.0	    # 2022-11-18
 flower==1.2.0 			    # 2022-11-18
-
+mailchimp3==3.0.18         # 2023-05-09
 
 # Security-related packages
 django-referrer-policy==1.0	# 2020-09-19 no new updates for 3 years
 django-csp==3.7			# 2020-09-19
 django-feature-policy==3.4.0	# 2020-09-19
+
+# Version Control
+python-gitlab==3.14.0		# 2023-05-15
+
+# Preprint server packages
+arxiv==1.4.7            # 2023-05-19
