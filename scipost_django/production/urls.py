@@ -140,15 +140,30 @@ urlpatterns = [
                                             production_views.decision,
                                             name="decision",
                                         ),
+                                        re_path(
+                                            "_hx_proofs_decision/(?P<decision>accept|decline)$",
+                                            production_views._hx_proofs_decision,
+                                            name="_hx_proofs_decision",
+                                        ),
                                         path(
                                             "send_to_authors",
                                             production_views.send_proofs,
                                             name="send_proofs",
                                         ),
                                         path(
+                                            "_hx_send_to_authors",
+                                            production_views._hx_send_proofs,
+                                            name="_hx_send_proofs",
+                                        ),
+                                        path(
                                             "toggle_access",
                                             production_views.toggle_accessibility,
                                             name="toggle_accessibility",
+                                        ),
+                                        path(
+                                            "_hx_toggle_access",
+                                            production_views._hx_toggle_accessibility,
+                                            name="_hx_toggle_accessibility",
                                         ),
                                     ]
                                 ),

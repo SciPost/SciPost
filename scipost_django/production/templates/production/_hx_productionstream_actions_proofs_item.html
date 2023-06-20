@@ -42,7 +42,7 @@
                 {% if proofs.status == 'uploaded' %}
                     <div class="col-6 col-sm-3 col-md-6 col-lg-3 h-100 d-none-empty">
                         <div class="row m-0 d-none-empty">
-                            <button hx-get="{% url 'production:decision' proofs.stream.id proofs.version 'accept' %}"
+                            <button hx-get="{% url 'production:_hx_proofs_decision' proofs.stream.id proofs.version 'accept' %}"
                                     hx-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-item"
                                     hx-swap="outerHTML"
                                     class="btn btn-sm btn-primary proof-action-button">Accept</button>
@@ -50,7 +50,7 @@
                     </div>
                     <div class="col-6 col-sm-3 col-md-6 col-lg-3 h-100 d-none-empty">
                         <div class="row m-0 d-none-empty">
-                            <button hx-get="{% url 'production:decision' proofs.stream.id proofs.version 'decline' %}"
+                            <button hx-get="{% url 'production:_hx_proofs_decision' proofs.stream.id proofs.version 'decline' %}"
                                     hx-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-item"
                                     hx-swap="outerHTML"
                                     class="btn btn-sm btn-danger proof-action-button">Decline</button>
@@ -59,7 +59,7 @@
                 {% elif proofs.status == 'accepted_sup' %}
                     <div class="col-12 col-sm-6 col-md-12 col-lg-6 h-100 d-none-empty">
                         <div class="row m-0 d-none-empty">
-                            <button hx-get="{% url 'production:send_proofs' proofs.stream.id proofs.version %}"
+                            <button hx-get="{% url 'production:_hx_send_proofs' proofs.stream.id proofs.version %}"
                                     hx-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-action-row"
                                     hx-swap="afterend"
                                     class="btn btn-sm btn-warning">Send proofs to authors</button>
@@ -68,7 +68,7 @@
                 {% else %}
                     <div class="col-12 col-sm-6 col-md-12 col-lg-6 h-100 d-none-empty">
                         <div class="row m-0 d-none-empty">
-                            <button hx-get="{% url 'production:toggle_accessibility' proofs.stream.id proofs.version %}"
+                            <button hx-get="{% url 'production:_hx_toggle_accessibility' proofs.stream.id proofs.version %}"
                                     hx-target="#productionstream-{{ stream.id }}-proofs-list-accordion-proofs-{{ proofs.version }}-item"
                                     hx-swap="outerHTML"
                                     class="btn btn-sm btn-primary">

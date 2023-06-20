@@ -44,7 +44,7 @@ from .forms import (
     ProofsDecisionForm,
     AssignInvitationsOfficerForm,
 )
-from .permissions import is_production_user
+from .permissions import is_production_user, permission_required_htmx
 from .utils import proofs_slug_to_id, ProductionUtils
 
 
@@ -93,6 +93,10 @@ def _hx_productionstream_details_contents(request, productionstream_id):
 
     # Determine which accordion tab to open by default
     accordion_default_open = ""
+
+    if request.user.has_perm("scipost.can_assign_production_supervisor"):
+        accordion_default_open = "change-properties"
+
     if request.user.production_user == productionstream.supervisor:
         if productionstream.status in [
             constants.PROOFS_ACCEPTED,
@@ -408,7 +412,10 @@ def add_work_log(request, stream_id):
 
 
 @is_production_user()
-@permission_required("scipost.can_view_production", raise_exception=True)
+@permission_required_htmx(
+    ("scipost.can_view_production",),
+    message="You cannot view production.",
+)
 def _hx_productionstream_actions_work_log(request, productionstream_id):
     productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
     checker = ObjectPermissionChecker(request.user)
@@ -441,8 +448,13 @@ def _hx_productionstream_actions_work_log(request, productionstream_id):
 
 
 @is_production_user()
-@permission_required(
-    "scipost.can_take_decisions_related_to_proofs", raise_exception=True
+@permission_required_htmx(
+    (
+        "scipost.can_view_production",
+        "scipost.can_take_decisions_related_to_proofs",
+    ),
+    message="You do not have permission to update the status of this stream.",
+    css_class="row",
 )
 def update_status(request, stream_id):
     productionstream = get_object_or_404(
@@ -543,7 +555,14 @@ def remove_officer(request, stream_id, officer_id):
 
 
 @is_production_user()
-@permission_required("scipost.can_assign_production_officer", raise_exception=True)
+@permission_required_htmx(
+    (
+        "scipost.can_view_production",
+        "scipost.can_assign_production_officer",
+    ),
+    message="You do not have permission to update the officer of this stream.",
+    css_class="row",
+)
 @transaction.atomic
 def update_officer(request, stream_id):
     productionstream = get_object_or_404(
@@ -706,7 +725,14 @@ def remove_invitations_officer(request, stream_id, officer_id):
 
 
 @is_production_user()
-@permission_required("scipost.can_assign_production_officer", raise_exception=True)
+@permission_required_htmx(
+    (
+        "scipost.can_view_production",
+        "scipost.can_assign_production_officer",
+    ),
+    message="You do not have permission to update the invitations officer of this stream.",
+    css_class="row",
+)
 @transaction.atomic
 def update_invitations_officer(request, stream_id):
     productionstream = get_object_or_404(
@@ -846,7 +872,11 @@ class UpdateEventView(UpdateView):
 
 
 @is_production_user()
-@permission_required("scipost.can_assign_production_supervisor", raise_exception=True)
+@permission_required_htmx(
+    ("scipost.can_view_production", "scipost.can_assign_production_supervisor"),
+    message="You do not have permission to update the supervisor of this stream.",
+    css_class="row",
+)
 @transaction.atomic
 def update_supervisor(request, stream_id):
     productionstream = get_object_or_404(
@@ -964,7 +994,13 @@ def mark_as_completed(request, stream_id):
 
 
 @is_production_user()
-@permission_required("scipost.can_upload_proofs", raise_exception=True)
+@permission_required_htmx(
+    (
+        "scipost.can_view_production",
+        "scipost.can_upload_proofs",
+    ),
+    message="You cannot upload proofs for this stream.",
+)
 @transaction.atomic
 def upload_proofs(request, stream_id):
     """
@@ -1028,6 +1064,7 @@ def proofs(request, stream_id, version):
     return render(request, "production/proofs.html", context)
 
 
+@permission_required("scipost.can_view_production", raise_exception=True)
 def proofs_pdf(request, slug):
     """Open Proofs pdf."""
     if not request.user.is_authenticated:
@@ -1038,14 +1075,12 @@ def proofs_pdf(request, slug):
     proofs = get_object_or_404(Proofs, id=proofs_slug_to_id(slug))
     stream = proofs.stream
 
-    # Check if user has access!
+    # Check if user has access!η
     checker = ObjectPermissionChecker(request.user)
-    access = checker.has_perm("can_work_for_stream", stream) and request.user.has_perm(
-        "scipost.can_view_production"
-    )
-    if not access and request.user.contributor:
-        access = request.user.contributor in proofs.stream.submission.authors.all()
-    if not access:
+    can_work_for_stream = checker.has_perm("can_work_for_stream", stream)
+    is_submission_author = request.user.contributor in stream.submission.authors.all()
+
+    if not (can_work_for_stream or is_submission_author):
         raise Http404
 
     # Passed the test! The user may see the file!
@@ -1133,6 +1168,37 @@ def toggle_accessibility(request, stream_id, version):
     proofs.accessible_for_authors = not proofs.accessible_for_authors
     proofs.save()
     messages.success(request, "Proofs accessibility updated.")
+    return redirect(reverse("production:proofs", args=(stream.id, proofs.version)))
+
+
+@is_production_user()
+@permission_required_htmx(
+    (
+        "scipost.can_view_production",
+        "scipost.can_take_decisions_related_to_proofs",
+        "scipost.can_run_proofs_by_authors",
+    ),
+    message="You cannot make proofs accessible to the authors.",
+)
+def _hx_toggle_accessibility(request, stream_id, version):
+    """
+    Open/close accessibility of proofs to the authors.
+    """
+    stream = get_object_or_404(ProductionStream.objects.all(), pk=stream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm("can_work_for_stream", stream):
+        return HTMXPermissionsDenied("You cannot work in this stream.")
+
+    try:
+        proofs = stream.proofs.exclude(status=constants.PROOFS_UPLOADED).get(
+            version=version
+        )
+    except Proofs.DoesNotExist:
+        return HTMXResponse("Proofs do not exist.", tag="danger")
+
+    proofs.accessible_for_authors = not proofs.accessible_for_authors
+    proofs.save()
+    messages.success(request, "Proofs accessibility updated.")
     return render(
         request,
         "production/_hx_productionstream_actions_proofs_item.html",
@@ -1184,6 +1250,56 @@ def decision(request, stream_id, version, decision):
     )
     prodevent.save()
     messages.success(request, "Proofs have been {decision}.".format(decision=decision))
+    return redirect(reverse("production:proofs", args=(stream.id, proofs.version)))
+
+
+@is_production_user()
+@permission_required_htmx(
+    (
+        "scipost.can_view_production",
+        "scipost.can_take_decisions_related_to_proofs",
+        "scipost.can_run_proofs_by_authors",
+    ),
+    message="You cannot accept or decline proofs.",
+)
+@transaction.atomic
+def _hx_proofs_decision(request, stream_id, version, decision):
+    """
+    Send/open proofs to the authors. This decision is taken by the supervisor.
+    """
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm("can_work_for_stream", stream):
+        return HTMXPermissionsDenied("You cannot work in this stream.")
+
+    try:
+        proofs = stream.proofs.get(version=version, status=constants.PROOFS_UPLOADED)
+    except Proofs.DoesNotExist:
+        return HTMXResponse("Proofs do not exist.", tag="danger")
+
+    if decision == "accept":
+        stream.status = constants.PROOFS_CHECKED
+        proofs.status = constants.PROOFS_ACCEPTED_SUP
+        decision = "accepted"
+    else:
+        stream.status = constants.PROOFS_TASKED
+        proofs.status = constants.PROOFS_DECLINED_SUP
+        proofs.accessible_for_authors = False
+        decision = "declined"
+
+    stream.save()
+    proofs.save()
+
+    prodevent = ProductionEvent(
+        stream=stream,
+        event="status",
+        comments="Proofs version {version} are {decision}.".format(
+            version=proofs.version, decision=decision
+        ),
+        noted_by=request.user.production_user,
+    )
+    prodevent.save()
+    messages.success(request, f"Proofs have been {decision}.")
     return render(
         request,
         "production/_hx_productionstream_actions_proofs_item.html",
@@ -1247,6 +1363,80 @@ def send_proofs(request, stream_id, version):
 
     messages.success(request, "Proofs have been sent.")
     return redirect(stream.get_absolute_url())
+
+
+@is_production_user()
+@permission_required_htmx(
+    (
+        "scipost.can_view_production",
+        "scipost.can_take_decisions_related_to_proofs",
+        "scipost.can_run_proofs_by_authors",
+    ),
+    message="You cannot send proofs to the authors.",
+)
+@transaction.atomic
+def _hx_send_proofs(request, stream_id, version):
+    """
+    Send/open proofs to the authors.
+    """
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm("can_work_for_stream", stream):
+        return HTMXPermissionsDenied("You cannot work in this stream.")
+
+    try:
+        proofs = stream.proofs.can_be_send().get(version=version)
+    except Proofs.DoesNotExist:
+        return HTMXResponse("Proofs do not exist.", tag="danger")
+
+    proofs.status = constants.PROOFS_SENT
+    proofs.accessible_for_authors = True
+
+    if stream.status not in [
+        constants.PROOFS_PUBLISHED,
+        constants.PROOFS_CITED,
+        constants.PRODUCTION_STREAM_COMPLETED,
+    ]:
+        stream.status = constants.PROOFS_SENT
+        stream.save()
+
+    mail_request = MailEditorSubviewHTMX(
+        request,
+        "production_send_proofs",
+        proofs=proofs,
+        context={
+            "view_url": reverse("production:_hx_send_proofs", args=[stream_id, version])
+        },
+    )
+
+    print(request)
+
+    if request.method == "GET":
+        return mail_request.interrupt()
+
+    if mail_request.is_valid():
+        proofs.save()
+        stream.save()
+
+        mail_request.send_mail()
+
+        prodevent = ProductionEvent(
+            stream=stream,
+            event="status",
+            comments="Proofs version {version} sent to authors.".format(
+                version=proofs.version
+            ),
+            noted_by=request.user.production_user,
+        )
+        prodevent.save()
+
+        messages.success(request, "Proofs have been sent.")
+        return HTMXResponse("Proofs have been sent to the authors.", tag="success")
+    else:
+        messages.error(request, "Proofs have not been sent.")
+        return HTMXResponse(
+            "Proofs have not been sent. Please check the form.", tag="danger"
+        )
 
 
 def render_action_buttons(request, stream_id, key):

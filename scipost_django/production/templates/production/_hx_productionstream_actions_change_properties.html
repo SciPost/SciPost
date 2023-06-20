@@ -1,7 +1,16 @@
 {% load bootstrap %}
 {% load scipost_extras %}
+{% load guardian_tags %}
 
-{% include "production/_hx_productionstream_change_status.html" with form=status_form stream=productionstream %}
-{% include "production/_hx_productionstream_change_supervisor.html" with form=supervisor_form stream=productionstream %}
-{% include "production/_hx_productionstream_change_officer.html" with form=officer_form stream=productionstream %}
-{% include "production/_hx_productionstream_change_invitations_officer.html" with form=invitations_officer_form stream=productionstream %}
+{% get_obj_perms request.user for productionstream as "sub_perms" %}
+
+{% if "can_work_for_stream" in sub_perms and perms.scipost.can_take_decisions_related_to_proofs %}
+    {% include "production/_hx_productionstream_change_status.html" with form=status_form stream=productionstream %}
+{% endif %}
+{% if perms.scipost.can_assign_production_supervisor %}
+    {% include "production/_hx_productionstream_change_supervisor.html" with form=supervisor_form stream=productionstream %}
+{% endif %}
+{% if "can_work_for_stream" in sub_perms and perms.scipost.can_assign_production_officer %}
+    {% include "production/_hx_productionstream_change_officer.html" with form=officer_form stream=productionstream %}
+    {% include "production/_hx_productionstream_change_invitations_officer.html" with form=invitations_officer_form stream=productionstream %}
+{% endif %}

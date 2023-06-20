@@ -5,7 +5,7 @@
         <form hx-post="{% url 'production:update_invitations_officer' stream.id %}"
               hx-target="#productionstream-{{ stream.id }}-update-invitations_officer"
               hx-swap="outerHTML"
-              class="row">
+              class="row mb-0">
             {% csrf_token %}
             <div class="col">{{ form|bootstrap_purely_inline }}</div>
             <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty"

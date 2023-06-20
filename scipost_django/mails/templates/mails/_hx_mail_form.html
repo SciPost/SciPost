@@ -1,9 +1,6 @@
 {% load bootstrap %}
 
-<h2 class="text-danger">HTMX send mail view is not working ATM.</h2>
-<form enctype="multipart/form-data"
-      method="post"
-      class="border border-danger p-2">
+<form hx-post="{{ view_url }}">
     {% csrf_token %}
     {% if transfer_data_form %}{{ transfer_data_form }}{% endif %}
     {{ form|bootstrap }}

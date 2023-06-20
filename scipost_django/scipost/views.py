@@ -185,14 +185,16 @@ def _hx_messages(request):
 
 
 class HTMXResponse(HttpResponse):
-    tag = None
-    message = None
+    tag = "primary"
+    message = ""
+    css_class = ""
 
     def __init__(self, *args, **kwargs):
         tag = kwargs.pop("tag", self.tag)
         message = args[0] if args else kwargs.pop("message", self.message)
+        css_class = kwargs.pop("css_class", self.css_class)
 
-        alert_html = f"""<div class="text-{tag} border border-{tag} p-3">
+        alert_html = f"""<div class="text-{tag} border border-{tag} p-3 {css_class}">
                 {message}
             </div>"""
 
