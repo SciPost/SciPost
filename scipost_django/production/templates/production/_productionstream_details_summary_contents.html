@@ -1,14 +1,16 @@
 <div class="row mb-0">
     <div class="col">
         <div class="row align-items-center">
-            <div class="col-auto">
-                <input type="checkbox"
-                       class="form-check-input checkbox-lg"
-                       name="productionstream-bulk-action-selected"
-                       value="{{ productionstream.id }}"
-                       id="productionstream-{{ productionstream.id }}-checkbox"
-                       form="productionstreams-bulk-action-form">
-            </div>
+            {% if perms.scipost.can_assign_production_officer or perms.scipost.can_assign_production_supervisor %}
+                <div class="col-auto">
+                    <input type="checkbox"
+                           class="form-check-input checkbox-lg"
+                           name="productionstream-bulk-action-selected"
+                           value="{{ productionstream.id }}"
+                           id="productionstream-{{ productionstream.id }}-checkbox"
+                           form="productionstreams-bulk-action-form">
+                </div>
+            {% endif %}
             <div class="col text-truncate">
                 <span class="text-truncate">
                     <strong>
@@ -26,7 +28,7 @@
         </div>
  
         <div class="row">
-            <div class="col-12 col-sm-6 col-md-12 col-xl">
+            <div class="col col-sm-6 col-md text-nowrap">
                 <small class="text-muted">To be published in</small>
                 <br>
                 {{ productionstream.submission.editorial_decision.for_journal }}
@@ -45,8 +47,10 @@
                 <br>
                 <div class="d-inline-flex">
                     <a href="{{ productionstream.submission.get_absolute_url }}">Submission</a>
-                    &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
-                    <a href="{% url 'submissions:editorial_page' productionstream.submission.preprint.identifier_w_vn_nr %}">Editorial</a>
+                    {% if perms.scipost.can_oversee_refereeing %}
+                        &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
+                        <a href="{% url 'submissions:editorial_page' productionstream.submission.preprint.identifier_w_vn_nr %}">Editorial</a>
+                    {% endif %}
                     &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
                     <a href="{{ productionstream.proofs_repository.git_url }}">Git Repo</a>
                 </div>

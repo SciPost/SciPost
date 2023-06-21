@@ -16,8 +16,10 @@
       <h1>Production Streams</h1>
     </div>
     <div class="col-12 col-sm-auto">
-      <a class="btn-link fs-6" href="{% url 'production:production_team' %}">Production Team</a>
-      &nbsp;|&nbsp;
+      {% if perms.scipost.can_promote_user_to_production_officer %}
+        <a class="btn-link fs-6" href="{% url 'production:production_team' %}">Production Team</a>
+        &nbsp;|&nbsp;
+      {% endif %}
       <a class="btn-link fs-6" href="{% url 'finances:personal_timesheet' %}">Personal Timesheet</a>
     </div>
   </div>
@@ -56,11 +58,12 @@
       </form>
 
       {% comment %} Bulk Action buttons {% endcomment %}
-      <hr>
 
-      <div hx-get="{% url 'production:_hx_productionstream_actions_bulk_assign_officers' %}"
-           hx-trigger="load"></div>
- 
+      {% if perms.scipost.can_assign_production_officer or perms.scipost.can_assign_production_supervisor %}
+        <hr>
+        <div hx-get="{% url 'production:_hx_productionstream_actions_bulk_assign_officers' %}"
+             hx-trigger="load"></div>
+      {% endif %}
     </div>
   </details>
 

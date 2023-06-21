@@ -4,10 +4,6 @@
 
 {% get_obj_perms request.user for productionstream as "sub_perms" %}
 
-<p>
-  <strong class="text-warning">While the new production page is being built</strong>: go the the <a href="{{ productionstream.get_absolute_url }}" target="_blank">(old) stream detail page</a> to manage this stream.
-</p>
-
 <div class="row">
   {% if "can_work_for_stream" in sub_perms or perms.scipost.can_assign_production_supervisor %}
     <div class="col-12 col-md d-flex flex-column">

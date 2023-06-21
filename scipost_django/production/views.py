@@ -1508,9 +1508,21 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
     else:
         form = BulkAssignOfficersForm()
 
-    if form.is_valid():
-        # Create events, update permissions, send emails for each stream
-        if officer := form.cleaned_data["officer"]:
+    # Render the form if it is not valid (usually when post data is missing)
+    if not form.is_valid():
+        return render(
+            request,
+            "production/_hx_productionstream_actions_bulk_assign_officer.html",
+            {"form": form},
+        )
+
+    if officer := form.cleaned_data["officer"]:
+        if not request.user.has_perm("scipost.can_assign_production_officer"):
+            messages.error(
+                request, "You do not have permission to assign officers to streams."
+            )
+        else:
+            # Create events, update permissions, send emails for each stream
             for productionstream in form.productionstreams:
                 old_officer = productionstream.officer
 
@@ -1537,37 +1549,54 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
 
                 # Update permissions
                 assign_perm("can_work_for_stream", officer.user, productionstream)
-                remove_perm("can_work_for_stream", old_officer.user, productionstream)
+                if old_officer is not None:
+                    remove_perm(
+                        "can_work_for_stream", old_officer.user, productionstream
+                    )
 
                 # Temp fix.
                 # TODO: Implement proper email
                 ProductionUtils.load({"request": request, "stream": productionstream})
                 ProductionUtils.email_assigned_production_officer()
 
-        if supervisor := form.cleaned_data["supervisor"]:
-            for productionstream in form.productionstreams:
-                old_supervisor = productionstream.supervisor
+            messages.success(
+                request,
+                f"Assigned {officer} as production officer to the selected streams.",
+            )
 
-                if old_supervisor == supervisor:
-                    continue
+    if (supervisor := form.cleaned_data["supervisor"]) and not request.user.has_perm(
+        "production.can_perform_supervisory_actions"
+    ):
+        messages.error(
+            request, "You do not have permission to assign supervisors to streams."
+        )
+    elif supervisor is not None:
+        for productionstream in form.productionstreams:
+            old_supervisor = productionstream.supervisor
 
-                productionstream.supervisor = supervisor
-                productionstream.save()
+            if old_supervisor == supervisor:
+                continue
 
-                event = ProductionEvent(
-                    stream=productionstream,
-                    event="assignment",
-                    comments=" assigned Production Supervisor:",
-                    noted_to=supervisor,
-                    noted_by=request.user.production_user,
-                )
-                event.save()
+            productionstream.supervisor = supervisor
+            productionstream.save()
 
-                # Update permissions
-                assign_perm("can_work_for_stream", supervisor.user, productionstream)
-                assign_perm(
-                    "can_perform_supervisory_actions", supervisor.user, productionstream
-                )
+            event = ProductionEvent(
+                stream=productionstream,
+                event="assignment",
+                comments=" assigned Production Supervisor:",
+                noted_to=supervisor,
+                noted_by=request.user.production_user,
+            )
+            event.save()
+
+            # Update permissions
+            assign_perm("can_work_for_stream", supervisor.user, productionstream)
+            assign_perm(
+                "can_perform_supervisory_actions",
+                supervisor.user,
+                productionstream,
+            )
+            if old_supervisor is not None:
                 remove_perm(
                     "can_work_for_stream", old_supervisor.user, productionstream
                 )
@@ -1577,19 +1606,20 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
                     productionstream,
                 )
 
-                # Temp fix.
-                # TODO: Implement proper email
-                ProductionUtils.load({"request": request, "stream": productionstream})
-                ProductionUtils.email_assigned_supervisor()
+            # Temp fix.
+            # TODO: Implement proper email
+            ProductionUtils.load({"request": request, "stream": productionstream})
+            ProductionUtils.email_assigned_supervisor()
 
-    context = {
-        "form": form,
-    }
+        messages.success(
+            request,
+            f"Assigned {supervisor} as supervisor to the selected streams.",
+        )
 
     return render(
         request,
         "production/_hx_productionstream_actions_bulk_assign_officer.html",
-        context,
+        {"form": form},
     )
 
 
