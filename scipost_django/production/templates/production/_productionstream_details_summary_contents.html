@@ -21,9 +21,24 @@
                 </span>
             </div>
             <div class="col-auto">
-                <small class="text-muted">Acceptance date</small>
-                <br>
-                {{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
+                <div class="row mb-0 align-items-center">
+                    <div class="col-auto">
+                        <small class="text-muted">Acceptance date</small>
+                        <br>
+                        {{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
+                    </div>
+                    <div class="col-auto">
+                        <a href="{{ productionstream.submission.preprint.url }}" target="_blank">
+                            <span style="pointer-events: none;">
+                                {% if productionstream.submission.preprint.is_arXiv %}
+                                    {% include 'bi/arxiv.html' %}
+                                {% else %}
+                                    {% include 'bi/scipost.html' %}
+                                {% endif %}
+                            </span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
  
