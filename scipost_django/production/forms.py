@@ -8,6 +8,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.db.models import Max
 from django.db.models.functions import Greatest
+from django.contrib.sessions.backends.db import SessionStore
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
@@ -278,12 +279,16 @@ class ProductionStreamSearchForm(forms.Form):
     title = forms.CharField(max_length=512, required=False)
     identifier = forms.CharField(max_length=128, required=False)
     officer = forms.ModelChoiceField(
-        queryset=ProductionUser.objects.active(),
+        queryset=ProductionUser.objects.active().filter(
+            user__groups__name="Production Officers"
+        ),
         required=False,
         empty_label="Any",
     )
     supervisor = forms.ModelChoiceField(
-        queryset=ProductionUser.objects.active(),
+        queryset=ProductionUser.objects.active().filter(
+            user__groups__name="Production Supervisor"
+        ),
         required=False,
         empty_label="Any",
     )
@@ -298,10 +303,10 @@ class ProductionStreamSearchForm(forms.Form):
     orderby = forms.ChoiceField(
         label="Order by",
         choices=(
-            ("submission__editorial_decision__taken_on", "Date accepted"),
+            ("submission__acceptance_date", "Date accepted"),
             ("latest_activity_annot", "Latest activity"),
             (
-                "status,submission__editorial_decision__taken_on",
+                "status,submission__acceptance_date",
                 "Status + Date accepted",
             ),
             ("status,latest_activity_annot", "Status + Latest activity"),
@@ -320,7 +325,17 @@ class ProductionStreamSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
+        self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
+
+        # Set the initial values of the form fields from the session data
+        if self.session_key:
+            session = SessionStore(session_key=self.session_key)
+
+            for field in self.fields:
+                if field in session:
+                    self.fields[field].initial = session[field]
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -332,8 +347,8 @@ class ProductionStreamSearchForm(forms.Form):
             Div(
                 Div(
                     Div(
-                        Div(Field("accepted_in", size=3), css_class="col-sm-8"),
-                        Div(Field("proceedings", size=3), css_class="col-sm-4"),
+                        Div(Field("accepted_in", size=5), css_class="col-sm-8"),
+                        Div(Field("proceedings", size=5), css_class="col-sm-4"),
                         css_class="row mb-0",
                     ),
                     Div(
@@ -357,6 +372,32 @@ class ProductionStreamSearchForm(forms.Form):
         )
 
     def search_results(self):
+        # Save the form data to the session
+        if self.session_key is not None:
+            session = SessionStore(session_key=self.session_key)
+
+            for key in self.cleaned_data:
+                session[key] = self.cleaned_data.get(key)
+
+            session["accepted_in"] = (
+                [journal.id for journal in session.get("accepted_in")]
+                if (session.get("accepted_in"))
+                else []
+            )
+            session["proceedings"] = (
+                [proceedings.id for proceedings in session.get("proceedings")]
+                if (session.get("proceedings"))
+                else []
+            )
+            session["officer"] = (
+                officer.id if (officer := session.get("officer")) else None
+            )
+            session["supervisor"] = (
+                supervisor.id if (supervisor := session.get("supervisor")) else None
+            )
+
+            session.save()
+
         streams = ProductionStream.objects.ongoing()
 
         streams = streams.annotate(

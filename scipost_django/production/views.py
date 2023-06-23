@@ -56,7 +56,9 @@ from .utils import proofs_slug_to_id, ProductionUtils
 @is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
 def production_new(request):
-    search_productionstreams_form = ProductionStreamSearchForm(user=request.user)
+    search_productionstreams_form = ProductionStreamSearchForm(
+        user=request.user, session_key=request.session.session_key
+    )
     bulk_assign_officer_form = BulkAssignOfficersForm()
     context = {
         "search_productionstreams_form": search_productionstreams_form,
@@ -68,7 +70,9 @@ def production_new(request):
 @is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
 def _hx_productionstream_list(request):
-    form = ProductionStreamSearchForm(request.POST or None, user=request.user)
+    form = ProductionStreamSearchForm(
+        request.POST or None, user=request.user, session_key=request.session.session_key
+    )
     if form.is_valid():
         streams = form.search_results()
     else:
