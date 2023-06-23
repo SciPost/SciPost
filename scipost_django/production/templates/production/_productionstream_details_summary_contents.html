@@ -1,5 +1,5 @@
 <div class="row mb-0">
-    <div class="col">
+    <div class="col col-md-6">
         <div class="row align-items-center">
             {% if perms.scipost.can_assign_production_officer or perms.scipost.can_assign_production_supervisor %}
                 <div class="col-auto">
@@ -14,21 +14,24 @@
             <div class="col text-truncate">
                 <span class="text-truncate">
                     <strong>
-                        <span class="text-primary">{{ productionstream.submission.title }}</span>
+                        <span class="text-primary" title="{{ productionstream.submission.title }}">
+                            {{ productionstream.submission.title }}
+                        </span>
                         <br>
-                        <em>by {{ productionstream.submission.author_list }}</em>
+                        <em title="{{ productionstream.submission.author_list }}">by {{ productionstream.submission.author_list }}</em>
                     </strong>
                 </span>
             </div>
             <div class="col-auto">
                 <div class="row mb-0 align-items-center">
-                    <div class="col-auto">
+                    <div class="col-auto d-none d-sm-block d-md-none d-lg-block">
                         <small class="text-muted">Acceptance date</small>
                         <br>
                         {{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
                     </div>
                     <div class="col-auto">
-                        <a href="{{ productionstream.submission.preprint.url }}" target="_blank">
+                        <a href="{% firstof productionstream.submission.preprint.url productionstream.submission.get_absolute_url %}"
+                           target="_blank">
                             <span style="pointer-events: none;">
                                 {% if productionstream.submission.preprint.is_arXiv %}
                                     {% include 'bi/arxiv.html' %}
@@ -46,14 +49,26 @@
             <div class="col col-sm-6 col-md text-nowrap">
                 <small class="text-muted">To be published in</small>
                 <br>
-                {{ productionstream.submission.editorial_decision.for_journal }}
                 {% if productionstream.submission.proceedings %}
-                    -
                     {% if productionstream.submission.proceedings.event_suffix %}
                         {{ productionstream.submission.proceedings.event_suffix }}
                     {% else %}
                         {{ productionstream.submission.proceedings.event_name }}
                     {% endif %}
+                {% else %}
+                    {{ productionstream.submission.editorial_decision.for_journal }}
+                {% endif %}
+            </div>
+ 
+            <div class="col col-sm-6 col-md text-nowrap">
+                <small class="text-muted">Submitter</small>
+                <br>
+                {% if productionstream.submission.submitted_by.profile.email %}
+                    <a href="mailto:{{ productionstream.submission.submitted_by.profile.email }}?body=Dear%20{{ productionstream.submission.submitted_by.formal_str }},%0A%0A">
+                        {{ productionstream.submission.submitted_by.formal_str }}
+                    </a>
+                {% else %}
+                    {{ productionstream.submission.submitted_by.formal_str }}
                 {% endif %}
             </div>
 
@@ -66,15 +81,15 @@
                         &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
                         <a href="{% url 'submissions:editorial_page' productionstream.submission.preprint.identifier_w_vn_nr %}">Editorial</a>
                     {% endif %}
-                    &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
-                    <a href="{{ productionstream.proofs_repository.git_url }}">Git Repo</a>
+                    {% if productionstream.proofs_repository %}
+                        &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
+                        <a href="{{ productionstream.proofs_repository.git_url }}">Git Repo</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
 
     </div>
-
-    <div class="d-none d-md-block vr p-0 me-2"></div>
 
     <div id="productionstream-{{ productionstream.id }}-summary-assignees"
          class="col-md-6"

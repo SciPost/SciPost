@@ -13,7 +13,7 @@
       <div class="col-auto text-nowrap text-truncate">
         {% if productionstream.officer %}
           <span class="text-success ">{% include 'bi/check-circle-fill.html' %}</span>
-          {{ productionstream.officer }}
+          {% firstof productionstream.officer.name productionstream.officer %}
         {% else %}
           <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
         {% endif %}
@@ -32,7 +32,7 @@
       <div class="col-auto text-nowrap text-truncate">
         {% if productionstream.supervisor %}
           <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
-          {{ productionstream.supervisor }}
+          {% firstof productionstream.supervisor.name productionstream.supervisor %}
         {% else %}
           <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
         {% endif %}
