@@ -13,6 +13,7 @@ from common.utils import get_current_domain
 from gitlab import Gitlab
 from gitlab.v4.objects import Group, Project
 from gitlab.exceptions import GitlabGetError
+from gitlab.const import AccessLevel
 
 import arxiv
 import requests
@@ -145,6 +146,17 @@ class Command(BaseCommand):
                         domain=get_current_domain(),
                         preprint_id=repo.stream.submission.preprint.identifier_w_vn_nr,
                     ),
+                }
+            )
+
+            # Unprotect "main" branch to allow developers to push to it
+            project.protectedbranches.delete("main")
+            project.protectedbranches.create(
+                {
+                    "name": "main",
+                    "merge_access_level": AccessLevel.MAINTAINER,
+                    "push_access_level": AccessLevel.DEVELOPER,
+                    "allow_force_push": False,
                 }
             )
 
