@@ -82,11 +82,25 @@ class AssignOfficerForm(forms.ModelForm):
             stream.save()
         return stream
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["officer"].queryset = ProductionUser.objects.active().filter(
+            user__groups__name="Production Officers"
+        )
+
 
 class AssignInvitationsOfficerForm(forms.ModelForm):
     class Meta:
         model = ProductionStream
         fields = ("invitations_officer",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields[
+            "invitations_officer"
+        ].queryset = ProductionUser.objects.active().filter(
+            user__groups__name="Production Officers"
+        )
 
 
 class AssignSupervisorForm(forms.ModelForm):
@@ -96,7 +110,7 @@ class AssignSupervisorForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["supervisor"].queryset = self.fields["supervisor"].queryset.filter(
+        self.fields["supervisor"].queryset = ProductionUser.objects.active().filter(
             user__groups__name="Production Supervisor"
         )
 

@@ -1443,8 +1443,8 @@ def _hx_send_proofs(request, stream_id, version):
         )
 
 
-def render_action_buttons(request, stream_id, key):
-    productionstream = get_object_or_404(ProductionStream, pk=stream_id)
+def _hx_productionstream_change_action_buttons(request, productionstream_id, key):
+    productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
 
     # Get either the id, or the id of the object and convert it to a string
     # If this fails, set to "None"
@@ -1467,8 +1467,8 @@ def render_action_buttons(request, stream_id, key):
     )
 
 
-def render_stream_assignees_status(request, stream_id):
-    productionstream = get_object_or_404(ProductionStream, pk=stream_id)
+def _hx_productionstream_summary_assignees_status(request, productionstream_id):
+    productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
 
     context = {
         "productionstream": productionstream,
@@ -1481,8 +1481,8 @@ def render_stream_assignees_status(request, stream_id):
     )
 
 
-def render_stream_events(request, stream_id):
-    productionstream = get_object_or_404(ProductionStream, pk=stream_id)
+def _hx_event_list(request, productionstream_id):
+    productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
 
     context = {
         "productionstream": productionstream,

@@ -72,6 +72,16 @@ urlpatterns = [
                     name="_hx_productionstream_actions_work_log",
                 ),
                 path(
+                    "_hx_productionstream_change_action_buttons/<str:key>",
+                    production_views._hx_productionstream_change_action_buttons,
+                    name="_hx_productionstream_change_action_buttons",
+                ),
+                path(
+                    "_hx_productionstream_summary_assignees_status",
+                    production_views._hx_productionstream_summary_assignees_status,
+                    name="_hx_productionstream_summary_assignees_status",
+                ),
+                path(
                     "events/",
                     include(
                         [
@@ -79,6 +89,11 @@ urlpatterns = [
                                 "form",
                                 production_views._hx_event_form,
                                 name="_hx_event_form",
+                            ),
+                            path(
+                                "list",
+                                production_views._hx_event_list,
+                                name="_hx_event_list",
                             ),
                             path(
                                 "<int:event_id>/",
@@ -248,21 +263,6 @@ urlpatterns = [
                     "mark_completed",
                     production_views.mark_as_completed,
                     name="mark_as_completed",
-                ),
-                path(
-                    "render_action_buttons/<str:key>",
-                    production_views.render_action_buttons,
-                    name="render_action_buttons",
-                ),
-                path(
-                    "render_stream_assignees_status",
-                    production_views.render_stream_assignees_status,
-                    name="render_stream_assignees_status",
-                ),
-                path(
-                    "render_stream_events",
-                    production_views.render_stream_events,
-                    name="render_stream_events",
                 ),
             ]
         ),

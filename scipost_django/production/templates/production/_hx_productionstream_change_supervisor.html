@@ -9,7 +9,7 @@
             {% csrf_token %}
             <div class="col">{{ form|bootstrap_purely_inline }}</div>
             <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty"
-                 hx-post="{% url 'production:render_action_buttons' stream.id 'supervisor' %}"
+                 hx-post="{% url 'production:_hx_productionstream_change_action_buttons' stream.id 'supervisor' %}"
                  hx-swap="innerHTML"
                  hx-trigger="load, change from:select#productionstream_{{ stream.id }}_id_supervisor"
                  hx-target="this"></div>

@@ -208,7 +208,7 @@
     <div id="productionstream-{{ productionstream.id }}-event-list"
          class="overflow-scroll mb-4"
          style="max-height: max(50vh, 40em)"
-         hx-get="{% url 'production:render_stream_events' productionstream.id %}"
+         hx-get="{% url 'production:_hx_event_list' productionstream.id %}"
          hx-trigger="intersect once, submit from:#productionstream-{{ productionstream.id }}-details target:form delay:500,  click from:#productionstream-{{ productionstream.id }}-details target:.proof-action-button delay:500">
 
       {% comment %} Placeholder before HTMX content loads {% endcomment %}
