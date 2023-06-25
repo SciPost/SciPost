@@ -1,7 +1,7 @@
 {% load scipost_extras %}
 {% load automarkup %}
 
-<table class="table table-bordered table-striped">
+<table class="table table-bordered table-striped overflow-scroll mb-0">
   <thead>
     <tr>
       <th>Date</th>
@@ -13,69 +13,73 @@
   <tbody>
     {% for event in events %}
       <tr>
-	<td>
+ 
+        <td>
           {{ event.noted_on }}
           {% if event.duration %}
             <br>
             <strong>Duration: {{ event.duration|duration }}</strong>
           {% endif %}
-	</td>
-	<td>
-          {{ event.get_event_display|linebreaksbr }}
-	</td>
-	<td>
+        </td>
+
+        <td>{{ event.get_event_display|linebreaksbr }}</td>
+
+        <td>
           <strong>{{ event.noted_by.user.first_name }} {{ event.noted_by.user.last_name }}</strong>
-	</td>
-	<td>
+        </td>
+
+        <td>
           {% if not non_editable %}
             {% if event.noted_by == request.user.production_user and event.editable %}
               <div class="ps-2">
-		<a hx-get="{% url 'production:_hx_event_form' productionstream_id=productionstream.id event_id=event.id %}"
-		   hx-target="#productionstream-{{ productionstream.id }}-event-{{ event.id }}-form"
-		>
-		  <span aria-hidden="true">
-		    {% include 'bi/pencil-square.html' %}
-		  </span>
-		</a>
-		<a class="text-danger"
-		   hx-get="{% url 'production:_hx_event_delete' productionstream_id=productionstream.id event_id=event.id %}"
-		   hx-target="#productionstream-{{ productionstream.id }}-details-contents"
-		   hx-confirm="Delete this Event?"
-		>
-		  <span aria-hidden="true">
-		    {% include 'bi/trash-fill.html' %}
-		  </span>
-		</a>
+                <a hx-get="{% url 'production:_hx_event_form' productionstream_id=productionstream.id event_id=event.id %}"
+                   hx-target="#productionstream-{{ productionstream.id }}-event-{{ event.id }}-form">
+                  <span aria-hidden="true">{% include 'bi/pencil-square.html' %}</span>
+                </a>
+                <a class="text-danger"
+                   hx-get="{% url 'production:_hx_event_delete' productionstream_id=productionstream.id event_id=event.id %}"
+                   hx-target="#productionstream-{{ productionstream.id }}-details-contents"
+                   hx-confirm="Delete this Event?">
+                  <span aria-hidden="true">{% include 'bi/trash-fill.html' %}</span>
+                </a>
               </div>
             {% endif %}
           {% endif %}
-	</td>
+        </td>
+	
       </tr>
       <tr>
-	<td colspan="4" class="ps-4 pb-4">
-	  {% if event.comments %}
+	
+        <td colspan="4" class="ps-4 pb-4">
+          {% if event.comments %}
             <p class="mt-2 mb-0">
               {% if event.noted_to %}
-		<strong>To: {{ event.noted_to.user.first_name }} {{ event.noted_to.user.last_name }}</strong>
-		<br>
+                <strong>To: {{ event.noted_to.user.first_name }} {{ event.noted_to.user.last_name }}</strong>
+                <br>
               {% endif %}
-	      {% automarkup event.comments %}
+              {% automarkup event.comments %}
             </p>
-	  {% endif %}
+          {% endif %}
 
-	  {% if event.attachments.exists %}
+ 
+          {% if event.attachments.exists %}
             <ul>
               {% for attachment in event.attachments.all %}
-		<li><a href="{{ attachment.get_absolute_url }}" target="_blank">Download Attachment {{ forloop.counter }}</a></li>
+                <li>
+                  <a href="{{ attachment.get_absolute_url }}" target="_blank">Download Attachment {{ forloop.counter }}</a>
+                </li>
               {% endfor %}
             </ul>
-	  {% endif %}
-	  <div id="productionstream-{{ productionstream.id }}-event-{{ event.id }}-form"></div>
-	</td>
+
+          {% endif %}
+ 
+          <div id="productionstream-{{ productionstream.id }}-event-{{ event.id }}-form"></div>
+        </td>
+	
       </tr>
     {% empty %}
       <tr>
-	<td>No events found</td>
+        <td>No events found</td>
       </tr>
     {% endfor %}
   </tbody>

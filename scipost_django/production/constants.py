@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 PRODUCTION_STREAM_INITIATED = "initiated"
 PRODUCTION_STREAM_COMPLETED = "completed"
+PROOFS_SOURCE_REQUESTED = "source_requested"
 PROOFS_TASKED = "tasked"
 PROOFS_PRODUCED = "produced"
 PROOFS_CHECKED = "checked"
@@ -15,6 +16,7 @@ PROOFS_PUBLISHED = "published"
 PROOFS_CITED = "cited"
 PRODUCTION_STREAM_STATUS = (
     (PRODUCTION_STREAM_INITIATED, "New Stream started"),
+    (PROOFS_SOURCE_REQUESTED, "Source files requested"),
     (PROOFS_TASKED, "Supervisor tasked officer with proofs production"),
     (PROOFS_PRODUCED, "Proofs have been produced"),
     (PROOFS_CHECKED, "Proofs have been checked by Supervisor"),
@@ -73,4 +75,17 @@ PRODUCTION_ALL_WORK_LOG_TYPES = (
         "Production: Cited people have been notified/invited to SciPost",
         "Cited people have been notified/invited to SciPost",
     ),
+)
+
+PROOFS_REPO_UNINITIALIZED = "uninitialized"
+PROOFS_REPO_CREATED = "created"
+PROOFS_REPO_TEMPLATE_ONLY = "template_only"
+PROOFS_REPO_TEMPLATE_FORMATTED = "template_formatted"
+PROOFS_REPO_PRODUCTION_READY = "production_ready"
+PROOFS_REPO_STATUSES = (
+    (PROOFS_REPO_UNINITIALIZED, "The repository does not exist"),
+    (PROOFS_REPO_CREATED, "The repository exists but is empty"),
+    (PROOFS_REPO_TEMPLATE_ONLY, "The repository contains the bare template"),
+    (PROOFS_REPO_TEMPLATE_FORMATTED, "The repository contains the automatically formatted template"),
+    (PROOFS_REPO_PRODUCTION_READY, "The repository is ready for production"),
 )

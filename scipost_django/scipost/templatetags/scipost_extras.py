@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from functools import reduce
 import random
 
 from django import template
@@ -97,3 +98,19 @@ def associated_contributors(draft):
     return Contributor.objects.filter(
         user__last_name__icontains=draft.last_name
     ).order_by("user__last_name")
+
+
+@register.filter
+def readable_str(value):
+    replacements = {
+        "_": " ",
+    }
+    return reduce(lambda a, kv: a.replace(*kv), replacements.items(), value)
+
+
+@register.filter
+def all_fields_have_choices(form):
+    for field in form.fields:
+        if len(form.fields[field].choices) == 0:
+            return False
+    return True

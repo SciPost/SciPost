@@ -16,9 +16,41 @@ urlpatterns = [
         name="production_new",
     ),
     path(
+        "team",
+        include(
+            [
+                path(
+                    "",
+                    production_views.production_team,
+                    name="production_team",
+                ),
+                path(
+                    "list",
+                    production_views.production_team_list,
+                    name="production_team_list",
+                ),
+                path(
+                    "_hx_delete_officer/<int:officer_id>/",
+                    production_views._hx_team_delete_officer,
+                    name="_hx_team_delete_officer",
+                ),
+                path(
+                    "_hx_promote_user",
+                    production_views._hx_team_promote_user,
+                    name="_hx_team_promote_user",
+                ),
+            ]
+        ),
+    ),
+    path(
         "_hx_productionstream_list",
         production_views._hx_productionstream_list,
         name="_hx_productionstream_list",
+    ),
+    path(
+        "_hx_productionstream_actions_bulk_assign_officers",
+        production_views._hx_productionstream_actions_bulk_assign_officers,
+        name="_hx_productionstream_actions_bulk_assign_officers",
     ),
     path(
         "productionstreams/<int:productionstream_id>/",
@@ -30,6 +62,26 @@ urlpatterns = [
                     name="_hx_productionstream_details_contents",
                 ),
                 path(
+                    "actions_change_properties",
+                    production_views._hx_productionstream_actions_change_properties,
+                    name="_hx_productionstream_actions_change_properties",
+                ),
+                path(
+                    "actions_work_log",
+                    production_views._hx_productionstream_actions_work_log,
+                    name="_hx_productionstream_actions_work_log",
+                ),
+                path(
+                    "_hx_productionstream_change_action_buttons/<str:key>",
+                    production_views._hx_productionstream_change_action_buttons,
+                    name="_hx_productionstream_change_action_buttons",
+                ),
+                path(
+                    "_hx_productionstream_summary_assignees_status",
+                    production_views._hx_productionstream_summary_assignees_status,
+                    name="_hx_productionstream_summary_assignees_status",
+                ),
+                path(
                     "events/",
                     include(
                         [
@@ -37,6 +89,11 @@ urlpatterns = [
                                 "form",
                                 production_views._hx_event_form,
                                 name="_hx_event_form",
+                            ),
+                            path(
+                                "list",
+                                production_views._hx_event_list,
+                                name="_hx_event_list",
                             ),
                             path(
                                 "<int:event_id>/",
@@ -71,7 +128,6 @@ urlpatterns = [
         production_views.delete_officer,
         name="delete_officer",
     ),
-    # streams
     path(
         "streams/<int:stream_id>/",
         include(
@@ -99,15 +155,30 @@ urlpatterns = [
                                             production_views.decision,
                                             name="decision",
                                         ),
+                                        re_path(
+                                            "_hx_proofs_decision/(?P<decision>accept|decline)$",
+                                            production_views._hx_proofs_decision,
+                                            name="_hx_proofs_decision",
+                                        ),
                                         path(
                                             "send_to_authors",
                                             production_views.send_proofs,
                                             name="send_proofs",
                                         ),
                                         path(
+                                            "_hx_send_to_authors",
+                                            production_views._hx_send_proofs,
+                                            name="_hx_send_proofs",
+                                        ),
+                                        path(
                                             "toggle_access",
                                             production_views.toggle_accessibility,
                                             name="toggle_accessibility",
+                                        ),
+                                        path(
+                                            "_hx_toggle_access",
+                                            production_views._hx_toggle_accessibility,
+                                            name="_hx_toggle_accessibility",
                                         ),
                                     ]
                                 ),
@@ -122,31 +193,71 @@ urlpatterns = [
                 ),
                 path("events/add", production_views.add_event, name="add_event"),
                 path("logs/add", production_views.add_work_log, name="add_work_log"),
-                path("officer/add", production_views.add_officer, name="add_officer"),
                 path(
-                    "officer/<int:officer_id>/remove",
-                    production_views.remove_officer,
-                    name="remove_officer",
+                    "officer",
+                    include(
+                        [
+                            path(
+                                "add",
+                                production_views.add_officer,
+                                name="add_officer",
+                            ),
+                            path(
+                                "<int:officer_id>/remove",
+                                production_views.remove_officer,
+                                name="remove_officer",
+                            ),
+                            path(
+                                "update",
+                                production_views.update_officer,
+                                name="update_officer",
+                            ),
+                        ]
+                    ),
                 ),
                 path(
-                    "invitations_officer/add",
-                    production_views.add_invitations_officer,
-                    name="add_invitations_officer",
+                    "invitations_officer",
+                    include(
+                        [
+                            path(
+                                "add",
+                                production_views.add_invitations_officer,
+                                name="add_invitations_officer",
+                            ),
+                            path(
+                                "<int:officer_id>/remove",
+                                production_views.remove_invitations_officer,
+                                name="remove_invitations_officer",
+                            ),
+                            path(
+                                "update",
+                                production_views.update_invitations_officer,
+                                name="update_invitations_officer",
+                            ),
+                        ]
+                    ),
                 ),
                 path(
-                    "invitations_officer/<int:officer_id>/remove",
-                    production_views.remove_invitations_officer,
-                    name="remove_invitations_officer",
-                ),
-                path(
-                    "supervisor/add",
-                    production_views.add_supervisor,
-                    name="add_supervisor",
-                ),
-                path(
-                    "supervisor/<int:officer_id>/remove",
-                    production_views.remove_supervisor,
-                    name="remove_supervisor",
+                    "supervisor",
+                    include(
+                        [
+                            path(
+                                "add",
+                                production_views.add_supervisor,
+                                name="add_supervisor",
+                            ),
+                            path(
+                                "<int:officer_id>/remove",
+                                production_views.remove_supervisor,
+                                name="remove_supervisor",
+                            ),
+                            path(
+                                "update",
+                                production_views.update_supervisor,
+                                name="update_supervisor",
+                            ),
+                        ]
+                    ),
                 ),
                 path(
                     "mark_completed",

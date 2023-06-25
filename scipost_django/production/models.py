@@ -24,6 +24,8 @@ from .constants import (
     PRODUCTION_STREAM_COMPLETED,
     PROOFS_STATUSES,
     PROOFS_UPLOADED,
+    PROOFS_REPO_STATUSES,
+    PROOFS_REPO_UNINITIALIZED,
 )
 from .managers import (
     ProductionStreamQuerySet,

@@ -1,65 +1,147 @@
 <div class="row mb-0">
-  <div class="col col-md-8">
-    <table>
-      <tbody>
-	<tr>
-	  <td><strong class="text-primary">{{ productionstream.submission.title }}</strong></td>
-	</tr>
-	<tr class="mt-1">
-	  <td><strong><em>by {{ productionstream.submission.author_list }}</em></strong></td>
-	</tr>
-      </tbody>
-    </table>
-    <div class="row mt-2 mb-0">
-      <div class="col">
-	<small class="text-muted">To be published in</small><br>
-	{{ productionstream.submission.editorial_decision.for_journal }}
-      </div>
-      <div class="col">
-	<small class="text-muted">Acceptance date</small><br>
-	{{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
-      </div>
-      <div class="col">
-	<small class="text-muted">Stream Status</small>
-	<br>
-        <div class="p-2 label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %}">{{ productionstream.get_status_display }}</div>
-	{% if productionstream.submission.editorial_decision.status == productionstream.submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}<br><strong class="text-danger">Wait! author<br>acceptance of puboffer<br>required!</strong>{% endif %}
-      </div>
+    <div class="col col-md-6">
+        <div class="row align-items-center">
+            {% if perms.scipost.can_assign_production_officer or perms.scipost.can_assign_production_supervisor %}
+                <div class="col-auto">
+                    <input type="checkbox"
+                           class="form-check-input checkbox-lg"
+                           name="productionstream-bulk-action-selected"
+                           value="{{ productionstream.id }}"
+                           id="productionstream-{{ productionstream.id }}-checkbox"
+                           form="productionstreams-bulk-action-form">
+                </div>
+            {% endif %}
+            <div class="col text-truncate">
+                <span class="text-truncate">
+                    <strong>
+                        <span class="text-primary" title="{{ productionstream.submission.title }}">
+                            {{ productionstream.submission.title }}
+                        </span>
+                        <br>
+                        <em title="{{ productionstream.submission.author_list }}">by {{ productionstream.submission.author_list }}</em>
+                    </strong>
+                </span>
+            </div>
+            <div class="col-auto">
+                <div class="row mb-0 align-items-center">
+                    <div class="col-auto d-none d-sm-block d-md-none d-lg-block">
+                        <small class="text-muted">Acceptance date</small>
+                        <br>
+                        {{ productionstream.submission.editorial_decision.taken_on|date:'Y-m-d' }}
+                    </div>
+                    <div class="col-auto">
+                        <a href="{% firstof productionstream.submission.preprint.url productionstream.submission.get_absolute_url %}"
+                           target="_blank">
+                            <span style="pointer-events: none;">
+                                {% if productionstream.submission.preprint.is_arXiv %}
+                                    {% include 'bi/arxiv.html' %}
+                                {% else %}
+                                    {% include 'bi/scipost.html' %}
+                                {% endif %}
+                            </span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+        <div class="row">
+            <div class="col col-sm-6 col-md text-nowrap">
+                <small class="text-muted">To be published in</small>
+                <br>
+                {% if productionstream.submission.proceedings %}
+                    {% if productionstream.submission.proceedings.event_suffix %}
+                        {{ productionstream.submission.proceedings.event_suffix }}
+                    {% else %}
+                        {{ productionstream.submission.proceedings.event_name }}
+                    {% endif %}
+                {% else %}
+                    {{ productionstream.submission.editorial_decision.for_journal }}
+                {% endif %}
+            </div>
+ 
+            <div class="col col-sm-6 col-md text-nowrap">
+                <small class="text-muted">Submitter</small>
+                <br>
+                {% if productionstream.submission.submitted_by.profile.email %}
+                    <a href="mailto:{{ productionstream.submission.submitted_by.profile.email }}?body=Dear%20{{ productionstream.submission.submitted_by.formal_str }},%0A%0A">
+                        {{ productionstream.submission.submitted_by.formal_str }}
+                    </a>
+                {% else %}
+                    {{ productionstream.submission.submitted_by.formal_str }}
+                {% endif %}
+            </div>
+
+            <div class="col-auto">
+                <small class="text-muted">Go to page:</small>
+                <br>
+                <div class="d-inline-flex">
+                    <a href="{{ productionstream.submission.get_absolute_url }}">Submission</a>
+                    {% if perms.scipost.can_oversee_refereeing %}
+                        &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
+                        <a href="{% url 'submissions:editorial_page' productionstream.submission.preprint.identifier_w_vn_nr %}">Editorial</a>
+                    {% endif %}
+                    {% if productionstream.proofs_repository %}
+                        &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
+                        <a href="{{ productionstream.proofs_repository.git_url }}">Git Repo</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
     </div>
 
-  </div>
-  <div class="col col-md-4 border-start">
-    <table class="table">
-      <tr>
-	<td><small class="text-muted">Latest activity</small></td>
-	<td>
-	  {{ productionstream.latest_activity|timesince }} ago
-	  <br>
-	  <span class="text-muted">(opened {{ productionstream.opened|timesince }} ago)</span>
-	</td>
-      </tr>
-      <tr>
-	<td><small class="text-muted">Supervisor</small></td>
-	<td>
-	  {% if productionstream.supervisor %}
-	    <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
-	    {{ productionstream.supervisor }}
-	  {% else %}
-	    <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
-	  {% endif %}
-	</td>
-      </tr>
-      <tr>
-	<td><small class="text-muted">Production officer</small></td>
-	<td>
-	  {% if productionstream.officer %}
-	    <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
-	    {{ productionstream.officer }}
-	  {% else %}
-	    <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
-	  {% endif %}
-	</td>
-      </tr>
-    </table>
-  </div>
-</div>
+    <div id="productionstream-{{ productionstream.id }}-summary-assignees"
+         class="col-md-6"
+         hx-get="{% url 'production:_hx_productionstream_summary_assignees_status' productionstream.id %}"
+         hx-trigger="intersect once, submit from:#productionstream-{{ productionstream.id }}-details target:form delay:500, click from:#productionstream-{{ productionstream.id }}-details target:.proof-action-button delay:500, submit from:#productionstreams-filter-details target:#productionstreams-bulk-action-form delay:500">
+
+        {% comment %} Placeholder while HTMX is loading {% endcomment %}
+        <div class="row mb-0 placeholder-glow">
+            <div class="order-3 order-sm-1 order-md-3 order-xl-1 col-sm-6 col-md-12 col-xl-6">
+                <div class="row justify-content-between">
+                    <small class="col-4 text-muted text-nowrap">Stream opened</small>
+                    <div class="col-8">
+                        <div class="ms-2 w-100 placeholder"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="order-2 order-sm-4 order-md-2 order-xl-4 col-sm-6 col-md-12 col-xl-6">
+                <div class="row justify-content-between">
+                    <small class="col-4 text-muted text-nowrap">Officer</small>
+                    <div class="col-8 text-nowrap text-truncate">
+                        <div class="ms-2 w-100 placeholder"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="order-4 order-sm-3 order-md-4 order-xl-3 col-sm-6 col-md-12 col-xl-6">
+                <div class="row justify-content-between">
+                    <small class="col-4 text-muted text-nowrap">Latest activity</small>
+                    <div class="col-8">
+                        <div class="ms-2 w-100 placeholder"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="order-1 order-sm-2 order-md-1 order-xl-2 col-sm-6 col-md-12 col-xl-6">
+                <div class="row justify-content-between">
+                    <small class="col-4 text-muted text-nowrap">Supervisor</small>
+                    <div class="col-8 text-nowrap text-truncate">
+                        <div class="ms-2 w-100 placeholder"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="order-5 order-sm-5 order-md-5 order-xl-5 col-sm-6 col-md-12 col-xl-6">
+                <div class="row mb-0 justify-content-between align-items-center">
+                    <small class="col-4 text-muted text-nowrap">Stream Status</small>
+                    <div class="offset-5 col-3">
+                        <div class="badge bg-primary w-100">
+                            <div class="placeholder py-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+ 
+            {% comment %} End placeholder {% endcomment %}
+
+        </div>
+    </div>

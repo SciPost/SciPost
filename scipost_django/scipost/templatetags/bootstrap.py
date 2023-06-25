@@ -61,6 +61,19 @@ def bootstrap_inline(element, args="2,10"):
 
 
 @register.filter
+def bootstrap_purely_inline(element, args="2,10"):
+    args = [arg.strip() for arg in args.split(",")]
+    markup_classes = {
+        "label": "col-auto fs-6",
+        "value": "col",
+        "single_value": "",
+    }
+    markup_classes["form_control"] = ""
+
+    return render(element, markup_classes)
+
+
+@register.filter
 def bootstrap_grouped(element, args="2,10"):
     return bootstrap(element, args, "grouped")
 

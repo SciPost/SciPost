@@ -1,10 +1,6 @@
-<div class="alert-fixed-container">
-  {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-      {{ message|safe|escape }}
-    </div>
-  {% endfor %}
-</div>
+<div id="global-message-container"
+     class="alert-fixed-container"
+     hx-get="{% url 'scipost:_hx_messages' %}"
+     hx-trigger="load, htmx:trigger from:body delay:1000"
+     hx-swap="beforeend"
+     hx-sync="body:drop"></div>

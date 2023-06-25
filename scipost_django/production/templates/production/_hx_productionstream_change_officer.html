@@ -1,0 +1,18 @@
+{% load bootstrap %}
+
+{% if form.fields.officer.choices|length > 0 %}
+    <div id="productionstream-{{ stream.id }}-update-officer">
+        <form hx-post="{% url 'production:update_officer' stream.id %}"
+              hx-target="#productionstream-{{ stream.id }}-update-officer"
+              hx-swap="outerHTML"
+              class="row">
+            {% csrf_token %}
+            <div class="col">{{ form|bootstrap_purely_inline }}</div>
+            <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty"
+                 hx-post="{% url 'production:_hx_productionstream_change_action_buttons' stream.id 'officer' %}"
+                 hx-swap="innerHTML"
+                 hx-trigger="change from:select#productionstream_{{ stream.id }}_id_officer"
+                 hx-target="this"></div>
+        </form>
+    </div>
+{% endif %}
