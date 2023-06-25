@@ -21,13 +21,6 @@ from base64 import b64encode
 
 
 from production.models import ProofsRepository
-from production.constants import (
-    PROOFS_REPO_UNINITIALIZED,
-    PROOFS_REPO_CREATED,
-    PROOFS_REPO_TEMPLATE_ONLY,
-    PROOFS_REPO_TEMPLATE_FORMATTED,
-    PROOFS_REPO_PRODUCTION_READY,
-)
 
 
 class Command(BaseCommand):
@@ -476,11 +469,13 @@ class Command(BaseCommand):
             repos = ProofsRepository.objects.all()
 
         # Create the repos
-        repos_to_be_created = repos.filter(status=PROOFS_REPO_UNINITIALIZED)
+        repos_to_be_created = repos.filter(
+            status=ProofsRepository.PROOFS_REPO_UNINITIALIZED
+        )
         for repo in repos_to_be_created:
             try:
                 self._create_git_repo(repo)
-                repo.status = PROOFS_REPO_CREATED
+                repo.status = ProofsRepository.PROOFS_REPO_CREATED
                 repo.save()
             except Exception as e:
                 self.stdout.write(
@@ -490,11 +485,13 @@ class Command(BaseCommand):
                 )
 
         # Copy the pure templates
-        repos_to_be_templated = repos.filter(status=PROOFS_REPO_CREATED)
+        repos_to_be_templated = repos.filter(
+            status=ProofsRepository.PROOFS_REPO_CREATED
+        )
         for repo in repos_to_be_templated:
             try:
                 self._copy_pure_templates(repo)
-                repo.status = PROOFS_REPO_TEMPLATE_ONLY
+                repo.status = ProofsRepository.PROOFS_REPO_TEMPLATE_ONLY
                 repo.save()
             except Exception as e:
                 self.stdout.write(
@@ -504,11 +501,13 @@ class Command(BaseCommand):
                 )
 
         # Format the skeleton files
-        repos_to_be_formatted = repos.filter(status=PROOFS_REPO_TEMPLATE_ONLY)
+        repos_to_be_formatted = repos.filter(
+            status=ProofsRepository.PROOFS_REPO_TEMPLATE_ONLY
+        )
         for repo in repos_to_be_formatted:
             try:
                 self._format_skeleton(repo)
-                repo.status = PROOFS_REPO_TEMPLATE_FORMATTED
+                repo.status = ProofsRepository.PROOFS_REPO_TEMPLATE_FORMATTED
                 repo.save()
             except Exception as e:
                 self.stdout.write(
@@ -518,12 +517,14 @@ class Command(BaseCommand):
                 )
 
         # Copy the arXiv source files
-        repos_to_be_copied = repos.filter(status=PROOFS_REPO_TEMPLATE_FORMATTED)
+        repos_to_be_copied = repos.filter(
+            status=ProofsRepository.PROOFS_REPO_TEMPLATE_FORMATTED
+        )
         for repo in repos_to_be_copied:
             try:
                 if "arxiv.org" in repo.stream.submission.preprint.url:
                     self._copy_arxiv_source_files(repo)
-                    repo.status = PROOFS_REPO_PRODUCTION_READY
+                    repo.status = ProofsRepository.PROOFS_REPO_PRODUCTION_READY
                     repo.save()
             except Exception as e:
                 self.stdout.write(

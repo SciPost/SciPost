@@ -246,6 +246,22 @@ class ProofsRepository(models.Model):
     ProofsRepository is a GitLab repository of Proofs for a Submission.
     """
 
+    PROOFS_REPO_UNINITIALIZED = "uninitialized"
+    PROOFS_REPO_CREATED = "created"
+    PROOFS_REPO_TEMPLATE_ONLY = "template_only"
+    PROOFS_REPO_TEMPLATE_FORMATTED = "template_formatted"
+    PROOFS_REPO_PRODUCTION_READY = "production_ready"
+    PROOFS_REPO_STATUSES = (
+        (PROOFS_REPO_UNINITIALIZED, "The repository does not exist"),
+        (PROOFS_REPO_CREATED, "The repository exists but is empty"),
+        (PROOFS_REPO_TEMPLATE_ONLY, "The repository contains the bare template"),
+        (
+            PROOFS_REPO_TEMPLATE_FORMATTED,
+            "The repository contains the automatically formatted template",
+        ),
+        (PROOFS_REPO_PRODUCTION_READY, "The repository is ready for production"),
+    )
+
     stream = models.OneToOneField(
         ProductionStream,
         on_delete=models.CASCADE,
@@ -371,7 +387,7 @@ def production_stream_create_proofs_repo(sender, instance, created, **kwargs):
     if created:
         ProofsRepository.objects.create(
             stream=instance,
-            status=PROOFS_REPO_UNINITIALIZED,
+            status=ProofsRepository.PROOFS_REPO_UNINITIALIZED,
         )
 
 
