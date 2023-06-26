@@ -1546,10 +1546,24 @@ class SubmissionForm(forms.ModelForm):
 
         submission.save()
 
+        # Try to match the submitting author's last name to a position from the author list.
+        try:
+            submitting_author_order = list(
+                map(
+                    lambda x: self.requested_by.contributor.profile.last_name
+                    in x.strip(),
+                    submission.author_list.split(","),
+                )
+            ).index(True)
+        except ValueError:
+            # Otherwise, assume the submitting author is the first author.
+            submitting_author_order = 1
+
         # Add the submitter's AuthorProfile:
         author_profile = SubmissionAuthorProfile(
             submission=submission,
             profile=self.requested_by.contributor.profile,
+            order=submitting_author_order,
         )
         author_profile.save()
         submission.author_profiles.add(author_profile)
