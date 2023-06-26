@@ -211,16 +211,36 @@ class LogsFilterForm(forms.Form):
     employee = UserModelChoiceField(
         queryset=get_user_model().objects.filter(work_logs__isnull=False).distinct(),
         required=False,
-        empty_label="Show all",
+        empty_label="All",
     )
-    start = forms.DateField(required=True, widget=forms.SelectDateWidget())
-    end = forms.DateField(required=True, widget=forms.SelectDateWidget())
+    start = forms.DateField(
+        required=True, widget=forms.TextInput(attrs={"type": "date"})
+    )
+    end = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date"}))
+    hourly_rate = forms.FloatField(min_value=0, initial=WorkLog.HOURLY_RATE)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         today = timezone.now().date()
-        self.initial["start"] = today.today()
-        self.initial["end"] = today.today()
+
+        if not any(self.fields[field].initial for field in ["start", "end"]):
+            current_month = datetime.date.today().replace(day=1)
+            last_month_end = current_month - datetime.timedelta(days=1)
+            last_month_start = last_month_end.replace(day=1)
+            self.fields["start"].initial = last_month_start
+            self.fields["end"].initial = last_month_end
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField("employee"), css_class="col-9 col-md"),
+                Div(FloatingField("hourly_rate"), css_class="col-3 col-md-2"),
+                Div(FloatingField("start"), css_class="col-6 col-md-auto col-lg-2"),
+                Div(FloatingField("end"), css_class="col-6 col-md-auto col-lg-2"),
+                css_class="row mb-0 mt-2",
+            ),
+            Submit("submit", "Filter"),
+        )
 
     def clean(self):
         if self.is_valid():
@@ -249,6 +269,7 @@ class LogsFilterForm(forms.Form):
                 )
             else:
                 user_qs = get_user_model().objects.filter(work_logs__isnull=False)
+
             user_qs = user_qs.filter(
                 work_logs__work_date__gte=self.cleaned_data["start"],
                 work_logs__work_date__lte=self.cleaned_data["end"],
@@ -280,24 +301,49 @@ class LogsFilterForm(forms.Form):
                 )
             else:
                 user_qs = get_user_model().objects.filter(work_logs__isnull=False)
+
             user_qs = user_qs.filter(
                 work_logs__work_date__gte=self.cleaned_data["start"],
                 work_logs__work_date__lte=self.cleaned_data["end"],
             ).distinct()
 
+            work_log_qs = WorkLog.objects.filter(
+                work_date__gte=self.cleaned_data["start"],
+                work_date__lte=self.cleaned_data["end"],
+                user__in=user_qs,
+            )
+
             output = []
             for user in user_qs:
                 # If logs exists for given filters
+                total_time_per_month = [
+                    work_log_qs.filter(
+                        work_date__year=dt.year, work_date__month=dt.month, user=user
+                    ).aggregate(Sum("duration"))["duration__sum"]
+                    for dt in self.get_months()
+                ]
+
+                if self.cleaned_data["hourly_rate"]:
+                    salary_per_month = [
+                        duration.total_seconds()
+                        / 3600  # Convert to hours
+                        * self.cleaned_data["hourly_rate"]
+                        if duration is not None
+                        else 0
+                        for duration in total_time_per_month
+                    ]
+                else:
+                    salary_per_month = []
+
                 output.append(
                     {
-                        "logs": [],
+                        "monthly_data": zip(
+                            self.get_months(),
+                            total_time_per_month,
+                            salary_per_month,
+                        ),
                         "user": user,
                     }
                 )
-                for dt in self.get_months():
-                    output[-1]["logs"].append(
-                        user.work_logs.filter(
-                            work_date__year=dt.year, work_date__month=dt.month
-                        ).aggregate(total=Sum("duration"))["total"]
-                    )
+
         return output
