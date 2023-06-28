@@ -286,6 +286,8 @@ class SubsidyAttachment(models.Model):
 
 
 class WorkLog(models.Model):
+    HOURLY_RATE = 22.0
+    
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     comments = models.TextField(blank=True)
     log_type = models.CharField(max_length=128, blank=True)

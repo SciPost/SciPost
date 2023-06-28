@@ -6,9 +6,11 @@
   <span class="breadcrumb-item">Detailed timesheets</span>
 {% endblock %}
 
-{% block pagetitle %}: Team timesheets{% endblock pagetitle %}
+{% block pagetitle %}
+  : Team timesheets
+{% endblock pagetitle %}
 
-{% load bootstrap %}
+{% load crispy_forms_tags %}
 {% load scipost_extras %}
 
 {% block content %}
@@ -19,20 +21,7 @@
       <br>
 
       <form method="get">
-        {{form.employee|bootstrap }}
-
-        <label>Date from</label>
-        <div class="form-row">
-          {{ form.start }}
-        </div>
-
-        <label>Date until</label>
-        <div class="form-row">
-          {{ form.end }}
-        </div>
-        <br>
-
-        <input type="submit" class="btn btn-primary" value="Filter">
+        {% crispy form %}
       </form>
     </div>
   </div>
@@ -65,7 +54,9 @@
               {% endfor %}
               <tr>
                 <td colspan="4" class="text-end">Total:</td>
-                <td><strong>{{ user_log.duration.total|duration }}</strong></td>
+                <td>
+                  <strong>{{ user_log.duration.total|duration }}</strong>
+                </td>
               </tr>
             </tbody>
           </table>

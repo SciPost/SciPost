@@ -5,9 +5,11 @@
   <span class="breadcrumb-item">Team timesheets</span>
 {% endblock %}
 
-{% block pagetitle %}: Team timesheets{% endblock pagetitle %}
+{% block pagetitle %}
+  : Team timesheets
+{% endblock pagetitle %}
 
-{% load bootstrap %}
+{% load crispy_forms_tags %}
 {% load scipost_extras %}
 
 {% block content %}
@@ -20,20 +22,7 @@
       <br>
 
       <form method="get">
-        {{ form.employee|bootstrap }}
-
-        <label>Date from</label>
-        <div class="form-row">
-          {{ form.start }}
-        </div>
-
-        <label>Date until</label>
-        <div class="form-row">
-          {{ form.end }}
-        </div>
-        <br>
-
-        <input type="submit" class="btn btn-primary" value="Filter">
+        {% crispy form %}
       </form>
     </div>
   </div>
@@ -43,25 +32,26 @@
       {% if form.is_bound and form.is_valid %}
         <h2 class="mb-2 mt-4">Team timesheets</h2>
         <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>
-        <table class="table table-hover">
+        <table class="table table-hover text-nowrap">
           <thead class="table-light">
             <tr>
               <th>Employee</th>
-              {% for month in form.get_months %}
-                <th>{{ month|date:'N Y' }}</th>
-              {% endfor %}
+              {% for month in form.get_months %}<th colspan="2" scope="colgroup">{{ month|date:'N Y' }}</th>{% endfor %}
             </tr>
           </thead>
           <tbody>
-            {% for user_log in form.filter_per_month %}
+            {% for user_data in form.filter_per_month %}
               <tr>
-                <td>{{ user_log.user.last_name }}, {{ user_log.user.first_name }}</td>
-                {% for log in user_log.logs %}
-                  <td>{{ log|duration }}</td>
+                <td>{{ user_data.user.contributor }}</td>
+                {% for _, total_time, monthly_salary in user_data.monthly_data %}
+                  <td>{{ total_time|duration }}</td>
+                  <td>€{{ monthly_salary|floatformat:0 }}</td>
                 {% endfor %}
               </tr>
             {% empty %}
-              <tr><td colspan="5">No logs found.</td></tr>
+              <tr>
+                <td colspan="5">No logs found.</td>
+              </tr>
             {% endfor %}
           </tbody>
         </table>
