@@ -11,7 +11,6 @@ def mark_guest_Fellows(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("colleges", "0028_fellowship_status"),
     ]

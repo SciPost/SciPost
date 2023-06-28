@@ -21,7 +21,6 @@ def update_submission_statuses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0016_auto_20180414_1825"),
     ]

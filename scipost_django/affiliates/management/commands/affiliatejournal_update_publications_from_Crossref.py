@@ -18,7 +18,5 @@ class Command(BaseCommand):
         for journal in AffiliateJournal.objects.all():
             get_affiliatejournal_publications_from_Crossref(journal)
         self.stdout.write(
-            self.style.SUCCESS(
-                "Successfully updated AffiliateJournal publications."
-            )
+            self.style.SUCCESS("Successfully updated AffiliateJournal publications.")
         )

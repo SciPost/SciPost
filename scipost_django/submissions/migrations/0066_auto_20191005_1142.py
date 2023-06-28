@@ -5,7 +5,6 @@ import scipost.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0065_auto_20191005_1122"),
     ]

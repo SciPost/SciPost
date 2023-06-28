@@ -35,17 +35,21 @@ class AffiliateJournal(models.Model):
     )
 
     acad_field = models.ForeignKey(
-        "ontology.AcademicField", on_delete=models.PROTECT, blank=True, null=True,
+        "ontology.AcademicField",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
     )
     specialties = models.ManyToManyField(
-        "ontology.Specialty", blank=True,
+        "ontology.Specialty",
+        blank=True,
     )
 
     homepage = models.URLField(max_length=256, blank=True)
 
     logo_svg = models.FileField(
         upload_to="affiliates/journals/logos/",
-        validators=[FileExtensionValidator(['svg'])],
+        validators=[FileExtensionValidator(["svg"])],
         blank=True,
     )
     logo = models.ImageField(upload_to="affiliates/journals/logos/", blank=True)
@@ -80,9 +84,7 @@ class AffiliateJournal(models.Model):
         publications = self.publications.all()
         subsidies = self.affiliatejournalyearsubsidy_set.all()
         if organization:
-            publications = publications.filter(
-                pubfractions__organization=organization
-            )
+            publications = publications.filter(pubfractions__organization=organization)
             subsidies = subsidies.filter(organization=organization)
         if not publications:
             return {}
@@ -91,11 +93,10 @@ class AffiliateJournal(models.Model):
         years = range(maxyear, minyear - 1, -1)
         balance_info = {}
         for year in years:
-            nr_publications = publications.filter(
-                publication_date__year=year).count()
-            subsidy_tally = subsidies.filter(
-                year=year
-            ).aggregate(models.Sum("amount"))["amount__sum"]
+            nr_publications = publications.filter(publication_date__year=year).count()
+            subsidy_tally = subsidies.filter(year=year).aggregate(models.Sum("amount"))[
+                "amount__sum"
+            ]
             if not subsidy_tally:
                 subsidy_tally = 0
             balance_info[year] = {
@@ -103,11 +104,13 @@ class AffiliateJournal(models.Model):
                 "unit_cost": self.cost_per_publication(year),
                 "expenditure": nr_publications * self.cost_per_publication(year),
                 "subsidies": subsidy_tally,
-                "balance": (subsidy_tally -
-                            nr_publications * self.cost_per_publication(year)),
+                "balance": (
+                    subsidy_tally - nr_publications * self.cost_per_publication(year)
+                ),
             }
             if organization:
                 from ..models import AffiliatePubFraction
+
                 sum_pubfracs = AffiliatePubFraction.objects.filter(
                     publication__journal=self,
                     organization=organization,
@@ -116,10 +119,10 @@ class AffiliateJournal(models.Model):
                 if not sum_pubfracs:
                     sum_pubfracs = 0
                 balance_info[year]["pubfractions"] = sum_pubfracs
-                balance_info[year][
-                    "expenditure"
-                ] = int(sum_pubfracs * self.cost_per_publication(year))
-                balance_info[year][
-                    "balance"
-                ] = int(subsidy_tally - sum_pubfracs * self.cost_per_publication(year))
+                balance_info[year]["expenditure"] = int(
+                    sum_pubfracs * self.cost_per_publication(year)
+                )
+                balance_info[year]["balance"] = int(
+                    subsidy_tally - sum_pubfracs * self.cost_per_publication(year)
+                )
         return balance_info

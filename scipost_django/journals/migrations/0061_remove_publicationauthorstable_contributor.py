@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0060_remove_publication_authors_registered"),
     ]

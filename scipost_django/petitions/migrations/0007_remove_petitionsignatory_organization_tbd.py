@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("petitions", "0006_repopulate_petsign_orgs"),
     ]

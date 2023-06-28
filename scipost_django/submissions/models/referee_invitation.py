@@ -59,7 +59,8 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     accepted = models.BooleanField(
-        blank=True, null=True,
+        blank=True,
+        null=True,
         choices=((None, "Response pending"), (True, "Accept"), (False, "Decline")),
         default=None,
     )
@@ -67,7 +68,8 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     refusal_reason = models.CharField(
         max_length=3,
         choices=EditorialAssignment.REFUSAL_REASONS,
-        blank=True, null=True,
+        blank=True,
+        null=True,
     )
     fulfilled = models.BooleanField(
         default=False

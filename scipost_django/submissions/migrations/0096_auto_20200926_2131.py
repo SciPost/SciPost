@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0095_populate_submission_acad_field_specialties"),
     ]

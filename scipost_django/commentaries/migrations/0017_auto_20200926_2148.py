@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("commentaries", "0016_populate_commentary_acad_field_specialties"),
     ]

@@ -11,7 +11,6 @@ def set_statuses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mails", "0004_auto_20181217_1050"),
     ]

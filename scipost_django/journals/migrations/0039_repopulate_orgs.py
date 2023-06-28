@@ -22,7 +22,6 @@ def repopulate_organization_field(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0038_auto_20180922_1505"),
     ]

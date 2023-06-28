@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("organizations", "0002_populate_from_partners_org"),
         ("journals", "0039_repopulate_orgs"),

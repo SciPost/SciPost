@@ -6,5 +6,5 @@ from django.apps import AppConfig
 
 
 class EdadminConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'edadmin'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "edadmin"

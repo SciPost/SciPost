@@ -9,7 +9,6 @@ import scipost.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scipost", "0014_auto_20180414_2218"),
         ("colleges", "0002_auto_20171229_1435"),

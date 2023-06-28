@@ -83,7 +83,9 @@ class SubmissionPublicSerializer(serializers.ModelSerializer):
 class SubmissionPublicSearchSerializer(serializers.ModelSerializer):
     identifier = serializers.CharField(source="preprint.identifier_w_vn_nr")
     submission_date = serializers.CharField(source="submission_date_ymd")
-    original_submission_date = serializers.CharField(source="original_submission_date_ymd")
+    original_submission_date = serializers.CharField(
+        source="original_submission_date_ymd"
+    )
     url = serializers.URLField(source="get_absolute_url")
 
     class Meta:

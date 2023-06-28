@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('affiliates', '0007_alter_affiliatepublication__metadata_crossref'),
+        ("affiliates", "0007_alter_affiliatepublication__metadata_crossref"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='affiliatejournal',
-            name='homepage',
+            model_name="affiliatejournal",
+            name="homepage",
             field=models.URLField(blank=True, max_length=256),
         ),
     ]

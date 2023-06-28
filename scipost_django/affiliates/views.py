@@ -55,8 +55,10 @@ class AffiliateJournalDetailView(DetailView):
             publication__journal=self.object,
         )
         organization_id_list = set(
-            [p.organization.id for p in pubfractions.all(
-            ).select_related("organization")]
+            [
+                p.organization.id
+                for p in pubfractions.all().select_related("organization")
+            ]
         )
         organizations = Organization.objects.filter(
             id__in=organization_id_list
@@ -210,8 +212,10 @@ class AffiliateJournalOrganizationListView(PaginationMixin, ListView):
         journal = get_object_or_404(AffiliateJournal, slug=self.kwargs["slug"])
         pubfractions = AffiliatePubFraction.objects.filter(publication__journal=journal)
         organization_id_list = set(
-            [p.organization.id for p in pubfractions.all(
-            ).select_related("organization")]
+            [
+                p.organization.id
+                for p in pubfractions.all().select_related("organization")
+            ]
         )
         organizations = Organization.objects.filter(
             id__in=organization_id_list

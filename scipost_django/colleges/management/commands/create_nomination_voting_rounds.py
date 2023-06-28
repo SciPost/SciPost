@@ -18,8 +18,9 @@ class Command(BaseCommand):
     help = "Create voting rounds for nominations requiring handling."
 
     def handle(self, *args, **kwargs):
-        nominations = FellowshipNomination.objects.needing_handling(
-        ).exclude(profile__specialties__isnull=True)
+        nominations = FellowshipNomination.objects.needing_handling().exclude(
+            profile__specialties__isnull=True
+        )
         for nomination in nominations:
             specialties_slug_list = [
                 s.slug for s in nomination.profile.specialties.all()
@@ -27,17 +28,18 @@ class Command(BaseCommand):
             voting_round = FellowshipNominationVotingRound(
                 nomination=nomination,
                 voting_opens=timezone.now(),
-                voting_deadline=(
-                    timezone.now() + datetime.timedelta(days=14)
-                ),
+                voting_deadline=(timezone.now() + datetime.timedelta(days=14)),
             )
             voting_round.save()
             voting_round.eligible_to_vote.set(
-                Fellowship.objects.active().senior(
-                ).specialties_overlap(specialties_slug_list)
+                Fellowship.objects.active()
+                .senior()
+                .specialties_overlap(specialties_slug_list)
             )
             if voting_round.eligible_to_vote.count() <= 5:
                 # add Senior Fellows from all specialties
                 voting_round.eligible_to_vote.set(
-                    Fellowship.objects.active().senior().filter(college=nomination.college)
+                    Fellowship.objects.active()
+                    .senior()
+                    .filter(college=nomination.college)
                 )

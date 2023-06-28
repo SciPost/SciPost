@@ -31,6 +31,7 @@ from edadmin.forms import (
 # Admissibility #
 #################
 
+
 @login_required
 @user_passes_test(is_edadmin)
 def _hx_submission_admissibility(request, identifier_w_vn_nr):
@@ -43,7 +44,7 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
             Submission.objects.filter(pk=submission.id).update(
                 status=Submission.ADMISSIBLE
             )
-        else: # inadmissible, inform authors and set status to ADMISSION_FAILED
+        else:  # inadmissible, inform authors and set status to ADMISSION_FAILED
             Submission.objects.filter(pk=submission.id).update(
                 status=Submission.ADMISSION_FAILED
             )
@@ -59,7 +60,10 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
         response = HttpResponse()
         response["HX-Trigger"] = f"submission-{submission.pk}-tab-edadmin-updated"
         return response
-    context = {"submission": submission, "form": form,}
+    context = {
+        "submission": submission,
+        "form": form,
+    }
     return render(
         request,
         "edadmin/incoming/_hx_submission_admissibility_form.html",
@@ -67,10 +71,10 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
     )
 
 
-
 ########################
 # Plagiarism: internal #
 ########################
+
 
 @login_required
 @user_passes_test(is_edadmin)
@@ -99,7 +103,9 @@ def _hx_plagiarism_internal(request, identifier_w_vn_nr):
         for pub_match in submission.internal_plagiarism_matches["publication_matches"]:
             context["publication_matches"].append(
                 {
-                    "publication": Publication.objects.get(doi_label=pub_match["doi_label"]),
+                    "publication": Publication.objects.get(
+                        doi_label=pub_match["doi_label"]
+                    ),
                     "ratio_title": pub_match["ratio_title"],
                     "ratio_authors": pub_match["ratio_authors"],
                     "ratio_abstract": pub_match["ratio_abstract"],
@@ -125,7 +131,7 @@ def _hx_plagiarism_internal_assess(request, identifier_w_vn_nr):
         request.POST or None,
         instance=submission.internal_plagiarism_assessment,
     )
-    if form.is_valid(): # trigger re-rendering of details-contents div
+    if form.is_valid():  # trigger re-rendering of details-contents div
         assessment = form.save()
         response = HttpResponse()
         response["HX-Trigger"] = f"submission-{submission.pk}-tab-edadmin-updated"
@@ -144,6 +150,7 @@ def _hx_plagiarism_internal_assess(request, identifier_w_vn_nr):
 ###########################
 # Plagiarism: iThenticate #
 ###########################
+
 
 @login_required
 @user_passes_test(is_edadmin)
@@ -183,7 +190,7 @@ def _hx_plagiarism_iThenticate_assess(request, identifier_w_vn_nr):
         request.POST or None,
         instance=submission.iThenticate_plagiarism_assessment,
     )
-    if form.is_valid(): # trigger re-rendering of details-contents div
+    if form.is_valid():  # trigger re-rendering of details-contents div
         assessment = form.save()
         response = HttpResponse()
         response["HX-Trigger"] = f"submission-{submission.pk}-tab-edadmin-updated"
@@ -203,6 +210,7 @@ def _hx_plagiarism_iThenticate_assess(request, identifier_w_vn_nr):
 # Admission #
 #############
 
+
 @login_required
 @user_passes_test(is_edadmin)
 def _hx_submission_admission(request, identifier_w_vn_nr):
@@ -221,7 +229,7 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
             #     submission=submission,
             #     comments_for_authors=form.cleaned_data["comments_for_authors"],
             # )
-        else: # inadmissible, inform authors and set status to ADMISSION_FAILED
+        else:  # inadmissible, inform authors and set status to ADMISSION_FAILED
             Submission.objects.filter(pk=submission.id).update(
                 status=Submission.ADMISSION_FAILED
             )
@@ -237,7 +245,10 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
         # trigger refresh of pool listing
         response["HX-Trigger-After-Settle"] = "search-conditions-updated"
         return response
-    context = {"submission": submission, "form": form,}
+    context = {
+        "submission": submission,
+        "form": form,
+    }
     return render(
         request,
         "edadmin/incoming/_hx_submission_admission_form.html",

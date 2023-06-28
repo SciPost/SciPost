@@ -20,7 +20,6 @@ def populate_osf_preprint_servers(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0104_populate_figshare_preprint_servers"),
     ]

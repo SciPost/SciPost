@@ -254,8 +254,7 @@ class ProfileDynSelForm(forms.Form):
             query = Q()
             for word in splitwords:
                 query = query & (
-                    Q(last_name__icontains=word) |
-                    Q(first_name__icontains=word)
+                    Q(last_name__icontains=word) | Q(first_name__icontains=word)
                 )
             profiles = Profile.objects.filter(query).distinct()
             return profiles

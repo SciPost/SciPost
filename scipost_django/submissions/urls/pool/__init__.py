@@ -6,10 +6,8 @@ from django.urls import include, path
 
 app_name = "pool"
 
-urlpatterns = [ # building on /submissions/pool/
-
+urlpatterns = [  # building on /submissions/pool/
     # nested namespaces
-
     path("", include("submissions.urls.pool.base")),
     path(
         "decisionmaking",
@@ -18,5 +16,4 @@ urlpatterns = [ # building on /submissions/pool/
             namespace="decisionmaking",
         ),
     ),
-
 ]

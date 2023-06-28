@@ -32,10 +32,16 @@ class OrganizationQuerySet(models.QuerySet):
         """
         List of sponsors with at least one subsidy above parameter:amount.
         """
-        qs = self.filter(
-            subsidy__status__in=[SUBSIDY_PROMISED, SUBSIDY_INVOICED, SUBSIDY_RECEIVED],
-        ).annotate(max_subsidy=models.Max("subsidy__amount")).filter(
-            max_subsidy__gte=min_amount
+        qs = (
+            self.filter(
+                subsidy__status__in=[
+                    SUBSIDY_PROMISED,
+                    SUBSIDY_INVOICED,
+                    SUBSIDY_RECEIVED,
+                ],
+            )
+            .annotate(max_subsidy=models.Max("subsidy__amount"))
+            .filter(max_subsidy__gte=min_amount)
         )
         if max_amount:
             qs = qs.filter(max_subsidy__lt=max_amount)
@@ -45,6 +51,14 @@ class OrganizationQuerySet(models.QuerySet):
         """
         Order by (decreasing) total amount received.
         """
-        return self.filter(
-            subsidy__status__in=[SUBSIDY_PROMISED, SUBSIDY_INVOICED, SUBSIDY_RECEIVED],
-        ).annotate(total=models.Sum("subsidy__amount")).order_by("-total")
+        return (
+            self.filter(
+                subsidy__status__in=[
+                    SUBSIDY_PROMISED,
+                    SUBSIDY_INVOICED,
+                    SUBSIDY_RECEIVED,
+                ],
+            )
+            .annotate(total=models.Sum("subsidy__amount"))
+            .order_by("-total")
+        )

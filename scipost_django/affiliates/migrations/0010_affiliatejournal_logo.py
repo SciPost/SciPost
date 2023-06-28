@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('affiliates', '0009_auto_20220226_2037'),
+        ("affiliates", "0009_auto_20220226_2037"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='affiliatejournal',
-            name='logo',
-            field=models.ImageField(blank=True, upload_to='affiliates/journals/logos/'),
+            model_name="affiliatejournal",
+            name="logo",
+            field=models.ImageField(blank=True, upload_to="affiliates/journals/logos/"),
         ),
     ]

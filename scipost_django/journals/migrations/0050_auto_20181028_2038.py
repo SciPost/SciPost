@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("profiles", "0012_profile_topics"),
         ("ontology", "0005_auto_20181028_2038"),

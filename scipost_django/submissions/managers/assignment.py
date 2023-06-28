@@ -8,7 +8,6 @@ from django.utils import timezone
 
 
 class EditorialAssignmentQuerySet(models.QuerySet):
-
     def last_year(self):
         return self.filter(
             date_created__gt=timezone.now() - timezone.timedelta(days=365)

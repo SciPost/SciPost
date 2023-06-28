@@ -232,11 +232,14 @@ class ForumListView(LoginRequiredMixin, ListView):
     template_name = "forum_list.html"
 
     def get_queryset(self):
-        queryset = get_objects_for_user(
-            self.request.user, "forums.can_view_forum"
-        ).anchors().select_related("meeting").prefetch_related(
-            "posts" + "__followup_posts" * 3,
-            "child_forums__posts" + "__followup_posts" * 7,
+        queryset = (
+            get_objects_for_user(self.request.user, "forums.can_view_forum")
+            .anchors()
+            .select_related("meeting")
+            .prefetch_related(
+                "posts" + "__followup_posts" * 3,
+                "child_forums__posts" + "__followup_posts" * 7,
+            )
         )
         return queryset
 
@@ -284,7 +287,9 @@ def _hx_post_form(request, slug, parent_model, parent_id, origin, target, text):
                 response["HX-Trigger"] = f"newPost-{target}"
                 # refocus browser on new post
                 response["HX-Trigger-After-Settle"] = json.dumps(
-                    {"newPost": f"{target}",}
+                    {
+                        "newPost": f"{target}",
+                    }
                 )
             else:
                 # force rerendering of whole thread from initiator down
@@ -292,7 +297,9 @@ def _hx_post_form(request, slug, parent_model, parent_id, origin, target, text):
                 response["HX-Reswap"] = "outerHTML"
                 # refocus browser on initiator
                 response["HX-Trigger-After-Settle"] = json.dumps(
-                    {"newPost": f"thread-{thread_initiator.id}",}
+                    {
+                        "newPost": f"thread-{thread_initiator.id}",
+                    }
                 )
             return response
     else:
@@ -330,7 +337,9 @@ def _hx_post_form(request, slug, parent_model, parent_id, origin, target, text):
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
 def _hx_motion_form_button(request, slug):
-    context = { "slug": slug, }
+    context = {
+        "slug": slug,
+    }
     return render(request, "forums/_hx_motion_form_button.html", context)
 
 
@@ -350,7 +359,9 @@ def _hx_motion_form(request, slug):
             response["HX-Trigger"] = f"newMotion"
             # refocus browser on new Motion
             response["HX-Trigger-After-Settle"] = json.dumps(
-                {"newPost": f"thread-{motion.post.id}",}
+                {
+                    "newPost": f"thread-{motion.post.id}",
+                }
             )
             return response
     else:
@@ -371,11 +382,13 @@ def _hx_motion_form(request, slug):
             "eligible_for_voting": voters.exclude(id__in=ineligible_ids),
         }
         initial["voting_deadline"] = (
-            (forum.meeting.date_until if forum.meeting else timezone.now()) +
-            datetime.timedelta(days=7)
-        )
+            forum.meeting.date_until if forum.meeting else timezone.now()
+        ) + datetime.timedelta(days=7)
         form = MotionForm(initial=initial, forum=forum)
-    context = { "slug": slug, "form": form, }
+    context = {
+        "slug": slug,
+        "form": form,
+    }
     return render(request, "forums/_hx_motion_form.html", context)
 
 
@@ -383,13 +396,18 @@ def _hx_motion_form(request, slug):
 def _hx_thread_from_post(request, slug, post_id):
     forum = get_object_or_404(Forum, slug=slug)
     posting_open = not forum.meeting or forum.meeting.ongoing
-    post = Post.objects.filter(pk=post_id).select_related(
-        "motion",
-        "posted_by",
-    ).prefetch_related(
-        "parent",
-        "followup_posts",
-    ).first()
+    post = (
+        Post.objects.filter(pk=post_id)
+        .select_related(
+            "motion",
+            "posted_by",
+        )
+        .prefetch_related(
+            "parent",
+            "followup_posts",
+        )
+        .first()
+    )
     context = {
         "forum": forum,
         "posting_open": posting_open,
@@ -398,17 +416,19 @@ def _hx_thread_from_post(request, slug, post_id):
     return render(request, "forums/post_card.html", context)
 
 
-
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
 def _hx_motion_voting(request, slug, motion_id):
     forum = get_object_or_404(Forum, slug=slug)
-    motion = get_object_or_404(Motion.objects.prefetch_related(
-        "eligible_for_voting__contributor__user",
-        "in_agreement__contributor__user",
-        "in_doubt__contributor__user",
-        "in_disagreement__contributor__user",
-        "in_abstain__contributor__user",
-    ), pk=motion_id)
+    motion = get_object_or_404(
+        Motion.objects.prefetch_related(
+            "eligible_for_voting__contributor__user",
+            "in_agreement__contributor__user",
+            "in_doubt__contributor__user",
+            "in_disagreement__contributor__user",
+            "in_abstain__contributor__user",
+        ),
+        pk=motion_id,
+    )
     initial = {
         "user": request.user,
         "motion": motion,
@@ -417,5 +437,5 @@ def _hx_motion_voting(request, slug, motion_id):
     if form.is_valid():
         form.save()
         motion.refresh_from_db()
-    context = { "forum": forum, "motion": motion, "form": form }
+    context = {"forum": forum, "motion": motion, "form": form}
     return render(request, "forums/_hx_motion_voting.html", context)

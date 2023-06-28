@@ -89,10 +89,12 @@ class SubsidySearchForm(forms.Form):
             subsidies = Subsidy.objects.obtained()
         if self.cleaned_data["organization_query"]:
             subsidies = subsidies.filter(
-                Q(organization__name__icontains=\
-                  self.cleaned_data["organization_query"]) |
-                Q(organization__acronym__icontains=\
-                  self.cleaned_data["organization_query"])
+                Q(organization__name__icontains=self.cleaned_data["organization_query"])
+                | Q(
+                    organization__acronym__icontains=self.cleaned_data[
+                        "organization_query"
+                    ]
+                )
             )
         if self.cleaned_data["country"]:
             subsidies = subsidies.filter(
@@ -126,8 +128,9 @@ class SubsidyPaymentForm(forms.ModelForm):
         self.fields["subsidy"].initial = subsidy
         self.fields["subsidy"].widget = forms.HiddenInput()
         self.fields["invoice"].queryset = subsidy.attachments.invoices()
-        self.fields["proof_of_payment"].queryset =\
-            subsidy.attachments.proofs_of_payment()
+        self.fields[
+            "proof_of_payment"
+        ].queryset = subsidy.attachments.proofs_of_payment()
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("subsidy"),
@@ -144,7 +147,6 @@ class SubsidyPaymentForm(forms.ModelForm):
             ),
             ButtonHolder(Submit("submit", "Submit", css_class="btn-sm")),
         )
-
 
 
 class SubsidyAttachmentForm(forms.ModelForm):
@@ -172,10 +174,9 @@ class SubsidyAttachmentForm(forms.ModelForm):
             self.add_error(
                 "attachment",
                 "The filename does not match the required regex pattern "
-                f"'{filename_regex}'"
+                f"'{filename_regex}'",
             )
         return attachment
-
 
 
 #############

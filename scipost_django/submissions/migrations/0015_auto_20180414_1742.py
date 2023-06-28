@@ -36,7 +36,6 @@ def merge_submission_statuses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0014_auto_20180414_1729"),
     ]

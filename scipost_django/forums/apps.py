@@ -14,6 +14,7 @@ class ForumsConfig(AppConfig):
 
         from . import signals
         from forums.models import Post
+
         post_save.connect(
             signals.post_save_update_cfs_in_post_hierarchy,
             sender=Post,

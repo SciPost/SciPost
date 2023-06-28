@@ -5,7 +5,6 @@ import scipost.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0084_journal_minimal_nr_of_reports"),
     ]

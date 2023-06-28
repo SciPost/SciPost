@@ -23,7 +23,6 @@ def transfer_from_contributor_to_profile(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scipost", "0037_auto_20200929_1234"),
     ]

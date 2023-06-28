@@ -57,8 +57,7 @@ class Readiness(models.Model):
                 name="readiness_unique_together_submission_fellow",
             ),
         ]
-        ordering =["submission", "fellow"]
-
+        ordering = ["submission", "fellow"]
 
     def __str__(self):
         return f"{self.fellow}: {self.get_status_display()} (for {self.submission})"

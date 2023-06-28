@@ -45,11 +45,11 @@ class BlogPostSearchForm(forms.Form):
             query = Q()
             for word in splitwords:
                 query = query & (
-                    Q(title__icontains=word) |
-                    Q(blurb__icontains=word) |
-                    Q(body__icontains=word) |
-                    Q(posted_by__first_name__icontains=word) |
-                    Q(posted_by__last_name__icontains=word)
+                    Q(title__icontains=word)
+                    | Q(blurb__icontains=word)
+                    | Q(body__icontains=word)
+                    | Q(posted_by__first_name__icontains=word)
+                    | Q(posted_by__last_name__icontains=word)
                 )
             posts = posts.filter(query).distinct()
         if not self.user.has_perm("blog.change_blogpost"):

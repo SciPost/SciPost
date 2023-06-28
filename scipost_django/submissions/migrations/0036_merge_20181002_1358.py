@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0035_auto_20180930_1939"),
         ("submissions", "0035_refereeinvitation_profile"),

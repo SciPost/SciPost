@@ -5,16 +5,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0113_alter_refereeinvitation_options'),
-        ('journals', '0116_auto_20220223_0739'),
+        ("submissions", "0113_alter_refereeinvitation_options"),
+        ("journals", "0116_auto_20220223_0739"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publication',
-            name='accepted_submission',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='publications', to='submissions.submission'),
+            model_name="publication",
+            name="accepted_submission",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="publications",
+                to="submissions.submission",
+            ),
         ),
     ]

@@ -38,7 +38,6 @@ def transfer_publication_authors_to_separate_table(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0011_auto_20180212_1950"),
     ]

@@ -20,6 +20,7 @@ class OrganizationLogoInline(admin.TabularInline):
     model = OrganizationLogo
     extra = 0
 
+
 class OrganizationEventInline(admin.TabularInline):
     model = OrganizationEvent
     extra = 0

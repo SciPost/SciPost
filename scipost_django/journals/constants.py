@@ -43,14 +43,21 @@ PUBLISHABLE_OBJECT_TYPE_CHOICES = (
     (PUBLISHABLE_OBJECT_TYPE_DATASET, "Dataset"),
 )
 
+
 def get_publishable_object_types_default_list():
-    return [PUBLISHABLE_OBJECT_TYPE_ARTICLE,]
+    return [
+        PUBLISHABLE_OBJECT_TYPE_ARTICLE,
+    ]
+
 
 def get_submission_object_types_default():
     return {
         "options": [
-            ' + '.join(l) for l in [
-                [PUBLISHABLE_OBJECT_TYPE_ARTICLE,],
+            " + ".join(l)
+            for l in [
+                [
+                    PUBLISHABLE_OBJECT_TYPE_ARTICLE,
+                ],
                 [PUBLISHABLE_OBJECT_TYPE_ARTICLE, PUBLISHABLE_OBJECT_TYPE_CODEBASE],
                 [PUBLISHABLE_OBJECT_TYPE_ARTICLE, PUBLISHABLE_OBJECT_TYPE_DATASET],
                 [

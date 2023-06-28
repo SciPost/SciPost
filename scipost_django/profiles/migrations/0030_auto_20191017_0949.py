@@ -5,7 +5,6 @@ import scipost.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("profiles", "0029_auto_20191005_1142"),
     ]

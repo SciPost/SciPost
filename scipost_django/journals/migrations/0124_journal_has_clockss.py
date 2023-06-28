@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0123_publicationresource'),
+        ("journals", "0123_publicationresource"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='has_CLOCKSS',
+            model_name="journal",
+            name="has_CLOCKSS",
             field=models.BooleanField(default=True),
         ),
     ]

@@ -4,19 +4,18 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finances', '0024_auto_20230215_1734'),
+        ("finances", "0024_auto_20230215_1734"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='subsidy',
-            options={'ordering': ['-date_from'], 'verbose_name_plural': 'subsidies'},
+            name="subsidy",
+            options={"ordering": ["-date_from"], "verbose_name_plural": "subsidies"},
         ),
         migrations.RenameField(
-            model_name='subsidy',
-            old_name='date',
-            new_name='date_from',
+            model_name="subsidy",
+            old_name="date",
+            new_name="date_from",
         ),
     ]

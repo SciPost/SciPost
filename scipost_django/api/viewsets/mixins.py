@@ -20,7 +20,7 @@ class FilteringOptionsActionMixin:
         """
         advanced_fields_dict = {**self.filterset_class.get_fields()}
         if hasattr(self, "extra_filters"):
-            for (label, queryspec) in self.extra_filters.items():
+            for label, queryspec in self.extra_filters.items():
                 advanced_fields_dict[label] = queryspec["lookups"]
 
         filtering_options = {

@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0084_journal_minimal_nr_of_reports"),
         ("submissions", "0066_auto_20191005_1142"),

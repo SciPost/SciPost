@@ -4,18 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ethics', '0002_submissionclearance'),
+        ("ethics", "0002_submissionclearance"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='submissionclearance',
-            options={'ordering': ['submission', 'profile']},
+            name="submissionclearance",
+            options={"ordering": ["submission", "profile"]},
         ),
         migrations.AddConstraint(
-            model_name='submissionclearance',
-            constraint=models.UniqueConstraint(fields=('profile', 'submission'), name='unique_together_profile_submission'),
+            model_name="submissionclearance",
+            constraint=models.UniqueConstraint(
+                fields=("profile", "submission"),
+                name="unique_together_profile_submission",
+            ),
         ),
     ]

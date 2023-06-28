@@ -4,15 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0130_auto_20221215_0623'),
+        ("submissions", "0130_auto_20221215_0623"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='editorialassignment',
-            name='status',
-            field=models.CharField(choices=[('preassigned', 'Preassigned'), ('invited', 'Invited'), ('accepted', 'Accepted'), ('askagainlater', 'Perhaps; ask again later'), ('declined', 'Declined'), ('completed', 'Completed'), ('deprecated', 'Deprecated'), ('replaced', 'Replaced')], default='preassigned', max_length=16),
+            model_name="editorialassignment",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("preassigned", "Preassigned"),
+                    ("invited", "Invited"),
+                    ("accepted", "Accepted"),
+                    ("askagainlater", "Perhaps; ask again later"),
+                    ("declined", "Declined"),
+                    ("completed", "Completed"),
+                    ("deprecated", "Deprecated"),
+                    ("replaced", "Replaced"),
+                ],
+                default="preassigned",
+                max_length=16,
+            ),
         ),
     ]

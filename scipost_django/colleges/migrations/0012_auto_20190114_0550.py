@@ -7,7 +7,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scipost", "0018_contributor_duplicate_of"),
         ("colleges", "0011_auto_20190113_1942"),

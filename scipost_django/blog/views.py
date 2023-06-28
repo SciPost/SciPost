@@ -48,7 +48,8 @@ class BlogPostDetailView(DetailView):
 
     def get_object(self):
         blogpost = super().get_object()
-        if (blogpost.status != blogpost.PUBLISHED
-            and not self.request.user.has_perm("blog.change_blogpost")):
+        if blogpost.status != blogpost.PUBLISHED and not self.request.user.has_perm(
+            "blog.change_blogpost"
+        ):
             raise Http404
         return blogpost

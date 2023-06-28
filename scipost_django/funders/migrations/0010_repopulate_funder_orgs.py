@@ -15,7 +15,6 @@ def repopulate_organization_field(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("funders", "0009_funder_org"),
     ]

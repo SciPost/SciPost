@@ -5,7 +5,6 @@ import journals.models.journal
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0109_auto_20210715_1244"),
     ]

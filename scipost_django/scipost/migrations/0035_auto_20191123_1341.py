@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scipost", "0034_auto_20191017_0949"),
         ("invitations", "0011_auto_20180220_1139"),

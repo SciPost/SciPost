@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("profiles", "0015_auto_20181118_0849"),
         ("conflicts", "0009_conflictofinterest"),

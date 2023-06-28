@@ -6,25 +6,50 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('scipost', '0040_auto_20210310_2026'),
-        ('colleges', '0032_auto_20220129_0837'),
+        ("scipost", "0040_auto_20210310_2026"),
+        ("colleges", "0032_auto_20220129_0837"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FellowshipNominationComment',
+            name="FellowshipNominationComment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField(help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.')),
-                ('on', models.DateTimeField(default=django.utils.timezone.now)),
-                ('by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='scipost.contributor')),
-                ('nomination', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='colleges.fellowshipnomination')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "text",
+                    models.TextField(
+                        help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.'
+                    ),
+                ),
+                ("on", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="scipost.contributor",
+                    ),
+                ),
+                (
+                    "nomination",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="comments",
+                        to="colleges.fellowshipnomination",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Fellowhip Nomination Comments',
-                'ordering': ['-on'],
+                "verbose_name_plural": "Fellowhip Nomination Comments",
+                "ordering": ["-on"],
             },
         ),
     ]

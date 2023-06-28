@@ -19,11 +19,13 @@ class SubmissionAdmissibilityForm(forms.Form):
         required=True,
     )
     comments_for_authors = forms.CharField(
-        widget=forms.Textarea(attrs={
-            "placeholder": "For fail: message to be included in email for authors",
-            "rows": 5,
-            "cols": 80,
-        }),
+        widget=forms.Textarea(
+            attrs={
+                "placeholder": "For fail: message to be included in email for authors",
+                "rows": 5,
+                "cols": 80,
+            }
+        ),
         required=False,
     )
 
@@ -34,7 +36,9 @@ class SubmissionAdmissibilityForm(forms.Form):
             Div(
                 Div(
                     Field("admissibility"),
-                    ButtonHolder(Submit("submit", "Submit", css_class="btn btn-primary")),
+                    ButtonHolder(
+                        Submit("submit", "Submit", css_class="btn btn-primary")
+                    ),
                     css_class="col col-lg-4",
                 ),
                 Div(
@@ -47,9 +51,10 @@ class SubmissionAdmissibilityForm(forms.Form):
 
     def clean(self):
         data = super().clean()
-        if (self.cleaned_data["admissibility"] == "fail" and
-            self.cleaned_data["comments_for_authors"] is None):
+        if (
+            self.cleaned_data["admissibility"] == "fail"
+            and self.cleaned_data["comments_for_authors"] is None
+        ):
             self.add_error(
-                None,
-                "Comments for authors must not be empty if marked as inadmissible"
+                None, "Comments for authors must not be empty if marked as inadmissible"
             )

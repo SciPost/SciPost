@@ -5,15 +5,16 @@ import journals.constants
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0126_populate_journal_publishable_object_types'),
+        ("journals", "0126_populate_journal_publishable_object_types"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='submission_object_types',
-            field=models.JSONField(default=journals.constants.get_submission_object_types_default),
+            model_name="journal",
+            name="submission_object_types",
+            field=models.JSONField(
+                default=journals.constants.get_submission_object_types_default
+            ),
         ),
     ]

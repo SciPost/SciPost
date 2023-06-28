@@ -4,15 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0119_alter_publication_pdf_file'),
+        ("journals", "0119_alter_publication_pdf_file"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='publication',
-            name='pubtype',
-            field=models.CharField(choices=[('article', 'Article'), ('codebase_release', 'Codebase release')], default='article', max_length=32),
+            model_name="publication",
+            name="pubtype",
+            field=models.CharField(
+                choices=[
+                    ("article", "Article"),
+                    ("codebase_release", "Codebase release"),
+                ],
+                default="article",
+                max_length=32,
+            ),
         ),
     ]

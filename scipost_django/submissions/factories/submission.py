@@ -127,6 +127,7 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
     def eic_assignment(self, create, extracted, **kwargs):
         if create:
             from submissions.factories import EditorialAssignmentFactory
+
             EditorialAssignmentFactory(submission=self, to=self.editor_in_charge)
 
     @factory.post_generation
@@ -136,6 +137,7 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
             AcceptedRefereeInvitationFactory,
             FulfilledRefereeInvitationFactory,
         )
+
         for i in range(random.randint(1, 3)):
             RefereeInvitationFactory(submission=self)
         for i in range(random.randint(0, 2)):
@@ -145,7 +147,6 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
 
     @factory.post_generation
     def comments(self, create, extracted, **kwargs):
-
         if create:
             for i in range(random.randint(0, 3)):
                 SubmissionCommentFactory(content_object=self)
@@ -154,6 +155,7 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
     def eic_recommendation(self, create, extracted, **kwargs):
         if create:
             from submissions.factories import EICRecommendationFactory
+
             EICRecommendationFactory(submission=self)
 
 
@@ -216,6 +218,7 @@ class ResubmittedSubmissionFactory(InRefereeingSubmissionFactory):
             FulfilledRefereeInvitationFactory,
             CancelledRefereeInvitationFactory,
         )
+
         for i in range(random.randint(0, 2)):
             FulfilledRefereeInvitationFactory(submission=self)
 
@@ -290,6 +293,7 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
     def generate_publication(self, create, extracted, **kwargs):
         if create and extracted is not False:
             from journals.factories import PublicationFactory
+
             PublicationFactory(
                 journal=self.submitted_to.doi_label,
                 accepted_submission=self,
@@ -301,6 +305,7 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
     def eic_assignment(self, create, extracted, **kwargs):
         if create:
             from submissions.factories import EditorialAssignmentFactory
+
             EditorialAssignmentFactory(
                 submission=self,
                 to=self.editor_in_charge,
@@ -311,9 +316,9 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
     def referee_invites(self, create, extracted, **kwargs):
         from submissions.factories import (
             FulfilledRefereeInvitationFactory,
-            CancelledRefereeInvitationFactory
+            CancelledRefereeInvitationFactory,
         )
-        
+
         for i in range(random.randint(2, 4)):
             FulfilledRefereeInvitationFactory(submission=self)
         for i in range(random.randint(0, 2)):

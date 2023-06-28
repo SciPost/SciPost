@@ -692,7 +692,9 @@ def _hx_submission_topics(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
-    context = {"submission": submission,}
+    context = {
+        "submission": submission,
+    }
     if request.GET.get("include_matches", None):
         context["matching_topics"] = submission.topics.filter(
             slug__in=[t.slug for t in request.user.contributor.profile.topics.all()],
@@ -739,8 +741,11 @@ def _hx_submission_topic_action(request, identifier_w_vn_nr, topic_slug, action)
     return redirect(
         reverse(
             "submissions:_hx_submission_topics",
-            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,},
-        ) + "?include_matches=1",
+            kwargs={
+                "identifier_w_vn_nr": identifier_w_vn_nr,
+            },
+        )
+        + "?include_matches=1",
     )
 
 
@@ -751,7 +756,7 @@ def _hx_submission_workflow_diagram(request, identifier_w_vn_nr=None):
         submission = get_object_or_404(
             Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
         )
-        context["submission"]= submission
+        context["submission"] = submission
     return render(request, "submissions/_hx_submission_workflow_diagram.html", context)
 
 
@@ -965,7 +970,9 @@ def assignment_failed(request, identifier_w_vn_nr):
         # Update status of Submission
         submission.touch()
         Submission.objects.filter(id=submission.id).update(
-            status=Submission.ASSIGNMENT_FAILED, visible_pool=False, visible_public=False
+            status=Submission.ASSIGNMENT_FAILED,
+            visible_pool=False,
+            visible_public=False,
         )
 
         messages.success(
@@ -1118,7 +1125,7 @@ def select_referee(request, identifier_w_vn_nr):
                 "search_query": "au:%s" % search_str,
                 "sortBy": "submittedDate",
                 "sortorder": "descending",
-                "max_results": 5
+                "max_results": 5,
             }
             queryurl = (
                 "https://export.arxiv.org/api/query?"
@@ -2363,7 +2370,9 @@ def _hx_submission_update_target_journal(request, identifier_w_vn_nr):
     return render(
         request,
         "submissions/admin/_submission_update_target_journal.html",
-        context={"submission": submission,},
+        context={
+            "submission": submission,
+        },
     )
 
 
@@ -2374,7 +2383,9 @@ def _hx_submission_update_target_journal_form(request, identifier_w_vn_nr):
     )
     target_old = submission.submitted_to.name
     form = SubmissionTargetJournalForm(request.POST or None, instance=submission)
-    context={"submission": submission,}
+    context = {
+        "submission": submission,
+    }
     if form.is_valid():
         form.save()
         if form.has_changed():
@@ -2382,14 +2393,16 @@ def _hx_submission_update_target_journal_form(request, identifier_w_vn_nr):
                 "The target Journal has been changed from %s to %s"
                 % (target_old, submission.submitted_to.name)
             )
-        return  render(
-        request,
-        "submissions/admin/_submission_update_target_journal.html",
-        context,
-    )
+        return render(
+            request,
+            "submissions/admin/_submission_update_target_journal.html",
+            context,
+        )
     context["form"] = form
     return render(
-        request, "submissions/admin/_hx_submission_update_target_journal_form.html", context
+        request,
+        "submissions/admin/_hx_submission_update_target_journal_form.html",
+        context,
     )
 
 
@@ -2401,7 +2414,9 @@ def _hx_submission_update_target_proceedings(request, identifier_w_vn_nr):
     return render(
         request,
         "submissions/admin/_submission_update_target_proceedings.html",
-        context={"submission": submission,},
+        context={
+            "submission": submission,
+        },
     )
 
 
@@ -2412,7 +2427,9 @@ def _hx_submission_update_target_proceedings_form(request, identifier_w_vn_nr):
     )
     target_old = str(submission.proceedings)
     form = SubmissionTargetProceedingsForm(request.POST or None, instance=submission)
-    context={"submission": submission,}
+    context = {
+        "submission": submission,
+    }
     if form.is_valid():
         form.save()
         if form.has_changed():
@@ -2420,10 +2437,10 @@ def _hx_submission_update_target_proceedings_form(request, identifier_w_vn_nr):
                 "The target Proceedings has been changed from %s to %s"
                 % (target_old, str(submission.proceedings))
             )
-        return  render(
-        request,
-        "submissions/admin/_submission_update_target_proceedings.html",
-        context,
+        return render(
+            request,
+            "submissions/admin/_submission_update_target_proceedings.html",
+            context,
         )
     context["form"] = form
     return render(
@@ -2441,7 +2458,9 @@ def _hx_submission_update_preprint_file(request, identifier_w_vn_nr):
     return render(
         request,
         "submissions/admin/_submission_update_preprint_file.html",
-        context={"submission": submission,},
+        context={
+            "submission": submission,
+        },
     )
 
 
@@ -2451,7 +2470,9 @@ def _hx_submission_update_preprint_file_form(request, identifier_w_vn_nr):
     filedata_old = (
         f'{preprint._file.name.rpartition("/")[2]} ({preprint._file.size//1024} kb)'
     )
-    context = {"submission": preprint.submission,}
+    context = {
+        "submission": preprint.submission,
+    }
     if request.method == "POST":
         form = SubmissionPreprintFileForm(
             request.POST, request.FILES, instance=preprint
@@ -2569,7 +2590,6 @@ class EditorialDecisionCreateView(SubmissionMixin, PermissionsMixin, CreateView)
 
 
 class EditorialDecisionDetailView(SubmissionMixin, PermissionsMixin, DetailView):
-
     permission_required = "scipost.can_fix_College_decision"
     model = EditorialDecision
     context_object_name = "decision"
@@ -2590,7 +2610,6 @@ class EditorialDecisionDetailView(SubmissionMixin, PermissionsMixin, DetailView)
 
 
 class EditorialDecisionUpdateView(SubmissionMixin, PermissionsMixin, UpdateView):
-
     permission_required = "scipost.can_fix_College_decision"
     model = EditorialDecision
     context_object_name = "decision"
@@ -2761,7 +2780,7 @@ def accept_puboffer(request, identifier_w_vn_nr):
             "and thus are not allowed to take this action."
         )
     if submission.status != (
-            submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
+        submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
     ):
         errormessage = (
             "This Submission's status is incompatible with accepting"
@@ -2839,11 +2858,15 @@ class PlagiarismInternalView(SubmissionAdminViewMixin, DetailView):
 
         context["submission_matches"] = []
         if "submission_matches" in submission.internal_plagiarism_matches:
-            for sub_match in submission.internal_plagiarism_matches["submission_matches"]:
+            for sub_match in submission.internal_plagiarism_matches[
+                "submission_matches"
+            ]:
                 context["submission_matches"].append(
                     {
                         "submission": Submission.objects.get(
-                            preprint__identifier_w_vn_nr=sub_match["identifier_w_vn_nr"],
+                            preprint__identifier_w_vn_nr=sub_match[
+                                "identifier_w_vn_nr"
+                            ],
                         ),
                         "ratio_title": sub_match["ratio_title"],
                         "ratio_authors": sub_match["ratio_authors"],
@@ -2853,10 +2876,14 @@ class PlagiarismInternalView(SubmissionAdminViewMixin, DetailView):
 
         context["publication_matches"] = []
         if "publication_matches" in submission.internal_plagiarism_matches:
-            for pub_match in submission.internal_plagiarism_matches["publication_matches"]:
+            for pub_match in submission.internal_plagiarism_matches[
+                "publication_matches"
+            ]:
                 context["publication_matches"].append(
                     {
-                        "publication": Publication.objects.get(doi_label=pub_match["doi_label"]),
+                        "publication": Publication.objects.get(
+                            doi_label=pub_match["doi_label"]
+                        ),
                         "ratio_title": pub_match["ratio_title"],
                         "ratio_authors": pub_match["ratio_authors"],
                         "ratio_abstract": pub_match["ratio_abstract"],
@@ -2874,12 +2901,15 @@ class PlagiarismInternalView(SubmissionAdminViewMixin, DetailView):
 def submissions_versus_fellows(submissions):
     stats = []
     from ontology.models import AcademicField
+
     for acad_field in AcademicField.objects.all():
         for specialty in acad_field.specialties.all():
             submissions_in_spec = submissions.filter(
                 acad_field=acad_field, specialties__in=[specialty]
             )
-            nr_streams = len(submissions_in_spec.filter(is_resubmission_of__isnull=True))
+            nr_streams = len(
+                submissions_in_spec.filter(is_resubmission_of__isnull=True)
+            )
             number = len(submissions_in_spec)
             fellows = Fellowship.objects.active().filter(
                 contributor__profile__specialties__in=[specialty]
@@ -2899,7 +2929,9 @@ def submissions_versus_fellows(submissions):
                         "fellows_senior": fellows_senior,
                         "fellows_regular": fellows_regular,
                         "fellows_guest": fellows_guest,
-                        "ratio": nr_streams/fellows_total if fellows_total > 0 else nr_streams,
+                        "ratio": nr_streams / fellows_total
+                        if fellows_total > 0
+                        else nr_streams,
                     }
                 )
     return sorted(stats, key=lambda tup: tup["ratio"], reverse=True)

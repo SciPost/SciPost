@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ontology', '0007_Branch_Field_Specialty'),
+        ("ontology", "0007_Branch_Field_Specialty"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='specialty',
-            name='topics',
-            field=models.ManyToManyField(blank=True, related_name='specialties', to='ontology.Topic'),
+            model_name="specialty",
+            name="topics",
+            field=models.ManyToManyField(
+                blank=True, related_name="specialties", to="ontology.Topic"
+            ),
         ),
     ]

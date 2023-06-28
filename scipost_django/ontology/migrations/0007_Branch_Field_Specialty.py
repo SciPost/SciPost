@@ -339,7 +339,6 @@ def populate(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ontology", "0006_auto_20200905_1904"),
     ]

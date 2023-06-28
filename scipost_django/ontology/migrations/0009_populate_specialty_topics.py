@@ -18,9 +18,8 @@ def populate_specialty_topics(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('ontology', '0008_specialty_topics'),
+        ("ontology", "0008_specialty_topics"),
     ]
 
     operations = [

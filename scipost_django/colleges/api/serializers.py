@@ -10,6 +10,7 @@ from colleges.models import Fellowship
 
 from scipost.api.serializers import ContributorPublicAPISerializer
 
+
 class FellowshipPublicAPISerializer(DynamicFieldsModelSerializer):
     contributor = ContributorPublicAPISerializer()
     college = serializers.StringRelatedField()

@@ -44,7 +44,6 @@ def update_eic_rec_statuses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0013_auto_20180414_1729"),
     ]

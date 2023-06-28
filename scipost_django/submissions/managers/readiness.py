@@ -6,7 +6,6 @@ from django.db import models
 
 
 class ReadinessQuerySet(models.QuerySet):
-
     def perhaps_later(self):
         return self.filter(status=self.model.STATUS_PERHAPS_LATER)
 

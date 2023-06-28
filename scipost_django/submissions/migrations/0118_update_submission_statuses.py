@@ -62,14 +62,18 @@ def update_submission_status(apps, schema_editor):
     ).filter(open_for_reporting=True).update(open_for_reporting=False)
 
     # Repair case where open for reporting but no cycle
-    eic_assigned.filter(
-        open_for_reporting=True
-    ).filter(refereeing_cycle="").update(open_for_reporting=False)
+    eic_assigned.filter(open_for_reporting=True).filter(refereeing_cycle="").update(
+        open_for_reporting=False
+    )
 
     # Repair case where voting in prep or ongoing, but open for reporting
     eic_assigned.filter(open_for_reporting=True).filter(
-        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(
-            status__in=[VOTING_IN_PREP, PUT_TO_VOTING])]
+        id__in=[
+            r.submission.id
+            for r in EICRecommendation.objects.filter(
+                status__in=[VOTING_IN_PREP, PUT_TO_VOTING]
+            )
+        ]
     ).update(open_for_reporting=False)
 
     # Repair case where EiC is assigned, but not in set of revreq,
@@ -81,9 +85,15 @@ def update_submission_status(apps, schema_editor):
             REPORT_MAJOR_REV,
         ],
     ).exclude(open_for_reporting=True).exclude(refereeing_cycle="").exclude(
-        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(
-            status__in=[VOTING_IN_PREP, PUT_TO_VOTING])]
-    ).update(status=REFEREEING_CLOSED)
+        id__in=[
+            r.submission.id
+            for r in EICRecommendation.objects.filter(
+                status__in=[VOTING_IN_PREP, PUT_TO_VOTING]
+            )
+        ]
+    ).update(
+        status=REFEREEING_CLOSED
+    )
 
     # Done with repairs.
 
@@ -98,18 +108,24 @@ def update_submission_status(apps, schema_editor):
     eic_assigned_open = eic_assigned.filter(open_for_reporting=True)
     eic_assigned_nocycle = eic_assigned.filter(refereeing_cycle="")
     eic_assigned_votingprep = eic_assigned.filter(
-        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(
-            status=VOTING_IN_PREP)]
+        id__in=[
+            r.submission.id
+            for r in EICRecommendation.objects.filter(status=VOTING_IN_PREP)
+        ]
     )
     eic_assigned_voting = eic_assigned.filter(
-        id__in=[ r.submission.id for r in EICRecommendation.objects.filter(
-            status=PUT_TO_VOTING)]
+        id__in=[
+            r.submission.id
+            for r in EICRecommendation.objects.filter(status=PUT_TO_VOTING)
+        ]
     )
 
     if len(eic_assigned) != (
-            len(eic_assigned_revreq) + len(eic_assigned_open) +
-            len(eic_assigned_nocycle) + len(eic_assigned_votingprep) +
-            len(eic_assigned_voting)
+        len(eic_assigned_revreq)
+        + len(eic_assigned_open)
+        + len(eic_assigned_nocycle)
+        + len(eic_assigned_votingprep)
+        + len(eic_assigned_voting)
     ):
         print("Error: queryset lengths do not match. Aborting.")
         print(f"{len(eic_assigned) = }")
@@ -118,8 +134,12 @@ def update_submission_status(apps, schema_editor):
         print(f"{len(eic_assigned_nocycle) = }")
         print(f"{len(eic_assigned_votingprep) = }")
         print(f"{len(eic_assigned_voting) = }")
-        print(f"{len(eic_assigned_revreq.union(eic_assigned_open, eic_assigned_nocycle, eic_assigned_votingprep, eic_assigned_voting)) = }")
-        print(f"{len(eic_assigned_revreq) + len(eic_assigned_open) + len(eic_assigned_nocycle) + len(eic_assigned_votingprep) + len(eic_assigned_voting) = }")
+        print(
+            f"{len(eic_assigned_revreq.union(eic_assigned_open, eic_assigned_nocycle, eic_assigned_votingprep, eic_assigned_voting)) = }"
+        )
+        print(
+            f"{len(eic_assigned_revreq) + len(eic_assigned_open) + len(eic_assigned_nocycle) + len(eic_assigned_votingprep) + len(eic_assigned_voting) = }"
+        )
         print(f"{eic_assigned_revreq.intersection(eic_assigned_open) = }")
         print(f"{eic_assigned_revreq.intersection(eic_assigned_nocycle) = }")
         print(f"{eic_assigned_revreq.intersection(eic_assigned_votingprep) = }")
@@ -130,56 +150,50 @@ def update_submission_status(apps, schema_editor):
         print(f"{eic_assigned_nocycle.intersection(eic_assigned_votingprep) = }")
         print(f"{eic_assigned_nocycle.intersection(eic_assigned_voting) = }")
         print(f"{eic_assigned_votingprep.intersection(eic_assigned_voting) = }")
-        print(f"{eic_assigned.difference(eic_assigned_revreq.union(eic_assigned_open, eic_assigned_nocycle, eic_assigned_votingprep, eic_assigned_voting)) = }")
+        print(
+            f"{eic_assigned.difference(eic_assigned_revreq.union(eic_assigned_open, eic_assigned_nocycle, eic_assigned_votingprep, eic_assigned_voting)) = }"
+        )
         raise
 
-    eic_assigned_revreq.update(
-        status=AWAITING_RESUBMISSION
-    )
-    eic_assigned_open.update(
-        status=IN_REFEREEING
-    )
-    eic_assigned_nocycle.update(
-        status=REFEREEING_IN_PREPARATION
-    )
-    eic_assigned_votingprep.update(
-        status=VOTING_IN_PREPARATION
-    )
-    eic_assigned_voting.update(
-        status=IN_VOTING
-    )
+    eic_assigned_revreq.update(status=AWAITING_RESUBMISSION)
+    eic_assigned_open.update(status=IN_REFEREEING)
+    eic_assigned_nocycle.update(status=REFEREEING_IN_PREPARATION)
+    eic_assigned_votingprep.update(status=VOTING_IN_PREPARATION)
+    eic_assigned_voting.update(status=IN_VOTING)
 
     # Now deal with other cases
-    Submission.objects.filter(
-        status=UNASSIGNED
-    ).update(status=SCREENING)
+    Submission.objects.filter(status=UNASSIGNED).update(status=SCREENING)
 
-    Submission.objects.filter(
-        status=FAILED_PRESCREENING
-    ).update(status=PRESCREENING_FAILED)
+    Submission.objects.filter(status=FAILED_PRESCREENING).update(
+        status=PRESCREENING_FAILED
+    )
 
-    Submission.objects.filter(
-        status=ASSIGNMENT_FAILED
-    ).update(status=SCREENING_FAILED)
+    Submission.objects.filter(status=ASSIGNMENT_FAILED).update(status=SCREENING_FAILED)
 
-    Submission.objects.filter(
-        status=ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
-    ).update(status=ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE)
+    Submission.objects.filter(status=ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE).update(
+        status=ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
+    )
 
     for submission in Submission.objects.filter(status=ACCEPTED):
-        decision = EditorialDecision.objects.filter(
-            submission__id=submission.id
-        ).exclude(status=DEPRECATED).order_by("-version").first()
+        decision = (
+            EditorialDecision.objects.filter(submission__id=submission.id)
+            .exclude(status=DEPRECATED)
+            .order_by("-version")
+            .first()
+        )
         if submission.submitted_to == decision.for_journal:
-            Submission.objects.filter(pk=submission.id).update(status=ACCEPTED_IN_TARGET)
+            Submission.objects.filter(pk=submission.id).update(
+                status=ACCEPTED_IN_TARGET
+            )
         else:
-            Submission.objects.filter(pk=submission.id).update(status=ACCEPTED_IN_ALTERNATIVE)
+            Submission.objects.filter(pk=submission.id).update(
+                status=ACCEPTED_IN_ALTERNATIVE
+            )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0117_alter_submission_status'),
+        ("submissions", "0117_alter_submission_status"),
     ]
 
     operations = [

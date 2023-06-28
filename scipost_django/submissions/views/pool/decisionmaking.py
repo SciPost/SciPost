@@ -20,23 +20,29 @@ from submissions.constants import PUT_TO_VOTING
 # Voting #
 ##########
 
+
 @login_required
 @fellowship_or_admin_required()
 def _hx_recommendation_voting_details_contents(
-        request,
-        identifier_w_vn_nr,
-        rec_id,
+    request,
+    identifier_w_vn_nr,
+    rec_id,
 ):
     submission = get_object_or_404(
         Submission.objects.in_pool(request.user, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
-    context = {"submission": submission, "recommendation": recommendation,}
+    context = {
+        "submission": submission,
+        "recommendation": recommendation,
+    }
     return render(
         request,
-        ("submissions/pool/decisionmaking/"
-         "_hx_recommendation_voting_details_contents.html"),
+        (
+            "submissions/pool/decisionmaking/"
+            "_hx_recommendation_voting_details_contents.html"
+        ),
         context,
     )
 
@@ -44,13 +50,13 @@ def _hx_recommendation_voting_details_contents(
 @login_required
 @user_passes_test(is_edadmin_or_senior_fellow)
 def _hx_recommendation_grant_voting_right(
-        request,
-        identifier_w_vn_nr,
-        rec_id,
-        spec_slug: str=None,
-        nr: int=None,
-        status: str=None,
-        contributor_id: int=None,
+    request,
+    identifier_w_vn_nr,
+    rec_id,
+    spec_slug: str = None,
+    nr: int = None,
+    status: str = None,
+    contributor_id: int = None,
 ):
     submission = get_object_or_404(
         Submission.objects.in_pool(request.user, historical=True),
@@ -63,12 +69,19 @@ def _hx_recommendation_grant_voting_right(
         conflicted_fellows_ids = [
             ci.fellowship.id for ci in submission.competing_interests.all()
         ]
-        voting_fellows_to_add = submission.fellows.active().filter(
-            contributor__profile__specialties__slug=spec_slug,
-        ).exclude(
-            contributor__profile__competing_interests__affected_submissions=submission,
-        ).exclude(
-            contributor__id__in=[c.id for c in recommendation.eligible_to_vote.all()],
+        voting_fellows_to_add = (
+            submission.fellows.active()
+            .filter(
+                contributor__profile__specialties__slug=spec_slug,
+            )
+            .exclude(
+                contributor__profile__competing_interests__affected_submissions=submission,
+            )
+            .exclude(
+                contributor__id__in=[
+                    c.id for c in recommendation.eligible_to_vote.all()
+                ],
+            )
         )
         if status:
             if status == "senior":
@@ -86,8 +99,10 @@ def _hx_recommendation_grant_voting_right(
     }
     return render(
         request,
-        ("submissions/pool/decisionmaking/"
-         "_hx_recommendation_voting_details_contents.html"),
+        (
+            "submissions/pool/decisionmaking/"
+            "_hx_recommendation_voting_details_contents.html"
+        ),
         context,
     )
 
@@ -95,11 +110,11 @@ def _hx_recommendation_grant_voting_right(
 @login_required
 @user_passes_test(is_edadmin_or_senior_fellow)
 def _hx_recommendation_revoke_voting_right(
-        request,
-        identifier_w_vn_nr,
-        rec_id,
-        spec_slug: str=None,
-        contributor_id: int=None,
+    request,
+    identifier_w_vn_nr,
+    rec_id,
+    spec_slug: str = None,
+    contributor_id: int = None,
 ):
     submission = get_object_or_404(
         Submission.objects.in_pool(request.user, historical=True),
@@ -119,8 +134,10 @@ def _hx_recommendation_revoke_voting_right(
     }
     return render(
         request,
-        ("submissions/pool/decisionmaking/"
-         "_hx_recommendation_voting_details_contents.html"),
+        (
+            "submissions/pool/decisionmaking/"
+            "_hx_recommendation_voting_details_contents.html"
+        ),
         context,
     )
 
@@ -128,9 +145,9 @@ def _hx_recommendation_revoke_voting_right(
 @login_required
 @user_passes_test(is_edadmin)
 def _hx_recommendation_open_voting(
-        request,
-        identifier_w_vn_nr,
-        rec_id,
+    request,
+    identifier_w_vn_nr,
+    rec_id,
 ):
     submission = get_object_or_404(
         Submission.objects.in_pool(request.user, historical=True),
@@ -146,5 +163,7 @@ def _hx_recommendation_open_voting(
     return render(
         request,
         "submissions/pool/decisionmaking/_recommendations_and_voting.html",
-        context={"submission": submission,},
+        context={
+            "submission": submission,
+        },
     )

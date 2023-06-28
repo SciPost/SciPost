@@ -56,7 +56,6 @@ class ArxivCaller:
                 )
 
                 if self._search_result_present(response_content):
-
                     for conflict in response_content["entries"]:
                         coi, new = ConflictOfInterest.objects.get_or_create(
                             header=conflict["title"],

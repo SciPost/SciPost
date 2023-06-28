@@ -18,9 +18,8 @@ def add_events(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('colleges', '0038_fellowshipnominationevent'),
+        ("colleges", "0038_fellowshipnominationevent"),
     ]
 
     operations = [

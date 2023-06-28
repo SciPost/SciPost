@@ -9,7 +9,6 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("apimail", "0011_auto_20200118_0843"),

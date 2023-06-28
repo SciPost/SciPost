@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ontology", "0007_Branch_Field_Specialty"),
         ("theses", "0011_auto_20191017_0949"),

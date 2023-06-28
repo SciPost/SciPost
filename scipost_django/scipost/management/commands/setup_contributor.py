@@ -22,7 +22,7 @@ class Command(BaseCommand):
     def create_contributor(self, username):
         user = User.objects.get(username=username)
         profile, created = Profile.objects.get_or_create(
-            title='MX',
+            title="MX",
             first_name=user.first_name,
             last_name=user.last_name,
         )
@@ -34,7 +34,6 @@ class Command(BaseCommand):
         contributor.save()
         Contributor.objects.filter(pk=contributor.id).update(vetted_by=contributor)
         contributor.user.groups.add(Group.objects.get(name="Registered Contributors"))
-
 
     def handle(self, *args, **options):
         self.create_contributor(options["username"])

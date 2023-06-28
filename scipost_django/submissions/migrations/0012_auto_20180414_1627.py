@@ -34,7 +34,6 @@ def update_visibility_booleans(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0011_auto_20180414_1627"),
     ]

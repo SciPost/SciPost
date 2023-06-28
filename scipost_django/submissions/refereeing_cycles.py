@@ -347,10 +347,12 @@ class BaseCycle:
         elif self._submission.status == self._submission.PUBLISHED:
             texts.append("The Submission has been published as ")
             for publication in self._submission.publications.published():
-                texts.append('<a href="{url}">{doi}</a> '.format(
-                    url=publication.get_absolute_url(),
-                    doi=publication.doi_label,
-                ))
+                texts.append(
+                    '<a href="{url}">{doi}</a> '.format(
+                        url=publication.get_absolute_url(),
+                        doi=publication.doi_label,
+                    )
+                )
         elif self._submission.status == self._submission.REFEREEING_CLOSED:
             if recommendation:
                 texts.append("The refereeing round is closed.")
@@ -376,6 +378,7 @@ class BaseCycle:
         Set the Submission status to IN_REFEREEING and reset the reporting deadline.
         """
         from .models import Submission  # Prevent circular import errors
+
         deadline = timezone.now() + datetime.timedelta(days=self.days_for_refereeing)
         Submission.objects.filter(id=self._submission.id).update(
             status=self._submission.IN_REFEREEING,

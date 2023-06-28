@@ -17,8 +17,11 @@ def populate_codebases(apps, schema_editor):
         if "Codebases" in j.name:
             j.submission_object_types = {
                 "options": [
-                    ' + '.join(l) for l in [
-                        [PUBLISHABLE_OBJECT_TYPE_CODEBASE,],
+                    " + ".join(l)
+                    for l in [
+                        [
+                            PUBLISHABLE_OBJECT_TYPE_CODEBASE,
+                        ],
                         [
                             PUBLISHABLE_OBJECT_TYPE_ARTICLE,
                             PUBLISHABLE_OBJECT_TYPE_CODEBASE,
@@ -39,9 +42,8 @@ def populate_codebases(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0127_journal_submission_object_types'),
+        ("journals", "0127_journal_submission_object_types"),
     ]
 
     operations = [

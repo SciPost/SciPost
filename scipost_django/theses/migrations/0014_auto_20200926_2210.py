@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("theses", "0013_populate_thesislink_acad_field_specialties"),
     ]

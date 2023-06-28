@@ -15,14 +15,19 @@ class Category(models.Model):
     description = models.TextField(default="(insert description)")
 
     class Meta:
-        ordering = ['title']
-        verbose_name_plural = 'categories'
+        ordering = ["title"]
+        verbose_name_plural = "categories"
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('blog:category_detail', kwargs={'slug': self.slug,})
+        return reverse(
+            "blog:category_detail",
+            kwargs={
+                "slug": self.slug,
+            },
+        )
 
 
 class BlogPost(models.Model):
@@ -54,16 +59,16 @@ class BlogPost(models.Model):
     objects = BlogPostQuerySet.as_manager()
 
     class Meta:
-        ordering = ['-date_posted']
+        ordering = ["-date_posted"]
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
         kwargs = {
-            'slug': self.slug,
-            'year': '%04d' % self.date_posted.year,
-            'month': '%02d' % self.date_posted.month,
-            'day': '%02d' % self.date_posted.day,
-            }
-        return reverse('blog:blogpost_detail', kwargs=kwargs)
+            "slug": self.slug,
+            "year": "%04d" % self.date_posted.year,
+            "month": "%02d" % self.date_posted.month,
+            "day": "%02d" % self.date_posted.day,
+        }
+        return reverse("blog:blogpost_detail", kwargs=kwargs)

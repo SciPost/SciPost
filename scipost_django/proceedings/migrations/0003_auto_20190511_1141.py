@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("proceedings", "0002_proceedings_minimum_referees"),
     ]

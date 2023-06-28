@@ -16,7 +16,6 @@ def populate_submitted_to_from_submitted_to_journal(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0041_submission_submitted_to"),
     ]

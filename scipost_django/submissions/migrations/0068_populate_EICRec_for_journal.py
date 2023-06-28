@@ -12,7 +12,6 @@ def populate_for_journal(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0067_auto_20191014_2104"),
     ]

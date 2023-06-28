@@ -13,6 +13,9 @@ class WebinarRegistrationInline(admin.TabularInline):
 
 
 class WebinarAdmin(admin.ModelAdmin):
-    inlines = [WebinarRegistrationInline,]
+    inlines = [
+        WebinarRegistrationInline,
+    ]
+
 
 admin.site.register(Webinar, WebinarAdmin)

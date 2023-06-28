@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         # ('partners', '0005_organization'),
         ("journals", "0032_authoraffiliation"),

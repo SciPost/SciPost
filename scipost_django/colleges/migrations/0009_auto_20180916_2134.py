@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("colleges", "0008_prosfellow_to_potfellowship"),
     ]

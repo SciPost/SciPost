@@ -69,7 +69,11 @@ def pool_hx_submission_list(request):
     page_obj = paginator.get_page(page_nr)
     count = paginator.count
     start_index = page_obj.start_index
-    context = {"count": count, "page_obj": page_obj, "start_index": start_index,}
+    context = {
+        "count": count,
+        "page_obj": page_obj,
+        "start_index": start_index,
+    }
     return render(request, "submissions/pool/_hx_submission_list.html", context)
 
 
@@ -81,7 +85,9 @@ def pool_hx_submission_details_contents(request, identifier_w_vn_nr):
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     context = {"remark_form": RemarkForm(), "submission": submission}
-    return render(request, "submissions/pool/_hx_submission_details_contents.html", context)
+    return render(
+        request, "submissions/pool/_hx_submission_details_contents.html", context
+    )
 
 
 @login_required

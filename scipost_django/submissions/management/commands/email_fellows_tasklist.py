@@ -33,10 +33,12 @@ class Command(BaseCommand):
         count = 0
 
         for fellowship in fellowships:
-            nr_nominations_to_vote_on = FellowshipNominationVotingRound.objects.ongoing(
-                ).filter(
-                    eligible_to_vote=fellowship
-                ).exclude(votes__fellow=fellowship).count()
+            nr_nominations_to_vote_on = (
+                FellowshipNominationVotingRound.objects.ongoing()
+                .filter(eligible_to_vote=fellowship)
+                .exclude(votes__fellow=fellowship)
+                .count()
+            )
             recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(
                 fellowship.contributor.user
             )
@@ -70,7 +72,7 @@ class Command(BaseCommand):
                     nr_visible=fellowship.nr_visible,
                     nr_appraised=fellowship.nr_appraised,
                     nr_appraisals_required=(
-                        fellowship.nr_visible-fellowship.nr_appraised
+                        fellowship.nr_visible - fellowship.nr_appraised
                     ),
                     assignments_upcoming_deadline=assignments_upcoming_deadline,
                 )

@@ -18,7 +18,11 @@ def send_editorial_assignment_invitations(self):
     """
     Send next queued editorial assignment invitation emails.
     """
-    qs = Submission.objects.seeking_assignment().has_editor_invitations_to_be_sent().distinct()
+    qs = (
+        Submission.objects.seeking_assignment()
+        .has_editor_invitations_to_be_sent()
+        .distinct()
+    )
     submission_ids = qs.values_list("id", flat=True)
     submissions_count = len(submission_ids)
 
@@ -45,8 +49,12 @@ def send_editorial_assignment_invitations(self):
 @app.task(bind=True)
 def submit_submission_document_for_plagiarism(self):
     """Upload a new Submission document to iThenticate."""
-    submissions_to_upload = Submission.objects.iThenticate_plagiarism_report_to_be_uploaded()
-    submission_to_update = Submission.objects.iThenticate_plagiarism_report_to_be_updated()
+    submissions_to_upload = (
+        Submission.objects.iThenticate_plagiarism_report_to_be_uploaded()
+    )
+    submission_to_update = (
+        Submission.objects.iThenticate_plagiarism_report_to_be_updated()
+    )
 
     for submission in submissions_to_upload:
         report, __ = iThenticate.objects.get_or_create(to_submission=submission)
@@ -72,7 +80,7 @@ def check_for_internal_plagiarism_submission_matches(self, ratio_threshold=0.7):
         submission_matches = []
         # check all Submissions which predate, and are not in the thread of the sub
         for sub in Submission.objects.exclude(
-                thread_hash=sub_to_check.thread_hash
+            thread_hash=sub_to_check.thread_hash
         ).filter(submission_date__lt=sub_to_check.submission_date):
             sub_title_sm = SequenceMatcher(None, sub_to_check.title, sub.title)
             ratio_title = sub_title_sm.ratio()
@@ -91,7 +99,9 @@ def check_for_internal_plagiarism_submission_matches(self, ratio_threshold=0.7):
                         "ratio_abstract": ratio_abstract,
                     }
                 )
-        sub_to_check.internal_plagiarism_matches["submission_matches"] = submission_matches
+        sub_to_check.internal_plagiarism_matches[
+            "submission_matches"
+        ] = submission_matches
         sub_to_check.save()
 
 
@@ -108,7 +118,9 @@ def check_for_internal_plagiarism_publication_matches(self, ratio_threshold=0.7)
     # Check in small batches to not overwhelm the server
     for sub_to_check in submissions_to_check.all()[:5]:
         publication_matches = []
-        for pub in Publication.objects.filter(publication_date__lt=sub_to_check.submission_date):
+        for pub in Publication.objects.filter(
+            publication_date__lt=sub_to_check.submission_date
+        ):
             ratio_title = SequenceMatcher(None, sub_to_check.title, pub.title).ratio()
             ratio_authors = SequenceMatcher(
                 None, sub_to_check.author_list, pub.author_list
@@ -125,5 +137,7 @@ def check_for_internal_plagiarism_publication_matches(self, ratio_threshold=0.7)
                         "ratio_abstract": ratio_abstract,
                     }
                 )
-        sub_to_check.internal_plagiarism_matches["publication_matches"] = publication_matches
+        sub_to_check.internal_plagiarism_matches[
+            "publication_matches"
+        ] = publication_matches
         sub_to_check.save()

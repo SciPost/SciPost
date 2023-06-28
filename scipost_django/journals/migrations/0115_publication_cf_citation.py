@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0114_journal_required_article_elements'),
+        ("journals", "0114_journal_required_article_elements"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='publication',
-            name='cf_citation',
+            model_name="publication",
+            name="cf_citation",
             field=models.CharField(blank=True, max_length=1024),
         ),
     ]

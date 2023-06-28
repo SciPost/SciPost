@@ -12,7 +12,6 @@ def from_astrophysics_to_astronomy(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0081_auto_20190926_0603"),
     ]

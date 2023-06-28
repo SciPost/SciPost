@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('colleges', '0036_auto_20220307_0831'),
+        ("colleges", "0036_auto_20220307_0831"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='fellowshipinvitation',
-            name='postpone_start_to',
+            model_name="fellowshipinvitation",
+            name="postpone_start_to",
             field=models.DateField(blank=True, null=True),
         ),
     ]

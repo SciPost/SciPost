@@ -208,7 +208,7 @@ class SubmissionPoolSearchForm(forms.Form):
             ("current", "Currently under consideration"),
             (
                 "current_noawaitingresub",
-                "Currently under consideration\n(excluding awaiting resubmission)"
+                "Currently under consideration\n(excluding awaiting resubmission)",
             ),
             ("historical", "All accessible history"),
         ),
@@ -218,13 +218,15 @@ class SubmissionPoolSearchForm(forms.Form):
         widget=forms.RadioSelect,
         choices=(
             (
-                "Submission date ", (
+                "Submission date ",
+                (
                     ("submission_recent", "most recent first"),
                     ("submission_oldest", "oldest first"),
                 ),
             ),
             (
-                "Activity ", (
+                "Activity ",
+                (
                     ("activity_recent", "most recent first"),
                     ("activity_oldest", "oldest first"),
                 ),
@@ -335,7 +337,7 @@ class SubmissionPoolSearchForm(forms.Form):
             (
                 (
                     Submission.REFEREEING_IN_PREPARATION,
-                    "Refereeing in preparation (cycle choice needed)"
+                    "Refereeing in preparation (cycle choice needed)",
                 ),
                 ("in_refereeing", "In refereeing"),
                 ("unvetted_reports", "... with unvetted Reports"),
@@ -350,7 +352,8 @@ class SubmissionPoolSearchForm(forms.Form):
             (
                 (
                     Submission.AWAITING_RESUBMISSION,
-                    "Awaiting resubmission (minor or major revision requested)"),
+                    "Awaiting resubmission (minor or major revision requested)",
+                ),
             ),
         )
         voting = (
@@ -377,11 +380,9 @@ class SubmissionPoolSearchForm(forms.Form):
                 (Submission.WITHDRAWN, "Withdrawn by the Authors"),
             ),
         )
-        processed = (
-            ("Processed", ((Submission.PUBLISHED, "Published"),)),
-        )
+        processed = (("Processed", ((Submission.PUBLISHED, "Published"),)),)
         if user.contributor.is_ed_admin:
-            choices=(
+            choices = (
                 ("All", (("all", "All Submissions"),)),
                 incoming,
                 preassignment,
@@ -392,7 +393,7 @@ class SubmissionPoolSearchForm(forms.Form):
                 decided,
             )
         elif user.contributor.is_active_senior_fellow:
-            choices=(
+            choices = (
                 ("All", (("all", "All Submissions"),)),
                 preassignment,
                 assignment,
@@ -402,7 +403,7 @@ class SubmissionPoolSearchForm(forms.Form):
                 decided,
             )
         else:
-            choices=(
+            choices = (
                 ("All", (("all", "All Submissions"),)),
                 assignment,
                 refereeing,
@@ -412,7 +413,6 @@ class SubmissionPoolSearchForm(forms.Form):
             )
 
         return choices
-
 
     def search_results(self, user):
         """
@@ -465,23 +465,19 @@ class SubmissionPoolSearchForm(forms.Form):
             pass
         elif status == "plagiarism_internal_failed_temporary":
             submissions = submissions.filter(
-                internal_plagiarism_assessment__status=\
-                PlagiarismAssessment.STATUS_FAILED_TEMPORARY,
+                internal_plagiarism_assessment__status=PlagiarismAssessment.STATUS_FAILED_TEMPORARY,
             )
         elif status == "plagiarism_internal_failed_permanent":
             submissions = submissions.filter(
-                internal_plagiarism_assessment__status=\
-                PlagiarismAssessment.STATUS_FAILED_PERMANENT,
+                internal_plagiarism_assessment__status=PlagiarismAssessment.STATUS_FAILED_PERMANENT,
             )
         elif status == "plagiarism_iThenticate_failed_temporary":
             submissions = submissions.filter(
-                iThenticate_plagiarism_assessment__status=\
-                PlagiarismAssessment.STATUS_FAILED_TEMPORARY,
+                iThenticate_plagiarism_assessment__status=PlagiarismAssessment.STATUS_FAILED_TEMPORARY,
             )
         elif status == "plagiarism_iThenticate_failed_permanent":
             submissions = submissions.filter(
-                iThenticate_plagiarism_assessment__status=\
-                PlagiarismAssessment.STATUS_FAILED_PERMANENT,
+                iThenticate_plagiarism_assessment__status=PlagiarismAssessment.STATUS_FAILED_PERMANENT,
             )
         elif status == "assignment_1":
             submissions = submissions.filter(
@@ -505,35 +501,53 @@ class SubmissionPoolSearchForm(forms.Form):
             id_list = [r.submission.id for r in reports_to_vet.all()]
             submissions = submissions.filter(id__in=id_list)
         elif status == "deadline_passed":
-            submissions = submissions.in_refereeing().filter(
-                reporting_deadline__lt=timezone.now(),
-            ).exclude(eicrecommendations__isnull=False)
+            submissions = (
+                submissions.in_refereeing()
+                .filter(
+                    reporting_deadline__lt=timezone.now(),
+                )
+                .exclude(eicrecommendations__isnull=False)
+            )
         elif status == "refereeing_1":
-            submissions = submissions.filter(
-                referee_invitations__date_invited__lt=(
-                    timezone.now() - datetime.timedelta(days=30)
+            submissions = (
+                submissions.filter(
+                    referee_invitations__date_invited__lt=(
+                        timezone.now() - datetime.timedelta(days=30)
+                    )
                 )
-            ).exclude(
-                referee_invitations__date_invited__lt=(
-                    timezone.now() - datetime.timedelta(days=60)
+                .exclude(
+                    referee_invitations__date_invited__lt=(
+                        timezone.now() - datetime.timedelta(days=60)
+                    )
                 )
-            ).distinct().exclude(eicrecommendations__isnull=False)
+                .distinct()
+                .exclude(eicrecommendations__isnull=False)
+            )
         elif status == "refereeing_2":
-            submissions = submissions.filter(
-                referee_invitations__date_invited__lt=(
-                    timezone.now() - datetime.timedelta(days=60)
+            submissions = (
+                submissions.filter(
+                    referee_invitations__date_invited__lt=(
+                        timezone.now() - datetime.timedelta(days=60)
+                    )
                 )
-            ).exclude(
-                referee_invitations__date_invited__lt=(
-                    timezone.now() - datetime.timedelta(days=90)
+                .exclude(
+                    referee_invitations__date_invited__lt=(
+                        timezone.now() - datetime.timedelta(days=90)
+                    )
                 )
-            ).distinct().exclude(eicrecommendations__isnull=False)
+                .distinct()
+                .exclude(eicrecommendations__isnull=False)
+            )
         elif status == "refereeing_3":
-            submissions = submissions.filter(
-                referee_invitations__date_invited__lt=(
-                    timezone.now() - datetime.timedelta(days=90)
+            submissions = (
+                submissions.filter(
+                    referee_invitations__date_invited__lt=(
+                        timezone.now() - datetime.timedelta(days=90)
+                    )
                 )
-            ).distinct().exclude(eicrecommendations__isnull=False)
+                .distinct()
+                .exclude(eicrecommendations__isnull=False)
+            )
         elif status == "voting_prepare":
             submissions = submissions.voting_in_preparation()
         elif status == "voting_ongoing":
@@ -547,12 +561,14 @@ class SubmissionPoolSearchForm(forms.Form):
         elif status == "nr_voted_for_gte_4":
             ids_list = [
                 r.submission.id
-                for r in EICRecommendation.objects.put_to_voting().annotate(
-                        nr_voted_for=Count("voted_for"),
-                ).filter(nr_voted_for__gte=4)
+                for r in EICRecommendation.objects.put_to_voting()
+                .annotate(
+                    nr_voted_for=Count("voted_for"),
+                )
+                .filter(nr_voted_for__gte=4)
             ]
             submissions = submissions.undergoing_voting().filter(id__in=ids_list)
-        else: # if an actual unmodified status is used, just filter on that
+        else:  # if an actual unmodified status is used, just filter on that
             submissions = submissions.filter(status=status)
 
         # filter by EIC
@@ -615,7 +631,6 @@ class SubmissionOldSearchForm(forms.Form):
             author_list__icontains=self.cleaned_data.get("author", ""),
             abstract__icontains=self.cleaned_data.get("abstract", ""),
         )
-
 
 
 ######################################################################
@@ -1227,7 +1242,9 @@ class SubmissionForm(forms.ModelForm):
         widget=autocomplete.ModelSelect2Multiple(
             url="/ontology/topic-autocomplete",
             attrs={"data-html": True},
-            forward=["specialties",],
+            forward=[
+                "specialties",
+            ],
         ),
         help_text="Type to search, click to include",
         required=False,
@@ -1239,10 +1256,10 @@ class SubmissionForm(forms.ModelForm):
             attrs={
                 "data-html": True,
                 "data-placeholder": "Optional",
-            }
+            },
         ),
         required=False,
-        help_text="<strong>Does this Submission follow up on some of your earlier publications?<br>(for example: this Submission is a new codebase release for a previous Codebases publication)<br>If so, select them here.</strong><br><strong>This is NOT FOR SPECIFYING A RESUBMISSION: to resubmit a manuscript, choose the resubmission route after clicking the Submit button in the navbar."
+        help_text="<strong>Does this Submission follow up on some of your earlier publications?<br>(for example: this Submission is a new codebase release for a previous Codebases publication)<br>If so, select them here.</strong><br><strong>This is NOT FOR SPECIFYING A RESUBMISSION: to resubmit a manuscript, choose the resubmission route after clicking the Submit button in the navbar.",
     )
     preprint_server = forms.ModelChoiceField(
         queryset=PreprintServer.objects.all(), widget=forms.HiddenInput()
@@ -1412,15 +1429,16 @@ class SubmissionForm(forms.ModelForm):
         Check that the submitted material fits one of the Journal's options.
         """
         submitted_types = []
-        if (self.cleaned_data.get("preprint_file", None) or
-            self.cleaned_data.get("preprint_link", None)):
+        if self.cleaned_data.get("preprint_file", None) or self.cleaned_data.get(
+            "preprint_link", None
+        ):
             submitted_types.append(PUBLISHABLE_OBJECT_TYPE_ARTICLE)
         if self.cleaned_data.get("code_repository_url", None):
             submitted_types.append(PUBLISHABLE_OBJECT_TYPE_CODEBASE)
         if self.cleaned_data.get("data_repository_url", None):
             submitted_types.append(PUBLISHABLE_OBJECT_TYPE_DATASET)
-        submitted_types.sort() # not needed here, but for future safety
-        submitted_types_code = ' + '.join(submitted_types)
+        submitted_types.sort()  # not needed here, but for future safety
+        submitted_types_code = " + ".join(submitted_types)
         options = self.cleaned_data["submitted_to"].submission_object_types["options"]
         if submitted_types_code not in options:
             self.add_error(
@@ -1429,7 +1447,7 @@ class SubmissionForm(forms.ModelForm):
                     f"You are trying to submit document types: {submitted_types_code}, "
                     "but this Journal requires one of the following options: "
                     f"{', '.join(options)}"
-                )
+                ),
             )
 
     def clean_author_list(self):
@@ -1526,8 +1544,9 @@ class SubmissionForm(forms.ModelForm):
         submission.submitted_by = self.requested_by.contributor
         submission.reporting_deadline = (
             # give 8 days for Admission, Preassignment and Assignment stages
-            timezone.now() + datetime.timedelta(days=8) +
-            self.cleaned_data["submitted_to"].refereeing_period
+            timezone.now()
+            + datetime.timedelta(days=8)
+            + self.cleaned_data["submitted_to"].refereeing_period
         )
 
         # Save identifiers
@@ -1936,7 +1955,9 @@ class SubmissionPreassignmentForm(forms.ModelForm):
         """Update Submission status."""
         if self.cleaned_data["decision"] == self.PASS:
             Submission.objects.filter(id=self.instance.id).update(
-                status=Submission.SEEKING_ASSIGNMENT, visible_pool=True, visible_public=False
+                status=Submission.SEEKING_ASSIGNMENT,
+                visible_pool=True,
+                visible_public=False,
             )
             self.instance.add_general_event("Submission passed preassignment.")
         elif self.cleaned_data["decision"] == self.FAIL:
@@ -2668,9 +2689,7 @@ class EICRecommendationForm(forms.ModelForm):
             )
 
         else:
-            raise exceptions.InvalidRecommendationError(
-                recommendation.recommendation
-            )
+            raise exceptions.InvalidRecommendationError(recommendation.recommendation)
 
         if self.earlier_recommendations:
             self.earlier_recommendations.update(active=False, status=DEPRECATED)
@@ -2846,7 +2865,9 @@ class RestartRefereeingForm(forms.Form):
                 status=EditorialAssignment.STATUS_COMPLETED,
             ).update(status=EditorialAssignment.STATUS_ACCEPTED)
             self.submission.eicrecommendations.active().update(status=DEPRECATED)
-            self.submission.editorialdecision_set.update(status=EditorialDecision.DEPRECATED)
+            self.submission.editorialdecision_set.update(
+                status=EditorialDecision.DEPRECATED
+            )
 
             # Delete any production stream
             if hasattr(self.submission, "production_stream"):

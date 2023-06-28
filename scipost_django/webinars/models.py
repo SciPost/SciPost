@@ -29,9 +29,7 @@ class Webinar(models.Model):
     link = models.URLField(max_length=512)
 
     class Meta:
-        ordering = [
-            "-date_and_time"
-        ]
+        ordering = ["-date_and_time"]
 
     def __str__(self):
         return f"{self.name} ({self.date_and_time})"
@@ -49,7 +47,8 @@ class WebinarRegistration(models.Model):
     organization = models.ForeignKey(
         "organizations.Organization",
         on_delete=models.CASCADE,
-        blank=True, null=True,
+        blank=True,
+        null=True,
     )
     affiliation = models.CharField(max_length=256, blank=True)
 

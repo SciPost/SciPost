@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finances', '0021_subsidyattachment_visibility'),
+        ("finances", "0021_subsidyattachment_visibility"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='subsidyattachment',
-            name='publicly_visible',
+            model_name="subsidyattachment",
+            name="publicly_visible",
         ),
     ]

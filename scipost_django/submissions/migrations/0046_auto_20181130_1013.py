@@ -24,7 +24,6 @@ def populate_explicit_resubmission_links(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0045_submission_is_resubmission_of"),
     ]

@@ -5,20 +5,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0115_publication_cf_citation'),
+        ("journals", "0115_publication_cf_citation"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publication',
-            name='cf_author_affiliation_indices_list',
-            field=django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.PositiveSmallIntegerField(blank=True, null=True), default=list, size=None), default=list, help_text='NB: calculated field. Do not modify.', size=None),
+            model_name="publication",
+            name="cf_author_affiliation_indices_list",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=django.contrib.postgres.fields.ArrayField(
+                    base_field=models.PositiveSmallIntegerField(blank=True, null=True),
+                    default=list,
+                    size=None,
+                ),
+                default=list,
+                help_text="NB: calculated field. Do not modify.",
+                size=None,
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='cf_citation',
-            field=models.CharField(blank=True, help_text='NB: calculated field. Do not modify.', max_length=1024),
+            model_name="publication",
+            name="cf_citation",
+            field=models.CharField(
+                blank=True,
+                help_text="NB: calculated field. Do not modify.",
+                max_length=1024,
+            ),
         ),
     ]

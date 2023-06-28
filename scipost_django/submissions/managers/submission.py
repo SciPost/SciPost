@@ -11,7 +11,6 @@ from .. import constants
 
 
 class SubmissionQuerySet(models.QuerySet):
-
     ##################################
     # Shortcuts for status filtering #
     ##################################
@@ -133,14 +132,16 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(status__in=self.model.TREATED)
 
     def accepted(self):
-        return self.filter(status__in=[
-            self.model.ACCEPTED_IN_TARGET,
-            self.model.ACCEPTED_IN_ALTERNATIVE,
-        ])
+        return self.filter(
+            status__in=[
+                self.model.ACCEPTED_IN_TARGET,
+                self.model.ACCEPTED_IN_ALTERNATIVE,
+            ]
+        )
+
     ######################################
     # End shortcuts for status filtering #
     ######################################
-
 
     def latest(self):
         return self.exclude(status=self.model.RESUBMITTED)
@@ -154,13 +155,15 @@ class SubmissionQuerySet(models.QuerySet):
         """
         try:
             return self.exclude(authors=user.contributor).exclude(
-                models.Q(author_list__icontains=user.last_name), # TODO: replace by Profiles-based checks
+                models.Q(
+                    author_list__icontains=user.last_name
+                ),  # TODO: replace by Profiles-based checks
                 ~models.Q(authors_false_claims=user.contributor),
             )
         except AttributeError:
             return self.none()
 
-    def in_pool(self, user, latest: bool=True, historical: bool=False):
+    def in_pool(self, user, latest: bool = True, historical: bool = False):
         """
         Filter for Submissions (current or historical) in user's pool.
 
@@ -175,8 +178,10 @@ class SubmissionQuerySet(models.QuerySet):
 
         Finally, filter out the COI.
         """
-        if not (hasattr(user, "contributor") and
-                (user.contributor.is_ed_admin or user.contributor.is_active_fellow)):
+        if not (
+            hasattr(user, "contributor")
+            and (user.contributor.is_ed_admin or user.contributor.is_active_fellow)
+        ):
             return self.none()
 
         qs = self
@@ -194,7 +199,11 @@ class SubmissionQuerySet(models.QuerySet):
             pass
         # Fellows can't see incoming and (non-Senior) preassignment
         elif user.contributor.is_active_senior_fellow:
-            qs = qs.exclude(status__in=[self.model.INCOMING,])
+            qs = qs.exclude(
+                status__in=[
+                    self.model.INCOMING,
+                ]
+            )
         elif user.contributor.is_active_fellow:
             qs = qs.exclude(status__in=[self.model.INCOMING, self.model.PREASSIGNMENT])
 
@@ -206,8 +215,7 @@ class SubmissionQuerySet(models.QuerySet):
         )
         return qs.remove_COI(user)
 
-
-    def in_pool_filter_for_eic(self, user, historical: bool=False):
+    def in_pool_filter_for_eic(self, user, historical: bool = False):
         """Return the set of Submissions the user is Editor-in-charge for.
 
         If user is an Editorial Administrator: keep any EiC.
@@ -300,6 +308,7 @@ class SubmissionQuerySet(models.QuerySet):
 
     def has_editor_invitations_to_be_sent(self):
         from submissions.models import EditorialAssignment
+
         """Return Submissions that have EditorialAssignments that still need to be sent."""
         return self.filter(
             editorial_assignments__status=EditorialAssignment.STATUS_PREASSIGNED,

@@ -623,8 +623,10 @@ class DraftPublicationForm(forms.ModelForm):
 
     def prefill_with_journal(self, journal):
         # Determine next available paper number:
-        #paper_nr = journal.publications.count() + 1
-        paper_nr = (journal.publications.aggregate(Max("paper_nr"))["paper_nr__max"] or 0) + 1
+        # paper_nr = journal.publications.count() + 1
+        paper_nr = (
+            journal.publications.aggregate(Max("paper_nr"))["paper_nr__max"] or 0
+        ) + 1
         self.fields["paper_nr"].initial = str(paper_nr)
         doi_label = "{journal}.{paper}".format(
             journal=journal.doi_label, paper=paper_nr
@@ -764,7 +766,9 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
                 )
             new_dir += "/{paper_nr}".format(paper_nr=self.instance.get_paper_nr())
             os.makedirs(settings.MEDIA_ROOT + new_dir, exist_ok=True)
-            new_dir += "/{doi}.pdf".format(doi=self.instance.doi_label.replace(".", "_"))
+            new_dir += "/{doi}.pdf".format(
+                doi=self.instance.doi_label.replace(".", "_")
+            )
             os.rename(initial_path, settings.MEDIA_ROOT + new_dir)
             self.instance.pdf_file.name = new_dir
 

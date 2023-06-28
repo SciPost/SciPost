@@ -45,7 +45,7 @@ class WebinarRegistrationForm(forms.ModelForm):
             Div(
                 Div(FloatingField("first_name"), css_class="col-lg-6"),
                 Div(FloatingField("last_name"), css_class="col-lg-6"),
-                css_class="row"
+                css_class="row",
             ),
             Div(
                 Div(
@@ -53,7 +53,7 @@ class WebinarRegistrationForm(forms.ModelForm):
                         Field("organization"),
                         Field("affiliation"),
                     ),
-                    css_class="col-lg-6"
+                    css_class="col-lg-6",
                 ),
                 Div(
                     FloatingField("email"),
@@ -63,8 +63,8 @@ class WebinarRegistrationForm(forms.ModelForm):
                             "submit", "Register", css_class="btn btn-success float-end"
                         )
                     ),
-                    css_class="col-lg-6"
+                    css_class="col-lg-6",
                 ),
-                css_class="row"
-            )
+                css_class="row",
+            ),
         )

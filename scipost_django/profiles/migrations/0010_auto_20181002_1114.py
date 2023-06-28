@@ -15,7 +15,6 @@ def add_primary_emails(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("profiles", "0009_profileemail_primary"),
     ]

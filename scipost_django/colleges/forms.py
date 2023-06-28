@@ -45,7 +45,9 @@ class CollegeChoiceForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Div(FloatingField("college"),)
+            Div(
+                FloatingField("college"),
+            )
         )
 
 
@@ -68,8 +70,12 @@ class FellowshipSearchForm(forms.Form):
             )
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Div(FloatingField("college"),),
-            Div(FloatingField("specialty"),),
+            Div(
+                FloatingField("college"),
+            ),
+            Div(
+                FloatingField("specialty"),
+            ),
         )
 
     def search_results(self):
@@ -78,13 +84,15 @@ class FellowshipSearchForm(forms.Form):
             fellowships = fellowships.filter(college=self.initial["college"])
         if hasattr(self, "cleaned_data"):
             if self.cleaned_data.get("college"):
-                fellowships = fellowships.filter(college=self.cleaned_data.get("college"))
+                fellowships = fellowships.filter(
+                    college=self.cleaned_data.get("college")
+                )
             if self.cleaned_data.get("specialty"):
                 fellowships = fellowships.filter(
                     contributor__profile__specialties__in=[
                         self.cleaned_data.get("specialty"),
                     ]
-            )
+                )
         return fellowships
 
 
@@ -232,13 +240,22 @@ class SubmissionAddFellowshipForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         pool = self.instance.fellows.values_list("id", flat=True)
         self.fields["fellowship"].label = ""
-        self.fields["fellowship"].queryset = Fellowship.objects.active(
-        ).filter(college=self.instance.submitted_to.college).exclude(id__in=pool)
+        self.fields["fellowship"].queryset = (
+            Fellowship.objects.active()
+            .filter(college=self.instance.submitted_to.college)
+            .exclude(id__in=pool)
+        )
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
                 Div(Field("fellowship"), css_class="col-lg-6"),
-                Div(Submit("submit", "Add",), css_class="col-lg-6"),
+                Div(
+                    Submit(
+                        "submit",
+                        "Add",
+                    ),
+                    css_class="col-lg-6",
+                ),
                 css_class="row",
             )
         )
@@ -509,14 +526,15 @@ class FellowshipNominationCommentForm(forms.ModelForm):
                     Field(
                         "text",
                         placeholder="Add a comment (visible to EdAdmin and all Fellows)",
-                        rows=2),
-                    css_class="col-lg-10"),
+                        rows=2,
+                    ),
+                    css_class="col-lg-10",
+                ),
                 Div(
-                    ButtonHolder(Submit("submit", "Add comment")),
-                    css_class="col-lg-2"
+                    ButtonHolder(Submit("submit", "Add comment")), css_class="col-lg-2"
                 ),
                 css_class="row",
-            )
+            ),
         )
 
 
@@ -541,10 +559,10 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
                 Div(
                     Field("outcome"),
                     ButtonHolder(Submit("submit", "Submit")),
-                    css_class="col-4"
+                    css_class="col-4",
                 ),
                 css_class="row",
-            )
+            ),
         )
 
 
@@ -567,20 +585,18 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
             Div(
                 Div(Field("response"), css_class="col-lg-5"),
                 Div(Field("postpone_start_to"), css_class="col-lg-5"),
-                css_class="row"),
+                css_class="row",
+            ),
             Div(
                 Div(
                     Field(
                         "comments",
                         placeholder="Add a comment (visible to EdAdmin)",
-                        rows=2
+                        rows=2,
                     ),
-                    css_class="col-lg-10"
+                    css_class="col-lg-10",
                 ),
-                Div(
-                    ButtonHolder(Submit("submit", "Submit")),
-                    css_class="col-lg-2"
-                ),
+                Div(ButtonHolder(Submit("submit", "Submit")), css_class="col-lg-2"),
                 css_class="row mt-0",
-            )
+            ),
         )

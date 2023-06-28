@@ -24,7 +24,7 @@ def academic_field_slug_choices():
                     if acad_field.journals.active().exists():
                         subchoices += ((acad_field.slug, acad_field.name),)
                 choices += ((branch.name, subchoices),)
-    except ProgrammingError: # when running on new, empty database
+    except ProgrammingError:  # when running on new, empty database
         pass
     return choices
 
@@ -106,7 +106,6 @@ class TopicForm(forms.ModelForm):
         return instance
 
 
-
 class SelectTopicForm(forms.Form):
     topic = forms.ModelMultipleChoiceField(
         queryset=Topic.objects.all(),
@@ -139,9 +138,7 @@ class TopicDynSelForm(forms.Form):
 
     def search_results(self):
         if self.cleaned_data["q"]:
-            topics = Topic.objects.filter(
-                name__icontains=self.cleaned_data["q"]
-            )
+            topics = Topic.objects.filter(name__icontains=self.cleaned_data["q"])
             return topics
         else:
             return Topic.objects.none()

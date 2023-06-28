@@ -14,7 +14,7 @@ class ExtraFilteredReadOnlyModelViewSet(viewsets.ReadOnlyModelViewSet):
         """
         queryset = super().get_queryset()
         if hasattr(self, "extra_filters"):
-            for (label, queryspec) in self.extra_filters.items():
+            for label, queryspec in self.extra_filters.items():
                 for lookup in queryspec["lookups"]:
                     param = self.request.query_params.get(
                         "%s__%s" % (label, lookup), None

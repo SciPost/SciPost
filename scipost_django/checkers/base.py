@@ -20,7 +20,7 @@ class ObjectChecker:
     def get_queryset(self):
         if self.queryset:
             queryset = self.queryset
-            if (isinstance(queryset, QuerySet)):
+            if isinstance(queryset, QuerySet):
                 queryset = queryset.all()
         elif self.model:
             queryset = self.model._default_manager.all()

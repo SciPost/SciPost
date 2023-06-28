@@ -7,25 +7,47 @@ import scipost.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('scipost', '0040_auto_20210310_2026'),
-        ('colleges', '0037_alter_fellowshipinvitation_postpone_start_to'),
+        ("scipost", "0040_auto_20210310_2026"),
+        ("colleges", "0037_alter_fellowshipinvitation_postpone_start_to"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FellowshipNominationEvent',
+            name="FellowshipNominationEvent",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.TextField()),
-                ('on', models.DateTimeField(default=django.utils.timezone.now)),
-                ('by', models.ForeignKey(blank=True, null=True, on_delete=models.SET(scipost.models.get_sentinel_user), to='scipost.contributor')),
-                ('nomination', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='events', to='colleges.fellowshipnomination')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("description", models.TextField()),
+                ("on", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=models.SET(scipost.models.get_sentinel_user),
+                        to="scipost.contributor",
+                    ),
+                ),
+                (
+                    "nomination",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="events",
+                        to="colleges.fellowshipnomination",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Fellowhip Nomination Events',
-                'ordering': ['nomination', '-on'],
+                "verbose_name_plural": "Fellowhip Nomination Events",
+                "ordering": ["nomination", "-on"],
             },
         ),
     ]

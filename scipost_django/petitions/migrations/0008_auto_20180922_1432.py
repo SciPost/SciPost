@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         # ('partners', '0017_auto_20180922_1603'),
         ("petitions", "0007_remove_petitionsignatory_organization_tbd"),

@@ -9,7 +9,7 @@ from django.utils import timezone
 
 
 class CompetingInterestQuerySet(models.QuerySet):
-    def valid_on_date(self, date: datetime.date=None):
+    def valid_on_date(self, date: datetime.date = None):
         """
         Filter for validity on given optional date.
         """

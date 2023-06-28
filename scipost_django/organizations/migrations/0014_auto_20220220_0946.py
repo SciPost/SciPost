@@ -5,29 +5,61 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0013_auto_20210716_0926'),
+        ("organizations", "0013_auto_20210716_0926"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='OrganizationLogo',
+            name="OrganizationLogo",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(blank=True, upload_to='organizations/logos/')),
-                ('mimetype', models.CharField(choices=[('gif', 'gif'), ('jpg', 'jpg'), ('png', 'png'), ('tif', 'tif'), ('webp', 'webp')], max_length=8)),
-                ('width', models.PositiveSmallIntegerField()),
-                ('height', models.PositiveSmallIntegerField()),
-                ('order', models.PositiveSmallIntegerField()),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='logos', to='organizations.organization')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(blank=True, upload_to="organizations/logos/"),
+                ),
+                (
+                    "mimetype",
+                    models.CharField(
+                        choices=[
+                            ("gif", "gif"),
+                            ("jpg", "jpg"),
+                            ("png", "png"),
+                            ("tif", "tif"),
+                            ("webp", "webp"),
+                        ],
+                        max_length=8,
+                    ),
+                ),
+                ("width", models.PositiveSmallIntegerField()),
+                ("height", models.PositiveSmallIntegerField()),
+                ("order", models.PositiveSmallIntegerField()),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="logos",
+                        to="organizations.organization",
+                    ),
+                ),
             ],
             options={
-                'ordering': ('organization', 'order'),
+                "ordering": ("organization", "order"),
             },
         ),
         migrations.AddConstraint(
-            model_name='organizationlogo',
-            constraint=models.UniqueConstraint(fields=('organization', 'order'), name='unique_together_organization_order'),
+            model_name="organizationlogo",
+            constraint=models.UniqueConstraint(
+                fields=("organization", "order"),
+                name="unique_together_organization_order",
+            ),
         ),
     ]

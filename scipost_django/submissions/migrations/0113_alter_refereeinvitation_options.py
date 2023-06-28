@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0112_alter_submissionevent_event"),
     ]

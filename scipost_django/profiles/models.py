@@ -149,8 +149,9 @@ class Profile(models.Model):
         if self.contributor:
             invitations = invitations | self.contributor.referee_invitations.all()
 
-        invitations = invitations.distinct(
-        ).filter(date_invited__gt=timezone.now() - datetime.timedelta(days=1825))
+        invitations = invitations.distinct().filter(
+            date_invited__gt=timezone.now() - datetime.timedelta(days=1825)
+        )
         return {
             "sent": invitations.count(),
             "accepted": invitations.accepted().count(),

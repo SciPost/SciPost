@@ -6,7 +6,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("profiles", "0035_alter_profile_title"),
         ("scipost", "0040_auto_20210310_2026"),

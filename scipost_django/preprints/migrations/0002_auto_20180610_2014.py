@@ -35,7 +35,6 @@ def create_preprint_instances(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("preprints", "0001_initial"),
     ]

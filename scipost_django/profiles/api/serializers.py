@@ -12,7 +12,7 @@ from organizations.api.serializers import OrganizationPublicSerializer
 
 
 class AffiliationPublicAPISerializer(DynamicFieldsModelSerializer):
-    organization = OrganizationPublicSerializer() #serializers.StringRelatedField()
+    organization = OrganizationPublicSerializer()  # serializers.StringRelatedField()
 
     class Meta:
         model = Affiliation

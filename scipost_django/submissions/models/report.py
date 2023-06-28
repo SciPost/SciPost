@@ -245,9 +245,13 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         Check if the Report relates to a SciPost-published object. If it does, return the doi
         of the published object.
         """
-        publication = Publication.objects.filter(
-            accepted_submission__thread_hash=self.submission.thread_hash
-        ).order_by('doi_label').first()
+        publication = (
+            Publication.objects.filter(
+                accepted_submission__thread_hash=self.submission.thread_hash
+            )
+            .order_by("doi_label")
+            .first()
+        )
         # order by doi_label to give priority to main article, which has no DOI suffix
         if publication:
             return publication.doi_string
@@ -259,9 +263,13 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         Check if the Report relates to a SciPost-published object. If it does, return a dict with
         info on relation to the published object, based on Crossref's peer review content type.
         """
-        publication = Publication.objects.filter(
-            accepted_submission__thread_hash=self.submission.thread_hash
-        ).order_by('doi_label').first()
+        publication = (
+            Publication.objects.filter(
+                accepted_submission__thread_hash=self.submission.thread_hash
+            )
+            .order_by("doi_label")
+            .first()
+        )
 
         if publication:
             relation = {

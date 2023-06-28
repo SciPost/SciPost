@@ -174,7 +174,7 @@ class FellowshipCreateView(PermissionsMixin, CreateView):
             profile=self.object.contributor.profile
         ).first()
         if nomination:
-            nomination.fellowship=self.object
+            nomination.fellowship = self.object
             nomination.save()
             nomination.add_event(
                 description="Fellowship created",
@@ -310,8 +310,10 @@ def _hx_submission_add_fellowship(request, identifier_w_vn_nr):
         )
         return render(
             request,
-             "submissions/pool/_submission_fellows.html",
-            context={"submission": submission,},
+            "submissions/pool/_submission_fellows.html",
+            context={
+                "submission": submission,
+            },
         )
     context = {
         "submission": submission,
@@ -332,7 +334,9 @@ def _hx_submission_remove_fellowship(request, identifier_w_vn_nr, pk):
     return render(
         request,
         "submissions/pool/_submission_fellows.html",
-        context={"submission": submission,},
+        context={
+            "submission": submission,
+        },
     )
 
 
@@ -778,7 +782,9 @@ def _hx_nominations(request):
 def _hx_nomination_li_contents(request, nomination_id):
     """For (re)loading the details if modified."""
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
-    context = {"nomination": nomination,}
+    context = {
+        "nomination": nomination,
+    }
     return render(request, "colleges/_hx_nomination_li_contents.html", context)
 
 
@@ -786,13 +792,19 @@ def _hx_nomination_li_contents(request, nomination_id):
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_comments(request, nomination_id):
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
-    initial={"nomination": nomination, "by": request.user.contributor,}
+    initial = {
+        "nomination": nomination,
+        "by": request.user.contributor,
+    }
     form = FellowshipNominationCommentForm(request.POST or None, initial=initial)
     if form.is_valid():
         form.save()
         nomination.add_event(description="Comment added", by=request.user.contributor)
         form = FellowshipNominationCommentForm(initial=initial)
-    context = {"nomination": nomination, "form": form,}
+    context = {
+        "nomination": nomination,
+        "form": form,
+    }
     return render(request, "colleges/_hx_nomination_comments.html", context)
 
 
@@ -833,9 +845,9 @@ def _hx_voting_rounds(request):
     if "vote_required" in selected:
         # show all voting rounds to edadmin; for Fellow, filter
         if not request.user.contributor.is_ed_admin:
-            voting_rounds = voting_rounds.filter(
-                eligible_to_vote=fellowship
-            ).exclude(votes__fellow=fellowship)
+            voting_rounds = voting_rounds.filter(eligible_to_vote=fellowship).exclude(
+                votes__fellow=fellowship
+            )
     if "voted" in selected:
         voting_rounds = voting_rounds.filter(votes__fellow=fellowship)
     context = {
@@ -862,7 +874,7 @@ def _hx_nomination_vote(request, voting_round_id):
             defaults={
                 "vote": request.POST.get("vote"),
                 "on": timezone.now(),
-            }
+            },
         )
         if created:
             voting_round.nomination.add_event(
@@ -879,7 +891,10 @@ def _hx_nomination_vote(request, voting_round_id):
             voting_round=voting_round,
             fellow=fellowship,
         ).first()
-    context = {"voting_round": voting_round, "vote_object": vote_object,}
+    context = {
+        "voting_round": voting_round,
+        "vote_object": vote_object,
+    }
     return render(request, "colleges/_hx_nomination_vote.html", context)
 
 
@@ -897,7 +912,9 @@ def _hx_nomination_decision(request, nomination_id):
                 response=FellowshipInvitation.RESPONSE_NOT_YET_INVITED,
             )
             invitation.save()
-            nomination.add_event(description="Invitation created", by=request.user.contributor)
+            nomination.add_event(
+                description="Invitation created", by=request.user.contributor
+            )
     else:
         decision_form.fields["nomination"].initial = nomination
     context = {
@@ -958,12 +975,16 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
             by=request.user.contributor,
         )
         return redirect(
-            "%s?response=%s" % (
+            "%s?response=%s"
+            % (
                 reverse("colleges:_hx_nominations_invitations"),
                 form.cleaned_data["response"],
             )
         )
-    context = {"invitation": invitation, "form": form,}
+    context = {
+        "invitation": invitation,
+        "form": form,
+    }
     return render(
         request,
         "colleges/_hx_nomination_invitation_update_response.html",

@@ -5,7 +5,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0091_remove_submission__is_resubmission"),
     ]

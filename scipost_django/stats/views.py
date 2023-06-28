@@ -14,17 +14,25 @@ from submissions.models import Submission
 
 def country_level_authorships(request):
     context = {}
-    context["countrycodes"] = list(set(
-        [item["authors__affiliations__country"]
-         for item in list(Publication.objects.all().values(
-                 "authors__affiliations__country"
-         )) if item["authors__affiliations__country"]]))
+    context["countrycodes"] = list(
+        set(
+            [
+                item["authors__affiliations__country"]
+                for item in list(
+                    Publication.objects.all().values("authors__affiliations__country")
+                )
+                if item["authors__affiliations__country"]
+            ]
+        )
+    )
     context["countrycodes"].sort()
     return render(request, "stats/country_level_authorships.html", context)
 
 
 def _hx_country_level_authorships(request, country):
-    publications = Publication.objects.filter(authors__affiliations__country=country).distinct()
+    publications = Publication.objects.filter(
+        authors__affiliations__country=country
+    ).distinct()
     authorships = PublicationAuthorsTable.objects.filter(affiliations__country=country)
     pubyears = [str(y) for y in range(int(timezone.now().strftime("%Y")), 2015, -1)]
     context = {
@@ -34,12 +42,14 @@ def _hx_country_level_authorships(request, country):
             "authorships_count": authorships.count(),
             "authors_count": authorships.values_list("profile").distinct().count(),
         },
-        "per_year": {}
+        "per_year": {},
     }
     for year in pubyears:
         authorships_year = authorships.filter(publication__publication_date__year=year)
         context["per_year"][year] = {
-            "publications_count": publications.filter(publication_date__year=year).count(),
+            "publications_count": publications.filter(
+                publication_date__year=year
+            ).count(),
             "authorships_count": authorships_year.count(),
             "authors_count": authorships_year.values_list("profile").distinct().count(),
         }

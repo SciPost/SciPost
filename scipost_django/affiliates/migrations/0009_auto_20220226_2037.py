@@ -7,31 +7,60 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0018_auto_20220223_0737'),
-        ('affiliates', '0008_affiliatejournal_homepage'),
+        ("organizations", "0018_auto_20220223_0737"),
+        ("affiliates", "0008_affiliatejournal_homepage"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='affiliatejournal',
-            name='cost_info',
-            field=models.JSONField(default=affiliates.models.journal.cost_default_value),
+            model_name="affiliatejournal",
+            name="cost_info",
+            field=models.JSONField(
+                default=affiliates.models.journal.cost_default_value
+            ),
         ),
         migrations.CreateModel(
-            name='AffiliateJournalYearSubsidy',
+            name="AffiliateJournalYearSubsidy",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.TextField()),
-                ('amount', models.PositiveIntegerField(help_text='in &euro; (rounded)')),
-                ('year', models.PositiveSmallIntegerField(default=affiliates.models.subsidy.get_current_year)),
-                ('journal', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='affiliates.affiliatejournal')),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='organizations.organization')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("description", models.TextField()),
+                (
+                    "amount",
+                    models.PositiveIntegerField(help_text="in &euro; (rounded)"),
+                ),
+                (
+                    "year",
+                    models.PositiveSmallIntegerField(
+                        default=affiliates.models.subsidy.get_current_year
+                    ),
+                ),
+                (
+                    "journal",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="affiliates.affiliatejournal",
+                    ),
+                ),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="organizations.organization",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'year_subsidies',
-                'ordering': ['journal', '-year', 'organization'],
+                "verbose_name_plural": "year_subsidies",
+                "ordering": ["journal", "-year", "organization"],
             },
         ),
     ]

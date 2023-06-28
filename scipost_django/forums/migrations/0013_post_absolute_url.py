@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('forums', '0012_alter_meeting_options'),
+        ("forums", "0012_alter_meeting_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='absolute_url',
+            model_name="post",
+            name="absolute_url",
             field=models.URLField(blank=True),
         ),
     ]

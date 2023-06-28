@@ -105,7 +105,6 @@ urlpatterns = [
         views._hx_fellowships_monitor,
         name="_hx_fellowships_monitor",
     ),
-
     # Potential Fellowships
     path(
         "potentialfellowships/add/",
@@ -173,7 +172,7 @@ urlpatterns = [
     path(
         "_hx_nomination_li_contents/<int:nomination_id>",
         views._hx_nomination_li_contents,
-        name="_hx_nomination_li_contents"
+        name="_hx_nomination_li_contents",
     ),
     path(
         "_hx_nomination_comments/<int:nomination_id>",

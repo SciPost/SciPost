@@ -134,11 +134,17 @@ class ProductionStream(models.Model):
 
 
 class ProductionEvent(models.Model):
-    stream = models.ForeignKey(ProductionStream, on_delete=models.CASCADE, related_name="events")
-    event = models.CharField(max_length=64, choices=PRODUCTION_EVENTS, default=EVENT_MESSAGE)
+    stream = models.ForeignKey(
+        ProductionStream, on_delete=models.CASCADE, related_name="events"
+    )
+    event = models.CharField(
+        max_length=64, choices=PRODUCTION_EVENTS, default=EVENT_MESSAGE
+    )
     comments = models.TextField(blank=True, null=True)
     noted_on = models.DateTimeField(default=timezone.now)
-    noted_by = models.ForeignKey("production.ProductionUser", on_delete=models.CASCADE, related_name="events")
+    noted_by = models.ForeignKey(
+        "production.ProductionUser", on_delete=models.CASCADE, related_name="events"
+    )
     noted_to = models.ForeignKey(
         "production.ProductionUser",
         on_delete=models.CASCADE,
@@ -161,7 +167,10 @@ class ProductionEvent(models.Model):
 
     @cached_property
     def editable(self):
-        return self.event in [EVENT_MESSAGE, EVENT_HOUR_REGISTRATION] and not self.stream.completed
+        return (
+            self.event in [EVENT_MESSAGE, EVENT_HOUR_REGISTRATION]
+            and not self.stream.completed
+        )
 
 
 def production_event_upload_location(instance, filename):
@@ -184,7 +193,9 @@ class ProductionEventAttachment(models.Model):
         on_delete=models.CASCADE,
         related_name="attachments",
     )
-    attachment = models.FileField(upload_to=production_event_upload_location, storage=SecureFileStorage())
+    attachment = models.FileField(
+        upload_to=production_event_upload_location, storage=SecureFileStorage()
+    )
 
     def get_absolute_url(self):
         return reverse(
@@ -210,12 +221,20 @@ class Proofs(models.Model):
     Proofs are directly related to a ProductionStream and Submission in SciPost.
     """
 
-    attachment = models.FileField(upload_to=proofs_upload_location, storage=SecureFileStorage())
+    attachment = models.FileField(
+        upload_to=proofs_upload_location, storage=SecureFileStorage()
+    )
     version = models.PositiveSmallIntegerField(default=0)
-    stream = models.ForeignKey("production.ProductionStream", on_delete=models.CASCADE, related_name="proofs")
-    uploaded_by = models.ForeignKey("production.ProductionUser", on_delete=models.CASCADE, related_name="+")
+    stream = models.ForeignKey(
+        "production.ProductionStream", on_delete=models.CASCADE, related_name="proofs"
+    )
+    uploaded_by = models.ForeignKey(
+        "production.ProductionUser", on_delete=models.CASCADE, related_name="+"
+    )
     created = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=16, choices=PROOFS_STATUSES, default=PROOFS_UPLOADED)
+    status = models.CharField(
+        max_length=16, choices=PROOFS_STATUSES, default=PROOFS_UPLOADED
+    )
     accessible_for_authors = models.BooleanField(default=False)
 
     objects = ProofsQuerySet.as_manager()
@@ -228,7 +247,9 @@ class Proofs(models.Model):
         return reverse("production:proofs_pdf", kwargs={"slug": self.slug})
 
     def __str__(self):
-        return "Proofs {version} for Stream {stream}".format(version=self.version, stream=self.stream.submission.title)
+        return "Proofs {version} for Stream {stream}".format(
+            version=self.version, stream=self.stream.submission.title
+        )
 
     def save(self, *args, **kwargs):
         # Control Report count per Submission.

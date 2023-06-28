@@ -13,7 +13,6 @@ def populate_college_slug(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("colleges", "0024_college_slug"),
     ]

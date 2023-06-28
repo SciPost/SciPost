@@ -5,45 +5,101 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0126_alter_submission_status'),
+        ("submissions", "0126_alter_submission_status"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PlagiarismAssessment',
+            name="PlagiarismAssessment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('ongoing', 'Ongoing'), ('passed', 'Passed'), ('failed_temporary', 'Failed (temporary: author action needed)'), ('failed_permanent', 'Failed (permanent: not solvable)')], default='ongoing', max_length=16)),
-                ('passed_on', models.DateTimeField(blank=True, null=True)),
-                ('comments_for_edadmin', models.TextField()),
-                ('comments_for_authors', models.TextField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("ongoing", "Ongoing"),
+                            ("passed", "Passed"),
+                            (
+                                "failed_temporary",
+                                "Failed (temporary: author action needed)",
+                            ),
+                            ("failed_permanent", "Failed (permanent: not solvable)"),
+                        ],
+                        default="ongoing",
+                        max_length=16,
+                    ),
+                ),
+                ("passed_on", models.DateTimeField(blank=True, null=True)),
+                ("comments_for_edadmin", models.TextField()),
+                ("comments_for_authors", models.TextField()),
             ],
         ),
         migrations.RenameField(
-            model_name='submission',
-            old_name='plagiarism_report',
-            new_name='iThenticate_plagiarism_report',
+            model_name="submission",
+            old_name="plagiarism_report",
+            new_name="iThenticate_plagiarism_report",
         ),
         migrations.CreateModel(
-            name='iThenticatePlagiarismAssessment',
+            name="iThenticatePlagiarismAssessment",
             fields=[
-                ('plagiarismassessment_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='submissions.plagiarismassessment')),
-                ('submission', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='iThenticate_plagiarism_assessment', to='submissions.submission')),
+                (
+                    "plagiarismassessment_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="submissions.plagiarismassessment",
+                    ),
+                ),
+                (
+                    "submission",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="iThenticate_plagiarism_assessment",
+                        to="submissions.submission",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'iThenticate plagiarism assessment',
-                'verbose_name_plural': 'iThenticate plagiarism assessments',
+                "verbose_name": "iThenticate plagiarism assessment",
+                "verbose_name_plural": "iThenticate plagiarism assessments",
             },
-            bases=('submissions.plagiarismassessment',),
+            bases=("submissions.plagiarismassessment",),
         ),
         migrations.CreateModel(
-            name='InternalPlagiarismAssessment',
+            name="InternalPlagiarismAssessment",
             fields=[
-                ('plagiarismassessment_ptr', models.OneToOneField(auto_created=True, on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='submissions.plagiarismassessment')),
-                ('submission', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='internal_plagiarism_assessment', to='submissions.submission')),
+                (
+                    "plagiarismassessment_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="submissions.plagiarismassessment",
+                    ),
+                ),
+                (
+                    "submission",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="internal_plagiarism_assessment",
+                        to="submissions.submission",
+                    ),
+                ),
             ],
-            bases=('submissions.plagiarismassessment',),
+            bases=("submissions.plagiarismassessment",),
         ),
     ]

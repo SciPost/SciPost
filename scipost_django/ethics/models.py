@@ -41,8 +41,7 @@ class SubmissionClearance(models.Model):
                 name="unique_together_profile_submission",
             ),
         ]
-        ordering =["submission", "profile"]
-
+        ordering = ["submission", "profile"]
 
     def __str__(self):
         return f"{self.profile} clearance for {self.submission}"

@@ -8,7 +8,7 @@ from .utils import process_markup
 
 
 class TextareaWithPreview(Textarea):
-    template_name = 'markup/forms/widgets/textarea_with_preview.html'
+    template_name = "markup/forms/widgets/textarea_with_preview.html"
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)

@@ -6,15 +6,25 @@ import scipost.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0124_journal_has_clockss'),
+        ("journals", "0124_journal_has_clockss"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='publishable_object_types',
-            field=scipost.fields.ChoiceArrayField(base_field=models.CharField(choices=[('article', 'Article'), ('codebase', 'Codebase release'), ('dataset', 'Dataset')], max_length=24), default=journals.constants.get_publishable_object_types_default_list, size=None),
+            model_name="journal",
+            name="publishable_object_types",
+            field=scipost.fields.ChoiceArrayField(
+                base_field=models.CharField(
+                    choices=[
+                        ("article", "Article"),
+                        ("codebase", "Codebase release"),
+                        ("dataset", "Dataset"),
+                    ],
+                    max_length=24,
+                ),
+                default=journals.constants.get_publishable_object_types_default_list,
+                size=None,
+            ),
         ),
     ]

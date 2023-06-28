@@ -14,7 +14,7 @@ def _hx_submission_fellow_appraisal(request, identifier_w_vn_nr=None):
         Submission.objects.in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
-    context = { "submission": submission}
+    context = {"submission": submission}
     return render(
         request,
         "submissions/pool/_hx_submission_fellow_appraisal.html",

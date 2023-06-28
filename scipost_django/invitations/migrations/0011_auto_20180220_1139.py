@@ -161,7 +161,6 @@ def transfer_old_invitations_to_new_tables(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("invitations", "0010_auto_20180218_1613"),
     ]

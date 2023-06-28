@@ -16,7 +16,6 @@ def populate_colleges(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("colleges", "0015_auto_20200906_0714"),
     ]

@@ -17,7 +17,5 @@ class Command(BaseCommand):
         for org in Organization.objects.all():
             org.update_cf_balance_info()
         self.stdout.write(
-            self.style.SUCCESS(
-                "Successfully updated Organization:cf_balance_info."
-            )
+            self.style.SUCCESS("Successfully updated Organization:cf_balance_info.")
         )

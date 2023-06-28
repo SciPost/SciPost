@@ -48,6 +48,7 @@ class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
     def report(self, create, extracted, **kwargs):
         if create:
             from submissions.factories import VettedReportFactory
+
             VettedReportFactory(submission=self.submission, author=self.referee)
 
 
@@ -63,6 +64,7 @@ class FulfilledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
     def report(self, create, extracted, **kwargs):
         if create:
             from submissions.factories import VettedReportFactory
+
             VettedReportFactory(submission=self.submission, author=self.referee)
 
 

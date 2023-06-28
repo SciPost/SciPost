@@ -127,11 +127,7 @@ class PotentialFellowshipQuerySet(models.QuerySet):
 
 class FellowshipNominationQuerySet(models.QuerySet):
     def needing_handling(self):
-        return self.exclude(
-            decision__isnull=False
-        ).exclude(
-            voting_rounds__isnull=False
-        )
+        return self.exclude(decision__isnull=False).exclude(voting_rounds__isnull=False)
 
 
 class FellowshipNominationVotingRoundQuerySet(models.QuerySet):

@@ -14,7 +14,6 @@ from profiles.models import Profile
 
 
 class SubmissionCompetingInterestForm(forms.ModelForm):
-
     class Meta:
         model = CompetingInterest
         fields = [
@@ -55,7 +54,9 @@ class SubmissionCompetingInterestForm(forms.ModelForm):
                 Div(
                     Field("profile"),
                     Field("declared_by"),
-                    HTML("<em class='text-danger'>This Submission will not be visible to you anymore</em>"),
+                    HTML(
+                        "<em class='text-danger'>This Submission will not be visible to you anymore</em>"
+                    ),
                     css_class="col-lg-6",
                 ),
                 Div(
@@ -69,5 +70,5 @@ class SubmissionCompetingInterestForm(forms.ModelForm):
                     css_class="col-lg-6",
                 ),
                 css_class="row",
-            )
+            ),
         )

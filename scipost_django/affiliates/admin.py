@@ -26,7 +26,8 @@ admin.site.register(AffiliateJournal, AffiliateJournalAdmin)
 
 class AffiliateJournalYearSubsidyAdmin(admin.ModelAdmin):
     search_fields = ["journal", "organization", "year"]
-    list_display =["journal", "year", "amount", "organization"]
+    list_display = ["journal", "year", "amount", "organization"]
+
 
 admin.site.register(AffiliateJournalYearSubsidy, AffiliateJournalYearSubsidyAdmin)
 

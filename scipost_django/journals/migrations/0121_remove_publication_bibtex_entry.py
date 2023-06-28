@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0120_publication_pubtype'),
+        ("journals", "0120_publication_pubtype"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='publication',
-            name='BiBTeX_entry',
+            model_name="publication",
+            name="BiBTeX_entry",
         ),
     ]

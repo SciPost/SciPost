@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("profiles", "0005_populate_profile_from_contributor"),
         ("invitations", "0013_auto_20180414_2053"),

@@ -4,30 +4,37 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0017_organization_cf_associated_publication_ids'),
+        ("organizations", "0017_organization_cf_associated_publication_ids"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='organization',
-            name='cf_associated_publication_ids',
-            field=models.JSONField(default=dict, help_text='NB: calculated field. Do not modify.'),
+            model_name="organization",
+            name="cf_associated_publication_ids",
+            field=models.JSONField(
+                default=dict, help_text="NB: calculated field. Do not modify."
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='cf_balance_info',
-            field=models.JSONField(default=dict, help_text='NB: calculated field. Do not modify.'),
+            model_name="organization",
+            name="cf_balance_info",
+            field=models.JSONField(
+                default=dict, help_text="NB: calculated field. Do not modify."
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='cf_expenditure_for_publication',
-            field=models.JSONField(default=dict, help_text='NB: calculated field. Do not modify.'),
+            model_name="organization",
+            name="cf_expenditure_for_publication",
+            field=models.JSONField(
+                default=dict, help_text="NB: calculated field. Do not modify."
+            ),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='cf_nr_associated_publications',
-            field=models.PositiveIntegerField(blank=True, help_text='NB: calculated field. Do not modify.', null=True),
+            model_name="organization",
+            name="cf_nr_associated_publications",
+            field=models.PositiveIntegerField(
+                blank=True, help_text="NB: calculated field. Do not modify.", null=True
+            ),
         ),
     ]

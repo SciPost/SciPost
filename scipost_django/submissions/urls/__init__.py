@@ -12,10 +12,8 @@ app_name = "submissions"
 
 
 urlpatterns = [
-
     # nested namespaces
     path("pool/", include("submissions.urls.pool", namespace="pool")),
-
     # Autocomplete
     path(
         "submission-autocomplete",
@@ -33,9 +31,11 @@ urlpatterns = [
         TemplateView.as_view(template_name="submissions/editorial_procedure.html"),
         name="editorial_procedure",
     ),
-    path( # deprecated 2022-11-23, replaced by editorial_procedure; keep active for now
+    path(  # deprecated 2022-11-23, replaced by editorial_procedure; keep active for now
         "refereeing_procedure",
-        RedirectView.as_view(pattern_name="submissions:editorial_procedure", permanent=True),
+        RedirectView.as_view(
+            pattern_name="submissions:editorial_procedure", permanent=True
+        ),
         name="refereeing_procedure",
     ),
     path(
@@ -52,37 +52,43 @@ urlpatterns = [
     ),
     path(
         "<identifier:identifier_w_vn_nr>/",
-        include([
-            path(
-                "", views.submission_detail, name="submission",
+        include(
+            [
+                path(
+                    "",
+                    views.submission_detail,
+                    name="submission",
                 ),
-            # Topics
-            path(
-                "_hx_submission_topics/",
-                include([
-                    path(
-                        "",
-                        views._hx_submission_topics,
-                        name="_hx_submission_topics",
+                # Topics
+                path(
+                    "_hx_submission_topics/",
+                    include(
+                        [
+                            path(
+                                "",
+                                views._hx_submission_topics,
+                                name="_hx_submission_topics",
+                            ),
+                            path(
+                                "<slug:topic_slug>/action/<str:action>",
+                                views._hx_submission_topic_action,
+                                name="_hx_submission_topic_action",
+                            ),
+                        ]
                     ),
-                    path(
-                        "<slug:topic_slug>/action/<str:action>",
-                        views._hx_submission_topic_action,
-                        name="_hx_submission_topic_action",
-                    ),
-                ]),
-            ),
-        ]),
+                ),
+            ]
+        ),
     ),
     path(
         "workflow_diagram",
         views._hx_submission_workflow_diagram,
-        name="_hx_submission_workflow_diagram"
+        name="_hx_submission_workflow_diagram",
     ),
     path(
         "<identifier:identifier_w_vn_nr>/workflow_diagram",
         views._hx_submission_workflow_diagram,
-        name="_hx_submission_workflow_diagram"
+        name="_hx_submission_workflow_diagram",
     ),
     path(
         "<identifier:identifier_w_vn_nr>/reports/<int:report_nr>/pdf",

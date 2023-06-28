@@ -10,7 +10,6 @@ def from_astrophysics_to_astronomy(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("commentaries", "0011_auto_20190926_0603"),
     ]

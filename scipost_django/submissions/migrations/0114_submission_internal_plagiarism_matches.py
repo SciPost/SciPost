@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0113_alter_refereeinvitation_options'),
+        ("submissions", "0113_alter_refereeinvitation_options"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submission',
-            name='internal_plagiarism_matches',
+            model_name="submission",
+            name="internal_plagiarism_matches",
             field=models.JSONField(blank=True, default=dict, null=True),
         ),
     ]

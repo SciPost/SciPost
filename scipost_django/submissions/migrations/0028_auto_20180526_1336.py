@@ -26,7 +26,6 @@ def rename_assignment_statuses(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0027_auto_20180526_1336"),
     ]

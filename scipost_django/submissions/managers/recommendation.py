@@ -18,6 +18,7 @@ class EICRecommendationQuerySet(models.QuerySet):
         if not hasattr(user, "contributor"):
             return self.none()
         from ..models import Submission
+
         return (
             self.put_to_voting()
             .filter(eligible_to_vote=user.contributor)
@@ -45,6 +46,7 @@ class EICRecommendationQuerySet(models.QuerySet):
         if not hasattr(user, "contributor"):
             return self.none()
         from ..models import Submission
+
         return (
             self.put_to_voting()
             .filter(eligible_to_vote=user.contributor)

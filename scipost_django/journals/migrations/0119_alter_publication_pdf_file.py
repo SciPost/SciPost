@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0118_auto_20220818_1847'),
+        ("journals", "0118_auto_20220818_1847"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publication',
-            name='pdf_file',
-            field=models.FileField(blank=True, max_length=200, upload_to='UPLOADS/PUBLICATIONS/%Y/%m/'),
+            model_name="publication",
+            name="pdf_file",
+            field=models.FileField(
+                blank=True, max_length=200, upload_to="UPLOADS/PUBLICATIONS/%Y/%m/"
+            ),
         ),
     ]

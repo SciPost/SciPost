@@ -4,14 +4,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0114_submission_internal_plagiarism_matches'),
+        ("submissions", "0114_submission_internal_plagiarism_matches"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='submission',
-            options={'ordering': ['-submission_date'], 'permissions': [('take_edadmin_actions', 'Take editorial admin actions'), ('view_edadmin_info', 'View editorial admin information')]},
+            name="submission",
+            options={
+                "ordering": ["-submission_date"],
+                "permissions": [
+                    ("take_edadmin_actions", "Take editorial admin actions"),
+                    ("view_edadmin_info", "View editorial admin information"),
+                ],
+            },
         ),
     ]

@@ -4,15 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0139_submission_followup_of'),
+        ("submissions", "0139_submission_followup_of"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='readiness',
-            name='status',
-            field=models.CharField(choices=[('perhaps_later', 'Perhaps later (if nobody else does)'), ('could_if_transferred', 'I could (but only if transferred to lower journal)'), ('too_busy', "Interesting, but I'm currently too busy"), ('unavailable', "I'm currently unavailable"), ('not_interested', "I won't: I'm not interested enough"), ('desk_reject', "I won't, and vote for desk rejection")], max_length=32),
+            model_name="readiness",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("perhaps_later", "Perhaps later (if nobody else does)"),
+                    (
+                        "could_if_transferred",
+                        "I could (but only if transferred to lower journal)",
+                    ),
+                    ("too_busy", "Interesting, but I'm currently too busy"),
+                    ("unavailable", "I'm currently unavailable"),
+                    ("not_interested", "I won't: I'm not interested enough"),
+                    ("desk_reject", "I won't, and vote for desk rejection"),
+                ],
+                max_length=32,
+            ),
         ),
     ]

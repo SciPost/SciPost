@@ -14,7 +14,6 @@ def assign_college(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("colleges", "0017_fellowship_college"),
     ]

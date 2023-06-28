@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("colleges", "0022_potentialfellowship_set_college"),
     ]

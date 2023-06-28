@@ -4,16 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0128_populate_submission_object_types'),
-        ('submissions', '0138_auto_20230120_2100'),
+        ("journals", "0128_populate_submission_object_types"),
+        ("submissions", "0138_auto_20230120_2100"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submission',
-            name='followup_of',
-            field=models.ManyToManyField(blank=True, related_name='followups', to='journals.Publication'),
+            model_name="submission",
+            name="followup_of",
+            field=models.ManyToManyField(
+                blank=True, related_name="followups", to="journals.Publication"
+            ),
         ),
     ]

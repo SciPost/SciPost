@@ -29,7 +29,6 @@ def populate_thread_hashes(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0048_submission_thread_hash"),
     ]

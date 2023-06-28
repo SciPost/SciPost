@@ -4,14 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('colleges', '0034_alter_fellowshipnominationvotinground_options'),
+        ("colleges", "0034_alter_fellowshipnominationvotinground_options"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='fellowshipnominationvote',
-            constraint=models.UniqueConstraint(fields=('voting_round', 'fellow'), name='unique_together_voting_round_fellow'),
+            model_name="fellowshipnominationvote",
+            constraint=models.UniqueConstraint(
+                fields=("voting_round", "fellow"),
+                name="unique_together_voting_round_fellow",
+            ),
         ),
     ]

@@ -99,7 +99,8 @@ class Publication(models.Model):
 
     # Publication data
     accepted_submission = models.ForeignKey(
-        "submissions.Submission", on_delete=models.CASCADE,
+        "submissions.Submission",
+        on_delete=models.CASCADE,
     )
     in_issue = models.ForeignKey(
         "journals.Issue",
@@ -131,9 +132,7 @@ class Publication(models.Model):
         help_text="JATS version of abstract for Crossref deposit",
     )
     pdf_file = models.FileField(
-        upload_to="UPLOADS/PUBLICATIONS/%Y/%m/",
-        max_length=200,
-        blank=True
+        upload_to="UPLOADS/PUBLICATIONS/%Y/%m/", max_length=200, blank=True
     )
 
     # Ontology-based semantic linking
@@ -265,7 +264,7 @@ class Publication(models.Model):
         return reverse("scipost:publication_detail", args=(self.doi_label,))
 
     def get_cc_license_URI(self):
-        for (key, val) in CC_LICENSES_URI:
+        for key, val in CC_LICENSES_URI:
             if key == self.cc_license:
                 return val
         raise KeyError
@@ -376,7 +375,9 @@ class Publication(models.Model):
                     self.in_issue.in_volume.number,
                 )
             elif self.in_issue.in_journal:
-                bibtex_entry += "\tjournal={%s},\n" % self.in_issue.in_journal.name_abbrev
+                bibtex_entry += (
+                    "\tjournal={%s},\n" % self.in_issue.in_journal.name_abbrev
+                )
         elif self.in_journal:
             bibtex_entry += "\tjournal={%s},\n" % self.in_journal.name_abbrev
         bibtex_entry += (
@@ -394,7 +395,6 @@ class Publication(models.Model):
             self.doi_string,
         )
         return bibtex_entry
-
 
     def resources_as_md(self):
         """Return a Markdown string representing the list of resources."""
@@ -486,7 +486,6 @@ class Publication(models.Model):
         s = f"{self.paper_nr}" if self.in_journal else paper_nr_string(self.paper_nr)
         return f"{s}{f'-{self.paper_nr_suffix}' if self.paper_nr_suffix else ''}"
 
-
     def citation_rate(self):
         """Returns the citation rate in units of nr citations per article per year."""
         if self.citedby and self.latest_citedby_update:
@@ -509,9 +508,9 @@ class Publication(models.Model):
         """Returns a QuerySet of all Publications with same DOI anchor."""
         doi_anchor = self.doi_label.partition("-")[0]
         return Publication.objects.filter(
-            models.Q(doi_label=doi_anchor) |
-            models.Q(doi_label__startswith=f"{doi_anchor}-")
-        ).order_by('doi_label')
+            models.Q(doi_label=doi_anchor)
+            | models.Q(doi_label__startswith=f"{doi_anchor}-")
+        ).order_by("doi_label")
 
 
 class Reference(models.Model):

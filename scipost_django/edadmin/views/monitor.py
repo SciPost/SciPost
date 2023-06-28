@@ -23,9 +23,9 @@ def fellow_activity(request):
     if request.user.contributor.is_ed_admin:
         colleges = College.objects.all()
     else:
-        colleges = College.objects.filter(pk__in=[
-            f.college.id for f in request.user.contributor.fellowships.all()
-        ])
+        colleges = College.objects.filter(
+            pk__in=[f.college.id for f in request.user.contributor.fellowships.all()]
+        )
     context = {
         "colleges": colleges,
     }
@@ -41,7 +41,7 @@ def fellow_activity(request):
 def _hx_college_fellow_activity_table(request, college):
     form = EdAdminFellowshipSearchForm(request.POST or None, college=college)
     form.is_valid()
-    fellowships = form.search_results() # use it always
+    fellowships = form.search_results()  # use it always
     context = {
         "college": college,
         "fellowships": fellowships,
@@ -61,7 +61,9 @@ def _hx_fellow_stage_assignment_appraisals_table(request, fellowship_id: int):
     Provide a table of this Fellow's appraisals for Submissions in Assignment stage.
     """
     fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
-    context = {"fellowship": fellowship,}
+    context = {
+        "fellowship": fellowship,
+    }
     return render(
         request,
         "edadmin/monitor/_hx_fellow_stage_assignment_appraisals_table.html",

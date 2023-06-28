@@ -13,7 +13,6 @@ import submissions.behaviors
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [

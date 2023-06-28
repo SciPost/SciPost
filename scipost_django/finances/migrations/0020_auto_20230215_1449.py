@@ -4,25 +4,40 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finances', '0019_alter_subsidy_status'),
+        ("finances", "0019_alter_subsidy_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subsidyattachment',
-            name='description',
+            model_name="subsidyattachment",
+            name="description",
             field=models.TextField(blank=True),
         ),
         migrations.AddField(
-            model_name='subsidyattachment',
-            name='kind',
-            field=models.CharField(choices=[('agreement', 'Agreement'), ('proofofpayment', 'Proof of payment'), ('other', 'Other')], default='agreement', max_length=32),
+            model_name="subsidyattachment",
+            name="kind",
+            field=models.CharField(
+                choices=[
+                    ("agreement", "Agreement"),
+                    ("proofofpayment", "Proof of payment"),
+                    ("other", "Other"),
+                ],
+                default="agreement",
+                max_length=32,
+            ),
         ),
         migrations.AddField(
-            model_name='subsidyattachment',
-            name='visibility',
-            field=models.CharField(choices=[('public', 'Publicly visible'), ('internal', 'Internal (admin, Org Contacts)'), ('finadminonly', 'SciPost FinAdmin only')], default='finadminonly', max_length=32),
+            model_name="subsidyattachment",
+            name="visibility",
+            field=models.CharField(
+                choices=[
+                    ("public", "Publicly visible"),
+                    ("internal", "Internal (admin, Org Contacts)"),
+                    ("finadminonly", "SciPost FinAdmin only"),
+                ],
+                default="finadminonly",
+                max_length=32,
+            ),
         ),
     ]

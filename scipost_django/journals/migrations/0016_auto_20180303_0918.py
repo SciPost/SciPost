@@ -16,7 +16,6 @@ def null_to_blank(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0015_auto_20180302_1404"),
     ]

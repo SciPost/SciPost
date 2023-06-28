@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finances', '0022_remove_subsidyattachment_publicly_visible'),
+        ("finances", "0022_remove_subsidyattachment_publicly_visible"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subsidy',
-            name='paid_on',
+            model_name="subsidy",
+            name="paid_on",
             field=models.DateField(blank=True, null=True),
         ),
     ]

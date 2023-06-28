@@ -6,42 +6,79 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('organizations', '0018_auto_20220223_0737'),
+        ("organizations", "0018_auto_20220223_0737"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Webinar',
+            name="Webinar",
             fields=[
-                ('name', models.CharField(max_length=256)),
-                ('slug', models.SlugField(allow_unicode=True, primary_key=True, serialize=False)),
-                ('description', models.TextField(blank=True, help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.', null=True)),
-                ('publicly_visible', models.BooleanField(default=False)),
-                ('date_and_time', models.DateTimeField()),
-                ('duration', models.DurationField(default=datetime.timedelta(seconds=3600))),
-                ('link', models.URLField(max_length=512)),
+                ("name", models.CharField(max_length=256)),
+                (
+                    "slug",
+                    models.SlugField(
+                        allow_unicode=True, primary_key=True, serialize=False
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True,
+                        help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.',
+                        null=True,
+                    ),
+                ),
+                ("publicly_visible", models.BooleanField(default=False)),
+                ("date_and_time", models.DateTimeField()),
+                (
+                    "duration",
+                    models.DurationField(default=datetime.timedelta(seconds=3600)),
+                ),
+                ("link", models.URLField(max_length=512)),
             ],
             options={
-                'ordering': ['-date_and_time'],
+                "ordering": ["-date_and_time"],
             },
         ),
         migrations.CreateModel(
-            name='WebinarRegistration',
+            name="WebinarRegistration",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(max_length=64)),
-                ('last_name', models.CharField(max_length=64)),
-                ('email', models.EmailField(max_length=254)),
-                ('affiliation', models.CharField(blank=True, max_length=256)),
-                ('organization', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='organizations.organization')),
-                ('webinar', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='participants', to='webinars.webinar')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=64)),
+                ("last_name", models.CharField(max_length=64)),
+                ("email", models.EmailField(max_length=254)),
+                ("affiliation", models.CharField(blank=True, max_length=256)),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="organizations.organization",
+                    ),
+                ),
+                (
+                    "webinar",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="participants",
+                        to="webinars.webinar",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-webinar__date_and_time', 'last_name', 'first_name'],
+                "ordering": ["-webinar__date_and_time", "last_name", "first_name"],
             },
         ),
     ]

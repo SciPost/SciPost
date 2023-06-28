@@ -4,15 +4,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0136_alter_submissionauthorprofile_profile'),
+        ("submissions", "0136_alter_submissionauthorprofile_profile"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='qualification',
-            name='expertise_level',
-            field=models.CharField(blank=True, choices=[('expert', 'Expert in this subject'), ('very_knowledgeable', 'Very knowledgeable in this subject'), ('knowledgeable', 'Knowledgeable in this subject'), ('marginally_qualified', 'Marginally qualified'), ('not_really_qualified', 'Not really qualified'), ('not_at_all_qualified', 'Not at all qualified')], max_length=32),
+            model_name="qualification",
+            name="expertise_level",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("expert", "Expert in this subject"),
+                    ("very_knowledgeable", "Very knowledgeable in this subject"),
+                    ("knowledgeable", "Knowledgeable in this subject"),
+                    ("marginally_qualified", "Marginally qualified"),
+                    ("not_really_qualified", "Not really qualified"),
+                    ("not_at_all_qualified", "Not at all qualified"),
+                ],
+                max_length=32,
+            ),
         ),
     ]

@@ -9,7 +9,6 @@ from submissions.models.submission import Submission
 from submissions.models import EditorialAssignment
 
 
-
 class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
     """
     An EditorialAssignmentFactory should always have a `submission` explicitly assigned. This will

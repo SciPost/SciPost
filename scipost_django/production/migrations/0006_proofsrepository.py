@@ -5,21 +5,57 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('production', '0005_auto_20190511_1141'),
+        ("production", "0005_auto_20190511_1141"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProofsRepository',
+            name="ProofsRepository",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('uninitialized', 'The repository does not exist'), ('created', 'The repository exists but is empty'), ('template_only', 'The repository contains the bare template'), ('template_formatted', 'The repository contains the automatically formatted template'), ('production_ready', 'The repository is ready for production')], default='uninitialized', max_length=32)),
-                ('stream', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='proofs_repository', to='production.productionstream')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("uninitialized", "The repository does not exist"),
+                            ("created", "The repository exists but is empty"),
+                            (
+                                "template_only",
+                                "The repository contains the bare template",
+                            ),
+                            (
+                                "template_formatted",
+                                "The repository contains the automatically formatted template",
+                            ),
+                            (
+                                "production_ready",
+                                "The repository is ready for production",
+                            ),
+                        ],
+                        default="uninitialized",
+                        max_length=32,
+                    ),
+                ),
+                (
+                    "stream",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="proofs_repository",
+                        to="production.productionstream",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'proofs repositories',
+                "verbose_name_plural": "proofs repositories",
             },
         ),
     ]

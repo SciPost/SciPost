@@ -8,7 +8,6 @@ import scipost.storage
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("finances", "0011_auto_20190214_0224"),
     ]

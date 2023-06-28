@@ -10,7 +10,6 @@ import scipost.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("organizations", "0002_populate_from_partners_org"),

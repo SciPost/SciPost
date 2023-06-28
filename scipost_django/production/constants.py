@@ -86,6 +86,9 @@ PROOFS_REPO_STATUSES = (
     (PROOFS_REPO_UNINITIALIZED, "The repository does not exist"),
     (PROOFS_REPO_CREATED, "The repository exists but is empty"),
     (PROOFS_REPO_TEMPLATE_ONLY, "The repository contains the bare template"),
-    (PROOFS_REPO_TEMPLATE_FORMATTED, "The repository contains the automatically formatted template"),
+    (
+        PROOFS_REPO_TEMPLATE_FORMATTED,
+        "The repository contains the automatically formatted template",
+    ),
     (PROOFS_REPO_PRODUCTION_READY, "The repository is ready for production"),
 )

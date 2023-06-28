@@ -23,6 +23,7 @@ def get_profile_competing_interests(competing_interests, profile):
     Return all CompetingInterest for this Submission, Profile parameters.
     """
     from django.db.models import Q
+
     return competing_interests.filter(
         Q(profile=profile) | Q(related_profile=profile),
     )

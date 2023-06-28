@@ -107,7 +107,12 @@ class PublicationAdmin(admin.ModelAdmin):
     ]
     date_hierarchy = "publication_date"
     list_filter = ["in_issue"]
-    inlines = [AuthorsInline, ReferenceInline, OrgPubFractionInline, PublicationResourceInline]
+    inlines = [
+        AuthorsInline,
+        ReferenceInline,
+        OrgPubFractionInline,
+        PublicationResourceInline,
+    ]
     autocomplete_fields = [
         "accepted_submission",
         "grants",

@@ -4,15 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finances', '0018_periodicreport_periodicreporttype'),
+        ("finances", "0018_periodicreport_periodicreporttype"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subsidy',
-            name='status',
-            field=models.CharField(choices=[('promised', 'promised'), ('invoiced', 'invoiced'), ('received', 'received'), ('withdrawn', 'withdrawn')], max_length=32),
+            model_name="subsidy",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("promised", "promised"),
+                    ("invoiced", "invoiced"),
+                    ("received", "received"),
+                    ("withdrawn", "withdrawn"),
+                ],
+                max_length=32,
+            ),
         ),
     ]

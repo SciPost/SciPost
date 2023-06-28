@@ -8,15 +8,11 @@ from forums.models import Post
 
 
 class Command(BaseCommand):
-    help = (
-        "For all Post instances, this updates the calculated fields."
-    )
+    help = "For all Post instances, this updates the calculated fields."
 
     def handle(self, *args, **kwargs):
         for post in Post.objects.all():
             post.update_cfs()
         self.stdout.write(
-            self.style.SUCCESS(
-                "Successfully updated Post calculated fields"
-            )
+            self.style.SUCCESS("Successfully updated Post calculated fields")
         )

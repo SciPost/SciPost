@@ -6,7 +6,6 @@ import re
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("affiliates", "0005_auto_20210509_1353"),
     ]

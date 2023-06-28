@@ -12,7 +12,6 @@ def populate_acad_fields(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0098_preprintserver_acad_fields"),
     ]

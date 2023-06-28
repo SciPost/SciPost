@@ -5,15 +5,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('affiliates', '0011_auto_20220304_1952'),
+        ("affiliates", "0011_auto_20220304_1952"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='affiliatejournal',
-            name='logo_svg',
-            field=models.FileField(blank=True, upload_to='affiliates/journals/logos/', validators=[django.core.validators.FileExtensionValidator(['svg'])]),
+            model_name="affiliatejournal",
+            name="logo_svg",
+            field=models.FileField(
+                blank=True,
+                upload_to="affiliates/journals/logos/",
+                validators=[django.core.validators.FileExtensionValidator(["svg"])],
+            ),
         ),
     ]

@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         # ('partners', '0005_organization'),
         ("scipost", "0014_auto_20180414_2218"),

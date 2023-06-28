@@ -8,7 +8,6 @@ import scipost.db.fields
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []

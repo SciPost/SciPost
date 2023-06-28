@@ -7,18 +7,20 @@ from django.urls import include, path, register_converter
 from ..converters import SubmissionStageSlugConverter
 from ..views import subtabs
 
-app_name="subtabs"
+app_name = "subtabs"
 
 
 urlpatterns = [
     path(
         "<identifier:identifier_w_vn_nr>/",
-        include([
-            path(
-                "subtab/<slug:subtab>",
-                subtabs._hx_submission_edadmin_subtab,
-                name="_hx_submission_edadmin_subtab",
-            ),
-        ])
+        include(
+            [
+                path(
+                    "subtab/<slug:subtab>",
+                    subtabs._hx_submission_edadmin_subtab,
+                    name="_hx_submission_edadmin_subtab",
+                ),
+            ]
+        ),
     ),
 ]

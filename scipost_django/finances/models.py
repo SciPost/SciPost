@@ -153,7 +153,7 @@ class SubsidyPayment(models.Model):
         on_delete=models.CASCADE,
         blank=True,
         null=True,
-        related_name="proof_of_payment_for"
+        related_name="proof_of_payment_for",
     )
 
     objects = SubsidyPaymentQuerySet.as_manager()
@@ -287,7 +287,7 @@ class SubsidyAttachment(models.Model):
 
 class WorkLog(models.Model):
     HOURLY_RATE = 22.0
-    
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     comments = models.TextField(blank=True)
     log_type = models.CharField(max_length=128, blank=True)
@@ -336,8 +336,9 @@ class PeriodicReport(models.Model):
     """
     Any form of report (annual, financial, administrative etc).
     """
+
     _type = models.ForeignKey(
-        'finances.PeriodicReportType',
+        "finances.PeriodicReportType",
         on_delete=models.CASCADE,
     )
     _file = models.FileField(

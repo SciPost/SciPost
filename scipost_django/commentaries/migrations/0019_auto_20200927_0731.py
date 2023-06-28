@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("commentaries", "0018_auto_20200926_2200"),
     ]

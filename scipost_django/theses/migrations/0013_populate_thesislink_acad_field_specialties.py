@@ -18,7 +18,6 @@ def populate_acad_field_specialty(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("theses", "0012_auto_20200926_2206"),
     ]

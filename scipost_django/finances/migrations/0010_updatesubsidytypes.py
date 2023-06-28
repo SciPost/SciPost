@@ -22,7 +22,6 @@ def update_subsidy_types(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("finances", "0009_auto_20190214_0202"),
     ]

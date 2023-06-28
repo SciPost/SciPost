@@ -17,7 +17,6 @@ class SummernoteEditor(widgets.Textarea):
         super().__init__(*args, **kwargs)
 
     def get_options(self):
-
         default_options = {
             "inlineMode": False,
             "toolbar": [

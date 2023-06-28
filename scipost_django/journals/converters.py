@@ -66,7 +66,12 @@ class PublicationDOILabelConverter:
             self.regex = "|".join([j.doi_label for j in Journal.objects.all()])
         except ProgrammingError:
             self.regex = "SciPost"
-        self.regex = "(" + self.regex + ")" + r"\.[0-9]+(\.[0-9]+(\.[0-9]+)?)?(-r[0-9]+(\.[0-9]+)?)?"
+        self.regex = (
+            "("
+            + self.regex
+            + ")"
+            + r"\.[0-9]+(\.[0-9]+(\.[0-9]+)?)?(-r[0-9]+(\.[0-9]+)?)?"
+        )
 
     def to_python(self, value):
         from journals.models import Publication

@@ -5,20 +5,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0117_alter_publication_accepted_submission'),
+        ("journals", "0117_alter_publication_accepted_submission"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='publication',
-            name='paper_nr_suffix',
+            model_name="publication",
+            name="paper_nr_suffix",
             field=models.CharField(blank=True, max_length=32),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^((SciPost)[a-zA-Z]+|(MigPol))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?(-r[0-9]+(\\.[0-9]+)?)?$', 'Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?(-r[0-9]+(\\.[0-9]+)?)? are allowed.')]),
+            model_name="publication",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^((SciPost)[a-zA-Z]+|(MigPol))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?(-r[0-9]+(\\.[0-9]+)?)?$",
+                        "Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?(-r[0-9]+(\\.[0-9]+)?)? are allowed.",
+                    )
+                ],
+            ),
         ),
     ]

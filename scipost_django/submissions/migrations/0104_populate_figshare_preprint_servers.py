@@ -34,7 +34,6 @@ def populate_figshare_preprint_servers(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0103_preprintserver_served_by"),
     ]

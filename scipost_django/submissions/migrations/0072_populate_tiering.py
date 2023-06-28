@@ -36,7 +36,6 @@ def populate_tiering(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0071_submissiontiering"),
     ]

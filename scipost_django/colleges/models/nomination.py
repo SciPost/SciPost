@@ -15,7 +15,6 @@ from scipost.models import get_sentinel_user
 
 
 class FellowshipNomination(models.Model):
-
     college = models.ForeignKey(
         "colleges.College", on_delete=models.PROTECT, related_name="nominations"
     )
@@ -93,17 +92,16 @@ class FellowshipNomination(models.Model):
             if eligible_count < 3:
                 return "Fewer than 3 eligible voters (insufficient)."
             votes_count = latest_round.votes.count()
-            if (eligible_count == votes_count # everybody (>=3) has voted
-                or
-                latest_round.voting_deadline < timezone.now()
-                ):
+            if (
+                eligible_count == votes_count  # everybody (>=3) has voted
+                or latest_round.voting_deadline < timezone.now()
+            ):
                 return None
             return "Latest voting round is ongoing, and not everybody has voted."
         return "No voting round found."
 
 
 class FellowshipNominationEvent(models.Model):
-
     nomination = models.ForeignKey(
         "colleges.FellowshipNomination", on_delete=models.CASCADE, related_name="events"
     )
@@ -112,7 +110,8 @@ class FellowshipNominationEvent(models.Model):
     by = models.ForeignKey(
         "scipost.Contributor",
         on_delete=models.SET(get_sentinel_user),
-        blank=True, null=True,
+        blank=True,
+        null=True,
     )
 
     class Meta:
@@ -120,18 +119,22 @@ class FellowshipNominationEvent(models.Model):
         verbose_name_plural = "Fellowhip Nomination Events"
 
     def __str__(self):
-        return (f"Event for {self.nomination.profile} by {self.by} on {self.on}: "
-                f"{self.description}")
+        return (
+            f"Event for {self.nomination.profile} by {self.by} on {self.on}: "
+            f"{self.description}"
+        )
 
 
 class FellowshipNominationComment(models.Model):
-
     nomination = models.ForeignKey(
-        "colleges.FellowshipNomination", on_delete=models.CASCADE, related_name="comments"
+        "colleges.FellowshipNomination",
+        on_delete=models.CASCADE,
+        related_name="comments",
     )
 
     by = models.ForeignKey(
-        "scipost.Contributor", on_delete=models.CASCADE,
+        "scipost.Contributor",
+        on_delete=models.CASCADE,
     )
 
     text = models.TextField(
@@ -152,7 +155,6 @@ class FellowshipNominationComment(models.Model):
 
 
 class FellowshipNominationVotingRound(models.Model):
-
     nomination = models.ForeignKey(
         "colleges.FellowshipNomination",
         on_delete=models.CASCADE,
@@ -192,7 +194,6 @@ class FellowshipNominationVotingRound(models.Model):
 
 
 class FellowshipNominationVote(models.Model):
-
     VOTE_AGREE = "agree"
     VOTE_ABSTAIN = "abstain"
     VOTE_DISAGREE = "disagree"
@@ -234,7 +235,6 @@ class FellowshipNominationVote(models.Model):
 
 
 class FellowshipNominationDecision(models.Model):
-
     nomination = models.OneToOneField(
         "colleges.FellowshipNomination",
         on_delete=models.CASCADE,
@@ -274,7 +274,6 @@ class FellowshipNominationDecision(models.Model):
 
 
 class FellowshipInvitation(models.Model):
-
     nomination = models.OneToOneField(
         "colleges.FellowshipNomination",
         on_delete=models.CASCADE,

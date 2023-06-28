@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("colleges", "0029_mark_guest_Fellows"),
     ]

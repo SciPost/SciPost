@@ -2,40 +2,33 @@
 
 from django.db import migrations
 
-PRESCREENING = "prescreening" # remove2, convert to PREASSIGNMENT
+PRESCREENING = "prescreening"  # remove2, convert to PREASSIGNMENT
 PREASSIGNMENT = "preassignment"
-PRESCREENING_FAILED = "prescreening_failed" # remove2, convert to PREASSIGNMENT_FAILED
+PRESCREENING_FAILED = "prescreening_failed"  # remove2, convert to PREASSIGNMENT_FAILED
 PREASSIGNMENT_FAILED = "preassignment_failed"
-SCREENING = "screening" # remove2, convert to SEEKING_ASSIGNMENT
-SEEKING_ASSIGNMENT = "seeking_assignment" # new2
-SCREENING_FAILED = "screening_failed" # remove2, convert to ASSIGNMENT_FAILED
-ASSIGNMENT_FAILED = "assignment_failed" # remove # new2 reinstate
+SCREENING = "screening"  # remove2, convert to SEEKING_ASSIGNMENT
+SEEKING_ASSIGNMENT = "seeking_assignment"  # new2
+SCREENING_FAILED = "screening_failed"  # remove2, convert to ASSIGNMENT_FAILED
+ASSIGNMENT_FAILED = "assignment_failed"  # remove # new2 reinstate
 
 
 def update_submission_status(apps, schema_editor):
     Submission = apps.get_model("submissions", "Submission")
 
-    Submission.objects.filter(
-        status=PRESCREENING
-    ).update(status=PREASSIGNMENT)
+    Submission.objects.filter(status=PRESCREENING).update(status=PREASSIGNMENT)
 
-    Submission.objects.filter(
-        status=PRESCREENING_FAILED
-    ).update(status=PREASSIGNMENT_FAILED)
+    Submission.objects.filter(status=PRESCREENING_FAILED).update(
+        status=PREASSIGNMENT_FAILED
+    )
 
-    Submission.objects.filter(
-        status=SCREENING
-    ).update(status=SEEKING_ASSIGNMENT)
+    Submission.objects.filter(status=SCREENING).update(status=SEEKING_ASSIGNMENT)
 
-    Submission.objects.filter(
-        status=SCREENING_FAILED
-    ).update(status=ASSIGNMENT_FAILED)
+    Submission.objects.filter(status=SCREENING_FAILED).update(status=ASSIGNMENT_FAILED)
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0123_alter_submission_status'),
+        ("submissions", "0123_alter_submission_status"),
     ]
 
     operations = [

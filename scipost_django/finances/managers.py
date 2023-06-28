@@ -23,7 +23,6 @@ class SubsidyPaymentQuerySet(models.QuerySet):
 
 
 class SubsidyAttachmentQuerySet(models.QuerySet):
-
     def agreements(self):
         return self.filter(kind=self.model.KIND_AGREEMENT)
 

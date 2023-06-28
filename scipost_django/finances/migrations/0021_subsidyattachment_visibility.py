@@ -15,9 +15,8 @@ def set_subsidy_attachment_visibility(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('finances', '0020_auto_20230215_1449'),
+        ("finances", "0020_auto_20230215_1449"),
     ]
 
     operations = [

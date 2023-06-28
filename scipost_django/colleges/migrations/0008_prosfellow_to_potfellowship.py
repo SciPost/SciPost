@@ -38,7 +38,6 @@ def transfer_prosfel_data_to_potfellowship(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("colleges", "0007_potentialfellowship_potentialfellowshipevent"),
         ("profiles", "0002_auto_20180916_1643"),

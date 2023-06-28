@@ -7,7 +7,8 @@ from itertools import accumulate
 import mimetypes
 
 import matplotlib
-matplotlib.use('Agg')
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import io, base64
 
@@ -116,57 +117,59 @@ def finances(request):
     pub_data = publishing_expenditures()
     pubyears = [year for year in publishing_years()]
     pub_expenditures = [
-        (
-            pub_data[str(year)]["expenditures"] if str(year) in pub_data else 0
-        ) for year in years
+        (pub_data[str(year)]["expenditures"] if str(year) in pub_data else 0)
+        for year in years
     ]
     # only compute balance up to last complete year; set to 0 afterwards
     completed_years = pubyears
     completed_years.pop()
     balance = [
-        (subsidies_dict[str(year)] - pub_data[str(year)]["expenditures"]
-         if year in completed_years else 0) for year in years
+        (
+            subsidies_dict[str(year)] - pub_data[str(year)]["expenditures"]
+            if year in completed_years
+            else 0
+        )
+        for year in years
     ]
     # similarly here, put cumulative to zero except for completed years
     cumulative_balance = list(accumulate(balance))
     cumulative_balance = (
-        cumulative_balance[:(len(years)-nr_extra_years)] +
-        [0]*nr_extra_years
+        cumulative_balance[: (len(years) - nr_extra_years)] + [0] * nr_extra_years
     )
     # matplotlib plot
     width = 0.2
     fig, ax = plt.subplots()
     rects_exp = ax.bar(
-        [y - 1.5*width for y in years],
-        [e/1000 for e in pub_expenditures],
+        [y - 1.5 * width for y in years],
+        [e / 1000 for e in pub_expenditures],
         width,
         label="Expenditures",
         color="red",
     )
     rects_sub = ax.bar(
-        [y - 0.5*width for y in years],
-        [s/1000 for s in subsidies],
+        [y - 0.5 * width for y in years],
+        [s / 1000 for s in subsidies],
         width,
         label="Subsidies",
         color="blue",
     )
     rects_bal = ax.bar(
-        [y + 0.5*width for y in years],
-        [b/1000 for b in balance],
+        [y + 0.5 * width for y in years],
+        [b / 1000 for b in balance],
         width,
         label="Balance",
         color="green",
     )
     rects_sub = ax.bar(
-        [y + 1.5*width for y in years],
-        [c/1000 for c in cumulative_balance],
+        [y + 1.5 * width for y in years],
+        [c / 1000 for c in cumulative_balance],
         width,
         label="Cumulative",
         color="orange",
     )
     ax.legend()
-    ax.set_title('Financial balance')
-    ax.set_ylabel("\'000 euros")
+    ax.set_title("Financial balance")
+    ax.set_ylabel("'000 euros")
     ax.set_xlabel("year")
 
     flike = io.BytesIO()
@@ -204,7 +207,7 @@ def country_level_data(request):
     context["countrycodes"] = [
         code["country"]
         for code in list(
-                Organization.objects.all().distinct("country").values("country")
+            Organization.objects.all().distinct("country").values("country")
         )
     ]
     return render(request, "finances/country_level_data.html", context)
@@ -217,7 +220,7 @@ def _hx_country_level_data(request, country):
         "country": country,
         "organizations": organizations,
         "cumulative": {"contribution": 0, "expenditures": 0, "balance": 0},
-        "per_year": {}
+        "per_year": {},
     }
     for year in pubyears:
         context["per_year"][year] = {
@@ -228,19 +231,19 @@ def _hx_country_level_data(request, country):
     cumulative_expenditures = 0
     for organization in organizations.all():
         for key in ("contribution", "expenditures", "balance"):
-            context["cumulative"][
+            context["cumulative"][key] += organization.cf_balance_info["cumulative"][
                 key
-            ] += organization.cf_balance_info["cumulative"][key]
+            ]
         for year in pubyears:
-            context["per_year"][year]["contribution"] += (
-                organization.cf_balance_info[year]["contribution"]
-            )
-            context["per_year"][year]["expenditures"] += (
-                organization.cf_balance_info[year]["expenditures"]["total"]
-            )
-            context["per_year"][year]["balance"] += (
-                organization.cf_balance_info[year]["balance"]
-            )
+            context["per_year"][year]["contribution"] += organization.cf_balance_info[
+                year
+            ]["contribution"]
+            context["per_year"][year]["expenditures"] += organization.cf_balance_info[
+                year
+            ]["expenditures"]["total"]
+            context["per_year"][year]["balance"] += organization.cf_balance_info[year][
+                "balance"
+            ]
     return render(request, "finances/_hx_country_level_data.html", context)
 
 
@@ -365,17 +368,19 @@ def _hx_subsidypayment_button(request, subsidy_id: int):
     return render(
         request,
         "finances/_hx_subsidypayment_button.html",
-        context={"subsidy": subsidy,},
+        context={
+            "subsidy": subsidy,
+        },
     )
 
 
 @permission_required("scipost.can_manage_subsidies", raise_exception=True)
-def _hx_subsidypayment_form(request, subsidy_id: int, subsidypayment_id: int=None):
+def _hx_subsidypayment_form(request, subsidy_id: int, subsidypayment_id: int = None):
     subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
     if subsidypayment_id:
         instance = get_object_or_404(SubsidyPayment, pk=subsidypayment_id)
     else:
-        instance=None
+        instance = None
     form = SubsidyPaymentForm(
         request.POST or None,
         subsidy=subsidy,
@@ -386,7 +391,9 @@ def _hx_subsidypayment_form(request, subsidy_id: int, subsidypayment_id: int=Non
         response = render(
             request,
             "finances/_hx_subsidy_finadmin_details.html",
-            context={"subsidy": subsidy,},
+            context={
+                "subsidy": subsidy,
+            },
         )
         response["HX-Retarget"] = f"#subsidy-{subsidy.id}-finadmin-details"
         return response
@@ -404,7 +411,9 @@ def _hx_subsidypayment_delete(request, subsidy_id: int, subsidypayment_id: int):
     response = render(
         request,
         "finances/_hx_subsidy_finadmin_details.html",
-        context={"subsidy": subsidy,},
+        context={
+            "subsidy": subsidy,
+        },
     )
     return response
 
@@ -576,6 +585,7 @@ def personal_timesheet(request):
 ###################
 # PeriodicReports #
 ###################
+
 
 def periodicreport_file(request, pk):
     periodicreport = get_object_or_404(PeriodicReport, pk=pk)

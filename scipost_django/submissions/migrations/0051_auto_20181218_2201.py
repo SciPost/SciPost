@@ -7,7 +7,6 @@ from django.contrib.postgres.operations import TrigramExtension
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("submissions", "0050_merge_20181207_1008"),
     ]

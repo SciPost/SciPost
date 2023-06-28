@@ -46,7 +46,9 @@ def _hx_process(request, field):
             return render(
                 request,
                 "markup/forms/widgets/_hx_textarea_widget_value_processed.html",
-                context = { "markup": form.get_processed_markup(),},
+                context={
+                    "markup": form.get_processed_markup(),
+                },
             )
     return HttpResponse()
 

@@ -41,17 +41,17 @@ class OrganizationLogo(models.Model):
     Logo of an Organization, with rendering info, for a `source` HTML tag.
     """
 
-    MIMETYPE_GIF = 'gif'
-    MIMETYPE_JPG = 'jpg'
-    MIMETYPE_PNG = 'png'
-    MIMETYPE_TIF = 'tif'
-    MITETYPE_WEBP = 'webp'
+    MIMETYPE_GIF = "gif"
+    MIMETYPE_JPG = "jpg"
+    MIMETYPE_PNG = "png"
+    MIMETYPE_TIF = "tif"
+    MITETYPE_WEBP = "webp"
     MIMETYPE_CHOICES = (
-        (MIMETYPE_GIF, 'gif'),
-        (MIMETYPE_JPG, 'jpg'),
-        (MIMETYPE_PNG, 'png'),
-        (MIMETYPE_TIF, 'tif'),
-        (MITETYPE_WEBP, 'webp'),
+        (MIMETYPE_GIF, "gif"),
+        (MIMETYPE_JPG, "jpg"),
+        (MIMETYPE_PNG, "png"),
+        (MIMETYPE_TIF, "tif"),
+        (MITETYPE_WEBP, "webp"),
     )
     organization = models.ForeignKey(
         "organizations.Organization",
@@ -71,11 +71,16 @@ class OrganizationLogo(models.Model):
                 name="unique_together_organization_order",
             ),
         ]
-        ordering = ("organization", "order",)
+        ordering = (
+            "organization",
+            "order",
+        )
 
     def __str__(self):
-        return (f"Logo ({self.mimetype}, w={self.width}, h={self.height}) "
-                f"for {self.organization.name}")
+        return (
+            f"Logo ({self.mimetype}, w={self.width}, h={self.height}) "
+            f"for {self.organization.name}"
+        )
 
     def save(self, *args, **kwargs):
         if not self.order:
@@ -212,11 +217,14 @@ class Organization(models.Model):
         Returns all Profiles of authors associated to this Organization.
         """
         profile_id_list = [
-            tbl.profile.id for tbl in self.publicationauthorstable_set.all(
-            ).select_related("profile")
+            tbl.profile.id
+            for tbl in self.publicationauthorstable_set.all().select_related("profile")
         ]
-        return Profile.objects.filter(id__in=profile_id_list).distinct(
-        ).select_related("contributor")
+        return (
+            Profile.objects.filter(id__in=profile_id_list)
+            .distinct()
+            .select_related("contributor")
+        )
 
     def fellowships(self, year=None):
         """
@@ -247,39 +255,53 @@ class Organization(models.Model):
         """
         ids = {
             "via_author_affiliation": [
-                pk for pk in Publication.objects.published().filter(
-                    authors__affiliations=self).values_list("pk", flat=True)
+                pk
+                for pk in Publication.objects.published()
+                .filter(authors__affiliations=self)
+                .values_list("pk", flat=True)
             ],
             "via_grant": [
-                pk for pk in Publication.objects.published().filter(
-                    grants__funder__organization=self).values_list("pk", flat=True)
+                pk
+                for pk in Publication.objects.published()
+                .filter(grants__funder__organization=self)
+                .values_list("pk", flat=True)
             ],
-            "via_funder_generic":  [
-                pk for pk in Publication.objects.published().filter(
-                    funders_generic__organization=self).values_list("pk", flat=True)
+            "via_funder_generic": [
+                pk
+                for pk in Publication.objects.published()
+                .filter(funders_generic__organization=self)
+                .values_list("pk", flat=True)
             ],
         }
         children_ids = [pk for pk in self.children.all().values_list("id", flat=True)]
         ids["via_child_author_affiliation"] = [
-            pk for pk in Publication.objects.published().filter(
-                authors__affiliations__pk__in=children_ids
-            ).values_list("pk", flat=True)
+            pk
+            for pk in Publication.objects.published()
+            .filter(authors__affiliations__pk__in=children_ids)
+            .values_list("pk", flat=True)
         ]
         ids["via_child_grant"] = [
-            pk for pk in Publication.objects.published().filter(
-                grants__funder__organization__pk__in=children_ids
-            ).values_list("pk", flat=True)
+            pk
+            for pk in Publication.objects.published()
+            .filter(grants__funder__organization__pk__in=children_ids)
+            .values_list("pk", flat=True)
         ]
         ids["via_child_funder_generic"] = [
-            pk for pk in Publication.objects.published().filter(
-                funders_generic__organization__pk__in=children_ids
-            ).values_list("pk", flat=True)
+            pk
+            for pk in Publication.objects.published()
+            .filter(funders_generic__organization__pk__in=children_ids)
+            .values_list("pk", flat=True)
         ]
-        ids["all"] = list(set(
-            ids["via_author_affiliation"] + ids["via_grant"] +
-            ids["via_funder_generic"] + ids["via_child_author_affiliation"] +
-            ids["via_child_grant"] + ids["via_child_funder_generic"]
-        ))
+        ids["all"] = list(
+            set(
+                ids["via_author_affiliation"]
+                + ids["via_grant"]
+                + ids["via_funder_generic"]
+                + ids["via_child_author_affiliation"]
+                + ids["via_child_grant"]
+                + ids["via_child_funder_generic"]
+            )
+        )
         self.cf_associated_publication_ids = ids
         self.save()
 
@@ -341,7 +363,8 @@ class Organization(models.Model):
             pass
         children_ids = [k["id"] for k in list(self.children.all().values("id"))]
         children_contrib_ids = set(
-            c for c in OrgPubFraction.objects.filter(
+            c
+            for c in OrgPubFraction.objects.filter(
                 publication=publication,
                 organization__id__in=children_ids,
             ).values_list("organization__id", flat=True)
@@ -381,7 +404,11 @@ class Organization(models.Model):
         """
         Check if this organization has a Subsidy with a still-running validity period.
         """
-        return self.subsidy_set.obtained().filter(date_until__gte=datetime.date.today()).exists()
+        return (
+            self.subsidy_set.obtained()
+            .filter(date_until__gte=datetime.date.today())
+            .exists()
+        )
 
     @property
     def has_children_with_current_subsidy(self):
@@ -396,7 +423,9 @@ class Organization(models.Model):
         Returns the end date of validity of the latest subsidy.
         """
         if self.subsidy_set.obtained():
-            return self.subsidy_set.obtained().order_by("-date_until").first().date_until
+            return (
+                self.subsidy_set.obtained().order_by("-date_until").first().date_until
+            )
         return "-"
 
     def total_subsidies_in_year(self, year):
@@ -404,8 +433,10 @@ class Organization(models.Model):
         Return the total subsidies for this Organization in that year.
         """
         total = 0
-        for subsidy in self.subsidy_set.obtained().filter(date_from__year__lte=year).filter(
-            models.Q(date_until=None) | models.Q(date_until__year__gte=year)
+        for subsidy in (
+            self.subsidy_set.obtained()
+            .filter(date_from__year__lte=year)
+            .filter(models.Q(date_until=None) | models.Q(date_until__year__gte=year))
         ):
             total += subsidy.value_in_year(year)
         return total
@@ -415,7 +446,11 @@ class Organization(models.Model):
         Computes the total amount received by SciPost, in the form
         of subsidies from this Organization.
         """
-        return self.subsidy_set.obtained().aggregate(models.Sum("amount")).get("amount__sum", 0)
+        return (
+            self.subsidy_set.obtained()
+            .aggregate(models.Sum("amount"))
+            .get("amount__sum", 0)
+        )
 
     def get_balance_info(self):
         """
@@ -433,21 +468,31 @@ class Organization(models.Model):
             rep[str(year)]["contribution"] = contribution
             year_expenditures = 0
             rep[str(year)]["expenditures"] = {}
-            pfy = pf.filter(
-                publication__publication_date__year=year
-            )
-            jl1 = [j for j in pfy.values_list(
-                'publication__in_journal__doi_label',
-                flat=True,
-            ) if j]
-            jl2 = [j for j in pfy.values_list(
-                'publication__in_issue__in_journal__doi_label',
-                flat=True,
-            ) if j]
-            jl3 = [j for j in pfy.values_list(
-                'publication__in_issue__in_volume__in_journal__doi_label',
-                flat=True,
-            ) if j]
+            pfy = pf.filter(publication__publication_date__year=year)
+            jl1 = [
+                j
+                for j in pfy.values_list(
+                    "publication__in_journal__doi_label",
+                    flat=True,
+                )
+                if j
+            ]
+            jl2 = [
+                j
+                for j in pfy.values_list(
+                    "publication__in_issue__in_journal__doi_label",
+                    flat=True,
+                )
+                if j
+            ]
+            jl3 = [
+                j
+                for j in pfy.values_list(
+                    "publication__in_issue__in_volume__in_journal__doi_label",
+                    flat=True,
+                )
+                if j
+            ]
             journal_labels = set(jl1 + jl2 + jl3)
             for journal_label in journal_labels:
                 sumpf = pfy.filter(

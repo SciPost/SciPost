@@ -71,7 +71,6 @@ class MailchimpList(TimeStampedModel):
             # Find all campaigns on the account
             campaigns = client.campaigns.all(get_all=True)
             for campaign in campaigns["campaigns"]:
-
                 # All unsubscriptions are registered per campaign
                 # Should be improved later on
                 unsubscribers = client.reports.unsubscribes.all(campaign["id"], True)

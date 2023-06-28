@@ -6,7 +6,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("funders", "0010_repopulate_funder_orgs"),
     ]

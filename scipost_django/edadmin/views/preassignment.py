@@ -43,14 +43,17 @@ def _hx_author_profiles_details_contents(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
-    matches_list = [ (
-        author_string,
-        index + 1,
-        submission.author_profiles.filter(
-            order=index + 1,
-            profile__isnull=False,
-        ).first(),
-    ) for index, author_string in enumerate(submission.authors_as_list) ]
+    matches_list = [
+        (
+            author_string,
+            index + 1,
+            submission.author_profiles.filter(
+                order=index + 1,
+                profile__isnull=False,
+            ).first(),
+        )
+        for index, author_string in enumerate(submission.authors_as_list)
+    ]
 
     context = {
         "submission": submission,
@@ -69,10 +72,10 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
-    author_string = submission.authors_as_list[order-1]
+    author_string = submission.authors_as_list[order - 1]
     profile = submission.author_profiles.filter(
-            order=order,
-            profile__isnull=False,
+        order=order,
+        profile__isnull=False,
     ).first()
     context = {
         "submission": submission,
@@ -90,8 +93,7 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
                     "order": order,
                     "action": "match",
                 },
-                "action_target_element_id":
-                f"submission-{submission.pk}-author-profile-row-{order}",
+                "action_target_element_id": f"submission-{submission.pk}-author-profile-row-{order}",
                 "action_target_swap": "outerHTML",
             }
         )
@@ -101,18 +103,20 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
         "edadmin/preassignment/_hx_author_profile_row.html",
         context,
     )
-    response["HX-Trigger-After-Settle"] = f"submission-{submission.pk}-author-profiles-details-updated"
+    response[
+        "HX-Trigger-After-Settle"
+    ] = f"submission-{submission.pk}-author-profiles-details-updated"
     return response
 
 
 @login_required
 @user_passes_test(is_edadmin)
 def _hx_author_profile_action(
-        request,
-        identifier_w_vn_nr,
-        order,
-        profile_id,
-        action: str="match",
+    request,
+    identifier_w_vn_nr,
+    order,
+    profile_id,
+    action: str = "match",
 ):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
@@ -135,7 +139,7 @@ def _hx_author_profile_action(
             kwargs={
                 "identifier_w_vn_nr": identifier_w_vn_nr,
                 "order": order,
-            }
+            },
         )
     )
     return response
@@ -144,6 +148,7 @@ def _hx_author_profile_action(
 ##########################
 # Preassignment decision #
 ##########################
+
 
 @login_required
 @user_passes_test(is_edadmin)
@@ -163,7 +168,7 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
                 submission=submission,
                 comments_for_authors=form.cleaned_data["comments_for_authors"],
             )
-        else: # inadmissible, inform authors and set status to PREASSIGNMENT_FAILED
+        else:  # inadmissible, inform authors and set status to PREASSIGNMENT_FAILED
             Submission.objects.filter(pk=submission.id).update(
                 status=Submission.PREASSIGNMENT_FAILED
             )
@@ -179,7 +184,10 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
         # trigger refresh of pool listing
         response["HX-Trigger-After-Settle"] = "search-conditions-updated"
         return response
-    context = {"submission": submission, "form": form,}
+    context = {
+        "submission": submission,
+        "form": form,
+    }
     return render(
         request,
         "edadmin/preassignment/_hx_submission_preassignment_decision.html",

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ontology", "0007_Branch_Field_Specialty"),
         ("submissions", "0097_remove_submission_secondary_areas"),

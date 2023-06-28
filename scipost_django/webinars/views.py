@@ -18,13 +18,17 @@ def webinar_detail(request, slug):
         Webinar.objects.prefetch_related("participants"),
         slug=slug,
     )
-    initial = {"webinar": webinar,}
+    initial = {
+        "webinar": webinar,
+    }
     if request.user.is_authenticated:
         initial["first_name"] = request.user.first_name
         initial["last_name"] = request.user.last_name
         initial["email"] = request.user.email
         if request.user.contributor:
-            affiliation = request.user.contributor.profile.affiliations.current().first()
+            affiliation = (
+                request.user.contributor.profile.affiliations.current().first()
+            )
             if affiliation:
                 initial["organization"] = affiliation.organization
     form = WebinarRegistrationForm(initial=initial)
@@ -51,8 +55,10 @@ def webinar_register(request, slug):
         mail_sender.send_mail()
         messages.success(
             request,
-            ("Thank you for registering for this online webinar. "
-            "We sent you a confirmation email.")
+            (
+                "Thank you for registering for this online webinar. "
+                "We sent you a confirmation email."
+            ),
         )
     else:
         for error_messages in form.errors.values():

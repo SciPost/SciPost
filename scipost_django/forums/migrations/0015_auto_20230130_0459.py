@@ -5,20 +5,25 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('forums', '0014_auto_20230129_1918'),
+        ("forums", "0014_auto_20230129_1918"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='cf_latest_followup_in_hierarchy',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='latest_followup_in_hierarchy_of', to='forums.post'),
+            model_name="post",
+            name="cf_latest_followup_in_hierarchy",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="latest_followup_in_hierarchy_of",
+                to="forums.post",
+            ),
         ),
         migrations.AddField(
-            model_name='post',
-            name='cf_nr_followups',
+            model_name="post",
+            name="cf_nr_followups",
             field=models.PositiveSmallIntegerField(blank=True, null=True),
         ),
     ]

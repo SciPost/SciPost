@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("finances", "0008_subsidy_amount_publicly_shown"),
     ]

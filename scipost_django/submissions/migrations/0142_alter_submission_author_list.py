@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0141_alter_readiness_status'),
+        ("submissions", "0141_alter_readiness_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submission',
-            name='author_list',
-            field=models.CharField(help_text='Please use full first names (we <strong>beg</strong> you!): <em>Abe Cee, Dee Efgee, Haich Idjay Kay</em><br>(not providing full first names makes metadata handling unnecessarily work-intensive for us)', max_length=10000, verbose_name='author list'),
+            model_name="submission",
+            name="author_list",
+            field=models.CharField(
+                help_text="Please use full first names (we <strong>beg</strong> you!): <em>Abe Cee, Dee Efgee, Haich Idjay Kay</em><br>(not providing full first names makes metadata handling unnecessarily work-intensive for us)",
+                max_length=10000,
+                verbose_name="author list",
+            ),
         ),
     ]

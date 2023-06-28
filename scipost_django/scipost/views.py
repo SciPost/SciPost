@@ -66,7 +66,10 @@ from .mixins import PermissionsMixin, PaginationMixin
 from .utils import EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from blog.models import BlogPost
-from colleges.permissions import fellowship_or_admin_required, is_edadmin_or_active_fellow
+from colleges.permissions import (
+    fellowship_or_admin_required,
+    is_edadmin_or_active_fellow,
+)
 from commentaries.models import Commentary
 from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
@@ -458,7 +461,7 @@ def portal_hx_commentaries_page(request):
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,
     )
-    form.is_valid() # trigger validation to get filtering
+    form.is_valid()  # trigger validation to get filtering
     commentaries = form.search_results()
     paginator = Paginator(commentaries, 10)
     page_nr = request.GET.get("page")
@@ -484,7 +487,7 @@ def portal_hx_theses_page(request):
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,
     )
-    form.is_valid() # trigger validation to get filtering
+    form.is_valid()  # trigger validation to get filtering
     theses = form.search_results()
     paginator = Paginator(theses, 10)
     page_nr = request.GET.get("page")
@@ -1031,8 +1034,8 @@ class SciPostPasswordResetConfirmView(PasswordResetConfirmView):
 
 @login_required
 @is_contributor_user()
-def _hx_unavailability(request, pk: int=None):
-    if pk: # delete UnavaiabilityPeriod, if asked by associated Contributor
+def _hx_unavailability(request, pk: int = None):
+    if pk:  # delete UnavaiabilityPeriod, if asked by associated Contributor
         UnavailabilityPeriod.objects.filter(
             contributor=request.user.contributor,
             pk=pk,
@@ -1155,8 +1158,7 @@ def personal_page_hx_edadmin(request):
             Report.objects.accepted().filter(pdf_report="").count()
         )
         context["nr_treated_submissions_without_pdf"] = (
-            Submission.objects.treated().public(
-            ).filter(pdf_refereeing_pack="").count()
+            Submission.objects.treated().public().filter(pdf_refereeing_pack="").count()
         )
     return render(request, "scipost/personal_page/_hx_edadmin.html", context)
 
@@ -1197,8 +1199,9 @@ def personal_page_hx_submissions(request):
         .exclude(authors_false_claims=contributor)
         .count()
     )
-    context["own_submissions"] = contributor.submissions.latest(
-    ).order_by("-submission_date")
+    context["own_submissions"] = contributor.submissions.latest().order_by(
+        "-submission_date"
+    )
     return render(request, "scipost/personal_page/_hx_submissions.html", context)
 
 

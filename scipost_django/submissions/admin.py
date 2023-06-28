@@ -232,14 +232,14 @@ class SubmissionAdmin(GuardedModelAdmin):
                     "internal_plagiarism_matches",
                     "iThenticate_plagiarism_report",
                 ),
-            }
+            },
         ),
         (
             "Conflicts of interest",
             {
                 "classes": ("collapse",),
                 "fields": ("needs_conflicts_update",),
-            }
+            },
         ),
         (
             "Refereeing",

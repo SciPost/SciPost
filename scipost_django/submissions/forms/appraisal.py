@@ -12,7 +12,6 @@ from ..models import Qualification, Readiness
 
 
 class QualificationForm(forms.ModelForm):
-
     class Meta:
         model = Qualification
         fields = [
@@ -29,7 +28,9 @@ class QualificationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.fields["expertise_level"].label = "Your expertise level for this Submission"
+        self.fields[
+            "expertise_level"
+        ].label = "Your expertise level for this Submission"
         self.helper.layout = Layout(
             Field("submission"),
             Field("fellow"),
@@ -40,8 +41,11 @@ class QualificationForm(forms.ModelForm):
 class ReadinessForm(forms.ModelForm):
     choice = forms.ChoiceField(
         choices=(
-            [('', '---------'), ("yes", "Yes, let me take charge now"),] +
-            list(Readiness.STATUS_CHOICES)
+            [
+                ("", "---------"),
+                ("yes", "Yes, let me take charge now"),
+            ]
+            + list(Readiness.STATUS_CHOICES)
         ),
     )
 

@@ -20,8 +20,16 @@ def available_search_tabs(request):
     JSON info on Search tabs available for user.
     """
     tabsinfo = [
-        {"object_type": "publication", "label": "Publications", "url": "search/publications"},
-        {"object_type": "submission", "label": "Submissions", "url": "search/submissions"},
+        {
+            "object_type": "publication",
+            "label": "Publications",
+            "url": "search/publications",
+        },
+        {
+            "object_type": "submission",
+            "label": "Submissions",
+            "url": "search/submissions",
+        },
     ]
     if request.user.has_perm("scipost.can_manage_subsidies"):
         tabsinfo.append(

@@ -17,6 +17,7 @@ from .models import (
 class SubsidyPaymentInline(admin.TabularInline):
     model = SubsidyPayment
 
+
 class SubsidyAttachmentInline(admin.TabularInline):
     model = SubsidyAttachment
 

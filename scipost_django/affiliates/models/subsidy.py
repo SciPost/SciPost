@@ -17,9 +17,7 @@ class AffiliateJournalYearSubsidy(models.Model):
     A subsidy given to an AffiliateJournal in a particular year.
     """
 
-    journal = models.ForeignKey(
-        "affiliates.AffiliateJournal", on_delete=models.CASCADE
-    )
+    journal = models.ForeignKey("affiliates.AffiliateJournal", on_delete=models.CASCADE)
     organization = models.ForeignKey(
         "organizations.Organization", on_delete=models.CASCADE
     )

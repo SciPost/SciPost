@@ -27,7 +27,6 @@ def populate_profile_from_contributors(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("profiles", "0004_auto_20180930_0924"),
         ("scipost", "0016_auto_20180930_1801"),

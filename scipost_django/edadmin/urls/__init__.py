@@ -25,5 +25,4 @@ urlpatterns = [
         "monitor/",
         include("edadmin.urls.monitor", namespace="monitor"),
     ),
-
 ]

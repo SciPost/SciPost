@@ -17,7 +17,6 @@ def update_contributor_status_field(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("scipost", "0011_contributor_new_status"),
     ]

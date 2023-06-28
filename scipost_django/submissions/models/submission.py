@@ -42,20 +42,25 @@ from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 
 
 class SubmissionAuthorProfile(models.Model):
-
     submission = models.ForeignKey(
         "submissions.Submission",
         on_delete=models.CASCADE,
         related_name="author_profiles",
     )
     profile = models.ForeignKey(
-        "profiles.Profile", on_delete=models.PROTECT, blank=True, null=True,
+        "profiles.Profile",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
     )
     affiliations = models.ManyToManyField("organizations.Organization", blank=True)
     order = models.PositiveSmallIntegerField()
 
     class Meta:
-        ordering = ("submission", "order",)
+        ordering = (
+            "submission",
+            "order",
+        )
 
     def __str__(self):
         return str(self.profile)
@@ -104,7 +109,9 @@ class Submission(models.Model):
     IN_VOTING = "in_voting"
     AWAITING_DECISION = "awaiting_decision"
     ACCEPTED_IN_TARGET = "accepted_in_target"
-    ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE = "accepted_alt_puboffer_waiting"
+    ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE = (
+        "accepted_alt_puboffer_waiting"
+    )
     ACCEPTED_IN_ALTERNATIVE = "accepted_alt"
     REJECTED = "rejected"
     WITHDRAWN = "withdrawn"
@@ -157,7 +164,7 @@ class Submission(models.Model):
         ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
     )
 
-    STAGE_SLUGS = ( # for converters
+    STAGE_SLUGS = (  # for converters
         "incoming",
         "preassignment",
         "assignment",
@@ -204,35 +211,30 @@ class Submission(models.Model):
         ACCEPTED_IN_ALTERNATIVE,
     )
     STAGE_INCOMING_COMPLETED_STATUSES = (
-        STAGE_PREASSIGNMENT +
-        STAGE_ASSIGNMENT +
-        STAGE_REFEREEING_IN_PREPARATION +
-        STAGE_IN_REFEREEING +
-        STAGE_DECISIONMAKING +
-        STAGE_DECIDED
+        STAGE_PREASSIGNMENT
+        + STAGE_ASSIGNMENT
+        + STAGE_REFEREEING_IN_PREPARATION
+        + STAGE_IN_REFEREEING
+        + STAGE_DECISIONMAKING
+        + STAGE_DECIDED
     )
     STAGE_PREASSIGNMENT_COMPLETED_STATUSES = (
-        STAGE_ASSIGNMENT +
-        STAGE_REFEREEING_IN_PREPARATION +
-        STAGE_IN_REFEREEING +
-        STAGE_DECISIONMAKING +
-        STAGE_DECIDED
+        STAGE_ASSIGNMENT
+        + STAGE_REFEREEING_IN_PREPARATION
+        + STAGE_IN_REFEREEING
+        + STAGE_DECISIONMAKING
+        + STAGE_DECIDED
     )
     STAGE_ASSIGNMENT_COMPLETED_STATUSES = (
-        STAGE_REFEREEING_IN_PREPARATION +
-        STAGE_IN_REFEREEING +
-        STAGE_DECISIONMAKING +
-        STAGE_DECIDED
+        STAGE_REFEREEING_IN_PREPARATION
+        + STAGE_IN_REFEREEING
+        + STAGE_DECISIONMAKING
+        + STAGE_DECIDED
     )
     STAGE_REFEREEING_IN_PREPARATION_COMPLETED_STATUSES = (
-        STAGE_IN_REFEREEING +
-        STAGE_DECISIONMAKING +
-        STAGE_DECIDED
+        STAGE_IN_REFEREEING + STAGE_DECISIONMAKING + STAGE_DECIDED
     )
-    STAGE_IN_REFEREEING_COMPLETED_STATUSES = (
-        STAGE_DECISIONMAKING +
-        STAGE_DECIDED
-    )
+    STAGE_IN_REFEREEING_COMPLETED_STATUSES = STAGE_DECISIONMAKING + STAGE_DECIDED
 
     # Fields
     preprint = models.OneToOneField(
@@ -427,7 +429,6 @@ class Submission(models.Model):
             )
         return header
 
-
     ##########################################
     # Shortcut properties for stage checking #
     ##########################################
@@ -476,7 +477,7 @@ class Submission(models.Model):
         return self.status in self.STAGE_DECISIONMAKING
 
     @property
-    def stage_decisionmaking_completed_statuses(self): # include for completeness
+    def stage_decisionmaking_completed_statuses(self):  # include for completeness
         return self.STAGE_DECIDED
 
     @property
@@ -539,11 +540,9 @@ class Submission(models.Model):
             return "In production"
         raise StageNotDefinedError
 
-
     ###############################################
     # End shortucut properties for stage checking #
     ###############################################
-
 
     @property
     def is_latest(self):
@@ -606,30 +605,39 @@ class Submission(models.Model):
     @property
     def plagiarism_internal_tests_completed(self):
         from submissions.models import InternalPlagiarismAssessment
+
         try:
-            return (self.internal_plagiarism_assessment.passed or
-                    self.internal_plagiarism_assessment.failed)
+            return (
+                self.internal_plagiarism_assessment.passed
+                or self.internal_plagiarism_assessment.failed
+            )
         except InternalPlagiarismAssessment.DoesNotExist:
             return False
 
     @property
     def plagiarism_iThenticate_tests_completed(self):
         from submissions.models import iThenticatePlagiarismAssessment
+
         try:
-            return (self.iThenticate_plagiarism_assessment.passed or
-                    self.iThenticate_plagiarism_assessment.failed)
+            return (
+                self.iThenticate_plagiarism_assessment.passed
+                or self.iThenticate_plagiarism_assessment.failed
+            )
         except iThenticatePlagiarismAssessment.DoesNotExist:
             return False
 
     @property
     def plagiarism_tests_completed(self):
-        return (self.plagiarism_internal_tests_completed and
-                self.plagiarism_iThenticate_tests_completed)
+        return (
+            self.plagiarism_internal_tests_completed
+            and self.plagiarism_iThenticate_tests_completed
+        )
 
     @property
     def all_authors_have_matching_profiles(self):
-        return (self.author_profiles.filter(profile__isnull=False).count() ==
-                len(self.authors_as_list))
+        return self.author_profiles.filter(profile__isnull=False).count() == len(
+            self.authors_as_list
+        )
 
     @property
     def preassignment_tasks_done(self):
@@ -840,12 +848,13 @@ class Submission(models.Model):
 # using direct foreign keys instead of generic ones
 # (see https://django-guardian.readthedocs.io/en/stable/userguide/performance.html)
 
+
 class SubmissionUserObjectPermission(UserObjectPermissionBase):
     content_object = models.ForeignKey(Submission, on_delete=models.CASCADE)
 
+
 class SubmissionGroupObjectPermission(GroupObjectPermissionBase):
     content_object = models.ForeignKey(Submission, on_delete=models.CASCADE)
-
 
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):

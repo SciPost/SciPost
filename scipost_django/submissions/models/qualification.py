@@ -57,12 +57,13 @@ class Qualification(models.Model):
                 name="unique_together_submission_fellow",
             ),
         ]
-        ordering =["submission", "fellow"]
-
+        ordering = ["submission", "fellow"]
 
     def __str__(self):
-        return (f"{self.fellow}: {self.get_expertise_level_display()} "
-                f"(for {self.submission})")
+        return (
+            f"{self.fellow}: {self.get_expertise_level_display()} "
+            f"(for {self.submission})"
+        )
 
     @property
     def is_qualified(self):

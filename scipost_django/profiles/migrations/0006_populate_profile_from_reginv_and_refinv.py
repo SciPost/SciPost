@@ -63,7 +63,6 @@ def populate_profile_from_reginv(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("profiles", "0005_populate_profile_from_contributor"),
         ("invitations", "0014_registrationinvitation_profile"),

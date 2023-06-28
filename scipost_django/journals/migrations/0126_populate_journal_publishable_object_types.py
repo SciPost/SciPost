@@ -4,6 +4,7 @@ from django.db import migrations
 
 from journals.constants import PUBLISHABLE_OBJECT_TYPE_CODEBASE
 
+
 def populate_codebases(apps, schema_editor):
     Journal = apps.get_model("journals.Journal")
 
@@ -14,9 +15,8 @@ def populate_codebases(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journals', '0125_journal_publishable_object_types'),
+        ("journals", "0125_journal_publishable_object_types"),
     ]
 
     operations = [

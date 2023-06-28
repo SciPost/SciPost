@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('submissions', '0127_auto_20221204_1439'),
+        ("submissions", "0127_auto_20221204_1439"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='plagiarismassessment',
-            old_name='passed_on',
-            new_name='date_set',
+            model_name="plagiarismassessment",
+            old_name="passed_on",
+            new_name="date_set",
         ),
         migrations.AlterField(
-            model_name='plagiarismassessment',
-            name='comments_for_authors',
+            model_name="plagiarismassessment",
+            name="comments_for_authors",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='plagiarismassessment',
-            name='comments_for_edadmin',
+            model_name="plagiarismassessment",
+            name="comments_for_edadmin",
             field=models.TextField(blank=True),
         ),
     ]

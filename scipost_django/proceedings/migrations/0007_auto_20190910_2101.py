@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("proceedings", "0006_proceedings_template_latex_tgz"),
     ]

@@ -138,12 +138,12 @@ class PostForm(forms.ModelForm):
         if self.forum.meeting:
             if datetime.date.today() > self.forum.meeting.date_until:
                 self.add_error(
-                    None, # if set to "posted_on", does not show: field is hidden
+                    None,  # if set to "posted_on", does not show: field is hidden
                     "You cannot Post to a Meeting which is finished.",
                 )
             elif datetime.date.today() < self.forum.meeting.date_from:
                 self.add_error(
-                    None, # see comment above
+                    None,  # see comment above
                     "This meeting has not started yet, please come back later!",
                 )
         return timezone.now()
@@ -208,13 +208,13 @@ class MotionVoteForm(forms.Form):
     def clean(self):
         self.cleaned_data = super().clean()
         if (
-                hasattr(self.cleaned_data, "user") and
-                hasattr(self.cleaned_data, "motion") and
-                (
-                    self.cleaned_data["user"] not in
-                    self.cleaned_data["motion"].eligible_for_voting.all()
-                )
-            ):
+            hasattr(self.cleaned_data, "user")
+            and hasattr(self.cleaned_data, "motion")
+            and (
+                self.cleaned_data["user"]
+                not in self.cleaned_data["motion"].eligible_for_voting.all()
+            )
+        ):
             self.add_error("", "Not eligible to vote on this Motion")
         return self.cleaned_data
 

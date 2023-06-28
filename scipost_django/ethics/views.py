@@ -21,8 +21,8 @@ def _hx_submission_ethics(request, identifier_w_vn_nr):
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     clearance = SubmissionClearance.objects.filter(
-            profile=request.user.contributor.profile,
-            submission=submission,
+        profile=request.user.contributor.profile,
+        submission=submission,
     ).first()
     competing_interest = CompetingInterest.objects.filter(
         profile=request.user.contributor.profile,
@@ -63,7 +63,7 @@ def _hx_submission_clearance_revoke(request, identifier_w_vn_nr):
     SubmissionClearance.objects.filter(
         profile=request.user.contributor.profile,
         submission=submission,
-        asserted_by=request.user.contributor, # can only revoke own clearances
+        asserted_by=request.user.contributor,  # can only revoke own clearances
     ).delete()
     return render(
         request,
@@ -76,13 +76,14 @@ def _hx_submission_clearance_revoke(request, identifier_w_vn_nr):
 # Competing interests #
 #######################
 
+
 @login_required
 def _hx_submission_competing_interest_form(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission.objects.in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
-    initial={
+    initial = {
         "profile": request.user.contributor.profile,
         "declared_by": request.user.contributor,
     }
@@ -114,15 +115,20 @@ def _hx_submission_competing_interest_form(request, identifier_w_vn_nr):
 @user_passes_test(is_edadmin)
 def _hx_submission_competing_interest_delete(request, identifier_w_vn_nr, pk):
     submission = get_object_or_404(
-        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+        Submission,
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     competing_interest = get_object_or_404(CompetingInterest, pk=pk)
     competing_interest.affected_submissions.remove(submission)
-    #submission.fellows.add(request.user.contributor.session_fellowship(request))
-    if (competing_interest.affected_submissions.count() == 0 and
-        competing_interest.affected_publications.count() == 0):
+    # submission.fellows.add(request.user.contributor.session_fellowship(request))
+    if (
+        competing_interest.affected_submissions.count() == 0
+        and competing_interest.affected_publications.count() == 0
+    ):
         competing_interest.delete()
-    context = {"submission": submission,}
+    context = {
+        "submission": submission,
+    }
     return render(
         request,
         "submissions/pool/_submission_fellows.html",

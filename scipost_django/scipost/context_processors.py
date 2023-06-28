@@ -9,9 +9,7 @@ def roles_processor(request):
     """
     Add list of roles a User has to the context.
     """
-    context = {
-        "user_roles": []
-    }
+    context = {"user_roles": []}
     group_names = [g.name for g in Group.objects.filter(user__pk=request.user.id)]
     if "Registered Contributors" in group_names:
         context["user_roles"].append("registered_contributor")

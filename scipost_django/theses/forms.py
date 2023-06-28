@@ -147,9 +147,7 @@ class ThesisLinkSearchForm(forms.Form):
 class ThesisSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author")
     title = forms.CharField(max_length=100, label="Title", required=False)
-    abstract = forms.CharField(
-        max_length=1000, required=False, label="Abstract"
-    )
+    abstract = forms.CharField(max_length=1000, required=False, label="Abstract")
     supervisor = forms.CharField(max_length=100, required=False, label="Supervisor")
 
     def __init__(self, *args, **kwargs):
@@ -172,9 +170,7 @@ class ThesisSearchForm(forms.Form):
         if self.acad_field_slug and self.acad_field_slug != "all":
             theses = theses.filter(acad_field__slug=self.acad_field_slug)
             if self.specialty_slug and self.specialty_slug != "all":
-                theses = theses.filter(
-                    specialties__slug=self.specialty_slug
-                )
+                theses = theses.filter(specialties__slug=self.specialty_slug)
         if hasattr(self, "cleaned_data"):
             if "title" in self.cleaned_data:
                 theses = theses.filter(

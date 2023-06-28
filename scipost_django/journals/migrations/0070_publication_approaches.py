@@ -28,7 +28,6 @@ def domains_to_approaches(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0069_auto_20190911_0547"),
     ]

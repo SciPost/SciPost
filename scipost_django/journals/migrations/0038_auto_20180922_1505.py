@@ -7,7 +7,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("organizations", "0002_populate_from_partners_org"),
         ("journals", "0037_publication_pubfractions_confirmed_by_authors"),

@@ -6,31 +6,96 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('scipost', '0040_auto_20210310_2026'),
-        ('journals', '0124_journal_has_clockss'),
-        ('profiles', '0035_alter_profile_title'),
-        ('submissions', '0136_alter_submissionauthorprofile_profile'),
+        ("scipost", "0040_auto_20210310_2026"),
+        ("journals", "0124_journal_has_clockss"),
+        ("profiles", "0035_alter_profile_title"),
+        ("submissions", "0136_alter_submissionauthorprofile_profile"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CompetingInterest',
+            name="CompetingInterest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nature', models.CharField(choices=[('coauthor', 'Coauthor'), ('colleague', 'Colleague'), ('PhD_supervisor', 'PhD supervisor'), ('PhD_supervisee', 'PhD supervisee'), ('postdoc_supervisor', 'Postdoc supervisor'), ('postdoc_supervisee', 'Postdoc supervisee'), ('competitor', 'Competitor'), ('disaccord', 'Professional disaccord'), ('shared_funding', 'Involved in shared funding'), ('personal', 'Involved in a personal relationship'), ('family', 'Family ties'), ('financial', 'Financial ties'), ('other', 'Other')], max_length=32)),
-                ('date_from', models.DateField(blank=True, null=True)),
-                ('date_until', models.DateField(blank=True, null=True)),
-                ('declared_on', models.DateTimeField(default=django.utils.timezone.now)),
-                ('comments', models.TextField(blank=True)),
-                ('affected_publications', models.ManyToManyField(blank=True, related_name='competing_interests', to='journals.Publication')),
-                ('affected_submissions', models.ManyToManyField(blank=True, related_name='competing_interests', to='submissions.Submission')),
-                ('declared_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='declared_competing_interests', to='scipost.contributor')),
-                ('profile', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='competing_interests', to='profiles.profile')),
-                ('related_profile', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='related_competing_interests', to='profiles.profile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "nature",
+                    models.CharField(
+                        choices=[
+                            ("coauthor", "Coauthor"),
+                            ("colleague", "Colleague"),
+                            ("PhD_supervisor", "PhD supervisor"),
+                            ("PhD_supervisee", "PhD supervisee"),
+                            ("postdoc_supervisor", "Postdoc supervisor"),
+                            ("postdoc_supervisee", "Postdoc supervisee"),
+                            ("competitor", "Competitor"),
+                            ("disaccord", "Professional disaccord"),
+                            ("shared_funding", "Involved in shared funding"),
+                            ("personal", "Involved in a personal relationship"),
+                            ("family", "Family ties"),
+                            ("financial", "Financial ties"),
+                            ("other", "Other"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                ("date_from", models.DateField(blank=True, null=True)),
+                ("date_until", models.DateField(blank=True, null=True)),
+                (
+                    "declared_on",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                ("comments", models.TextField(blank=True)),
+                (
+                    "affected_publications",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="competing_interests",
+                        to="journals.Publication",
+                    ),
+                ),
+                (
+                    "affected_submissions",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="competing_interests",
+                        to="submissions.Submission",
+                    ),
+                ),
+                (
+                    "declared_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="declared_competing_interests",
+                        to="scipost.contributor",
+                    ),
+                ),
+                (
+                    "profile",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="competing_interests",
+                        to="profiles.profile",
+                    ),
+                ),
+                (
+                    "related_profile",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="related_competing_interests",
+                        to="profiles.profile",
+                    ),
+                ),
             ],
         ),
     ]

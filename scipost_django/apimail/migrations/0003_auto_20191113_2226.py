@@ -8,7 +8,6 @@ import scipost.storage
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("apimail", "0002_auto_20191113_1547"),
     ]

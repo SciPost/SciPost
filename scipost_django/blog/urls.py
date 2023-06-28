@@ -12,7 +12,7 @@ urlpatterns = [
     path(
         "",
         views.blog_index,
-        name='blog_index',
+        name="blog_index",
     ),
     path(
         "_hx_posts",

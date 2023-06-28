@@ -130,16 +130,12 @@ class MailEngine:
             "%s <%s>"
             % (
                 self.mail_data.get("from_name", "SciPost"),
-                self.mail_data.get(
-                    "from_email", "noreply@%s" % get_current_domain()
-                ),
+                self.mail_data.get("from_email", "noreply@%s" % get_current_domain()),
             ),
             self.mail_data["recipient_list"],
             bcc=self.mail_data["bcc"],
             reply_to=[
-                self.mail_data.get(
-                    "from_email", "noreply@%s" % get_current_domain()
-                )
+                self.mail_data.get("from_email", "noreply@%s" % get_current_domain())
             ],
             headers={
                 "delayed_processing": not self._processed_template,

@@ -18,7 +18,6 @@ def create_markup_queue(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("helpdesk", "0010_auto_20190620_0817"),
     ]

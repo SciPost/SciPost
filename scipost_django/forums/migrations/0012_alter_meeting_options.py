@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('forums', '0011_alter_motion_accepted'),
+        ("forums", "0011_alter_motion_accepted"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='meeting',
-            options={'ordering': ['-date_until']},
+            name="meeting",
+            options={"ordering": ["-date_until"]},
         ),
     ]

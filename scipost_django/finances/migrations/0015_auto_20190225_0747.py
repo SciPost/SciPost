@@ -8,7 +8,6 @@ import scipost.storage
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("finances", "0014_subsidy_renewable"),
     ]

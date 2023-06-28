@@ -325,19 +325,13 @@ class VetCommentaryForm(forms.Form):
 
 class CommentarySearchForm(forms.Form):
     author = forms.CharField(
-        max_length=100,
-        required=False,
-        label="On publication with author(s)"
+        max_length=100, required=False, label="On publication with author(s)"
     )
     title = forms.CharField(
-        max_length=100,
-        required=False,
-        label="On publication with title"
+        max_length=100, required=False, label="On publication with title"
     )
     abstract = forms.CharField(
-        max_length=1000,
-        required=False,
-        label="On publication with abstract"
+        max_length=1000, required=False, label="On publication with abstract"
     )
 
     def __init__(self, *args, **kwargs):

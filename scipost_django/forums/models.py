@@ -103,7 +103,7 @@ class Forum(models.Model):
     def nr_posts(self):
         """Recursively counts the number of motions and posts in this Forum."""
         nr = 0
-        posts = self.posts.all() # gathers all Posts (including those with a Motion)
+        posts = self.posts.all()  # gathers all Posts (including those with a Motion)
         if posts:
             nr += posts.count()
             for post in self.posts.all():

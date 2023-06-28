@@ -14,7 +14,6 @@ def update_issue_slugs(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0043_auto_20180927_2014"),
     ]

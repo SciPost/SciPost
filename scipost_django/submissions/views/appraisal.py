@@ -17,7 +17,7 @@ def _hx_appraisal(request, identifier_w_vn_nr=None):
         Submission.objects.in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
-    context = { "submission": submission}
+    context = {"submission": submission}
     fellowship = request.user.contributor.session_fellowship(request)
     return render(
         request,
@@ -81,12 +81,14 @@ def _hx_readiness_form(request, identifier_w_vn_nr=None):
         form = ReadinessForm(request.POST, instance=instance)
         if form.is_valid():
             if form.cleaned_data["choice"] == "yes":
-               response = HttpResponse()
-               response["HX-Redirect"] = reverse(
-                   "submissions:pool:editorial_assignment",
-                   kwargs={"identifier_w_vn_nr": identifier_w_vn_nr,}
-               )
-               return response
+                response = HttpResponse()
+                response["HX-Redirect"] = reverse(
+                    "submissions:pool:editorial_assignment",
+                    kwargs={
+                        "identifier_w_vn_nr": identifier_w_vn_nr,
+                    },
+                )
+                return response
             form.save()
             response = render(
                 request,

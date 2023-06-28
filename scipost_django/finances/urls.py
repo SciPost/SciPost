@@ -30,56 +30,66 @@ urlpatterns = [
     # Subsidies
     path(
         "subsidies/",
-        include([
-            path(
-                "_hx_subsidy_list",
-                views._hx_subsidy_list,
-                name="_hx_subsidy_list",
-            ),
-            path(
-                "<int:subsidy_id>/",
-                include([
-                    path(
-                        "_hx_subsidy_finadmin_details",
-                        views._hx_subsidy_finadmin_details,
-                        name="_hx_subsidy_finadmin_details",
+        include(
+            [
+                path(
+                    "_hx_subsidy_list",
+                    views._hx_subsidy_list,
+                    name="_hx_subsidy_list",
+                ),
+                path(
+                    "<int:subsidy_id>/",
+                    include(
+                        [
+                            path(
+                                "_hx_subsidy_finadmin_details",
+                                views._hx_subsidy_finadmin_details,
+                                name="_hx_subsidy_finadmin_details",
+                            ),
+                            path(
+                                "payment/",
+                                include(
+                                    [
+                                        path(
+                                            "button",
+                                            views._hx_subsidypayment_button,
+                                            name="_hx_subsidypayment_button",
+                                        ),
+                                        path(
+                                            "form",
+                                            views._hx_subsidypayment_form,
+                                            name="_hx_subsidypayment_form",
+                                        ),
+                                        path(
+                                            "<int:subsidypayment_id>",
+                                            include(
+                                                [
+                                                    path(
+                                                        "",
+                                                        views._hx_subsidypayment_form,
+                                                        name="_hx_subsidypayment_form",
+                                                    ),
+                                                    path(
+                                                        "delete",
+                                                        views._hx_subsidypayment_delete,
+                                                        name="_hx_subsidypayment_delete",
+                                                    ),
+                                                ]
+                                            ),
+                                        ),
+                                    ]
+                                ),
+                            ),
+                        ]
                     ),
-                    path(
-                        "payment/",
-                        include([
-                            path(
-                                "button",
-                                views._hx_subsidypayment_button,
-                                name="_hx_subsidypayment_button",
-                            ),
-                            path(
-                                "form",
-                                views._hx_subsidypayment_form,
-                                name="_hx_subsidypayment_form",
-                            ),
-                            path(
-                                "<int:subsidypayment_id>",
-                                include([
-                                    path(
-                                        "",
-                                        views._hx_subsidypayment_form,
-                                        name="_hx_subsidypayment_form",
-                                    ),
-                                    path(
-                                        "delete",
-                                        views._hx_subsidypayment_delete,
-                                        name="_hx_subsidypayment_delete",
-                                    ),
-                                ]),
-                            ),
-                        ]),
-                    ),
-                ]),
-            ),
-        ]),
+                ),
+            ]
+        ),
     ),
     path("subsidies/", views.subsidy_list, name="subsidies"),
-    path("subsidies/old", views.SubsidyListView.as_view(), name="subsidies_old"), #deprecated
+    path(
+        "subsidies/old", views.SubsidyListView.as_view(), name="subsidies_old"
+    ),  # deprecated
     path("subsidies/add/", views.SubsidyCreateView.as_view(), name="subsidy_create"),
     path(
         "subsidies/<int:pk>/update/",
@@ -125,5 +135,9 @@ urlpatterns = [
     path("timesheets/mine", views.personal_timesheet, name="personal_timesheet"),
     path("logs/<slug:slug>/delete", views._hx_worklog_delete, name="log_delete"),
     # PeriodicReports
-    path("periodicreport/<int:pk>/file", views.periodicreport_file, name="periodicreport_file"),
+    path(
+        "periodicreport/<int:pk>/file",
+        views.periodicreport_file,
+        name="periodicreport_file",
+    ),
 ]

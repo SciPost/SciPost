@@ -4,17 +4,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('colleges', '0035_fellowshipnominationvote_unique_together_voting_round_fellow'),
+        (
+            "colleges",
+            "0035_fellowshipnominationvote_unique_together_voting_round_fellow",
+        ),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='fellowshipnominationvote',
-            name='comments',
+            model_name="fellowshipnominationvote",
+            name="comments",
         ),
         migrations.DeleteModel(
-            name='FellowshipNominationEvent',
+            name="FellowshipNominationEvent",
         ),
     ]

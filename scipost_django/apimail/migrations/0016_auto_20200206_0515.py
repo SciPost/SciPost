@@ -9,7 +9,6 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("apimail", "0015_composedmessageattachment"),
     ]

@@ -19,17 +19,19 @@ urlpatterns = [
     ),
     path(
         "<identifier:identifier_w_vn_nr>/",
-        include([
-            path(
-                "details/contents",
-                base._hx_submission_details_contents,
-                name="_hx_submission_details_contents",
-            ),
-            path(
-                "tab/edadmin",
-                base._hx_submission_tab_contents_edadmin,
-                name="_hx_submission_tab_contents_edadmin",
-            ),
-        ]),
+        include(
+            [
+                path(
+                    "details/contents",
+                    base._hx_submission_details_contents,
+                    name="_hx_submission_details_contents",
+                ),
+                path(
+                    "tab/edadmin",
+                    base._hx_submission_tab_contents_edadmin,
+                    name="_hx_submission_tab_contents_edadmin",
+                ),
+            ]
+        ),
     ),
 ]

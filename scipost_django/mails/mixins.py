@@ -58,9 +58,7 @@ class MailUtilsMixin:
             "to_address": kwargs.pop("to", ""),
             "bcc_to": kwargs.pop("bcc", ""),
             "from_address_name": kwargs.pop("from_name", "SciPost"),
-            "from_address": kwargs.pop(
-                "from", "no-reply@%s" % get_current_domain()
-            ),
+            "from_address": kwargs.pop("from", "no-reply@%s" % get_current_domain()),
         }
 
         # Gather meta data
