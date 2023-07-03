@@ -21,7 +21,11 @@ from guardian.shortcuts import assign_perm, remove_perm
 
 from finances.forms import WorkLogForm
 from mails.views import MailEditorSubviewHTMX
-from scipost.views import HTMXPermissionsDenied, HTMXResponse
+from scipost.permissions import (
+    HTMXPermissionsDenied,
+    HTMXResponse,
+    permission_required_htmx,
+)
 
 from . import constants
 from .models import (
@@ -44,7 +48,7 @@ from .forms import (
     ProofsDecisionForm,
     AssignInvitationsOfficerForm,
 )
-from .permissions import is_production_user, permission_required_htmx
+from .permissions import is_production_user
 from .utils import proofs_slug_to_id, ProductionUtils
 
 

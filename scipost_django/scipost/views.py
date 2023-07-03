@@ -42,6 +42,7 @@ from django.views.static import serve
 
 from dal import autocomplete
 from guardian.decorators import permission_required
+from scipost.permissions import permission_required_htmx, HTMXResponse
 
 from .constants import SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR
 from .decorators import has_contributor, is_contributor_user
@@ -180,33 +181,6 @@ def trigger_error(request):
 
 def _hx_messages(request):
     return render(request, "scipost/_hx_messages.html")
-
-
-####################
-# HTMX inline alerts
-####################
-
-
-class HTMXResponse(HttpResponse):
-    tag = "primary"
-    message = ""
-    css_class = ""
-
-    def __init__(self, *args, **kwargs):
-        tag = kwargs.pop("tag", self.tag)
-        message = args[0] if args else kwargs.pop("message", self.message)
-        css_class = kwargs.pop("css_class", self.css_class)
-
-        alert_html = f"""<div class="text-{tag} border border-{tag} p-3 {css_class}">
-                {message}
-            </div>"""
-
-        super().__init__(alert_html, *args, **kwargs)
-
-
-class HTMXPermissionsDenied(HTMXResponse):
-    tag = "danger"
-    message = "You do not have the required permissions."
 
 
 #############
