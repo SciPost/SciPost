@@ -14,6 +14,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
 from django.http import Http404
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.dates import MONTHS
 
@@ -643,11 +644,54 @@ class UnavailabilityPeriodForm(forms.ModelForm):
 
 class ContributorMergeForm(forms.Form):
     to_merge = ModelChoiceFieldwithid(
-        queryset=Contributor.objects.all(), empty_label=None
+        queryset=Contributor.objects.all(),
+        empty_label=None,
+        label="Merge this contributor",
     )
     to_merge_into = ModelChoiceFieldwithid(
-        queryset=Contributor.objects.all(), empty_label=None
+        queryset=Contributor.objects.all(),
+        empty_label=None,
+        label="Into this contributor",
     )
+
+    def __init__(self, *args, **kwargs):
+        queryset = kwargs.pop("queryset", None)
+        super().__init__(*args, **kwargs)
+        if queryset:
+            self.fields["to_merge"].queryset = queryset
+            self.fields["to_merge_into"].queryset = queryset
+
+        self.helper = FormHelper()
+        self.helper.attrs = {
+            "hx-target": "#merge-form-info",
+            "hx-get": reverse(
+                "scipost:_hx_contributor_comparison",
+            ),
+            "hx-trigger": "intersect once, change from:select",
+        }
+        self.layout = Layout(
+            Div(
+                Div(
+                    Field("to_merge"),
+                    css_id="to_merge",
+                    css_class="col-12 col-md",
+                ),
+                Div(
+                    Field("to_merge_into"),
+                    css_id="to_merge_into",
+                    css_class="col-12 col-md",
+                ),
+                css_class="row mb-0",
+            ),
+            Div(
+                Div(
+                    css_class="col-12",
+                    css_id="merge-form-info",
+                ),
+                css_class="row mb-0",
+            ),
+        )
+        self.helper.layout = self.layout
 
     def clean(self):
         data = super().clean()

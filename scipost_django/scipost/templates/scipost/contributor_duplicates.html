@@ -1,0 +1,25 @@
+{% extends 'profiles/base.html' %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Contributor duplicates</span>
+{% endblock %}
+
+{% load scipost_extras %}
+
+{% block pagetitle %}
+  : Contributor duplicates
+{% endblock pagetitle %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Potentially duplicate Contributors</h1>
+
+      <div hx-trigger="intersect once, htmx:trigger from:body target:.btn delay:1000"
+           hx-get="{% url 'scipost:_hx_contributor_duplicate_merger' %}?kind={{ group_by }}"></div>
+
+    </div>
+  </div>
+
+{% endblock content %}
