@@ -18,7 +18,6 @@ from django.urls import reverse
 from journals.models import Journal
 from markup.widgets import TextareaWithPreview
 from proceedings.models import Proceedings
-from proceedings.forms import ProceedingsMultipleChoiceField
 from scipost.fields import UserModelChoiceField
 
 from . import constants
@@ -285,7 +284,7 @@ class ProductionStreamSearchForm(forms.Form):
         queryset=Journal.objects.active(),
         required=False,
     )
-    proceedings = ProceedingsMultipleChoiceField(
+    proceedings = forms.ModelMultipleChoiceField(
         queryset=Proceedings.objects.order_by("-submissions_close"),
         required=False,
     )
