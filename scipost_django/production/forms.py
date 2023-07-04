@@ -6,8 +6,8 @@ import datetime
 
 from django import forms
 from django.contrib.auth import get_user_model
-from django.db.models import Max
-from django.db.models.functions import Greatest
+from django.db.models import Max, Value, Q
+from django.db.models.functions import Greatest, Coalesce, NullIf
 from django.contrib.sessions.backends.db import SessionStore
 
 from crispy_forms.helper import FormHelper
@@ -280,36 +280,59 @@ class ProofsDecisionForm(forms.ModelForm):
 
 
 class ProductionStreamSearchForm(forms.Form):
-    accepted_in = forms.ModelMultipleChoiceField(
-        queryset=Journal.objects.active(),
-        required=False,
-    )
-    proceedings = forms.ModelMultipleChoiceField(
-        queryset=Proceedings.objects.order_by("-submissions_close"),
-        required=False,
-    )
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=512, required=False)
     identifier = forms.CharField(max_length=128, required=False)
-    officer = forms.ModelChoiceField(
-        queryset=ProductionUser.objects.active().filter(
-            user__groups__name="Production Officers"
-        ),
+
+    all_streams = ProductionStream.objects.ongoing()
+    journal = forms.MultipleChoiceField(
+        choices=Journal.objects.active()
+        .filter(
+            id__in=all_streams.values_list(
+                "submission__editorialdecision__for_journal", flat=True
+            )
+        )
+        .order_by("name")
+        .values_list("id", "name"),
         required=False,
-        empty_label="Any",
     )
-    supervisor = forms.ModelChoiceField(
-        queryset=ProductionUser.objects.active().filter(
-            user__groups__name="Production Supervisor"
-        ),
+    proceedings = forms.MultipleChoiceField(
+        choices=Proceedings.objects.all()
+        .filter(id__in=all_streams.values_list("submission__proceedings", flat=True))
+        .order_by("-submissions_close")
+        # Short name is `event_suffix` if set, otherwise `event_name`
+        .annotate(short_name=Coalesce(NullIf("event_suffix", Value("")), "event_name"))
+        .values_list("id", "short_name")
+        .distinct(),
         required=False,
-        empty_label="Any",
+    )
+    officer = forms.MultipleChoiceField(
+        choices=[(0, "Unassigned")]
+        + [
+            (prod_user.id, str(prod_user))
+            for prod_user in ProductionUser.objects.active()
+            .filter(id__in=all_streams.values_list("officer", flat=True))
+            .order_by("-user__id")
+            .distinct()
+        ],
+        required=False,
+    )
+    supervisor = forms.MultipleChoiceField(
+        choices=[(0, "Unassigned")]
+        + [
+            (prod_user.id, str(prod_user))
+            for prod_user in ProductionUser.objects.active()
+            .filter(id__in=all_streams.values_list("supervisor", flat=True))
+            .order_by("-user__id")
+            .distinct()
+        ],
+        required=False,
     )
     status = forms.MultipleChoiceField(
         # Use short status names from their internal (code) name
         choices=[
             (status_code_name, status_code_name.replace("_", " ").title())
-            for status_code_name, _ in constants.PRODUCTION_STREAM_STATUS
+            for status_code_name, _ in constants.PRODUCTION_STREAM_STATUS[:-2]
         ],
         required=False,
     )
@@ -352,34 +375,34 @@ class ProductionStreamSearchForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(FloatingField("identifier"), css_class="col-md-3 col-4"),
-                Div(FloatingField("author"), css_class="col-md-3 col-8"),
-                Div(FloatingField("title"), css_class="col-md-6"),
+                Div(
+                    Div(
+                        Div(FloatingField("identifier"), css_class="col-4"),
+                        Div(FloatingField("author"), css_class="col-8"),
+                        Div(FloatingField("title"), css_class="col-12"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col-12 col-md-8",
+                ),
+                Div(
+                    Div(
+                        Div(FloatingField("orderby"), css_class="col-6 col-md-12"),
+                        Div(FloatingField("ordering"), css_class="col-6 col-md-12"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col-12 col-md-4",
+                ),
                 css_class="row mb-0 mt-2",
             ),
             Div(
+                Div(Field("journal", size=10), css_class="col-6 col-md-4 col-lg"),
                 Div(
-                    Div(
-                        Div(Field("accepted_in", size=5), css_class="col-sm-8"),
-                        Div(Field("proceedings", size=5), css_class="col-sm-4"),
-                        css_class="row mb-0",
-                    ),
-                    Div(
-                        Div(Field("supervisor"), css_class="col-6"),
-                        Div(Field("officer"), css_class="col-6"),
-                        css_class="row mb-0",
-                    ),
-                    Div(
-                        Div(Field("orderby"), css_class="col-6"),
-                        Div(Field("ordering"), css_class="col-6"),
-                        css_class="row mb-0",
-                    ),
-                    css_class="col-sm-9",
+                    Field("proceedings", size=10),
+                    css_class="col-6 col-md-8 col-lg d-none d-md-block",
                 ),
-                Div(
-                    Field("status", size=len(constants.PRODUCTION_STREAM_STATUS)),
-                    css_class="col-sm-3",
-                ),
+                Div(Field("status", size=10), css_class="col-6 col-md-4 col-lg"),
+                Div(Field("supervisor", size=10), css_class="col-6 col-md-4 col-lg"),
+                Div(Field("officer", size=10), css_class="col-6 col-md-4 col-lg"),
                 css_class="row mb-0",
             ),
         )
@@ -392,23 +415,6 @@ class ProductionStreamSearchForm(forms.Form):
             for key in self.cleaned_data:
                 session[key] = self.cleaned_data.get(key)
 
-            session["accepted_in"] = (
-                [journal.id for journal in session.get("accepted_in")]
-                if (session.get("accepted_in"))
-                else []
-            )
-            session["proceedings"] = (
-                [proceedings.id for proceedings in session.get("proceedings")]
-                if (session.get("proceedings"))
-                else []
-            )
-            session["officer"] = (
-                officer.id if (officer := session.get("officer")) else None
-            )
-            session["supervisor"] = (
-                supervisor.id if (supervisor := session.get("supervisor")) else None
-            )
-
             session.save()
 
         streams = ProductionStream.objects.ongoing()
@@ -416,13 +422,6 @@ class ProductionStreamSearchForm(forms.Form):
         streams = streams.annotate(
             latest_activity_annot=Greatest(Max("events__noted_on"), "opened", "closed")
         )
-
-        if accepted_in := self.cleaned_data.get("accepted_in"):
-            streams = streams.filter(
-                submission__editorialdecision__for_journal__in=accepted_in,
-            )
-        if proceedings := self.cleaned_data.get("proceedings"):
-            streams = streams.filter(submission__proceedings__in=proceedings)
 
         if identifier := self.cleaned_data.get("identifier"):
             streams = streams.filter(
@@ -433,12 +432,31 @@ class ProductionStreamSearchForm(forms.Form):
         if title := self.cleaned_data.get("title"):
             streams = streams.filter(submission__title__icontains=title)
 
-        if officer := self.cleaned_data.get("officer"):
-            streams = streams.filter(officer=officer)
-        if supervisor := self.cleaned_data.get("supervisor"):
-            streams = streams.filter(supervisor=supervisor)
-        if status := self.cleaned_data.get("status"):
-            streams = streams.filter(status__in=status)
+        def is_in_or_null(queryset, key, value, implicit_all=True):
+            """
+            Filter a queryset by a list of values. If the list contains a 0, then
+            also include objects where the key is null. If the list is empty, then
+            include all objects if implicit_all is True.
+            """
+            value = self.cleaned_data.get(value)
+            has_unassigned = "0" in value
+            is_unassigned = Q(**{key + "__isnull": True})
+            is_in_values = Q(**{key + "__in": list(filter(lambda x: x != 0, value))})
+
+            if has_unassigned:
+                return queryset.filter(is_unassigned | is_in_values)
+            elif implicit_all and not value:
+                return queryset
+            else:
+                return queryset.filter(is_in_values)
+
+        streams = is_in_or_null(
+            streams, "submission__editorialdecision__for_journal", "journal"
+        )
+        streams = is_in_or_null(streams, "submission__proceedings", "proceedings")
+        streams = is_in_or_null(streams, "officer", "officer")
+        streams = is_in_or_null(streams, "supervisor", "supervisor")
+        streams = is_in_or_null(streams, "status", "status")
 
         if not self.user.has_perm("scipost.can_view_all_production_streams"):
             # Restrict stream queryset if user is not supervisor
