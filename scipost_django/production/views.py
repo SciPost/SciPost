@@ -1481,6 +1481,22 @@ def _hx_productionstream_summary_assignees_status(request, productionstream_id):
     )
 
 
+def _hx_productionstream_search_form(request, filter_set: str):
+    productionstream_search_form = ProductionStreamSearchForm(
+        user=request.user,
+        session_key=request.session.session_key,
+    )
+
+    if filter_set == "empty":
+        productionstream_search_form.apply_filter_set({}, none_on_empty=True)
+    # TODO: add more filter sets saved in the session of the user
+
+    context = {
+        "form": productionstream_search_form,
+    }
+    return render(request, "production/_hx_productionstream_search_form.html", context)
+
+
 def _hx_event_list(request, productionstream_id):
     productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
 

@@ -28,8 +28,8 @@
     <summary class="card-header fs-6 d-inline-flex align-items-center">
       Search / Filter / Bulk Actions
       <div class="d-none d-sm-inline-flex ms-auto align-items-center">
+ 
         <div id="indicator-search-productionstreams" class="htmx-indicator">
-	
           <button class="btn btn-warning text-white d-none d-md-block me-2"
                   type="button"
                   disabled>
@@ -38,10 +38,14 @@
             <div class="spinner-grow spinner-grow-sm ms-2"
                  role="status"
                  aria-hidden="true"></div>
- 
           </button>
         </div>
 
+        <button class="btn btn-outline-secondary me-2"
+                type="button"
+                hx-get="{% url 'production:_hx_productionstream_search_form' filter_set="empty" %}"
+                hx-target="#productionstream-search-form-container">Clear Filters</button>
+ 
         <a id="refresh-button" class="m-2 btn btn-primary">
           {% include "bi/arrow-clockwise.html" %}
         &nbsp;Refresh</a>
@@ -49,13 +53,9 @@
 
     </summary>
     <div class="card-body">
-      <form hx-post="{% url 'production:_hx_productionstream_list' %}"
-            hx-trigger="load, keyup delay:500ms, change, click from:#refresh-button"
-            hx-target="#search-productionstreams-results"
-            hx-indicator="#indicator-search-productionstreams">
-	
-        <div id="search-productionstreams-form">{% crispy search_productionstreams_form %}</div>
-      </form>
+      <div id="productionstream-search-form-container">
+        {% include 'production/_hx_productionstream_search_form.html' with form=search_productionstreams_form %}
+      </div>
 
       {% comment %} Bulk Action buttons {% endcomment %}
 

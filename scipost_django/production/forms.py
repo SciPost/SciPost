@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from typing import Dict
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -406,6 +407,17 @@ class ProductionStreamSearchForm(forms.Form):
                 css_class="row mb-0",
             ),
         )
+
+    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
+        # Apply the filter set to the form
+        for key in self.fields:
+            if key in filters:
+                self.fields[key].initial = filters[key]
+            elif none_on_empty:
+                if isinstance(self.fields[key], forms.MultipleChoiceField):
+                    self.fields[key].initial = []
+                else:
+                    self.fields[key].initial = None
 
     def search_results(self):
         # Save the form data to the session
