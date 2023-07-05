@@ -9,17 +9,62 @@ from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.template import loader
 
-from .constants import CHARACTER_ALTERNATIVES, CHARACTER_UNACCENTED
+from .constants import CHARACTER_ALTERNATIVES, CHARACTER_LATINISATIONS
+
+import unicodedata
 
 
-def unaccent(text):
+def unaccent(text: str) -> str:
     """
-    Replace accented characters by unaccented ones.
+    Remove accented characters in the given string (e.g. é -> e),
+    with the exception of the German umlauts (e.g. ö -> oe).
     """
-    unaccented = text
-    for key, val in CHARACTER_UNACCENTED.items():
-        unaccented = unaccented.replace(key, val)
-    return unaccented
+    UMLAUT = "\u0308"
+
+    unaccented_text = ""
+    for char in unicodedata.normalize("NFD", text):
+        char_category = unicodedata.category(char)
+
+        if char_category != "Mn":
+            unaccented_text += char
+        elif char == UMLAUT:
+            unaccented_text += "e"
+
+    return unaccented_text
+
+
+def latinise(text: str) -> str:
+    """
+    Convert accented characters in the given string to their
+    latinised equivalents / lookalikes (e.g. ö -> o).
+    """
+    latinised_text = ""
+    for char in unicodedata.normalize("NFD", text):
+        char_category = unicodedata.category(char)
+
+        translated_char = char
+        is_latin = ord(char) < 128
+
+        # Keep spaces and dashes
+        if char in [" ", "-", "–"]:
+            pass
+        # Remove apostrophes and parentheses
+        elif char in ["'", "’", "(", ")"]:
+            translated_char = ""
+        # Translate only letters, symbols and punctuation
+        # skipping numbers and other characters (e.g. diacritics)
+        elif char_category[0] in ["L", "S", "P"] and not is_latin:
+            translated_char = CHARACTER_LATINISATIONS.get(char, "")
+
+        # Remove everything not in the ASCII range
+        translated_char = translated_char.encode("ascii", "ignore").decode("utf-8")
+
+        latinised_text += translated_char
+
+    # Remove multiple spaces
+    latinised_text = " ".join(latinised_text.split())
+
+    return latinised_text
 
 
 def alternative_spellings(text):
