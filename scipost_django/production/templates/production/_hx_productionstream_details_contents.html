@@ -176,7 +176,7 @@
                 <div class="row m-0 d-none-empty">
                   <button class="btn btn-warning text-white"
                           hx-get="{% url 'production:mark_as_completed' stream_id=productionstream.id %}"
-                          {% if stream.status != 'published' %}hx-confirm="Are you sure you want to mark this unpublished stream as completed?"{% endif %}
+                          {% if productionstream.status != 'published' %}hx-confirm="Are you sure you want to mark this unpublished stream as completed?"{% endif %}
                           hx-target="#productionstream-{{ productionstream.id }}-details">
                     Mark this stream as completed
                   </button>
@@ -184,7 +184,7 @@
               </div>
             {% endif %}
  
-            {% if perms.scipost.can_draft_publication and stream.status == 'accepted' %}
+            {% if perms.scipost.can_draft_publication and productionstream.status == 'accepted' %}
               <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
                 <div class="row m-0 d-none-empty">
                   <a class="btn btn-primary text-white"
