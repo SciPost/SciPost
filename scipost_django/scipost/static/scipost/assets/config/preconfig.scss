@@ -202,15 +202,6 @@ $theme-colors: (
 $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
 
 
-// Browser specific fixes
-// Select summary in details with list-style: none and remove triangle for safari
-.summary-unstyled {
-  list-style: none;
-  &::-webkit-details-marker {
-    display: none;
-  }
-}
-
 // Utilities for common display issues
 // Hide div
 .d-none-empty:empty {
@@ -220,4 +211,36 @@ $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
 .checkbox-lg {
   width: 1.5em !important;
   height: 1.5em !important;
+}
+
+summary {
+  // Remove triangle for webkit browsers causing problems with flexbox
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  // Remove all list styles
+  &.list-none {
+    list-style: none;
+  }
+  
+  // List triangle for summary element (necessary with display: flex)
+  &.list-triangle {
+    position: relative;
+    padding-left: 2em !important;
+
+    // Styling the equilateral triangle
+    &::before {
+      content: "▶";
+      position: absolute;
+      left: 0.75em;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  }
+}
+
+// Rotate the equilateral triangle when summary is open
+details[open] summary.list-triangle::before {
+  content: "▼";
 }
