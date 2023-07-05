@@ -77,6 +77,8 @@
                 <br>
                 <div class="d-inline-flex">
                     <a href="{{ productionstream.submission.get_absolute_url }}">Submission</a>
+                    &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
+                    <a href="{% url 'production:stream' stream_id=productionstream.id %}">Stream</a>
                     {% if perms.scipost.can_oversee_refereeing %}
                         &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
                         <a href="{% url 'submissions:editorial_page' productionstream.submission.preprint.identifier_w_vn_nr %}">Editorial</a>
