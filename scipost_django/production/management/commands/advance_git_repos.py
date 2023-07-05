@@ -42,7 +42,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             "--id",
-            type=int,
+            type=str,
             required=False,
             help="The submission preprint identifier to handle a specific submission, leave blank to handle all",
         )

@@ -15,6 +15,8 @@ from django.db.models import Value
 from django.db.models.functions import Concat
 from django.conf import settings
 
+from common.utils import latinise
+
 from .constants import (
     PRODUCTION_STREAM_STATUS,
     PRODUCTION_STREAM_INITIATED,
@@ -312,8 +314,11 @@ class ProofsRepository(models.Model):
             first_author_last_name = first_author_str.split(" ")[-1]
         else:
             first_author_last_name = first_author_profile.last_name
-            # Keep only the last of the last names
-            first_author_last_name = first_author_last_name.split(" ")[-1]
+
+        # Remove accents from the last name to avoid encoding issues
+        # and join multiple last names into one
+        first_author_last_name = latinise(first_author_last_name).strip()
+        first_author_last_name = first_author_last_name.replace(" ", "-")
 
         return "{preprint_id}_{last_name}".format(
             preprint_id=self.stream.submission.preprint.identifier_w_vn_nr,
