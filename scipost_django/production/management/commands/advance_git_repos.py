@@ -13,6 +13,7 @@ from common.utils import get_current_domain
 from gitlab import Gitlab
 from gitlab.v4.objects import Group, Project
 from gitlab.exceptions import GitlabGetError
+from gitlab.const import AccessLevel
 
 import arxiv
 import requests
@@ -194,6 +195,19 @@ class Command(BaseCommand):
                 "branch": "main",
                 "commit_message": "copy pure templates",
                 "actions": base_actions + journal_actions,
+            }
+        )
+
+        # Allow Developers to push to the protected "main" branch
+        # Protected branches lay on top of the branches. Deleting and recreating them is
+        # the only way to change their settings and does not affect the branches themselves
+        project.protectedbranches.delete("main")
+        project.protectedbranches.create(
+            {
+                "name": "main",
+                "merge_access_level": AccessLevel.MAINTAINER,
+                "push_access_level": AccessLevel.DEVELOPER,
+                "allow_force_push": False,
             }
         )
 
