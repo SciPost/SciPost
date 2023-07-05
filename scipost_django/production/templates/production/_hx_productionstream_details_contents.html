@@ -4,11 +4,11 @@
 
 {% get_obj_perms request.user for productionstream as "sub_perms" %}
 
-<div class="row">
+<div class="row mb-0">
   {% if "can_work_for_stream" in sub_perms or perms.scipost.can_assign_production_supervisor %}
     <div class="col-12 col-md d-flex flex-column">
  
-      <div class="accordion px-2 mb-2"
+      <div class="accordion"
            id="productionstream-{{ productionstream.id }}-actions-accordion">
         <h3>Actions</h3>
 
@@ -170,7 +170,7 @@
       {% if perms.scipost.can_draft_publication or perms.scipost.can_publish_accepted_submission %}
         <div class="mb-2 mb-md-0 mt-md-auto px-2">
  
-          <div class="row mb-0 g-2">
+          <div class="row mb-0 mt-2 g-2">
             {% if perms.scipost.can_publish_accepted_submission %}
               <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
                 <div class="row m-0 d-none-empty">
@@ -202,7 +202,7 @@
   </div>
 
   <div id="productionstream-{{ productionstream.id }}-event-container"
-       class="col-12 col-md d-flex flex-column px-3">
+       class="col-12 col-md d-flex flex-column">
     {% comment %} This might be better to refactor with an OOB response on each event addition {% endcomment %}
     <h3>Events</h3>
     <div id="productionstream-{{ productionstream.id }}-event-list"

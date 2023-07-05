@@ -6,7 +6,7 @@
 
 
   <div id="productionstream-{{ productionstream.id }}-details-contents"
-       class="m-2 p-2 bg-white"
+       class="p-2 mt-2 bg-white"
        hx-get="{% url 'production:_hx_productionstream_details_contents' productionstream_id=productionstream.id %}"
        hx-trigger="toggle once from:#productionstream-{{ productionstream.id }}-details"
        hx-indicator="#indicator-productionstream-{{ productionstream.id }}-details-contents"></div>

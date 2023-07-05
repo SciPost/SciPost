@@ -991,7 +991,7 @@ def mark_as_completed(request, stream_id):
     )
 
     return HttpResponse(
-        r"""<summary class="text-white bg-success summary-unstyled p-3">
+        r"""<summary class="text-white bg-success p-3">
                 Production Stream has been marked as completed.
             </summary>"""
     )
