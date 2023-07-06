@@ -1574,10 +1574,16 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
                         "can_work_for_stream", old_officer.user, productionstream
                     )
 
-                # Temp fix.
-                # TODO: Implement proper email
-                ProductionUtils.load({"request": request, "stream": productionstream})
-                ProductionUtils.email_assigned_production_officer()
+            # Temp fix.
+            # TODO: Implement proper email
+            ProductionUtils.load(
+                {
+                    "request": request,
+                    "officer": officer,
+                    "streams": form.productionstreams,
+                }
+            )
+            ProductionUtils.email_assigned_production_officer_bulk()
 
             messages.success(
                 request,
@@ -1626,10 +1632,16 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
                     productionstream,
                 )
 
-            # Temp fix.
-            # TODO: Implement proper email
-            ProductionUtils.load({"request": request, "stream": productionstream})
-            ProductionUtils.email_assigned_supervisor()
+        # Temp fix.
+        # TODO: Implement proper email
+        ProductionUtils.load(
+            {
+                "request": request,
+                "supervisor": supervisor,
+                "streams": form.productionstreams,
+            }
+        )
+        ProductionUtils.email_assigned_supervisor_bulk()
 
         messages.success(
             request,
