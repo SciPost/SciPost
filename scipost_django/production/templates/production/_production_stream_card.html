@@ -88,7 +88,7 @@
           <li>
             <button type="button" class="btn btn-link" data-bs-toggle="toggle" data-bs-target="#upload_proofs">Upload Proofs</button>
             <div id="upload_proofs" style="display: none;">
-              <form class="my-3" action="{% url 'production:upload_proofs' stream_id=stream.id %}" method="post" enctype="multipart/form-data">
+              <form class="my-3" action="{% url 'production:_hx_upload_proofs' stream_id=stream.id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ upload_proofs_form|bootstrap_inline }}
                 <input type="submit" class="btn btn-outline-primary" name="submit" value="Upload">

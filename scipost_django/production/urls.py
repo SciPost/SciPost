@@ -140,6 +140,11 @@ urlpatterns = [
                 path("", production_views.stream, name="stream"),
                 path("status", production_views.update_status, name="update_status"),
                 path(
+                    "_hx_status",
+                    production_views._hx_update_status,
+                    name="_hx_update_status",
+                ),
+                path(
                     "proofs/",
                     include(
                         [
@@ -147,6 +152,11 @@ urlpatterns = [
                                 "upload",
                                 production_views.upload_proofs,
                                 name="upload_proofs",
+                            ),
+                            path(
+                                "_hx_upload",
+                                production_views._hx_upload_proofs,
+                                name="_hx_upload_proofs",
                             ),
                             path(
                                 "<int:version>/",
@@ -214,8 +224,8 @@ urlpatterns = [
                             ),
                             path(
                                 "update",
-                                production_views.update_officer,
-                                name="update_officer",
+                                production_views._hx_update_officer,
+                                name="_hx_update_officer",
                             ),
                         ]
                     ),
@@ -236,8 +246,8 @@ urlpatterns = [
                             ),
                             path(
                                 "update",
-                                production_views.update_invitations_officer,
-                                name="update_invitations_officer",
+                                production_views._hx_update_invitations_officer,
+                                name="_hx_update_invitations_officer",
                             ),
                         ]
                     ),
@@ -258,11 +268,16 @@ urlpatterns = [
                             ),
                             path(
                                 "update",
-                                production_views.update_supervisor,
-                                name="update_supervisor",
+                                production_views._hx_update_supervisor,
+                                name="_hx_update_supervisor",
                             ),
                         ]
                     ),
+                ),
+                path(
+                    "_hx_mark_completed",
+                    production_views._hx_mark_as_completed,
+                    name="_hx_mark_as_completed",
                 ),
                 path(
                     "mark_completed",

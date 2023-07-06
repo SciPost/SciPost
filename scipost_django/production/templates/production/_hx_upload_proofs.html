@@ -1,0 +1,27 @@
+{% load bootstrap %}
+
+
+<h3>Proofs</h3>
+<div class="accordion"
+     id="productionstream-{{ stream.id }}-proofs-list-accordion">
+  {% for proofs in stream.proofs.all %}
+    {% include 'production/_hx_productionstream_actions_proofs_item.html' with i_proof=forloop.counter0|add:1 active_id=total_proofs stream=stream proofs=proofs %}
+  {% empty %}
+    <div>No Proofs found.</div>
+  {% endfor %}
+</div>
+
+<div class="row mt-3">
+  <div class="col-12">
+    <form enctype="multipart/form-data"
+          hx-post="{% url 'production:_hx_upload_proofs' stream_id=stream.id %}"
+          hx-target="#productionstream-{{ stream.id }}-upload-proofs-body">
+      {% csrf_token %}
+      {{ form|bootstrap_purely_inline }}
+      <input type="submit"
+             class="btn btn-primary proof-action-button"
+             name="submit"
+             value="Upload">
+    </form>
+  </div>
+</div>
