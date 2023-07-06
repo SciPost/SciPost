@@ -255,12 +255,18 @@ class Command(BaseCommand):
 
         # Define the formatting functions
         def format_authors(authors: List[str]) -> str:
+            # Append a superscript to each author
+            authors = [
+                author + "\\textsuperscript{" + str(i) + "}"
+                for i, author in enumerate(authors, start=1)
+            ]
+
             *other_authors, last_author = authors
 
             if len(other_authors) == 0:
                 return last_author
             else:
-                return ", ".join(other_authors) + " and " + last_author
+                return ",\n".join(other_authors) + "\nand " + last_author
 
         def format_title(title: str) -> str:
             return title + NEWLINE
