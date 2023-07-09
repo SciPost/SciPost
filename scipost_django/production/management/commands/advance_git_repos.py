@@ -13,6 +13,7 @@ from common.utils import get_current_domain
 from gitlab import Gitlab
 from gitlab.v4.objects import Group, Project
 from gitlab.exceptions import GitlabGetError
+from gitlab.const import AccessLevel
 
 import arxiv
 import requests
@@ -42,7 +43,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument(
             "--id",
-            type=int,
+            type=str,
             required=False,
             help="The submission preprint identifier to handle a specific submission, leave blank to handle all",
         )
@@ -197,6 +198,19 @@ class Command(BaseCommand):
             }
         )
 
+        # Allow Developers to push to the protected "main" branch
+        # Protected branches lay on top of the branches. Deleting and recreating them is
+        # the only way to change their settings and does not affect the branches themselves
+        project.protectedbranches.delete("main")
+        project.protectedbranches.create(
+            {
+                "name": "main",
+                "merge_access_level": AccessLevel.MAINTAINER,
+                "push_access_level": AccessLevel.DEVELOPER,
+                "allow_force_push": False,
+            }
+        )
+
         self.stdout.write(
             self.style.SUCCESS(f"Copied pure templates to {repo.git_path}")
         )
@@ -241,12 +255,18 @@ class Command(BaseCommand):
 
         # Define the formatting functions
         def format_authors(authors: List[str]) -> str:
+            # Append a superscript to each author
+            authors = [
+                author + "\\textsuperscript{" + str(i) + "}"
+                for i, author in enumerate(authors, start=1)
+            ]
+
             *other_authors, last_author = authors
 
             if len(other_authors) == 0:
                 return last_author
             else:
-                return ", ".join(other_authors) + " and " + last_author
+                return ",\n".join(other_authors) + "\nand " + last_author
 
         def format_title(title: str) -> str:
             return title + NEWLINE

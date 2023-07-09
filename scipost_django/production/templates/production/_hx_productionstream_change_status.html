@@ -2,7 +2,7 @@
 
 {% if form.fields.status.choices|length > 0 %}
     <form id="productionstream-{{ stream.id }}-update-status"
-          hx-post="{% url 'production:update_status' stream.id %}"
+          hx-post="{% url 'production:_hx_update_status' stream.id %}"
           hx-target="this"
           hx-swap="outerHTML"
           hx-trigger="submit"

@@ -15,6 +15,8 @@ from django.db.models import Value
 from django.db.models.functions import Concat
 from django.conf import settings
 
+from common.utils import latinise
+
 from .constants import (
     PRODUCTION_STREAM_STATUS,
     PRODUCTION_STREAM_INITIATED,
@@ -293,14 +295,18 @@ class ProofsRepository(models.Model):
         choices=PROOFS_REPO_STATUSES,
         default=PROOFS_REPO_UNINITIALIZED,
     )
+    name = models.CharField(max_length=128, default="")
 
-    @property
-    def name(self) -> str:
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def _get_repo_name(stream) -> str:
         """
         Return the name of the repository in the form of "id_lastname".
         """
         # Get the last name of the first author by getting the first author string from the submission
-        first_author_str = self.stream.submission.authors_as_list[0]
+        first_author_str = stream.submission.authors_as_list[0]
         first_author_profile = (
             Profile.objects.annotate(
                 full_name=Concat("first_name", Value(" "), "last_name")
@@ -312,11 +318,14 @@ class ProofsRepository(models.Model):
             first_author_last_name = first_author_str.split(" ")[-1]
         else:
             first_author_last_name = first_author_profile.last_name
-            # Keep only the last of the last names
-            first_author_last_name = first_author_last_name.split(" ")[-1]
+
+        # Remove accents from the last name to avoid encoding issues
+        # and join multiple last names into one
+        first_author_last_name = latinise(first_author_last_name).strip()
+        first_author_last_name = first_author_last_name.replace(" ", "-")
 
         return "{preprint_id}_{last_name}".format(
-            preprint_id=self.stream.submission.preprint.identifier_w_vn_nr,
+            preprint_id=stream.submission.preprint.identifier_w_vn_nr,
             last_name=first_author_last_name,
         )
 
@@ -409,6 +418,7 @@ def production_stream_create_proofs_repo(sender, instance, created, **kwargs):
         ProofsRepository.objects.create(
             stream=instance,
             status=ProofsRepository.PROOFS_REPO_UNINITIALIZED,
+            name=ProofsRepository._get_repo_name(instance),
         )
 
 

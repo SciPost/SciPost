@@ -2,7 +2,7 @@
 
 {% if form.fields.supervisor.choices|length > 0 %}
     <div id="productionstream-{{ stream.id }}-update-supervisor">
-        <form hx-post="{% url 'production:update_supervisor' stream.id %}"
+        <form hx-post="{% url 'production:_hx_update_supervisor' stream.id %}"
               hx-target="#productionstream-{{ stream.id }}-update-supervisor"
               hx-swap="outerHTML"
               class="row">

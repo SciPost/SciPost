@@ -153,7 +153,7 @@ class TestProofRepository(TestCase):
         user_profile.last_name = "Usable User"
         user_profile.save()
 
-        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_User")
+        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_Usable-User")
 
     def test_repo_name_two_authors(self):
         proofs_repo = ProofsRepository.objects.get(
@@ -165,6 +165,20 @@ class TestProofRepository(TestCase):
         )
 
         self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_Person")
+
+    def test_repo_name_accented_authors(self):
+        proofs_repo = ProofsRepository.objects.get(
+            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
+        )
+
+        user_profile = Contributor.objects.get(user__username="testuser").profile
+        user_profile.first_name = "Some"
+        user_profile.last_name = "Pérsønüsær (陈)"
+        user_profile.save()
+
+        proofs_repo.stream.submission.author_list = "Some Pérsønüsær (陈)"
+
+        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_Personusaer")
 
     def test_repo_paths_scipostphys(self):
         proofs_repo = ProofsRepository.objects.get(

@@ -50,15 +50,15 @@
       </tr>
       <tr>
 	
-        <td colspan="4" class="ps-4 pb-4">
+        <td colspan="4" class="py-1 px-3">
           {% if event.comments %}
-            <p class="mt-2 mb-0">
+            <div>
               {% if event.noted_to %}
                 <strong>To: {{ event.noted_to.user.first_name }} {{ event.noted_to.user.last_name }}</strong>
                 <br>
               {% endif %}
               {% automarkup event.comments %}
-            </p>
+            </div>
           {% endif %}
 
  

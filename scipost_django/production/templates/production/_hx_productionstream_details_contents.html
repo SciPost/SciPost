@@ -4,11 +4,11 @@
 
 {% get_obj_perms request.user for productionstream as "sub_perms" %}
 
-<div class="row">
+<div class="row mb-0">
   {% if "can_work_for_stream" in sub_perms or perms.scipost.can_assign_production_supervisor %}
     <div class="col-12 col-md d-flex flex-column">
  
-      <div class="accordion px-2 mb-2"
+      <div class="accordion"
            id="productionstream-{{ productionstream.id }}-actions-accordion">
         <h3>Actions</h3>
 
@@ -74,7 +74,7 @@
                  data-bs-parent="#productionstream-{{ productionstream.id }}-actions-accordion">
               <div id="productionstream-{{ productionstream.id }}-upload-proofs-body"
                    class="accordion-body"
-                   hx-get="{% url 'production:upload_proofs' stream_id=productionstream.id %}"
+                   hx-get="{% url 'production:_hx_upload_proofs' stream_id=productionstream.id %}"
                    hx-trigger="intersect once">
  
                 {% comment %} Placeholder before HTMX content loads {% endcomment %}
@@ -170,13 +170,13 @@
       {% if perms.scipost.can_draft_publication or perms.scipost.can_publish_accepted_submission %}
         <div class="mb-2 mb-md-0 mt-md-auto px-2">
  
-          <div class="row mb-0 g-2">
+          <div class="row mb-0 mt-2 g-2">
             {% if perms.scipost.can_publish_accepted_submission %}
               <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
                 <div class="row m-0 d-none-empty">
                   <button class="btn btn-warning text-white"
-                          hx-get="{% url 'production:mark_as_completed' stream_id=productionstream.id %}"
-                          {% if stream.status != 'published' %}hx-confirm="Are you sure you want to mark this unpublished stream as completed?"{% endif %}
+                          hx-get="{% url 'production:_hx_mark_as_completed' stream_id=productionstream.id %}"
+                          {% if productionstream.status != 'published' %}hx-confirm="Are you sure you want to mark this unpublished stream as completed?"{% endif %}
                           hx-target="#productionstream-{{ productionstream.id }}-details">
                     Mark this stream as completed
                   </button>
@@ -184,7 +184,7 @@
               </div>
             {% endif %}
  
-            {% if perms.scipost.can_draft_publication and stream.status == 'accepted' %}
+            {% if perms.scipost.can_draft_publication and productionstream.status == 'accepted' %}
               <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
                 <div class="row m-0 d-none-empty">
                   <a class="btn btn-primary text-white"
@@ -202,7 +202,7 @@
   </div>
 
   <div id="productionstream-{{ productionstream.id }}-event-container"
-       class="col-12 col-md d-flex flex-column px-3">
+       class="col-12 col-md d-flex flex-column">
     {% comment %} This might be better to refactor with an OOB response on each event addition {% endcomment %}
     <h3>Events</h3>
     <div id="productionstream-{{ productionstream.id }}-event-list"

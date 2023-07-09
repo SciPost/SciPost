@@ -15,6 +15,8 @@ from .models import (
     ProofsRepository,
 )
 
+from django.utils.html import format_html
+
 
 def event_count(obj):
     return obj.events.count()
@@ -102,11 +104,17 @@ class ProofsRepositoryAdmin(GuardedModelAdmin):
     search_fields = [
         "stream__submission__author_list",
         "stream__submission__title",
-        "stream__submission__preprint__identifier_w_vn_nr",
+        "name",
     ]
+
     list_filter = ["status"]
-    list_display = ["stream", "status", "git_path"]
-    readonly_fields = ["template_path", "git_path"]
+    list_display = ["name", "status", "gitlab_link"]
+    readonly_fields = ["stream", "template_path", "gitlab_link"]
+
+    def gitlab_link(self, obj):
+        return format_html(
+            '<a href="{1}" target="_blank">{0}</a>', obj.git_path, obj.git_url
+        )
 
 
 admin.site.register(ProofsRepository, ProofsRepositoryAdmin)

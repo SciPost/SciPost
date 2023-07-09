@@ -67,3 +67,27 @@ class ProductionUtils(BaseMailUtil):
             [cls._context["stream"].supervisor.user.email],
             "SciPost: you have a new supervisory task",
         )
+
+    @classmethod
+    def email_assigned_production_officer_bulk(cls):
+        """
+        Email officer about his/her new assigned stream.
+        """
+        cls._send_mail(
+            cls,
+            "email_assigned_production_officer_bulk",
+            [cls._context["officer"].user.email],
+            "SciPost: you have new production tasks",
+        )
+
+    @classmethod
+    def email_assigned_supervisor_bulk(cls):
+        """
+        Email supervisor about his/her new assigned stream.
+        """
+        cls._send_mail(
+            cls,
+            "email_assigned_supervisor_bulk",
+            [cls._context["supervisor"].user.email],
+            "SciPost: you have new supervisory tasks",
+        )

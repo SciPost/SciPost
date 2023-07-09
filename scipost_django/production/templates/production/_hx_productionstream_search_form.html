@@ -1,0 +1,10 @@
+{% load crispy_forms_tags %}
+
+<form hx-post="{% url 'production:_hx_productionstream_list' %}"
+      hx-trigger="load, keyup delay:500ms, change delay:500ms, click from:#refresh-button"
+      hx-sync="#search-productionstreams-form:replace"
+      hx-target="#search-productionstreams-results"
+      hx-indicator="#indicator-search-productionstreams">
+ 
+  <div id="search-productionstreams-form">{% crispy form %}</div>
+</form>

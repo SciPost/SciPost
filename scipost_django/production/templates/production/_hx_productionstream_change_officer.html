@@ -2,7 +2,7 @@
 
 {% if form.fields.officer.choices|length > 0 %}
     <div id="productionstream-{{ stream.id }}-update-officer">
-        <form hx-post="{% url 'production:update_officer' stream.id %}"
+        <form hx-post="{% url 'production:_hx_update_officer' stream.id %}"
               hx-target="#productionstream-{{ stream.id }}-update-officer"
               hx-swap="outerHTML"
               class="row">

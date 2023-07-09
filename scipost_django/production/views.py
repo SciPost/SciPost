@@ -455,6 +455,29 @@ def _hx_productionstream_actions_work_log(request, productionstream_id):
     )
 
 
+is_production_user()
+
+
+@permission_required(
+    "scipost.can_take_decisions_related_to_proofs", raise_exception=True
+)
+def update_status(request, stream_id):
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm("can_perform_supervisory_actions", stream):
+        return redirect(reverse("production:production", args=(stream.id,)))
+
+    p = request.user.production_user
+    form = StreamStatusForm(request.POST or None, instance=stream, production_user=p)
+
+    if form.is_valid():
+        stream = form.save()
+        messages.warning(request, "Production Stream succesfully changed status.")
+    else:
+        messages.warning(request, "The status change was invalid.")
+    return redirect(stream.get_absolute_url())
+
+
 @is_production_user()
 @permission_required_htmx(
     (
@@ -464,7 +487,7 @@ def _hx_productionstream_actions_work_log(request, productionstream_id):
     message="You do not have permission to update the status of this stream.",
     css_class="row",
 )
-def update_status(request, stream_id):
+def _hx_update_status(request, stream_id):
     productionstream = get_object_or_404(
         ProductionStream.objects.ongoing(), pk=stream_id
     )
@@ -572,7 +595,7 @@ def remove_officer(request, stream_id, officer_id):
     css_class="row",
 )
 @transaction.atomic
-def update_officer(request, stream_id):
+def _hx_update_officer(request, stream_id):
     productionstream = get_object_or_404(
         ProductionStream.objects.ongoing(), pk=stream_id
     )
@@ -742,7 +765,7 @@ def remove_invitations_officer(request, stream_id, officer_id):
     css_class="row",
 )
 @transaction.atomic
-def update_invitations_officer(request, stream_id):
+def _hx_update_invitations_officer(request, stream_id):
     productionstream = get_object_or_404(
         ProductionStream.objects.ongoing(), pk=stream_id
     )
@@ -886,7 +909,7 @@ class UpdateEventView(UpdateView):
     css_class="row",
 )
 @transaction.atomic
-def update_supervisor(request, stream_id):
+def _hx_update_supervisor(request, stream_id):
     productionstream = get_object_or_404(
         ProductionStream.objects.ongoing(), pk=stream_id
     )
@@ -973,7 +996,7 @@ class DeleteEventView(DeleteView):
 @is_production_user()
 @permission_required("scipost.can_publish_accepted_submission", raise_exception=True)
 @transaction.atomic
-def mark_as_completed(request, stream_id):
+def _hx_mark_as_completed(request, stream_id):
     productionstream = get_object_or_404(
         ProductionStream.objects.ongoing(), pk=stream_id
     )
@@ -995,10 +1018,30 @@ def mark_as_completed(request, stream_id):
     )
 
     return HttpResponse(
-        r"""<summary class="text-white bg-success summary-unstyled p-3">
+        r"""<summary class="text-white bg-success p-3">
                 Production Stream has been marked as completed.
             </summary>"""
     )
+
+
+@is_production_user()
+@permission_required("scipost.can_publish_accepted_submission", raise_exception=True)
+@transaction.atomic
+def mark_as_completed(request, stream_id):
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    stream.status = constants.PRODUCTION_STREAM_COMPLETED
+    stream.closed = timezone.now()
+    stream.save()
+
+    prodevent = ProductionEvent(
+        stream=stream,
+        event="status",
+        comments=" marked the Production Stream as completed.",
+        noted_by=request.user.production_user,
+    )
+    prodevent.save()
+    messages.success(request, "Stream marked as completed.")
+    return redirect(reverse("production:production"))
 
 
 @is_production_user()
@@ -1010,7 +1053,7 @@ def mark_as_completed(request, stream_id):
     message="You cannot upload proofs for this stream.",
 )
 @transaction.atomic
-def upload_proofs(request, stream_id):
+def _hx_upload_proofs(request, stream_id):
     """
     Called by a member of the Production Team.
     Upload the production version .pdf of a submission.
@@ -1048,6 +1091,51 @@ def upload_proofs(request, stream_id):
         prodevent.save()
 
     context = {"stream": stream, "form": form, "total_proofs": stream.proofs.count()}
+    return render(request, "production/_hx_upload_proofs.html", context)
+
+
+@is_production_user()
+@permission_required("scipost.can_upload_proofs", raise_exception=True)
+@transaction.atomic
+def upload_proofs(request, stream_id):
+    """
+    Called by a member of the Production Team.
+    Upload the production version .pdf of a submission.
+    """
+    stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm("can_work_for_stream", stream):
+        return redirect(reverse("production:production"))
+
+    form = ProofsUploadForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        proofs = form.save(commit=False)
+        proofs.stream = stream
+        proofs.uploaded_by = request.user.production_user
+        proofs.save()
+        Proofs.objects.filter(stream=stream).exclude(version=proofs.version).exclude(
+            status=constants.PROOFS_ACCEPTED
+        ).update(status=constants.PROOFS_RENEWED)
+        messages.success(request, "Proof uploaded.")
+
+        # Update Stream status
+        if stream.status == constants.PROOFS_TASKED:
+            stream.status = constants.PROOFS_PRODUCED
+            stream.save()
+        elif stream.status == constants.PROOFS_RETURNED:
+            stream.status = constants.PROOFS_CORRECTED
+            stream.save()
+
+        prodevent = ProductionEvent(
+            stream=stream,
+            event="status",
+            comments="New Proofs uploaded, version {v}".format(v=proofs.version),
+            noted_by=request.user.production_user,
+        )
+        prodevent.save()
+        return redirect(stream.get_absolute_url())
+
+    context = {"stream": stream, "form": form}
     return render(request, "production/upload_proofs.html", context)
 
 
@@ -1485,6 +1573,22 @@ def _hx_productionstream_summary_assignees_status(request, productionstream_id):
     )
 
 
+def _hx_productionstream_search_form(request, filter_set: str):
+    productionstream_search_form = ProductionStreamSearchForm(
+        user=request.user,
+        session_key=request.session.session_key,
+    )
+
+    if filter_set == "empty":
+        productionstream_search_form.apply_filter_set({}, none_on_empty=True)
+    # TODO: add more filter sets saved in the session of the user
+
+    context = {
+        "form": productionstream_search_form,
+    }
+    return render(request, "production/_hx_productionstream_search_form.html", context)
+
+
 def _hx_event_list(request, productionstream_id):
     productionstream = get_object_or_404(ProductionStream, pk=productionstream_id)
 
@@ -1562,10 +1666,16 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
                         "can_work_for_stream", old_officer.user, productionstream
                     )
 
-                # Temp fix.
-                # TODO: Implement proper email
-                ProductionUtils.load({"request": request, "stream": productionstream})
-                ProductionUtils.email_assigned_production_officer()
+            # Temp fix.
+            # TODO: Implement proper email
+            ProductionUtils.load(
+                {
+                    "request": request,
+                    "officer": officer,
+                    "streams": form.productionstreams,
+                }
+            )
+            ProductionUtils.email_assigned_production_officer_bulk()
 
             messages.success(
                 request,
@@ -1614,10 +1724,16 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
                     productionstream,
                 )
 
-            # Temp fix.
-            # TODO: Implement proper email
-            ProductionUtils.load({"request": request, "stream": productionstream})
-            ProductionUtils.email_assigned_supervisor()
+        # Temp fix.
+        # TODO: Implement proper email
+        ProductionUtils.load(
+            {
+                "request": request,
+                "supervisor": supervisor,
+                "streams": form.productionstreams,
+            }
+        )
+        ProductionUtils.email_assigned_supervisor_bulk()
 
         messages.success(
             request,

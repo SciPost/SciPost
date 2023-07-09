@@ -1,0 +1,10 @@
+Dear {{ officer.user.last_name }},
+
+You are now assigned as Production Officer to the streams:
+
+{% for stream in streams %}* {{ stream }}
+{% endfor %}
+
+The stream will now be open for you on the Production page (https://{{ domain }}{% url 'production:production_new' %}).
+
+This mail is automatically generated and therefore not signed.

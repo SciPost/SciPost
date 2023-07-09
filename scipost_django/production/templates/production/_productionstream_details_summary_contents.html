@@ -64,12 +64,11 @@
                 <small class="text-muted">Submitter</small>
                 <br>
                 {% if productionstream.submission.submitted_by.profile.email %}
-                    <a href="mailto:{{ productionstream.submission.submitted_by.profile.email }}?body=Dear%20{{ productionstream.submission.submitted_by.formal_str }},%0A%0A">
-                        {{ productionstream.submission.submitted_by.formal_str }}
-                    </a>
-                {% else %}
-                    {{ productionstream.submission.submitted_by.formal_str }}
+                    <a href="mailto:{{ productionstream.submission.submitted_by.profile.email }}?body=Dear%20{{ productionstream.submission.submitted_by.formal_str }},%0A%0A"
+                       class="text-primary"><span style="pointer-events: none;">{% include 'bi/pencil-square.html' %}</span></a>
+                    &nbsp;
                 {% endif %}
+                <a href="{% url 'scipost:contributor_info' productionstream.submission.submitted_by.id %}">{{ productionstream.submission.submitted_by.formal_str }}</a>
             </div>
 
             <div class="col-auto">
@@ -77,6 +76,8 @@
                 <br>
                 <div class="d-inline-flex">
                     <a href="{{ productionstream.submission.get_absolute_url }}">Submission</a>
+                    &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
+                    <a href="{% url 'production:stream' stream_id=productionstream.id %}">Stream</a>
                     {% if perms.scipost.can_oversee_refereeing %}
                         &nbsp;&nbsp; &bullet; &nbsp;&nbsp;
                         <a href="{% url 'submissions:editorial_page' productionstream.submission.preprint.identifier_w_vn_nr %}">Editorial</a>
