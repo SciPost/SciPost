@@ -40,7 +40,7 @@ from comments.utils import validate_file_extention
 from journals.models import Journal, Publication
 from organizations.models import Organization
 from scipost.mixins import PermissionsMixin
-from scipost.views import HTMXPermissionsDenied, HTMXResponse
+from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
 
 
 def publishing_years():

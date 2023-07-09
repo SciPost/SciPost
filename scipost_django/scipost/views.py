@@ -42,6 +42,7 @@ from django.views.static import serve
 
 from dal import autocomplete
 from guardian.decorators import permission_required
+from scipost.permissions import permission_required_htmx, HTMXResponse
 
 from .constants import SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR
 from .decorators import has_contributor, is_contributor_user
@@ -180,33 +181,6 @@ def trigger_error(request):
 
 def _hx_messages(request):
     return render(request, "scipost/_hx_messages.html")
-
-
-####################
-# HTMX inline alerts
-####################
-
-
-class HTMXResponse(HttpResponse):
-    tag = "primary"
-    message = ""
-    css_class = ""
-
-    def __init__(self, *args, **kwargs):
-        tag = kwargs.pop("tag", self.tag)
-        message = args[0] if args else kwargs.pop("message", self.message)
-        css_class = kwargs.pop("css_class", self.css_class)
-
-        alert_html = f"""<div class="text-{tag} border border-{tag} p-3 {css_class}">
-                {message}
-            </div>"""
-
-        super().__init__(alert_html, *args, **kwargs)
-
-
-class HTMXPermissionsDenied(HTMXResponse):
-    tag = "danger"
-    message = "You do not have the required permissions."
 
 
 #############
@@ -1562,7 +1536,13 @@ def contributor_info(request, contributor_id):
     return render(request, "scipost/contributor_info.html", context)
 
 
-class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
+def contributor_duplicates(request, group_by: str):
+    return render(
+        request, "scipost/contributor_duplicates.html", {"group_by": group_by}
+    )
+
+
+class ContributorDuplicateListView(PermissionsMixin, ListView):
     """
     List Contributors with potential (not yet handled) duplicates.
     Two sources of duplicates are separately considered:
@@ -1574,7 +1554,7 @@ class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
 
     permission_required = "scipost.can_vet_registration_requests"
     model = Contributor
-    template_name = "scipost/contributor_duplicate_list.html"
+    template_name = "scipost/_hx_contributor_duplicate_merger.html"
 
     def get_queryset(self):
         queryset = Contributor.objects.all()
@@ -1588,19 +1568,25 @@ class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+        context["duplicate_contributors"] = context.pop("object_list")
 
-        if len(context["object_list"]) > 1:
+        if len(context["duplicate_contributors"]) > 1:
             initial = {
-                "to_merge": context["object_list"][0].id,
-                "to_merge_into": context["object_list"][1].id,
+                "to_merge": context["duplicate_contributors"][0].id,
+                "to_merge_into": context["duplicate_contributors"][1].id,
             }
-            context["merge_form"] = ContributorMergeForm(initial=initial)
+            context["form"] = ContributorMergeForm(
+                initial=initial, queryset=self.get_queryset()
+            )
         return context
 
 
 @transaction.atomic
-@permission_required("scipost.can_vet_registration_requests")
-def contributor_merge(request):
+@permission_required_htmx(
+    "scipost.can_vet_registration_requests",
+    "You do not have permission to vet registration requests.",
+)
+def _hx_contributor_comparison(request):
     """
     Handles the merging of data from one Contributor instance to another,
     to solve one person - multiple registrations issues.
@@ -1611,45 +1597,60 @@ def contributor_merge(request):
     If both Contributor instances were active, then the account owner
     is emailed with information about the merge.
     """
-    merge_form = ContributorMergeForm(request.POST or None, initial=request.GET)
-    context = {"merge_form": merge_form}
+
+    if request.method == "GET":
+        try:
+            context = {
+                "contributor_to_merge": get_object_or_404(
+                    Contributor, pk=int(request.GET["to_merge"])
+                ),
+                "contributor_to_merge_into": get_object_or_404(
+                    Contributor, pk=int(request.GET["to_merge_into"])
+                ),
+            }
+        except ValueError:
+            raise Http404
+
+    return render(request, "scipost/_hx_contributor_comparison.html", context)
+
+
+@transaction.atomic
+@permission_required_htmx(
+    "scipost.can_vet_registration_requests",
+    "You do not have permission to vet registration requests.",
+)
+def _hx_contributor_merge(request, to_merge: int, to_merge_into: int):
+    """
+    Confirms the merging of data from one Contributor instance to another,
+    to solve one person - multiple registrations issues.
+    """
+
+    merge_form = ContributorMergeForm(
+        request.POST or None,
+        initial={
+            "to_merge": to_merge,
+            "to_merge_into": to_merge_into,
+        },
+        queryset=Contributor.objects.filter(id__in=[to_merge, to_merge_into]),
+    )
 
     if request.method == "POST":
         if merge_form.is_valid():
             contributor = merge_form.save()
-            messages.success(request, "Contributors merged")
-            return redirect(reverse("scipost:contributor_duplicates"))
-        else:
-            try:
-                context.update(
-                    {
-                        "contributor_to_merge": get_object_or_404(
-                            Contributor, pk=merge_form.cleaned_data["to_merge"].id
-                        ),
-                        "contributor_to_merge_into": get_object_or_404(
-                            Contributor, pk=merge_form.cleaned_data["to_merge_into"].id
-                        ),
-                    }
-                )
-            except ValueError:
-                raise Http404
-
-    elif request.method == "GET":
-        try:
-            context.update(
-                {
-                    "contributor_to_merge": get_object_or_404(
-                        Contributor, pk=int(request.GET["to_merge"])
-                    ),
-                    "contributor_to_merge_into": get_object_or_404(
-                        Contributor, pk=int(request.GET["to_merge_into"])
-                    ),
-                }
+            messages.success(request, "Contributors merged successfully.")
+            return HTMXResponse(
+                f"Contributors {to_merge} and {to_merge_into} merged into {contributor.id}.",
             )
-        except ValueError:
-            raise Http404
+        elif to_merge == to_merge_into:
+            return HTMXResponse(
+                "Cannot merge a Contributor into itself.",
+                tag="danger",
+            )
 
-    return render(request, "scipost/contributor_merge.html", context)
+    return HTMXResponse(
+        "Failed to merge contributors.",
+        tag="danger",
+    )
 
 
 ####################

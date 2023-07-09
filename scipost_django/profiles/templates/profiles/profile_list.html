@@ -8,178 +8,372 @@
 
 
 {% block breadcrumb_items %}
-  {{ block.super }}
-  <span class="breadcrumb-item">Profiles</span>
+    {{ block.super }}
+    <span class="breadcrumb-item">Profiles</span>
 {% endblock %}
 
 
-{% block meta_description %}{{ block.super }} Profiles List{% endblock meta_description %}
-{% block pagetitle %}: Profiles{% endblock pagetitle %}
+{% block meta_description %}
+    {{ block.super }} Profiles List
+{% endblock meta_description %}
+{% block pagetitle %}
+    : Profiles
+{% endblock pagetitle %}
 
 {% block content %}
 
-  {% is_ed_admin request.user as is_ed_admin %}
-  {% is_scipost_admin request.user as is_scipost_admin %}
+    {% is_ed_admin request.user as is_ed_admin %}
+    {% is_scipost_admin request.user as is_scipost_admin %}
 
-  <div class="row">
-    <div class="col-12">
-      <h4>Profiles-related Actions:</h4>
-      <ul>
-	{% if is_scipost_admin or is_ed_admin %}
-	  {% if nr_contributors_w_duplicate_names > 0 %}
-	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span><a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
-	  {% else %}
-	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> No name-duplicate Contributors found</li>
-	  {% endif %}
-	  {% if nr_contributors_w_duplicate_emails > 0 %}
-	    <li><a href="{% url 'scipost:contributor_duplicates' %}?kind=emails">Handle Contributors with duplicate emails ({{ nr_contributors_w_duplicate_emails }} to handle)</a></li>
-	  {% else %}
-	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> No email-duplicate Contributors found</li>
-	  {% endif %}
-	  {% if next_contributor_wo_profile %}
-	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
-	  {% else %}
-	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All registered Contributors have a Profile</li>
-	  {% endif %}
-	  {% if nr_potential_duplicate_profiles > 0 %}
-	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> <a href="{% url 'profiles:duplicates' %}">Check for duplicate Profiles ({{ nr_potential_duplicate_profiles }} to handle)</a></li>
-	  {% else %}
-	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> No potential duplicate Profiles detected</li>
-	  {% endif %}
-	  {% if next_reginv_wo_profile %}
-	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='registrationinvitation' pk=next_reginv_wo_profile.id %}">the next</a> Registration Invitation without one ({{ nr_reginv_wo_profile }} to handle)</li>
-	  {% else %}
-	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All Registration Invitations have a Profile</li>
-	  {% endif %}
-	  {% if next_refinv_wo_profile %}
-	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
-	  {% else %}
-	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All Referee Invitations have a Profile</li>
-	  {% endif %}
-	{% endif %}
-	<li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
-      </ul>
+    <div class="row">
+        <div class="col-12">
+            <h4>Profiles-related Actions:</h4>
+            <ul>
+	
+                {% if is_scipost_admin or is_ed_admin %}
+ 
+                    {% if nr_contributors_w_duplicate_names > 0 %}
+ 
+                        <li>
+                            <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span><a href="{% url 'scipost:contributor_duplicates' group_by="names" %}">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a>
+                        </li>
+ 
+                    {% else %}
+ 
+                        <li>
+                            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> No name-duplicate Contributors found
+                        </li>
+ 
+                    {% endif %}
+ 
+                    {% if nr_contributors_w_duplicate_emails > 0 %}
+ 
+                        <li>
+                            <a href="{% url 'scipost:contributor_duplicates' group_by="emails" %}">Handle Contributors with duplicate emails ({{ nr_contributors_w_duplicate_emails }} to handle)</a>
+                        </li>
+ 
+                    {% else %}
+ 
+                        <li>
+                            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> No email-duplicate Contributors found
+                        </li>
+ 
+                    {% endif %}
+ 
+                    {% if next_contributor_wo_profile %}
+ 
+                        <li>
+                            <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)
+                        </li>
+ 
+                    {% else %}
+ 
+                        <li>
+                            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All registered Contributors have a Profile
+                        </li>
+ 
+                    {% endif %}
+ 
+                    {% if nr_potential_duplicate_profiles > 0 %}
+ 
+                        <li>
+                            <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> <a href="{% url 'profiles:duplicates' %}">Check for duplicate Profiles ({{ nr_potential_duplicate_profiles }} to handle)</a>
+                        </li>
+ 
+                    {% else %}
+ 
+                        <li>
+                            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> No potential duplicate Profiles detected
+                        </li>
+ 
+                    {% endif %}
+ 
+                    {% if next_reginv_wo_profile %}
+ 
+                        <li>
+                            <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='registrationinvitation' pk=next_reginv_wo_profile.id %}">the next</a> Registration Invitation without one ({{ nr_reginv_wo_profile }} to handle)
+                        </li>
+ 
+                    {% else %}
+ 
+                        <li>
+                            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All Registration Invitations have a Profile
+                        </li>
+ 
+                    {% endif %}
+ 
+                    {% if next_refinv_wo_profile %}
+ 
+                        <li>
+                            <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)
+                        </li>
+ 
+                    {% else %}
+ 
+                        <li>
+                            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All Referee Invitations have a Profile
+                        </li>
+ 
+                    {% endif %}
+	
+                {% endif %}
+	
+                <li>
+                    <a href="{% url 'profiles:profile_create' %}">Add a Profile</a>
+                </li>
+            </ul>
+        </div>
     </div>
-  </div>
 
-  <div class="row">
-    <div class="col-12">
-      <table class="table table-bordered table-secondary">
-	<thead class="table-dark">
-	  <tr>
-	    <th><h3 class="mb-0">Branch</h3></th>
-	    <th><h3 class="mb-0">Fields</h3></th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for branch in branches %}
-	    <tr>
-	      <td class="align-middle">
-		<small>{{ branch.name }}</small>
-	      </td>
-	      <td>
-		<ul class="list-inline m-0">
-		  {% for acad_field in branch.academic_fields.all %}
-		    <li class="list-inline-item">
-		      {% if acad_field.profiles.all|length > 0 %}
-			<div class="dropdown">
-			  <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ acad_field.slug }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><small>{{ acad_field }}</small></button>
-			  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ acad_field.slug }}">
-			    <a class="dropdown-item" href="{% add_get_parameters field=acad_field.slug specialty='' %}">View all in {{ acad_field }}</a>
-			    {% for specialty in acad_field.specialties.all %}
-			      <a class="dropdown-item" href="{% add_get_parameters field=acad_field.slug specialty=specialty.slug %}">{{ specialty }}</a>
-			    {% endfor %}
-			  </div>
-			</div>
-		      {% else %}
-			<button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ acad_field.name }}</em></small></button>
-		      {% endif %}
-		    </li>
-		  {% endfor %}
-	      </td>
-	    </tr>
-	  {% endfor %}
-	</tbody>
-      </table>
+    <div class="row">
+        <div class="col-12">
+            <table class="table table-bordered table-secondary">
+	
+                <thead class="table-dark">
+ 
+                    <tr>
+ 
+                        <th>
+                            <h3 class="mb-0">Branch</h3>
+                        </th>
+ 
+                        <th>
+                            <h3 class="mb-0">Fields</h3>
+                        </th>
+ 
+                    </tr>
+	
+                </thead>
+	
+                <tbody>
+ 
+                    {% for branch in branches %}
+ 
+                        <tr>
+ 
+                            <td class="align-middle">
+                                <small>{{ branch.name }}</small>
+ 
+                            </td>
+ 
+                            <td>
+	
+                                <ul class="list-inline m-0">
+ 
+                                    {% for acad_field in branch.academic_fields.all %}
+ 
+                                        <li class="list-inline-item">
+ 
+                                            {% if acad_field.profiles.all|length > 0 %}
+	
+                                                <div class="dropdown">
+ 
+                                                    <button class="btn btn-sm btn-primary dropdown-toggle"
+                                                            type="button"
+                                                            id="dropdownMenuButton{{ acad_field.slug }}"
+                                                            data-bs-toggle="dropdown"
+                                                            aria-haspopup="true"
+                                                            aria-expanded="false">
+                                                        <small>{{ acad_field }}</small>
+                                                    </button>
+ 
+                                                    <div class="dropdown-menu"
+                                                         aria-labelledby="dropdownMenuButton{{ acad_field.slug }}">
+                                                        <a class="dropdown-item"
+                                                           href="{% add_get_parameters field=acad_field.slug specialty='' %}">View all in {{ acad_field }}</a>
+ 
+                                                        {% for specialty in acad_field.specialties.all %}
+                                                            <a class="dropdown-item"
+                                                               href="{% add_get_parameters field=acad_field.slug specialty=specialty.slug %}">{{ specialty }}</a>
+ 
+                                                        {% endfor %}
+ 
+                                                    </div>
+	
+                                                </div>
+ 
+                                            {% else %}
+	
+                                                <button type="button" class="btn btn-sm btn-outline-secondary m-1">
+                                                    <small><em>{{ acad_field.name }}</em></small>
+                                                </button>
+ 
+                                            {% endif %}
+ 
+                                        </li>
+ 
+                                    {% endfor %}
+ 
+                                </td>
+ 
+                            </tr>
+ 
+                        {% endfor %}
+	
+                    </tbody>
+                </table>
 
 
-      <h4>Specialize the list by selecting from the table above, or:</h4>
-      <ul>
-	<li>
-	  <ul class="list-inline">
-	    <li class="list-inline-item">
-	      <a href="{% url 'profiles:profiles' %}">View all</a>
-	    </li>
-	  </ul>
-	</li>
-	<li>View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor</li>
-	<li>
-	  <ul class="list-inline">
-	    <li class="list-inline-item">Last name contains:</li>
-	    <li class="list-inline-item">
-	      <form action="" method="get">{{ searchform }}
-		{% if request.GET.field %}
-		  <input type="hidden" name="field" value="{{ request.GET.field }}">
-		  {% if request.GET.specialty %}
-		    <input type="hidden" name="specialty" value="{{ request.GET.specialty }}">
-		  {% endif %}
-		{% endif %}
-		{% if request.GET.contributor %}
-		  <input type="hidden" name="contributor" value="{{ request.GET.contributor }}">
-		{% endif %}
-	    </li>
-	    <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Search"></form>
-	    </li>
-	  </ul>
-	</li>
-      </ul>
-    </div>
-  </div>
+                <h4>Specialize the list by selecting from the table above, or:</h4>
+                <ul>
+	
+                    <li>
+ 
+                        <ul class="list-inline">
+ 
+                            <li class="list-inline-item">
+                                <a href="{% url 'profiles:profiles' %}">View all</a>
+ 
+                            </li>
+ 
+                        </ul>
+	
+                    </li>
+	
+                    <li>
+                        View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor
+                    </li>
+	
+                    <li>
+ 
+                        <ul class="list-inline">
+ 
+                            <li class="list-inline-item">Last name contains:</li>
+ 
+                            <li class="list-inline-item">
+ 
+                                <form action="" method="get">
+                                    {{ searchform }}
+	
+                                    {% if request.GET.field %}
+ 
+                                        <input type="hidden" name="field" value="{{ request.GET.field }}">
+ 
+                                        {% if request.GET.specialty %}<input type="hidden" name="specialty" value="{{ request.GET.specialty }}">{% endif %}
+	
+                                    {% endif %}
+	
+                                    {% if request.GET.contributor %}
+ 
+                                        <input type="hidden"
+                                               name="contributor"
+                                               value="{{ request.GET.contributor }}">
+	
+                                    {% endif %}
+ 
+                                </li>
+ 
+                                <li class="list-inline-item">
+                                    <input class="btn btn-outline-secondary" type="submit" value="Search">
+                                </form>
+ 
+                            </li>
+ 
+                        </ul>
+	
+                    </li>
+                </ul>
+            </div>
+        </div>
 
-  <div class="row">
-    <div class="col-12">
-      <h3>Profiles {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %} {% if request.GET.field %}in {{ request.GET.field }}{% if request.GET.specialty %}, {{ request.GET.specialty }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
-      <br/>
+        <div class="row">
+            <div class="col-12">
+                <h3>
+                    Profiles
+                    {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %}
+ 
+                    {% if request.GET.field %}
+                        in {{ request.GET.field }}
+                        {% if request.GET.specialty %}, {{ request.GET.specialty }}{% endif %}
+                    {% endif %}
+                    (
+                    {% if request.GET.contributor == "True" %}
+                        registered Contributors
+                    {% elif request.GET.contributor == "False" %}
+                        unregistered as Contributors
+                    {% else %}
+                        all registered/unregistered
+                    {% endif %}
+                    ): {{ page_obj.paginator.count }} found
+                </h3>
+                <br />
 
-      <table class="table table-hover mb-5">
-	<thead class="table-light">
-	  <tr>
-	    <th>Name</th>
-	    <th>Academic field</th>
-	    <th>Specialties</th>
-	    <th>Contributor?</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for profile in object_list %}
-	    <tr class="table-row" data-href="{% url 'profiles:profile_detail' pk=profile.id %}" target="_blank" style="cursor: pointer;">
-	      <td>{{ profile }}</td>
-	      <td>{{ profile.acad_field }}</td>
-	      <td>
-		{% for specialty in profile.specialties.all %}
-		  <div class="single d-inline" data-specialty="{{ specialty.code }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
-		{% endfor %}
-	      </td>
-	      <td>{% if profile.has_active_contributor %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
-	    </tr>
-	  {% empty %}
-	    <tr>
-	      <td colspan="4">No Profiles found</td>
-	    </tr>
-	  {% endfor %}
-	</tbody>
-      </table>
+                <table class="table table-hover mb-5">
+	
+                    <thead class="table-light">
+ 
+                        <tr>
+ 
+                            <th>Name</th>
+ 
+                            <th>Academic field</th>
+ 
+                            <th>Specialties</th>
+ 
+                            <th>Contributor?</th>
+ 
+                        </tr>
+	
+                    </thead>
+	
+                    <tbody>
+ 
+                        {% for profile in object_list %}
+ 
+                            <tr class="table-row"
+                                data-href="{% url 'profiles:profile_detail' pk=profile.id %}"
+                                target="_blank"
+                                style="cursor: pointer">
+ 
+                                <td>{{ profile }}</td>
+ 
+                                <td>{{ profile.acad_field }}</td>
+ 
+                                <td>
+	
+                                    {% for specialty in profile.specialties.all %}
+ 
+                                        <div class="single d-inline"
+                                             data-specialty="{{ specialty.code }}"
+                                             data-bs-toggle="tooltip"
+                                             data-bs-placement="bottom"
+                                             title="{{ specialty }}">{{ specialty.code }}</div>
+	
+                                    {% endfor %}
+ 
+                                </td>
+ 
+                                <td>
+                                    {% if profile.has_active_contributor %}
+                                        <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+                                    {% else %}
+                                        <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+                                    {% endif %}
+                                </td>
+ 
+                            </tr>
+                        {% empty %}
+ 
+                            <tr>
+ 
+                                <td colspan="4">No Profiles found</td>
+ 
+                            </tr>
+ 
+                        {% endfor %}
+	
+                    </tbody>
+                </table>
 
-      {% if is_paginated %}
-	<div class="col-12">
-	  {% include '_pagination.html' with page_obj=page_obj %}
-	</div>
-      {% endif %}
+                {% if is_paginated %}
+	
+                    <div class="col-12">{% include '_pagination.html' with page_obj=page_obj %}</div>
+                {% endif %}
 
-    </div>
-  </div>
-{% endblock content %}
+            </div>
+        </div>
+    {% endblock content %}
 
-{% block footer_script %}
-  <script src="{% static 'scipost/table-row.js' %}"></script>
-{% endblock footer_script %}
+    {% block footer_script %}
+        <script src="{% static 'scipost/table-row.js' %}"></script>
+    {% endblock footer_script %}

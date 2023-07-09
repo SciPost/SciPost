@@ -463,11 +463,25 @@ urlpatterns = [
     # Potential duplicates
     #######################
     path(
-        "contributor_duplicates/",
-        views.ContributorDuplicateListView.as_view(),
+        "contributor_duplicates/<str:group_by>",
+        views.contributor_duplicates,
         name="contributor_duplicates",
     ),
-    path("contributor_merge/", views.contributor_merge, name="contributor_merge"),
+    path(
+        "_hx_contributor_duplicate_merger",
+        views.ContributorDuplicateListView.as_view(),
+        name="_hx_contributor_duplicate_merger",
+    ),
+    path(
+        "_hx_contributor_comparison",
+        views._hx_contributor_comparison,
+        name="_hx_contributor_comparison",
+    ),
+    path(
+        "_hx_contributor_merge/<int:to_merge>/<int:to_merge_into>",
+        views._hx_contributor_merge,
+        name="_hx_contributor_merge",
+    ),
     #
     ###################
     # Email facilities

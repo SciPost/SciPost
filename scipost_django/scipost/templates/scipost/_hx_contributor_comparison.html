@@ -1,0 +1,33 @@
+{% load crispy_forms_tags %}
+{% load scipost_extras %}
+
+<div class="row">
+  <div class="col-12 col-md-6">
+    <h3 class="highlight">Merge Contributor {{ contributor_to_merge.id }}</h3>
+    {% include "scipost/_public_info_as_table.html" with contributor=contributor_to_merge %}
+  </div>
+  <div class="col-12 col-md-6">
+    <h3 class="highlight">into Contributor {{ contributor_to_merge_into.id }}</h3>
+    {% include "scipost/_public_info_as_table.html" with contributor=contributor_to_merge_into %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    {% if contributor_to_merge.user.is_active and not contributor_to_merge_into.user.is_active %}
+      <h3 class="text-danger">
+        Warning: the contributor to merge is active, while the one to merge into is not. Consider swapping the order with "Swap & Merge".
+      </h3>
+      <div id="contributor-swap-merge-btn"
+           class="btn btn-warning me-2"
+           hx-post="{% url "scipost:_hx_contributor_merge" to_merge=contributor_to_merge.id to_merge_into=contributor_to_merge_into.id %}">
+        Swap & Merge
+      </div>
+    {% endif %}
+    <div id="contributor-merge-btn"
+         class="btn btn-primary"
+         hx-post="{% url "scipost:_hx_contributor_merge" to_merge=contributor_to_merge_into.id to_merge_into=contributor_to_merge.id %}">
+      Merge
+    </div>
+  </div>
+</div>
