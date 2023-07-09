@@ -542,6 +542,8 @@ class DraftPublicationForm(forms.ModelForm):
         do_prefill = False
         if not self.instance.id:
             do_prefill = True
+        # Set the cf_citation to empty string to force recalculation
+        self.instance.cf_citation = ""
         super().save(*args, **kwargs)
         if do_prefill:
             self.first_time_fill()
