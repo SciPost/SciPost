@@ -2701,6 +2701,14 @@ class EICRecommendationForm(forms.ModelForm):
 
         recommendation.save()
 
+        # The EIC should vote in favour of their own recommendation
+        # This should be done after the recommendation is saved, so that the
+        # id is determined for use in the ManyToMany relation.
+        # Tiering has already been created above, and no special objects are required
+        # in the event of submission rejection.
+        recommendation.voted_for.add(self.submission.editor_in_charge)
+        recommendation.save()
+
         return recommendation
 
     def revision_requested(self):
