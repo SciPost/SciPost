@@ -1,96 +1,160 @@
 {% extends 'helpdesk/base.html' %}
-
 {% load bootstrap %}
 {% load guardian_tags %}
 {% load automarkup %}
+{% load crispy_forms_tags %}
 
 {% block breadcrumb_items %}
-  {{ block.super }}
-  <span class="breadcrumb-item">Queue: {{ queue.name }}</span>
+  {{ block.super }} <span class="breadcrumb-item">Queue: {{ queue.name }}</span>
 {% endblock %}
 
-{% block pagetitle %}: Queue details{% endblock pagetitle %}
+{% block pagetitle %}
+  : Queue details
+{% endblock pagetitle %}
 
 {% get_obj_perms request.user for queue as "user_perms" %}
 
 {% block content %}
-
   <div class="row">
     <div class="col-12">
-
       <h3 class="highlight">Queue: {{ queue.name }}</h3>
 
       {% if queue.parent_queue %}
-	<p>Parent: <a href="{% url 'helpdesk:queue_detail' slug=queue.parent_queue.slug %}">{{ queue.parent_queue }}</a></p>
+        <p>
+          Parent: <a href="{% url 'helpdesk:queue_detail' slug=queue.parent_queue.slug %}">{{ queue.parent_queue }}</a>
+        </p>
       {% endif %}
+
       {% if queue.sub_queues.all|length > 0 %}
-	<p>Sub-queues: {% for sub in queue.sub_queues.all %}<a href="{% url 'helpdesk:queue_detail' slug=sub.slug %}">{{ sub }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+        <p>
+          Sub-queues:
+
+          {% for sub in queue.sub_queues.all %}
+            <a href="{% url 'helpdesk:queue_detail' slug=sub.slug %}">{{ sub }}</a>
+
+            {% if not forloop.last %},{% endif %}
+
+          {% endfor %}
+
+        </p>
       {% endif %}
+
 
       {% if perms.helpdesk.add_queue or request.user in queue.managing_group.users.all %}
-	<div class="container border border-danger p-2">
-	  <h4>Admin actions:</h4>
+ 
+        <div class="container border border-danger p-2">
+          <h4>Admin actions:</h4>
 
-	  {% if perms.helpdesk.delete_queue or "delete_queue" in user_perms %}
-	    <a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:queue_delete' slug=queue.slug %}">{% include 'bi/trash-fill.html' %}&nbsp;Delete this Queue</a>
-	  {% endif %}
-	  {% if perms.helpdesk.update_queue or "update_queue" in user_perms %}
-	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:queue_update' slug=queue.slug %}">{% include 'bi/pencil-square.html' %}&nbsp;Update this Queue</a>
-	  {% endif %}
-	  {% if perms.helpdesk.add_queue or request.user in queue.managing_group.users.all %}
-	    <a class="btn btn-sm btn-primary" href="{% url 'helpdesk:queue_create' parent_slug=queue.slug %}">{% include 'bi/plus-square-fill.html' %}&nbsp;Add a sub-Queue to this Queue</a>
-	  {% endif %}
+          {% if perms.helpdesk.delete_queue or "delete_queue" in user_perms %}
+            <a class="btn btn-sm btn-danger"
+               role="button"
+               href="{% url 'helpdesk:queue_delete' slug=queue.slug %}">
 
-	  <hr/>
-	  <div class="card">
-	    <div class="card-header">
-	      Permissions on this Queue instance
-	      <button class="btn btn-link small" data-bs-toggle="collapse" data-bs-target="#permissionsCard">
-		View/manage</button>
-	    </div>
-	    <div class="card-body collapse" id="permissionsCard">
-	      <strong>Note: Permissions are handled at the group level. To change managing and/or response groups, click on the <span class="bg-warning p-1">Update</span> button above.</strong>
-	      <br/><br/>
-	      <h4>Managing group:</h4>
-	      {% get_obj_perms queue.managing_group for queue as "group_perms" %}
-	      <ul>
-		<li>{{ queue.managing_group }}: {{ group_perms }}</li>
-	      </ul>
+              {% include 'bi/trash-fill.html' %}
 
-	      <h4>Response groups:</h4>
-	      <ul>
-		{% for group in queue.response_groups.all %}
-		  {% get_obj_perms group for queue as "group_perms" %}
-		  <li>{{ group.name }}: {{ group_perms }}</li>
-		{% empty %}
-		  <li>No group has permissions on this Queue</li>
-		{% endfor %}
-	      </ul>
+            &nbsp;Delete this Queue</a>
+          {% endif %}
 
-	      <p>Users with permissions:</p>
-	      <ul>
-		{% for u in users_with_perms %}
-		  {% get_obj_perms u for queue as "u_perms" %}
-		  <li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
-		{% empty %}
-		  <li>No user has permissions on this Queue</li>
-		{% endfor %}
-	      </ul>
-	    </div>
-	  </div>
+          {% if perms.helpdesk.update_queue or "update_queue" in user_perms %}
+            <a class="btn btn-sm btn-warning"
+               role="button"
+               href="{% url 'helpdesk:queue_update' slug=queue.slug %}">
 
-	</div>
+              {% include 'bi/pencil-square.html' %}
 
+            &nbsp;Update this Queue</a>
+          {% endif %}
 
+          {% if perms.helpdesk.add_queue or request.user in queue.managing_group.users.all %}
+            <a class="btn btn-sm btn-primary"
+               href="{% url 'helpdesk:queue_create' parent_slug=queue.slug %}">
+
+              {% include 'bi/plus-square-fill.html' %}
+
+            &nbsp;Add a sub-Queue to this Queue</a>
+          {% endif %}
+
+          <hr />
+
+          <div class="card">
+            <div class="card-header">
+              Permissions on this Queue instance
+              <button class="btn btn-link small"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#permissionsCard">View/manage</button>
+            </div>
+
+            <div class="card-body collapse" id="permissionsCard">
+              <strong>Note: Permissions are handled at the group level. To change managing and/or response groups, click on the <span class="bg-warning p-1">Update</span> button above.</strong>
+              <br />
+              <br />
+ 
+              <h4>Managing group:</h4>
+              {% get_obj_perms queue.managing_group for queue as "group_perms" %}
+
+              <ul>
+                <li>{{ queue.managing_group }}: {{ group_perms }}</li>
+              </ul>
+
+              <h4>Response groups:</h4>
+              <ul>
+
+                {% for group in queue.response_groups.all %}
+                  {% get_obj_perms group for queue as "group_perms" %}
+                  <li>{{ group.name }}: {{ group_perms }}</li>
+                {% empty %}
+                  <li>No group has permissions on this Queue</li>
+                {% endfor %}
+
+ 
+              </ul>
+              <p>Users with permissions:</p>
+              <ul>
+
+                {% for u in users_with_perms %}
+                  {% get_obj_perms u for queue as "u_perms" %}
+                  <li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
+                {% empty %}
+                  <li>No user has permissions on this Queue</li>
+                {% endfor %}
+
+              </ul>
+            </div>
+          </div>
+
+        </div>
       {% endif %}
+
 
       <h3 class="highlight">Description</h3>
       {% automarkup queue.description %}
+ 
+      <div class="highlight d-flex justify-content-between align-items-center px-3">
+        <div class="fs-6">Tickets in this Queue</div>
+        <div id="indicator-search-tickets" class="htmx-indicator">
+          <button class="btn btn-warning text-white d-none d-md-block me-2"
+                  type="button"
+                  disabled>
+            <strong>Loading...</strong>
+            <div class="spinner-grow spinner-grow-sm ms-2"
+                 role="status"
+                 aria-hidden="true"></div>
+          </button>
+        </div>
+      </div>
 
-      <h3 class="highlight">Tickets in this Queue</h3>
-      {% include 'helpdesk/tickets_table.html' with tickets=queue.tickets.all %}
+      <div id="ticket-search-form-container">
+        <form hx-post="{% url 'helpdesk:_hx_ticket_table' slug=queue.slug %}"
+              hx-trigger="load, keyup delay:500ms, change delay:500ms, click from:#refresh-button"
+              hx-sync="#search-tickets-form:replace"
+              hx-target="#search-tickets-results"
+              hx-indicator="#indicator-search-tickets">
+          <div id="search-tickets-form">{% crispy search_tickets_form %}</div>
+        </form>
+      </div>
 
+      <div id="search-tickets-results" class="mt-2"></div>
+ 
     </div>
   </div>
-
 {% endblock content %}

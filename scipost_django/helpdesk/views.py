@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic.detail import DetailView
@@ -39,7 +39,13 @@ from .constants import (
     TICKET_FOLLOWUP_ACTION_MARK_CLOSED,
 )
 from .models import Queue, Ticket, Followup
-from .forms import QueueForm, TicketForm, TicketAssignForm, FollowupForm
+from .forms import (
+    QueueForm,
+    TicketForm,
+    TicketAssignForm,
+    FollowupForm,
+    TicketSearchForm,
+)
 
 from mails.utils import DirectMailUtil
 
@@ -163,6 +169,11 @@ class QueueDetailView(PermissionRequiredMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["users_with_perms"] = get_users_with_perms(self.object)
+
+        if queue := context.get("queue"):
+            search_tickets_form = TicketSearchForm(None, queue_slug=queue.slug)
+            context["search_tickets_form"] = search_tickets_form
+
         return context
 
 
@@ -370,3 +381,18 @@ class TicketMarkClosed(TicketFollowupView):
         ticket.save()
         self.object = form.save()
         return redirect(self.get_success_url())
+
+
+def _hx_ticket_table(request, slug):
+    form = TicketSearchForm(request.POST or None, queue_slug=slug)
+
+    if form.is_valid():
+        tickets = form.search_results()
+    else:
+        tickets = form.tickets
+
+    return render(
+        request,
+        "helpdesk/tickets_table.html",
+        {"tickets": tickets},
+    )
