@@ -28,6 +28,11 @@ urlpatterns = [
     ),
     path("queue/<slug:slug>/", views.QueueDetailView.as_view(), name="queue_detail"),
     path(
+        "queue/<slug:slug>/_hx_ticket_table",
+        views._hx_ticket_table,
+        name="_hx_ticket_table",
+    ),
+    path(
         "ticket/add/<int:concerning_type_id>/<int:concerning_object_id>/",
         views.TicketCreateView.as_view(),
         name="ticket_create",
