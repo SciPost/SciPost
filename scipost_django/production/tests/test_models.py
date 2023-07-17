@@ -130,7 +130,10 @@ class TestProofRepository(TestCase):
             stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
         )
 
-        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_User")
+        self.assertEqual(
+            ProofsRepository._get_repo_name(proofs_repo.stream),
+            "scipost_202101_00001v1_User",
+        )
 
     def test_repo_name_nonexisting_profile(self):
         proofs_repo = ProofsRepository.objects.get(
@@ -140,7 +143,10 @@ class TestProofRepository(TestCase):
         # delete profile
         Contributor.objects.get(user__username="testuser").profile.delete()
 
-        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_User")
+        self.assertEqual(
+            ProofsRepository._get_repo_name(proofs_repo.stream),
+            "scipost_202101_00001v1_User",
+        )
 
     def test_repo_name_double_last_name_profile(self):
         proofs_repo = ProofsRepository.objects.get(
@@ -153,7 +159,10 @@ class TestProofRepository(TestCase):
         user_profile.last_name = "Usable User"
         user_profile.save()
 
-        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_Usable-User")
+        self.assertEqual(
+            ProofsRepository._get_repo_name(proofs_repo.stream),
+            "scipost_202101_00001v1_Usable-User",
+        )
 
     def test_repo_name_two_authors(self):
         proofs_repo = ProofsRepository.objects.get(
@@ -164,7 +173,10 @@ class TestProofRepository(TestCase):
             "Another Personable Person, Test Usable User"
         )
 
-        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_Person")
+        self.assertEqual(
+            ProofsRepository._get_repo_name(proofs_repo.stream),
+            "scipost_202101_00001v1_Person",
+        )
 
     def test_repo_name_accented_authors(self):
         proofs_repo = ProofsRepository.objects.get(
@@ -178,7 +190,10 @@ class TestProofRepository(TestCase):
 
         proofs_repo.stream.submission.author_list = "Some Pérsønüsær (陈)"
 
-        self.assertEqual(proofs_repo.name, "scipost_202101_00001v1_Personusaer")
+        self.assertEqual(
+            ProofsRepository._get_repo_name(proofs_repo.stream),
+            "scipost_202101_00001v1_Personusaer",
+        )
 
     def test_repo_paths_scipostphys(self):
         proofs_repo = ProofsRepository.objects.get(
