@@ -5,6 +5,8 @@ from datetime import datetime
 from functools import reduce
 from itertools import cycle
 from typing import Any, Callable, Dict, List, Tuple
+from time import sleep
+
 from django.core.management.base import BaseCommand, CommandParser
 from django.conf import settings
 
@@ -189,6 +191,10 @@ class Command(BaseCommand):
         base_actions = self._get_project_cloning_actions(base_template_project)
         journal_actions = self._get_project_cloning_actions(journal_template_project)
 
+        # Add some delays to avoid:
+        # - Commiting the files before the branch has finished being created
+        # - Changing the protected branch before the files have been commited
+        sleep(3)
         # Commit the actions
         project.commits.create(
             {
@@ -197,6 +203,7 @@ class Command(BaseCommand):
                 "actions": base_actions + journal_actions,
             }
         )
+        sleep(3)
 
         # Allow Developers to push to the protected "main" branch
         # Protected branches lay on top of the branches. Deleting and recreating them is
