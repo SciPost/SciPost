@@ -725,6 +725,15 @@ class Submission(models.Model):
         return self.editor_in_charge is not None
 
     @property
+    def nr_unique_thread_reports(self):
+        return (
+            self.thread_full.filter(reports__isnull=False)
+            .values("reports__author")
+            .distinct()
+            .count()
+        )
+
+    @property
     def thread_full(self):
         """Return all Submissions in the database in this thread."""
         return Submission.objects.filter(thread_hash=self.thread_hash).order_by(
