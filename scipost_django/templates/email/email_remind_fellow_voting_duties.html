@@ -1,0 +1,19 @@
+<p>Dear {{ fellow.user.contributor.profile.get_title_display }} {{ fellow.user.last_name }},</p>
+
+<p>You have a pending voting duty for the following submission:</p>
+
+<ul>
+    <li>{{ recommendation.submission }}</li>
+</ul>
+
+<p>
+    Could you please <a href="https://{{ domain }}{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">cast your vote</a> within the next couple of days, so we can finish processing these submissions?
+</p>
+
+<p>
+    You may additionally view other voting duties in the SciPost <a href="https://{{ domain }}/submissions/pool">submissions pool</a>.
+</p>
+
+<p>Many thanks in advance,</p>
+
+<p>The SciPost Team.</p>

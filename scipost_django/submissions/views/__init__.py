@@ -2258,21 +2258,25 @@ def remind_Fellows_to_vote(request, rec_id):
     """
     recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
 
-    Fellow_emails = []
-    Fellow_names = []
-    for Fellow in recommendation.eligible_to_vote.all():
+    fellows = []
+    for fellow in recommendation.eligible_to_vote.all():
         if (
-            Fellow not in recommendation.voted_for.all()
-            and Fellow not in recommendation.voted_against.all()
-            and Fellow not in recommendation.voted_abstain.all()
-            and Fellow.user.email not in Fellow_emails
+            fellow not in recommendation.voted_for.all()
+            and fellow not in recommendation.voted_against.all()
+            and fellow not in recommendation.voted_abstain.all()
+            and fellow not in fellows
         ):
-            Fellow_emails.append(Fellow.user.email)
-            Fellow_names.append(str(Fellow))
-    SubmissionUtils.load({"Fellow_emails": Fellow_emails})
-    SubmissionUtils.send_Fellows_voting_reminder_email()
+            fellows.append(fellow)
+            SubmissionUtils.load(
+                {
+                    "fellow": fellow,
+                    "recommendation": recommendation,
+                }
+            )
+            SubmissionUtils.send_fellow_voting_reminder_email()
+
     ack_message = "Email reminders have been sent to: <ul>"
-    for name in sorted(Fellow_names):
+    for name in sorted(map(lambda f: f.user.get_full_name(), fellows)):
         ack_message += "<li>" + name + "</li>"
     ack_message += "</ul>"
     context = {
