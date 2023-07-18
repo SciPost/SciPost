@@ -639,7 +639,7 @@ def _hx_update_officer(request, stream_id):
         # Remove old officer.
         else:
             remove_perm("can_work_for_stream", prev_officer.user, productionstream)
-            messages.success(request, "Officer {prev_officer} has been removed.")
+            messages.success(request, f"Officer {prev_officer} has been removed.")
 
     else:
         messages.error(request, "\\n".join(officer_form.errors.values()))
