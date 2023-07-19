@@ -16,17 +16,19 @@
       <h1>Production Streams</h1>
     </div>
     <div class="col-12 col-sm-auto">
+
       {% if perms.scipost.can_promote_user_to_production_officer %}
-        <a class="btn-link fs-6" href="{% url 'production:production_team' %}">Production Team</a>
+        <a class="btn-link fs-4" href="{% url 'production:production_team' %}">Production Team</a>
         &nbsp;|&nbsp;
       {% endif %}
-      <a class="btn-link fs-6" href="{% url 'finances:personal_timesheet' %}">Personal Timesheet</a>
+
+      <a class="btn-link fs-4" href="{% url 'finances:personal_timesheet' %}">Personal Timesheet</a>
     </div>
   </div>
 
   <details id="productionstreams-filter-details" class="card my-4">
-    <summary class="card-header fs-6 d-flex flex-row align-items-center justify-content-between list-triangle">
-      <div>Search / Filter / Bulk Actions</div>
+    <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
+      <div class="fs-3">Search / Filter / Bulk Actions</div>
       <div class="d-none d-md-flex align-items-center">
  
         <div id="indicator-search-productionstreams" class="htmx-indicator">
@@ -60,10 +62,11 @@
       {% comment %} Bulk Action buttons {% endcomment %}
 
       {% if perms.scipost.can_assign_production_officer or perms.scipost.can_assign_production_supervisor %}
-        <hr>
+        <hr />
         <div hx-get="{% url 'production:_hx_productionstream_actions_bulk_assign_officers' %}"
              hx-trigger="load"></div>
       {% endif %}
+
     </div>
   </details>
 
