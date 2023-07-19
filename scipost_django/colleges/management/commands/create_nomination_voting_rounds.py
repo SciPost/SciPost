@@ -43,3 +43,31 @@ class Command(BaseCommand):
                     .senior()
                     .filter(college=nomination.college)
                 )
+            voting_round.save()
+
+            if voting_round.eligible_to_vote.count() <= 5:
+                self.stdout.write(
+                    self.style.ERROR(
+                        "Only {nr_eligible_voters} eligible voters for {first_name} {last_name}, cannot create round.".format(
+                            first_name=nomination.profile.first_name,
+                            last_name=nomination.profile.last_name,
+                            nr_eligible_voters=voting_round.eligible_to_vote.count(),
+                        )
+                    )
+                )
+                voting_round.delete()
+            else:
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        "Created voting round for {first_name} {last_name} with {nr_eligible_voters} eligible voters.".format(
+                            first_name=nomination.profile.first_name,
+                            last_name=nomination.profile.last_name,
+                            nr_eligible_voters=voting_round.eligible_to_vote.count(),
+                        )
+                    )
+                )
+
+        if len(nominations) == 0:
+            self.stdout.write(
+                self.style.ERROR(f"No nominations found needing handling.")
+            )

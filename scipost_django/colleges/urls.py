@@ -175,6 +175,11 @@ urlpatterns = [
         name="_hx_nomination_li_contents",
     ),
     path(
+        "_hx_nomination_voter_table/<int:round_id>",
+        views._hx_nomination_voter_table,
+        name="_hx_nomination_voter_table",
+    ),
+    path(
         "_hx_nomination_comments/<int:nomination_id>",
         views._hx_nomination_comments,
         name="_hx_nomination_comments",

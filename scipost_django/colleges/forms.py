@@ -534,11 +534,8 @@ class FellowshipNominationCommentForm(forms.ModelForm):
                         placeholder="Add a comment (visible to EdAdmin and all Fellows)",
                         rows=2,
                     ),
-                    css_class="col-lg-10",
                 ),
-                Div(
-                    ButtonHolder(Submit("submit", "Add comment")), css_class="col-lg-2"
-                ),
+                Div(ButtonHolder(Submit("submit", "Add comment"))),
                 css_class="row",
             ),
         )

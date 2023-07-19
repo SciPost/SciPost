@@ -1,0 +1,35 @@
+{% if voters %}
+  <table class="table">
+    <thead class="table-light">
+      <tr>
+        <th>Fellow</th>
+        <th>Vote</th>
+        <th>Voted on</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      {% for voter in voters %}
+        <tr>
+          <td>{{ voter }}</td>
+
+          {% if voter.vote.vote == "agree" %}
+            <td class="text-success">{{ voter.vote.get_vote_display }}</td>
+          {% elif voter.vote.vote == "abstain" %}
+            <td class="text-warning">{{ voter.vote.get_vote_display }}</td>
+          {% elif voter.vote.vote == "disagree" %}
+            <td class="text-danger">{{ voter.vote.get_vote_display }}</td>
+          {% else %}
+            <td class="text-muted">No vote</td>
+          {% endif %}
+
+          <td>{{ voter.vote.on }}</td>
+        </tr>
+      {% endfor %}
+
+    </tbody>
+  </table>
+{% else %}
+  <p class="text-danger">No eligible voters found.</p>
+{% endif %}

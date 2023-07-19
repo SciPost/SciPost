@@ -848,7 +848,7 @@ def _hx_voting_rounds(request):
             voting_rounds = voting_rounds.filter(eligible_to_vote=fellowship).exclude(
                 votes__fellow=fellowship
             )
-    if "voted" in selected:
+    if "-voted" in selected:
         voting_rounds = voting_rounds.filter(votes__fellow=fellowship)
     context = {
         "tab_choices": tab_choices,
@@ -991,3 +991,18 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
         "colleges/_hx_nomination_invitation_update_response.html",
         context,
     )
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_nomination_voter_table(request, round_id):
+    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+    voters = round.eligible_to_vote.all()
+
+    for voter in voters:
+        voter.vote = round.votes.filter(fellow=voter).first()
+
+    context = {
+        "voters": voters,
+    }
+    return render(request, "colleges/_hx_nomination_voter_table.html", context)

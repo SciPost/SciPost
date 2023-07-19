@@ -1,20 +1,24 @@
-<table class="table">
-  <thead class="table-light">
+<table class="table mb-0">
+  <thead>
     <tr>
       <th>Organization</th>
       <th>Category</th>
       <th>From</th>
       <th>Until</th>
-      {% if actions %}
-	<td>Actions</td>
-      {% endif %}
+
+      {% if actions %}<th>Actions</th>{% endif %}
+
     </tr>
   </thead>
   <tbody>
+
     {% for aff in profile.affiliations.all %}
       {% include 'profiles/_affiliations_table_row.html' with affiliation=aff actions=actions %}
     {% empty %}
-      <tr><td colspan="4">No Affiliation has been defined</td></tr>
+      <tr>
+        <td colspan="4">No Affiliation has been defined</td>
+      </tr>
     {% endfor %}
+
   </tbody>
 </table>

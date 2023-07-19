@@ -1,9 +1,7 @@
-<div class="border border-2 p-2">
-  <h3>Voting results summary</h3>
-  <ul class="list-inline m-2">
-    <li class="list-inline-item p-2">Eligible: {{ voting_round.eligible_to_vote.count }}</li>
-    <li class="list-inline-item p-2 text-success">Agree: {{ voting_round.votes.agree.count }}</li>
-    <li class="list-inline-item p-2 text-warning">Abstain: {{ voting_round.votes.abstain.count }}</li>
-    <li class="list-inline-item p-2 text-danger">Disagree: {{ voting_round.votes.disagree.count }}</li>
-  </ul>
-</div>
+<h3>Summary</h3>
+<ul class="list-inline m-2">
+  <li class="list-inline-item p-2">Eligible: {{ voting_round.eligible_to_vote.count }}</li>
+  <li class="list-inline-item p-2 text-success">Agree: {{ voting_round.votes.agree.count }}</li>
+  <li class="list-inline-item p-2 text-warning">Abstain: {{ voting_round.votes.abstain.count }}</li>
+  <li class="list-inline-item p-2 text-danger">Disagree: {{ voting_round.votes.disagree.count }}</li>
+</ul>
