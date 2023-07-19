@@ -547,8 +547,8 @@ class FellowshipNominationCommentForm(forms.ModelForm):
 class FellowshipNominationDecisionForm(forms.ModelForm):
     class Meta:
         model = FellowshipNominationDecision
-        fields = [
-            "nomination",
+        fields: list[str] = [
+            "voting_round",
             "outcome",
             "fixed_on",
             "comments",
@@ -558,7 +558,7 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("nomination", type="hidden"),
+            Field("voting_round", type="hidden"),
             Field("fixed_on", type="hidden"),
             Div(
                 Div(Field("comments"), css_class="col-8"),

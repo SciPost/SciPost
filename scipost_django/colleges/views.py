@@ -833,14 +833,14 @@ def _hx_voting_rounds(request):
     if "closed" in selected:
         voting_rounds = voting_rounds.closed()
     if "-pending" in selected:
-        voting_rounds = voting_rounds.filter(nomination__decision__isnull=True)
+        voting_rounds = voting_rounds.filter(decision__isnull=True)
     if "-elected" in selected:
         voting_rounds = voting_rounds.filter(
-            nomination__decision__outcome=FellowshipNominationDecision.OUTCOME_ELECTED
+            decision__outcome=FellowshipNominationDecision.OUTCOME_ELECTED
         )
     if "-notelected" in selected:
         voting_rounds = voting_rounds.filter(
-            nomination__decision__outcome=FellowshipNominationDecision.OUTCOME_NOT_ELECTED
+            decision__outcome=FellowshipNominationDecision.OUTCOME_NOT_ELECTED
         )
     if "vote_required" in selected:
         # show all voting rounds to edadmin; for Fellow, filter
@@ -900,8 +900,9 @@ def _hx_nomination_vote(request, voting_round_id):
 
 @login_required
 @user_passes_test(is_edadmin)
-def _hx_nomination_decision(request, nomination_id):
-    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+def _hx_nomination_decision_form(request, round_id):
+    voting_round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+    nomination = voting_round.nomination
     decision_form = FellowshipNominationDecisionForm(request.POST or None)
     if decision_form.is_valid():
         decision = decision_form.save()
@@ -916,12 +917,12 @@ def _hx_nomination_decision(request, nomination_id):
                 description="Invitation created", by=request.user.contributor
             )
     else:
-        decision_form.fields["nomination"].initial = nomination
+        decision_form.fields["voting_round"].initial = voting_round
     context = {
-        "nomination": nomination,
+        "voting_round": voting_round,
         "decision_form": decision_form,
     }
-    return render(request, "colleges/_hx_nomination_decision.html", context)
+    return render(request, "colleges/_hx_nomination_decision_form.html", context)
 
 
 @login_required

@@ -82,6 +82,11 @@ class FellowshipNomination(models.Model):
         return self.voting_rounds.first()
 
     @property
+    def decision(self):
+        """The singular non-deprecated decision for this nomination."""
+        return self.latest_voting_round.decision
+
+    @property
     def decision_blocks(self):
         """
         List of blocking facts (if any) preventing fixing a decision.
@@ -192,6 +197,10 @@ class FellowshipNominationVotingRound(models.Model):
             return vote.vote
         return None
 
+    @property
+    def is_open(self):
+        return self.voting_opens <= timezone.now() <= self.voting_deadline
+
 
 class FellowshipNominationVote(models.Model):
     VOTE_AGREE = "agree"
@@ -235,10 +244,12 @@ class FellowshipNominationVote(models.Model):
 
 
 class FellowshipNominationDecision(models.Model):
-    nomination = models.OneToOneField(
-        "colleges.FellowshipNomination",
+    voting_round = models.OneToOneField(
+        "colleges.FellowshipNominationVotingRound",
         on_delete=models.CASCADE,
         related_name="decision",
+        null=True,
+        blank=True,
     )
 
     OUTCOME_ELECTED = "elected"
@@ -261,12 +272,12 @@ class FellowshipNominationDecision(models.Model):
 
     class Meta:
         ordering = [
-            "nomination",
+            "voting_round",
         ]
         verbose_name_plural = "Fellowship Nomination Decisions"
 
     def __str__(self):
-        return f"Decision for {self.nomination}: {self.get_outcome_display()}"
+        return f"Decision for {self.voting_round}: {self.get_outcome_display()}"
 
     @property
     def elected(self):

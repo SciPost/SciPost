@@ -101,11 +101,11 @@ class FellowshipNominationAdmin(admin.ModelAdmin):
         FellowshipNominationEventInline,
         FellowshipNominationCommentInline,
         FellowshipNominationVotingRoundInline,
-        FellowshipNominationDecisionInline,
         FellowshipInvitationInline,
     ]
-    list_display = ["college", "profile", "nominated_on"]
-    search_fields = ["college", "profile"]
+    list_filter = ["college__name"]
+    list_display = ["profile", "college", "nominated_on"]
+    search_fields = ["college__name", "profile__last_name", "profile__first_name"]
     autocomplete_fields = ["profile", "nominated_by", "fellowship"]
 
 
@@ -121,11 +121,35 @@ class FellowshipNominationVotingRoundAdmin(admin.ModelAdmin):
     model = FellowshipNominationVotingRound
     inlines = [
         FellowshipNominationVoteInline,
+        FellowshipNominationDecisionInline,
+    ]
+    search_fields = [
+        "nomination__profile__last_name",
+        "nomination__profile__first_name",
+        "nomination__college__name",
+    ]
+    list_display = [
+        "nomination",
+        "voting_opens",
+        "voting_deadline",
+        "is_open_checkmark",
+        "decision__outcome",
     ]
     autocomplete_fields = [
         "nomination",
         "eligible_to_vote",
     ]
+    list_filter = ("decision__outcome",)
+
+    def decision__outcome(self, obj):
+        return obj.decision.get_outcome_display()
+
+    @admin.display(
+        boolean=True,
+        description="Open",
+    )
+    def is_open_checkmark(self, obj):
+        return obj.is_open
 
 
 admin.site.register(

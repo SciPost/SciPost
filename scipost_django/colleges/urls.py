@@ -195,9 +195,9 @@ urlpatterns = [
         name="_hx_nomination_vote",
     ),
     path(
-        "_hx_nomination_decision/<int:nomination_id>",
-        views._hx_nomination_decision,
-        name="_hx_nomination_decision",
+        "_hx_nomination_decision_form/<int:round_id>",
+        views._hx_nomination_decision_form,
+        name="_hx_nomination_decision_form",
     ),
     path(
         "_hx_nominations_invitations",
