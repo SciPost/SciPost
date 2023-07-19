@@ -16,6 +16,7 @@ from django.db.models.functions import Concat
 from django.conf import settings
 
 from common.utils import latinise
+from submissions.models.decision import EditorialDecision
 
 from .constants import (
     PRODUCTION_STREAM_STATUS,
@@ -127,6 +128,13 @@ class ProductionStream(models.Model):
     @cached_property
     def completed(self):
         return self.status == PRODUCTION_STREAM_COMPLETED
+
+    @cached_property
+    def in_stasis(self):
+        return (
+            self.submission.editorial_decision.status
+            == EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
+        )
 
     @property
     def latest_activity(self):

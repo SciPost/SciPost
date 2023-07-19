@@ -498,6 +498,7 @@ class Command(BaseCommand):
         # Create the repos
         repos_to_be_created = repos.filter(
             status=ProofsRepository.PROOFS_REPO_UNINITIALIZED
+            stream__in_stasis=False
         )
         for repo in repos_to_be_created:
             try:
