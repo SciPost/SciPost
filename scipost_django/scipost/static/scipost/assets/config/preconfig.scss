@@ -251,7 +251,7 @@ summary {
 }
 
 // Rotate the equilateral triangle when summary is open
-details[open] summary.list-triangle::before {
+details[open] > summary.list-triangle::before {
   content: "▼";
 }
 
