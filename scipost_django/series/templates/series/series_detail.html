@@ -54,7 +54,7 @@
     <div class="col-lg-6">
       <h3 class="highlight" id="collections">Collections in this Series</h3>
       <ul>
-	{% for collection in series.collection_set.all %}
+	{% for collection in collections %}
 	  <li><a href="{{ collection.get_absolute_url }}">{{ collection }}</a></li>
 	{% empty %}
 	  <li>No Collection has yet been assembled for this Series</li>

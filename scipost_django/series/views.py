@@ -32,6 +32,15 @@ class SeriesDetailView(DetailView):
 
     model = Series
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        # Sort collections in series by event start date
+        context["collections"] = self.object.collection_set.all().order_by(
+            "event_start_date"
+        )
+        return context
+
 
 class CollectionDetailView(DetailView):
     """
