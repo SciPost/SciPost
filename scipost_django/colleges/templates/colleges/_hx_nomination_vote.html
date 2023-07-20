@@ -1,44 +1,47 @@
 <div class="row">
-  <div class="col">
+  <div class="col-12 col-md">
+    <h3>Cast your vote:</h3>
+
     {% if vote_object %}
       <p>You have previously voted: {{ vote_object.get_vote_display }}.</p>
     {% else %}
       <p>You have not yet voted on this Nomination.</p>
     {% endif %}
+
     <ul class="list-inline m-2">
       <li class="list-inline-item">
-	Cast your vote:
+        <form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
+              hx-target="#nomination-{{ voting_round.nomination.id }}-vote">
+          {% csrf_token %}
+          <input type="hidden" name="vote" value="agree" />
+          <button class="btn btn-sm btn-success text-white">Agree</button>
+        </form>
       </li>
       <li class="list-inline-item">
-	<form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
-	      hx-target="#nomination-{{ voting_round.nomination.id }}-vote"
-	>
-	  {% csrf_token %}
-	  <input type="hidden" name="vote" value="agree">
-	  <button class="btn btn-sm btn-success text-white">Agree</button>
-	</form>
+        <form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
+              hx-target="#nomination-{{ voting_round.nomination.id }}-vote">
+          {% csrf_token %}
+          <input type="hidden" name="vote" value="abstain" />
+          <button class="btn btn-sm btn-warning text-white">Abstain</button>
+        </form>
       </li>
       <li class="list-inline-item">
-	<form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
-	      hx-target="#nomination-{{ voting_round.nomination.id }}-vote"
-	>
-	  {% csrf_token %}
-	  <input type="hidden" name="vote" value="abstain">
-	  <button class="btn btn-sm btn-warning text-white">Abstain</button>
-	</form>
+        <form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
+              hx-target="#nomination-{{ voting_round.nomination.id }}-vote">
+          {% csrf_token %}
+          <input type="hidden" name="vote" value="disagree" />
+          <button class="btn btn-sm btn-danger text-white">Disagree</button>
+        </form>
       </li>
       <li class="list-inline-item">
-	<form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
-	      hx-target="#nomination-{{ voting_round.nomination.id }}-vote"
-	>
-	  {% csrf_token %}
-	  <input type="hidden" name="vote" value="disagree">
-	  <button class="btn btn-sm btn-danger text-white">Disagree</button>
-	</form>
+        <form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
+              hx-target="#nomination-{{ voting_round.nomination.id }}-vote">
+          {% csrf_token %}
+          <input type="hidden" name="vote" value="veto" />
+          <button class="btn btn-sm btn-dark text-white">Veto</button>
+        </form>
       </li>
     </ul>
   </div>
-  <div class="col">
-    {% include "colleges/_voting_results_box.html" with voting_round=voting_round %}
-  </div>
+  <div class="col-12 col-md">{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
 </div>

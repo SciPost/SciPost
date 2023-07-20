@@ -206,10 +206,12 @@ class FellowshipNominationVote(models.Model):
     VOTE_AGREE = "agree"
     VOTE_ABSTAIN = "abstain"
     VOTE_DISAGREE = "disagree"
+    VOTE_VETO = "veto"
     VOTE_CHOICES = (
         (VOTE_AGREE, "Agree"),
         (VOTE_ABSTAIN, "Abstain"),
         (VOTE_DISAGREE, "Disagree"),
+        (VOTE_VETO, "Veto"),
     )
 
     voting_round = models.ForeignKey(

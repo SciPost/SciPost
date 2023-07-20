@@ -151,3 +151,6 @@ class FellowshipNominationVoteQuerySet(models.QuerySet):
 
     def disagree(self):
         return self.filter(vote=self.model.VOTE_DISAGREE)
+
+    def veto(self):
+        return self.filter(vote=self.model.VOTE_VETO)
