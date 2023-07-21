@@ -23,7 +23,7 @@ import tarfile
 from base64 import b64encode
 
 
-from production.models import ProofsRepository
+from production.models import ProofsRepository, ProductionUser, ProductionEvent
 
 
 class Command(BaseCommand):
@@ -143,6 +143,15 @@ class Command(BaseCommand):
                     ),
                 }
             )
+
+            # Add event to the production stream
+            if system_user := ProductionUser.objects.get(user__username="system"):
+                ProductionEvent.objects.create(
+                    stream=repo.stream,
+                    event="status",
+                    comments=f"Created git repository for proofs.",
+                    noted_by=system_user,
+                )
 
         self.stdout.write(
             self.style.SUCCESS(f"Created git repository at {repo.git_path}")
@@ -498,9 +507,11 @@ class Command(BaseCommand):
         # Create the repos
         repos_to_be_created = repos.filter(
             status=ProofsRepository.PROOFS_REPO_UNINITIALIZED
-            stream__in_stasis=False
         )
         for repo in repos_to_be_created:
+            # Skip repos whose streams that are in stasis
+            if repo.stream.in_stasis:
+                continue
             try:
                 self._create_git_repo(repo)
                 repo.status = ProofsRepository.PROOFS_REPO_CREATED
