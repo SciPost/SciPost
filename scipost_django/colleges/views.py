@@ -961,7 +961,9 @@ def _hx_nomination_vote(request, voting_round_id):
 def _hx_nomination_decision_form(request, round_id):
     voting_round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
     nomination = voting_round.nomination
-    decision_form = FellowshipNominationDecisionForm(request.POST or None)
+    decision_form = FellowshipNominationDecisionForm(
+        request.POST or None, voting_round=voting_round
+    )
     if decision_form.is_valid():
         decision = decision_form.save()
         nomination.add_event(description="Decision fixed", by=request.user.contributor)
@@ -974,8 +976,6 @@ def _hx_nomination_decision_form(request, round_id):
             nomination.add_event(
                 description="Invitation created", by=request.user.contributor
             )
-    else:
-        decision_form.fields["voting_round"].initial = voting_round
     context = {
         "voting_round": voting_round,
         "decision_form": decision_form,

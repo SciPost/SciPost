@@ -552,6 +552,7 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
         ]
 
     def __init__(self, *args, **kwargs):
+        voting_round = kwargs.pop("voting_round", None)
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -567,6 +568,9 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
                 css_class="row",
             ),
         )
+
+        if voting_round:
+            self.fields["outcome"].initial = voting_round.vote_outcome
 
 
 class FellowshipInvitationResponseForm(forms.ModelForm):
