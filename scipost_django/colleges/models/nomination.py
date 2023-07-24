@@ -4,12 +4,15 @@ __license__ = "AGPL v3"
 
 from django.db import models
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from ..managers import (
     FellowshipNominationQuerySet,
     FellowshipNominationVotingRoundQuerySet,
     FellowshipNominationVoteQuerySet,
 )
+
+from colleges.models import Fellowship
 
 from scipost.models import get_sentinel_user
 
@@ -104,6 +107,20 @@ class FellowshipNomination(models.Model):
                 return None
             return "Latest voting round is ongoing, and not everybody has voted."
         return "No voting round found."
+
+    # FIX: This is wrong semantically...
+    @property
+    def get_eligible_voters(self):
+        specialties_slug_list = [s.slug for s in self.profile.specialties.all()]
+
+        eligible_voters = (
+            Fellowship.objects.active()
+            .senior()
+            .specialties_overlap(specialties_slug_list)
+            .distinct()
+        )
+
+        return eligible_voters
 
 
 class FellowshipNominationEvent(models.Model):

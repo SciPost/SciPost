@@ -1,0 +1,12 @@
+<h4>Eligible Voters</h4>
+
+{% include 'colleges/_hx_nomination_eligible_voters_table.html'  with eligible_voters=eligible_voters %}
+
+{% if eligible_voters|length > 0 %}
+  <button id="nomination-{{ nomination.id }}-start-round-btn" 
+          hx-get="{% url 'colleges:_hx_nomination_round_start' nomination_id=nomination.id %}" 
+          hx-target="#nomination-{{ nomination.id }}-eligible-voters" 
+          class="nomination-start-round-btn btn btn-{% if eligible_voters|length < 5 %}warning{% else %}primary{% endif %}"
+          {% if eligible_voters|length < 5 %}hx-confirm="Are you sure you want to start a round with fewer than 5 voters?"{% endif %}
+    >Start round</button>
+{% endif %}

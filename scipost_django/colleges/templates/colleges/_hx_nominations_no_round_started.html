@@ -1,0 +1,16 @@
+{% for nomination in nominations_no_round_started %}
+  <details id="nomination-{{ nomination.id }}-start-round"
+           class="border border-2 my-2">
+    <summary class="p-2 bg-light">{{ nomination }}</summary>
+
+    <div class="p-2 mt-2">
+      <div id="nomination-{{ nomination.id }}-eligible-voters"
+           hx-get="{% url 'colleges:_hx_nomination_eligible_voters' nomination_id=nomination.id %}"
+           hx-trigger="toggle from:#nomination-{{ nomination.id }}-start-round"></div>
+
+    </div>
+
+  </details>
+{% empty %}
+  <p>All nominations have had their voting round(s) started.</p>
+{% endfor %}

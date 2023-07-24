@@ -1,0 +1,39 @@
+{% if eligible_voters %}
+  <table class="table">
+    <thead class="table-light">
+      <tr>
+        <th>Fellow</th>
+        <th>College</th>
+        <th>Specialties</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      {% for voter in eligible_voters %}
+        <tr>
+          <td>{{ voter.contributor }}</td>
+          <td>{{ voter.college.name }}</td>
+          <td>
+
+            {% for specialty in voter.contributor.profile.specialties.all %}
+              <div class="single d-inline 
+                {% if specialty in nominee_specialties %}text-success{% endif %}
+                 " data-specialty="{{ specialty.slug }}" data-bs-placement="bottom" title="{{ specialty }}">
+                {{ specialty.code }}
+              </div>
+            {% endfor %}
+
+
+          </td>
+          <td>{{ voter.get_status_display }}</td>
+        </tr>
+      {% endfor %}
+
+
+    </tbody>
+  </table>
+{% else %}
+  <p class="text-danger">No eligible voters found.</p>
+{% endif %}

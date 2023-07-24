@@ -10,7 +10,7 @@
   {% endif %}
 
   <div class="row mb-0">
-    <div class="col">
+    <div class="col-12 col-md mt-3">
       <h3>Decision</h3>
 
       {% if voting_round.decision.outcome == 'elected' %}
@@ -37,6 +37,6 @@
       {% endif %}
 
     </div>
-    <div class="col">{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
+    <div class="col-12 col-md mt-3">{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
   </div>
 </div>

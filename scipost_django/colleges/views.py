@@ -28,6 +28,7 @@ from colleges.permissions import (
     is_edadmin_or_advisory_or_active_regular_or_senior_fellow,
 )
 from colleges.utils import check_profile_eligibility_for_fellowship
+from scipost.permissions import HTMXResponse
 from submissions.models import Submission
 
 from .constants import (
@@ -759,6 +760,63 @@ def _hx_nominations_needing_specialties(request):
         request,
         "colleges/_hx_nominations_needing_specialties.html",
         context,
+    )
+
+
+@login_required
+@user_passes_test(is_edadmin_or_senior_fellow)
+def _hx_nominations_no_round_started(request):
+    nominations_no_round_started = FellowshipNomination.objects.exclude(
+        profile__specialties__isnull=True
+    ).filter(voting_rounds__isnull=True)
+    context = {
+        "nominations_no_round_started": nominations_no_round_started,
+    }
+    return render(
+        request,
+        "colleges/_hx_nominations_no_round_started.html",
+        context,
+    )
+
+
+@login_required
+@user_passes_test(is_edadmin_or_senior_fellow)
+def _hx_nomination_eligible_voters(request, nomination_id):
+    nomination = FellowshipNomination.objects.get(pk=nomination_id)
+    eligible_voters = nomination.get_eligible_voters
+    context = {
+        "nomination": nomination,
+        "eligible_voters": eligible_voters,
+        "nominee_specialties": nomination.profile.specialties.all(),
+    }
+    return render(
+        request,
+        "colleges/_hx_nomination_eligible_voters.html",
+        context,
+    )
+
+
+def _hx_nomination_round_start(request, nomination_id):
+    """Create a voting round for the specified nomination using the default eligible voters."""
+    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+    # Find ongoing round for this nomination, if any
+    ongoing_round = nomination.voting_rounds.ongoing().first()
+    if ongoing_round:
+        return HTMXResponse(
+            f"Round for {nomination.profile} already ongoing until {ongoing_round.voting_deadline}",
+            tag="danger",
+        )
+    voting_round = FellowshipNominationVotingRound(
+        nomination=nomination,
+        voting_opens=timezone.now(),
+        voting_deadline=timezone.now() + datetime.timedelta(days=14),
+    )
+    voting_round.save()
+    voting_round.eligible_to_vote.set(nomination.get_eligible_voters)
+    voting_round.save()
+    return HTMXResponse(
+        f"Started round for {nomination.profile} from now until {voting_round.voting_deadline}",
+        tag="success",
     )
 
 

@@ -106,13 +106,20 @@
     <details id="ensure-specialties-details"
              class="border border-danger border-2 mt-4">
       <summary class="bg-danger bg-opacity-10 p-2 d-flex list-triangle">
-        <div class="fs-5">Ensure specialties</div>
+        <div class="fs-5">Start voting</div>
       </summary>
 
       <div class="p-2">
+        <h3>Add specialties</h3>
         <div id="nominations_needing_specialties"
              hx-get="{% url 'colleges:_hx_nominations_needing_specialties' %}"
              hx-trigger="toggle from:#ensure-specialties-details"></div>
+
+        <h3 class="mt-4 ">Start round</h3>
+        <div id="nominations_no_round_started"
+             hx-get="{% url 'colleges:_hx_nominations_no_round_started' %}"
+             hx-trigger="toggle from:#ensure-specialties-details, click from:body target:.nomination-start-round-btn">
+        </div>
       </div>
     </details>
   {% endif %}
@@ -133,7 +140,8 @@
     <div class="p-2">
       <div id="voting_tablist" hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab= 
         {% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}
-         " hx-trigger="toggle from:#voting-details" hx-target="this" hx-swap="innerHTML"></div>
+         " hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn" hx-target="this" hx-swap="innerHTML">
+      </div>
     </div>
   </details>
 
