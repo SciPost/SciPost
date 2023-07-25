@@ -8,13 +8,13 @@
     <div class="row">
       <div class="col-12 col-md">
         <details class="m-2 mt-3 border">
-          <summary class="p-2 bg-light list-triangle">Events</summary>
+          <summary class="p-2 bg-light d-block list-triangle">Events</summary>
           {% include 'colleges/_nomination_events_table.html' with nomination=invitation.nomination %}
         </details>
       </div>
       <div class="col-12 col-md">
         <details open class="m-2 mt-3 border">
-          <summary class="p-2 bg-light list-triangle">Checklist</summary>
+          <summary class="p-2 bg-light d-block list-triangle">Checklist</summary>
           {% include 'colleges/_nominations_invitation_checklist.html' with invitation=invitation %}
         </details>
       </div>

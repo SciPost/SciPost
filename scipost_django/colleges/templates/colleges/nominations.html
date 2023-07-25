@@ -29,7 +29,7 @@
   </p>
 
   <details class="border border-warning border-2 mt-4">
-    <summary class="bg-warning bg-opacity-10 p-2 d-flex list-triangle">
+    <summary class="bg-warning bg-opacity-10 p-2 d-block list-triangle">
       <div class="fs-5">Nominate</div>
     </summary>
 
@@ -105,7 +105,7 @@
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
     <details id="ensure-specialties-details"
              class="border border-danger border-2 mt-4">
-      <summary class="bg-danger bg-opacity-10 p-2 d-flex list-triangle">
+      <summary class="bg-danger bg-opacity-10 p-2 d-block list-triangle">
         <div class="fs-5">Start voting</div>
       </summary>
 
@@ -125,7 +125,7 @@
   {% endif %}
 
   <details id="voting-details" class="border border-primary border-2 mt-4">
-    <summary class="bg-primary bg-opacity-10 p-2 d-flex list-triangle">
+    <summary class="bg-primary bg-opacity-10 p-2 d-block list-triangle">
       <div class="fs-5">
 
         {% if 'edadmin' not in user_roles %}
@@ -138,15 +138,15 @@
     </summary>
 
     <div class="p-2">
-      <div id="voting_tablist" hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn" hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab=
+      <div id="voting_tablist" hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn" hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab= 
         {% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}
-        "></div>
+         "></div>
     </div>
   </details>
 
   {% if "edadmin" in user_roles %}
     <details id="invitations-details" class="border border-success border-2 mt-4">
-      <summary class="bg-success bg-opacity-10 p-2 d-flex list-triangle">
+      <summary class="bg-success bg-opacity-10 p-2 d-block list-triangle">
         <div class="fs-5">Manage invitations</div>
       </summary>
 
@@ -160,7 +160,7 @@
   {% endif %}
 
   <details id="list-details" class="border border-2 mt-4">
-    <summary class="bg-light p-2 d-flex list-triangle">
+    <summary class="bg-light p-2 d-block list-triangle">
       <div class="fs-5">List / filter</div>
     </summary>
 
