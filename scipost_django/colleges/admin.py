@@ -116,6 +116,14 @@ class FellowshipNominationVoteInline(admin.TabularInline):
     model = FellowshipNominationVote
     extra = 0
 
+    # Filter "fellow" field to only those who are eligible to vote
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "fellow":
+            kwargs["queryset"] = FellowshipNominationVotingRound.objects.get(
+                pk=request.resolver_match.kwargs["object_id"]
+            ).eligible_to_vote.all()
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 class FellowshipNominationVotingRoundAdmin(admin.ModelAdmin):
     model = FellowshipNominationVotingRound
