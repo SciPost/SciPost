@@ -1033,12 +1033,69 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
             description=f"Response updated to: {invitation.get_response_display()}",
             by=request.user.contributor,
         )
-        return redirect(
-            "%s?response=%s"
-            % (
-                reverse("colleges:_hx_nominations_invitations"),
-                form.cleaned_data["response"],
+
+        nonexpired_fellowship = (
+            Fellowship.objects.exclude(
+                until_date__lte=timezone.now().date(),
             )
+            .filter(
+                college=invitation.nomination.college,
+                contributor=invitation.nomination.profile.contributor,
+            )
+            .order_by("-start_date")
+            .first()
+        )
+
+        # If the invitation is accepted or postponed, create a Fellowship
+        if invitation.response in [
+            FellowshipInvitation.RESPONSE_ACCEPTED,
+            FellowshipInvitation.RESPONSE_POSTPONED,
+        ]:
+            # Create a new Fellowship if no object exists
+            if not nonexpired_fellowship:
+                fellowship = Fellowship.objects.create(
+                    college=invitation.nomination.college,
+                    contributor=invitation.nomination.profile.contributor,
+                    start_date=timezone.now()
+                    if invitation.response == FellowshipInvitation.RESPONSE_ACCEPTED
+                    else invitation.postpone_start_to,
+                    until_date=None,
+                )
+
+                invitation.nomination.add_event(
+                    description=f"Fellowship created (start: {fellowship.start_date.strftime('%Y-%m-%d')})",
+                    by=request.user.contributor,
+                )
+            else:
+                # Update the start date of the Fellowship if an object already exists
+                nonexpired_fellowship.start_date = (
+                    timezone.now()
+                    if invitation.response == FellowshipInvitation.RESPONSE_ACCEPTED
+                    else invitation.postpone_start_to
+                )
+                nonexpired_fellowship.until_date = None
+                invitation.nomination.add_event(
+                    description=f"Fellowship start date updated (start: {nonexpired_fellowship.start_date.strftime('%Y-%m-%d')})",
+                    by=request.user.contributor,
+                )
+                nonexpired_fellowship.save()
+        # Terminate the Fellowship if the invitation is declined
+        elif invitation.response == FellowshipInvitation.RESPONSE_DECLINED:
+            if nonexpired_fellowship:
+                nonexpired_fellowship.until_date = (
+                    timezone.now().date()
+                    if nonexpired_fellowship.is_active()
+                    else nonexpired_fellowship.start_date
+                )
+                invitation.nomination.add_event(
+                    description=f"Fellowship ended (end: {nonexpired_fellowship.until_date.strftime('%Y-%m-%d')})",
+                    by=request.user.contributor,
+                )
+                nonexpired_fellowship.save()
+
+        return HTMXResponse(
+            f"Response updated to: {invitation.get_response_display()}",
+            tag="success",
         )
     context = {
         "invitation": invitation,

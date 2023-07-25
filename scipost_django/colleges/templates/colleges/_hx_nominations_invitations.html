@@ -4,52 +4,28 @@
   <details id="invitation-{{ invitation.id }}-details"
            class="my-2 border border-2">
     <summary class="bg-light p-2">{{ invitation }}</summary>
-    <details class="m-2 mt-4 border">
-      <summary class="p-2 bg-light">Events for this nomination</summary>
-      {% include 'colleges/_nomination_events_table.html' with nomination=invitation.nomination %}
-    </details>
+
+    <div class="row">
+      <div class="col-12 col-md">
+        <details class="m-2 mt-3 border">
+          <summary class="p-2 bg-light list-triangle">Events</summary>
+          {% include 'colleges/_nomination_events_table.html' with nomination=invitation.nomination %}
+        </details>
+      </div>
+      <div class="col-12 col-md">
+        <details open class="m-2 mt-3 border">
+          <summary class="p-2 bg-light list-triangle">Checklist</summary>
+          {% include 'colleges/_nominations_invitation_checklist.html' with invitation=invitation %}
+        </details>
+      </div>
+    </div>
+ 
     <div class="p-2">
-      <h4>Checklist</h4>
-      <ul>
-
-        {% if not invitation.nomination.profile.contributor %}
-
-          <li class="text-danger">N.B.: this nominee is not yet registered as a Contributor</li>
-
-        {% else %}
-
-          <li>
-            <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>&nbsp;This nominee has a Contributor account
-          </li>
-
-        {% endif %}
-
-        {% if selected == 'notyetinvited' %}
-
-          <li>
-            For named or elected, but not yet invited:
-            <a class="btn btn-primary"
-               href="{% url 'colleges:fellowship_invitation_email_initial' pk=invitation.id %}">prepare and send initial email</a>
-
-          </li>
-
-        {% elif selected == 'accepted' %}
-
-          <li>
-            Accepted to serve as Fellow but not currently active in a College? <a href="{% url 'colleges:fellowship_create' contributor_id=invitation.nomination.profile.contributor.id %}"
-    target="_blank">Set up a Fellowship</a>
-          </li>
-
-        {% endif %}
-
-      </ul>
-
-      <hr />
-
       <h4>Update the response to this invitation:</h4>
       <div id="invitation-{{ invitation.id }}-update-response"
            hx-get="{% url 'colleges:_hx_fellowship_invitation_update_response' invitation_id=invitation.id %}"
-           hx-trigger="toggle from:#invitation-{{ invitation.id }}-details"></div>
+           hx-trigger="toggle from:#invitation-{{ invitation.id }}-details"
+           hx-target="this"></div>
     </div>
   </details>
 {% empty %}

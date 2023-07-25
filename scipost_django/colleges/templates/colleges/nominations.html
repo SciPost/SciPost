@@ -138,8 +138,9 @@
     </summary>
 
     <div class="p-2">
-      <div id="voting_tablist" hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn"
-      hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab={% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}" ></div>
+      <div id="voting_tablist" hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn" hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab=
+        {% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}
+        "></div>
     </div>
   </details>
 
@@ -152,7 +153,8 @@
       <div class="p-2 mt-2">
         <div id="invitations_tablist"
              hx-get="{% url 'colleges:_hx_nominations_invitations' %}?response=notyetinvited"
-             hx-trigger="toggle from:#invitations-details"></div>
+             hx-trigger="toggle from:#invitations-details"
+             hx-target="#invitations_tablist"></div>
       </div>
     </details>
   {% endif %}

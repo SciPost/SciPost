@@ -11,6 +11,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
+from django.utils import timezone
 
 from ontology.models import Specialty
 from proceedings.models import Proceedings
@@ -593,20 +594,63 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
         self.helper.layout = Layout(
             Field("nomination", type="hidden"),
             Div(
-                Div(Field("response"), css_class="col-lg-5"),
-                Div(Field("postpone_start_to"), css_class="col-lg-5"),
-                css_class="row",
-            ),
-            Div(
+                Div(
+                    Div(
+                        Div(Field("response"), css_class="col-12"),
+                        Div(Field("postpone_start_to"), css_class="col-12"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col-12 col-md-5",
+                ),
                 Div(
                     Field(
                         "comments",
                         placeholder="Add a comment (visible to EdAdmin)",
-                        rows=2,
+                        rows=4,
                     ),
-                    css_class="col-lg-10",
+                    css_class="col-12 col-md-7",
                 ),
-                Div(ButtonHolder(Submit("submit", "Submit")), css_class="col-lg-2"),
-                css_class="row mt-0",
+                Div(ButtonHolder(Submit("submit", "Update")), css_class="col-auto"),
+                css_class="row mb-0",
             ),
         )
+
+    def clean(self):
+        has_contributor = hasattr(
+            self.cleaned_data["nomination"].profile, "contributor"
+        )
+        invitation_accepted = self.cleaned_data["response"] == (
+            FellowshipInvitation.RESPONSE_ACCEPTED
+        )
+        invitation_postponed = self.cleaned_data["response"] == (
+            FellowshipInvitation.RESPONSE_POSTPONED
+        )
+        postponed_date = self.cleaned_data["postpone_start_to"]
+
+        if (invitation_accepted or invitation_postponed) and not has_contributor:
+            self.add_error(
+                "response",
+                "This profile does not have a Contributor account to create a Fellowship with. Please create one before updating the invitation response to a positive answer.",
+            )
+
+        if postponed_date and (timezone.now().date() > postponed_date):
+            self.add_error(
+                "postpone_start_to",
+                "You cannot set a postponed start date in the past.",
+            )
+
+        if (
+            invitation_accepted
+            and (postponed_date is not None)
+            and (postponed_date != timezone.now().date())
+        ):
+            self.add_error(
+                "postpone_start_to",
+                "If the invitation is accepted for immediate start, you cannot postpone its start date.",
+            )
+
+        if invitation_postponed and not postponed_date:
+            self.add_error(
+                "postpone_start_to",
+                "If the invitation is postponed, you must set a start date in the future.",
+            )
