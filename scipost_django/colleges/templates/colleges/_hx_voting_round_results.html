@@ -5,36 +5,15 @@
     <h3>Votes</h3>
     <div id="nomination-{{ nomination.id }}-round-{{ voting_round.id }}-votes"
          hx-get="{% url 'colleges:_hx_nomination_voter_table' round_id=voting_round.id %}"
-         hx-trigger="revealed"
-         hx-target="this"></div>
+         hx-trigger="intersect once"></div>
   {% endif %}
 
   <div class="row mb-0">
     <div class="col-12 col-md mt-3">
       <h3>Decision</h3>
 
-      {% if voting_round.decision.outcome == 'elected' %}
-        <div class="badge fs-4 ms-2 bg-success">{{ voting_round.decision.get_outcome_display }}</div>
-      {% elif voting_round.decision.outcome == 'notelected' %}
-        <div class="badge fs-4 ms-2 bg-danger">{{ voting_round.decision.get_outcome_display }}</div>
-      {% else %}
-
-        {% if "edadmin" in user_roles %}
-
-          {% if not voting_round.is_open %}
-            <div id="nomination-{{ nomination.id }}-decision_form"
-                 hx-get="{% url 'colleges:_hx_nomination_decision_form' round_id=voting_round.id %}"
-                 hx-trigger="revealed"
-                 hx-target="this"></div>
-          {% else %}
-            <p class="text-warning">The voting round is still open. You many not draft a decision yet.</p>
-          {% endif %}
-
-        {% else %}
-          <p class="text-warning">No decision has been formulated yet.</p>
-        {% endif %}
-
-      {% endif %}
+      <div hx-get="{% url 'colleges:_hx_nomination_decision_form' round_id=voting_round.id %}"
+           hx-trigger="intersect once"></div>
 
     </div>
     <div class="col-12 col-md mt-3">{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>

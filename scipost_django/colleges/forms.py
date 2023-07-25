@@ -568,8 +568,8 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
                 css_class="row",
             ),
         )
-
         if voting_round:
+            self.fields["voting_round"].initial = voting_round
             self.fields["outcome"].initial = voting_round.vote_outcome
 
 

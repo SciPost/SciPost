@@ -113,12 +113,12 @@
         <h3>Add specialties</h3>
         <div id="nominations_needing_specialties"
              hx-get="{% url 'colleges:_hx_nominations_needing_specialties' %}"
-             hx-trigger="toggle from:#ensure-specialties-details"></div>
+             hx-trigger="intersect once"></div>
 
         <h3 class="mt-4 ">Start round</h3>
         <div id="nominations_no_round_started"
              hx-get="{% url 'colleges:_hx_nominations_no_round_started' %}"
-             hx-trigger="toggle from:#ensure-specialties-details, click from:body target:.nomination-start-round-btn">
+             hx-trigger="intersect once, click from:body target:.nomination-start-round-btn, click from:body target:.nomination-specialties-done-btn">
         </div>
       </div>
     </details>
@@ -138,10 +138,8 @@
     </summary>
 
     <div class="p-2">
-      <div id="voting_tablist" hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab= 
-        {% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}
-         " hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn" hx-target="this" hx-swap="innerHTML">
-      </div>
+      <div id="voting_tablist" hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn"
+      hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab={% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}" ></div>
     </div>
   </details>
 
@@ -154,9 +152,7 @@
       <div class="p-2 mt-2">
         <div id="invitations_tablist"
              hx-get="{% url 'colleges:_hx_nominations_invitations' %}?response=notyetinvited"
-             hx-trigger="toggle from:#invitations-details"
-             hx-target="this"
-             hx-swap="innerHTML"></div>
+             hx-trigger="toggle from:#invitations-details"></div>
       </div>
     </details>
   {% endif %}

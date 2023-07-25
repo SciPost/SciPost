@@ -49,8 +49,7 @@
       <h4>Update the response to this invitation:</h4>
       <div id="invitation-{{ invitation.id }}-update-response"
            hx-get="{% url 'colleges:_hx_fellowship_invitation_update_response' invitation_id=invitation.id %}"
-           hx-trigger="toggle from:#invitation-{{ invitation.id }}-details"
-           hx-target="this"></div>
+           hx-trigger="toggle from:#invitation-{{ invitation.id }}-details"></div>
     </div>
   </details>
 {% empty %}
