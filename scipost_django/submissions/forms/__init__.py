@@ -2597,6 +2597,18 @@ class EICRecommendationForm(forms.ModelForm):
                 raise forms.ValidationError(
                     "If you recommend Publish, please also provide a Tier."
                 )
+            if (
+                self.submission.nr_unique_thread_vetted_reports
+                < cleaned_data["for_journal"].minimal_nr_of_reports
+            ):
+                raise forms.ValidationError(
+                    "The number of latest vetted reports in this thread"
+                    " ({total_reports}) is too low for this journal"
+                    " ({min_reports}) to recommend publication.".format(
+                        total_reports=self.submission.nr_unique_thread_vetted_reports,
+                        min_reports=cleaned_data["for_journal"].minimal_nr_of_reports,
+                    )
+                )
         if (
             cleaned_data["recommendation"] in (EIC_REC_PUBLISH, EIC_REC_REJECT)
             and len(cleaned_data["remarks_for_editorial_college"]) < 10
@@ -2604,20 +2616,6 @@ class EICRecommendationForm(forms.ModelForm):
             raise forms.ValidationError(
                 "You must substantiate your recommendation to accept or reject the manuscript."
             )
-        
-        if (
-            self.submission.nr_unique_thread_reports
-            < cleaned_data["for_journal"].minimal_nr_of_reports
-        ):
-            raise forms.ValidationError(
-                "The number of reports in this thread is too low"
-                " ({total_reports}) for this journal ({min_reports})"
-                " to recomment publication.".format(
-                    total_reports=self.submission.nr_unique_thread_reports,
-                    min_reports=cleaned_data["for_journal"].minimal_nr_of_reports,
-                )
-            )
-
 
     def save(self):
         # If the cycle hadn't been chosen, set it to the DirectCycle

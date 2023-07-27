@@ -35,6 +35,7 @@ from ..constants import (
     EVENT_FOR_AUTHOR,
     EVENT_FOR_EIC,
     SUBMISSION_TIERS,
+    STATUS_VETTED,
 )
 from ..exceptions import StageNotDefinedError
 from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
@@ -725,13 +726,29 @@ class Submission(models.Model):
         return self.editor_in_charge is not None
 
     @property
-    def nr_unique_thread_reports(self):
-        return (
-            self.thread_full.filter(reports__isnull=False)
-            .values("reports__author")
-            .distinct()
-            .count()
+    def nr_unique_thread_vetted_reports(self):
+        """Return the number of vetted reports from the set of latest reports submitted by each author."""
+        # REFACTOR: I don't have access to Report objects here, so I have to be creative
+        thread_reports = self.thread_full.filter(reports__isnull=False).values(
+            "reports__status", "reports__author", "reports__date_submitted"
         )
+        latest_reports = {}
+        for report in thread_reports:
+            if report["reports__author"] not in latest_reports:
+                latest_reports[report["reports__author"]] = report
+            elif (
+                report["reports__date_submitted"]
+                > latest_reports[report["reports__author"]]["reports__date_submitted"]
+            ):
+                latest_reports[report["reports__author"]] = report
+
+        vetted_reports = sum(
+            [
+                report["reports__status"] == STATUS_VETTED
+                for report in latest_reports.values()
+            ]
+        )
+        return vetted_reports
 
     @property
     def thread_full(self):
