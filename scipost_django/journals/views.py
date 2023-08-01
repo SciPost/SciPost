@@ -705,11 +705,9 @@ class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
 def manage_metadata(request, doi_label=None):
     if doi_label:
         publication = get_object_or_404(Publication, doi_label=doi_label)
-        associate_grant_form = GrantSelectForm()
         associate_generic_funder_form = FunderSelectForm()
         context = {
             "publication": publication,
-            "associate_grant_form": associate_grant_form,
             "associate_generic_funder_form": associate_generic_funder_form,
         }
         return render(request, "journals/manage_metadata_for_publication.html", context)
@@ -904,7 +902,7 @@ class FundingInfoView(
 
 @permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
-def add_associated_grant(request, doi_label):
+def _hx_publication_metadata_add_grant_funding(request, doi_label):
     """
     Called by an Editorial Administrator.
     This associates a grant from the database to this publication.
@@ -920,12 +918,19 @@ def add_associated_grant(request, doi_label):
         publication.doideposit_needs_updating = True
         publication.save()
         messages.success(request, "Grant added to publication %s" % str(publication))
-    return redirect(publication.get_absolute_url())
+    return render(
+        request,
+        "journals/_hx_publication_metadata_add_grant_funding.html",
+        {
+            "form": grant_select_form,
+            "publication": publication,
+        },
+    )
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
-def add_generic_funder(request, doi_label):
+def _hx_publication_metadata_add_generic_funding(request, doi_label):
     """
     Called by an Editorial Administrator.
     This associates a funder (generic, not via grant) from the database to this publication.
@@ -942,7 +947,14 @@ def add_generic_funder(request, doi_label):
         messages.success(
             request, "Generic funder added to publication %s" % str(publication)
         )
-    return redirect(publication.get_absolute_url())
+    return render(
+        request,
+        "journals/_hx_publication_metadata_add_generic_funding.html",
+        {
+            "form": funder_select_form,
+            "publication": publication,
+        },
+    )
 
 
 class CreateMetadataXMLView(

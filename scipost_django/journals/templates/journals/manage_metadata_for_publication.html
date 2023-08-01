@@ -34,47 +34,12 @@
     </div>
 
     <div class="col-md-6">
-      <h2>Funding statement for this publication:</h2>
-      {% if publication.metadata.funding_statement %}
-	<p>{{ publication.metadata.funding_statement }}</p>
-      {% else %}
-	<p>No funding statement was found</p>
-      {% endif %}
-      <h2>Grants associated to this publication:</h2>
-      <ul>
-	{% for grant in publication.grants.all %}
-	  <li>{{ grant }}</li>
-	{% empty %}
-	  <li>no associated grants found</li>
-	{% endfor %}
-      </ul>
-      <div class="card p-3 mb-4">
-	<h3>Associate a grant to this publication:</h3>
-	<form action="{% url 'journals:add_associated_grant' publication.doi_label %}" method="post">
-    	  {% csrf_token %}
-    	  {{ associate_grant_form|bootstrap }}
-    	  <input class="btn btn-outline-secondary" type="submit" value="Add">
-	</form>
+      <div id="publication-grant-funding" hx-get="{% url 'journals:_hx_publication_metadata_add_grant_funding' publication.doi_label %}" hx-trigger="intersect once">
       </div>
 
-      <h2>Generic (not via grant) funders associated to this publication:</h2>
-      <ul>
-	{% for funder in publication.funders_generic.all %}
-	  <li>{{ funder }}</li>
-	{% empty %}
-	  <li>No generic funder found</li>
-	{% endfor %}
-      </ul>
-
-      <div class="card p-3 mb-4">
-	<h3>Associate a generic funder to this publication:</h3>
-	<form action="{% url 'journals:add_generic_funder' publication.doi_label %}" method="post">
-    	  {% csrf_token %}
-    	  {{ associate_generic_funder_form|bootstrap }}
-    	  <input class="btn btn-outline-secondary" type="submit" value="Add">
-	</form>
+      <div id="publication-generic-funding" hx-get="{% url 'journals:_hx_publication_metadata_add_generic_funding' publication.doi_label %}" hx-trigger="intersect once">
       </div>
-
+      
       <h3>Other funding-related actions:</h3>
       <ul>
 	<li><a href="{% url 'funders:funders_dashboard' %}" target="_blank">go to the Funders page to add a Funder and/or Grant instance</a></li>

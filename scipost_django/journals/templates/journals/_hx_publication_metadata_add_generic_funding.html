@@ -1,0 +1,22 @@
+{% load bootstrap %}
+
+<h2>Generic (not via grant) funders associated to this publication:</h2>
+<ul>
+
+  {% for funder in publication.funders_generic.all %}
+    <li>{{ funder }}</li>
+  {% empty %}
+    <li>No generic funder found</li>
+  {% endfor %}
+
+</ul>
+
+<div class="card p-3 mb-4">
+  <h3>Associate a generic funder to this publication:</h3>
+  <form hx-post="{% url 'journals:_hx_publication_metadata_add_generic_funding' publication.doi_label %}"
+        hx-target="#publication-generic-funding">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input class="btn btn-outline-secondary" type="submit" value="Add" />
+  </form>
+</div>
