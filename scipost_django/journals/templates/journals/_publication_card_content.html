@@ -15,7 +15,12 @@
         </span>
         <span class="mx-1">|</span>
         <button type="button" class="btn btn-link border-0 m-0 p-0" style="line-height: 1rem;" data-bs-toggle="toggle" data-bs-target="#abstract-pub-{{ publication.id }}"><small class="border-0 m-0 p-0">Toggle abstract</small></button>
-        &middot; <a href="{{ publication.get_absolute_url }}/pdf" target="_blank">pdf</a>
+        {% if publication.pdf_file %}
+          &middot; <a href="{{ publication.get_absolute_url }}/pdf" target="_blank">pdf</a>
+        {% endif %}
+        {% if publication.resources.release.first %}
+          &middot; <a href="{{ publication.resources.release.first.url }}">src</a>
+        {% endif %}
       </p>
       <p class="abstract mb-0 mt-2 py-2" id="abstract-pub-{{ publication.id }}" style="display:none;">{{ publication.abstract }}</p>
     </div>
