@@ -31,7 +31,7 @@
                 <tr>
                     <td>Preprint Link:</td>
                     <td>
-                        <a href="{{ submission.preprint.url }}"
+                        <a href="{% firstof submission.preprint.url submission.preprint.submission.get_absolute_url %}"
                            target="_blank"
                            rel="noopener"
                            class="text-break">{% firstof submission.preprint.url submission.preprint.identifier_w_vn_nr %}</a>&nbsp;
