@@ -121,12 +121,12 @@ def _hx_author_profile_action(
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
-    profile = get_object_or_404(Profile, pk=profile_id)
     author_profile, created = SubmissionAuthorProfile.objects.get_or_create(
         submission=submission,
         order=order,
     )
     if action == "match":
+        profile = get_object_or_404(Profile, pk=profile_id)
         author_profile.profile = profile
         # add Submission's topics to profile:
         profile.topics.add(*submission.topics.all())
