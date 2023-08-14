@@ -39,7 +39,14 @@ def get_fellow_qualification_expertise_level_display(submission, fellow):
         q = submission.qualification_set.get(fellow=fellow)
         return q.get_expertise_level_display()
     except Qualification.DoesNotExist:
-        return ""
+        # Try to get the Qualification from the previous Submissions
+        try:
+            q = Qualification.objects.filter(
+                submission__in=submission.thread_full, fellow=fellow
+            ).latest("submission__created")
+            return q.get_expertise_level_display() + " (previous submission)"
+        except Qualification.DoesNotExist:
+            return ""
 
 
 @register.simple_tag
@@ -62,4 +69,11 @@ def get_fellow_readiness_status_display(submission, fellow):
         r = submission.readiness_set.get(fellow=fellow)
         return r.get_status_display()
     except Readiness.DoesNotExist:
-        return ""
+        # Try to get the Readiness from the previous Submissions
+        try:
+            q = Readiness.objects.filter(
+                submission__in=submission.thread_full, fellow=fellow
+            ).latest("submission__created")
+            return q.get_status_display() + " (previous submission)"
+        except Readiness.DoesNotExist:
+            return ""
