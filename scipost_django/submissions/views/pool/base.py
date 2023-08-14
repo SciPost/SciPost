@@ -94,7 +94,7 @@ def pool_hx_submission_details_contents(request, identifier_w_vn_nr):
 @fellowship_or_admin_required()
 def _hx_submission_tab(request, identifier_w_vn_nr, tab):
     submission = get_object_or_404(
-        Submission.objects.in_pool(request.user, historical=True),
+        Submission.objects.in_pool(request.user, historical=True, latest=False),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     context = {
