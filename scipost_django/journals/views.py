@@ -83,7 +83,7 @@ from .utils import JournalUtils
 from comments.models import Comment
 from common.utils import get_current_domain
 from funders.forms import FunderSelectForm, GrantSelectForm
-from funders.models import Grant
+from funders.models import Grant, Funder
 from mails.views import MailEditorSubview
 from ontology.models import AcademicField, Topic
 from ontology.forms import SelectTopicForm
@@ -917,7 +917,7 @@ def _hx_publication_metadata_add_grant_funding(request, doi_label):
         publication.grants.add(grant_select_form.cleaned_data["grant"])
         publication.doideposit_needs_updating = True
         publication.save()
-        messages.success(request, "Grant added to publication %s" % str(publication))
+        messages.success(request, "Grant added to publication.")
     return render(
         request,
         "journals/_hx_publication_metadata_add_grant_funding.html",
@@ -926,6 +926,26 @@ def _hx_publication_metadata_add_grant_funding(request, doi_label):
             "publication": publication,
         },
     )
+
+
+@permission_required("scipost.can_draft_publication", return_403=True)
+@transaction.atomic
+def _hx_publication_metadata_delete_grant_funding(request, doi_label, grant_id):
+    """
+    Called by an Editorial Administrator.
+    This deletes a grant of this publication from the database.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    grant = get_object_or_404(Grant, id=grant_id)
+    if not publication.is_draft and not request.user.has_perm(
+        "scipost.can_publish_accepted_submission"
+    ):
+        raise Http404("You do not have permission to edit this non-draft Publication")
+
+    if grant in publication.grants.all():
+        publication.grants.remove(grant)
+        messages.success(request, "Grant removed from publication.")
+    return HttpResponse("")
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)
@@ -944,9 +964,7 @@ def _hx_publication_metadata_add_generic_funding(request, doi_label):
     if funder_select_form.is_valid():
         publication.funders_generic.add(funder_select_form.cleaned_data["funder"])
         publication.save()
-        messages.success(
-            request, "Generic funder added to publication %s" % str(publication)
-        )
+        messages.success(request, "Generic funder added to publication")
     return render(
         request,
         "journals/_hx_publication_metadata_add_generic_funding.html",
@@ -955,6 +973,26 @@ def _hx_publication_metadata_add_generic_funding(request, doi_label):
             "publication": publication,
         },
     )
+
+
+@permission_required("scipost.can_draft_publication", return_403=True)
+@transaction.atomic
+def _hx_publication_metadata_delete_generic_funding(request, doi_label, funder_id):
+    """
+    Called by an Editorial Administrator.
+    This deletes a funder (generic, not via funder) of this publication from the database.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    funder = get_object_or_404(Funder, id=funder_id)
+    if not publication.is_draft and not request.user.has_perm(
+        "scipost.can_publish_accepted_submission"
+    ):
+        raise Http404("You do not have permission to edit this non-draft Publication")
+
+    if funder in publication.funders_generic.all():
+        publication.funders_generic.remove(funder)
+        messages.success(request, "Generic funder removed from publication.")
+    return HttpResponse("")
 
 
 class CreateMetadataXMLView(

@@ -4,7 +4,13 @@
 <ul>
 
   {% for funder in publication.funders_generic.all %}
-    <li>{{ funder }}</li>
+    <li id="funder-{{ funder.id }}">
+      {{ funder }}
+      <a class="text-danger ms-2"
+         hx-get="{% url 'journals:_hx_publication_metadata_delete_generic_funding' publication.doi_label funder.id %}"
+         hx-target="#funder-{{ funder.id }}"
+         hx-swap="delete">{% include "bi/trash-fill.html" %}</a>
+    </li>
   {% empty %}
     <li>No generic funder found</li>
   {% endfor %}

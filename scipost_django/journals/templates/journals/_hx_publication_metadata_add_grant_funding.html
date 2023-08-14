@@ -12,7 +12,13 @@
 <ul>
 
   {% for grant in publication.grants.all %}
-    <li>{{ grant }}</li>
+    <li id="grant-{{ grant.id }}">
+      {{ grant }}
+      <a class="text-danger ms-2"
+         hx-get="{% url 'journals:_hx_publication_metadata_delete_grant_funding' publication.doi_label grant.id %}"
+         hx-target="#grant-{{ grant.id }}"
+         hx-swap="delete">{% include "bi/trash-fill.html" %}</a>
+    </li>
   {% empty %}
     <li>no associated grants found</li>
   {% endfor %}

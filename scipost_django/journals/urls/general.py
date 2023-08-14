@@ -150,9 +150,19 @@ urlpatterns = [
         name="_hx_publication_metadata_add_generic_funding",
     ),
     path(
+        "admin/<publication_doi_label:doi_label>/funders/<int:funder_id>/delete",
+        journals_views._hx_publication_metadata_delete_generic_funding,
+        name="_hx_publication_metadata_delete_generic_funding",
+    ),
+    path(
         "admin/<publication_doi_label:doi_label>/grants/add",
         journals_views._hx_publication_metadata_add_grant_funding,
         name="_hx_publication_metadata_add_grant_funding",
+    ),
+    path(
+        "admin/<publication_doi_label:doi_label>/grants/<int:grant_id>/delete",
+        journals_views._hx_publication_metadata_delete_grant_funding,
+        name="_hx_publication_metadata_delete_grant_funding",
     ),
     path(
         "admin/<publication_doi_label:doi_label>/view_autotemplate/<int:autotemplate_id>/",
