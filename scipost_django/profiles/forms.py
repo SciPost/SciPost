@@ -280,7 +280,8 @@ class AffiliationForm(forms.ModelForm):
             "date_from",
             "date_until",
         ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["profile"].widget = forms.HiddenInput()
+        widgets = {
+            "profile": forms.HiddenInput(),
+            "date_from": forms.DateInput(attrs={"type": "date"}),
+            "date_until": forms.DateInput(attrs={"type": "date"}),
+        }

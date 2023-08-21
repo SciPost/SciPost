@@ -47,6 +47,11 @@ class SubsidyForm(forms.ModelForm):
             "renewable",
             "renewal_of",
         ]
+        widgets = {
+            "paid_on": forms.DateInput(attrs={"type": "date"}),
+            "date_from": forms.DateInput(attrs={"type": "date"}),
+            "date_until": forms.DateInput(attrs={"type": "date"}),
+        }
 
 
 class SubsidySearchForm(forms.Form):
@@ -121,6 +126,9 @@ class SubsidyPaymentForm(forms.ModelForm):
             "invoice",
             "proof_of_payment",
         )
+        widgets = {
+            "date_scheduled": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         subsidy = kwargs.pop("subsidy")
@@ -215,9 +223,9 @@ class LogsFilterForm(forms.Form):
         empty_label="All",
     )
     start = forms.DateField(
-        required=True, widget=forms.TextInput(attrs={"type": "date"})
+        required=True, widget=forms.DateInput(attrs={"type": "date"})
     )
-    end = forms.DateField(required=True, widget=forms.TextInput(attrs={"type": "date"}))
+    end = forms.DateField(required=True, widget=forms.DateInput(attrs={"type": "date"}))
     hourly_rate = forms.FloatField(min_value=0, initial=WorkLog.HOURLY_RATE)
 
     def __init__(self, *args, **kwargs):

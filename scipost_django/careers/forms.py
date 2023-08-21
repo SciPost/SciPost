@@ -20,6 +20,10 @@ class JobOpeningForm(forms.ModelForm):
             "application_deadline",
             "status",
         ]
+        widgets = {
+            "announced": forms.DateInput(attrs={"type": "date"}),
+            "application_deadline": forms.DateInput(attrs={"type": "date"}),
+        }
 
 
 class JobApplicationForm(forms.ModelForm):
@@ -38,6 +42,10 @@ class JobApplicationForm(forms.ModelForm):
             "motivation",
             "cv",
         ]
+        widgets = {
+            "announced": forms.DateInput(attrs={"type": "date"}),
+            "application_deadline": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

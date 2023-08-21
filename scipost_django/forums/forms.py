@@ -58,11 +58,15 @@ class MeetingForm(ForumForm):
             "preamble",
             "minutes",
         ]
+        widgets = {
+            "preamble": TextareaWithPreview(),
+            "minutes": TextareaWithPreview(),
+            "date_from": forms.DateInput(attrs={"type": "date"}),
+            "date_until": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["preamble"].widget = TextareaWithPreview()
-        self.fields["minutes"].widget = TextareaWithPreview()
         if self.instance:
             self.fields["parent"].initial = self.instance.parent
 

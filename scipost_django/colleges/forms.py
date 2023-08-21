@@ -144,6 +144,10 @@ class FellowshipForm(forms.ModelForm):
         help_texts = {
             "status": "[select if this is a regular, senior or guest Fellowship]"
         }
+        widgets = {
+            "start_date": forms.DateInput(attrs={"type": "date"}),
+            "until_date": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -575,6 +579,9 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
             "postpone_start_to",
             "comments",
         ]
+        widgets = {
+            "postpone_start_to": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

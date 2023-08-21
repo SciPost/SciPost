@@ -23,3 +23,10 @@ class ProceedingsForm(forms.ModelForm):
             "submissions_close",
             "template_latex_tgz",
         )
+        widgets = {
+            "submissions_open": forms.DateInput(attrs={"type": "date"}),
+            "submissions_deadline": forms.DateInput(attrs={"type": "date"}),
+            "submissions_close": forms.DateInput(attrs={"type": "date"}),
+            "event_start_date": forms.DateInput(attrs={"type": "date"}),
+            "event_end_date": forms.DateInput(attrs={"type": "date"}),
+        }

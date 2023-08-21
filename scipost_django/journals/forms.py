@@ -450,6 +450,12 @@ class DraftPublicationForm(forms.ModelForm):
             "publication_date",
         ]
 
+        widgets = {
+            "submission_date": forms.DateInput(attrs={"type": "date"}),
+            "acceptance_date": forms.DateInput(attrs={"type": "date"}),
+            "publication_date": forms.DateInput(attrs={"type": "date"}),
+        }
+
     def __init__(
         self, data=None, identifier_w_vn_nr=None, issue_id=None, *args, **kwargs
     ):
@@ -831,6 +837,10 @@ class VolumeForm(forms.ModelForm):
             "until_date",
             "doi_label",
         )
+        widgets = {
+            "start_date": forms.DateInput(attrs={"type": "date"}),
+            "until_date": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -865,6 +875,10 @@ class IssueForm(forms.ModelForm):
             "status",
             "doi_label",
         )
+        widgets = {
+            "start_date": forms.DateInput(attrs={"type": "date"}),
+            "until_date": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

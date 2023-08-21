@@ -605,11 +605,13 @@ class UnavailabilityPeriodForm(forms.ModelForm):
     class Meta:
         model = UnavailabilityPeriod
         fields = ["start", "end"]
+        widgets = {
+            "start": forms.DateInput(attrs={"type": "date"}),
+            "end": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["start"].widget.attrs.update({"placeholder": "YYYY-MM-DD"})
-        self.fields["end"].widget.attrs.update({"placeholder": "YYYY-MM-DD"})
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(

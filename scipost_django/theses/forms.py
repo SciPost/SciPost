@@ -35,7 +35,7 @@ class BaseRequestThesisLinkForm(forms.ModelForm):
             "abstract",
         ]
         widgets = {
-            "defense_date": forms.SelectDateWidget(years=past_years(50)),
+            "defense_date": forms.DateInput(attrs={"type": "date"}),
             "pub_link": forms.TextInput(attrs={"placeholder": "Full URL"}),
         }
 

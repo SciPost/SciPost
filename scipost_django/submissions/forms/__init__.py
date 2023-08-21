@@ -2200,10 +2200,7 @@ class ConsiderRefereeInvitationForm(forms.Form):
 class SetRefereeingDeadlineForm(forms.Form):
     deadline = forms.DateField(
         label="",
-        widget=forms.SelectDateWidget(
-            years=[timezone.now().year + i for i in range(2)],
-            empty_label=("Year", "Month", "Day"),
-        ),
+        widget=forms.DateInput(attrs={"type": "date"}),
     )
 
     def clean_deadline(self):

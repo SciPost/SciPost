@@ -28,6 +28,8 @@ class SubmissionCompetingInterestForm(forms.ModelForm):
         widgets = {
             "profile": forms.HiddenInput(),
             "declared_by": forms.HiddenInput(),
+            "date_from": forms.DateInput(attrs={"type": "date"}),
+            "date_until": forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -267,6 +267,10 @@ class ContactRoleForm(forms.ModelForm):
     class Meta:
         model = ContactRole
         fields = "__all__"
+        widgets = {
+            "date_from": forms.DateInput(attrs={"type": "date"}),
+            "date_until": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
