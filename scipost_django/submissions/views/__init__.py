@@ -1278,10 +1278,10 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
 def set_refinv_auto_reminder(request, invitation_id, auto_reminders):
     """Set the value of the Boolean for automatic refereeing reminders."""
     invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
-    if auto_reminders == "0":
+    if auto_reminders == 0:
         invitation.auto_reminders_allowed = False
         messages.success(request, "Auto reminders succesfully turned off.")
-    elif auto_reminders == "1":
+    elif auto_reminders == 1:
         invitation.auto_reminders_allowed = True
         messages.success(request, "Auto reminders succesfully turned on.")
     else:
