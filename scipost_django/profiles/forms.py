@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from functools import reduce
+import re
 from django import forms
 from django.db.models import Q
 
@@ -251,13 +253,58 @@ class ProfileDynSelForm(forms.Form):
     def search_results(self):
         if self.cleaned_data["q"]:
             splitwords = self.cleaned_data["q"].replace(",", "").split(" ")
-            query = Q()
-            for word in splitwords:
-                query = query & (
-                    Q(last_name__icontains=word) | Q(first_name__icontains=word)
-                )
-            profiles = Profile.objects.filter(query).distinct()
-            return profiles
+
+            # Get ORCID term.
+            orcid_term = Q()
+            for i, w in enumerate(splitwords):
+                if re.match(r"[\d-]+", w):
+                    splitwords.pop(i)
+                    orcid_term |= Q(orcid_id__icontains=w)
+
+            # Get mail term.
+            mail_term = Q()
+            for i, w in enumerate(splitwords):
+                if "@" in w:
+                    splitwords.pop(i)  # Remove mail from further processing.
+                    mail_term |= Q(emails__email__icontains=w)
+
+            base_query = mail_term & orcid_term
+
+            exact_query = base_query
+            exact_last_query = base_query
+            exact_first_query = base_query
+            contains_query = base_query
+
+            for w in splitwords:
+                # Find exact matches first where every word matches either first or last name.
+                exact_query &= Q(first_name__iexact=w) | Q(last_name__iexact=w)
+
+                # Find an exact match for the last name.
+                exact_last_query &= Q(first_name__icontains=w) | Q(last_name__iexact=w)
+
+                # Find an exact match for the first name.
+                exact_first_query &= Q(first_name__iexact=w) | Q(last_name__icontains=w)
+
+                # Find a contains match for the last name.
+                contains_query &= Q(first_name__icontains=w) | Q(last_name__icontains=w)
+
+            # If there are exact matches, do not include other matches.
+            exact_profiles = Profile.objects.filter(exact_query).distinct().distinct()
+            if exact_profiles.count() > 0:
+                return exact_profiles
+
+            # If there are partial exact matches, do not include other matches.
+            exact_first_profiles = Profile.objects.filter(exact_first_query)
+            exact_last_profiles = Profile.objects.filter(exact_last_query)
+            partial_exact_profiles = (
+                exact_first_profiles | exact_last_profiles
+            ).distinct()
+            if partial_exact_profiles.count() > 0:
+                return partial_exact_profiles
+
+            # Include profiles matching all (partial) words in either first or last name.
+            contains_profiles = Profile.objects.filter(contains_query).distinct()
+            return contains_profiles
         else:
             return Profile.objects.none()
 
