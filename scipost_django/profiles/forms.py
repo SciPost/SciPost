@@ -232,7 +232,7 @@ class ProfileSelectForm(forms.Form):
 class ProfileDynSelForm(forms.Form):
     q = forms.CharField(
         max_length=32,
-        label="Search (by name); split multiple search terms by a space, e.g. Abe Cee",
+        label="Search (by name, mail, or ORCID); split terms by space, e.g. Abe Cee",
     )
     action_url_name = forms.CharField()
     action_url_base_kwargs = forms.JSONField(required=False)
