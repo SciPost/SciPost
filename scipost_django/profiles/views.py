@@ -52,17 +52,7 @@ class ProfileAutocompleteView(autocomplete.Select2QuerySetView):
             return None
         qs = Profile.objects.all()
         if self.q:
-            # Iteratively filter by each word in the query
-            qs = reduce(
-                lambda qs, q: qs.filter(
-                    Q(first_name__icontains=q)
-                    | Q(last_name__icontains=q)
-                    | Q(emails__email__icontains=q)
-                    | Q(orcid_id__icontains=q)
-                ).distinct(),
-                self.q.split(),
-                qs,
-            )
+            qs = Profile.objects.search(self.q)
 
         return qs
 
