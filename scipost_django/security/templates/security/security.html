@@ -44,7 +44,7 @@
 
       <a class="btn btn-info" href="{% url 'security:check_email_pwned' %}" role="button">
 	{% include 'bi/arrow-right.html' %}&nbsp;Check to see if my email address
-	<strong><em>{{ request.user.email }}</em></strong> has been pwned
+	<strong><em>{{ request.user.email }}</em></strong> has been exposed in password leaks or breaches
       </a>
     </div>
   </div>
