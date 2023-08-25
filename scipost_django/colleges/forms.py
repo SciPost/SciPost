@@ -132,10 +132,10 @@ class FellowshipDynSelForm(forms.Form):
         )
 
     def search_results(self):
-        if self.cleaned_data["q"]:
+        if q := self.cleaned_data["q"]:
             fellowships = Fellowship.objects.filter(
-                Q(contributor__profile__last_name__icontains=self.cleaned_data["q"])
-                | Q(contributor__profile__first_name__icontains=self.cleaned_data["q"])
+                Q(contributor__profile__last_name__unaccent__icontains=q)
+                | Q(contributor__profile__first_name__unaccent__icontains=q)
             ).distinct()
             return fellowships
         else:
@@ -725,8 +725,8 @@ class FellowshipNominationSearchForm(forms.Form):
 
         if nominee := self.cleaned_data.get("nominee"):
             nominations = nominations.filter(
-                Q(profile__first_name__icontains=nominee)
-                | Q(profile__last_name__icontains=nominee)
+                Q(profile__first_name__unaccent__icontains=nominee)
+                | Q(profile__last_name__unaccent__icontains=nominee)
             )
         if college := self.cleaned_data.get("college"):
             nominations = nominations.filter(college__id__in=college)

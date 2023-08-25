@@ -138,14 +138,10 @@ class SubsidySearchForm(forms.Form):
             )
         )
 
-        if self.cleaned_data["organization_query"]:
+        if organization_query := self.cleaned_data["organization_query"]:
             subsidies = subsidies.filter(
-                Q(organization__name__icontains=self.cleaned_data["organization_query"])
-                | Q(
-                    organization__acronym__icontains=self.cleaned_data[
-                        "organization_query"
-                    ]
-                )
+                Q(organization__name__unaccent__icontains=organization_query)
+                | Q(organization__acronym__unaccent__icontains=organization_query)
             )
         if self.cleaned_data["country"]:
             subsidies = subsidies.filter(

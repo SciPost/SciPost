@@ -119,8 +119,8 @@ class FellowshipAutocompleteView(autocomplete.Select2QuerySetView):
         qs = Fellowship.objects.all()
         if self.q:
             qs = qs.filter(
-                Q(contributor__profile__first_name__icontains=self.q)
-                | Q(contributor__profile__last_name__icontains=self.q)
+                Q(contributor__profile__first_name__unaccent__icontains=self.q)
+                | Q(contributor__profile__last_name__unaccent__icontains=self.q)
             ).distinct()
         return qs
 

@@ -39,12 +39,12 @@ class FunderAutocompleteView(autocomplete.Select2QuerySetView):
         qs = Funder.objects.all()
         if self.q:
             qs = qs.filter(
-                Q(name__icontains=self.q)
-                | Q(acronym__icontains=self.q)
+                Q(name__unaccent__icontains=self.q)
+                | Q(acronym__unaccent__icontains=self.q)
                 | Q(identifier__icontains=self.q)
-                | Q(organization__name__icontains=self.q)
-                | Q(organization__name_original__icontains=self.q)
-                | Q(organization__acronym__icontains=self.q)
+                | Q(organization__name__unaccent__icontains=self.q)
+                | Q(organization__name_original__unaccent__icontains=self.q)
+                | Q(organization__acronym__unaccent__icontains=self.q)
             ).order_by("name")
         return qs
 
@@ -70,12 +70,12 @@ class GrantAutocompleteView(autocomplete.Select2QuerySetView):
         qs = Grant.objects.all()
         if self.q:
             qs = qs.filter(
-                Q(funder__name__icontains=self.q)
+                Q(funder__name__unaccent__icontains=self.q)
                 | Q(funder__acronym__icontains=self.q)
                 | Q(number__icontains=self.q)
-                | Q(recipient_name__icontains=self.q)
-                | Q(recipient__user__last_name__icontains=self.q)
-                | Q(recipient__user__first_name__icontains=self.q)
+                | Q(recipient_name__unaccent__icontains=self.q)
+                | Q(recipient__user__last_name__unaccent__icontains=self.q)
+                | Q(recipient__user__first_name__unaccent__icontains=self.q)
                 | Q(further_details__icontains=self.q)
             ).order_by("funder__name", "number")
         return qs

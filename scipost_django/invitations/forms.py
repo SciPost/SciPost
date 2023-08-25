@@ -33,7 +33,7 @@ class RegistrationInvitationFilterForm(forms.Form):
     def search(self, qs):
         term = self.cleaned_data.get("term")
         return qs.filter(
-            Q(last_name__icontains=term)
+            Q(last_name__unaccent__icontains=term)
             | Q(
                 citation_notifications__submission__preprint__identifier_w_vn_nr__icontains=term
             )
@@ -49,13 +49,13 @@ class SuggestionSearchForm(forms.Form):
 
         if last_name:
             contributors = Contributor.objects.filter(
-                user__last_name__icontains=last_name
+                profile__last_name__unaccent__icontains=last_name
             )
             invitations = RegistrationInvitation.objects.filter(
-                last_name__icontains=last_name
+                last_name__unaccent__icontains=last_name
             )
             declines = RegistrationInvitation.objects.declined().filter(
-                last_name__icontains=last_name
+                last_name__unaccent__icontains=last_name
             )
             return contributors, invitations, declines
         return Contributor.objects.none(), RegistrationInvitation.objects.none()
@@ -190,7 +190,7 @@ class RegistrationInvitationMergeForm(AcceptRequestMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["invitation"].queryset = (
             RegistrationInvitation.objects.no_response()
-            .filter(last_name__icontains=self.instance.last_name)
+            .filter(last_name__unaccent__icontains=self.instance.last_name)
             .exclude(id=self.instance.id)
         )
 
