@@ -2177,7 +2177,7 @@ class RefereeSearchForm(forms.Form):
 
     def search(self):
         query = Q_with_alternative_spellings(
-            last_name__icontains=self.cleaned_data["last_name"]
+            last_name__unaccent__icontains=self.cleaned_data["last_name"]
         )
         return (
             Profile.objects.filter(query)
