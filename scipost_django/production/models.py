@@ -101,6 +101,8 @@ class ProductionStream(models.Model):
         related_name="invitations_officer_streams",
     )
 
+    on_hold = models.BooleanField(default=False)
+
     work_logs = GenericRelation(WorkLog, related_query_name="streams")
 
     objects = ProductionStreamQuerySet.as_manager()
@@ -131,7 +133,7 @@ class ProductionStream(models.Model):
 
     @cached_property
     def in_stasis(self):
-        return (
+        return self.on_hold or (
             self.submission.editorial_decision.status
             == EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
         )

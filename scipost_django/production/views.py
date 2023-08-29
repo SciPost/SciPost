@@ -1025,6 +1025,53 @@ def _hx_mark_as_completed(request, stream_id):
 
 
 @is_production_user()
+@permission_required("scipost.can_assign_production_officer", raise_exception=True)
+@transaction.atomic
+def _hx_toggle_on_hold(request, stream_id):
+    productionstream = get_object_or_404(
+        ProductionStream.objects.ongoing(), pk=stream_id
+    )
+
+    checker = ObjectPermissionChecker(request.user)
+    if not checker.has_perm("can_work_for_stream", productionstream):
+        return HTMXPermissionsDenied("You cannot work in this stream.")
+
+    productionstream.on_hold = not productionstream.on_hold
+    productionstream.save()
+
+    if productionstream.on_hold:
+        production_event = ProductionEvent(
+            stream=productionstream,
+            event="status",
+            comments=" marked the Production Stream as on hold.",
+            noted_by=request.user.production_user,
+        )
+        messages.success(
+            request,
+            "Production Stream has been marked as on hold.",
+        )
+    else:
+        production_event = ProductionEvent(
+            stream=productionstream,
+            event="status",
+            comments=" unmarked the Production Stream as on hold.",
+            noted_by=request.user.production_user,
+        )
+        messages.success(
+            request,
+            "Production Stream has been unmarked as on hold.",
+        )
+
+    production_event.save()
+
+    return render(
+        request,
+        "production/_hx_productionstream_details.html",
+        {"productionstream": productionstream},
+    )
+
+
+@is_production_user()
 @permission_required("scipost.can_publish_accepted_submission", raise_exception=True)
 @transaction.atomic
 def mark_as_completed(request, stream_id):

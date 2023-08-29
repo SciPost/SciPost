@@ -43,9 +43,20 @@
     <div class="row mb-0 justify-content-between align-items-center">
       <small class="col text-muted text-nowrap">Stream Status</small>
       <div class="col-auto">
-        <div class="p-2 badge bg-{% if productionstream.status == 'initiated' %}danger{% else %}primary{% endif %}">
-          {{ productionstream.status|readable_str|title }}
-        </div>
+        {% if productionstream.on_hold  %}
+          <div class="p-2 badge bg-warning pe-auto"
+              title="Click to remove from 'On Hold'"
+              hx-get="{% url 'production:_hx_toggle_on_hold' stream_id=productionstream.id %}"
+              hx-target="#productionstream-{{productionstream.id}}-details"
+              hx-swap="outerHTML" hx-confirm="Are you sure the issues in this stream have been resolved?">
+            <span class="text-white justify-self-start">{% include 'bi/exclamation-triangle-fill.html' %}</span>
+            On Hold
+          </div>
+        {% else %}
+          <div class="p-2 badge bg-{% if productionstream.status == 'initiated' %}danger{% else %}primary{% endif %}">
+            {{ productionstream.status|readable_str|title }}
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>

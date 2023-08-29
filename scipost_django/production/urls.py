@@ -280,6 +280,11 @@ urlpatterns = [
                     name="_hx_mark_as_completed",
                 ),
                 path(
+                    "_hx_toggle_on_hold",
+                    production_views._hx_toggle_on_hold,
+                    name="_hx_toggle_on_hold",
+                ),
+                path(
                     "mark_completed",
                     production_views.mark_as_completed,
                     name="mark_as_completed",

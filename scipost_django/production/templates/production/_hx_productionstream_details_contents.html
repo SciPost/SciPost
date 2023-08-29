@@ -167,23 +167,21 @@
       </div>
 
 
-      {% if perms.scipost.can_draft_publication or perms.scipost.can_publish_accepted_submission %}
         <div class="mb-2 mb-md-0 mt-md-auto px-2">
  
-          <div class="row mb-0 mt-2 g-2">
-            {% if perms.scipost.can_publish_accepted_submission %}
+          <div class="row mb-0 mt-2 g-2">            
+            {% if "can_work_for_stream" in sub_perms and perms.scipost.can_assign_production_officer %}
               <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
                 <div class="row m-0 d-none-empty">
-                  <button class="btn btn-warning text-white"
-                          hx-get="{% url 'production:_hx_mark_as_completed' stream_id=productionstream.id %}"
-                          {% if productionstream.status != 'published' %}hx-confirm="Are you sure you want to mark this unpublished stream as completed?"{% endif %}
-                          hx-target="#productionstream-{{ productionstream.id }}-details">
-                    Mark this stream as completed
-                  </button>
+                  <a class="btn btn-warning text-white" role="button" 
+                    hx-get="{% url 'production:_hx_toggle_on_hold' stream_id=productionstream.id %}"
+                    hx-target="#productionstream-{{productionstream.id}}-details"
+                    hx-confirm="Are you sure you wish to put this stream on hold?"
+                    hx-swap="outerHTML">Put stream on hold</a>
                 </div>
               </div>
             {% endif %}
- 
+
             {% if perms.scipost.can_draft_publication and productionstream.status == 'accepted' %}
               <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
                 <div class="row m-0 d-none-empty">
@@ -194,10 +192,22 @@
                 </div>
               </div>
             {% endif %}
+            
+            {% if perms.scipost.can_publish_accepted_submission %}
+              <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
+                <div class="row m-0 d-none-empty">
+                  <a class="btn btn-warning text-white" role="button"
+                          hx-get="{% url 'production:_hx_mark_as_completed' stream_id=productionstream.id %}"
+                          {% if productionstream.status != 'published' %}hx-confirm="Are you sure you want to mark this unpublished stream as completed?"{% endif %}
+                          hx-target="#productionstream-{{ productionstream.id }}-details">
+                    Mark this stream as completed
+                  </a>
+                </div>
+              </div>
+            {% endif %}
           </div>
  
         </div>
-      {% endif %}
     {% endif %}
   </div>
 
