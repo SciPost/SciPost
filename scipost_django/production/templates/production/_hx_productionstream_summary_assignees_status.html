@@ -49,12 +49,17 @@
               hx-get="{% url 'production:_hx_toggle_on_hold' stream_id=productionstream.id %}"
               hx-target="#productionstream-{{productionstream.id}}-details"
               hx-swap="outerHTML" hx-confirm="Are you sure the issues in this stream have been resolved?">
-            <span class="text-white justify-self-start">{% include 'bi/exclamation-triangle-fill.html' %}</span>
+            <span class="text-white">{% include 'bi/exclamation-triangle-fill.html' %}</span>
             On Hold
           </div>
         {% else %}
           <div class="p-2 badge bg-{% if productionstream.status == 'initiated' %}danger{% else %}primary{% endif %}">
-            {{ productionstream.status|readable_str|title }}
+            {% if productionstream.in_stasis %}
+              <span class="text-white">{% include 'bi/exclamation-triangle-fill.html' %}</span>
+              Offer pending
+            {% else %}
+              {{ productionstream.status|readable_str|title }}
+            {% endif %}
           </div>
         {% endif %}
       </div>
