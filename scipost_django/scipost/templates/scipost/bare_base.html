@@ -45,12 +45,12 @@
     <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/mathjax-config.js' %}"></script>
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe"></script>
 
+    <script nonce="{{ request.csp_nonce }}">
+      document.body.addEventListener('htmx:afterSettle', function () {
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+      })
+    </script>
     {% block footer_script %}
-      <script nonce="{{ request.csp_nonce }}">
-       document.body.addEventListener('htmx:afterSettle', function () {
-	   MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-       })
-      </script>
     {% endblock footer_script %}
 
   </body>
