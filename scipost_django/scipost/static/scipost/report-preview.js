@@ -1,10 +1,18 @@
-$(function(){
+$(function () {
+    function typesetMath() {
+        if (typeof MathJax.Hub !== "undefined") {
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+        }
+    }
+
     function set_preview(el) {
         $('[data-receive$="' + $(el).attr('id').split('id_')[1] + '"]').text($(el).val())
     }
+    
     function set_preview_select(el) {
         $('[data-receive$="' + $(el).attr('id').split('id_')[1] + '"]').text($(el).find('option:selected').text())
     }
+
     function update_identity_preview(show_identity) {
         $('[data-receive="report-identity"] [if-anonymous]').hide();
         if (show_identity) {
@@ -13,13 +21,25 @@ $(function(){
             $('[data-receive="report-identity"] [if-anonymous="true"]').show();
         }
     }
-    $('#id_weaknesses, #id_strengths, #id_report, #id_requested_changes').on('keyup', function(){
-        set_preview(this)
-        if (typeof MathJax.Hub !== "undefined") {
-            // First trigger will fail since MathJax is loaded in the footer.
-            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-        }
-    }).trigger('keyup');
+
+    $("#id_weaknesses, #id_strengths, #id_report, #id_requested_changes")
+        .on("keyup", function (e) {
+            // do not fire function on arrow keys, modifiers, etc.
+            if (e.which < 48) {
+                return;
+            }
+            
+            set_preview(this);
+
+            // MathJax is slow, so we only run it every second since the last keyup
+            clearTimeout($(this).data("mathjaxTimer"));
+            const mathjaxTimer = setTimeout(function () {
+                typesetMath();
+            }, 1000);
+            $(this).data("mathjaxTimer", mathjaxTimer);
+        })
+        .trigger("keyup");
+
     $('#id_validity, #id_originality, #id_significance, #id_clarity, #id_formatting, #id_grammar').on('change', function(){
         set_preview_select(this);
     }).trigger('change');
