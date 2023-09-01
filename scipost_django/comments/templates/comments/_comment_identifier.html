@@ -23,7 +23,7 @@
   {% if comment.doi_string %}&nbsp; <small>{{ comment|citation }}</small>{% endif %}
 
   {% if comment|is_reply_to_comment %}
-    (in reply to <a href="{{ comment.content_object.get_absolute_url }}">{% if comment.content_object.anonymous %}Anonymous Comment{% else %}{{ comment.content_object.author.user.first_name }} {{ comment.content_object.author.user.last_name }}{% endif %}</a> on {{ comment.content_object.date_submitted|date:'Y-m-d' }}&nbsp;<small>[id {{ comment.content_object.id }}])
+    (in reply to <a href="{{ comment.content_object.get_absolute_url }}">{% if comment.content_object.anonymous %}Anonymous Comment{% else %}{{ comment.content_object.author.user.first_name }} {{ comment.content_object.author.user.last_name }}{% endif %}</a> on {{ comment.content_object.date_submitted|date:'Y-m-d' }}&nbsp;<small>[id {{ comment.content_object.id }}])</small>
   {% elif comment|is_reply_to_report %}
     (in reply to
     <a href="{{ comment.content_object.get_absolute_url }}">Report {{ comment.content_object.report_nr }}{% if not comment.content_object.anonymous %} by {{ comment.content_object.author.user.first_name }} {{ comment.content_object.author.user.last_name }}{% endif %}</a>
