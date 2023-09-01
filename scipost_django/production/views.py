@@ -1730,7 +1730,7 @@ def _hx_productionstream_actions_bulk_assign_officers(request):
             )
 
     if (supervisor := form.cleaned_data["supervisor"]) and not request.user.has_perm(
-        "production.can_perform_supervisory_actions"
+        "scipost.can_assign_production_supervisor"
     ):
         messages.error(
             request, "You do not have permission to assign supervisors to streams."
