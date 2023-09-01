@@ -62,7 +62,13 @@ def content_type_id(obj):
 
 @register.filter
 def object_name(obj):
-    return obj._meta.object_name if obj else None
+    import re
+
+    if obj is None:
+        return None
+    else:
+        # Add spaces before capital letters in the object name to make it more readable
+        return re.sub(r"[^\s]([A-Z])", r" \1", obj._meta.object_name)
 
 
 @register.filter

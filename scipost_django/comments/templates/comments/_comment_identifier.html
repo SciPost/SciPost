@@ -16,6 +16,7 @@
       &nbsp;on&nbsp;{{ comment.date_submitted|date:'Y-m-d' }}
     {% endif %}
     &nbsp;<small>[id {{ comment.id }}]</small>
+    <span class="ms-2">{% include 'permalink.html' with object=comment %}</span>
     {% if user.is_authenticated %}
       {% include 'helpdesk/_ticket_for_object_link.html' with object=comment %}
     {% endif %}

@@ -17,12 +17,14 @@
             <small><label class="label label-outline-primary ms-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-bs-toggle="tooltip" data-bs-placement="auto" data-bs-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
           {% endif %}
 
-          {% if report.invited %}
-            <em class="ms-4">(Invited Report)</em>
-          {% else %}
-            <em class="ms-4">(Contributed Report)</em>
-          {% endif %}
-
+          <em class="ms-2">
+            {% if report.invited %}
+            (Invited Report)
+            {% else %}
+            (Contributed Report)
+            {% endif %}
+          </em>
+          <span class="ms-2">{% include 'permalink.html' with object=report %}</span>
 
 	  {% if user.is_authenticated %}
 	    {% include 'helpdesk/_ticket_for_object_link.html' with object=report %}

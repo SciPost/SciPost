@@ -1,0 +1,5 @@
+{% load scipost_extras %}
+
+{% if object.get_absolute_url %}
+  <a href="{{ object.get_absolute_url }}"><span title="Permalink to this {{ object|object_name }}">{% include 'bi/link.html' %}</span></a>
+{% endif %}
