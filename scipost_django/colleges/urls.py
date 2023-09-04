@@ -195,14 +195,10 @@ urlpatterns = [
         name="_hx_nominations_no_round_started",
     ),
     path(
-        "_hx_nomination_eligible_voters/<int:nomination_id>",
-        views._hx_nomination_eligible_voters,
-        name="_hx_nomination_eligible_voters",
-    ),
     path(
-        "_hx_nomination_round_start/<int:nomination_id>",
-        views._hx_nomination_round_start,
-        name="_hx_nomination_round_start",
+        "<int:round_id>/_hx_nomination_round_remove_voter/<int:voter_id>",
+        views._hx_nomination_round_remove_voter,
+        name="_hx_nomination_round_remove_voter",
     ),
     path(
         "_hx_voting_rounds",

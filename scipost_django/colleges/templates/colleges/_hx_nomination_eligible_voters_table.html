@@ -1,4 +1,4 @@
-{% if eligible_voters %}
+{% if round.eligible_to_vote.all %}
   <table class="table">
     <thead class="table-light">
       <tr>
@@ -6,13 +6,14 @@
         <th>College</th>
         <th>Specialties</th>
         <th>Type</th>
+        <th></th>
       </tr>
     </thead>
 
     <tbody>
 
-      {% for voter in eligible_voters %}
-        <tr>
+      {% for voter in round.eligible_to_vote.all %}
+        <tr class="align-middle">
           <td>{{ voter.contributor }}</td>
           <td>{{ voter.college.name }}</td>
           <td>
@@ -28,6 +29,13 @@
 
           </td>
           <td>{{ voter.get_status_display }}</td>
+          {% comment %} Actions {% endcomment %}
+          <td class="text-end">
+            <a class="btn btn-sm btn-danger"
+               role="button"
+               hx-get="{% url 'colleges:_hx_nomination_round_remove_voter' round_id=round.id voter_id=voter.id %}"
+               hx-target="closest tr"><small>{% include 'bi/trash-fill.html' %}</small></a>
+          </td>
         </tr>
       {% endfor %}
 

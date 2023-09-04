@@ -788,12 +788,29 @@ def _hx_nomination_eligible_voters(request, nomination_id):
         "nomination": nomination,
         "eligible_voters": eligible_voters,
         "nominee_specialties": nomination.profile.specialties.all(),
+        "round": nomination.voting_rounds.first(),
     }
     return render(
         request,
         "colleges/_hx_nomination_eligible_voters.html",
         context,
     )
+
+
+def _hx_nomination_round_remove_voter(request, round_id, voter_id):
+    """Remove a voter from a nomination's voting round."""
+    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+
+    voter = get_object_or_404(Fellowship, pk=voter_id)
+    if voter in round.eligible_to_vote.all():
+        round.eligible_to_vote.remove(voter)
+        round.save()
+        messages.success(
+            request, f"Removed {voter} from the voters list of this round."
+        )
+    else:
+        messages.error(request, f"{voter} was not in the voters list of this round.")
+    return HttpResponse("")
 
 
 def _hx_nomination_round_start(request, nomination_id):
