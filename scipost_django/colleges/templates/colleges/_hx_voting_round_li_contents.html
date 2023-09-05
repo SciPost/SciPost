@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col">
+
+    {% if session_fellowship and session_fellowship in round.eligible_to_vote.all or "edadmin" in user_roles %}
+
+      {% if round.is_open and session_fellowship in round.eligible_to_vote.all %}
+        <div id="nomination-{{ round.nomination.id }}-vote"
+             hx-get="{% url 'colleges:_hx_nomination_vote' voting_round_id=round.id %}"
+             hx-trigger="intersect once"></div>
+      {% else %}
+        {% include "colleges/_hx_voting_round_results.html" with voting_round=round %}
+      {% endif %}
+
+    {% else %}
+      <p>You are not called upon to vote in this round.</p>
+    {% endif %}
+
+  </div>
+</div>

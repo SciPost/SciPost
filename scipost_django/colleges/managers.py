@@ -141,6 +141,10 @@ class FellowshipNominationVotingRoundQuerySet(models.QuerySet):
         now = timezone.now()
         return self.filter(voting_deadline__lte=now)
 
+    def where_user_can_vote(self, user):
+        user_fellowships = user.contributor.fellowships.active()
+        return self.filter(eligible_to_vote__in=user_fellowships)
+
 
 class FellowshipNominationVoteQuerySet(models.QuerySet):
     def agree(self):

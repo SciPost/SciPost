@@ -189,9 +189,9 @@ class FellowshipNominationVotingRound(models.Model):
         blank=True,
     )
 
-    voting_opens = models.DateTimeField()
+    voting_opens = models.DateTimeField(blank=True)
 
-    voting_deadline = models.DateTimeField()
+    voting_deadline = models.DateTimeField(blank=True)
 
     objects = FellowshipNominationVotingRoundQuerySet.as_manager()
 
@@ -295,10 +295,10 @@ class FellowshipNominationDecision(models.Model):
 
     OUTCOME_ELECTED = "elected"
     OUTCOME_NOT_ELECTED = "notelected"
-    OUTCOME_CHOICES = (
+    OUTCOME_CHOICES = [
         (OUTCOME_ELECTED, "Elected"),
         (OUTCOME_NOT_ELECTED, "Not elected"),
-    )
+    ]
     outcome = models.CharField(max_length=16, choices=OUTCOME_CHOICES)
 
     fixed_on = models.DateTimeField(default=timezone.now)

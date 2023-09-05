@@ -3,8 +3,10 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from typing import Dict
 
 from django import forms
+from django.contrib.sessions.backends.db import SessionStore
 from django.db.models import Q
 
 from crispy_forms.helper import FormHelper
@@ -28,6 +30,7 @@ from .models import (
     FellowshipNomination,
     FellowshipNominationComment,
     FellowshipNominationDecision,
+    FellowshipNominationVotingRound,
     FellowshipInvitation,
 )
 from .constants import (
@@ -560,11 +563,11 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
             Field("voting_round", type="hidden"),
             Field("fixed_on", type="hidden"),
             Div(
-                Div(Field("comments"), css_class="col-8"),
+                Div(Field("comments"), css_class="col-12 col-lg-8"),
                 Div(
                     Field("outcome"),
                     ButtonHolder(Submit("submit", "Submit")),
-                    css_class="col-4",
+                    css_class="col-12 col-lg-4",
                 ),
                 css_class="row",
             ),
@@ -574,6 +577,170 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
             self.fields["outcome"].initial = voting_round.vote_outcome
 
 
+#################
+# Voting Rounds #
+#################
+
+
+class FellowshipNominationVotingRoundSearchForm(forms.Form):
+    all_rounds = FellowshipNominationVotingRound.objects.all()
+
+    nominee = forms.CharField(max_length=100, required=False, label="Nominee")
+
+    college = forms.MultipleChoiceField(
+        choices=College.objects.all().order_by("name").values_list("id", "name"),
+        required=False,
+    )
+
+    decision = forms.ChoiceField(
+        choices=[("", "Any"), ("pending", "Pending")]
+        + FellowshipNominationDecision.OUTCOME_CHOICES,
+        required=False,
+    )
+
+    can_vote = forms.BooleanField(
+        label="I can vote",
+        required=False,
+        initial=True,
+    )
+    voting_open = forms.BooleanField(
+        label="Voting open",
+        required=False,
+        initial=True,
+    )
+
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(
+            ("voting_deadline", "Deadline"),
+            ("voting_opens", "Voting start"),
+            ("decision__outcome", "Decision"),
+            ("nomination__profile__last_name", "Nominee"),
+        ),
+        required=False,
+    )
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=(
+            # FIXME: Emperically, the ordering appers to be reversed for dates?
+            ("-", "Ascending"),
+            ("+", "Descending"),
+        ),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        self.session_key = kwargs.pop("session_key", None)
+        super().__init__(*args, **kwargs)
+
+        # Set the initial values of the form fields from the session data
+        if self.session_key:
+            session = SessionStore(session_key=self.session_key)
+
+            for field in self.fields:
+                if field in session:
+                    self.fields[field].initial = session[field]
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Div(
+                        Div(FloatingField("nominee"), css_class="col-6 col-lg-6"),
+                        Div(FloatingField("decision"), css_class="col-3 col-lg-4"),
+                        Div(
+                            Div(
+                                Div(Field("can_vote"), css_class="col-12"),
+                                Div(Field("voting_open"), css_class="col-12"),
+                                css_class="row mb-0",
+                            ),
+                            css_class="col-3 col-lg-2",
+                        ),
+                        Div(FloatingField("orderby"), css_class="col-6"),
+                        Div(FloatingField("ordering"), css_class="col-6"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col",
+                ),
+                Div(
+                    Field("college", size=5),
+                    css_class="col-12 col-md-6 col-lg-4",
+                ),
+                css_class="row mb-0",
+            ),
+        )
+
+    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
+        # Apply the filter set to the form
+        for key in self.fields:
+            if key in filters:
+                self.fields[key].initial = filters[key]
+            elif none_on_empty:
+                if isinstance(self.fields[key], forms.MultipleChoiceField):
+                    self.fields[key].initial = []
+                else:
+                    self.fields[key].initial = None
+
+    def search_results(self):
+        # Save the form data to the session
+        if self.session_key is not None:
+            session = SessionStore(session_key=self.session_key)
+
+            for key in self.cleaned_data:
+                session[key] = self.cleaned_data.get(key)
+
+            session.save()
+
+        rounds = FellowshipNominationVotingRound.objects.all()
+
+        if self.cleaned_data.get("can_vote") or not self.user.has_perm(
+            "scipost.can_view_all_nomination_voting_rounds"
+        ):
+            # Restrict rounds to those the user can vote on
+            rounds = rounds.where_user_can_vote(self.user)
+
+        if nominee := self.cleaned_data.get("nominee"):
+            rounds = rounds.filter(
+                Q(nomination__profile__first_name__icontains=nominee)
+                | Q(nomination__profile__last_name__icontains=nominee)
+            )
+        if college := self.cleaned_data.get("college"):
+            rounds = rounds.filter(nomination__college__id__in=college)
+        if decision := self.cleaned_data.get("decision"):
+            if decision == "pending":
+                rounds = rounds.filter(decision__isnull=True)
+            else:
+                rounds = rounds.filter(decision__outcome=decision)
+        if self.cleaned_data.get("voting_open"):
+            rounds = rounds.filter(
+                Q(voting_opens__lte=timezone.now())
+                & Q(voting_deadline__gte=timezone.now())
+            )
+
+        # Ordering of streams
+        # Only order if both fields are set
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            rounds = rounds.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
+                ]
+            )
+
+        return rounds
+
+
+###############
+# Invitations #
+###############
 class FellowshipInvitationResponseForm(forms.ModelForm):
     class Meta:
         model = FellowshipInvitation

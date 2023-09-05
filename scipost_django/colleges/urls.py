@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import path
+from django.urls import include, path
 
 from . import views
 
@@ -170,6 +170,11 @@ urlpatterns = [
     ),
     path("_hx_nominations", views._hx_nominations, name="_hx_nominations"),
     path(
+        "_hx_voting_round_search_form/<str:filter_set>",
+        views._hx_voting_round_search_form,
+        name="_hx_voting_round_search_form",
+    ),
+    path(
         "_hx_nomination_li_contents/<int:nomination_id>",
         views._hx_nomination_li_contents,
         name="_hx_nomination_li_contents",
@@ -195,15 +200,63 @@ urlpatterns = [
         name="_hx_nominations_no_round_started",
     ),
     path(
+        "<int:nomination_id>",
+        include(
+            [
+                path(
+                    "_hx_nomination_eligible_voters",
+                    views._hx_nomination_eligible_voters,
+                    name="_hx_nomination_eligible_voters",
+                ),
+                path(
+                    "_hx_nomination_round_start",
+                    views._hx_nomination_round_start,
+                    name="_hx_nomination_round_start",
+                ),
+            ]
+        ),
+    ),
+    # Nomination Rounds
     path(
-        "<int:round_id>/_hx_nomination_round_remove_voter/<int:voter_id>",
-        views._hx_nomination_round_remove_voter,
-        name="_hx_nomination_round_remove_voter",
+        "<int:round_id>/",
+        include(
+            [
+                # Display round
+                path(
+                    "details",
+                    views._hx_voting_round_li_contents,
+                    name="_hx_voting_round_li_contents",
+                ),
+                # Manage voters of a nomination round
+                path(
+                    "voter/<int:voter_id>/",
+                    include(
+                        [
+                            path(
+                                "remove",
+                                views._hx_nomination_round_remove_voter,
+                                name="_hx_nomination_round_remove_voter",
+                            ),
+                            # path(
+                            #     "add",
+                            #     views._hx_nomination_round_add_voter,
+                            #     name="_hx_nomination_round_add_voter",
+                            # ),
+                        ]
+                    ),
+                ),
+            ],
+        ),
     ),
     path(
         "_hx_voting_rounds",
         views._hx_voting_rounds,
         name="_hx_voting_rounds",
+    ),
+    path(
+        "_hx_voting_round_list",
+        views._hx_voting_round_list,
+        name="_hx_voting_round_list",
     ),
     path(
         "_hx_nomination_vote/<int:voting_round_id>",

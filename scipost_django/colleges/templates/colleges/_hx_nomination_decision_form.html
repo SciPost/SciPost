@@ -6,13 +6,13 @@
   {% if voting_round.decision %}
 
     {% if voting_round.decision.outcome == 'elected' %}
-      <div class="badge fs-4 mb-2 bg-success">{{ voting_round.decision.get_outcome_display }}</div>
+      <div class="badge fs-5 mb-2 bg-success">{{ voting_round.decision.get_outcome_display }}</div>
     {% elif voting_round.decision.outcome == 'notelected' %}
-      <div class="badge fs-4 mb-2 bg-danger">{{ voting_round.decision.get_outcome_display }}</div>
+      <div class="badge fs-5 mb-2 bg-danger">{{ voting_round.decision.get_outcome_display }}</div>
     {% endif %}
 
     {% if voting_round.decision.comments %}
-      <h5>Decision comments</h5>
+      <h4>Decision comments</h4>
       <p>{{ voting_round.decision.comments }}</p>
     {% endif %}
 

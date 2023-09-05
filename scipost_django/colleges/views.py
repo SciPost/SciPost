@@ -42,6 +42,7 @@ from .constants import (
 )
 from .forms import (
     CollegeChoiceForm,
+    FellowshipNominationVotingRoundSearchForm,
     FellowshipSearchForm,
     FellowshipDynSelForm,
     FellowshipForm,
@@ -707,6 +708,7 @@ def nominations(request):
     context = {
         "profile_dynsel_form": profile_dynsel_form,
         "search_nominations_form": FellowshipNominationSearchForm(),
+        "rounds": FellowshipNominationVotingRound.objects.all()[:10],
     }
     return render(request, "colleges/nominations.html", context)
 
@@ -768,7 +770,7 @@ def _hx_nominations_needing_specialties(request):
 def _hx_nominations_no_round_started(request):
     nominations_no_round_started = FellowshipNomination.objects.exclude(
         profile__specialties__isnull=True
-    ).filter(voting_rounds__isnull=True)
+    ).filter(voting_rounds__isnull=False)
     context = {
         "nominations_no_round_started": nominations_no_round_started,
     }
@@ -832,7 +834,7 @@ def _hx_nomination_round_start(request, nomination_id):
     voting_round.eligible_to_vote.set(nomination.get_eligible_voters)
     voting_round.save()
     return HTMXResponse(
-        f"Started round for {nomination.profile} from now until {voting_round.voting_deadline}",
+        f"Started round for {nomination.profile} from now until {voting_round.voting_deadline}.",
         tag="success",
     )
 
@@ -861,6 +863,54 @@ def _hx_nomination_li_contents(request, nomination_id):
         "nomination": nomination,
     }
     return render(request, "colleges/_hx_nomination_li_contents.html", context)
+
+
+def _hx_voting_round_search_form(request, filter_set: str):
+    voting_rounds_search_form = FellowshipNominationVotingRoundSearchForm(
+        user=request.user,
+        session_key=request.session.session_key,
+    )
+
+    if filter_set == "empty":
+        voting_rounds_search_form.apply_filter_set({}, none_on_empty=True)
+    # TODO: add more filter sets saved in the session of the user
+
+    print(type(voting_rounds_search_form))
+
+    context = {
+        "form": voting_rounds_search_form,
+    }
+    return render(request, "colleges/_hx_voting_round_search_form.html", context)
+
+
+def _hx_voting_round_list(request):
+    form = FellowshipNominationVotingRoundSearchForm(
+        request.POST or None, user=request.user, session_key=request.session.session_key
+    )
+    if form.is_valid():
+        rounds = form.search_results()
+    else:
+        rounds = FellowshipNominationVotingRound.objects.all()
+    paginator = Paginator(rounds, 16)
+    page_nr = request.GET.get("page")
+    page_obj = paginator.get_page(page_nr)
+    count = paginator.count
+    start_index = page_obj.start_index
+    context = {
+        "count": count,
+        "page_obj": page_obj,
+        "start_index": start_index,
+    }
+    return render(request, "colleges/_hx_voting_round_list.html", context)
+
+
+def _hx_voting_round_li_contents(request, round_id):
+    """For (re)loading the details if modified."""
+    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+    context = {
+        "round": round,
+    }
+    return render(request, "colleges/_hx_voting_round_li_contents.html", context)
 
 
 @login_required

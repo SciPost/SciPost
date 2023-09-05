@@ -405,6 +405,16 @@ class Command(BaseCommand):
             content_type=content_type,
         )
 
+        # Fellowship Nominations
+        (
+            can_view_all_nomination_voting_rounds,
+            created,
+        ) = Permission.objects.get_or_create(
+            codename="can_view_all_nomination_voting_rounds",
+            name="Can view all voting rounds for Fellowship nominations",
+            content_type=content_type,
+        )
+
         # Assign permissions to groups
         SciPostAdmin.permissions.set(
             [
@@ -438,6 +448,7 @@ class Command(BaseCommand):
                 can_view_potentialfellowship_list,
                 can_add_potentialfellowship,
                 can_preview_new_features,
+                can_view_all_nomination_voting_rounds,
             ]
         )
 
@@ -497,6 +508,7 @@ class Command(BaseCommand):
                 can_view_potentialfellowship_list,
                 can_add_potentialfellowship,
                 can_preview_new_features,
+                can_view_all_nomination_voting_rounds,
             ]
         )
 

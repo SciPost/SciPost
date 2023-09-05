@@ -1,0 +1,11 @@
+<details id="round-{{ round.id }}-details"
+         class="border border-2 mx-3 p-2 bg-primary bg-opacity-10">
+  <summary class="list-none">{% include "colleges/_hx_voting_round_summary.html" with round=round %}</summary>
+
+  <div id="round-{{ round.id }}-details-contents"
+       class="p-2 mt-2 bg-white"
+       hx-get="{% url 'colleges:_hx_voting_round_li_contents' round_id=round.id %}"
+       hx-trigger="toggle once from:#round-{{ round.id }}-details"
+       hx-indicator="#indicator-round-{{ round.id }}-details-contents"></div>
+
+</details>
