@@ -274,6 +274,11 @@ urlpatterns = [
         name="_hx_nominations_invitations",
     ),
     path(
+        "_hx_nominations_new",
+        views._hx_nominations_new,
+        name="_hx_nominations_new",
+    ),
+    path(
         "fellowship_invitation/<int:pk>/email_initial",
         views.FellowshipInvitationEmailInitialView.as_view(),
         name="fellowship_invitation_email_initial",

@@ -697,18 +697,8 @@ def nominations(request):
     """
     List Nominations.
     """
-    profile_dynsel_form = ProfileDynSelForm(
-        initial={
-            "action_url_name": "colleges:_hx_nomination_form",
-            "action_url_base_kwargs": {},
-            "action_target_element_id": "nomination_form_response",
-            "action_target_swap": "innerHTML",
-        }
-    )
     context = {
-        "profile_dynsel_form": profile_dynsel_form,
         "search_nominations_form": FellowshipNominationSearchForm(),
-        "rounds": FellowshipNominationVotingRound.objects.all()[:10],
     }
     return render(request, "colleges/nominations.html", context)
 
@@ -1048,6 +1038,24 @@ def _hx_nomination_decision_form(request, round_id):
         "decision_form": decision_form,
     }
     return render(request, "colleges/_hx_nomination_decision_form.html", context)
+
+
+# Check permission to create a new nomination
+def _hx_nominations_new(request):
+    """Render the contents of the new nomination form."""
+    profile_dynsel_form = ProfileDynSelForm(
+        initial={
+            "action_url_name": "colleges:_hx_nomination_form",
+            "action_url_base_kwargs": {},
+            "action_target_element_id": "nomination_form_response",
+            "action_target_swap": "innerHTML",
+        }
+    )
+    context = {
+        "profile_dynsel_form": profile_dynsel_form,
+    }
+
+    return render(request, "colleges/_hx_nominations_new.html", context)
 
 
 @login_required

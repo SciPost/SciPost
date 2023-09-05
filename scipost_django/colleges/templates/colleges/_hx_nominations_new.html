@@ -1,0 +1,73 @@
+{% load crispy_forms_tags %}
+
+<div class="p-3 border border-success rounded rounded-lg">
+  <h2 class="mb-4">Nominate a new potential Fellow</h2>
+  <div class="row">
+
+    <div class="col-lg-6">
+      <h3>Procedure</h3>
+      <ul>
+        <li>Type your search query in the search form</li>
+        <li>
+          When the name you're looking for appears in the
+          <em>Matching profiles</em> list, double-click on it
+        </li>
+        <li>The nomination form will appear below</li>
+        <li>Non-eligibility flags (if any) will appear</li>
+        <li>If eligible, fill the form in (comments are optional)</li>
+        <li>Submit! (the vote will be arranged by EdAdmin)</li>
+      </ul>
+      <div class="row mb-0">
+
+        <div class="col-12">
+          <form hx-post="{% url 'profiles:_hx_profile_dynsel_list' %}"
+                hx-trigger="keyup delay:200ms, change"
+                hx-target="#profile_dynsel_results"
+                hx-indicator="#profile_dynsel_results-indicator">
+            <div id="profile_dynsel_form">{% crispy profile_dynsel_form %}</div>
+          </form>
+        </div>
+ 
+      </div>
+      <div class="row mb-0">
+
+        <div class="col-auto">
+          <div id="nomination_form_response-indicator" class="htmx-indicator">
+            <button class="btn btn-sm btn-warning" type="button" disabled>
+              <strong>Loading form...</strong>
+              <div class="spinner-grow spinner-grow-sm ms-2"
+                   role="status"
+                   aria-hidden="true"></div>
+            </button>
+          </div>
+        </div>
+
+        <div class="col-auto">
+          <div id="profile_dynsel_results-indicator" class="htmx-indicator">
+            <button class="btn btn-sm btn-warning" type="button" disabled>
+              <strong>Loading results...</strong>
+              <div class="spinner-grow spinner-grow-sm ms-2"
+                   role="status"
+                   aria-hidden="true"></div>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <h3>Matching profiles</h3>
+      <div id="profile_dynsel_results" class="border border-light m-2 p-1"></div>
+    </div>
+
+  </div>
+
+  <div id="nomination_form_response">
+    <h3 class="mb-2">Not found?</h3>
+    <p>
+      Then add to our database by <a href="{% url 'profiles:profile_create' %}" target="_blank">creating a new Profile</a> (opens in new window).
+    </p>
+  </div>
+
+</div>

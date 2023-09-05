@@ -28,6 +28,8 @@
     &nbsp;<strong>Help out by nominating candidates!</strong>
   </p>
 
+  <div id="new-nomination-container"></div>
+
   <details id="voting_rounds-filter-details" class="card my-4">
     <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
       <div class="fs-3">Search / Filter</div>
@@ -50,7 +52,16 @@
                 hx-get="{% url 'colleges:_hx_voting_round_search_form' filter_set="empty" %}"
                 hx-target="#voting_round-search-form-container">Clear Filters</button>
  
-        <a id="refresh-button" class="m-2 btn btn-primary">
+        <button class="btn btn-success me-2 text-white"
+                type="button"
+                hx-get="{% url 'colleges:_hx_nominations_new' %}"
+                hx-trigger="click"
+                hx-target="#new-nomination-container">
+          {% include "bi/plus-square.html" %}
+          &nbsp;Add New
+        </button>
+ 
+        <a id="refresh-button" class="me-2 btn btn-primary">
           {% include "bi/arrow-clockwise.html" %}
         &nbsp;Refresh</a>
       </div>
@@ -64,80 +75,6 @@
   </details>
 
   <div id="search-voting_rounds-results" class="mt-2"></div>
-
-  <details class="border border-warning border-2 mt-4">
-    <summary class="bg-warning bg-opacity-10 p-2 d-block list-triangle">
-      <div class="fs-5">Nominate</div>
-    </summary>
-
-    <div class="p-2">
-      <div class="row">
-
-        <div class="col-lg-6">
-          <h3>Procedure</h3>
-          <ul>
-            <li>Type your search query in the search form</li>
-            <li>
-              When the name you're looking for appears in the
-              <em>Matching profiles</em> list, double-click on it
-            </li>
-            <li>The nomination form will appear below</li>
-            <li>Non-eligibility flags (if any) will appear</li>
-            <li>If eligible, fill the form in (comments are optional)</li>
-            <li>Submit! (the vote will be arranged by EdAdmin)</li>
-          </ul>
-          <div class="row">
-
-            <div class="col-8">
-              <form hx-post="{% url 'profiles:_hx_profile_dynsel_list' %}"
-                    hx-trigger="keyup delay:200ms, change"
-                    hx-target="#profile_dynsel_results"
-                    hx-indicator="#profile_dynsel_results-indicator">
-                <div id="profile_dynsel_form">{% crispy profile_dynsel_form %}</div>
-              </form>
-            </div>
-
-            <div class="col-2">
-              <div id="nomination_form_response-indicator" class="htmx-indicator">
-                <button class="btn btn-sm btn-warning" type="button" disabled>
-                  <strong>Loading form...</strong>
-                  <div class="spinner-grow spinner-grow-sm ms-2"
-                       role="status"
-                       aria-hidden="true"></div>
-                </button>
-              </div>
-            </div>
-
-            <div class="col-2">
-              <div id="profile_dynsel_results-indicator" class="htmx-indicator">
-                <button class="btn btn-sm btn-warning" type="button" disabled>
-                  <strong>Loading results...</strong>
-                  <div class="spinner-grow spinner-grow-sm ms-2"
-                       role="status"
-                       aria-hidden="true"></div>
-                </button>
-              </div>
-            </div>
-
-          </div>
-
-          <h3 class="mb-2">Not found?</h3>
-          <p>
-            Then add to our database by <a href="{% url 'profiles:profile_create' %}" target="_blank">creating a new Profile</a> (opens in new window).
-          </p>
-        </div>
-
-        <div class="col-lg-6">
-          <h3>Matching profiles</h3>
-          <div id="profile_dynsel_results" class="border border-light m-2 p-1"></div>
-        </div>
-
-      </div>
-
-      <div id="nomination_form_response"></div>
-
-    </div>
-  </details>
 
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
     <details id="ensure-specialties-details"
