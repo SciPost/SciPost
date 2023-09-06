@@ -41,8 +41,9 @@ def roles_processor(request):
                     )
                 except active_fellowships.model.DoesNotExist:
                     context["session_fellowship"] = active_fellowships.first()
-            if context["session_fellowship"].senior:
-                context["user_roles"].append("active_senior_fellow")
+            if "session_fellowship" in context:
+                if getattr(context["session_fellowship"], "senior"):
+                    context["user_roles"].append("active_senior_fellow")
     except AttributeError:
         pass
     return context
