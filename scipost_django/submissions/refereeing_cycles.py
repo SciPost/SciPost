@@ -185,7 +185,7 @@ class NoEICRecommendationAction(BaseAction):
 
     @property
     def url2(self):
-        reverse(
+        return reverse(
             "submissions:eic_recommendation",
             args=(self.submission.preprint.identifier_w_vn_nr,),
         )
