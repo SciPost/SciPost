@@ -42,7 +42,7 @@ from .constants import (
 )
 from .forms import (
     CollegeChoiceForm,
-    FellowshipNominationVotingRoundSearchForm,
+    FellowshipNominationSearchForm,
     FellowshipSearchForm,
     FellowshipDynSelForm,
     FellowshipForm,
@@ -697,9 +697,7 @@ def nominations(request):
     """
     List Nominations.
     """
-    context = {
-        "search_nominations_form": FellowshipNominationSearchForm(),
-    }
+    context = {}
     return render(request, "colleges/nominations.html", context)
 
 
@@ -855,33 +853,30 @@ def _hx_nomination_li_contents(request, nomination_id):
     return render(request, "colleges/_hx_nomination_li_contents.html", context)
 
 
-def _hx_voting_round_search_form(request, filter_set: str):
-    voting_rounds_search_form = FellowshipNominationVotingRoundSearchForm(
+def _hx_nominations_search_form(request, filter_set: str):
+    form = FellowshipNominationSearchForm(
         user=request.user,
         session_key=request.session.session_key,
     )
 
     if filter_set == "empty":
-        voting_rounds_search_form.apply_filter_set({}, none_on_empty=True)
-    # TODO: add more filter sets saved in the session of the user
-
-    print(type(voting_rounds_search_form))
+        form.apply_filter_set({}, none_on_empty=True)
 
     context = {
-        "form": voting_rounds_search_form,
+        "form": form,
     }
-    return render(request, "colleges/_hx_voting_round_search_form.html", context)
+    return render(request, "colleges/_hx_nominations_search_form.html", context)
 
 
-def _hx_voting_round_list(request):
-    form = FellowshipNominationVotingRoundSearchForm(
+def _hx_nominations_list(request):
+    form = FellowshipNominationSearchForm(
         request.POST or None, user=request.user, session_key=request.session.session_key
     )
     if form.is_valid():
-        rounds = form.search_results()
+        nominations = form.search_results()
     else:
-        rounds = FellowshipNominationVotingRound.objects.all()
-    paginator = Paginator(rounds, 16)
+        nominations = FellowshipNomination.objects.all()
+    paginator = Paginator(nominations, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
     count = paginator.count
@@ -891,7 +886,7 @@ def _hx_voting_round_list(request):
         "page_obj": page_obj,
         "start_index": start_index,
     }
-    return render(request, "colleges/_hx_voting_round_list.html", context)
+    return render(request, "colleges/_hx_nominations_list.html", context)
 
 
 def _hx_voting_round_li_contents(request, round_id):

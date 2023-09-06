@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.utils import timezone
 
 from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
@@ -129,6 +129,12 @@ class FellowshipNominationQuerySet(models.QuerySet):
     def needing_handling(self):
         return self.exclude(voting_rounds__isnull=False).exclude(
             voting_rounds__decision__isnull=False
+        )
+
+    def with_user_votable_rounds(self, user):
+        # votable_rounds = self.voting_rounds.where_user_can_vote(user)
+        return self.filter(
+            Q(voting_rounds__eligible_to_vote__in=user.contributor.fellowships.active())
         )
 
 

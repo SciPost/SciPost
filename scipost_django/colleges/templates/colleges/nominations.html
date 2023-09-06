@@ -30,12 +30,12 @@
 
   <div id="new-nomination-container"></div>
 
-  <details id="voting_rounds-filter-details" class="card my-4">
+  <details id="nominations-filter-details" class="card my-4">
     <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
       <div class="fs-3">Search / Filter</div>
       <div class="d-none d-md-flex align-items-center">
  
-        <div id="indicator-search-voting_rounds" class="htmx-indicator">
+        <div id="indicator-search-nominations" class="htmx-indicator">
           <button class="btn btn-warning text-white d-none d-md-block me-2"
                   type="button"
                   disabled>
@@ -49,8 +49,8 @@
 
         <button class="btn btn-outline-secondary me-2"
                 type="button"
-                hx-get="{% url 'colleges:_hx_voting_round_search_form' filter_set="empty" %}"
-                hx-target="#voting_round-search-form-container">Clear Filters</button>
+                hx-get="{% url 'colleges:_hx_nominations_search_form' filter_set="empty" %}"
+                hx-target="#nominations-search-form-container">Clear Filters</button>
  
         <button class="btn btn-success me-2 text-white"
                 type="button"
@@ -68,13 +68,13 @@
 
     </summary>
     <div class="card-body">
-      <div id="voting_round-search-form-container"
-           hx-get="{% url 'colleges:_hx_voting_round_search_form' filter_set='default' %}"
+      <div id="nominations-search-form-container"
+           hx-get="{% url 'colleges:_hx_nominations_search_form' filter_set='default' %}"
            hx-trigger="intersect once"></div>
     </div>
   </details>
 
-  <div id="search-voting_rounds-results" class="mt-2"></div>
+  <div id="search-nominations-results" class="mt-2"></div>
 
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
     <details id="ensure-specialties-details"
@@ -112,7 +112,7 @@
     </summary>
 
     <div class="p-2">
-      <div id="voting_tablist" hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn" hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab= 
+      <div id="voting_tablist" hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn" hx-get="{% url 'colleges:_hx_nominations' %}?tab= 
         {% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}
          "></div>
     </div>
@@ -133,39 +133,4 @@
     </details>
   {% endif %}
 
-  <details id="list-details" class="border border-2 mt-4">
-    <summary class="bg-light p-2 d-block list-triangle">
-      <div class="fs-5">List / filter</div>
-    </summary>
-
-    <div class="p-2 mt-2">
-      <form hx-post="{% url 'colleges:_hx_nominations' %}"
-            hx-trigger="toggle from:#list-details, keyup delay:500ms, change"
-            hx-target="#search-nominations-results"
-            hx-indicator="#indicator-search">
-        <div id="search-nominations-form">{% crispy search_nominations_form %}</div>
-      </form>
-
-      <div class="row">
-        <div class="col">
-          <h3>Nominations list</h3>
-        </div>
-
-        <div class="col">
-          <div id="indicator-search-nominations" class="htmx-indicator">
-            <button class="btn btn-sm btn-warning" type="button" disabled>
-              <strong>Loading...</strong>
-              <div class="spinner-grow spinner-grow-sm ms-2"
-                   role="status"
-                   aria-hidden="true"></div>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <ul id="search-nominations-results" class="list-unstyled mt-2">
-      </ul>
-
-    </div>
-  </details>
 {% endblock content %}

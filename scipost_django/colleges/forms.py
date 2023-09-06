@@ -7,7 +7,7 @@ from typing import Dict
 
 from django import forms
 from django.contrib.sessions.backends.db import SessionStore
-from django.db.models import Q
+from django.db.models import Q, Max, OuterRef, Subquery
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
@@ -463,52 +463,222 @@ class FellowshipNominationForm(forms.ModelForm):
         return nomination
 
 
-class FellowshipNominationSearchForm(forms.Form):
-    """Filter a FellowshipNomination queryset using basic search fields."""
+# class FellowshipNominationSearchForm(forms.Form):
+#     """Filter a FellowshipNomination queryset using basic search fields."""
 
-    college = forms.ModelChoiceField(queryset=College.objects.all(), required=False)
-    specialty = forms.ModelChoiceField(
-        queryset=Specialty.objects.all(),
-        label="Specialty",
+#     college = forms.ModelChoiceField(queryset=College.objects.all(), required=False)
+#     specialty = forms.ModelChoiceField(
+#         queryset=Specialty.objects.all(),
+#         label="Specialty",
+#         required=False,
+#     )
+#     name = forms.CharField(max_length=128, required=False)
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.helper = FormHelper()
+#         self.helper.layout = Layout(
+#             Div(
+#                 FloatingField("category"),
+#                 css_class="row",
+#             ),
+#             Div(
+#                 Div(FloatingField("college"), css_class="col-lg-6"),
+#                 Div(FloatingField("specialty"), css_class="col-lg-6"),
+#                 css_class="row",
+#             ),
+#             Div(
+#                 Div(FloatingField("name", autocomplete="off"), css_class="col-lg-6"),
+#                 css_class="row",
+#             ),
+#         )
+
+#     def search_results(self):
+#         if self.cleaned_data.get("name"):
+#             nominations = FellowshipNomination.objects.filter(
+#                 Q(profile__last_name__icontains=self.cleaned_data.get("name"))
+#                 | Q(profile__first_name__icontains=self.cleaned_data.get("name"))
+#             )
+#         else:
+#             nominations = FellowshipNomination.objects.all()
+#         if self.cleaned_data.get("college"):
+#             nominations = nominations.filter(college=self.cleaned_data.get("college"))
+#         if self.cleaned_data.get("specialty"):
+#             nominations = nominations.filter(
+#                 profile__specialties__in=[
+#                     self.cleaned_data.get("specialty"),
+#                 ]
+#             )
+#         return nominations
+
+
+class FellowshipNominationSearchForm(forms.Form):
+    nominee = forms.CharField(max_length=100, required=False, label="Nominee")
+
+    college = forms.MultipleChoiceField(
+        choices=College.objects.all().order_by("name").values_list("id", "name"),
         required=False,
     )
-    name = forms.CharField(max_length=128, required=False)
+
+    decision = forms.ChoiceField(
+        choices=[("", "Any"), ("pending", "Pending")]
+        + FellowshipNominationDecision.OUTCOME_CHOICES,
+        required=False,
+    )
+
+    can_vote = forms.BooleanField(
+        label="I can vote",
+        required=False,
+        initial=True,
+    )
+    voting_open = forms.BooleanField(
+        label="Voting open now",
+        required=False,
+        initial=True,
+    )
+    has_rounds = forms.BooleanField(
+        label="Has voting rounds",
+        required=False,
+        initial=True,
+    )
+
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(
+            ("voting_rounds__voting_deadline", "Deadline"),
+            ("voting_rounds__voting_opens", "Voting start"),
+            ("voting_rounds__decision__outcome", "Decision"),
+            ("profile__last_name", "Nominee"),
+        ),
+        required=False,
+    )
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=(
+            # FIXME: Emperically, the ordering appers to be reversed for dates?
+            ("-", "Ascending"),
+            ("+", "Descending"),
+        ),
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
+
+        # Set the initial values of the form fields from the session data
+        if self.session_key:
+            session = SessionStore(session_key=self.session_key)
+
+            for field in self.fields:
+                if field in session:
+                    self.fields[field].initial = session[field]
+
         self.helper = FormHelper()
+
+        div_block_ordering = Div(
+            Div(FloatingField("orderby"), css_class="col-6 col-md-12 col-xl-6"),
+            Div(FloatingField("ordering"), css_class="col-6 col-md-12 col-xl-6"),
+            css_class="row mb-0",
+        )
+        div_block_checkbox = Div(
+            Div(Field("can_vote"), css_class="col-auto col-lg-12 col-xl-auto"),
+            Div(Field("voting_open"), css_class="col-auto col-lg-12 col-xl-auto"),
+            Div(Field("has_rounds"), css_class="col-auto col-lg-12 col-xl-auto"),
+            css_class="row mb-0",
+        )
+
         self.helper.layout = Layout(
             Div(
-                FloatingField("category"),
-                css_class="row",
-            ),
-            Div(
-                Div(FloatingField("college"), css_class="col-lg-6"),
-                Div(FloatingField("specialty"), css_class="col-lg-6"),
-                css_class="row",
-            ),
-            Div(
-                Div(FloatingField("name", autocomplete="off"), css_class="col-lg-6"),
-                css_class="row",
+                Div(
+                    Div(
+                        Div(FloatingField("nominee"), css_class="col-8"),
+                        Div(FloatingField("decision"), css_class="col-4"),
+                        Div(div_block_ordering, css_class="col-12 col-md-6 col-xl-12"),
+                        Div(div_block_checkbox, css_class="col-12 col-md-6 col-xl-12"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col",
+                ),
+                Div(
+                    Field("college", size=6),
+                    css_class="col-12 col-md-6 col-lg-4",
+                ),
+                css_class="row mb-0",
             ),
         )
 
+    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
+        # Apply the filter set to the form
+        for key in self.fields:
+            if key in filters:
+                self.fields[key].initial = filters[key]
+            elif none_on_empty:
+                if isinstance(self.fields[key], forms.MultipleChoiceField):
+                    self.fields[key].initial = []
+                else:
+                    self.fields[key].initial = None
+
     def search_results(self):
-        if self.cleaned_data.get("name"):
-            nominations = FellowshipNomination.objects.filter(
-                Q(profile__last_name__icontains=self.cleaned_data.get("name"))
-                | Q(profile__first_name__icontains=self.cleaned_data.get("name"))
-            )
-        else:
-            nominations = FellowshipNomination.objects.all()
-        if self.cleaned_data.get("college"):
-            nominations = nominations.filter(college=self.cleaned_data.get("college"))
-        if self.cleaned_data.get("specialty"):
+        # Save the form data to the session
+        if self.session_key is not None:
+            session = SessionStore(session_key=self.session_key)
+
+            for key in self.cleaned_data:
+                session[key] = self.cleaned_data.get(key)
+
+            session.save()
+
+        nominations = FellowshipNomination.objects.all()
+
+        if self.cleaned_data.get("can_vote") or not self.user.has_perm(
+            "scipost.can_view_all_nomination_voting_rounds"
+        ):
+            # Restrict rounds to those the user can vote on
+            nominations = nominations.with_user_votable_rounds(self.user)
+
+        if nominee := self.cleaned_data.get("nominee"):
             nominations = nominations.filter(
-                profile__specialties__in=[
-                    self.cleaned_data.get("specialty"),
+                Q(profile__first_name__icontains=nominee)
+                | Q(profile__last_name__icontains=nominee)
+            )
+        if college := self.cleaned_data.get("college"):
+            nominations = nominations.filter(college__id__in=college)
+        if decision := self.cleaned_data.get("decision"):
+            if decision == "pending":
+                nominations = nominations.filter(
+                    voting_rounds__decision__isnull=True,
+                )
+            else:
+                nominations = nominations.filter(
+                    voting_rounds__decision__outcome=decision,
+                )
+        if self.cleaned_data.get("voting_open"):
+            nominations = nominations.filter(
+                Q(voting_rounds__voting_opens__lte=timezone.now())
+                & Q(voting_rounds__voting_deadline__gte=timezone.now())
+            )
+        if self.cleaned_data.get("has_rounds"):
+            nominations = nominations.filter(voting_rounds__isnull=False)
+
+        # Ordering of nominations
+        # Only order if both fields are set
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            nominations = nominations.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
                 ]
             )
+
         return nominations
 
 
@@ -718,7 +888,7 @@ class FellowshipNominationVotingRoundSearchForm(forms.Form):
                 & Q(voting_deadline__gte=timezone.now())
             )
 
-        # Ordering of streams
+        # Ordering of voting rounds
         # Only order if both fields are set
         if (orderby_value := self.cleaned_data.get("orderby")) and (
             ordering_value := self.cleaned_data.get("ordering")

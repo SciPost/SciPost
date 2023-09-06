@@ -1,0 +1,40 @@
+<div class="row mb-0 w-100">
+
+  <div class="col-12 col-sm">
+    <div class="fs-6">{{ nomination.profile }}</div>
+    <div class="d-none d-md-block">(click for details)</div>
+  </div>
+
+  {% with nomination.latest_voting_round as round %}
+
+    <div class="col-12 col-sm-auto">
+      <div>
+        <span>Editorial College:</span><span>&emsp;{{ nomination.college.name }}</span>
+      </div>
+      <div>
+        <span>Voting started:</span><span>&emsp;{{ round.voting_opens|date:"Y-m-d" }}</span>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-auto">
+      <div>
+        <span>Decision:</span>
+
+        {% if round.decision.outcome == "elected" %}
+          <span class="badge bg-success">{{ round.decision.get_outcome_display }}</span>
+        {% elif round.decision.outcome == "notelected" %}
+          <span class="badge bg-danger">{{ round.decision.get_outcome_display }}</span>
+        {% else %}
+          <span class="badge bg-warning">Pending</span>
+        {% endif %}
+
+      </div>
+
+      <div>
+        <span>Deadline:&nbsp;</span><span>{{ round.voting_deadline|date:"Y-m-d" }}</span>
+      </div>
+    </div>
+ 
+  {% endwith %}
+ 
+</div>

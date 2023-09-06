@@ -94,8 +94,7 @@ class FellowshipNomination(models.Model):
         """
         List of blocking facts (if any) preventing fixing a decision.
         """
-        latest_round = self.voting_rounds.first()
-        if latest_round:
+        if latest_round := self.latest_voting_round:
             eligible_count = latest_round.eligible_to_vote.count()
             if eligible_count < 3:
                 return "Fewer than 3 eligible voters (insufficient)."
