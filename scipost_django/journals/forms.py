@@ -46,7 +46,7 @@ from journals.models import Journal
 from mails.utils import DirectMailUtil
 from organizations.models import Organization
 from proceedings.models import Proceedings
-from production.constants import PROOFS_PUBLISHED
+from production.constants import PRODUCTION_STREAM_COMPLETED
 from production.models import ProductionEvent
 from scipost.forms import RequestFormMixin
 from scipost.services import DOICaller
@@ -800,7 +800,10 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
         submission = self.instance.accepted_submission
         if hasattr(submission, "production_stream"):
             stream = submission.production_stream
-            stream.status = PROOFS_PUBLISHED
+            # WARNING: We don't need the "published" stream status
+            # so long as we don't use invitation officers.
+            # If we reinstate this, we need to revert the status to published.
+            stream.status = PRODUCTION_STREAM_COMPLETED
             stream.save()
             if self.request.user.production_user:
                 prodevent = ProductionEvent(
