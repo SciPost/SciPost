@@ -254,3 +254,17 @@ summary {
 details[open] summary.list-triangle::before {
   content: "▼";
 }
+
+
+// Utilities for details element
+// Hide details preview when open
+details[open] {
+    .details-preview {
+        display: none;
+    }
+}
+details[closed] {
+    .details-preview {
+        display: unset;
+    }
+}

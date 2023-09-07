@@ -58,6 +58,10 @@ class Proceedings(TimeStampedModel):
     submissions_deadline = models.DateField()
     submissions_close = models.DateField()
 
+    # Proceedings optinal preface
+    preface_title = models.CharField(max_length=256, blank=True)
+    preface_text = models.TextField(blank=True)
+
     # Templates
     template_latex_tgz = models.FileField(
         verbose_name="Template (LaTeX, gzipped tarball)",

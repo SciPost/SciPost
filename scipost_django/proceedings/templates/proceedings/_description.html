@@ -1,43 +1,77 @@
-{% if proceedings.cover_image %}
-  <div class="row">
-    <div class="col-md-10">
-{% endif %}
+<div class="row">
+  <div class="col">
+    <div class="row">
 
-{% if proceedings.logo %}
-  <div class="row">
-    <div class="col-md-8">
-{% endif %}
-<h3>{{ proceedings.event_name }} {% if proceedings.event_suffix %}({{ proceedings.event_suffix }}){% endif %}</h3>
-<div class="mb-4">
-  Event dates: from {{ proceedings.event_start_date }} to {{ proceedings.event_end_date }}.
-</div>
-{% if proceedings.logo %}
+      <div class="col">
+        <h3>
+          {{ proceedings.event_name }}
+
+          {% if proceedings.event_suffix %}({{ proceedings.event_suffix }}){% endif %}
+
+        </h3>
+ 
+        <div class="mb-4">Event dates: from {{ proceedings.event_start_date }} to {{ proceedings.event_end_date }}.</div>
+      </div>
+
+      {% if proceedings.logo %}
+        <div class="col-md-4">
+          <img style="max-width: 100%"
+               class="d-flex me-3"
+               src="{{ proceedings.logo.url }}"
+               alt="logo" />
+        </div>
+      {% endif %}
+
     </div>
-    <div class="col-md-4">
-      <img style="max-width: 100%;" class="d-flex me-3" src="{{ proceedings.logo.url }}" alt="logo"/>
-    </div>
+
+    <p>{{ proceedings.event_description|safe|linebreaksbr }}</p>
   </div>
-{% endif %}
-<p>{{ proceedings.event_description|safe|linebreaksbr }}</p>
-{% if proceedings.picture %}
-  <figure class="mx-4 my-2">
-    <img style="max-width: 100%;" src="{{ proceedings.picture.url }}" alt="picture"/>
-    {% if proceedings.picture_credit %}<figcaption>{{ proceedings.picture_credit }}</figcaption>{% endif %}
-  </figure>
-  <br>
-{% endif %}
+
+  {% if proceedings.cover_image %}
+    <div class="col-2">
+      <img style="max-width: 100%"
+           class="d-flex me-3"
+           src="{{ proceedings.cover_image.url }}"
+           alt="cover_image" />
+    </div>
+  {% endif %}
+
+  {% if proceedings.picture %}
+    <div class="col-12">
+      <figure class="mx-4 my-2">
+        <img style="max-width: 100%"
+             src="{{ proceedings.picture.url }}"
+             alt="picture" />
+
+        {% if proceedings.picture_credit %}<figcaption>{{ proceedings.picture_credit }}</figcaption>{% endif %}
+
+      </figure>
+      <br />
+    </div>
+  {% endif %}
+
+</div>
 
 {% if proceedings.open_for_submission %}
+ 
   <h3>Instructions for submitting to these Proceedings:</h3>
   <ul>
     <li>
       Prepare your manuscript according to <a href="{% url 'submissions:author_guidelines' %}">our guidelines</a>, using our template:
       <ul>
-	{% if proceedings.template_latex_tgz %}
-	  <li><a href="{{ proceedings.template_latex_tgz.url }}" type="application/gzip" download>LaTeX (gzipped tarball)</a></li>
-	{% else %}
-	  <li>Template will be available soon!</li>
-	{% endif %}
+
+        {% if proceedings.template_latex_tgz %}
+ 
+          <li>
+            <a href="{{ proceedings.template_latex_tgz.url }}"
+               type="application/gzip"
+               download>LaTeX (gzipped tarball)</a>
+          </li>
+        {% else %}
+ 
+          <li>Template will be available soon!</li>
+        {% endif %}
+
       </ul>
     </li>
     <li>
@@ -46,19 +80,35 @@
   </ul>
 {% endif %}
 
-{% if proceedings.cover_image %}
-    </div>
-    <div class="col-md-2">
-      <img style="max-width: 100%;" class="d-flex me-3" src="{{ proceedings.cover_image.url }}" alt="cover_image"/>
-    </div>
-  </div>
-{% endif %}
 
 {% if proceedings.fellowships.all.exists %}
+ 
   <h3>(Guest) Fellows responsible for this Issue</h3>
   <ul>
+
     {% for fellow in proceedings.fellowships.all %}
-      <li>{{ fellow.contributor.profile.get_title_display }} {{ fellow.contributor.user.first_name }} {{ fellow.contributor.user.last_name }}{% if fellow.contributor.affiliation.name %}, {{ fellow.contributor.affiliation.name }}{% endif %}</li>
+ 
+      <li>
+        {{ fellow.contributor.profile.get_title_display }} {{ fellow.contributor.user.first_name }} {{ fellow.contributor.user.last_name }}
+
+        {% if fellow.contributor.affiliation.name %}, {{ fellow.contributor.affiliation.name }}{% endif %}
+
+      </li>
     {% endfor %}
+
+
   </ul>
+{% endif %}
+
+{% if proceedings.preface_title and proceedings.preface_text %}
+ 
+  <details class="border border-primary bg-primary bg-opacity-10 p-2 my-4">
+    <summary>
+      <div class="p-2 border-bottom border-primary border-opacity-50 d-flex justify-content-between align-content-center">
+        <span class="fs-4 fs-bold text-primary">{{ proceedings.preface_title }}</span>       <span class="text-muted">(click to expand/contract)</span>
+      </div>
+      <p class="details-preview p-2 mb-0">{{ proceedings.preface_text|safe|truncatewords_html:60 }}</p>
+    </summary>
+    <p class="card-text p-2">{{ proceedings.preface_text|safe|linebreaksbr }}</p>
+  </details>
 {% endif %}
