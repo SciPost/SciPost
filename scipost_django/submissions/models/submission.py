@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from typing import List
 import feedparser
 import uuid
 
@@ -22,6 +23,7 @@ from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 
 from comments.models import Comment
+from colleges.models.fellowship import Fellowship
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
@@ -861,6 +863,33 @@ class Submission(models.Model):
             fellowships__pool=self
         ).values_list("id", flat=True)
         return self.editor_in_charge.id not in contributors_ids
+
+    def get_fellowship(self) -> List["Fellowship"]:
+        """
+        Return the default *list* of Fellows for this Submission.
+        - For a regular Submission, this is the subset of Fellowships of the Editorial College
+        which have at least one Specialty in common with the Submission.
+        - For a Proceedings Submission, this is the guest Editor of the Proceedings.
+        """
+        fellowships = Fellowship.objects.active()
+
+        if self.proceedings:
+            # Add only Proceedings-related Fellowships
+            fellows = fellowships.filter(
+                proceedings=self.proceedings
+            ).return_active_for_submission(self)
+        else:
+            # Add only Fellowships from the same College and with matching specialties
+            fellows = (
+                fellowships.regular_or_senior()
+                .filter(
+                    college=self.submitted_to.college,
+                    contributor__profile__specialties__in=self.specialties.all(),
+                )
+                .return_active_for_submission(self)
+            )
+
+        return fellows
 
     @property
     def editorial_decision(self):
