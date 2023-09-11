@@ -31,7 +31,7 @@
 	</tr>
 	<tr>
 	  <th>Defined by</th>
-	  <td>{{ ticket.defined_by.first_name }} {{ ticket.defined_by.last_name }} ({{ ticket.defined_by.username }})</td>
+	  <td>{{ ticket.defined_by.contributor.profile.get_title_display}} {{ ticket.defined_by.get_full_name}} ({{ ticket.defined_by.username }})</td>
 	</tr>
 	<tr>
 	  <th>Priority</th>
