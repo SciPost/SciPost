@@ -1,16 +1,26 @@
 <div id="nomination-{{ nomination_id }}-round-tab-holder">
 
   <nav class="nav nav-pills m-2 overflow-scroll">
+    <div type="button" class="me-2 px-2 nav-link {% if new_round %}bg-success{% else %}border border-success{% endif %}" 
+          hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination_id round_id=0 %}"
+          hx-target="#nomination-{{ nomination_id }}-round-tab-holder"
+          hx-swap="outerHTML">
+          <span class="fs-1 align-items-center text-{% if new_round %}white{% else %}success{% endif %}">+</span>
+      </div>
 
     {% for voting_round in voting_rounds %}
-      <div type="button" class="nav-link {% if selected_round.id == voting_round.id %}active{% endif %} {% if voting_round.id in inaccessible_round_ids %}disabled opacity-50{% endif %}" 
+      <div type="button" class="me-2 nav-link {% if selected_round and selected_round.id == voting_round.id %}active{% endif %} {% if voting_round.id in inaccessible_round_ids %}disabled opacity-50{% endif %}" 
           hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination_id round_id=voting_round.id %}"
           hx-target="#nomination-{{ nomination_id }}-round-tab-holder"
           hx-swap="outerHTML">
           <span class="d-block text-nowrap">
             <span class="d-flex justify-content-between">
               <span>Round #{{ forloop.counter0|add:1 }}</span>
-              {% if voting_round.is_open %}
+              {% if voting_round.is_unscheduled %}
+              <span class="text-danger">Uncheduled</span>
+              {% elif voting_round.is_scheduled %}
+                <span class="text-warning">Scheduled</span>
+              {% elif voting_round.is_open %}
                 <span class="text-success">Open</span>
               {% endif %}
             </span>
@@ -21,8 +31,12 @@
 
   </nav>
 
-  <div id="nomination-{{ nomination_id }}-round-{{ selected_round.id }}-tab-content-holder">
-    {% include "colleges/_hx_voting_round_results.html" with voting_round=selected_round %}
+  <div id="nomination-{{ nomination_id }}-round-{{ selected_round.id }}-tab-content-holder" class="mt-3 px-3">
+    {% if new_round %}
+      Newrounds!
+    {% else %}
+      {% include "colleges/_hx_voting_round_results.html" with voting_round=selected_round %}
+    {% endif %}
   </div>
 
 </div>

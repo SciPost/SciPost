@@ -912,9 +912,15 @@ def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
     context = {
         "nomination_id": nomination_id,
         "voting_rounds": voting_rounds,
-        "selected_round": voting_rounds.get(id=round_id),
         "inaccessible_round_ids": inaccessible_round_ids,
+        "new_round": False,
     }
+
+    if round_id == 0:
+        context["new_round"] = True
+    else:
+        context["selected_round"] = voting_rounds.get(id=round_id)
+
     return render(request, "colleges/_hx_nomination_voting_rounds_tab.html", context)
 
 

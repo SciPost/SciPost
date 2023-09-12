@@ -1,21 +1,17 @@
-<div class="px-3">
- 
+{% if "edadmin" in user_roles %}
+  <h3>Votes</h3>
+  <div id="nomination-{{ nomination.id }}-round-{{ voting_round.id }}-votes"
+       hx-get="{% url 'colleges:_hx_nomination_voter_table' round_id=voting_round.id %}"
+       hx-trigger="intersect once"></div>
+{% endif %}
 
-  {% if "edadmin" in user_roles %}
-    <h3>Votes</h3>
-    <div id="nomination-{{ nomination.id }}-round-{{ voting_round.id }}-votes"
-         hx-get="{% url 'colleges:_hx_nomination_voter_table' round_id=voting_round.id %}"
+<div class="row mb-0">
+  <div class="col-12 col-md mt-3">
+    <h3>Decision</h3>
+
+    <div hx-get="{% url 'colleges:_hx_nomination_decision_form' round_id=voting_round.id %}"
          hx-trigger="intersect once"></div>
-  {% endif %}
 
-  <div class="row mb-0">
-    <div class="col-12 col-md mt-3">
-      <h3>Decision</h3>
-
-      <div hx-get="{% url 'colleges:_hx_nomination_decision_form' round_id=voting_round.id %}"
-           hx-trigger="intersect once"></div>
-
-    </div>
-    <div class="col-12 col-md mt-3">{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
   </div>
+  <div class="col-12 col-md mt-3">{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
 </div>

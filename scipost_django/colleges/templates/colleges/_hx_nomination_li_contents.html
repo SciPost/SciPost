@@ -127,7 +127,7 @@
   <div class="card">
     <div class="card-header">Voting Rounds</div>
     <div class="card-body p-0">
-      <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id %}"
+      <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id|default:0 %}"
            hx-trigger="intersect once"></div>
     </div>
   </div>

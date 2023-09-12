@@ -220,6 +220,14 @@ class FellowshipNominationVotingRound(models.Model):
         return self.voting_opens <= timezone.now() <= self.voting_deadline
 
     @property
+    def is_scheduled(self):
+        return self.voting_deadline is not None and self.voting_opens > timezone.now()
+    
+    @property
+    def is_unscheduled(self):
+        return self.voting_opens is None or self.voting_deadline is None
+
+    @property
     def vote_outcome(self):
         """The outcome as determined by the votes."""
         if self.votes.veto():
@@ -244,7 +252,7 @@ class FellowshipNominationVotingRound(models.Model):
     def can_view(self, user) -> bool:
         """Return whether the user can view this voting round.
         They must be authenticated and have voting eligibility or be edadmin."""
-        
+
         eligibility_per_fellowship = [
             fellowship in self.eligible_to_vote.all()
             for fellowship in user.contributor.fellowships.all()
