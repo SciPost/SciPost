@@ -76,5 +76,15 @@
 	</li>
       </ul>
     {% endif %}
+
+    {% if perms.scipost.can_view_all_production_streams and submission.production_stream%}
+      <h3 class="mt-4">Production objects</h3>
+      <ul class="ps-4">
+        <li><a href="{% url 'production:stream' stream_id=submission.production_stream.id %}">Production stream</a></li>
+        {% if submission.production_stream.proofs_repository %}
+          <li><a href="{{submission.production_stream.proofs_repository.git_url}}">Git repository</a></li>
+        {% endif %}
+      </ul>
+      {% endif %}
   </div>
 {% endif %}
