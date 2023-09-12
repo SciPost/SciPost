@@ -6,6 +6,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+from colleges.permissions import is_edadmin
+
 from ..managers import (
     FellowshipNominationQuerySet,
     FellowshipNominationVotingRoundQuerySet,
@@ -238,6 +240,18 @@ class FellowshipNominationVotingRound(models.Model):
             return FellowshipNominationDecision.OUTCOME_ELECTED
         else:
             return FellowshipNominationDecision.OUTCOME_NOT_ELECTED
+
+    def can_view(self, user) -> bool:
+        """Return whether the user can view this voting round.
+        They must be authenticated and have voting eligibility or be edadmin."""
+        
+        eligibility_per_fellowship = [
+            fellowship in self.eligible_to_vote.all()
+            for fellowship in user.contributor.fellowships.all()
+        ]
+        eligible_to_vote = any(eligibility_per_fellowship)
+
+        return user.is_authenticated and (eligible_to_vote or is_edadmin(user))
 
 
 class FellowshipNominationVote(models.Model):

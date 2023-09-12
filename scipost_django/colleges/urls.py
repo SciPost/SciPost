@@ -200,7 +200,7 @@ urlpatterns = [
         name="_hx_nominations_no_round_started",
     ),
     path(
-        "<int:nomination_id>",
+        "<int:nomination_id>/",
         include(
             [
                 path(
@@ -212,6 +212,11 @@ urlpatterns = [
                     "_hx_nomination_round_start",
                     views._hx_nomination_round_start,
                     name="_hx_nomination_round_start",
+                ),
+                path(
+                    "_hx_nomination_voting_rounds_tab/<int:round_id>",
+                    views._hx_nomination_voting_rounds_tab,
+                    name="_hx_nomination_voting_rounds_tab",
                 ),
             ]
         ),
@@ -226,6 +231,11 @@ urlpatterns = [
                     "details",
                     views._hx_voting_round_li_contents,
                     name="_hx_voting_round_li_contents",
+                ),
+                path(
+                    "results",
+                    views._hx_voting_round_results,
+                    name="_hx_voting_round_results",
                 ),
                 # Manage voters of a nomination round
                 path(

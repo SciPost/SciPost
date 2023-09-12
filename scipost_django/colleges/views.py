@@ -889,6 +889,35 @@ def _hx_nominations_list(request):
     return render(request, "colleges/_hx_nominations_list.html", context)
 
 
+def _hx_voting_round_results(request, round_id):
+    """For (re)loading the details if modified."""
+    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+    context = {
+        "round": round,
+    }
+    return render(request, "colleges/_hx_voting_round_results.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
+    """Render the selected voting round contents and display the others as tabs."""
+    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+    voting_rounds = nomination.voting_rounds.all()
+
+    inaccessible_round_ids = [
+        round.id for round in voting_rounds if not round.can_view(request.user)
+    ]
+
+    context = {
+        "nomination_id": nomination_id,
+        "voting_rounds": voting_rounds,
+        "selected_round": voting_rounds.get(id=round_id),
+        "inaccessible_round_ids": inaccessible_round_ids,
+    }
+    return render(request, "colleges/_hx_nomination_voting_rounds_tab.html", context)
+
+
 def _hx_voting_round_li_contents(request, round_id):
     """For (re)loading the details if modified."""
     round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)

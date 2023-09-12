@@ -124,11 +124,15 @@
     </div>
   </div>
 
+  <div class="card">
+    <div class="card-header">Voting Rounds</div>
+    <div class="card-body p-0">
+      <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id %}"
+           hx-trigger="intersect once"></div>
+    </div>
+  </div>
 
-  {% with round=nomination.voting_rounds.first %}TEMP BROKEN{% endwith %}
- 
-
-  {% if "edadmin" in user_roles %}
+  {% comment %} {% if "edadmin" in user_roles %}
     <div class="row">
       <div class="col">
         <details class="border">
@@ -152,6 +156,8 @@
           </details>
         </div>
       </div>
-    {% endif %}
+    {% else %}
+      {% include "colleges/_hx_voting_round_results.html" with voting_round=nomination.latest_voting_round %}
+  {% endif %} {% endcomment %}
 
-  </div>
+</div>

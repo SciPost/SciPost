@@ -1,0 +1,28 @@
+<div id="nomination-{{ nomination_id }}-round-tab-holder">
+
+  <nav class="nav nav-pills m-2 overflow-scroll">
+
+    {% for voting_round in voting_rounds %}
+      <div type="button" class="nav-link {% if selected_round.id == voting_round.id %}active{% endif %} {% if voting_round.id in inaccessible_round_ids %}disabled opacity-50{% endif %}" 
+          hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination_id round_id=voting_round.id %}"
+          hx-target="#nomination-{{ nomination_id }}-round-tab-holder"
+          hx-swap="outerHTML">
+          <span class="d-block text-nowrap">
+            <span class="d-flex justify-content-between">
+              <span>Round #{{ forloop.counter0|add:1 }}</span>
+              {% if voting_round.is_open %}
+                <span class="text-success">Open</span>
+              {% endif %}
+            </span>
+            <small>{{ voting_round.voting_opens|date:"d M Y" }} - {{ voting_round.voting_deadline|date:"d M Y" }}</small>
+          </span>
+      </div>
+    {% endfor %}
+
+  </nav>
+
+  <div id="nomination-{{ nomination_id }}-round-{{ selected_round.id }}-tab-content-holder">
+    {% include "colleges/_hx_voting_round_results.html" with voting_round=selected_round %}
+  </div>
+
+</div>
