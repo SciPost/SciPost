@@ -16,6 +16,7 @@ from django.db.models.functions import Concat
 from django.conf import settings
 
 from common.utils import latinise
+from journals.models import Journal
 from submissions.models.decision import EditorialDecision
 
 from .constants import (
@@ -342,7 +343,21 @@ class ProofsRepository(models.Model):
     @property
     def journal_abbrev(self) -> str:
         # The DOI label is used to determine the path of the repository and template
-        return self.stream.submission.editorial_decision.for_journal.doi_label
+        """
+        Returns the journal abbreviation for publication. The journal is the
+        one associated with the submission's editorial decision, or, in the event of
+        a Selections paper, it is the flagship journal of the college.
+        """
+
+        decision_journal = self.stream.submission.editorial_decision.for_journal
+
+        if "Selections" in decision_journal.name:
+            paper_field = self.stream.submission.acad_field
+            college = paper_field.colleges.order_by("order").first()
+            flagship_journal = college.journals.order_by("list_order").first()
+            return flagship_journal.doi_label
+        else:
+            return decision_journal.doi_label
 
     @property
     def journal_subdivision(self) -> str:

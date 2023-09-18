@@ -57,6 +57,9 @@
                     {% endif %}
                 {% else %}
                     {{ productionstream.submission.editorial_decision.for_journal }}
+                    {% if "Selections" in productionstream.submission.editorial_decision.for_journal.name %}
+                      - {{ productionstream.submission.acad_field }}
+                    {% endif %}
                 {% endif %}
             </div>
  

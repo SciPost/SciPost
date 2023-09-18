@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 from datetime import datetime
 from functools import reduce
-from itertools import cycle
+from itertools import chain, cycle
 from typing import Any, Callable, Dict, List, Tuple
 from time import sleep
 
@@ -197,8 +197,19 @@ class Command(BaseCommand):
             "{ROOT}/Templates/Base".format(ROOT=settings.GITLAB_ROOT)
         )
 
-        base_actions = self._get_project_cloning_actions(base_template_project)
-        journal_actions = self._get_project_cloning_actions(journal_template_project)
+        all_actions = []
+        # Add "Base" and Journal specific templates to the repo
+        all_actions.append(self._get_project_cloning_actions(base_template_project))
+        all_actions.append(self._get_project_cloning_actions(journal_template_project))
+
+        # Add the "Selected" template if the submission has been accepted in Selections
+        if "Selections" in repo.stream.submission.editorial_decision.for_journal.name:
+            selected_template_project = self.GL.projects.get(
+                "{ROOT}/Templates/Selected".format(ROOT=settings.GITLAB_ROOT)
+            )
+            all_actions.append(
+                self._get_project_cloning_actions(selected_template_project)
+            )
 
         # Add some delays to avoid:
         # - Commiting the files before the branch has finished being created
@@ -209,7 +220,7 @@ class Command(BaseCommand):
             {
                 "branch": "main",
                 "commit_message": "copy pure templates",
-                "actions": base_actions + journal_actions,
+                "actions": list(chain(*all_actions)),
             }
         )
         sleep(3)
@@ -378,6 +389,12 @@ class Command(BaseCommand):
             "<|RECEIVED|>": (format_date_human_readable, paper_received_date),
             "<|ACCEPTED|>": (format_date_human_readable, paper_acceptance_date),
         }
+
+        # Replace the logo if the submission has been accepted in Selections
+        if "Selections" in repo.stream.submission.editorial_decision.for_journal.name:
+            default_logo_img = r"[width=20mm]{logo_scipost_with_bgd.pdf}"
+            selections_logo_img = r"[width=34.55mm]{logo_select.pdf}"
+            replacements_dict[default_logo_img] = (lambda _: selections_logo_img, None)
 
         # Define a helper function to try to format and replace a placeholder
         # which catches any errors and prints them to the console non-intrusively
