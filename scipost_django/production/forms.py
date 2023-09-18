@@ -286,25 +286,31 @@ class ProductionStreamSearchForm(forms.Form):
     identifier = forms.CharField(max_length=128, required=False)
 
     all_streams = ProductionStream.objects.ongoing()
+
+    stream_journals = all_streams.values_list(
+        "submission__editorialdecision__for_journal", flat=True
+    ).distinct()
+    stream_proceedings = all_streams.values_list(
+        "submission__proceedings", flat=True
+    ).distinct()
+    stream_officers = all_streams.values_list("officer", flat=True).distinct()
+    stream_supervisors = all_streams.values_list("supervisor", flat=True).distinct()
+
     journal = forms.MultipleChoiceField(
         choices=Journal.objects.active()
-        .filter(
-            id__in=all_streams.values_list(
-                "submission__editorialdecision__for_journal", flat=True
-            )
-        )
+        .filter(id__in=stream_journals)
         .order_by("name")
         .values_list("id", "name"),
         required=False,
     )
     proceedings = forms.MultipleChoiceField(
         choices=Proceedings.objects.all()
-        .filter(id__in=all_streams.values_list("submission__proceedings", flat=True))
+        .filter(id__in=stream_proceedings)
         .order_by("-submissions_close")
         # Short name is `event_suffix` if set, otherwise `event_name`
-        .annotate(short_name=Coalesce(NullIf("event_suffix", Value("")), "event_name"))
-        .values_list("id", "short_name")
-        .distinct(),
+        .annotate(
+            short_name=Coalesce(NullIf("event_suffix", Value("")), "event_name")
+        ).values_list("id", "short_name"),
         required=False,
     )
     officer = forms.MultipleChoiceField(
@@ -312,9 +318,8 @@ class ProductionStreamSearchForm(forms.Form):
         + [
             (prod_user.id, str(prod_user))
             for prod_user in ProductionUser.objects.active()
-            .filter(id__in=all_streams.values_list("officer", flat=True))
+            .filter(id__in=stream_officers)
             .order_by("-user__id")
-            .distinct()
         ],
         required=False,
     )
@@ -323,9 +328,8 @@ class ProductionStreamSearchForm(forms.Form):
         + [
             (prod_user.id, str(prod_user))
             for prod_user in ProductionUser.objects.active()
-            .filter(id__in=all_streams.values_list("supervisor", flat=True))
+            .filter(id__in=stream_supervisors)
             .order_by("-user__id")
-            .distinct()
         ],
         required=False,
     )
