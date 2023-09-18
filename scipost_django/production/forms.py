@@ -376,6 +376,7 @@ class ProductionStreamSearchForm(forms.Form):
             for field in self.fields:
                 if field in session:
                     self.fields[field].initial = session[field]
+                    print(field, session[field])
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
