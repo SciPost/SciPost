@@ -190,9 +190,9 @@ class FellowshipNominationVotingRound(models.Model):
         blank=True,
     )
 
-    voting_opens = models.DateTimeField(blank=True)
+    voting_opens = models.DateTimeField(blank=True, null=True)
 
-    voting_deadline = models.DateTimeField(blank=True)
+    voting_deadline = models.DateTimeField(blank=True, null=True)
 
     objects = FellowshipNominationVotingRoundQuerySet.as_manager()
 
@@ -204,6 +204,8 @@ class FellowshipNominationVotingRound(models.Model):
         verbose_name_plural = "Fellowship Nomination Voting Rounds"
 
     def __str__(self):
+        if self.voting_deadline is None or self.voting_opens is None:
+            return f"Unscheduled voting round for {self.nomination}"
         return (
             f'Voting round ({self.voting_opens.strftime("%Y-%m-%d")} -'
             f' {self.voting_deadline.strftime("%Y-%m-%d")}) for {self.nomination}'
@@ -215,14 +217,44 @@ class FellowshipNominationVotingRound(models.Model):
             return vote.vote
         return None
 
+    def add_voter(self, fellow):
+        self.eligible_to_vote.add(fellow)
+        self.save()
+
+    def set_eligible_voters(self):
+        """
+        Set the eligible voters for this voting round.
+        Eligible voters are Senior Fellows with at least one specialty in common, or, in the event
+        that there are fewer than 5 such Senior Fellows, all Senior Fellows of the same college.
+        """
+        specialties_slug_list = [
+            s.slug for s in self.nomination.profile.specialties.all()
+        ]
+        self.eligible_to_vote.set(
+            Fellowship.objects.active()
+            .senior()
+            .specialties_overlap(specialties_slug_list)
+        )
+        if self.eligible_to_vote.count() <= 5:
+            # add Senior Fellows from all specialties
+            self.eligible_to_vote.set(
+                Fellowship.objects.active()
+                .senior()
+                .filter(college=self.nomination.college)
+            )
+
+        self.save()
+
     @property
     def is_open(self):
+        if self.voting_deadline is None or self.voting_opens is None:
+            return False
         return self.voting_opens <= timezone.now() <= self.voting_deadline
 
     @property
     def is_scheduled(self):
         return self.voting_deadline is not None and self.voting_opens > timezone.now()
-    
+
     @property
     def is_unscheduled(self):
         return self.voting_opens is None or self.voting_deadline is None

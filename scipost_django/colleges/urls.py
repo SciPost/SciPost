@@ -218,6 +218,11 @@ urlpatterns = [
                     views._hx_nomination_voting_rounds_tab,
                     name="_hx_nomination_voting_rounds_tab",
                 ),
+                path(
+                    "_hx_nomination_voting_rounds_create",
+                    views._hx_nomination_voting_rounds_create,
+                    name="_hx_nomination_voting_rounds_create",
+                ),
             ]
         ),
     ),

@@ -13,6 +13,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
+from django.urls import reverse
 from django.utils import timezone
 
 from ontology.models import Specialty
@@ -906,6 +907,75 @@ class FellowshipNominationVotingRoundSearchForm(forms.Form):
             )
 
         return rounds
+
+
+from datetime import date
+
+
+class FellowshipNominationVotingRoundStartForm(forms.ModelForm):
+    class Meta:
+        model = FellowshipNominationVotingRound
+        fields = ["voting_opens", "voting_deadline"]
+
+        widgets = {
+            "voting_opens": forms.DateInput(
+                attrs={"type": "date", "min": date.today()}
+            ),
+            "voting_deadline": forms.DateInput(
+                attrs={"type": "date", "min": date.today()}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.attrs = {
+            "hx-target": f"nomination-{self.instance.nomination.id}-round-tab-holder",
+            "hx-swap": "outerHTML",
+            "hx-post": reverse(
+                "colleges:_hx_nomination_voting_rounds_tab",
+                kwargs={
+                    "nomination_id": self.instance.nomination.id,
+                    "round_id": self.instance.id,
+                },
+            ),
+        }
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("voting_opens"), css_class="col"),
+                Div(Field("voting_deadline"), css_class="col"),
+                Div(
+                    ButtonHolder(Submit("submit", "Start")),
+                    css_class="col-auto align-self-end mb-3",
+                ),
+                css_class="row mb-0",
+            )
+        )
+
+    def clean(self):
+        if self.is_valid():
+            # Check that the voting deadline is after the voting opens
+            if (
+                self.cleaned_data["voting_deadline"]
+                <= self.cleaned_data["voting_opens"]
+            ):
+                self.add_error(
+                    "voting_deadline",
+                    "The voting deadline must be after the voting opens.",
+                )
+
+            # Check that the voting opens is after today
+            if self.cleaned_data["voting_opens"] < date.today():
+                self.add_error(
+                    "voting_opens", "The voting opens date must be after today."
+                )
+
+    def save(self):
+        voting_round = super().save(commit=False)
+        voting_round.save()
+        print(self.fields["voting_opens"])
+        return voting_round
 
 
 ###############

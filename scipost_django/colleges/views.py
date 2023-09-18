@@ -43,6 +43,7 @@ from .constants import (
 from .forms import (
     CollegeChoiceForm,
     FellowshipNominationSearchForm,
+    FellowshipNominationVotingRoundStartForm,
     FellowshipSearchForm,
     FellowshipDynSelForm,
     FellowshipForm,
@@ -903,7 +904,7 @@ def _hx_voting_round_results(request, round_id):
 def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
     """Render the selected voting round contents and display the others as tabs."""
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
-    voting_rounds = nomination.voting_rounds.all()
+    voting_rounds = nomination.voting_rounds.all().order_by("-voting_opens")
 
     inaccessible_round_ids = [
         round.id for round in voting_rounds if not round.can_view(request.user)
@@ -916,12 +917,46 @@ def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
         "new_round": False,
     }
 
-    if round_id == 0:
-        context["new_round"] = True
-    else:
-        context["selected_round"] = voting_rounds.get(id=round_id)
+    if round_id != 0:
+        selected_round = voting_rounds.get(id=round_id)
+        context["selected_round"] = selected_round
+
+        print(request.POST)
+
+        if selected_round.voting_opens is None:
+            today = datetime.date.today()
+            round_start_form = FellowshipNominationVotingRoundStartForm(
+                request.POST or None,
+                instance=selected_round,
+                initial={
+                    "voting_opens": today,
+                    "voting_deadline": today + datetime.timedelta(days=14),
+                }
+                if (request.POST is None) and (selected_round.voting_opens is None)
+                else None,
+            )
+            if round_start_form.is_valid():
+                round_start_form.save()
+                messages.success(
+                    request,
+                    f"Voting round for {nomination.profile} started from now until {selected_round.voting_deadline}.",
+                )
+            context["round_start_form"] = round_start_form
 
     return render(request, "colleges/_hx_nomination_voting_rounds_tab.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_nomination_voting_rounds_create(request, nomination_id):
+    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+    new_round = FellowshipNominationVotingRound(
+        nomination=nomination, voting_opens=None, voting_deadline=None
+    )
+    new_round.save()
+    new_round.set_eligible_voters()
+
+    return _hx_nomination_voting_rounds_tab(request, nomination_id, new_round.id)
 
 
 def _hx_voting_round_li_contents(request, round_id):
