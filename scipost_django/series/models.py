@@ -60,7 +60,12 @@ class Collection(models.Model):
     event_end_date = models.DateField(null=True, blank=True)
     image = models.ImageField(upload_to="series/collections/images/", blank=True)
 
-    expected_authors = models.ManyToManyField("profiles.Profile", blank=True)
+    expected_authors = models.ManyToManyField(
+        "profiles.Profile", blank=True, related_name="collections_authoring"
+    )
+    expected_editors = models.ManyToManyField(
+        "colleges.Fellowship", blank=True, related_name="collections_editing"
+    )
     submissions = models.ManyToManyField("submissions.Submission", blank=True)
     publications = models.ManyToManyField(
         "journals.Publication", through="series.CollectionPublicationsTable", blank=True

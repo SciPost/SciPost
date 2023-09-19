@@ -1,0 +1,46 @@
+{% load crispy_forms_tags %}
+
+<div class="row">
+  <div class="col-md-8">
+    {% include 'scipost/messages.html' %}
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Fellow</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      {% for editor in collection.expected_editors.all %}
+        {% with profile=editor.contributor.profile %}
+          <tr>
+            <td>
+              <a href="{{ profile.get_absolute_url }}">{{ profile }}</a>
+            </td>
+            <td>
+              <a class="btn btn-sm btn-outline-danger"
+                 hx-get="{% url 'series:_hx_collection_expected_editor_action' slug=collection.slug fellowship_id=editor.id action='remove' %}"
+                 hx-target="#editor_fellowships"
+                 hx-confirm="Are you sure you want to remove {{ profile }} from expected editors in this Collection?"><small>Remove</small></a>
+            </td>
+          </tr>
+        {% endwith %}
+      {% empty %}
+        <tr>
+          <td colspan="4">No expected editors yet</td>
+        </tr>
+      {% endfor %}
+
+    </table>
+  </div>
+  <div class="col-md-4 p-4">
+    <h4>Add an expected editor</h4>
+    <form hx-post="{% url 'colleges:_hx_fellowship_dynsel_list' %}"
+          hx-trigger="keyup delay:200ms, change"
+          hx-target="#editor_fellowship_search_results">
+      <div id="editor_fellowship_search_form">{% crispy editor_fellowship_search_form %}</div>
+    </form>
+    <div id="editor_fellowship_search_results"
+         class="border border-light m-2 p-1"></div>
+  </div>
+</div>

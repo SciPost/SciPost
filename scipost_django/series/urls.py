@@ -25,9 +25,19 @@ urlpatterns = [
                     name="_hx_collection_expected_authors",
                 ),
                 path(
+                    "_hx_collection_expected_editors",
+                    views._hx_collection_expected_editors,
+                    name="_hx_collection_expected_editors",
+                ),
+                path(
                     "_hx_collection_expected_author_action/<int:profile_id>/<str:action>",
                     views._hx_collection_expected_author_action,
                     name="_hx_collection_expected_author_action",
+                ),
+                path(
+                    "_hx_collection_expected_editor_action/<int:fellowship_id>/<str:action>",
+                    views._hx_collection_expected_editor_action,
+                    name="_hx_collection_expected_editor_action",
                 ),
                 path(
                     "_hx_collection_publications",
