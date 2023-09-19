@@ -1,6 +1,6 @@
 {% load colleges_extras %}
 
-<ul class="list list-unstyled">
+<ul class="list list-unstyled dynsel-list">
   {% for fellowship in fellowships|slice:":11" %}
     {% if forloop.counter == 11 %}
       <li>&emsp;...</li>
@@ -9,6 +9,8 @@
 	<a
 	    hx-get="{% fellowship_dynsel_action_url fellowship %}"
 	    hx-target="#{{ action_target_element_id }}"
+      hx-swap="{{ action_target_swap }}"
+      hx-indicator="#{{ action_target_element_id }}-indicator"
 	>
 	  {{ fellowship }}
 	</a>
