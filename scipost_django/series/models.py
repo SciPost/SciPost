@@ -27,7 +27,9 @@ class Series(models.Model):
         blank=True,
     )
     image = models.ImageField(upload_to="series/images/", blank=True)
-    container_journals = models.ManyToManyField("journals.Journal", blank=True)
+    container_journals = models.ManyToManyField(
+        "journals.Journal", blank=True, related_name="contained_series"
+    )
 
     class Meta:
         verbose_name_plural = "series"
@@ -45,7 +47,11 @@ class Collection(models.Model):
     """
 
     series = models.ForeignKey(
-        "series.Series", blank=True, null=True, on_delete=models.CASCADE
+        "series.Series",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+        related_name="collections",
     )
     name = models.CharField(max_length=256, blank=True)
     slug = models.SlugField(unique=True, allow_unicode=True)
@@ -66,13 +72,22 @@ class Collection(models.Model):
     expected_editors = models.ManyToManyField(
         "colleges.Fellowship", blank=True, related_name="collections_editing"
     )
-    submissions = models.ManyToManyField("submissions.Submission", blank=True)
+    submissions = models.ManyToManyField(
+        "submissions.Submission", blank=True, related_name="collections"
+    )
     publications = models.ManyToManyField(
-        "journals.Publication", through="series.CollectionPublicationsTable", blank=True
+        "journals.Publication",
+        through="series.CollectionPublicationsTable",
+        blank=True,
+        related_name="collections",
     )
 
     def __str__(self):
         return self.name
+
+    @property
+    def name_with_series(self):
+        return f"{self.series.name} - {self.name}"
 
     def get_absolute_url(self):
         return reverse("series:collection_detail", kwargs={"slug": self.slug})

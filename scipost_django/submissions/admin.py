@@ -117,6 +117,14 @@ class SubmissionTieringInline(admin.StackedInline):
     ]
 
 
+class CollectionInline(admin.StackedInline):
+    model = Submission.collections.through
+    extra = 0
+    autocomplete_fields = [
+        "collection",
+    ]
+
+
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = "submission_date"
     list_display = (
@@ -162,6 +170,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         ReadinessInline,
         SubmissionClearanceInline,
         SubmissionTieringInline,
+        CollectionInline,
     ]
 
     # Admin fields should be added in the fieldsets

@@ -112,10 +112,10 @@
 	Content
       </h2>
       {% automarkup journal.content %}
-      {% if journal.series_set.all|length > 0 %}
+      {% if journal.contained_series.all|length > 0 %}
 	Series hosted in this Journal:
 	<ul>
-	  {% for series in journal.series_set.all %}
+	  {% for series in journal.contained_series.all %}
 	    <li>
 	      <a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a>
 	    </li>

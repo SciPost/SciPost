@@ -20,7 +20,7 @@
         <li class="nav-item">
           <a class="nav-link" id="accepted-tab" data-bs-toggle="tab" href="#accepted" role="tab" aria-controls="accepted" aria-selected="true">Accepted Submissions</a>
         </li>
-	{% if journal.series_set.all|length > 0 %}
+	{% if journal.contained_series.all|length > 0 %}
 	  <li class="nav-item">
 	    <a class="nav-link" id="series-tab" data-bs-toggle="tab" href="#series" role="tab" aria-controls="series" aria-selected="true">Series</a>
 	  </li>
@@ -64,11 +64,11 @@
             {% endfor %}
           </ul>
         </div>
-	{% if journal.series_set.all|length > 0 %}
+	{% if journal.contained_series.all|length > 0 %}
 	  <div class="tab-pane pt-4" id="series" role="tabpanel" aria-labelledby="series-tab">
 	    <h3 class="highlight">Series contained in this Journal</h3>
 	    <ul>
-	      {% for series in journal.series_set.all %}
+	      {% for series in journal.contained_series.all %}
 		<li><a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a></li>
 	      {% endfor %}
 	    </ul>
