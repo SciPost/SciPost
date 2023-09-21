@@ -109,12 +109,15 @@ class ProofsRepositoryAdmin(GuardedModelAdmin):
 
     list_filter = ["status"]
     list_display = ["name", "status", "gitlab_link"]
-    readonly_fields = ["stream", "template_path", "gitlab_link"]
+    readonly_fields = ["stream", "template_paths", "gitlab_link"]
 
     def gitlab_link(self, obj):
         return format_html(
             '<a href="{1}" target="_blank">{0}</a>', obj.git_path, obj.git_url
         )
+
+    def template_paths(self, obj):
+        return format_html("<br>".join(obj.template_paths))
 
 
 admin.site.register(ProofsRepository, ProofsRepositoryAdmin)
