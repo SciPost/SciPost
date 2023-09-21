@@ -64,6 +64,13 @@ class Collection(models.Model):
     )
     event_start_date = models.DateField(null=True, blank=True)
     event_end_date = models.DateField(null=True, blank=True)
+    event_details = models.TextField(
+        blank=True,
+        help_text=(
+            "The details of the event, to be displayed as information "
+            "about the collection in the paper."
+        ),
+    )
     image = models.ImageField(upload_to="series/collections/images/", blank=True)
 
     expected_authors = models.ManyToManyField(
