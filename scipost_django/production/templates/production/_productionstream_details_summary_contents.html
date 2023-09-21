@@ -46,24 +46,30 @@
         </div>
  
         <div class="row">
-            <div class="col col-sm-6 col-md text-nowrap">
+            <div class="col text-nowrap text-truncate">
                 <small class="text-muted">To be published in</small>
                 <br>
                 {% if productionstream.submission.proceedings %}
-                    {% if productionstream.submission.proceedings.event_suffix %}
-                        {{ productionstream.submission.proceedings.event_suffix }}
-                    {% else %}
-                        {{ productionstream.submission.proceedings.event_name }}
-                    {% endif %}
+                  {% if productionstream.submission.proceedings.event_suffix %}
+                    <span title="{{ productionstream.submission.proceedings.event_name }}">{{ productionstream.submission.proceedings.event_suffix }}</span>
+                  {% else %}
+                    <span title="{{ productionstream.submission.proceedings.event_name }}">{{ productionstream.submission.proceedings.event_name }}</span>
+                  {% endif %}
+                {% elif productionstream.submission.collections.all %}
+                  {% for collection in productionstream.submission.collections.all %}
+                    <span title="{{ collection.series.name }}">{{ collection.series.name }}</span>
+                    <br>
+                    <span title="{{ collection.name }}">{{ collection.name }}</span>
+                  {% endfor %}
                 {% else %}
-                    {{ productionstream.submission.editorial_decision.for_journal }}
-                    {% if "Selections" in productionstream.submission.editorial_decision.for_journal.name %}
-                      - {{ productionstream.submission.acad_field }}
-                    {% endif %}
+                  {{ productionstream.submission.editorial_decision.for_journal }}
+                  {% if "Selections" in productionstream.submission.editorial_decision.for_journal.name %}
+                    - {{ productionstream.submission.acad_field }}
+                  {% endif %}
                 {% endif %}
             </div>
  
-            <div class="col col-sm-6 col-md text-nowrap">
+            <div class="col-auto text-nowrap">
                 <small class="text-muted">Submitter</small>
                 <br>
                 {% if productionstream.submission.submitted_by.profile.email %}
@@ -74,7 +80,7 @@
                 <a href="{% url 'scipost:contributor_info' productionstream.submission.submitted_by.id %}">{{ productionstream.submission.submitted_by.formal_str }}</a>
             </div>
 
-            <div class="col-auto pe-auto">
+            <div class="col-12 col-sm-auto col-md-12 col-xl-auto pe-auto">
                 <small class="text-muted">Go to page:</small>
                 <br>
                 <div class="d-inline-flex">
