@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
-from typing import Dict
+from typing import Any, Dict
 
 from django import forms
 from django.contrib.sessions.backends.db import SessionStore
@@ -15,6 +15,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.timezone import timedelta
 
 from ontology.models import Specialty
 from proceedings.models import Proceedings
@@ -918,20 +919,32 @@ class FellowshipNominationVotingRoundStartForm(forms.ModelForm):
         fields = ["voting_opens", "voting_deadline"]
 
         widgets = {
-            "voting_opens": forms.DateInput(
-                attrs={"type": "date", "min": date.today()}
-            ),
-            "voting_deadline": forms.DateInput(
-                attrs={"type": "date", "min": date.today()}
-            ),
+            "voting_opens": forms.DateInput(attrs={"type": "date"}),
+            "voting_deadline": forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        today = date.today()
+        self.fields["voting_opens"].widget.attrs.update(
+            {
+                "min": today.strftime("%Y-%m-%d"),
+                "value": today.strftime("%Y-%m-%d"),
+            }
+        )
+
+        in_two_weeks = today + timedelta(days=14)
+        self.fields["voting_deadline"].widget.attrs.update(
+            {
+                "min": today.strftime("%Y-%m-%d"),
+                "value": in_two_weeks.strftime("%Y-%m-%d"),
+            }
+        )
+
         self.helper = FormHelper()
         self.helper.attrs = {
-            "hx-target": f"nomination-{self.instance.nomination.id}-round-tab-holder",
+            "hx-target": f"#nomination-{self.instance.nomination.id}-round-tab-holder",
             "hx-swap": "outerHTML",
             "hx-post": reverse(
                 "colleges:_hx_nomination_voting_rounds_tab",
@@ -954,28 +967,34 @@ class FellowshipNominationVotingRoundStartForm(forms.ModelForm):
         )
 
     def clean(self):
-        if self.is_valid():
-            # Check that the voting deadline is after the voting opens
-            if (
-                self.cleaned_data["voting_deadline"]
-                <= self.cleaned_data["voting_opens"]
-            ):
-                self.add_error(
-                    "voting_deadline",
-                    "The voting deadline must be after the voting opens.",
-                )
+        open_date = self.cleaned_data.get("voting_opens", None)
+        deadline_date = self.cleaned_data.get("voting_deadline", None)
 
-            # Check that the voting opens is after today
-            if self.cleaned_data["voting_opens"] < date.today():
-                self.add_error(
-                    "voting_opens", "The voting opens date must be after today."
-                )
+        if open_date is None or deadline_date is None:
+            self.add_error(
+                None,
+                "Both the voting opens and voting deadline must be set.",
+            )
 
-    def save(self):
-        voting_round = super().save(commit=False)
-        voting_round.save()
-        print(self.fields["voting_opens"])
-        return voting_round
+        # Check that the voting deadline is after the voting opens
+        if deadline_date <= open_date:
+            self.add_error(
+                "voting_deadline",
+                "The voting deadline must be after the voting opens.",
+            )
+
+        # Check that the voting opens after today
+        if open_date.date() < date.today():
+            self.add_error(
+                "voting_opens", "The voting opening date may not be in the past."
+            )
+
+        if self.instance.eligible_to_vote.count() == 0:
+            self.add_error(
+                None,
+                "There must be at least one eligible voter to start the round. "
+                "Please add voters to the round before setting the dates.",
+            )
 
 
 ###############

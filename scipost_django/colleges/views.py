@@ -921,27 +921,19 @@ def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
         selected_round = voting_rounds.get(id=round_id)
         context["selected_round"] = selected_round
 
-        print(request.POST)
+        round_start_form = FellowshipNominationVotingRoundStartForm(
+            request.POST or None,
+            instance=selected_round,
+        )
 
-        if selected_round.voting_opens is None:
-            today = datetime.date.today()
-            round_start_form = FellowshipNominationVotingRoundStartForm(
-                request.POST or None,
-                instance=selected_round,
-                initial={
-                    "voting_opens": today,
-                    "voting_deadline": today + datetime.timedelta(days=14),
-                }
-                if (request.POST is None) and (selected_round.voting_opens is None)
-                else None,
+        if round_start_form.is_valid():
+            round_start_form.save()
+            messages.success(
+                request,
+                f"Voting round for {nomination.profile} started "
+                f"from {selected_round.voting_opens} until {selected_round.voting_deadline}.",
             )
-            if round_start_form.is_valid():
-                round_start_form.save()
-                messages.success(
-                    request,
-                    f"Voting round for {nomination.profile} started from now until {selected_round.voting_deadline}.",
-                )
-            context["round_start_form"] = round_start_form
+        context["round_start_form"] = round_start_form
 
     return render(request, "colleges/_hx_nomination_voting_rounds_tab.html", context)
 
@@ -1259,5 +1251,6 @@ def _hx_nomination_voter_table(request, round_id):
 
     context = {
         "voters": voters,
+        "round": round,
     }
     return render(request, "colleges/_hx_nomination_voter_table.html", context)
