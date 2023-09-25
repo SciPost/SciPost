@@ -921,19 +921,20 @@ def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
         selected_round = voting_rounds.get(id=round_id)
         context["selected_round"] = selected_round
 
-        round_start_form = FellowshipNominationVotingRoundStartForm(
-            request.POST or None,
-            instance=selected_round,
-        )
-
-        if round_start_form.is_valid():
-            round_start_form.save()
-            messages.success(
-                request,
-                f"Voting round for {nomination.profile} started "
-                f"from {selected_round.voting_opens} until {selected_round.voting_deadline}.",
+        if not round.is_closed():
+            round_start_form = FellowshipNominationVotingRoundStartForm(
+                request.POST or None,
+                instance=selected_round,
             )
-        context["round_start_form"] = round_start_form
+
+            if round_start_form.is_valid():
+                round_start_form.save()
+                messages.success(
+                    request,
+                    f"Voting round for {nomination.profile} started "
+                    f"from {selected_round.voting_opens} until {selected_round.voting_deadline}.",
+                )
+            context["round_start_form"] = round_start_form
 
     return render(request, "colleges/_hx_nomination_voting_rounds_tab.html", context)
 
@@ -1254,3 +1255,19 @@ def _hx_nomination_voter_table(request, round_id):
         "round": round,
     }
     return render(request, "colleges/_hx_nomination_voter_table.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_nomination_round_eligible_voter_action(
+    request, round_id, fellowship_id, action
+):
+    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+    fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
+    if action == "add":
+        round.eligible_to_vote.add(fellowship)
+    if action == "remove":
+        round.eligible_to_vote.remove(fellowship)
+    return redirect(
+        reverse("colleges:_hx_nomination_voter_table", kwargs={"round_id": round.id})
+    )

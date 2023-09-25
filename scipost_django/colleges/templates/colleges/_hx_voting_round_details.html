@@ -11,7 +11,10 @@
   {% if "edadmin" in user_roles and not voting_round.is_closed %}
     <div class="col-4">
       <h4>Add new voter</h4>
-      bla
+      <h4>Add senior fellows</h4>
+      <button type="button" class="mb-2 btn btn-primary btn-sm">With specialty overlap</button>
+      <button type="button" class="mb-2 btn btn-warning text-white btn-sm">ALL seniors</button>
+      {{ form }}
     </div>
   {% endif %}
 

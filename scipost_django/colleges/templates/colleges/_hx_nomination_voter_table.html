@@ -5,6 +5,7 @@
         <th>Fellow</th>
         <th>Vote</th>
         <th>Voted on</th>
+        <th>Actions</th>
       </tr>
     </thead>
 
@@ -29,8 +30,17 @@
           {% endif %}
 
           <td>{{ voter.vote.on }}</td>
+
+          <td>
+
+            {% if not round.is_closed %}
+              <a class="btn btn-sm btn-danger px-1 py-0 ms-auto">{% include "bi/trash-fill.html" %}</a>
+            {% endif %}
+
+          </td>
         </tr>
       {% endfor %}
+
 
     </tbody>
   </table>
