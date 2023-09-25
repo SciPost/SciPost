@@ -10,7 +10,9 @@ import datetime
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Value
+from django.db.models.functions import Concat
+from django.shortcuts import get_object_or_404
 from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
@@ -79,6 +81,7 @@ from proceedings.models import Proceedings
 from profiles.models import Profile
 from scipost.services import DOICaller, ArxivCaller, FigshareCaller, OSFPreprintsCaller
 from scipost.models import Contributor, Remark
+from series.models import Collection
 import strings
 
 import iThenticate
@@ -1229,6 +1232,18 @@ class SubmissionForm(forms.ModelForm):
     Form to submit a new (re)Submission.
     """
 
+    collection = forms.ChoiceField(
+        choices=[(None, "None")]
+        + list(
+            Collection.objects.all()
+            .order_by("-event_start_date")
+            # Short name is `event_suffix` if set, otherwise `event_name`
+            .annotate(name_with_series=Concat("series__name", Value(" - "), "name"))
+            .values_list("id", "name_with_series")
+        ),
+        help_text="If your submission is part of a collection (e.g. Les Houches), please select it from the list.<br>If your target collection is missing, please contact techsupport.",
+        required=False,
+    )
     specialties = forms.ModelMultipleChoiceField(
         queryset=Specialty.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
@@ -1384,9 +1399,11 @@ class SubmissionForm(forms.ModelForm):
                 + str(kwargs["initial"].get("acad_field").id)
             )
 
-        # Proceedings submission fields
+        # Proceedings & Collection submission fields
         if "Proc" not in self.submitted_to_journal.doi_label:
             del self.fields["proceedings"]
+        elif "LectNotes" not in self.submitted_to_journal.doi_label:
+            del self.fields["collection"]
         else:
             qs = self.fields["proceedings"].queryset.open_for_submission()
             self.fields["proceedings"].queryset = qs
@@ -1467,6 +1484,51 @@ class SubmissionForm(forms.ModelForm):
             )
             self.add_error("author_list", error_message)
         return author_list
+
+    def clean_collection(self):
+        """
+        Check that the collection is part of a series in the target journal and that
+        at least one of the authors in the list is an expected author of the collection.
+        """
+        # Check if no collection is selected or fetch the object
+        collection_id = self.cleaned_data.get("collection", "")
+        if collection_id == "":
+            return collection_id
+        collection = get_object_or_404(Collection, id=collection_id)
+
+        # Check that the collection is part of a series in the target journal
+        if not self.submitted_to_journal in collection.series.container_journals.all():
+            self.add_error(
+                "collection",
+                "This collection is not part of a series in the target journal. "
+                "Please check that the collection and journal are correct before contacting techsupport.",
+            )
+
+        # Check that the author list is not empty
+        str_author_list = self.cleaned_data.get("author_list", "")
+        if str_author_list == "":
+            self.add_error(
+                "collection",
+                "The author list is empty, so the collection may not be validated.",
+            )
+
+        clean_author_list = [name.strip() for name in str_author_list.split(",")]
+        expected_author_list = [a.full_name for a in collection.expected_authors.all()]
+
+        # Check that the collection has defined expected authors
+        if len(expected_author_list) == 0:
+            self.add_error(
+                "collection",
+                "This collection has no specified authors yet, please contact techsupport.",
+            )
+        # Check that at least one of the authors in the list is an expected author of the collection
+        elif not any(author in expected_author_list for author in clean_author_list):
+            self.add_error(
+                "collection",
+                "None of the authors in the author list match any of the expected authors of this collection. "
+                "Please check that the author list and collection are correct before contacting techsupport.",
+            )
+        return collection_id
 
     def clean_code_repository_url(self):
         """
@@ -1593,6 +1655,10 @@ class SubmissionForm(forms.ModelForm):
         if self.is_resubmission():
             self.process_resubmission(submission)
 
+        # Add the Collection if applicable
+        if collection := self.cleaned_data.get("collection", None):
+            submission.collections.add(collection)
+
         # Gather first known author and Fellows.
         submission.authors.add(self.requested_by.contributor)
         self.set_fellowship(submission)
@@ -1650,14 +1716,24 @@ class SubmissionForm(forms.ModelForm):
         Set the default set of (guest) Fellows for this Submission.
         """
         qs = Fellowship.objects.active()
+        fellows = None
+
         if submission.proceedings:
             # Add only Proceedings-related Fellowships
             fellows = qs.filter(
                 proceedings=submission.proceedings
             ).return_active_for_submission(submission)
-            submission.fellows.set(fellows)
+        elif len(submission.collections.all()) > 0:
+            # Add the Fellowships of the collections
+            fellows = set([
+                fellow
+                for collection in submission.collections.all()
+                for fellow in collection.expected_editors.all()
+            ])
 
-        else:
+        # Check if neither a Proceedings nor a Collection is set
+        # or whether the above queries returned no results
+        if fellows is None or len(fellows) == 0:
             fellows = (
                 qs.regular_or_senior()
                 .filter(
@@ -1666,7 +1742,8 @@ class SubmissionForm(forms.ModelForm):
                 )
                 .return_active_for_submission(submission)
             )
-            submission.fellows.set(fellows)
+
+        submission.fellows.set(fellows)
 
 
 class SubmissionReportsForm(forms.ModelForm):

@@ -210,9 +210,9 @@ def portal_hx_home(request):
         "publications": Publication.objects.published()
         .exclude(doi_label__contains="Proc")
         .order_by("-publication_date", "-paper_nr")
-        .prefetch_related(
-            "in_issue__in_journal", "specialties", "collection_set__series"
-        )[:5],
+        .prefetch_related("in_issue__in_journal", "specialties", "collections__series")[
+            :5
+        ],
     }
     return render(request, "scipost/portal/_hx_home.html", context)
 
@@ -241,7 +241,7 @@ def portal_hx_journals(request):
     if session_acad_field_slug and session_acad_field_slug != "all":
         journals = journals.filter(
             college__acad_field__slug=session_acad_field_slug,
-        ).prefetch_related("series_set")
+        ).prefetch_related("contained_series")
         context["journals"] = journals
     else:  # build a dictionary of journals per branch / acad_field
         journals_dict = {}
@@ -289,7 +289,7 @@ def portal_hx_publications_page(request):
         "in_issue__in_journal",
         "in_issue__in_volume__in_journal",
         "specialties",
-        "collection_set__series",
+        "collections__series",
     )
     paginator = Paginator(publications, 10)
     page_nr = request.GET.get("page")

@@ -36,6 +36,8 @@ class CollectionAdmin(admin.ModelAdmin):
         "series",
         "submissions",
         "publications",
+        "expected_authors",
+        "expected_editors",
     ]
 
 

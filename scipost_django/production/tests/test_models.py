@@ -207,8 +207,8 @@ class TestProofRepository(TestCase):
             "ProjectRoot/Proofs/SciPostPhys/2021/01/scipost_202101_00001v1_User",
         )
 
-        self.assertEqual(
-            proofs_repo.template_path,
+        self.assertIn(
+            proofs_repo.template_paths,
             "ProjectRoot/Templates/SciPostPhys",
         )
 
@@ -254,7 +254,7 @@ class TestProofRepository(TestCase):
             "ProjectRoot/Proofs/SciPostPhysProc/2021/ProcName21/scipost_202101_00001v1_User",
         )
 
-        self.assertEqual(
-            proofs_repo.template_path,
+        self.assertIn(
+            proofs_repo.template_paths,
             "ProjectRoot/Templates/SciPostPhysProc/2021/ProcName21",
         )

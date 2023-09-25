@@ -13,6 +13,8 @@ from journals.models import Publication
 from journals.forms import PublicationDynSelForm
 from profiles.models import Profile
 from profiles.forms import ProfileSelectForm, ProfileDynSelForm
+from colleges.forms import FellowshipDynSelForm
+from colleges.models import Fellowship
 
 from .models import Series, Collection, CollectionPublicationsTable
 
@@ -36,7 +38,7 @@ class SeriesDetailView(DetailView):
         context = super().get_context_data(*args, **kwargs)
 
         # Sort collections in series by event start date
-        context["collections"] = self.object.collection_set.all().order_by(
+        context["collections"] = self.object.collections.all().order_by(
             "event_start_date"
         )
         return context
@@ -62,11 +64,11 @@ def _hx_collection_expected_authors(request, slug):
         initial={
             "action_url_name": "series:_hx_collection_expected_author_action",
             "action_url_base_kwargs": {"slug": collection.slug, "action": "add"},
-            "action_target_element_id": "profiles",
+            "action_target_element_id": "author_profiles",
             "action_target_swap": "innerHTML",
         }
     )
-    context = {"collection": collection, "profile_search_form": form}
+    context = {"collection": collection, "author_profile_search_form": form}
     return render(request, "series/_hx_collection_expected_authors.html", context)
 
 
@@ -87,6 +89,36 @@ def _hx_collection_expected_author_action(request, slug, profile_id, action):
     return redirect(
         reverse(
             "series:_hx_collection_expected_authors", kwargs={"slug": collection.slug}
+        )
+    )
+
+
+@permission_required("scipost.can_manage_series")
+def _hx_collection_expected_editors(request, slug):
+    collection = get_object_or_404(Collection, slug=slug)
+    form = FellowshipDynSelForm(
+        initial={
+            "action_url_name": "series:_hx_collection_expected_editor_action",
+            "action_url_base_kwargs": {"slug": collection.slug, "action": "add"},
+            "action_target_element_id": "editor_fellowships",
+            "action_target_swap": "innerHTML",
+        }
+    )
+    context = {"collection": collection, "editor_fellowship_search_form": form}
+    return render(request, "series/_hx_collection_expected_editors.html", context)
+
+
+@permission_required("scipost.can_manage_series")
+def _hx_collection_expected_editor_action(request, slug, fellowship_id, action):
+    collection = get_object_or_404(Collection, slug=slug)
+    fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
+    if action == "add":
+        collection.expected_editors.add(fellowship)
+    if action == "remove":
+        collection.expected_editors.remove(fellowship)
+    return redirect(
+        reverse(
+            "series:_hx_collection_expected_editors", kwargs={"slug": collection.slug}
         )
     )
 

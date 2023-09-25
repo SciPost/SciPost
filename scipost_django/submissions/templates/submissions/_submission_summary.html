@@ -86,16 +86,16 @@
                         <td>{{ submission.proceedings }}</td>
                     </tr>
                 {% endif %}
-                {% with ncollections=submission.collection_set.all|length %}
+                {% with ncollections=submission.collections.all|length %}
                     {% if ncollections > 0 %}
                         <tr>
                             <td></td>
                             <td>
                                 &nbsp;for consideration in Collection{{ ncollections|pluralize }}:
                                 <ul class="mb-0 pb-0">
-                                    {% for collection in submission.collection_set.all %}
+                                    {% for collection in submission.collections.all %}
                                         <li>
-                                            <a href="{{ collection.get_absolute_url }}" target="_blank">{{ collection }}</a>
+                                            <a href="{{ collection.get_absolute_url }}" target="_blank">{{ collection.name_with_series }}</a>
                                         </li>
                                     {% endfor %}
                                 </ul>

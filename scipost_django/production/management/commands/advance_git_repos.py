@@ -161,9 +161,17 @@ class Command(BaseCommand):
         """
         Return a list of gitlab actions required to fully clone a project.
         """
-        filenames = list(
-            map(lambda x: x["path"], project.repository_tree(get_all=True))
-        )
+        try:
+            filenames = list(
+                map(lambda x: x["path"], project.repository_tree(get_all=True))
+            )
+        except:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"Could not get the files of {project.path_with_namespace}, it may be empty"
+                )
+            )
+            return []
 
         actions = []
         for filename in filenames:
@@ -192,24 +200,23 @@ class Command(BaseCommand):
         """
         project = self.GL.projects.get(repo.git_path)
 
-        journal_template_project = self.GL.projects.get(repo.template_path)
-        base_template_project = self.GL.projects.get(
-            "{ROOT}/Templates/Base".format(ROOT=settings.GITLAB_ROOT)
-        )
+        # Get the cloning actions for each template project
+        actions = [
+            self._get_project_cloning_actions(self.GL.projects.get(template_path))
+            for template_path in repo.template_paths
+        ]
+        actions = list(chain(*actions))  # Flatten the list of lists
 
-        all_actions = []
-        # Add "Base" and Journal specific templates to the repo
-        all_actions.append(self._get_project_cloning_actions(base_template_project))
-        all_actions.append(self._get_project_cloning_actions(journal_template_project))
+        # Keep the last action if there are multiple actions for the same file
+        # (i.e. the same file_path key in the dictionary)
+        non_duplicate_actions = []
+        file_paths_to_clone = []
 
-        # Add the "Selected" template if the submission has been accepted in Selections
-        if "Selections" in repo.stream.submission.editorial_decision.for_journal.name:
-            selected_template_project = self.GL.projects.get(
-                "{ROOT}/Templates/Selected".format(ROOT=settings.GITLAB_ROOT)
-            )
-            all_actions.append(
-                self._get_project_cloning_actions(selected_template_project)
-            )
+        for action in reversed(actions):
+            file_path = action.get("file_path", None)
+            if (file_path is not None) and (file_path not in file_paths_to_clone):
+                file_paths_to_clone.append(file_path)
+                non_duplicate_actions.append(action)
 
         # Add some delays to avoid:
         # - Commiting the files before the branch has finished being created
@@ -220,7 +227,7 @@ class Command(BaseCommand):
             {
                 "branch": "main",
                 "commit_message": "copy pure templates",
-                "actions": list(chain(*all_actions)),
+                "actions": non_duplicate_actions,
             }
         )
         sleep(3)
@@ -395,6 +402,21 @@ class Command(BaseCommand):
             default_logo_img = r"[width=20mm]{logo_scipost_with_bgd.pdf}"
             selections_logo_img = r"[width=34.55mm]{logo_select.pdf}"
             replacements_dict[default_logo_img] = (lambda _: selections_logo_img, None)
+
+        # Add collection specific information if the submission is part of a collection
+        if repo.stream.submission.collections.exists():
+            collection = repo.stream.submission.collections.first()
+            series = collection.series
+
+            collection_replacements_dict = {
+                "<|COLLECTION_NAME|>": (lambda _: collection.name, None),
+                "<|COLLECTION_URL|>": (lambda _: collection.get_absolute_url(), None),
+                "<|EVENT_DETAILS|>": (lambda _: collection.event_details, None),
+                "<|SERIES_NAME|>": (lambda _: series.name, None),
+                "<|SERIES_URL|>": (lambda _: series.get_absolute_url(), None),
+            }
+
+            replacements_dict.update(collection_replacements_dict)
 
         # Define a helper function to try to format and replace a placeholder
         # which catches any errors and prints them to the console non-intrusively

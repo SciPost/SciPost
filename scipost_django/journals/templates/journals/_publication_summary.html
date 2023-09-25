@@ -12,7 +12,7 @@
     {% if publication.cc_license != 'CC BY 4.0' %}
     &middot; licensed under {{ publication.get_cc_license_display }}
     {% endif %}
-    {% for collection in publication.collection_set.all %}
+    {% for collection in publication.collections.all %}
     <p class="m-2"><em>Part of the <a href="{{ collection.get_absolute_url }}">{{ collection }}</a> Collection in the <a href="{{ collection.series.get_absolute_url }}">{{ collection.series }}</a> Series.</em></p>
     {% endfor %}
 

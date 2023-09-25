@@ -12,7 +12,7 @@
   <p class="meta mb-0">
     {{ publication.citation }} &middot; <span class="fw-light">published {{ publication.publication_date|date:'j F Y' }}</span>
   </p>
-  {% for collection in publication.collection_set.all %}
+  {% for collection in publication.collections.all %}
     <p class="m-1"><em>Part of the <a href="{{ collection.get_absolute_url }}">{{ collection }}</a> Collection in the <a href="{{ collection.series.get_absolute_url }}">{{ collection.series }}</a> Series.</em></p>
   {% endfor %}
 </div>

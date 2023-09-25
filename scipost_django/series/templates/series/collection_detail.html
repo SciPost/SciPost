@@ -12,8 +12,13 @@
   <span class="breadcrumb-item">{{ collection.name }}</span>
 {% endblock %}
 
-{% block meta_description %}{{ block.super }} Collection detail {{ collection.series.name }} {{ collection.name }}{% endblock meta_description %}
-{% block pagetitle %}: Collection detail{% endblock pagetitle %}
+{% block meta_description %}
+  {{ block.super }} Collection detail {{ collection.series.name }} {{ collection.name }}
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Collection detail
+{% endblock pagetitle %}
 
 {% block content %}
 
@@ -22,42 +27,47 @@
   <div class="row">
     <div class="col-12">
       <h1 class="highlight">
-	<a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a>
-	{% if collection.series.container_journals %}
-	  <br>
-	  <small><em>
-	    <ul class="list list-inline mt-2 mb-0">
-	      <li class="list-inline-item mx-0">a series contained in</li>
-	      {% for container in collection.series.container_journals.all %}
-		<li class="list-inline-item">
-		  <a href="{{ container.get_absolute_url }}">{{ container }}</a>
-		</li>
-	      {% endfor %}
-	    </ul>
-	  </em></small>
-	{% endif %}
+        <a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a>
+
+        {% if collection.series.container_journals %}
+          <br />
+          <small><em>
+            <ul class="list list-inline mt-2 mb-0">
+              <li class="list-inline-item mx-0">a series contained in</li>
+
+              {% for container in collection.series.container_journals.all %}
+                <li class="list-inline-item">
+                  <a href="{{ container.get_absolute_url }}">{{ container }}</a>
+                </li>
+              {% endfor %}
+
+            </ul>
+          </em></small>
+        {% endif %}
+
       </h1>
 
-      <h2 class="highlight">
-	Collection&emsp;{{ collection.name }}
-      </h2>
+      <h2 class="highlight">Collection&emsp;{{ collection.name }}</h2>
     </div>
   </div>
   <div class="row">
     <div class="col-12">
-      <div class="p-2">
-	{% automarkup collection.description %}
-      </div>
+      <div class="p-2">{% automarkup collection.description %}</div>
+
       {% if collection.event_start_date and collection.event_end_date %}
-	<p class="p-2">
-	  Dates: from {{ collection.event_start_date }} to {{ collection.event_end_date }}.
-	</p>
+        <p class="p-2">Dates: from {{ collection.event_start_date }} to {{ collection.event_end_date }}.</p>
       {% endif %}
+
       {% if collection.image %}
-	<div class="p-2">
-	  <img class="d-flex me-3 p-2" style="max-height: 350px; max-width: 100%;" alt="image" src="{{ collection.image.url }}">
-	</div>
+        <div class="p-2">
+          <img class="d-flex me-3 p-2"
+               style="max-height: 350px;
+                      max-width: 100%"
+               alt="image"
+               src="{{ collection.image.url }}" />
+        </div>
       {% endif %}
+
     </div>
   </div>
 
@@ -66,77 +76,88 @@
       <h3>Editorial Administration</h3>
 
       <div class="card my-4">
-	<div class="card-header">
-	  Expected authors for this Collection
-	</div>
-	<div class="card-body">
-	  <div
-	      id="profiles"
-	      hx-get="{% url 'series:_hx_collection_expected_authors' slug=collection.slug %}"
-	      hx-trigger="load"
-	  >
-	  </div>
-	</div>
+        <div class="card-header">Expected authors for this Collection</div>
+        <div class="card-body">
+          <div id="author_profiles"
+               hx-get="{% url 'series:_hx_collection_expected_authors' slug=collection.slug %}"
+               hx-trigger="load"></div>
+        </div>
       </div>
 
       <div class="card my-4">
-	<div class="card-header">
-	  Publications
-	</div>
-	<div class="card-body">
-	  <div
-	      id="publications"
-	      hx-get="{% url 'series:_hx_collection_publications' slug=collection.slug %}"
-	      hx-trigger="load"
-	  >
-	  </div>
-	</div>
+        <div class="card-header">Expected editors for this Collection</div>
+        <div class="card-body">
+          <div id="editor_fellowships"
+               hx-get="{% url 'series:_hx_collection_expected_editors' slug=collection.slug %}"
+               hx-trigger="load"></div>
+        </div>
+      </div>
+
+      <div class="card my-4">
+        <div class="card-header">Publications</div>
+        <div class="card-body">
+          <div id="publications"
+               hx-get="{% url 'series:_hx_collection_publications' slug=collection.slug %}"
+               hx-trigger="load"></div>
+        </div>
       </div>
     </div>
   {% endif %}
 
   {% with active_submissions=collection.submissions.under_consideration %}
+
     {% if active_submissions|length > 0 %}
       <div class="row">
-	<div class="col-12">
-	  <h3 class="highlight">Submissions to this Collection</h3>
-	  <ul>
-	    {% for submission in active_submissions.accepted %}
-	      <li><strong class="text-success">accepted:</strong>&nbsp;
-		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-	      </li>
-	    {% endfor %}
-	    {% for submission in active_submissions.revision_requested %}
-	      <li><strong class="text-primary">awaiting resubmission:</strong>&nbsp;
-		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-	      </li>
-	    {% endfor %}
-	    {% for submission in active_submissions.in_refereeing %}
-	      <li><strong class="text-warning">under refereeing:</strong>&nbsp;
-		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-	      </li>
-	    {% endfor %}
-	  </ul>
-	</div>
+        <div class="col-12">
+          <h3 class="highlight">Submissions to this Collection</h3>
+          <ul>
+
+            {% for submission in active_submissions.accepted %}
+              <li>
+                <strong class="text-success">accepted:</strong>&nbsp;
+                <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+              </li>
+            {% endfor %}
+
+            {% for submission in active_submissions.revision_requested %}
+              <li>
+                <strong class="text-primary">awaiting resubmission:</strong>&nbsp;
+                <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+              </li>
+            {% endfor %}
+
+            {% for submission in active_submissions.in_refereeing %}
+              <li>
+                <strong class="text-warning">under refereeing:</strong>&nbsp;
+                <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+              </li>
+            {% endfor %}
+
+          </ul>
+        </div>
       </div>
     {% endif %}
+
   {% endwith %}
 
   <div class="row">
     <div class="col-12">
       <h3 class="highlight">Publications in this Collection</h3>
       <ul>
-	{% for publication in collection.publications.all %}
-	  <li><a href="{{ publication.get_absolute_url }}">{{ publication }}</a></li>
-	{% empty %}
-	  <li>No Publication has yet been associated to this Collection</li>
-	{% endfor %}
+
+        {% for publication in collection.publications.all %}
+          <li>
+            <a href="{{ publication.get_absolute_url }}">{{ publication }}</a>
+          </li>
+        {% empty %}
+          <li>No Publication has yet been associated to this Collection</li>
+        {% endfor %}
+
       </ul>
     </div>
   </div>
 
 {% endblock content %}
 
-{% block footer_script %}
-  {{ expected_author_form.media }}
-{% endblock %}
+
+{% block footer_script %}{{ expected_author_form.media }}{% endblock %}
