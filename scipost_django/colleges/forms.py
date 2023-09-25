@@ -727,6 +727,10 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
             "comments",
         ]
 
+        widgets = {
+            "comments": forms.Textarea(attrs={"rows": 4}),
+        }
+
     def __init__(self, *args, **kwargs):
         voting_round = kwargs.pop("voting_round", None)
         super().__init__(*args, **kwargs)

@@ -33,15 +33,22 @@
       </div>
     {% endfor %}
 
+    <div id="indicator-nomination-{{ nomination_id }}-details-contents"
+         class="htmx-indicator p-2 ms-auto">
+      <button class="btn btn-warning" type="button" disabled>
+        <strong>Loading ...</strong>
+	
+        <div class="spinner-grow spinner-grow-sm ms-2"
+             role="status"
+             aria-hidden="true"></div>
+      </button>
+    </div>
+
   </nav>
 
   {% if selected_round %}
     <div id="nomination-{{ nomination_id }}-round-{{ selected_round.id }}-tab-content-holder" class="mt-3 px-3">
-      {% if selected_round.is_unscheduled %}
-        {% include "colleges/_hx_voting_round_creation.html" with voting_round=selected_round round_start_form=round_start_form %}
-      {% else %}
-        {% include "colleges/_hx_voting_round_results.html" with voting_round=selected_round %}
-      {% endif %}
+      {% include "colleges/_hx_voting_round_details.html" with voting_round=selected_round round_start_form=round_start_form %}
     </div>
   {% endif %}
 

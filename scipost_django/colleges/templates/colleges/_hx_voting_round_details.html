@@ -1,11 +1,36 @@
-<details id="round-{{ round.id }}-details"
-         class="border border-2 mx-3 p-2 bg-primary bg-opacity-10">
-  <summary class="list-none">{% include "colleges/_hx_voting_round_summary.html" with round=round %}</summary>
+{% load crispy_forms_tags %}
 
-  <div id="round-{{ round.id }}-details-contents"
-       class="p-2 mt-2 bg-white"
-       hx-get="{% url 'colleges:_hx_voting_round_li_contents' round_id=round.id %}"
-       hx-trigger="toggle once from:#round-{{ round.id }}-details"
-       hx-indicator="#indicator-round-{{ round.id }}-details-contents"></div>
+<div class="row">
+  <div class="col">
+    <h3>Eligible voters</h3>
+    <div id="nomination-{{ nomination.id }}-round-{{ voting_round.id }}-votes"
+         hx-get="{% url 'colleges:_hx_nomination_voter_table' round_id=voting_round.id %}"
+         hx-trigger="intersect once"></div>
+  </div>
 
-</details>
+  {% if "edadmin" in user_roles and not voting_round.is_closed %}
+    <div class="col-4">
+      <h4>Add new voter</h4>
+      bla
+    </div>
+  {% endif %}
+
+</div>
+
+{% if voting_round.is_closed %}
+  <div class="row mb-0">
+    <div class="col-12 col-md mt-3">
+      <h3>Decision</h3>
+ 
+      <div hx-get="{% url 'colleges:_hx_nomination_decision_form' round_id=voting_round.id %}"
+           hx-trigger="intersect once"></div>
+ 
+    </div>
+    <div class="col-auto mt-3">{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
+  </div>
+{% elif "edadmin" in user_roles %}
+  <div class="col-12">
+    <h4>Start round</h4>
+    {% crispy round_start_form %}
+  </div>
+{% endif %}

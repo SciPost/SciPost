@@ -247,17 +247,23 @@ class FellowshipNominationVotingRound(models.Model):
 
     @property
     def is_open(self):
-        if self.voting_deadline is None or self.voting_opens is None:
+        if (self.voting_deadline is None) or (self.voting_opens is None):
             return False
         return self.voting_opens <= timezone.now() <= self.voting_deadline
 
     @property
     def is_scheduled(self):
-        return self.voting_deadline is not None and self.voting_opens > timezone.now()
+        return (self.voting_opens is not None) and (self.voting_opens > timezone.now())
 
     @property
     def is_unscheduled(self):
-        return self.voting_opens is None or self.voting_deadline is None
+        return (self.voting_opens is None) or (self.voting_deadline is None)
+
+    @property
+    def is_closed(self):
+        return (self.voting_deadline is not None) and (
+            self.voting_deadline < timezone.now()
+        )
 
     @property
     def vote_outcome(self):
