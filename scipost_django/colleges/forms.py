@@ -547,9 +547,9 @@ class FellowshipNominationSearchForm(forms.Form):
     orderby = forms.ChoiceField(
         label="Order by",
         choices=(
-            ("voting_rounds__voting_deadline", "Deadline"),
-            ("voting_rounds__voting_opens", "Voting start"),
-            ("voting_rounds__decision__outcome", "Decision"),
+            ("latest_round_deadline", "Deadline"),
+            ("latest_round_open", "Voting start"),
+            ("latest_round_decision_outcome", "Decision"),
             ("profile__last_name", "Nominee"),
         ),
         required=False,
@@ -632,13 +632,32 @@ class FellowshipNominationSearchForm(forms.Form):
 
             session.save()
 
-        nominations = FellowshipNomination.objects.all()
+        def latest_round_subquery(key):
+            return Subquery(
+                FellowshipNominationVotingRound.objects.filter(
+                    nomination=OuterRef("pk")
+                )
+                .order_by("-voting_deadline")
+                .values(key)[:1]
+            )
+
+        nominations = (
+            FellowshipNomination.objects.all()
+            .annotate(
+                latest_round_deadline=latest_round_subquery("voting_deadline"),
+                latest_round_open=latest_round_subquery("voting_opens"),
+                latest_round_decision_outcome=latest_round_subquery(
+                    "decision__outcome"
+                ),
+            )
+            .distinct()
+        )
 
         if self.cleaned_data.get("can_vote") or not self.user.has_perm(
             "scipost.can_view_all_nomination_voting_rounds"
         ):
             # Restrict rounds to those the user can vote on
-            nominations = nominations.with_user_votable_rounds(self.user)
+            nominations = nominations.with_user_votable_rounds(self.user).distinct()
 
         if nominee := self.cleaned_data.get("nominee"):
             nominations = nominations.filter(
