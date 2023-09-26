@@ -244,19 +244,24 @@ urlpatterns = [
                 ),
                 # Manage voters of a nomination round
                 path(
-                    "voter/<int:voter_id>/",
+                    "voter/<int:fellowship_id>/",
                     include(
                         [
-                            path(
-                                "remove",
-                                views._hx_nomination_round_remove_voter,
-                                name="_hx_nomination_round_remove_voter",
-                            ),
+                            # path(
+                            #     "remove",
+                            #     views._hx_nomination_round_remove_voter,
+                            #     name="_hx_nomination_round_remove_voter",
+                            # ),
                             # path(
                             #     "add",
                             #     views._hx_nomination_round_add_voter,
                             #     name="_hx_nomination_round_add_voter",
                             # ),
+                            path(
+                                "action/<str:action>",
+                                views._hx_nomination_round_eligible_voter_action,
+                                name="_hx_nomination_round_eligible_voter_action",
+                            ),
                         ]
                     ),
                 ),

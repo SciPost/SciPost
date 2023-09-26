@@ -921,11 +921,21 @@ def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
         selected_round = voting_rounds.get(id=round_id)
         context["selected_round"] = selected_round
 
-        if not round.is_closed():
+        if not selected_round.is_closed:
             round_start_form = FellowshipNominationVotingRoundStartForm(
                 request.POST or None,
                 instance=selected_round,
             )
+
+            voter_add_form = FellowshipDynSelForm(
+                initial={
+                    "action_url_name": "colleges:_hx_nomination_round_eligible_voter_action",
+                    "action_url_base_kwargs": {"round_id": round_id, "action": "add"},
+                    "action_target_element_id": f"nomination-{nomination_id}-round-{round_id}-voters",
+                    "action_target_swap": "innerHTML",
+                }
+            )
+            context["voter_add_form"] = voter_add_form
 
             if round_start_form.is_valid():
                 round_start_form.save()
@@ -1246,6 +1256,7 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
 def _hx_nomination_voter_table(request, round_id):
     round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
     voters = round.eligible_to_vote.all()
+    nominee_specialties = round.nomination.profile.specialties.all()
 
     for voter in voters:
         voter.vote = round.votes.filter(fellow=voter).first()
@@ -1253,6 +1264,7 @@ def _hx_nomination_voter_table(request, round_id):
     context = {
         "voters": voters,
         "round": round,
+        "nominee_specialties": nominee_specialties,
     }
     return render(request, "colleges/_hx_nomination_voter_table.html", context)
 
@@ -1262,6 +1274,7 @@ def _hx_nomination_voter_table(request, round_id):
 def _hx_nomination_round_eligible_voter_action(
     request, round_id, fellowship_id, action
 ):
+    print(f"receieved {action} for {fellowship_id} in {round_id}")
     round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
     fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
     if action == "add":

@@ -3,7 +3,7 @@
 <div class="row">
   <div class="col">
     <h3>Eligible voters</h3>
-    <div id="nomination-{{ nomination.id }}-round-{{ voting_round.id }}-votes"
+    <div id="nomination-{{ voting_round.nomination.id }}-round-{{ voting_round.id }}-voters"
          hx-get="{% url 'colleges:_hx_nomination_voter_table' round_id=voting_round.id %}"
          hx-trigger="intersect once"></div>
   </div>
@@ -11,10 +11,15 @@
   {% if "edadmin" in user_roles and not voting_round.is_closed %}
     <div class="col-4">
       <h4>Add new voter</h4>
-      <h4>Add senior fellows</h4>
+      <form hx-post="{% url 'colleges:_hx_fellowship_dynsel_list' %}"
+            hx-trigger="keyup delay:200ms, change"
+            hx-target="#nomination-{{ voting_round.nomination.id }}_round-{{ voting_round.id }}_add_voter_results">
+        <div id="nomination-{{ voting_round.nomination.id }}_round-{{ voting_round.id }}_add_voter_form">{% crispy voter_add_form %}</div>
+      </form>
+      <div id="nomination-{{ voting_round.nomination.id }}_round-{{ voting_round.id }}_add_voter_results"></div>
+      <h5>Add senior fellows</h5>
       <button type="button" class="mb-2 btn btn-primary btn-sm">With specialty overlap</button>
       <button type="button" class="mb-2 btn btn-warning text-white btn-sm">ALL seniors</button>
-      {{ form }}
     </div>
   {% endif %}
 
@@ -23,11 +28,8 @@
 {% if voting_round.is_closed %}
   <div class="row mb-0">
     <div class="col-12 col-md mt-3">
-      <h3>Decision</h3>
- 
       <div hx-get="{% url 'colleges:_hx_nomination_decision_form' round_id=voting_round.id %}"
            hx-trigger="intersect once"></div>
- 
     </div>
     <div class="col-auto mt-3">{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
   </div>
