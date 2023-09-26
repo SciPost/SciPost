@@ -1274,13 +1274,38 @@ def _hx_nomination_voter_table(request, round_id):
 def _hx_nomination_round_eligible_voter_action(
     request, round_id, fellowship_id, action
 ):
-    print(f"receieved {action} for {fellowship_id} in {round_id}")
     round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
     fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
     if action == "add":
         round.eligible_to_vote.add(fellowship)
     if action == "remove":
         round.eligible_to_vote.remove(fellowship)
+    return redirect(
+        reverse("colleges:_hx_nomination_voter_table", kwargs={"round_id": round.id})
+    )
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_nomination_round_add_eligible_voter_set(request, round_id, voter_set_name):
+    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+
+    voter_set = Fellowship.objects.none()
+
+    if voter_set_name == "with_specialty_overlap":
+        specialties_slug_list = [
+            s.slug for s in round.nomination.profile.specialties.all()
+        ]
+        voter_set = (
+            Fellowship.objects.active()
+            .senior()
+            .specialties_overlap(specialties_slug_list)
+            .distinct()
+        )
+    elif voter_set_name == "all_seniors":
+        voter_set = Fellowship.objects.active().senior().distinct()
+
+    round.eligible_to_vote.add(*voter_set)
     return redirect(
         reverse("colleges:_hx_nomination_voter_table", kwargs={"round_id": round.id})
     )
