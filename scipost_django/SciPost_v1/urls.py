@@ -93,6 +93,7 @@ urlpatterns = [
     path("commentaries/", include("commentaries.urls", namespace="commentaries")),
     path("commentary/", include("commentaries.urls", namespace="_commentaries")),
     path("comments/", include("comments.urls", namespace="comments")),
+    path("common/", include("common.urls", namespace="common")),
     path("edadmin/", include("edadmin.urls", namespace="edadmin")),
     path("ethics/", include("ethics.urls", namespace="ethics")),
     path("forums/", include("forums.urls", namespace="forums")),
