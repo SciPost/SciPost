@@ -76,48 +76,6 @@
 
   <div id="search-nominations-results" class="mt-2"></div>
 
-  {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
-    <details id="ensure-specialties-details"
-             class="border border-danger border-2 mt-4">
-      <summary class="bg-danger bg-opacity-10 p-2 d-block list-triangle">
-        <div class="fs-5">Start voting</div>
-      </summary>
-
-      <div class="p-2">
-        <h3>Add specialties</h3>
-        <div id="nominations_needing_specialties"
-             hx-get="{% url 'colleges:_hx_nominations_needing_specialties' %}"
-             hx-trigger="intersect once"></div>
-
-        <h3 class="mt-4 ">Start round</h3>
-        <div id="nominations_no_round_started"
-             hx-get="{% url 'colleges:_hx_nominations_no_round_started' %}"
-             hx-trigger="intersect once, click from:body target:.nomination-start-round-btn, click from:body target:.nomination-specialties-done-btn">
-        </div>
-      </div>
-    </details>
-  {% endif %}
-
-  <details id="voting-details" class="border border-primary border-2 mt-4">
-    <summary class="bg-primary bg-opacity-10 p-2 d-block list-triangle">
-      <div class="fs-5">
-
-        {% if 'edadmin' not in user_roles %}
-          Vote
-        {% else %}
-          Manage voting
-        {% endif %}
-
-      </div>
-    </summary>
-
-    <div class="p-2">
-      <div id="voting_tablist" hx-trigger="toggle from:#voting-details, click from:body target:.nomination-start-round-btn" hx-get="{% url 'colleges:_hx_nominations' %}?tab= 
-        {% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}
-         "></div>
-    </div>
-  </details>
-
   {% if "edadmin" in user_roles %}
     <details id="invitations-details" class="border border-success border-2 mt-4">
       <summary class="bg-success bg-opacity-10 p-2 d-block list-triangle">
