@@ -320,10 +320,8 @@ class ProofsRepository(models.Model):
         # Get the last name of the first author by getting the first author string from the submission
         first_author_str = stream.submission.authors_as_list[0]
         first_author_profile = (
-            Profile.objects.annotate(
-                full_name=Concat("first_name", Value(" "), "last_name")
-            )
-            .filter(full_name=first_author_str)
+            Profile.objects.with_full_names()
+            .filter(full_name_annot=first_author_str)
             .first()
         )
         if first_author_profile is None:

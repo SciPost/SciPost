@@ -56,7 +56,7 @@ class ContributorQuerySet(models.QuerySet):
             self.exclude(status=DOUBLE_ACCOUNT)
             .exclude(user__is_superuser=True)
             .exclude(user__is_staff=True)
-            .annotate(full_name=Concat("user__last_name", "user__first_name"))
+            .annotate(full_name=Concat("profile__last_name", "profile__first_name"))
         )
         duplicates = (
             contribs.values("full_name")
@@ -65,7 +65,7 @@ class ContributorQuerySet(models.QuerySet):
             .values_list("full_name", flat=True)
         )
         return contribs.filter(full_name__in=duplicates).order_by(
-            "user__last_name", "user__first_name", "-id"
+            "profile__last_name", "profile__first_name", "-id"
         )
 
     def with_duplicate_email(self):

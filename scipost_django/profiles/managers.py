@@ -18,6 +18,9 @@ class ProfileQuerySet(models.QuerySet):
             pass
         return None
 
+    def with_full_names(self):
+        return self.annotate(full_name_annot=Concat("first_name", "last_name"))
+
     def potential_duplicates(self):
         """
         Returns only potential duplicate Profiles (as identified by first and
@@ -26,15 +29,15 @@ class ProfileQuerySet(models.QuerySet):
         # Start by treating name duplicates, excluding marked Profile non-duplicates
         from .models import ProfileNonDuplicates
 
-        profiles = self.annotate(full_name=Concat("last_name", "first_name"))
+        profiles = self.with_full_names()
         nonduplicate_full_names = [
             dup.full_name for dup in ProfileNonDuplicates.objects.all()
         ]
         duplicates_by_full_name = (
-            profiles.values("full_name")
-            .annotate(nr_count=Count("full_name"))
+            profiles.values("full_name_annot")
+            .annotate(nr_count=Count("full_name_annot"))
             .filter(nr_count__gt=1)
-            .exclude(full_name__in=nonduplicate_full_names)
+            .exclude(full_name_annot__in=nonduplicate_full_names)
         )
         from .models import ProfileEmail
 
@@ -54,7 +57,9 @@ class ProfileQuerySet(models.QuerySet):
         # Now return list of potential duplicates
         return profiles.filter(
             models.Q(
-                full_name__in=[item["full_name"] for item in duplicates_by_full_name]
+                full_name_annot__in=[
+                    item["full_name_annot"] for item in duplicates_by_full_name
+                ]
             )
             | models.Q(id__in=ids_of_duplicates_by_email)
         ).order_by("last_name", "first_name", "-id")
