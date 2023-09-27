@@ -19,12 +19,12 @@
             {% if voting_round.voting_opens and voting_round.voting_deadline %}
               <small>{{ voting_round.voting_opens|date:"d M Y" }} - {{ voting_round.voting_deadline|date:"d M Y" }}</small>
               {% else %}
-              <span class="badge bg-danger">Uncheduled</span>
+              <span class="badge bg-warning">Unscheduled</span>
             {% endif %}
             <span class="d-flex justify-content-between align-items-center">
               <span>Round #{{ forloop.revcounter }}</span>  
               {% if voting_round.is_scheduled %}
-                <span class="badge bg-warning">Scheduled</span>
+                <span class="badge bg-primary">Scheduled</span>
               {% elif voting_round.is_open %}
                 <span class="badge bg-success">Open</span>
               {% endif %}
