@@ -248,7 +248,7 @@ urlpatterns = [
                     include(
                         [
                             path(
-                                "/<int:fellowship_id>/action/<str:action>",
+                                "<int:fellowship_id>/action/<str:action>",
                                 views._hx_nomination_round_eligible_voter_action,
                                 name="_hx_nomination_round_eligible_voter_action",
                             ),
