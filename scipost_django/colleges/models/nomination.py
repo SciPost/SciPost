@@ -140,6 +140,7 @@ class FellowshipNominationEvent(models.Model):
     class Meta:
         ordering = ["nomination", "-on"]
         verbose_name_plural = "Fellowhip Nomination Events"
+        get_latest_by = "on"
 
     def __str__(self):
         return (

@@ -1,33 +1,67 @@
 <div class="row mb-0">
   <div class="col-12 col-md">
-    <div class="row">
+    <div class="row mb-0">
  
       <div class="col">
-        <div class="fs-6">{{ nomination.profile }}</div>
-        <div class="d-none d-md-block">(click for details)</div>
-      </div>
+        <div class="row mb-0">
+
+          <div class="col-12 col-lg-4">
+            <div class="row mb-0 h-100 align-content-between">
+              <div class="col col-lg-12 fs-5">{{ nomination.profile }}</div>
+              <div class="col-auto">
+                <div class="text-muted">nominated by</div>
+                <div>{{ nomination.nominated_by.profile.full_name }}</div>
+              </div>
+            </div>
+          </div>
  
-      <div class="col-auto">
-        <div class="row justify-content-between">
-          <small class="col text-muted text-nowrap">Editorial college</small>
-          <div class="col-auto">{{ nomination.college.name }}</div>
+          <div class="col-12 col-md">
+            <div class="row mb-2">
+              <div class="col-auto text-nowrap">
+                <small class="text-muted">Editorial college</small>
+                <br />
+                {{ nomination.college.name }}
+              </div>
+              <div class="col-auto text-nowrap">
+                <small class="text-muted">Specialties</small>
+                <br />
+
+                {% for specialty in nomination.profile.specialties.all %}
+                  <span title="{{ specialty.name }}">{{ specialty.code }}</span>
+                {% empty %}
+                  None
+                {% endfor %}
+
+              </div>
+ 
+              <div class="col text-nowrap ">
+                <small class="text-muted">Last event</small>
+                <br />
+                {{ nomination.events.latest.on|date:'Y-m-d' }}
+                -
+                <span class="">{{ nomination.events.latest.description }}</span>
+              </div>
+ 
+            </div>
+            <div class="row mb-2 justify-content-between">
+              <small class="col text-muted text-nowrap">Publications</small>
+              <div class="col-auto">{{ nomination.profile.publications.all.count }}</div>
+              <small class="col text-muted text-nowrap">Total rounds</small>
+              <div class="col-auto">{{ nomination.voting_rounds.all.count }}</div>
+            </div>
+          </div>
         </div>
       </div>
 
-    </div>
-  </div>
+      <div class="col-12 col-md-5">
 
-  <div class="col col-md-6 col-lg-5">
+        {% if nomination.latest_voting_round %}
+          {% include "colleges/_hx_voting_round_summary.html" with round=nomination.latest_voting_round %}
+        {% else %}
+          <div class="h-100 d-flex align-items-center justify-content-end">
+            <div class="badge bg-danger fs-6">No rounds created yet</div>
+          </div>
+        {% endif %}
 
-    {% if nomination.latest_voting_round %}
-      {% include "colleges/_hx_voting_round_summary.html" with round=nomination.latest_voting_round %}
-    {% else %}
-      <div class="h-100 d-flex align-items-center justify-content-center">
-        <div class="badge bg-danger fs-6">No rounds created yet</div>
       </div>
-    {% endif %}
-
-  </div>
-
- 
-</div>
+    </div>
