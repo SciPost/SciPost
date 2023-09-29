@@ -2,58 +2,16 @@
 {% load automarkup %}
 
 <div id="nomination-{{ voting_round.id }}-decision">
+  {% with blocks=voting_round.decision_blocks %}
 
-  {% if voting_round.decision %}
-    <div class="row">
-      <div class="col-auto">
-        <h3>Decision</h3>
-
-        {% if voting_round.decision.outcome == 'elected' %}
-          <div class="badge fs-5 mb-2 bg-success">{{ voting_round.decision.get_outcome_display }}</div>
-        {% elif voting_round.decision.outcome == 'notelected' %}
-          <div class="badge fs-5 mb-2 bg-danger">{{ voting_round.decision.get_outcome_display }}</div>
-        {% endif %}
-
-      </div>
-
-      {% if voting_round.decision.comments %}
-        <div class="col">
-          <h4>Decision comments</h4>
-          <p>{{ voting_round.decision.comments }}</p>
-        </div>
-      {% endif %}
-
-    </div>
-
-  {% else %}
-
-    {% if "edadmin" in user_roles %}
-
-      {% if voting_round.is_open %}
-        <p class="text-warning">The voting round is still open. You many not draft a decision yet.</p>
-      {% elif voting_round.is_scheduled %}
-        <p class="text-warning">The voting round is scheduled but has not yet started.</p>
-      {% elif voting_round.is_unscheduled %}
-        <p class="text-warning">The voting round is not yet scheduled.</p>
-      {% else %}
-        {% with blocks=voting_round.decision_blocks %}
-
-          {% if blocks %}
-            <p>The decision cannot be fixed at this moment: {{ blocks }}</p>
-          {% else %}
-            <form hx-post="{% url 'colleges:_hx_nomination_decision_form' round_id=voting_round.id %}"
-                  hx-target="#nomination-{{ voting_round.id }}-decision">
-              {% crispy decision_form %}
-            </form>
-          {% endif %}
-
-        {% endwith %}
-      {% endif %}
-
+    {% if blocks %}
+      <p>The decision cannot be fixed at this moment: {{ blocks }}</p>
     {% else %}
-      <p class="text-warning">No decision has been formulated yet.</p>
+      <form hx-post="{% url 'colleges:_hx_nomination_decision_form' round_id=voting_round.id %}"
+            hx-target="#nomination-{{ voting_round.id }}-decision">
+        {% crispy decision_form %}
+      </form>
     {% endif %}
 
-  {% endif %}
-
+  {% endwith %}
 </div>
