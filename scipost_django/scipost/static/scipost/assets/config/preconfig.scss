@@ -223,38 +223,43 @@ $theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
   height: 1.5em !important;
 }
 
-summary {
-  // Remove triangle for webkit browsers causing problems with flexbox
-  &::-webkit-details-marker {
-    display: none;
-  }
+details {
+    summary {
+        // Remove triangle for webkit browsers causing problems with flexbox
+        &::-webkit-details-marker {
+            display: none;
+        }
 
-  // Remove all list styles
-  &.list-none {
-    list-style: none;
-  }
-  
-  // List triangle for summary element (necessary with display: flex)
-  &.list-triangle {
-    position: relative;
-    padding-left: 2em !important;
+        // Remove all list styles
+        &.list-none {
+            list-style: none;
+        }
+        
+        // // List triangle for summary element (necessary with display: flex)
+        &.list-triangle {
+            position: relative;
+            padding-left: 2em !important;
 
-    // Styling the equilateral triangle
-    &::before {
-      content: "▶";
-      position: absolute;
-      left: 0.75em;
-      top: 50%;
-      transform: translateY(-50%);
+            // Styling the equilateral triangle
+            &::before {
+                content: "▶";
+                position: absolute;
+                left: 0.75em;
+                top: 50%;
+                transform: translateY(-50%);
+                transition: transform 0.05s linear;
+            }
+            
+            @at-root {
+                // Rotate the equilateral triangle when summary is open
+                details[open] > summary.list-triangle::before {
+                    content: "▶";
+                    transform: translateY(-50%) translateX(-25%) rotate(90deg);
+                }
+            }
+        }
     }
-  }
 }
-
-// Rotate the equilateral triangle when summary is open
-details[open] > summary.list-triangle::before {
-  content: "▼";
-}
-
 
 // Utilities for details element
 // Hide details preview when open
@@ -263,7 +268,7 @@ details[open] {
         display: none;
     }
 }
-details[closed] {
+details:not([open]) {
     .details-preview {
         display: unset;
     }
