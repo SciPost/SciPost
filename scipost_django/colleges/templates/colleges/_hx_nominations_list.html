@@ -9,16 +9,16 @@
        hx-include="#search-nominations-form"
        hx-trigger="revealed"
        hx-swap="afterend"
-       hx-indicator="#indicator-search-page-{{ page_obj.number }}">
-    <div id="indicator-search-page-{{ page_obj.number }}"
-         class="htmx-indicator p-2">
-      <button class="btn btn-warning" type="button" disabled>
-        <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+       hx-indicator="#indicator-nominations-search-page"></div>
+  <div id="indicator-nominations-search-page"
+       hx-swap-oob="true"
+       class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
 	
-        <div class="spinner-grow spinner-grow-sm ms-2"
-             role="status"
-             aria-hidden="true"></div>
-      </button>
-    </div>
+      <div class="spinner-grow spinner-grow-sm ms-2"
+           role="status"
+           aria-hidden="true"></div>
+    </button>
   </div>
 {% endif %}

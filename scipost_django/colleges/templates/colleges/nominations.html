@@ -70,10 +70,18 @@
     <div class="card-body">
       <div id="nominations-search-form-container"
            hx-get="{% url 'colleges:_hx_nominations_search_form' filter_set='default' %}"
-           hx-trigger="intersect once"></div>
+           hx-trigger="load, intersect once"></div>
     </div>
   </details>
 
   <div id="search-nominations-results" class="mt-2"></div>
+  <div id="indicator-nominations-search-page" class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2"
+           role="status"
+           aria-hidden="true"></div>
+    </button>
+  </div>
 
 {% endblock content %}
