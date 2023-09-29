@@ -1,31 +1,48 @@
 <div class="p-2">
-  <ul class="mb-0">
+  <ul class="mb-0 list-group list-group-flush">
 
-    {% if not invitation.nomination.profile.contributor %}
+    <li class="list-group-item p-2">
 
-      <li class="text-danger">N.B.: this nominee is not yet registered as a Contributor</li>
+      {% if not invitation.nomination.profile.contributor %}
+        <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
+        <span>&nbsp;This nominee is not yet registered as a Contributor.</span>
+      {% else %}
+        <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
+        <span>&nbsp;This nominee has a Contributor account.</span>
+      {% endif %}
 
-    {% else %}
+    </li>
 
-      <li>
-        <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>&nbsp;This nominee has a Contributor account
+    <li class="list-group-item p-2">
+
+      {% if invitation.response == 'notyetinvited' %}
+        <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
+        <span>&nbsp;This nominee is elected, but not yet invited.</span>
+        <a class="btn btn-sm btn-primary"
+           href="{% url 'colleges:fellowship_invitation_email_initial' pk=invitation.id %}">Invite</a>
+      {% else %}
+        <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
+        <span>&nbsp;This nominee has been invited to serve as a Fellow.</span>
+      {% endif %}
+
+    </li>
+
+
+    {% if invitation.response == 'accepted' or invitation.response == 'postponed' %}
+      <li class="list-group-item p-2">
+
+        {% if invitation.nomination.fellowship %}
+          <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
+          <span>&nbsp;This nominee has no associated Fellowship with this college.</span>
+          <a href="{% url 'colleges:fellowship_create' contributor_id=invitation.nomination.profile.contributor.id %}"
+             target="_blank">Set up a Fellowship</a>
+        {% else %}
+          <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
+          <span>&nbsp;A fellowship has been created from this nomination.</span>
+        {% endif %}
+
+ 
       </li>
-
-    {% endif %}
-
-    {% if selected == 'notyetinvited' %}
-
-      <li class="text-danger">This nominee is elected, but not yet invited.</li>
-      <a class="btn btn-primary"
-         href="{% url 'colleges:fellowship_invitation_email_initial' pk=invitation.id %}">Invite nominee</a>
-
-    {% elif selected == 'accepted' %}
-
-      <li>
-        Accepted to serve as Fellow but not currently active in a College? <a href="{% url 'colleges:fellowship_create' contributor_id=invitation.nomination.profile.contributor.id %}"
-    target="_blank">Set up a Fellowship</a>
-      </li>
-
     {% endif %}
 
   </ul>
