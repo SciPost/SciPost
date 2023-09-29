@@ -86,74 +86,55 @@
  
   <div class="row mb-0">
 
-    {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+    {% comment %} or "active_senior_fellow" in user_roles  {% endcomment %}
+
+    {% if "edadmin" in user_roles %}
       <div class="col-12 col-md mb-3">
-        <details class="border">
-          <summary class="p-2 bg-light d-block list-triangle">Events</summary>
-          {% include 'colleges/_nomination_events_table.html' with nomination=nomination %}
+        <details class="card">
+          <summary class="card-header d-flex flex-row justify-content-between list-triangle">
+            <span>Events</span>
+            <span>({{ nomination.events.all.count }})</span>
+          </summary>
+          <div class="card-body">{% include 'colleges/_nomination_events_table.html' with nomination=nomination %}</div>
         </details>
       </div>
     {% endif %}
 
     <div class="col-12 col-md mb-3">
-      <details class="border">
-        <summary class="p-2 bg-light d-block list-triangle">Comments</summary>
- 
-        <div class="p-3">
+      <details class="card">
+        <summary class="card-header d-flex flex-row justify-content-between list-triangle">
+          <span>Comments</span>
+          <span>({{ nomination.comments.all.count }})</span>
+        </summary>
+        <div class="card-body">
+          <div class="p-3">
 
-          {% if nomination.nominator_comments %}
-            <div class="row">
-              <div class="fs-6">Nominator comments:</div>
-              <div>
-                <em>{{ nomination.nominator_comments }}</em>
+            {% if nomination.nominator_comments %}
+              <div class="row">
+                <div class="fs-6">Nominator comments:</div>
+                <div>
+                  <em>{{ nomination.nominator_comments }}</em>
+                </div>
               </div>
-            </div>
-            <hr class="text-muted" />
-          {% endif %}
+              <hr class="text-muted" />
+            {% endif %}
 
- 
-          <div id="nomination-{{ nomination.id }}-comments"
-               hx-get="{% url 'colleges:_hx_nomination_comments' nomination_id=nomination.id %}"
-               hx-trigger="intersect once"></div>
+            <div id="nomination-{{ nomination.id }}-comments"
+                 hx-get="{% url 'colleges:_hx_nomination_comments' nomination_id=nomination.id %}"
+                 hx-trigger="intersect once"></div>
+          </div>
         </div>
       </details>
+
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header">Voting Rounds</div>
-    <div class="card-body p-0">
+  <details open class="card">
+    <summary class="card-header list-triangle">Voting Rounds</summary>
+    <div class="card-body">
       <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id|default:0 %}"
            hx-trigger="intersect once"></div>
     </div>
-  </div>
-
-  {% comment %} {% if "edadmin" in user_roles %}
-    <div class="row">
-      <div class="col">
-        <details class="border">
-          <summary class="p-2 bg-light d-block list-triangle">All voting rounds</summary>
-
-          <div class="p-3">
-
-            {% for round in nomination.voting_rounds.all %}
-              <details>
-                <summary class="d-block list-triangle">
-                  #{{ forloop.counter0|add:1 }} from {{ round.voting_opens|date:"Y-m-d" }} to {{ round.voting_deadline|date:"Y-m-d" }}
-                </summary>
+  </details>
  
-                {% include "colleges/_hx_voting_round_results.html" with voting_round=round %}
- 
-              </details>
-            {% empty %}
-              <div>No voting round</div>
-            {% endfor %}
-
-          </details>
-        </div>
-      </div>
-    {% else %}
-      {% include "colleges/_hx_voting_round_results.html" with voting_round=nomination.latest_voting_round %}
-  {% endif %} {% endcomment %}
-
 </div>
