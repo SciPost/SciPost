@@ -16,12 +16,12 @@
 
       </div>
 
-      {% comment %} {% if voting_round.decision.comments %} {% endcomment %}
-      <div class="col">
-        <h4>Decision comments</h4>
-        <p>{{ voting_round.decision.comments }}</p>
-      </div>
-      {% comment %} {% endif %} {% endcomment %}
+      {% if voting_round.decision.comments %}
+        <div class="col">
+          <h4>Decision comments</h4>
+          <p>{{ voting_round.decision.comments }}</p>
+        </div>
+      {% endif %}
 
     </div>
 

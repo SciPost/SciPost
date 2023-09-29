@@ -1050,6 +1050,12 @@ def _hx_nomination_vote(request, voting_round_id):
         pk=voting_round_id,
         eligible_to_vote=fellowship,
     )
+    vote_options_with_color = [
+        (FellowshipNominationVote.VOTE_AGREE, "success"),
+        (FellowshipNominationVote.VOTE_ABSTAIN, "warning"),
+        (FellowshipNominationVote.VOTE_DISAGREE, "danger"),
+        (FellowshipNominationVote.VOTE_VETO, "dark"),
+    ]
     if request.method == "POST":
         vote_object, created = FellowshipNominationVote.objects.update_or_create(
             voting_round=voting_round,
@@ -1077,6 +1083,7 @@ def _hx_nomination_vote(request, voting_round_id):
     context = {
         "voting_round": voting_round,
         "vote_object": vote_object,
+        "vote_options": vote_options_with_color,
     }
     return render(request, "colleges/_hx_nomination_vote.html", context)
 
@@ -1252,7 +1259,7 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
 
 
 @login_required
-@user_passes_test(is_edadmin)
+@user_passes_test(is_edadmin_or_senior_fellow)
 def _hx_nomination_voter_table(request, round_id):
     round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
     voters = round.eligible_to_vote.all()

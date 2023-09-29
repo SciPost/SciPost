@@ -5,12 +5,16 @@
         <th>Fellow</th>
         <th>Specialties</th>
 
-        {% if not round.is_unscheduled %}
-          <th>Vote</th>
-          <th>Voted on</th>
+        {% if "edadmin" in user_roles %}
+
+          {% if not round.is_unscheduled %}
+            <th>Vote</th>
+            <th>Voted on</th>
+          {% endif %}
+
+          <th>Actions</th>
         {% endif %}
 
-        <th>Actions</th>
       </tr>
     </thead>
 
@@ -33,36 +37,40 @@
 
           </td>
 
-          {% if not round.is_unscheduled %}
+          {% if "edadmin" in user_roles %}
 
-            {% if voter.vote.vote == "agree" %}
-              <td class="text-success">{{ voter.vote.get_vote_display }}</td>
-            {% elif voter.vote.vote == "abstain" %}
-              <td class="text-warning">{{ voter.vote.get_vote_display }}</td>
-            {% elif voter.vote.vote == "disagree" %}
-              <td class="text-danger">{{ voter.vote.get_vote_display }}</td>
-            {% elif voter.vote.vote == "veto" %}
-              <td>
-                <span class="badge bg-dark">{{ voter.vote.get_vote_display }}</span>
-              </td>
-            {% else %}
-              <td class="text-muted">No vote</td>
+            {% if not round.is_unscheduled %}
+
+              {% if voter.vote.vote == "agree" %}
+                <td class="text-success">{{ voter.vote.get_vote_display }}</td>
+              {% elif voter.vote.vote == "abstain" %}
+                <td class="text-warning">{{ voter.vote.get_vote_display }}</td>
+              {% elif voter.vote.vote == "disagree" %}
+                <td class="text-danger">{{ voter.vote.get_vote_display }}</td>
+              {% elif voter.vote.vote == "veto" %}
+                <td>
+                  <span class="badge bg-dark">{{ voter.vote.get_vote_display }}</span>
+                </td>
+              {% else %}
+                <td class="text-muted">No vote</td>
+              {% endif %}
+
+              <td>{{ voter.vote.on }}</td>
             {% endif %}
 
-            <td>{{ voter.vote.on }}</td>
+            <td>
+
+              {% if not round.is_closed %}
+                <button class="btn btn-sm btn-danger px-1 py-0 ms-auto"
+                        hx-get="{% url "colleges:_hx_nomination_round_eligible_voter_action" round_id=round.id fellowship_id=voter.id action='remove' %}"
+                        hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">
+                  {% include "bi/trash-fill.html" %}
+                </button>
+              {% endif %}
+
+            </td>
           {% endif %}
 
-          <td>
-
-            {% if not round.is_closed %}
-              <button class="btn btn-sm btn-danger px-1 py-0 ms-auto"
-                      hx-get="{% url "colleges:_hx_nomination_round_eligible_voter_action" round_id=round.id fellowship_id=voter.id action='remove' %}"
-                      hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">
-                {% include "bi/trash-fill.html" %}
-              </button>
-            {% endif %}
-
-          </td>
         </tr>
       {% endfor %}
 
