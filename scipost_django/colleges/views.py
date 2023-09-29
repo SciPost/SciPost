@@ -910,10 +910,20 @@ def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
         round.id for round in voting_rounds if not round.can_view(request.user)
     ]
 
+    should_show_new_round_tab_btn = request.user.contributor.is_ed_admin and (
+        nomination.voting_rounds.count() == 0
+        or (
+            nomination.latest_voting_round.is_closed
+            and (decision := getattr(nomination.latest_voting_round, "decision", None))
+            and not decision.outcome == FellowshipNominationDecision.OUTCOME_ELECTED
+        )
+    )
+
     context = {
-        "nomination_id": nomination_id,
+        "nomination": nomination,
         "voting_rounds": voting_rounds,
         "inaccessible_round_ids": inaccessible_round_ids,
+        "should_show_new_round_tab_btn": should_show_new_round_tab_btn,
         "new_round": False,
     }
 

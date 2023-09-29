@@ -129,7 +129,7 @@
     </div>
   </div>
 
-  <details class="card mb-3">
+  <details {% if not nomination.invitation %}open{% endif %} class="card mb-3">
     <summary class="card-header list-triangle">Voting Rounds</summary>
     <div class="card-body">
       <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id|default:0 %}"
@@ -138,7 +138,7 @@
   </details>
 
   {% if "edadmin" in user_roles and nomination.decision.outcome == 'elected' %}
-    <details open class="card">
+    <details {% if nomination.invitation %}open{% endif %} class="card">
       <summary class="card-header d-flex flex-row justify-content-between list-triangle">
         <div>Invitation</div>
         <div>{{ nomination.invitation.get_response_display }}</div>
