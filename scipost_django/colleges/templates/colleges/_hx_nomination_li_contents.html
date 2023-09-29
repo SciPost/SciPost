@@ -129,12 +129,45 @@
     </div>
   </div>
 
-  <details open class="card">
+  <details class="card mb-3">
     <summary class="card-header list-triangle">Voting Rounds</summary>
     <div class="card-body">
       <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id|default:0 %}"
            hx-trigger="intersect once"></div>
     </div>
   </details>
+
+  {% if "edadmin" in user_roles and nomination.decision.outcome == 'elected' %}
+    <details open class="card">
+      <summary class="card-header d-flex flex-row justify-content-between list-triangle">
+        <div>Invitation</div>
+        <div>{{ nomination.invitation.get_response_display }}</div>
+      </summary>
+      <div class="card-body">
+        <div class="row mb-0">
+          <div class="col-auto">
+            <div class="mb-4">
+              <h3>Invitation status</h3>
+              <div class="fs-6 badge bg-{{ nomination.invitation.get_response_color }}">
+                {{ nomination.invitation.get_response_display }}
+              </div>
+            </div>
+            <div>
+              <h3>Checklist</h3>
+              {% include "colleges/_nominations_invitation_checklist.html" with invitation=nomination.invitation %}
+            </div>
+          </div>
  
+          <div class="col-12 col-md p-2">
+            <h4>Update the response to this invitation:</h4>
+            <div id="invitation-{{ nomination.invitation.id }}-update-response"
+                 hx-get="{% url 'colleges:_hx_fellowship_invitation_update_response' invitation_id=nomination.invitation.id %}"
+                 hx-trigger="intersect once"></div>
+          </div>
+ 
+        </div>
+      </div>
+    </details>
+  {% endif %}
+
 </div>

@@ -436,3 +436,14 @@ class FellowshipInvitation(models.Model):
     @property
     def declined(self):
         return self.response == self.RESPONSE_DECLINED
+
+    @property
+    def get_response_color(self):
+        if self.response in [self.RESPONSE_ACCEPTED, self.RESPONSE_POSTPONED]:
+            return "success"
+        elif self.response in [self.RESPONSE_DECLINED, self.RESPONSE_NOT_YET_INVITED]:
+            return "danger"
+        elif self.response in [self.RESPONSE_UNRESPONSIVE]:
+            return "warning"
+        else:
+            return "primary"
