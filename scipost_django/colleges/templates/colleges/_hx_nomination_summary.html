@@ -44,10 +44,19 @@
  
             </div>
             <div class="row mb-2 justify-content-between">
-              <small class="col text-muted text-nowrap">Publications</small>
-              <div class="col-auto">{{ nomination.profile.publications.all.count }}</div>
-              <small class="col text-muted text-nowrap">Total rounds</small>
-              <div class="col-auto">{{ nomination.voting_rounds.all.count }}</div>
+
+              {% if nomination.invitation %}
+                <small class="col-auto text-muted text-nowrap">Invitation status</small>
+                <div class="col">
+                  <span class="badge bg-{{ nomination.invitation.get_response_color }}">{{ nomination.invitation.get_response_display }}</span>
+                </div>
+              {% else %}
+                <small class="col text-muted text-nowrap">Publications</small>
+                <div class="col-auto">{{ nomination.profile.publications.all.count }}</div>
+                <small class="col text-muted text-nowrap">Total rounds</small>
+                <div class="col-auto">{{ nomination.voting_rounds.all.count }}</div>
+              {% endif %}
+
             </div>
           </div>
         </div>

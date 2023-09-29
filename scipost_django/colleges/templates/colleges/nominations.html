@@ -76,19 +76,4 @@
 
   <div id="search-nominations-results" class="mt-2"></div>
 
-  {% if "edadmin" in user_roles %}
-    <details id="invitations-details" class="border border-success border-2 mt-4">
-      <summary class="bg-success bg-opacity-10 p-2 d-block list-triangle">
-        <div class="fs-5">Manage invitations</div>
-      </summary>
-
-      <div class="p-2 mt-2">
-        <div id="invitations_tablist"
-             hx-get="{% url 'colleges:_hx_nominations_invitations' %}?response=notyetinvited"
-             hx-trigger="toggle from:#invitations-details"
-             hx-target="#invitations_tablist"></div>
-      </div>
-    </details>
-  {% endif %}
-
 {% endblock content %}
