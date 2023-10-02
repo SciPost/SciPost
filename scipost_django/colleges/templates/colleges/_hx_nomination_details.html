@@ -4,7 +4,7 @@
 
   <div id="nomination-{{ nomination.id }}-details-contents"
        class="p-2 mt-2 bg-white"
-       hx-get="{% url 'colleges:_hx_nomination_li_contents' nomination_id=nomination.id %}"
+       hx-get="{% url 'colleges:_hx_nomination_details_contents' nomination_id=nomination.id %}"
        hx-trigger="toggle once from:#nomination-{{ nomination.id }}-details"></div>
 
 </details>

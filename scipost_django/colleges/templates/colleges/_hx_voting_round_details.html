@@ -42,14 +42,16 @@
           </button>
         </div>
 
+        {% comment %} If round is open and the viewer can vote, show the voting form {% endcomment %}
       {% elif session_fellowship and session_fellowship in voting_round.eligible_to_vote.all and voting_round.is_open %}
 
         <div id="nomination-{{ voting_round.nomination.id }}-vote"
-             hx-get="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
+             hx-get="{% url 'colleges:_hx_nomination_vote' round_id=voting_round.id %}"
              hx-trigger="intersect once"></div>
 
       {% endif %}
 
+      {% comment %} If round is closed show results if they exist {% endcomment %}
     {% else %}
       <div>{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
  
@@ -80,10 +82,8 @@
 
   {% if not voting_round.is_closed %}
 
-    <div class="col-12">
-      <h4>Start round</h4>
-      {% crispy round_start_form %}
-    </div>
+    <div hx-get="{% url 'colleges:_hx_voting_round_start_form' round_id=voting_round.id %}"
+         hx-trigger="intersect once"></div>
 
   {% elif voting_round.is_closed and not voting_round.decision %}
 

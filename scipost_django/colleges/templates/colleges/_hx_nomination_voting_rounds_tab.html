@@ -3,17 +3,17 @@
   <nav class="nav nav-pills m-2 overflow-scroll">
 
     {% if should_show_new_round_tab_btn %}
-      <div type="button" 
-          class="me-2 px-2 nav-link {% if new_round %}bg-success{% else %}border border-success{% endif %}" 
-          hx-get="{% url 'colleges:_hx_nomination_voting_rounds_create' nomination_id=nomination.id %}" 
-          hx-target="#nomination-{{ nomination.id }}-round-tab-holder" 
-          hx-swap="outerHTML">
-        <span class="fs-1 align-items-center text-{% if new_round %}white{% else %}success{% endif %}">+</span>
+      <div id="nomination-{{ nomination.id }}-new-round-btn" type="button" class="me-2 px-2 nav-link 
+        {% if new_round %}bg-success{% else %}border border-success{% endif %}
+         " hx-get="{% url 'colleges:_hx_nomination_voting_rounds_create' nomination_id=nomination.id %}" hx-target="#nomination-{{ nomination.id }}-round-tab-holder" hx-swap="outerHTML">
+        <span class="fs-1 align-items-center text- 
+          {% if new_round %}white{% else %}success{% endif %}
+         ">+</span>
       </div>
     {% endif %}
 
     {% for voting_round in voting_rounds %}
-      <div type="button" class="me-2 nav-link 
+      <div id="nomination-{{ nomination.id }}-round-{{ voting_round.id }}-tab-btn" type="button" class="me-2 nav-link 
         {% if selected_round and selected_round.id == voting_round.id %}active{% endif %}
   
         {% if voting_round.id in inaccessible_round_ids %}disabled opacity-50{% endif %}

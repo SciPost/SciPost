@@ -726,9 +726,9 @@ def _hx_nomination_form(request, profile_id):
             by=request.user.contributor,
         )
         event.save()
-        return HttpResponse(
-            f'<div class="bg-success text-white p-2 ">{nomination.profile} '
-            f"successfully nominated to {nomination.college}.</div>"
+        return HTMXResponse(
+            f"{nomination.profile} successfully nominated to {nomination.college}.",
+            tag="success",
         )
     nomination_form.fields["nominated_by"].initial = request.user.contributor
     context = {
@@ -736,56 +736,6 @@ def _hx_nomination_form(request, profile_id):
         "nomination_form": nomination_form,
     }
     return render(request, "colleges/_hx_nomination_form.html", context)
-
-
-@login_required
-@user_passes_test(is_edadmin_or_senior_fellow)
-def _hx_nominations_needing_specialties(request):
-    nominations_needing_specialties = FellowshipNomination.objects.filter(
-        profile__specialties__isnull=True,
-    )
-    context = {
-        "nominations_needing_specialties": nominations_needing_specialties,
-    }
-    return render(
-        request,
-        "colleges/_hx_nominations_needing_specialties.html",
-        context,
-    )
-
-
-@login_required
-@user_passes_test(is_edadmin_or_senior_fellow)
-def _hx_nominations_no_round_started(request):
-    nominations_no_round_started = FellowshipNomination.objects.exclude(
-        profile__specialties__isnull=True
-    ).filter(voting_rounds__isnull=False)
-    context = {
-        "nominations_no_round_started": nominations_no_round_started,
-    }
-    return render(
-        request,
-        "colleges/_hx_nominations_no_round_started.html",
-        context,
-    )
-
-
-@login_required
-@user_passes_test(is_edadmin_or_senior_fellow)
-def _hx_nomination_eligible_voters(request, nomination_id):
-    nomination = FellowshipNomination.objects.get(pk=nomination_id)
-    eligible_voters = nomination.get_eligible_voters
-    context = {
-        "nomination": nomination,
-        "eligible_voters": eligible_voters,
-        "nominee_specialties": nomination.profile.specialties.all(),
-        "round": nomination.voting_rounds.first(),
-    }
-    return render(
-        request,
-        "colleges/_hx_nomination_eligible_voters.html",
-        context,
-    )
 
 
 def _hx_nomination_round_remove_voter(request, round_id, voter_id):
@@ -804,54 +754,15 @@ def _hx_nomination_round_remove_voter(request, round_id, voter_id):
     return HttpResponse("")
 
 
-def _hx_nomination_round_start(request, nomination_id):
-    """Create a voting round for the specified nomination using the default eligible voters."""
-    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
-    # Find ongoing round for this nomination, if any
-    ongoing_round = nomination.voting_rounds.ongoing().first()
-    if ongoing_round:
-        return HTMXResponse(
-            f"Round for {nomination.profile} already ongoing until {ongoing_round.voting_deadline}",
-            tag="danger",
-        )
-    voting_round = FellowshipNominationVotingRound(
-        nomination=nomination,
-        voting_opens=timezone.now(),
-        voting_deadline=timezone.now() + datetime.timedelta(days=14),
-    )
-    voting_round.save()
-    voting_round.eligible_to_vote.set(nomination.get_eligible_voters)
-    voting_round.save()
-    return HTMXResponse(
-        f"Started round for {nomination.profile} from now until {voting_round.voting_deadline}.",
-        tag="success",
-    )
-
-
 @login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
-def _hx_nominations(request):
-    form = FellowshipNominationSearchForm(request.POST or None)
-    if form.is_valid():
-        nominations = form.search_results()
-    else:
-        nominations = FellowshipNomination.objects.all()
-    paginator = Paginator(nominations, 16)
-    page_nr = request.GET.get("page")
-    page_obj = paginator.get_page(page_nr)
-    context = {"page_obj": page_obj}
-    return render(request, "colleges/_hx_nominations.html", context)
-
-
-@login_required
-@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
-def _hx_nomination_li_contents(request, nomination_id):
+def _hx_nomination_details_contents(request, nomination_id):
     """For (re)loading the details if modified."""
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
     context = {
         "nomination": nomination,
     }
-    return render(request, "colleges/_hx_nomination_li_contents.html", context)
+    return render(request, "colleges/_hx_nomination_details_contents.html", context)
 
 
 def _hx_nominations_search_form(request, filter_set: str):
@@ -890,15 +801,6 @@ def _hx_nominations_list(request):
     return render(request, "colleges/_hx_nominations_list.html", context)
 
 
-def _hx_voting_round_results(request, round_id):
-    """For (re)loading the details if modified."""
-    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
-    context = {
-        "round": round,
-    }
-    return render(request, "colleges/_hx_voting_round_results.html", context)
-
-
 @login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
@@ -932,11 +834,6 @@ def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
         context["selected_round"] = selected_round
 
         if not selected_round.is_closed:
-            round_start_form = FellowshipNominationVotingRoundStartForm(
-                request.POST or None,
-                instance=selected_round,
-            )
-
             voter_add_form = FellowshipDynSelForm(
                 initial={
                     "action_url_name": "colleges:_hx_nomination_round_eligible_voter_action",
@@ -946,15 +843,6 @@ def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
                 }
             )
             context["voter_add_form"] = voter_add_form
-
-            if round_start_form.is_valid():
-                round_start_form.save()
-                messages.success(
-                    request,
-                    f"Voting round for {nomination.profile} started "
-                    f"from {selected_round.voting_opens} until {selected_round.voting_deadline}.",
-                )
-            context["round_start_form"] = round_start_form
 
     return render(request, "colleges/_hx_nomination_voting_rounds_tab.html", context)
 
@@ -970,15 +858,6 @@ def _hx_nomination_voting_rounds_create(request, nomination_id):
     new_round.set_eligible_voters()
 
     return _hx_nomination_voting_rounds_tab(request, nomination_id, new_round.id)
-
-
-def _hx_voting_round_li_contents(request, round_id):
-    """For (re)loading the details if modified."""
-    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
-    context = {
-        "round": round,
-    }
-    return render(request, "colleges/_hx_voting_round_li_contents.html", context)
 
 
 @login_required
@@ -1003,61 +882,11 @@ def _hx_nomination_comments(request, nomination_id):
 
 @login_required
 @user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
-def _hx_voting_rounds(request):
-    selected = request.GET.get("tab", "ongoing")
-    tab_choices = []
-    if request.user.contributor.is_ed_admin:
-        tab_choices += [
-            ("ongoing", "Ongoing"),
-            ("closed-pending", "Closed"),
-            ("closed-elected", "Closed (elected)"),
-            ("closed-notelected", "Closed (not elected)"),
-        ]
-    elif request.user.contributor.is_active_fellow:
-        tab_choices += [
-            ("ongoing-vote_required", "Cast your vote (election ongoing)"),
-            ("ongoing-voted", "Votes you have cast (election ongoing)"),
-            ("closed-voted", "Votes you have cast (election closed)"),
-        ]
-    fellowship = request.user.contributor.session_fellowship(request)
-    voting_rounds = FellowshipNominationVotingRound.objects.all()
-    if "ongoing" in selected:
-        voting_rounds = voting_rounds.ongoing()
-    if "closed" in selected:
-        voting_rounds = voting_rounds.closed()
-    if "-pending" in selected:
-        voting_rounds = voting_rounds.filter(decision__isnull=True)
-    if "-elected" in selected:
-        voting_rounds = voting_rounds.filter(
-            decision__outcome=FellowshipNominationDecision.OUTCOME_ELECTED
-        )
-    if "-notelected" in selected:
-        voting_rounds = voting_rounds.filter(
-            decision__outcome=FellowshipNominationDecision.OUTCOME_NOT_ELECTED
-        )
-    if "vote_required" in selected:
-        # show all voting rounds to edadmin; for Fellow, filter
-        if not request.user.contributor.is_ed_admin:
-            voting_rounds = voting_rounds.filter(eligible_to_vote=fellowship).exclude(
-                votes__fellow=fellowship
-            )
-    if "-voted" in selected:
-        voting_rounds = voting_rounds.filter(votes__fellow=fellowship)
-    context = {
-        "tab_choices": tab_choices,
-        "selected": selected,
-        "voting_rounds": voting_rounds,
-    }
-    return render(request, "colleges/_hx_voting_rounds.html", context)
-
-
-@login_required
-@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
-def _hx_nomination_vote(request, voting_round_id):
+def _hx_nomination_vote(request, round_id):
     fellowship = request.user.contributor.session_fellowship(request)
     voting_round = get_object_or_404(
         FellowshipNominationVotingRound,
-        pk=voting_round_id,
+        pk=round_id,
         eligible_to_vote=fellowship,
     )
 
@@ -1108,6 +937,29 @@ def _hx_nomination_vote(request, voting_round_id):
 
 @login_required
 @user_passes_test(is_edadmin)
+def _hx_voting_round_start_form(request, round_id):
+    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+    form = FellowshipNominationVotingRoundStartForm(
+        request.POST or None,
+        instance=round,
+    )
+    if form.is_valid():
+        form.save()
+        messages.success(
+            request,
+            f"Voting round for {round.nomination.profile} started "
+            f"from {round.voting_opens} until {round.voting_deadline}.",
+        )
+
+    return render(
+        request,
+        "colleges/_hx_voting_round_start_form.html",
+        {"form": form, "round": round},
+    )
+
+
+@login_required
+@user_passes_test(is_edadmin)
 def _hx_nomination_decision_form(request, round_id):
     voting_round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
     nomination = voting_round.nomination
@@ -1134,7 +986,7 @@ def _hx_nomination_decision_form(request, round_id):
 
 
 # Check permission to create a new nomination
-def _hx_nominations_new(request):
+def _hx_nomination_new(request):
     """Render the contents of the new nomination form."""
     profile_dynsel_form = ProfileDynSelForm(
         initial={
@@ -1148,23 +1000,7 @@ def _hx_nominations_new(request):
         "profile_dynsel_form": profile_dynsel_form,
     }
 
-    return render(request, "colleges/_hx_nominations_new.html", context)
-
-
-@login_required
-@user_passes_test(is_edadmin)
-def _hx_nominations_invitations(request):
-    selected = request.GET.get("response", "notyetinvited")
-    invitations = FellowshipInvitation.objects.filter(
-        nomination__fellowship__isnull=True,
-        response=selected,
-    )
-    context = {
-        "response_choices": FellowshipInvitation.RESPONSE_CHOICES,
-        "selected": selected,
-        "invitations": invitations,
-    }
-    return render(request, "colleges/_hx_nominations_invitations.html", context)
+    return render(request, "colleges/_hx_nomination_new.html", context)
 
 
 class FellowshipInvitationEmailInitialView(PermissionsMixin, MailView):

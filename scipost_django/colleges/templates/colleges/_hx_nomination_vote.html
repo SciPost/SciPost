@@ -2,7 +2,7 @@
 
 {% for vote_option, color in vote_options %}
 
-  <form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
+  <form hx-post="{% url 'colleges:_hx_nomination_vote' round_id=voting_round.id %}"
         hx-target="#nomination-{{ voting_round.nomination.id }}-vote">
     {% csrf_token %}
     <input type="hidden" name="vote" value="{{ vote_option }}" />
