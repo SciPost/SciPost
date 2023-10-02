@@ -826,23 +826,11 @@ def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
         "voting_rounds": voting_rounds,
         "inaccessible_round_ids": inaccessible_round_ids,
         "should_show_new_round_tab_btn": should_show_new_round_tab_btn,
-        "new_round": False,
     }
 
     if round_id != 0:
         selected_round = voting_rounds.get(id=round_id)
         context["selected_round"] = selected_round
-
-        if not selected_round.is_closed:
-            voter_add_form = FellowshipDynSelForm(
-                initial={
-                    "action_url_name": "colleges:_hx_nomination_round_eligible_voter_action",
-                    "action_url_base_kwargs": {"round_id": round_id, "action": "add"},
-                    "action_target_element_id": f"nomination-{nomination_id}-round-{round_id}-voters",
-                    "action_target_swap": "innerHTML",
-                }
-            )
-            context["voter_add_form"] = voter_add_form
 
     return render(request, "colleges/_hx_nomination_voting_rounds_tab.html", context)
 
@@ -1163,3 +1151,28 @@ def _hx_nomination_round_add_eligible_voter_set(request, round_id, voter_set_nam
     return redirect(
         reverse("colleges:_hx_nomination_voter_table", kwargs={"round_id": round.id})
     )
+
+
+@login_required
+@user_passes_test(is_edadmin_or_senior_fellow)
+def _hx_voting_round_details(request, round_id):
+    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+    context = {
+        "round": round,
+    }
+
+    if not round.can_view(request.user):
+        return HTMXResponse("You are not allowed to view this round.", tag="danger")
+
+    if not round.is_closed:
+        voter_add_form = FellowshipDynSelForm(
+            initial={
+                "action_url_name": "colleges:_hx_nomination_round_eligible_voter_action",
+                "action_url_base_kwargs": {"round_id": round_id, "action": "add"},
+                "action_target_element_id": f"nomination-{round.nomination.id}-round-{round_id}-voters",
+                "action_target_swap": "innerHTML",
+            }
+        )
+        context["voter_add_form"] = voter_add_form
+
+    return render(request, "colleges/_hx_voting_round_details.html", context)

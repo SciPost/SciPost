@@ -3,12 +3,13 @@
   <nav class="nav nav-pills m-2 overflow-scroll">
 
     {% if should_show_new_round_tab_btn %}
-      <div id="nomination-{{ nomination.id }}-new-round-btn" type="button" class="me-2 px-2 nav-link 
-        {% if new_round %}bg-success{% else %}border border-success{% endif %}
-         " hx-get="{% url 'colleges:_hx_nomination_voting_rounds_create' nomination_id=nomination.id %}" hx-target="#nomination-{{ nomination.id }}-round-tab-holder" hx-swap="outerHTML">
-        <span class="fs-1 align-items-center text- 
-          {% if new_round %}white{% else %}success{% endif %}
-         ">+</span>
+      <div id="nomination-{{ nomination.id }}-new-round-btn"
+           type="button"
+           class="me-2 px-2 nav-link border border-success"
+           hx-get="{% url 'colleges:_hx_nomination_voting_rounds_create' nomination_id=nomination.id %}"
+           hx-target="#nomination-{{ nomination.id }}-round-tab-holder"
+           hx-swap="outerHTML">
+        <span class="fs-1 align-items-center text-success">+</span>
       </div>
     {% endif %}
 
@@ -57,9 +58,9 @@
 
   {% if selected_round %}
     <div id="nomination-{{ nomination.id }}-round-{{ selected_round.id }}-tab-content-holder"
-         class="p-3">
-      {% include "colleges/_hx_voting_round_details.html" with voting_round=selected_round round_start_form=round_start_form new_voter_form=new_voter_form %}
-    </div>
+         hx-get="{% url 'colleges:_hx_voting_round_details' round_id=selected_round.id %}"
+         hx-trigger="intersect once"
+         class="p-3"></div>
   {% endif %}
 
 </div>

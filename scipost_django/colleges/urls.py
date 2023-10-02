@@ -229,6 +229,11 @@ urlpatterns = [
             [
                 path("_hx_vote", views._hx_nomination_vote, name="_hx_nomination_vote"),
                 path(
+                    "_hx_details",
+                    views._hx_voting_round_details,
+                    name="_hx_voting_round_details",
+                ),
+                path(
                     "_hx_voter_table",
                     views._hx_nomination_voter_table,
                     name="_hx_nomination_voter_table",
