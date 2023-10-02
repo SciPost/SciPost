@@ -312,6 +312,12 @@ class FellowshipNominationVote(models.Model):
         (VOTE_DISAGREE, "Disagree"),
         (VOTE_VETO, "Veto"),
     )
+    VOTE_BS_CLASSES = {
+        VOTE_AGREE: "success",
+        VOTE_ABSTAIN: "warning",
+        VOTE_DISAGREE: "danger",
+        VOTE_VETO: "black",
+    }
 
     voting_round = models.ForeignKey(
         "colleges.FellowshipNominationVotingRound",
@@ -330,6 +336,10 @@ class FellowshipNominationVote(models.Model):
     on = models.DateTimeField(blank=True, null=True)
 
     objects = FellowshipNominationVoteQuerySet.as_manager()
+
+    @property
+    def get_vote_bs_class(self):
+        return self.VOTE_BS_CLASSES[self.vote]
 
     class Meta:
         constraints = [

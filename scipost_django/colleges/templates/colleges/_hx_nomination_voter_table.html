@@ -41,16 +41,8 @@
 
             {% if not round.is_unscheduled %}
 
-              {% if voter.vote.vote == "agree" %}
-                <td class="text-success">{{ voter.vote.get_vote_display }}</td>
-              {% elif voter.vote.vote == "abstain" %}
-                <td class="text-warning">{{ voter.vote.get_vote_display }}</td>
-              {% elif voter.vote.vote == "disagree" %}
-                <td class="text-danger">{{ voter.vote.get_vote_display }}</td>
-              {% elif voter.vote.vote == "veto" %}
-                <td>
-                  <span class="badge bg-dark">{{ voter.vote.get_vote_display }}</span>
-                </td>
+              {% if voter.vote %}
+                <td class="text-{{ voter.vote.get_vote_bs_class }}">{{ voter.vote.get_vote_display }}</td>
               {% else %}
                 <td class="text-muted">No vote</td>
               {% endif %}

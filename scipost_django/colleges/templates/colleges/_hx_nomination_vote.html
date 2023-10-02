@@ -1,6 +1,6 @@
 <h3>Cast your vote:</h3>
 
-{% for vote_option, color in vote_options %}
+{% for vote_option, color in VOTE_BS_CLASSES.items %}
 
   <form hx-post="{% url 'colleges:_hx_nomination_vote' round_id=voting_round.id %}"
         hx-target="#nomination-{{ voting_round.nomination.id }}-vote">
