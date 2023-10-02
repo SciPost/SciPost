@@ -1060,6 +1060,14 @@ def _hx_nomination_vote(request, voting_round_id):
         pk=voting_round_id,
         eligible_to_vote=fellowship,
     )
+
+    # Check if the voting round is still open
+    if not voting_round.is_open:
+        return HTMXResponse(
+            """You cannot vote in non-open rounds.""",
+            tag="danger",
+        )
+
     vote_options_with_color = [
         (FellowshipNominationVote.VOTE_AGREE, "success"),
         (FellowshipNominationVote.VOTE_ABSTAIN, "warning"),

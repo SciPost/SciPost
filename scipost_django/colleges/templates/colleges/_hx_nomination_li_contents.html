@@ -1,3 +1,6 @@
+{% load user_groups %}
+{% is_ed_admin request.user as is_ed_admin %}
+
 <div class="p-2">
   <div class="row mb-0">
  
@@ -88,7 +91,7 @@
 
     {% comment %} or "active_senior_fellow" in user_roles  {% endcomment %}
 
-    {% if "edadmin" in user_roles %}
+    {% if is_ed_admin %}
       <div class="col-12 col-md mb-3">
         <details class="card">
           <summary class="card-header d-flex flex-row justify-content-between list-triangle">
@@ -129,16 +132,22 @@
     </div>
   </div>
 
-  <details {% if not nomination.invitation %}open{% endif %} class="card mb-3">
-    <summary class="card-header list-triangle">Voting Rounds</summary>
-    <div class="card-body">
-      <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id|default:0 %}"
-           hx-trigger="intersect once"></div>
-    </div>
-  </details>
+  {% if nomination.voting_rounds.exists or perms.scipost.can_manage_college_composition %}
+    <details 
+      {% if not nomination.invitation or 'edadmin' not in user_roles %}open{% endif %}
+       class="card mb-3">
+      <summary class="card-header list-triangle">Voting Rounds</summary>
+      <div class="card-body">
+        <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id|default:0 %}"
+             hx-trigger="intersect once"></div>
+      </div>
+    </details>
+  {% endif %}
 
-  {% if "edadmin" in user_roles and nomination.decision.outcome == 'elected' %}
-    <details {% if nomination.invitation %}open{% endif %} class="card">
+  {% if is_ed_admin and nomination.decision.outcome == 'elected' %}
+    <details 
+      {% if nomination.invitation %}open{% endif %}
+       class="card">
       <summary class="card-header d-flex flex-row justify-content-between list-triangle">
         <div>Invitation</div>
         <div>{{ nomination.invitation.get_response_display }}</div>

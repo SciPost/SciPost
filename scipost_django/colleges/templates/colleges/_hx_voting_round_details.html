@@ -8,7 +8,7 @@
          hx-trigger="intersect once"></div>
   </div>
 
-  <div class="col-auto d-flex flex-column justify-content-between">
+  <div class="col-12 col-md-auto d-flex flex-column justify-content-between">
 
     {% if not voting_round.is_closed %}
 
@@ -42,10 +42,9 @@
           </button>
         </div>
 
-      {% elif session_fellowship and session_fellowship in voting_round.eligible_to_vote.all %}
+      {% elif session_fellowship and session_fellowship in voting_round.eligible_to_vote.all and voting_round.is_open %}
 
         <div id="nomination-{{ voting_round.nomination.id }}-vote"
-             class="col-12 col-md-4"
              hx-get="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
              hx-trigger="intersect once"></div>
 

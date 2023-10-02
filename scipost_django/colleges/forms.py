@@ -24,6 +24,8 @@ from submissions.models import Submission
 from scipost.forms import RequestFormMixin
 from scipost.models import Contributor
 
+from colleges.permissions import is_edadmin
+
 from .models import (
     College,
     Fellowship,
@@ -417,7 +419,10 @@ class FellowshipNominationForm(forms.ModelForm):
         self.profile = kwargs.pop("profile")
         super().__init__(*args, **kwargs)
         self.fields["college"].queryset = College.objects.filter(
-            acad_field=self.profile.acad_field
+            acad_field=self.profile.acad_field,
+            # id__in=Fellowship.objects.active()
+            # .filter(contributor=self.fields["nominated_by"].initial)
+            # .values_list("college", flat=True),
         )
         self.fields["college"].empty_label = None
         self.fields["nominator_comments"].label = False
@@ -455,6 +460,16 @@ class FellowshipNominationForm(forms.ModelForm):
         if data["college"].acad_field != self.profile.acad_field:
             self.add_error(
                 "college", "Mismatch between college.acad_field and profile.acad_field."
+            )
+        if (not is_edadmin(data["nominated_by"].user)) and (
+            data["college"].id
+            not in Fellowship.objects.active()
+            .filter(contributor=data["nominated_by"])
+            .values_list("college", flat=True)
+        ):
+            self.add_error(
+                "college",
+                "You do not have an active Fellowship in the selected College.",
             )
         return data
 
@@ -515,10 +530,15 @@ class FellowshipNominationForm(forms.ModelForm):
 
 
 class FellowshipNominationSearchForm(forms.Form):
+    all_nominations = FellowshipNomination.objects.all()
+    nomination_colleges = all_nominations.values_list("college", flat=True).distinct()
+
     nominee = forms.CharField(max_length=100, required=False, label="Nominee")
 
     college = forms.MultipleChoiceField(
-        choices=College.objects.all().order_by("name").values_list("id", "name"),
+        choices=College.objects.filter(id__in=nomination_colleges)
+        .order_by("name")
+        .values_list("id", "name"),
         required=False,
     )
 
@@ -551,6 +571,7 @@ class FellowshipNominationSearchForm(forms.Form):
             ("latest_round_open", "Voting start"),
             ("latest_round_decision_outcome", "Decision"),
             ("profile__last_name", "Nominee"),
+            ("nominated_on", "Nominated date"),
         ),
         required=False,
     )
@@ -653,9 +674,8 @@ class FellowshipNominationSearchForm(forms.Form):
             .distinct()
         )
 
-        if self.cleaned_data.get("can_vote") or not self.user.has_perm(
-            "scipost.can_view_all_nomination_voting_rounds"
-        ):
+        if self.cleaned_data.get("can_vote"):
+            # or not self.user.has_perm("scipost.can_view_all_nomination_voting_rounds"):
             # Restrict rounds to those the user can vote on
             nominations = nominations.with_user_votable_rounds(self.user).distinct()
 
@@ -889,9 +909,8 @@ class FellowshipNominationVotingRoundSearchForm(forms.Form):
 
         rounds = FellowshipNominationVotingRound.objects.all()
 
-        if self.cleaned_data.get("can_vote") or not self.user.has_perm(
-            "scipost.can_view_all_nomination_voting_rounds"
-        ):
+        if self.cleaned_data.get("can_vote"):
+            # or not self.user.has_perm("scipost.can_view_all_nomination_voting_rounds"):
             # Restrict rounds to those the user can vote on
             rounds = rounds.where_user_can_vote(self.user)
 
