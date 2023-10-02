@@ -896,13 +896,6 @@ def _hx_nomination_vote(request, round_id):
             """You cannot vote in non-open rounds.""",
             tag="danger",
         )
-
-    vote_options_with_color = [
-        (FellowshipNominationVote.VOTE_AGREE, "success"),
-        (FellowshipNominationVote.VOTE_ABSTAIN, "warning"),
-        (FellowshipNominationVote.VOTE_DISAGREE, "danger"),
-        (FellowshipNominationVote.VOTE_VETO, "dark"),
-    ]
     if request.method == "POST":
         vote_object, created = FellowshipNominationVote.objects.update_or_create(
             voting_round=voting_round,
@@ -930,7 +923,7 @@ def _hx_nomination_vote(request, round_id):
     context = {
         "voting_round": voting_round,
         "vote_object": vote_object,
-        "vote_options": vote_options_with_color,
+        "VOTE_BS_CLASSES": FellowshipNominationVote.VOTE_BS_CLASSES,
     }
     return render(request, "colleges/_hx_nomination_vote.html", context)
 
