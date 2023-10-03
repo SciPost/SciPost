@@ -843,7 +843,9 @@ def _hx_nomination_voting_rounds_create(request, nomination_id):
         nomination=nomination, voting_opens=None, voting_deadline=None
     )
     new_round.save()
-    new_round.set_eligible_voters()
+    _ = _hx_nomination_round_add_eligible_voter_set(
+        request, new_round.id, "with_specialty_overlap"
+    )
 
     return _hx_nomination_voting_rounds_tab(request, nomination_id, new_round.id)
 
@@ -1118,8 +1120,18 @@ def _hx_nomination_round_eligible_voter_action(
 ):
     round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
     fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
+
     if action == "add":
-        round.eligible_to_vote.add(fellowship)
+        print(round.nomination.profile)
+        if round.nomination.profile.has_competing_interest_with(
+            fellowship.contributor.profile
+        ):
+            messages.error(
+                request,
+                f"{fellowship} has a competing interest with the nominee and cannot be added to the voters list.",
+            )
+        else:
+            round.eligible_to_vote.add(fellowship)
     if action == "remove":
         round.eligible_to_vote.remove(fellowship)
     return redirect(
@@ -1134,20 +1146,21 @@ def _hx_nomination_round_add_eligible_voter_set(request, round_id, voter_set_nam
 
     voter_set = Fellowship.objects.none()
 
+    senior_active_fellows = (
+        Fellowship.objects.active()
+        .no_competing_interests_with(round.nomination.profile)
+        .senior()
+    )
+
     if voter_set_name == "with_specialty_overlap":
         specialties_slug_list = [
             s.slug for s in round.nomination.profile.specialties.all()
         ]
-        voter_set = (
-            Fellowship.objects.active()
-            .senior()
-            .specialties_overlap(specialties_slug_list)
-            .distinct()
-        )
+        voter_set = senior_active_fellows.specialties_overlap(specialties_slug_list)
     elif voter_set_name == "all_seniors":
-        voter_set = Fellowship.objects.active().senior().distinct()
+        voter_set = senior_active_fellows.filter(college=round.nomination.college)
 
-    round.eligible_to_vote.add(*voter_set)
+    round.eligible_to_vote.add(*voter_set.distinct())
     return redirect(
         reverse("colleges:_hx_nomination_voter_table", kwargs={"round_id": round.id})
     )

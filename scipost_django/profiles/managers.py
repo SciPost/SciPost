@@ -72,6 +72,18 @@ class ProfileQuerySet(models.QuerySet):
         """
         return self.filter(specialties__slug__in=specialties_slug_list)
 
+    def no_competing_interests_with(self, profile):
+        """
+        Returns all Profiles which have no competing interests with the specified profile.
+        """
+        from ethics.models import CompetingInterest
+
+        profile_CI, related_CI = CompetingInterest.objects.filter(
+            Q(profile=profile) | Q(related_profile=profile)
+        ).values_list("profile", "related_profile")
+
+        return self.exclude(id__in=profile_CI + related_CI)
+
 
 class AffiliationQuerySet(models.QuerySet):
     def current(self):

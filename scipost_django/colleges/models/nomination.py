@@ -222,30 +222,6 @@ class FellowshipNominationVotingRound(models.Model):
         self.eligible_to_vote.add(fellow)
         self.save()
 
-    def set_eligible_voters(self):
-        """
-        Set the eligible voters for this voting round.
-        Eligible voters are Senior Fellows with at least one specialty in common, or, in the event
-        that there are fewer than 5 such Senior Fellows, all Senior Fellows of the same college.
-        """
-        specialties_slug_list = [
-            s.slug for s in self.nomination.profile.specialties.all()
-        ]
-        self.eligible_to_vote.set(
-            Fellowship.objects.active()
-            .senior()
-            .specialties_overlap(specialties_slug_list)
-        )
-        if self.eligible_to_vote.count() <= 5:
-            # add Senior Fellows from all specialties
-            self.eligible_to_vote.set(
-                Fellowship.objects.active()
-                .senior()
-                .filter(college=self.nomination.college)
-            )
-
-        self.save()
-
     @property
     def is_open(self):
         if (self.voting_deadline is None) or (self.voting_opens is None):
