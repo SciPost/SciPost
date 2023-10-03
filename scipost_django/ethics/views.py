@@ -8,9 +8,13 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 
 from ethics.models import SubmissionClearance, CompetingInterest
-from ethics.forms import SubmissionCompetingInterestForm
+from ethics.forms import (
+    SubmissionCompetingInterestForm,
+    SubmissionCompetingInterestTableRowForm,
+)
 
 from colleges.permissions import is_edadmin
+from colleges.models.fellowship import Fellowship
 from submissions.models import Submission
 
 
@@ -132,5 +136,48 @@ def _hx_submission_competing_interest_delete(request, identifier_w_vn_nr, pk):
     return render(
         request,
         "submissions/pool/_submission_fellows.html",
+        context,
+    )
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_submission_competing_interest_create(
+    request, identifier_w_vn_nr, fellowship_id
+):
+    submission = get_object_or_404(
+        Submission.objects.in_pool(request.user),
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+    fellowship = get_object_or_404(Fellowship, id=fellowship_id)
+    initial = {
+        "profile": fellowship.contributor.profile,
+        "declared_by": request.user.contributor,
+    }
+    if submission.author_profiles.count() == 1:
+        initial["related_profile"] = submission.author_profiles.first().profile
+    form = SubmissionCompetingInterestTableRowForm(
+        request.POST or None,
+        submission=submission,
+        initial=initial,
+    )
+    if form.is_valid():
+        instance = form.save()
+        instance.affected_submissions.add(submission)
+        return render(
+            request,
+            "submissions/pool/_hx_submission_fellow_row.html",
+            context={"submission": submission, "fellowship": fellowship},
+        )
+
+    context = {
+        "submission": submission,
+        "form": form,
+        "identifier_w_vn_nr": identifier_w_vn_nr,
+        "fellowship_id": fellowship_id,
+    }
+    return render(
+        request,
+        "ethics/_hx_submission_competing_interest_create.html",
         context,
     )

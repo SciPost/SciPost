@@ -74,3 +74,34 @@ class SubmissionCompetingInterestForm(forms.ModelForm):
                 css_class="row",
             ),
         )
+
+
+class SubmissionCompetingInterestTableRowForm(SubmissionCompetingInterestForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["profile"].widget = forms.Select(
+            choices=[(self.initial["profile"].id, str(self.initial["profile"]))],
+        )
+        self.fields["declared_by"].widget = forms.Select(
+            choices=(
+                list(self.fields["related_profile"].choices)
+                + [(self.initial["profile"].id, str(self.initial["profile"]))]
+                + [(self.initial["declared_by"].id, str(self.initial["declared_by"]))]
+            ),
+        )
+        self.helper.layout = Layout(
+            Div(
+                FloatingField("profile", wrapper_class="mb-0"),
+                FloatingField("related_profile", wrapper_class="mb-0"),
+                FloatingField("nature", wrapper_class="mb-0"),
+                FloatingField("date_from", wrapper_class="mb-0"),
+                FloatingField("date_until", wrapper_class="mb-0"),
+                FloatingField("declared_by", wrapper_class="mb-0"),
+                ButtonHolder(Submit("submit", "Declare")),
+                css_class="d-flex justify-content-between align-items-center",
+            )
+        )
+
+        self.fields["related_profile"].label = "Submission author"
+        self.fields["nature"].label = "Nature"
