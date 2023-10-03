@@ -137,7 +137,7 @@
       <td>Editor-in-charge:</td>
       <td>
         {% if submission.editor_in_charge %}
-          {{ submission.editor_in_charge.formal_str }}
+          <a href="{{ submission.editor_in_charge.get_absolute_url }}">{{ submission.editor_in_charge.formal_str }}</a>
         {% else %}
           Unassigned{% if is_ed_admin %}, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">see editor invitations</a>.{% endif %}
         {% endif %}
