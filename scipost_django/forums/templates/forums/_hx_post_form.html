@@ -1,22 +1,23 @@
 {% load crispy_forms_tags %}
 
-<div id="{{ origin }}" class="text-body bg-white m-2 p-2">
+<div id="post-form-container" class="text-body bg-white m-2 p-2">
   <h3 class="highlight">
     {{ text }}
     <a class="ms-4 px-1 py-0 btn btn-sm btn-warning text-white"
-       hx-get="{% url 'forums:_hx_post_form_button' slug=slug parent_model=parent_model parent_id=parent_id origin=origin target=target text=text %}"
-       hx-target="#{{ origin }}"
+       hx-get="{% url 'forums:_hx_post_form_button' slug=slug parent_model=parent_model parent_id=parent_id text=text %}"
+       hx-target="#post-form-container"
        hx-swap="outerHTML"
-       hx-trigger="click, newPost-{{ target }} from:body"
-    >
-      Cancel
-    </a>
+       hx-trigger="click, newPost-{{ target }} from:body">Cancel</a>
   </h3>
-  <form hx-post="{% url 'forums:_hx_post_form' slug=slug parent_model=parent_model parent_id=parent_id origin=origin target=target text=text %}"
-	hx-confirm="Create this Post?"
-	hx-target="#{{ target }}"
-	hx-swap="beforebegin"
-  >
+  <form hx-post="{% url 'forums:_hx_post_form' slug=slug parent_model=parent_model parent_id=parent_id text=text %}"
+        hx-confirm="Create this Post?"
+        {% if parent_model == "forum" %}
+          hx-target="#thread-posts"
+          hx-swap="beforestart"
+        {% elif parent_model == "post" %}
+          hx-target="#post-{{ parent_id }}-replies"
+          hx-swap="beforeend"
+        {% endif %}>
     {% crispy form %}
   </form>
 </div>

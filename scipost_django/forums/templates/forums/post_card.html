@@ -1,91 +1,133 @@
 {% load automarkup %}
 {% load guardian_tags %}
 
-{% get_obj_perms request.user for forum as "forum_user_perms"  %}
+{% get_obj_perms request.user for forum as "forum_user_perms" %}
 
-<div id="thread-{{ post.id }}">
-  <div class="card m-2 {% if post.motion %}text-white bg-dark{% else %}text-body{% endif %}" id="post{{ post.id }}">
-    <div class="card-header">
-      {{ post.subject }}
-      <div class="postInfo">
-	{{ post.posted_by.first_name }} {{ post.posted_by.last_name }} on {{ post.posted_on|date:"Y-m-d" }}
-	- {% include 'permalink.html' with object=post %}
-	{% if post.parent and not post.motion %}
-	  - regarding <a href="{{ post.parent.get_absolute_url }}">{{ post.parent }}</a>
-	{% endif %}
+{% with post.get_followups|length as nr_followup_threads %}
+  <div id="post{{ post.id }}"
+       class="mt-3 border border-secondary rounded rounded-sm">
+ 
+    <div id="post-{{ post.id }}-header" class="p-2 
+      {% if post.motion %}bg-warning{% else %}bg-primary{% endif %}
+       bg-opacity-25 d-flex align-content-center justify-content-between">
+
+      <div>
+        <span class="me-1">{{ post.posted_by.first_name }} {{ post.posted_by.last_name }}</span>
+        <span class="text-muted me-1">on {{ post.posted_on|date:"Y-m-d" }}</span>
+        {% include 'permalink.html' with object=post %}
+      </div>
+ 
+      <div class="fs-5 me-1">
+
+        {% if "Re:" not in post.subject %}{{ post.subject }}{% endif %}
+
       </div>
     </div>
-    <div class="card-body">
+
+    <div id="post-{{ post.id }}-body" class="p-3">
       {% automarkup post.text %}
-    </div>
-    <div class="card-footer">
-      <div class="d-flex flex-wrap justify-content-end align-items-center">
-	<div class="flex-grow-1">
-	  {% with post.get_followups|length as nr_followup_threads %}
-	    {% if nr_followup_threads > 0 %}
-	      <span class="badge bg-info rounded-pill text-dark me-2 px-2">{{ nr_followup_threads }} followup thread{{ nr_followup_threads|pluralize }}, {% with nr_followups=post.cf_nr_followups %}{{ nr_followups }} post{{ nr_followups|pluralize }}{% endwith %} in total</span>
-	    {% endif %}
-	  {% endwith %}
-	</div>
 
-	{% if post.motion %}
-	  <div id="motion-{{ post.motion.id }}-voting-indicator"
-	       class="htmx-indicator p-2"
-	  >
-	    <button class="btn btn-warning" type="button" disabled>
-	      <strong>Loading voting data...</strong>
-	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	    </button>
-	  </div>
-	  <div id="motion-{{ post.motion.id }}-voting"
-	       class="align-self-center px-2"
-	       hx-get="{% url 'forums:_hx_motion_voting' slug=forum.slug motion_id=post.motion.id %}"
-	       hx-trigger="load"
-	       hx-target="#motion-{{ post.motion.id }}-voting"
-	       hx-swap="innerHTML"
-	       hx-indicator="#motion-{{ post.motion.id }}-voting-indicator"
-	  >
-	  </div>
-	{% endif %}
+ 
+
+      {% if post.motion %}
+        <hr class="bg-primary" />
+        <div id="post-{{ post.id }}-motion-voting"
+             class="d-flex justify-content-start">
+          <div id="motion-{{ post.motion.id }}-voting"
+               class="align-self-center px-2"
+               hx-get="{% url 'forums:_hx_motion_voting' slug=forum.slug motion_id=post.motion.id %}"
+               hx-trigger="load"
+               hx-target="#motion-{{ post.motion.id }}-voting"
+               hx-swap="innerHTML"
+               hx-indicator="#motion-{{ post.motion.id }}-voting-indicator"></div>
+
+          <div id="motion-{{ post.motion.id }}-voting-indicator"
+               class="htmx-indicator p-2">
+            <button class="btn btn-warning" type="button" disabled>
+              <strong>Loading voting data...</strong>
+              <div class="spinner-grow spinner-grow-sm ms-2"
+                   role="status"
+                   aria-hidden="true"></div>
+            </button>
+          </div>
+        </div>
+      {% endif %}
+
+      <div id="post-{{ post.id }}-reply"
+           class="mt-2 d-flex justify-content-start">
+ 
+
+        {% if posting_open %}
+
+          {% if post.motion %}
+            {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='motion' parent_id=post.id text="Comment on this Motion" %}
+          {% else %}
+            {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='post' parent_id=post.id text="Reply" %}
+          {% endif %}
+
+ 
+        {% endif %}
+
       </div>
-    </div>
 
-    {% if posting_open %}
-      {% with id_str=post.id|stringformat:"s" %}
-	{% with thread_str="thread-"|add:id_str %}
-	  <div id="{{ thread_str|add:'-origin' }}">
-	    {% if post.motion %}
-	      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='motion' parent_id=post.id origin=thread_str|add:"-origin" target=thread_str|add:"-new" text="Comment on this Motion" %}
-	    {% else %}
-	      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='post' parent_id=post.id origin=thread_str|add:"-origin" target=thread_str|add:"-new" text="Reply" %}
-	    {% endif %}
-	  </div>
-	{% endwith %}
-      {% endwith %}
+    </div>
+ 
+  </div>
+
+  <details open id="post-{{ post.id }}-replies-details" class="mt-1">
+
+    {% if nr_followup_threads > 0 %}
+      <summary class="ms-1 text-info list-triangle d-none-empty">
+        <span class="badge bg-info bg-opacity-50 rounded-pill text-dark me-2 px-2">Show/Collapse {{ nr_followup_threads }} followup thread{{ nr_followup_threads|pluralize }}</span>
+      </summary>
+    {% else %}
+      <summary class="d-none-empty"></summary>
     {% endif %}
 
-    <div class="followupPosts{% if post.motion %}AfterMotion{% endif %}"
-    >
-      {% for followup in post.get_followups %}
-	<div id="thread-{{ followup.id }}"
-	     hx-get="{% url 'forums:_hx_thread_from_post' slug=forum.slug post_id=followup.id %}"
-	     hx-target="#thread-{{ followup.id }}"
-	     hx-swap="outerHTML"
-	     hx-trigger="load delay:1s"
-	     hx-indicator="#thread-{{ followup.id }}-indicator"
-	>
-	  <div id="thread-{{ followup.id }}-indicator"
-	       class="htmx-indicator p-2"
-	  >
-	    <button class="btn btn-warning" type="button" disabled>
-	      <strong>Loading thread {{ followup.id }}</strong>
-	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	    </button>
-	  </div>
-	</div>
-      {% endfor %}
-      <div id="thread-{{ post.id }}-new" style="height: 0px;"></div>
-    </div>
+ 
+    <div id="post-{{ post.id }}-replies"
+         class="ms-3 ps-4 border-start border-secondary">
 
-  </div>
+      {% for followup in post.get_followups %}
+        <div id="thread-{{ followup.id }}"
+             hx-get="{% url 'forums:_hx_thread_from_post' slug=forum.slug post_id=followup.id %}"
+             hx-target="#thread-{{ followup.id }}"
+             hx-swap="outerHTML"
+             hx-trigger="load delay:1s"
+             hx-indicator="#thread-{{ followup.id }}-indicator">
+          <div id="thread-{{ followup.id }}-indicator" class="htmx-indicator p-2">
+            <button class="btn btn-warning" type="button" disabled>
+              <strong>Loading thread {{ followup.id }}</strong>
+              <div class="spinner-grow spinner-grow-sm ms-2"
+                   role="status"
+                   aria-hidden="true"></div>
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+
+
+
+    </div>
+  </details>
+ 
+{% endwith %}
+
+
+<div id="post-{{ post.parent_object_id }}-reply" hx-swap-oob="innerHTML">
+
+  {% if posting_open %}
+
+    {% if post.motion %}
+      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='motion' parent_id=post.parent_object_id text="Comment on this Motion" %}
+    {% else %}
+      {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='post' parent_id=post.parent_object_id text="Reply" %}
+    {% endif %}
+
+  {% endif %}
+
+</div>
+
+<div id="new-post-form" hx-swap-oob="innerHTML">
+  {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='forum' parent_id=forum.id text="Add a new Post" %}
 </div>

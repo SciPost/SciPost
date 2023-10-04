@@ -150,10 +150,7 @@ urlpatterns = [
                     ),
                 ),
                 path(
-                    (
-                        "_hx_post_form/<str:parent_model>/<int:parent_id>/"
-                        "<str:origin>/<str:target>/<str:text>/"
-                    ),
+                    ("_hx_post_form/<str:parent_model>/<int:parent_id>/<str:text>/"),
                     include(
                         [
                             path(
