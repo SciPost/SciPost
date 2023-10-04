@@ -29,24 +29,24 @@
       <div class="card ">
         {% if claim.publication %}
           <div class="card-header">
-            <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Publication:</h4>
+            <h4>Contributor <a href="{{ claim.claimant.profile.get_absolute_url }}">{{ claim.claimant.profile.full_name }}</a> claims to be an author of Publication:</h4>
           </div>
           {% include 'journals/_publication_card_content.html' with publication=claim.publication %}
         {% elif claim.submission %}
           <div class="card-header">
-            <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
+            <h4>Contributor <a href="{{ claim.claimant.profile.get_absolute_url }}">{{ claim.claimant.profile.full_name }}</a> claims to be an author of Submission:</h4>
           </div>
           <div class="card-body">
             {% include 'submissions/_submission_card_content.html' with submission=claim.submission %}
           </div>
         {% elif claim.commentary %}
           <div class="card-header">
-            <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Commentary:</h4>
+            <h4>Contributor <a href="{{ claim.claimant.profile.get_absolute_url }}">{{ claim.claimant.profile.full_name }}</a> claims to be an author of Commentary:</h4>
           </div>
           {% include 'commentaries/_commentary_card_content.html' with commentary=claim.commentary %}
         {% elif claim.thesislink %}
           <div class="card-header">
-            <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Thesis:</h4>
+            <h4>Contributor <a href="{{ claim.claimant.profile.get_absolute_url }}">{{ claim.claimant.profile.full_name }}</a> claims to be an author of Thesis:</h4>
           </div>
           {% include 'theses/_thesislink_card_content.html' with thesislink=claim.thesislink %}
         {% endif %}
