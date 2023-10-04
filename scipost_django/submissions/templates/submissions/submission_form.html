@@ -41,9 +41,6 @@
           <form class="mt-4" id="full_submission_form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|bootstrap }}
-            <p>
-              By clicking on Submit, you state that you have read and agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>, the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.
-            </p>
             <input type="submit" class="btn btn-primary" value="Submit manuscript"/>
           </form>
         {% endif %}

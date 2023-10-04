@@ -1288,6 +1288,15 @@ class SubmissionForm(forms.ModelForm):
         ),
         required=False,
     )
+    agree_to_terms = forms.BooleanField(
+        required=False,
+        label="I have read and agree with the SciPost Terms and Conditions.",
+        help_text='Specifically, the <a href="{url}">SciPost Journals Terms and Conditions</a>, '
+        'the <a href="{url}#license_and_copyright_agreement">license and copyright agreement</a> '
+        'and the <a href="{url}#author_obligations">author obligations</a>.'
+        "".format(url="https://scipost.org/journals/journals_terms_and_conditions"),
+        # FIX  reversing on journals:journals_terms_and_conditions errors with circular import
+    )
 
     class Meta:
         model = Submission
@@ -1311,6 +1320,9 @@ class SubmissionForm(forms.ModelForm):
             "remarks_for_editors",
             "referees_suggested",
             "referees_flagged",
+            "preprint_file",
+            "collection",
+            "agree_to_terms",
         ]
         widgets = {
             "submitted_to": forms.HiddenInput(),
@@ -1357,6 +1369,7 @@ class SubmissionForm(forms.ModelForm):
                     )
                 }
             ),
+            "agree_to_terms": forms.CheckboxInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1596,6 +1609,12 @@ class SubmissionForm(forms.ModelForm):
             ) % self.preprint_server
             self.add_error("identifier_w_vn_nr", error_message)
         return identifier
+
+    def clean_agree_to_terms(self):
+        if not self.cleaned_data["agree_to_terms"]:
+            raise forms.ValidationError(
+                "You must agree to the terms and conditions to submit a manuscript."
+            )
 
     @transaction.atomic
     def save(self):
