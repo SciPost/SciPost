@@ -26,8 +26,16 @@
           </tr>
           <tr>
             <th>Fellow</th>
-            <td>{{ fellowship }}</td>
+            <td><a href="{{ fellowship.contributor.profile.get_absolute_url }}">{{ fellowship.contributor }}</a></td>
           </tr>
+          {% if "edadmin" in user_roles %}
+          <tr>
+            <th>Primary email</th>
+            <td><a href="mailto:{{ fellowship.contributor.profile.email }}?body=Dear%20{{ fellowship.contributor.formal_str }},%0A%0A"
+              class="text-primary">{{ fellowship.contributor.profile.email }}</a>
+            </td>
+          </tr>
+          {% endif %}
           <tr>
             <th>Academic field</th>
             <td>{{ fellowship.contributor.profile.acad_field }}</td>
