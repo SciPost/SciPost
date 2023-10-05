@@ -2,21 +2,37 @@
 
 {% if user.is_authenticated and open_for_commenting and perms.scipost.can_submit_comments %}
 
-  <hr class="divider">
-
-  <h2 class="highlight" id="contribute_comment">Contribute a Comment</h2>
   {% if user_is_referee and submission %}
     <h4 class="text-danger my-3">
       {% include 'bi/exclamation-triangle-fill.html' %}
       You are an invited referee, please <a href="{% url 'submissions:submit_report' submission.preprint.identifier_w_vn_nr %}">submit a Report</a> instead.
     </h4>
+
+    <details id="contribute_comment">
+      <summary class="highlight fs-5 p-2">I'm know, but let me contribute a Comment anyway</summary>
+
+      {% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object as url %}
+      {% include 'comments/_add_comment_form.html' with form=form url=url %}
+
+    </details>
+  {% else %}
+
+    <details open id="contribute_comment">
+      <summary class="highlight fs-5 p-2">Contribute a Comment</summary>
+
+      {% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object as url %}
+      {% include 'comments/_add_comment_form.html' with form=form url=url %}
+
+    </details>
   {% endif %}
 
-  {% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object as url %}
-  {% include 'comments/_add_comment_form.html' with form=form url=url %}
+ 
 
+ 
 {% elif not user.is_authenticated %}
 
-  <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{ request.path }}">Login to comment</a></h3>
+  <h3 class="text-center my-3">
+    <a href="{% url 'scipost:login' %}?next={{ request.path }}">Login to comment</a>
+  </h3>
 
 {% endif %}

@@ -1,3 +1,5 @@
+{% load submissions_extras %}
+
 {% if perms.scipost.can_submit_comments %}
   <div class="submission-quick-actions">
     <h3>Actions</h3>
@@ -52,10 +54,10 @@
       {% endif %}
 
       {% if submission.open_for_commenting %}
-	{% if perms.scipost.can_submit_comments %}
-	  <li class="pt-1">
-	    <h4><a href="#contribute_comment">Contribute a Comment</a></h4>
-	  </li>
+	{% if perms.scipost.can_submit_comments and submission and not submission|user_is_referee:request.user  %}
+    <li class="pt-1">
+      <h4><a href="#contribute_comment">Contribute a Comment</a></h4>
+    </li>
 	{% endif %}
       {% else %}
 	<li class="py-1">Commenting on this Submission is closed.</li>
