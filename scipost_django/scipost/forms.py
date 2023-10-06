@@ -24,6 +24,7 @@ from dal import autocomplete
 
 from .behaviors import orcid_validator
 from .constants import (
+    NORMAL_CONTRIBUTOR,
     TITLE_CHOICES,
     SCIPOST_FROM_ADDRESSES,
     UNVERIFIABLE_CREDENTIALS,
@@ -298,6 +299,16 @@ class RegistrationForm(forms.Form):
             }
         )
         contributor.save()
+
+        # Automatically vet the Contributor if they have an invitation key
+        if contributor.invitation_key:
+            contributor.status = NORMAL_CONTRIBUTOR
+            contributor.save()
+            group = Group.objects.get(name="Registered Contributors")
+            contributor.user.groups.add(group)
+            contributor.user.is_active = True
+            contributor.user.save()
+
         return contributor
 
 
