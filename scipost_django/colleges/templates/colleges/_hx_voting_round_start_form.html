@@ -1,0 +1,7 @@
+{% load crispy_forms_tags %}
+
+<form id="voting-round-{{ round.id }}-start-round-form"
+      hx-post="{% url 'colleges:_hx_voting_round_start_form' round_id=round.id %}"
+      hx-target="#voting-round-{{ round.id }}-start-round-form">
+  {% crispy form %}
+</form>

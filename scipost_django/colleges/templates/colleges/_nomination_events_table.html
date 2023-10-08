@@ -1,18 +1,20 @@
-<table class="table m-2">
+<table class="table mb-0">
   <thead>
     <tr>
-      <th>Date and time</th>
+      <th>Date</th>
       <th>Description</th>
       <th>By</th>
     </tr>
   </thead>
   <tbody>
+
     {% for event in nomination.events.all %}
       <tr>
-	<td>{{ event.on }}</td>
-	<td>{{ event.description }}</td>
-	<td>{{ event.by }}</td>
+        <td>{{ event.on }}</td>
+        <td>{{ event.description }}</td>
+        <td>{{ event.by }}</td>
       </tr>
     {% endfor %}
+
   </tbody>
 </table>

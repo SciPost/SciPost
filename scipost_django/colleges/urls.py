@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import path
+from django.urls import include, path
 
 from . import views
 
@@ -161,48 +161,120 @@ urlpatterns = [
         views.PotentialFellowshipListView.as_view(),
         name="potential_fellowships",
     ),
-    # Nominations
-    path("nominations", views.nominations, name="nominations"),
+    ##########################
+    # Nominations and Voting #
+    ##########################
     path(
-        "_hx_nomination_form/<int:profile_id>",
-        views._hx_nomination_form,
-        name="_hx_nomination_form",
+        "nominations/",
+        include(
+            [
+                path("", views.nominations, name="nominations"),
+                path("_hx_new", views._hx_nomination_new, name="_hx_nomination_new"),
+                path(
+                    "_hx_new_form/<int:profile_id>",
+                    views._hx_nomination_form,
+                    name="_hx_nomination_form",
+                ),
+                path(
+                    "search",
+                    include(
+                        [
+                            path(
+                                "_hx_form/<str:filter_set>",
+                                views._hx_nominations_search_form,
+                                name="_hx_nominations_search_form",
+                            ),
+                            path(
+                                "_hx_list",
+                                views._hx_nominations_list,
+                                name="_hx_nominations_list",
+                            ),
+                        ]
+                    ),
+                ),
+                path(
+                    "<int:nomination_id>/",
+                    include(
+                        [
+                            path(
+                                "_hx_round_tab/<int:round_id>",
+                                views._hx_nomination_voting_rounds_tab,
+                                name="_hx_nomination_voting_rounds_tab",
+                            ),
+                            path(
+                                "_hx_details_contents",
+                                views._hx_nomination_details_contents,
+                                name="_hx_nomination_details_contents",
+                            ),
+                            path(
+                                "_hx_create_voting_round",
+                                views._hx_nomination_voting_rounds_create,
+                                name="_hx_nomination_voting_rounds_create",
+                            ),
+                            path(
+                                "_hx_comments",
+                                views._hx_nomination_comments,
+                                name="_hx_nomination_comments",
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        ),
     ),
-    path("_hx_nominations", views._hx_nominations, name="_hx_nominations"),
+    # Nomination Rounds
     path(
-        "_hx_nomination_li_contents/<int:nomination_id>",
-        views._hx_nomination_li_contents,
-        name="_hx_nomination_li_contents",
-    ),
-    path(
-        "_hx_nomination_comments/<int:nomination_id>",
-        views._hx_nomination_comments,
-        name="_hx_nomination_comments",
-    ),
-    path(
-        "_hx_nominations_needing_specialties",
-        views._hx_nominations_needing_specialties,
-        name="_hx_nominations_needing_specialties",
-    ),
-    path(
-        "_hx_voting_rounds",
-        views._hx_voting_rounds,
-        name="_hx_voting_rounds",
-    ),
-    path(
-        "_hx_nomination_vote/<int:voting_round_id>",
-        views._hx_nomination_vote,
-        name="_hx_nomination_vote",
-    ),
-    path(
-        "_hx_nomination_decision/<int:nomination_id>",
-        views._hx_nomination_decision,
-        name="_hx_nomination_decision",
-    ),
-    path(
-        "_hx_nominations_invitations",
-        views._hx_nominations_invitations,
-        name="_hx_nominations_invitations",
+        "nomination_voting_round/<int:round_id>/",
+        include(
+            [
+                path("_hx_vote", views._hx_nomination_vote, name="_hx_nomination_vote"),
+                path(
+                    "_hx_details",
+                    views._hx_voting_round_details,
+                    name="_hx_voting_round_details",
+                ),
+                path(
+                    "_hx_voter_table",
+                    views._hx_nomination_voter_table,
+                    name="_hx_nomination_voter_table",
+                ),
+                path(
+                    "forms/",
+                    include(
+                        [
+                            path(
+                                "start_round",
+                                views._hx_voting_round_start_form,
+                                name="_hx_voting_round_start_form",
+                            ),
+                            path(
+                                "decision",
+                                views._hx_nomination_decision_form,
+                                name="_hx_nomination_decision_form",
+                            ),
+                        ]
+                    ),
+                ),
+                # Manage voters of a nomination round
+                path(
+                    "voters/",
+                    include(
+                        [
+                            path(
+                                "<int:fellowship_id>/action/<str:action>",
+                                views._hx_nomination_round_eligible_voter_action,
+                                name="_hx_nomination_round_eligible_voter_action",
+                            ),
+                            path(
+                                "add_set/<str:voter_set_name>",
+                                views._hx_nomination_round_add_eligible_voter_set,
+                                name="_hx_nomination_round_add_eligible_voter_set",
+                            ),
+                        ]
+                    ),
+                ),
+            ],
+        ),
     ),
     path(
         "fellowship_invitation/<int:pk>/email_initial",

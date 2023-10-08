@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from django.db.models import Q
 
 from django.urls import reverse
 from django.db import models
@@ -163,6 +164,17 @@ class Profile(models.Model):
             "cancelled": invitations.filter(cancelled=True).count(),
             "fulfilled": invitations.filter(fulfilled=True).count(),
         }
+
+    def has_competing_interest_with(self, profile):
+        """
+        Returns True if this Profile has a CompetingInterest with the given Profile.
+        """
+        from ethics.models import CompetingInterest
+
+        return CompetingInterest.objects.filter(
+            Q(profile=self, related_profile=profile)
+            | Q(related_profile=self, profile=profile)
+        ).exists()
 
 
 class ProfileEmail(models.Model):

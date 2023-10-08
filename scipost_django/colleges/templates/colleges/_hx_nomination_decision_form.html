@@ -1,0 +1,17 @@
+{% load crispy_forms_tags %}
+{% load automarkup %}
+
+<div id="nomination-{{ voting_round.id }}-decision">
+  {% with blocks=voting_round.decision_blocks %}
+
+    {% if blocks %}
+      <p>The decision cannot be fixed at this moment: {{ blocks }}</p>
+    {% else %}
+      <form hx-post="{% url 'colleges:_hx_nomination_decision_form' round_id=voting_round.id %}"
+            hx-target="#nomination-{{ voting_round.id }}-decision">
+        {% crispy decision_form %}
+      </form>
+    {% endif %}
+
+  {% endwith %}
+</div>

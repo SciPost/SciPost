@@ -1,0 +1,10 @@
+{% load crispy_forms_tags %}
+
+<form hx-post="{% url 'colleges:_hx_nominations_list' %}"
+      hx-trigger="load, keyup delay:500ms, change delay:500ms, click from:#refresh-button"
+      hx-sync="#search-nominations-form:replace"
+      hx-target="#search-nominations-results"
+      hx-indicator="#indicator-search-nominations">
+ 
+  <div id="search-nominations-form">{% crispy form %}</div>
+</form>

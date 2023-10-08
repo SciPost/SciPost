@@ -1,0 +1,13 @@
+{% for specialty in profile.specialties.all %}
+  <div class="single d-inline"
+       data-specialty="{{ specialty }}"
+       data-bs-toggle="tooltip"
+       data-bs-placement="bottom"
+       title="{{ specialty }}">{{ specialty.code }}</div>
+{% empty %}
+  <span class="badge bg-danger">unknown</span>
+{% endfor %}
+
+<a class="p-2 mt-2"
+   hx-get="{% url 'profiles:_hx_profile_specialties' profile_id=profile.id %}"
+   hx-target="#profile-{{ profile.id }}-specialties">edit</a>

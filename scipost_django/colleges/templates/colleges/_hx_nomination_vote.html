@@ -1,44 +1,19 @@
-<div class="row">
-  <div class="col">
-    {% if vote_object %}
-      <p>You have previously voted: {{ vote_object.get_vote_display }}.</p>
-    {% else %}
-      <p>You have not yet voted on this Nomination.</p>
-    {% endif %}
-    <ul class="list-inline m-2">
-      <li class="list-inline-item">
-	Cast your vote:
-      </li>
-      <li class="list-inline-item">
-	<form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
-	      hx-target="#nomination-{{ voting_round.nomination.id }}-vote"
-	>
-	  {% csrf_token %}
-	  <input type="hidden" name="vote" value="agree">
-	  <button class="btn btn-sm btn-success text-white">Agree</button>
-	</form>
-      </li>
-      <li class="list-inline-item">
-	<form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
-	      hx-target="#nomination-{{ voting_round.nomination.id }}-vote"
-	>
-	  {% csrf_token %}
-	  <input type="hidden" name="vote" value="abstain">
-	  <button class="btn btn-sm btn-warning text-white">Abstain</button>
-	</form>
-      </li>
-      <li class="list-inline-item">
-	<form hx-post="{% url 'colleges:_hx_nomination_vote' voting_round_id=voting_round.id %}"
-	      hx-target="#nomination-{{ voting_round.nomination.id }}-vote"
-	>
-	  {% csrf_token %}
-	  <input type="hidden" name="vote" value="disagree">
-	  <button class="btn btn-sm btn-danger text-white">Disagree</button>
-	</form>
-      </li>
-    </ul>
-  </div>
-  <div class="col">
-    {% include "colleges/_voting_results_box.html" with voting_round=voting_round %}
-  </div>
-</div>
+<h3>Cast your vote:</h3>
+
+{% for vote_option, color in VOTE_BS_CLASSES.items %}
+
+  <form hx-post="{% url 'colleges:_hx_nomination_vote' round_id=voting_round.id %}"
+        hx-target="#nomination-{{ voting_round.nomination.id }}-vote">
+    {% csrf_token %}
+    <input type="hidden" name="vote" value="{{ vote_option }}" />
+    <button class="btn d-flex justify-content-between align-items-center w-100 mb-2 bg-{{ color }} text-white">
+      <div>{{ vote_option|title }}</div>
+
+      {% if vote_object.vote == vote_option %}
+        {% include 'bi/check-square-fill.html' %}
+      {% endif %}
+
+    </button>
+  </form>
+
+{% endfor %}

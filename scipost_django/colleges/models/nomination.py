@@ -4,12 +4,17 @@ __license__ = "AGPL v3"
 
 from django.db import models
 from django.utils import timezone
+from django.utils.functional import cached_property
+
+from colleges.permissions import is_edadmin
 
 from ..managers import (
     FellowshipNominationQuerySet,
     FellowshipNominationVotingRoundQuerySet,
     FellowshipNominationVoteQuerySet,
 )
+
+from colleges.models import Fellowship
 
 from scipost.models import get_sentinel_user
 
@@ -82,12 +87,16 @@ class FellowshipNomination(models.Model):
         return self.voting_rounds.first()
 
     @property
+    def decision(self):
+        """The singular non-deprecated decision for this nomination."""
+        return self.latest_voting_round.decision
+
+    @property
     def decision_blocks(self):
         """
         List of blocking facts (if any) preventing fixing a decision.
         """
-        latest_round = self.voting_rounds.first()
-        if latest_round:
+        if latest_round := self.latest_voting_round:
             eligible_count = latest_round.eligible_to_vote.count()
             if eligible_count < 3:
                 return "Fewer than 3 eligible voters (insufficient)."
@@ -99,6 +108,20 @@ class FellowshipNomination(models.Model):
                 return None
             return "Latest voting round is ongoing, and not everybody has voted."
         return "No voting round found."
+
+    # FIX: This is wrong semantically...
+    @property
+    def get_eligible_voters(self):
+        specialties_slug_list = [s.slug for s in self.profile.specialties.all()]
+
+        eligible_voters = (
+            Fellowship.objects.active()
+            .senior()
+            .specialties_overlap(specialties_slug_list)
+            .distinct()
+        )
+
+        return eligible_voters
 
 
 class FellowshipNominationEvent(models.Model):
@@ -117,6 +140,7 @@ class FellowshipNominationEvent(models.Model):
     class Meta:
         ordering = ["nomination", "-on"]
         verbose_name_plural = "Fellowhip Nomination Events"
+        get_latest_by = "on"
 
     def __str__(self):
         return (
@@ -167,9 +191,9 @@ class FellowshipNominationVotingRound(models.Model):
         blank=True,
     )
 
-    voting_opens = models.DateTimeField()
+    voting_opens = models.DateTimeField(blank=True, null=True)
 
-    voting_deadline = models.DateTimeField()
+    voting_deadline = models.DateTimeField(blank=True, null=True)
 
     objects = FellowshipNominationVotingRoundQuerySet.as_manager()
 
@@ -181,6 +205,8 @@ class FellowshipNominationVotingRound(models.Model):
         verbose_name_plural = "Fellowship Nomination Voting Rounds"
 
     def __str__(self):
+        if self.voting_deadline is None or self.voting_opens is None:
+            return f"Unscheduled voting round for {self.nomination}"
         return (
             f'Voting round ({self.voting_opens.strftime("%Y-%m-%d")} -'
             f' {self.voting_deadline.strftime("%Y-%m-%d")}) for {self.nomination}'
@@ -192,16 +218,82 @@ class FellowshipNominationVotingRound(models.Model):
             return vote.vote
         return None
 
+    def add_voter(self, fellow):
+        self.eligible_to_vote.add(fellow)
+        self.save()
+
+    @property
+    def is_open(self):
+        if (self.voting_deadline is None) or (self.voting_opens is None):
+            return False
+        return self.voting_opens <= timezone.now() <= self.voting_deadline
+
+    @property
+    def is_scheduled(self):
+        return (self.voting_opens is not None) and (self.voting_opens > timezone.now())
+
+    @property
+    def is_unscheduled(self):
+        return (self.voting_opens is None) or (self.voting_deadline is None)
+
+    @property
+    def is_closed(self):
+        return (self.voting_deadline is not None) and (
+            self.voting_deadline < timezone.now()
+        )
+
+    @property
+    def vote_outcome(self):
+        """The outcome as determined by the votes."""
+        if self.votes.veto():
+            return FellowshipNominationDecision.OUTCOME_NOT_ELECTED
+
+        nr_votes_agree = self.votes.agree().count()
+        nr_votes_disagree = self.votes.disagree().count()
+        nr_non_abstaining_votes = nr_votes_agree + nr_votes_disagree
+
+        # Guard division by zero
+        if nr_non_abstaining_votes == 0:
+            return FellowshipNominationDecision.OUTCOME_NOT_ELECTED
+
+        # By-laws 1.3.4 grand fellowship if there is a majority of non-abstaining votes.
+        # Agree is counted as +1, disagree as -1
+        agree_ratio = (nr_votes_agree - nr_votes_disagree) / nr_non_abstaining_votes
+        if agree_ratio >= 0.5:
+            return FellowshipNominationDecision.OUTCOME_ELECTED
+        else:
+            return FellowshipNominationDecision.OUTCOME_NOT_ELECTED
+
+    def can_view(self, user) -> bool:
+        """Return whether the user can view this voting round.
+        They must be authenticated and have voting eligibility or be edadmin."""
+
+        eligibility_per_fellowship = [
+            fellowship in self.eligible_to_vote.all()
+            for fellowship in user.contributor.fellowships.all()
+        ]
+        eligible_to_vote = any(eligibility_per_fellowship)
+
+        return user.is_authenticated and (eligible_to_vote or is_edadmin(user))
+
 
 class FellowshipNominationVote(models.Model):
     VOTE_AGREE = "agree"
     VOTE_ABSTAIN = "abstain"
     VOTE_DISAGREE = "disagree"
+    VOTE_VETO = "veto"
     VOTE_CHOICES = (
         (VOTE_AGREE, "Agree"),
         (VOTE_ABSTAIN, "Abstain"),
         (VOTE_DISAGREE, "Disagree"),
+        (VOTE_VETO, "Veto"),
     )
+    VOTE_BS_CLASSES = {
+        VOTE_AGREE: "success",
+        VOTE_ABSTAIN: "warning",
+        VOTE_DISAGREE: "danger",
+        VOTE_VETO: "black",
+    }
 
     voting_round = models.ForeignKey(
         "colleges.FellowshipNominationVotingRound",
@@ -221,6 +313,10 @@ class FellowshipNominationVote(models.Model):
 
     objects = FellowshipNominationVoteQuerySet.as_manager()
 
+    @property
+    def get_vote_bs_class(self):
+        return self.VOTE_BS_CLASSES[self.vote]
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -235,18 +331,20 @@ class FellowshipNominationVote(models.Model):
 
 
 class FellowshipNominationDecision(models.Model):
-    nomination = models.OneToOneField(
-        "colleges.FellowshipNomination",
+    voting_round = models.OneToOneField(
+        "colleges.FellowshipNominationVotingRound",
         on_delete=models.CASCADE,
         related_name="decision",
+        null=True,
+        blank=True,
     )
 
     OUTCOME_ELECTED = "elected"
     OUTCOME_NOT_ELECTED = "notelected"
-    OUTCOME_CHOICES = (
+    OUTCOME_CHOICES = [
         (OUTCOME_ELECTED, "Elected"),
         (OUTCOME_NOT_ELECTED, "Not elected"),
-    )
+    ]
     outcome = models.CharField(max_length=16, choices=OUTCOME_CHOICES)
 
     fixed_on = models.DateTimeField(default=timezone.now)
@@ -261,12 +359,12 @@ class FellowshipNominationDecision(models.Model):
 
     class Meta:
         ordering = [
-            "nomination",
+            "voting_round",
         ]
         verbose_name_plural = "Fellowship Nomination Decisions"
 
     def __str__(self):
-        return f"Decision for {self.nomination}: {self.get_outcome_display()}"
+        return f"Decision for {self.voting_round}: {self.get_outcome_display()}"
 
     @property
     def elected(self):
@@ -324,3 +422,14 @@ class FellowshipInvitation(models.Model):
     @property
     def declined(self):
         return self.response == self.RESPONSE_DECLINED
+
+    @property
+    def get_response_color(self):
+        if self.response in [self.RESPONSE_ACCEPTED, self.RESPONSE_POSTPONED]:
+            return "success"
+        elif self.response in [self.RESPONSE_DECLINED, self.RESPONSE_NOT_YET_INVITED]:
+            return "danger"
+        elif self.response in [self.RESPONSE_UNRESPONSIVE]:
+            return "warning"
+        else:
+            return "primary"

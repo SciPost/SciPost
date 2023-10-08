@@ -1,0 +1,75 @@
+{% if voters %}
+  <table class="table mb-0 border">
+    <thead class="table-light">
+      <tr>
+        <th>Fellow</th>
+        <th>Specialties</th>
+
+        {% if "edadmin" in user_roles %}
+
+          {% if not round.is_unscheduled %}
+            <th>Vote</th>
+            <th>Voted on</th>
+          {% endif %}
+
+          <th>Actions</th>
+        {% endif %}
+
+      </tr>
+    </thead>
+
+    <tbody>
+
+      {% for voter in voters %}
+        <tr>
+          <td>{{ voter }}</td>
+
+          <td>
+
+            {% for specialty in voter.contributor.profile.specialties.all %}
+              <div class="single d-inline 
+                {% if specialty in nominee_specialties %}text-primary{% endif %}
+                 " data-specialty="{{ specialty.slug }}" data-bs-placement="bottom" title="{{ specialty }}">
+                {{ specialty.code }}
+              </div>
+            {% endfor %}
+
+
+          </td>
+
+          {% if "edadmin" in user_roles %}
+
+            {% if not round.is_unscheduled %}
+
+              {% if voter.vote %}
+                <td class="text-{{ voter.vote.get_vote_bs_class }}">{{ voter.vote.get_vote_display }}</td>
+              {% else %}
+                <td class="text-muted">No vote</td>
+              {% endif %}
+
+              <td>{{ voter.vote.on }}</td>
+            {% endif %}
+
+            <td>
+
+              {% if not round.is_closed %}
+                <button class="btn btn-sm btn-danger px-1 py-0 ms-auto"
+                        hx-get="{% url "colleges:_hx_nomination_round_eligible_voter_action" round_id=round.id fellowship_id=voter.id action='remove' %}"
+                        hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">
+                  {% include "bi/trash-fill.html" %}
+                </button>
+              {% endif %}
+
+            </td>
+          {% endif %}
+
+        </tr>
+      {% endfor %}
+
+
+
+    </tbody>
+  </table>
+{% else %}
+  <p class="text-danger">No eligible voters found.</p>
+{% endif %}

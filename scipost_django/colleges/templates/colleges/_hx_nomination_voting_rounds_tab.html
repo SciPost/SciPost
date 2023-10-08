@@ -1,0 +1,66 @@
+<div id="nomination-{{ nomination.id }}-round-tab-holder">
+
+  <nav class="nav nav-pills m-2 overflow-scroll">
+
+    {% if should_show_new_round_tab_btn %}
+      <div id="nomination-{{ nomination.id }}-new-round-btn"
+           type="button"
+           class="me-2 px-2 nav-link border border-success"
+           hx-get="{% url 'colleges:_hx_nomination_voting_rounds_create' nomination_id=nomination.id %}"
+           hx-target="#nomination-{{ nomination.id }}-round-tab-holder"
+           hx-swap="outerHTML">
+        <span class="fs-1 align-items-center text-success">+</span>
+      </div>
+    {% endif %}
+
+    {% for voting_round in voting_rounds %}
+      <div id="nomination-{{ nomination.id }}-round-{{ voting_round.id }}-tab-btn" type="button" class="me-2 nav-link 
+        {% if selected_round and selected_round.id == voting_round.id %}active{% endif %}
+  
+        {% if voting_round.id in inaccessible_round_ids %}disabled opacity-50{% endif %}
+         " hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=voting_round.id %}" hx-target="#nomination-{{ nomination.id }}-round-tab-holder" hx-swap="outerHTML">
+        <span class="d-block text-nowrap">
+
+          {% if voting_round.voting_opens and voting_round.voting_deadline %}
+            <small>{{ voting_round.voting_opens|date:"d M Y" }} - {{ voting_round.voting_deadline|date:"d M Y" }}</small>
+          {% else %}
+            <span class="badge bg-warning">Unscheduled</span>
+          {% endif %}
+
+          <span class="d-flex justify-content-between align-items-center">
+            <span>Round #{{ forloop.revcounter }}</span>
+
+            {% if voting_round.is_scheduled %}
+              <span class="badge bg-primary">Scheduled</span>
+            {% elif voting_round.is_open %}
+              <span class="badge bg-success">Open</span>
+            {% endif %}
+
+          </span>
+        </span>
+      </div>
+    {% endfor %}
+
+
+
+    <div id="indicator-nomination-{{ nomination.id }}-details-contents"
+         class="htmx-indicator p-2 ms-auto">
+      <button class="btn btn-warning" type="button" disabled>
+        <strong>Loading ...</strong>
+	
+        <div class="spinner-grow spinner-grow-sm ms-2"
+             role="status"
+             aria-hidden="true"></div>
+      </button>
+    </div>
+
+  </nav>
+
+  {% if selected_round %}
+    <div id="nomination-{{ nomination.id }}-round-{{ selected_round.id }}-tab-content-holder"
+         hx-get="{% url 'colleges:_hx_voting_round_details' round_id=selected_round.id %}"
+         hx-trigger="intersect once"
+         class="p-3"></div>
+  {% endif %}
+
+</div>

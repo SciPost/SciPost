@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.utils import timezone
 
 from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
@@ -95,6 +95,20 @@ class FellowQuerySet(models.QuerySet):
         except AttributeError:
             return []
 
+    def no_competing_interests_with(self, profile):
+        """
+        Returns all Fellowships whose profiles have no competing interests with the specified profile.
+        """
+        from ethics.models import CompetingInterest
+
+        profile_CI, related_CI = CompetingInterest.objects.filter(
+            Q(profile=profile) | Q(related_profile=profile)
+        ).values_list("profile", "related_profile")
+
+        return self.exclude(
+            contributor__profile__pk__in=profile_CI + related_CI,
+        )
+
 
 class PotentialFellowshipQuerySet(models.QuerySet):
     def vote_needed(self, contributor):
@@ -127,7 +141,15 @@ class PotentialFellowshipQuerySet(models.QuerySet):
 
 class FellowshipNominationQuerySet(models.QuerySet):
     def needing_handling(self):
-        return self.exclude(decision__isnull=False).exclude(voting_rounds__isnull=False)
+        return self.exclude(voting_rounds__isnull=False).exclude(
+            voting_rounds__decision__isnull=False
+        )
+
+    def with_user_votable_rounds(self, user):
+        # votable_rounds = self.voting_rounds.where_user_can_vote(user)
+        return self.filter(
+            Q(voting_rounds__eligible_to_vote__in=user.contributor.fellowships.active())
+        )
 
 
 class FellowshipNominationVotingRoundQuerySet(models.QuerySet):
@@ -139,6 +161,10 @@ class FellowshipNominationVotingRoundQuerySet(models.QuerySet):
         now = timezone.now()
         return self.filter(voting_deadline__lte=now)
 
+    def where_user_can_vote(self, user):
+        user_fellowships = user.contributor.fellowships.active()
+        return self.filter(eligible_to_vote__in=user_fellowships)
+
 
 class FellowshipNominationVoteQuerySet(models.QuerySet):
     def agree(self):
@@ -149,3 +175,6 @@ class FellowshipNominationVoteQuerySet(models.QuerySet):
 
     def disagree(self):
         return self.filter(vote=self.model.VOTE_DISAGREE)
+
+    def veto(self):
+        return self.filter(vote=self.model.VOTE_VETO)

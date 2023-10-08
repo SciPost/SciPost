@@ -1,0 +1,10 @@
+<details id="nomination-{{ nomination.id }}-details"
+         class="border border-2 mx-3 p-2 bg-primary bg-opacity-10">
+  <summary class="list-none">{% include "colleges/_hx_nomination_summary.html" with nomination=nomination %}</summary>
+
+  <div id="nomination-{{ nomination.id }}-details-contents"
+       class="p-2 mt-2 bg-white"
+       hx-get="{% url 'colleges:_hx_nomination_details_contents' nomination_id=nomination.id %}"
+       hx-trigger="toggle once from:#nomination-{{ nomination.id }}-details"></div>
+
+</details>

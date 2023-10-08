@@ -1,8 +1,7 @@
 {% load crispy_forms_tags %}
 <div class="m-2 mt-4">
   <form hx-post="{% url 'colleges:_hx_fellowship_invitation_update_response' invitation_id=invitation.id %}"
-	hx-target="#invitations_tablist"
-  >
+        hx-target="#invitation-{{ invitation.id }}-update-response">
     {% crispy form %}
   </form>
 </div>

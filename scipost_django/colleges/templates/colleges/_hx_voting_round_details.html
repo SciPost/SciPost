@@ -1,0 +1,93 @@
+{% load crispy_forms_tags %}
+{% load user_groups %}
+{% is_ed_admin request.user as is_ed_admin %}
+
+<div class="row mb-0">
+  <div class="col mb-3">
+    <h3>Eligible voters</h3>
+    <div id="nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters"
+         hx-get="{% url 'colleges:_hx_nomination_voter_table' round_id=round.id %}"
+         hx-trigger="intersect once"></div>
+  </div>
+
+  <div class="col-12 col-md-auto d-flex flex-column justify-content-between">
+
+    {% if not round.is_closed %}
+
+      {% if is_ed_admin %}
+ 
+        <div>
+          <h4>Add new voter</h4>
+          <form hx-post="{% url 'colleges:_hx_fellowship_dynsel_list' %}"
+                hx-trigger="keyup delay:200ms, change"
+                hx-target="#nomination-{{ round.nomination.id }}_round-{{ round.id }}_add_voter_results">
+            <div id="nomination-{{ round.nomination.id }}_round-{{ round.id }}_add_voter_form">{% crispy voter_add_form %}</div>
+          </form>
+          <div id="nomination-{{ round.nomination.id }}_round-{{ round.id }}_add_voter_results"></div>
+        </div>
+
+        <div>
+          <h5>Add senior fellows</h5>
+          <button type="button"
+                  class="mb-2 btn btn-primary btn-sm"
+                  hx-get="{% url 'colleges:_hx_nomination_round_add_eligible_voter_set' round_id=round.id  voter_set_name='with_specialty_overlap' %}"
+                  hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">
+            With specialty overlap
+          </button>
+          <button type="button"
+                  class="mb-2 btn btn-warning text-white btn-sm"
+                  hx-get="{% url 'colleges:_hx_nomination_round_add_eligible_voter_set' round_id=round.id  voter_set_name='all_seniors' %}"
+                  hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">ALL seniors</button>
+        </div>
+
+        {% comment %} If round is open and the viewer can vote, show the voting form {% endcomment %}
+      {% elif session_fellowship and session_fellowship in round.eligible_to_vote.all and round.is_open %}
+
+        <div id="nomination-{{ round.nomination.id }}-vote"
+             hx-get="{% url 'colleges:_hx_nomination_vote' round_id=round.id %}"
+             hx-trigger="intersect once"></div>
+
+      {% endif %}
+
+      {% comment %} If round is closed show results if they exist {% endcomment %}
+    {% else %}
+      <div>{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
+ 
+
+      {% if round.decision %}
+        <div>
+          <h3>Decision</h3>
+
+          {% if round.decision.outcome == 'elected' %}
+            <div class="badge fs-5 mb-2 bg-success">{{ round.decision.get_outcome_display }}</div>
+          {% elif round.decision.outcome == 'notelected' %}
+            <div class="badge fs-5 mb-2 bg-danger">{{ round.decision.get_outcome_display }}</div>
+          {% endif %}
+
+          {% if round.decision.comments %}
+            <h4 class="mt-2">Decision comments</h4>
+            <span>{{ round.decision.comments }}</span>
+          {% endif %}
+        {% endif %}
+
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% if is_ed_admin %}
+
+  {% if not round.is_closed %}
+
+    <div hx-get="{% url 'colleges:_hx_voting_round_start_form' round_id=round.id %}"
+         hx-trigger="intersect once"></div>
+
+  {% elif round.is_closed and not round.decision %}
+
+    <div hx-get="{% url 'colleges:_hx_nomination_decision_form' round_id=round.id %}"
+         hx-trigger="intersect once"></div>
+
+  {% endif %}
+
+{% endif %}

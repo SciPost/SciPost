@@ -1,0 +1,183 @@
+{% load user_groups %}
+{% is_ed_admin request.user as is_ed_admin %}
+
+<div class="p-2">
+  <div class="row mb-0">
+ 
+    <div id="profile-{{ nomination.profile.id }}-specialties"
+         class="border border-danger mb-4 d-none-empty"></div>
+
+    <div class="col-12 col-md mb-3">
+      <div class="card">
+        <div class="card-header">Details</div>
+        <div class="card-body p-0">
+          <table class="table mb-0">
+            <tr>
+              <td>Field</td>
+              <td>{{ nomination.profile.acad_field }}</td>
+            </tr>
+            <tr>
+              <td>Specialties</td>
+              <td id="profile-{{ nomination.profile.id }}-specialties-code-display">
+
+                {% include "profiles/_hx_profile_specialty_codes_edit.html" with profile=nomination.profile %}
+
+              </td>
+            </tr>
+            <tr>
+              <td>ORCID ID</td>
+              <td>
+
+                {% if nomination.profile.orcid_id %}
+                  <a href="//orcid.org/{{ nomination.profile.orcid_id }}"
+                     target="_blank"
+                     rel="noopener">{{ nomination.profile.orcid_id }}</a>
+                {% else %}
+                  unknown
+                {% endif %}
+
+              </td>
+            </tr>
+            <tr>
+              <td>Webpage</td>
+              <td>
+
+                {% if nomination.profile.webpage %}
+                  <a href="{{ nomination.profile.webpage }}"
+                     target="_blank"
+                     rel="noopener">{{ nomination.profile.webpage }}</a>
+                {% else %}
+                  unknown
+                {% endif %}
+
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md mb-3">
+      <div class="card">
+        <div class="card-header">Publications in SciPost Journals</div>
+        <div class="card-body">
+          <ul>
+
+            {% for pub in nomination.profile.publications.all %}
+              <li>
+                <a href="{{ pub.get_absolute_url }}">{{ pub.citation }}</a>
+              </li>
+            {% empty %}
+              <li>No Publication found</li>
+            {% endfor %}
+
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">Affiliations</div>
+        <div class="card-body p-0">
+          {% include 'profiles/_affiliations_table.html' with profile=nomination.profile actions=False %}
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="row mb-0">
+
+    {% comment %} or "active_senior_fellow" in user_roles  {% endcomment %}
+
+    {% if is_ed_admin %}
+      <div class="col-12 col-md mb-3">
+        <details class="card">
+          <summary class="card-header d-flex flex-row justify-content-between list-triangle">
+            <span>Events</span>
+            <span>({{ nomination.events.all.count }})</span>
+          </summary>
+          <div class="card-body">{% include 'colleges/_nomination_events_table.html' with nomination=nomination %}</div>
+        </details>
+      </div>
+    {% endif %}
+
+    <div class="col-12 col-md mb-3">
+      <details class="card">
+        <summary class="card-header d-flex flex-row justify-content-between list-triangle">
+          <span>Comments</span>
+          <span>({{ nomination.comments.all.count }})</span>
+        </summary>
+        <div class="card-body">
+          <div class="p-3">
+
+            {% if nomination.nominator_comments %}
+              <div class="row">
+                <div class="fs-6">Nominator comments:</div>
+                <div>
+                  <em>{{ nomination.nominator_comments }}</em>
+                </div>
+              </div>
+              <hr class="text-muted" />
+            {% endif %}
+
+            <div id="nomination-{{ nomination.id }}-comments"
+                 hx-get="{% url 'colleges:_hx_nomination_comments' nomination_id=nomination.id %}"
+                 hx-trigger="intersect once"></div>
+          </div>
+        </div>
+      </details>
+
+    </div>
+  </div>
+
+  {% if nomination.voting_rounds.exists or perms.scipost.can_manage_college_composition %}
+    <details 
+      {% if not nomination.invitation or 'edadmin' not in user_roles %}open{% endif %}
+       class="card mb-3">
+      <summary class="card-header list-triangle">Voting Rounds</summary>
+      <div class="card-body">
+        <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id|default:0 %}"
+             hx-trigger="intersect once"></div>
+      </div>
+    </details>
+  {% endif %}
+
+  {% if is_ed_admin and nomination.decision.outcome == 'elected' %}
+    <details 
+      {% if nomination.invitation %}open{% endif %}
+       class="card">
+      <summary class="card-header d-flex flex-row justify-content-between list-triangle">
+        <div>Invitation</div>
+        <div>{{ nomination.invitation.get_response_display }}</div>
+      </summary>
+      <div class="card-body">
+        <div class="row mb-0">
+          <div class="col-auto d-flex flex-column justify-content-between">
+            <div>
+              <h3>Checklist</h3>
+              {% include "colleges/_nominations_invitation_checklist.html" with invitation=nomination.invitation %}
+            </div>
+ 
+            <div>
+              <h3>Invitation status</h3>
+              <div class="fs-6 badge bg-{{ nomination.invitation.get_response_color }}">
+                {{ nomination.invitation.get_response_display }}
+              </div>
+            </div>
+          </div>
+ 
+          <div class="col-12 col-md p-2">
+            <h4>Update the response to this invitation:</h4>
+            <div id="invitation-{{ nomination.invitation.id }}-update-response"
+                 hx-get="{% url 'colleges:_hx_fellowship_invitation_update_response' invitation_id=nomination.invitation.id %}"
+                 hx-trigger="intersect once"></div>
+          </div>
+ 
+        </div>
+      </div>
+    </details>
+  {% endif %}
+
+</div>

@@ -1,5 +1,4 @@
 {% extends 'colleges/base.html' %}
-
 {% load user_groups %}
 {% load crispy_forms_tags %}
 
@@ -9,16 +8,19 @@
   <span class="breadcrumb-item">Nominations</span>
 {% endblock %}
 
-{% block meta_description %}{{ block.super }} Nominations{% endblock meta_description %}
-{% block pagetitle %}: Nominations{% endblock pagetitle %}
+{% block meta_description %}
+  {{ block.super }} Nominations
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Nominations
+{% endblock pagetitle %}
 
 {% block content %}
-
   {% is_ed_admin request.user as is_ed_admin %}
-
   <h1 class="highlight">Fellowship Nominations</h1>
-
-  <p>Consult the
+  <p>
+    Consult the
     <a href="{% url 'submissions:monitor' %}" target="_blank">Submissions Monitor</a> page.
     Any <span class="text-danger">red-highlighted</span>
     specialty is in need of more Fellows&nbsp;
@@ -26,151 +28,60 @@
     &nbsp;<strong>Help out by nominating candidates!</strong>
   </p>
 
-  <details class="border border-warning border-2 mt-4">
-    <summary class="bg-warning bg-opacity-10 p-2">
-      <h2 class="ms-2">Nominate</h2>
-    </summary>
-    <div class="p-2">
-      <div class="row">
-	<div class="col-lg-6">
-	  <h3>Procedure</h3>
-	  <ul>
-	    <li>Type your search query in the search form</li>
-	    <li>When the name you're looking for appears in the
-	      <em>Matching profiles</em> list, double-click on it</li>
-	    <li>The nomination form will appear below</li>
-	    <li>Non-eligibility flags (if any) will appear</li>
-	    <li>If eligible, fill the form in (comments are optional)</li>
-	    <li>Submit! (the vote will be arranged by EdAdmin)</li>
-	  </ul>
-	  <div class="row">
-	    <div class="col-8">
-	      <form
-		  hx-post="{% url 'profiles:_hx_profile_dynsel_list' %}"
-		  hx-trigger="keyup delay:200ms, change"
-		  hx-target="#profile_dynsel_results"
-		  hx-indicator="#profile_dynsel_results-indicator"
-	      >
-		<div id="profile_dynsel_form">{% crispy profile_dynsel_form %}</div>
-	      </form>
-	    </div>
-	    <div class="col-2">
-	      <div id="nomination_form_response-indicator" class="htmx-indicator">
-		<button class="btn btn-sm btn-warning" type="button" disabled>
-		  <strong>Loading form...</strong>
-		  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-		</button>
-	      </div>
-	    </div>
-	    <div class="col-2">
-	      <div id="profile_dynsel_results-indicator" class="htmx-indicator">
-		<button class="btn btn-sm btn-warning" type="button" disabled>
-		  <strong>Loading results...</strong>
-		  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-		</button>
-	      </div>
-	    </div>
-	  </div>
-	  <h3 class="mb-2">Not found?</h3>
-	  <p>Then add to our database by <a href="{% url 'profiles:profile_create' %}" target="_blank">creating a new Profile</a> (opens in new window).</p>
-	</div>
-	<div class="col-lg-6">
-	  <h3>Matching profiles</h3>
-	  <div id="profile_dynsel_results" class="border border-light m-2 p-1"></div>
-	</div>
+  <div id="new-nomination-container"></div>
+
+  <details id="nominations-filter-details" class="card my-4">
+    <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
+      <div class="fs-3">Search / Filter</div>
+      <div class="d-none d-md-flex align-items-center">
+ 
+        <div id="indicator-search-nominations" class="htmx-indicator">
+          <button class="btn btn-warning text-white d-none d-md-block me-2"
+                  type="button"
+                  disabled>
+            <strong>Loading...</strong>
+ 
+            <div class="spinner-grow spinner-grow-sm ms-2"
+                 role="status"
+                 aria-hidden="true"></div>
+          </button>
+        </div>
+
+        <button class="btn btn-outline-secondary me-2"
+                type="button"
+                hx-get="{% url 'colleges:_hx_nominations_search_form' filter_set="empty" %}"
+                hx-target="#nominations-search-form-container">Clear Filters</button>
+ 
+        <button class="btn btn-success me-2 text-white"
+                type="button"
+                hx-get="{% url 'colleges:_hx_nomination_new' %}"
+                hx-trigger="click"
+                hx-target="#new-nomination-container">
+          {% include "bi/plus-square.html" %}
+          &nbsp;Add New
+        </button>
+ 
+        <a id="refresh-button" class="me-2 btn btn-primary">
+          {% include "bi/arrow-clockwise.html" %}
+        &nbsp;Refresh</a>
       </div>
-      <div id="nomination_form_response"></div>
+
+    </summary>
+    <div class="card-body">
+      <div id="nominations-search-form-container"
+           hx-get="{% url 'colleges:_hx_nominations_search_form' filter_set='default' %}"
+           hx-trigger="load, intersect once"></div>
     </div>
   </details>
 
-  {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
-    <details id="ensure-specialties-details"
-      class="border border-danger border-2 mt-4"
-    >
-      <summary class="bg-danger bg-opacity-10 p-2">
-	<h2 class="ms-2">
-	  <strong class="text-danger">EdAdmin/Senior Fellows</strong>:
-	  ensure specialties in each nominee's profile</h2>
-      </summary>
-      <div class="p-2 mt-2">
-	<div id="nominations_needing_specialties"
-	     hx-get="{% url 'colleges:_hx_nominations_needing_specialties' %}"
-	     hx-trigger="toggle from:#ensure-specialties-details"
-	>
-	</div>
-      </div>
-    </details>
-  {% endif %}
-
-  <details id="voting-details"
-	   class="border border-primary border-2 mt-4"
-  >
-    <summary class="bg-primary bg-opacity-10 p-2">
-      <h2 class="ms-2 text-primary">Vote{% if 'edadmin' in user_roles %}&emsp;<span class="text-danger">(EdAdmin: manage voting)</span>{% endif %}</h2>
-    </summary>
-    <div class="p-2 mt-2">
-      <div id="voting_tablist"
-	   hx-get="{% url 'colleges:_hx_voting_rounds' %}?tab={% if 'edadmin' in user_roles %}ongoing{% else %}ongoing-vote_required{% endif %}"
-	   hx-trigger="toggle from:#voting-details"
-	   hx-target="this"
-	   hx-swap="innerHTML"
-      >
-      </div>
-    </div>
-  </details>
-
-  {% if "edadmin" in user_roles %}
-    <details id="invitations-details"
-	     class="border border-success border-2 mt-4"
-    >
-      <summary class="bg-success bg-opacity-10 p-2">
-	<h2 class="ms-2">
-	  <strong class="text-success">EdAdmin</strong>:
-	  (for elected) invitations</h2>
-      </summary>
-      <div class="p-2 mt-2">
-	<div id="invitations_tablist"
-	     hx-get="{% url 'colleges:_hx_nominations_invitations' %}?response=notyetinvited"
-	     hx-trigger="toggle from:#invitations-details"
-	     hx-target="this"
-	     hx-swap="innerHTML"
-	>
-	</div>
-      </div>
-    </details>
-  {% endif %}
-
-  <details id="list-details"
-	   class="border border-2 mt-4"
-  >
-    <summary class="bg-light p-2">
-      <h2 class="ms-2">List / filter</h2>
-    </summary>
-    <div class="p-2 mt-2">
-      <form
-	  hx-post="{% url 'colleges:_hx_nominations' %}"
-	  hx-trigger="toggle from:#list-details, keyup delay:500ms, change"
-	  hx-target="#search-nominations-results"
-	  hx-indicator="#indicator-search"
-      >
-	<div id="search-nominations-form">{% crispy search_nominations_form %}</div>
-      </form>
-
-      <div class="row">
-	<div class="col">
-	  <h3>Nominations list</h3>
-	</div>
-	<div class="col">
-	  <div id="indicator-search-nominations" class="htmx-indicator">
-	    <button class="btn btn-sm btn-warning" type="button" disabled>
-	      <strong>Loading...</strong>
-	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	    </button>
-	  </div>
-	</div>
-      </div>
-      <ul id="search-nominations-results" class="list-unstyled mt-2"></ul>
-    </div>
-  </details>
+  <div id="search-nominations-results" class="mt-2"></div>
+  <div id="indicator-nominations-search-page" class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2"
+           role="status"
+           aria-hidden="true"></div>
+    </button>
+  </div>
 
 {% endblock content %}

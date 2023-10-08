@@ -3,6 +3,8 @@ __license__ = "AGPL v3"
 
 
 from .models import College, Fellowship, FellowshipNomination
+import datetime
+from django.utils import timezone
 
 
 def check_profile_eligibility_for_fellowship(profile):

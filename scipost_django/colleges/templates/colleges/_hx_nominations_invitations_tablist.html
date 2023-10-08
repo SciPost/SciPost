@@ -1,7 +1,0 @@
-<div class="tablist">
-  {% for choice in response_choices %}
-    <a hx-get="{% url 'colleges:_hx_nominations_invitations' %}?response={{ choice.0 }}"
-       {% if selected == choice.0 %}class="selected"{% endif %}
-    >{{ choice.1 }}</a>
-  {% endfor %}
-</div>

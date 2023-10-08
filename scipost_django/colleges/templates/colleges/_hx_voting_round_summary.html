@@ -1,0 +1,96 @@
+<div class="row mb-0">
+
+  {% if not round.is_unscheduled %}
+    <div class="order-1 col-12 col-sm-6 col-md-12 col-xl-7">
+      <div class="row justify-content-between">
+        <small class="col text-muted text-nowrap">Voting opens</small>
+
+        <div class="col-auto">
+
+          {% if round.is_open %}
+            {{ round.voting_opens|timesince }} ago
+          {% else %}
+            {{ round.voting_opens|date:"Y-m-d" }}
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+    <div class="order-2 order-sm-3 order-md-2 order-xl-3 col-12 col-sm-6 col-md-12 col-xl-7">
+      <div class="row justify-content-between">
+        <small class="col text-muted text-nowrap">Voting deadline</small>
+
+        <div class="col-auto">
+
+          {% if round.is_open %}
+            In {{ round.voting_deadline|timeuntil }}
+          {% else %}
+            {{ round.voting_deadline|date:"Y-m-d" }}
+          {% endif %}
+
+        </div>
+
+      </div>
+    </div>
+  {% else %}
+    <div class="order-1 col-12 col-sm-6 col-md-12 col-xl-7"></div>
+    <div class="order-2 order-sm-3 order-md-2 order-xl-3 col-12 col-sm-6 col-md-12 col-xl-7"></div>
+  {% endif %}
+
+  <div class="order-3 order-sm-2 order-md-3 order-xl-2 col-12 col-sm-6 col-md-12 col-xl-5">
+    <div class="row justify-content-between">
+      <small class="col text-muted text-nowrap">Voting status</small>
+
+      <div class="col-auto">
+
+        {% if round.is_unscheduled %}
+          <span class="badge bg-warning">Unscheduled</span>
+        {% elif round.is_open %}
+          <span class="badge bg-success">Open</span>
+        {% elif round.is_scheduled %}
+          <span class="badge bg-primary">Scheduled</span>
+        {% elif round.is_closed %}
+          <span class="badge bg-primary">Closed</span>
+        {% endif %}
+
+      </div>
+
+    </div>
+  </div>
+ 
+  <div class="order-4 col-12 col-sm-6 col-md-12 col-xl-5">
+    <div class="row justify-content-between">
+
+      {% if round.is_closed %}
+        <small class="col text-muted text-nowrap">Decision</small>
+
+        <div class="col-auto">
+
+          {% if round.decision.outcome == "elected" %}
+            <span class="badge bg-success">{{ round.decision.get_outcome_display }}</span>
+          {% elif round.decision.outcome == "notelected" %}
+            <span class="badge bg-danger">{{ round.decision.get_outcome_display }}</span>
+          {% else %}
+            <span class="badge bg-warning">Pending</span>
+          {% endif %}
+
+        </div>
+      {% else %}
+        <small class="col text-muted text-nowrap">Voted / Total</small>
+
+        <div class="col-auto">
+
+          {% if round.eligible_to_vote.count > 0 %}
+            {{ round.votes.count }}  /  {{ round.eligible_to_vote.count }}
+          {% else %}
+            <span class="badge bg-danger">None</span>
+          {% endif %}
+
+        </div>
+      {% endif %}
+
+ 
+    </div>
+  </div>
+
+</div>
