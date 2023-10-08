@@ -506,6 +506,12 @@ LOGGING = {
             "filename": "/path/to/logs/oauth.log",
             "formatter": "verbose",
         },
+        "submission_fellowship_updates": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "/path/to/logs/submission_fellowship_updates.log",
+            "formatter": "verbose",
+        },
     },
     "loggers": {
         "scipost.services.arxiv": {
@@ -535,6 +541,12 @@ LOGGING = {
         "oauth2_provider": {
             "handlers": ["oauth_file"],
             "level": "DEBUG",
+            "propagate": False,
+            "formatter": "verbose",
+        },
+        "submissions.fellowships.update": {
+            "handlers": ["submission_fellowship_updates"],
+            "level": "INFO",
             "propagate": False,
             "formatter": "verbose",
         },

@@ -42,6 +42,11 @@ urlpatterns = [
                     name="_hx_submission_competing_interest_form",
                 ),
                 path(
+                    "_hx_submission_competing_interest_create/<int:fellowship_id>",
+                    views._hx_submission_competing_interest_create,
+                    name="_hx_submission_competing_interest_create",
+                ),
+                path(
                     "_hx_submission_competing_interest_delete/<int:pk>",
                     views._hx_submission_competing_interest_delete,
                     name="_hx_submission_competing_interest_delete",

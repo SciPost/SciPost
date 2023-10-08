@@ -14,3 +14,7 @@ python manage.py organization_update_cf_expenditure_for_publication --settings=S
 python manage.py organization_update_cf_balance_info --settings=SciPost_v1.settings.production_do1
 
 python manage.py affiliatejournal_update_publications_from_Crossref --settings=SciPost_v1.settings.production_do1
+
+
+# Update the fellowship of submissions for new fellows
+python manage.py update_submission_fellowships --settings=SciPost_v1.settings.production_do1 >
