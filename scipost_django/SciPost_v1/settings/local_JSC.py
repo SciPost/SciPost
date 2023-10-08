@@ -41,6 +41,9 @@ LOGGING["handlers"]["api_file"][
 LOGGING["handlers"]["oauth_file"][
     "filename"
 ] = "/home/jscaux/SciPost/sites/scipost.org/SciPost/local_files/logs/oauth.log"
+LOGGING["handlers"]["submission_fellowship_updates"][
+    "filename"
+] = "/home/jscaux/SciPost/sites/scipost.org/SciPost/local_files/logs/submission_fellowship_updates.log"
 
 CROSSREF_DEPOSIT_EMAIL = "jscaux@scipost.org"
 

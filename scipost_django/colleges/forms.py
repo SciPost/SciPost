@@ -759,7 +759,7 @@ class FellowshipNominationCommentForm(forms.ModelForm):
 class FellowshipNominationDecisionForm(forms.ModelForm):
     class Meta:
         model = FellowshipNominationDecision
-        fields: list[str] = [
+        fields = [
             "voting_round",
             "outcome",
             "fixed_on",

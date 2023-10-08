@@ -67,6 +67,7 @@ LOGGING["handlers"]["scipost_file_doi"][
 ] = "/home/scipost/SciPost_logs/doi.log"
 LOGGING["handlers"]["api_file"]["filename"] = "/home/scipost/SciPost_logs/api.log"
 LOGGING["handlers"]["oauth_file"]["filename"] = "/home/scipost/SciPost_logs/oauth.log"
+LOGGING["handlers"]["submission_fellowship_updates"]["filename"] = "/home/scipost/SciPost_logs/submission_fellowship_updates.log"
 
 
 # API
