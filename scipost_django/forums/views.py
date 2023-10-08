@@ -245,62 +245,41 @@ class ForumListView(LoginRequiredMixin, ListView):
 
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
-def _hx_post_form_button(request, slug, parent_model, parent_id, origin, target, text):
+def _hx_post_form_button(request, slug, parent_model, parent_id, text):
     context = {
         "slug": slug,
         "parent_model": parent_model,
         "parent_id": parent_id,
-        "origin": origin,
-        "target": target,
         "text": text,
     }
     return render(request, "forums/_hx_post_form_button.html", context)
 
 
 @permission_required_or_403("forums.can_post_to_forum", (Forum, "slug", "slug"))
-def _hx_post_form(request, slug, parent_model, parent_id, origin, target, text):
+def _hx_post_form(request, slug, parent_model, parent_id, text):
     forum = get_object_or_404(Forum, slug=slug)
     context = {
         "slug": slug,
         "parent_model": parent_model,
         "parent_id": parent_id,
-        "origin": origin,
-        "target": target,
         "text": text,
     }
     if request.method == "POST":
         form = PostForm(request.POST, forum=forum)
         if form.is_valid():
             post = form.save()
-            thread_initiator = post.get_thread_initiator()
             response = render(
                 request,
                 "forums/post_card.html",
-                context={"forum": forum, "post": thread_initiator},
+                context={
+                    "forum": forum,
+                    "post": post,
+                    "posting_open": True,  # If a post has just been made, posting is open
+                },
             )
-            # if the parent is a forum, then this is a new Motion or Post,
-            # and we keep the requested target and swap (== beforebegin).
-            # Otherwise, we retarget to the initiator post, and swap outerHTML.
-            # In both cases we refocus the browser after settle.
-            if parent_model in ["forum", "meeting"]:
-                # trigger new post form closure
-                response["HX-Trigger"] = f"newPost-{target}"
-                # refocus browser on new post
-                response["HX-Trigger-After-Settle"] = json.dumps(
-                    {
-                        "newPost": f"{target}",
-                    }
-                )
-            else:
-                # force rerendering of whole thread from initiator down
-                response["HX-Retarget"] = f"#thread-{thread_initiator.id}"
-                response["HX-Reswap"] = "outerHTML"
-                # refocus browser on initiator
-                response["HX-Trigger-After-Settle"] = json.dumps(
-                    {
-                        "newPost": f"thread-{thread_initiator.id}",
-                    }
-                )
+            response["HX-Trigger-After-Settle"] = json.dumps(
+                {"newPost": f"post{post.id}"}
+            )
             return response
     else:
         subject = ""
