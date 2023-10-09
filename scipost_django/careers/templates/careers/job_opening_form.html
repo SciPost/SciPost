@@ -4,7 +4,7 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item"><a href="{% url 'careers:jobopenings' %}">Job Openings</a></span>
+  <span class="breadcrumb-item"><a href="{% url 'careers:job_openings' %}">Job Openings</a></span>
   <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Job Opening{% endif %}</span>
 {% endblock %}
 

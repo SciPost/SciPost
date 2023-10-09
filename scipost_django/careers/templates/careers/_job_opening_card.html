@@ -5,25 +5,25 @@
   <div class="card-header">
     <div class="row">
       <div class="col-lg-6">
-	<h1>{{ jobopening.title }}</h1>
-	<h3 class="text-muted my-2">[{{ jobopening.slug }}]</h3>
+	<h1>{{ job_opening.title }}</h1>
+	<h3 class="text-muted my-2">[{{ job_opening.slug }}]</h3>
       </div>
       <div class="col-lg-6">
 	<h3 class="my-2 float-lg-right">
 	  <strong class="bg-success text-white my-2 px-3 py-2">Application deadline:&emsp;
-	    {{ jobopening.application_deadline|date:'Y-m-d' }}
+	    {{ job_opening.application_deadline|date:'Y-m-d' }}
 	  </strong>
 	</h3>
       </div>
     </div>
-    {% if perms.careers.add_jobopening %}
+    {% if perms.careers.add_job_opening %}
       <ul class="list-inline my-4">
 	<li class="list-inline-item">
-	  <a href="{% url 'careers:jobopening_update' slug=jobopening.slug %}" class="text-warning">Update</a></li>
+	  <a href="{% url 'careers:job_opening_update' slug=job_opening.slug %}" class="text-warning">Update</a></li>
       </ul>
     {% endif %}
   </div>
   <div class="card-body">
-    {% automarkup jobopening.description %}
+    {% automarkup job_opening.description %}
   </div>
 </div>

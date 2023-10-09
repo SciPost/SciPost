@@ -1,0 +1,29 @@
+<table class="table">
+  <tr>
+    <th>Status</th>
+    <td>{{ job_application.get_status_display }}</td>
+  </tr>
+  <tr>
+    <th>Last updated</th>
+    <td>{{ job_application.last_updated }}</td>
+  </tr>
+  <tr>
+    <th>Date received</th>
+    <td>{{ job_application.date_received }}</td>
+  </tr>
+  <tr>
+    <th>Name and title</th>
+    <td>{{ job_application.last_name }}, {{ job_application.get_title_display }} {{ job_application.first_name }}</td>
+  </tr>
+  <tr>
+    <th>Email</th>
+    <td>{{ job_application.email }}</td>
+  </tr>
+  <tr>
+    <th>Application materials</th>
+    <td>
+      <a href="{{ job_application.motivation.url }}">Motivation</a>&emsp;&emsp;
+      <a href="{{ job_application.cv.url }}">CV</a>
+    </td>
+  </tr>
+</table>
