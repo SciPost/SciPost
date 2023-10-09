@@ -31,6 +31,7 @@ class PrefillUsingDOITest(TestCase):
     def test_submit_valid_physrev_doi(self):
         post_data = {"doi": self.physrev_doi}
         request = RequestFactory().post(self.target, post_data)
+        request.session = {}
         request.user = UserFactory()
 
         response = prefill_using_DOI(request)
