@@ -2,22 +2,26 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-import factory
 import datetime
-import pytz
 import random
 from string import ascii_lowercase
 
+import factory
+import pytz
 from common.helpers import (
     random_digits,
     random_external_doi,
     random_external_journal_abbrev,
 )
-from journals.constants import JOURNAL_STRUCTURE, PUBLICATION_PUBLISHED
-
-from .models import Journal, Volume, Issue, Publication, Reference
-
 from faker import Faker
+from journals.constants import (
+    ISSUES_AND_VOLUMES,
+    ISSUES_ONLY,
+    JOURNAL_STRUCTURE,
+    PUBLICATION_PUBLISHED,
+)
+
+from .models import Issue, Journal, Publication, Reference, Volume
 
 
 class ReferenceFactory(factory.django.DjangoModelFactory):
@@ -53,6 +57,22 @@ class JournalFactory(factory.django.DjangoModelFactory):
         model = Journal
         django_get_or_create = ("name",)
 
+    @classmethod
+    def SciPostPhysics(cls):
+        return cls(
+            name="SciPost Physics",
+            doi_label="SciPostPhys",
+            structure=ISSUES_AND_VOLUMES,
+        )
+
+    @classmethod
+    def SciPostPhysicsProc(cls):
+        return cls(
+            name="SciPost Physics Proceedings",
+            doi_label="SciPostPhysProc",
+            structure=ISSUES_ONLY,
+        )
+
 
 class VolumeFactory(factory.django.DjangoModelFactory):
     in_journal = factory.SubFactory(JournalFactory)
@@ -71,7 +91,7 @@ class VolumeFactory(factory.django.DjangoModelFactory):
 
 
 class IssueFactory(factory.django.DjangoModelFactory):
-    in_volume = factory.Iterator(Volume.objects.all())
+    in_volume = factory.SubFactory(VolumeFactory)
     number = factory.LazyAttribute(lambda o: o.in_volume.issues.count() + 1)
     doi_label = factory.LazyAttribute(
         lambda o: "%s.%i" % (o.in_volume.doi_label, o.number)
