@@ -3,258 +3,165 @@ __license__ = "AGPL v3"
 
 import datetime
 
-from django.test import TestCase
-
-# Create your tests here.
-
-from submissions.constants import EIC_REC_PUBLISH
-from journals.models import Journal, Issue
-from submissions.models import Submission, EditorialDecision
-from production.models import ProductionStream, ProofsRepository
-from preprints.models import Preprint
-from ontology.models import AcademicField, Branch, Specialty
-from colleges.models import College
-from scipost.models import Contributor
-from profiles.models import Profile
-from proceedings.models import Proceedings
-
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.test import TestCase
+from django.utils.timezone import make_aware
+from journals.factories import JournalFactory
+from proceedings.factories import ProceedingsFactory
+
+from production.factories import ProofsRepositoryFactory
+from production.models import ProofsRepository
+from profiles.factories import ProfileFactory
+from submissions.constants import EIC_REC_PUBLISH
+from submissions.factories.submission import SubmissionFactory
+from submissions.models.factories import EditorialDecisionFactory
 
 
 class TestProofRepository(TestCase):
-    def _create_submitter_contributor(self):
-        random_user = User.objects.create_user(
-            username="testuser",
-            password="testpassword",
-        )
-        user_profile = Profile.objects.create(
-            title="DR",
-            first_name="Test",
-            last_name="User",
-        )
-        Contributor.objects.create(user=random_user, profile=user_profile)
-
-    def _create_college(self):
-        College.objects.create(
-            name="College of Quantum Physics",
-            acad_field=AcademicField.objects.get(name="Quantum Physics"),
-            slug="college-of-quantum-physics",
-            order=10,
-        )
-
-    def _create_journal(self):
-        Journal.objects.create(
-            college=College.objects.get(name="College of Quantum Physics"),
-            name="SciPost Physics",
-            name_abbrev="SciPost Phys.",
-            doi_label="SciPostPhys",
-            cf_metrics='{"":""}',
-        )
-
-    def _create_editorial_decision(self):
-        EditorialDecision.objects.create(
-            submission=Submission.objects.get(
-                preprint__identifier_w_vn_nr="scipost_202101_00001v1"
-            ),
-            for_journal=Journal.objects.get(name="SciPost Physics"),
-            decision=EIC_REC_PUBLISH,
-            status=EditorialDecision.FIXED_AND_ACCEPTED,
-        )
-
-    def _create_specialty(self):
-        Specialty.objects.create(
-            acad_field=AcademicField.objects.get(name="Quantum Physics"),
-            name="Quantum Information",
-            slug="quantum-information",
-            order=10,
-        )
-
-    def _create_academic_field(self):
-        AcademicField.objects.create(
-            branch=Branch.objects.get(name="Physics"),
-            name="Quantum Physics",
-            slug="quantum-physics",
-            order=10,
-        )
-
-    def _create_branch(self):
-        Branch.objects.create(
-            name="Physics",
-            slug="physics",
-            order=10,
-        )
-
-    def _create_preprint(self):
-        Preprint.objects.create(identifier_w_vn_nr="scipost_202101_00001v1")
-
-    def _create_submission(self):
-        submission = Submission.objects.create(
-            preprint=Preprint.objects.get(identifier_w_vn_nr="scipost_202101_00001v1"),
-            submitted_to=Journal.objects.get(name="SciPost Physics"),
-            title="Test submission",
-            abstract="Test abstract",
-            author_list="Test User",
-            acad_field=AcademicField.objects.get(name="Quantum Physics"),
-            # specialties=Specialty.objects.filter(name="Quantum Information"),
-            submitted_by=Contributor.objects.get(user__username="testuser"),
-        )
-        submission.authors.add(Contributor.objects.get(user__username="testuser"))
-        submission.save()
-
-    def _create_production_stream(self):
-        stream = ProductionStream.objects.create(
-            submission=Submission.objects.get(
-                preprint__identifier_w_vn_nr="scipost_202101_00001v1"
-            ),
-        )
-        stream.opened = datetime.datetime(
-            2021, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc
-        )
-        stream.save()
-
-    def setUp(self):
-        self._create_submitter_contributor()
-        self._create_branch()
-        self._create_academic_field()
-        self._create_specialty()
-        self._create_college()
-        self._create_journal()
-        self._create_preprint()
-        self._create_submission()
-        self._create_editorial_decision()
-        self._create_production_stream()
-
     def test_repo_name_existing_profile(self):
-        proofs_repo = ProofsRepository.objects.get(
-            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
+        proofs_repo = ProofsRepositoryFactory(
+            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1",
         )
+
+        proofs_repo.stream.submission.author_list = "John F. Doe"
+        proofs_repo.stream.submission.save()
+
+        ProfileFactory(first_name="John Frank", last_name="Doe")
 
         self.assertEqual(
             ProofsRepository._get_repo_name(proofs_repo.stream),
-            "scipost_202101_00001v1_User",
+            "scipost_202101_00001v1_Doe",
         )
 
     def test_repo_name_nonexisting_profile(self):
-        proofs_repo = ProofsRepository.objects.get(
+        proofs_repo = ProofsRepositoryFactory(
             stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
         )
 
-        # delete profile
-        Contributor.objects.get(user__username="testuser").profile.delete()
+        proofs_repo.stream.submission.author_list = "Kim J. Ranger"
+        proofs_repo.stream.submission.save()
 
         self.assertEqual(
             ProofsRepository._get_repo_name(proofs_repo.stream),
-            "scipost_202101_00001v1_User",
+            "scipost_202101_00001v1_Ranger",
         )
 
     def test_repo_name_double_last_name_profile(self):
-        proofs_repo = ProofsRepository.objects.get(
-            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
+        proofs_repo = ProofsRepositoryFactory(
+            stream__submission__preprint__identifier_w_vn_nr="scipost_202302_00525v1"
         )
 
-        proofs_repo.stream.submission.author_list = "Test Usable User"
+        proofs_repo.stream.submission.author_list = "Liam Magnus Carter"
+        proofs_repo.stream.submission.save()
 
-        user_profile = Contributor.objects.get(user__username="testuser").profile
-        user_profile.last_name = "Usable User"
-        user_profile.save()
+        ProfileFactory(first_name="Liam", last_name="Magnus Carter")
 
         self.assertEqual(
             ProofsRepository._get_repo_name(proofs_repo.stream),
-            "scipost_202101_00001v1_Usable-User",
+            "scipost_202302_00525v1_Magnus-Carter",
         )
 
     def test_repo_name_two_authors(self):
-        proofs_repo = ProofsRepository.objects.get(
-            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
+        proofs_repo = ProofsRepositoryFactory(
+            stream__submission__preprint__identifier_w_vn_nr="1234.56789v1"
         )
 
-        proofs_repo.stream.submission.author_list = (
-            "Another Personable Person, Test Usable User"
-        )
+        proofs_repo.stream.submission.author_list = "Xi Yang and Zhu Lee"
 
         self.assertEqual(
             ProofsRepository._get_repo_name(proofs_repo.stream),
-            "scipost_202101_00001v1_Person",
+            "1234.56789v1_Yang",
         )
 
     def test_repo_name_accented_authors(self):
-        proofs_repo = ProofsRepository.objects.get(
-            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
+        proofs_repo = ProofsRepositoryFactory(
+            stream__submission__preprint__identifier_w_vn_nr="5212.24912v4"
         )
+        ProfileFactory(first_name="Ella", last_name="Vérsøüsær (陈)")
 
-        user_profile = Contributor.objects.get(user__username="testuser").profile
-        user_profile.first_name = "Some"
-        user_profile.last_name = "Pérsønüsær (陈)"
-        user_profile.save()
-
-        proofs_repo.stream.submission.author_list = "Some Pérsønüsær (陈)"
+        proofs_repo.stream.submission.author_list = "Ella Vérsøüsær (陈)"
+        proofs_repo.stream.submission.save()
 
         self.assertEqual(
             ProofsRepository._get_repo_name(proofs_repo.stream),
-            "scipost_202101_00001v1_Personusaer",
+            "5212.24912v4_Versousaer",
         )
 
+    # Warning: Flaky test, sometimes the editorial decision cannot
+    # be found through the related name.
     def test_repo_paths_scipostphys(self):
-        proofs_repo = ProofsRepository.objects.get(
-            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
-        )
-
         settings.GITLAB_ROOT = "ProjectRoot"
 
-        self.assertEqual(
-            proofs_repo.git_path,
-            "ProjectRoot/Proofs/SciPostPhys/2021/01/scipost_202101_00001v1_User",
+        ProfileFactory(first_name="Ryan", last_name="MacVigor")
+
+        submission = SubmissionFactory(
+            preprint__identifier_w_vn_nr="scipost_199402_00223v3"
         )
-
-        self.assertIn(
-            proofs_repo.template_paths,
-            "ProjectRoot/Templates/SciPostPhys",
-        )
-
-    def test_repo_paths_scipostphysproc(self):
-        proofs_repo = ProofsRepository.objects.get(
-            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
-        )
-
-        journal = Journal.objects.get(name="SciPost Physics")
-        journal.name = "SciPost Physics Proceedings"
-        journal.doi_label = "SciPostPhysProc"
-        journal.structure = "IO"  # proceedings, as Issues Only
-        journal.save()
-
-        issue = Issue.objects.create(
-            in_journal=journal,
-            number=1,
-            slug="proc-1",
-            doi_label="SciPostPhysProc.1",
-        )
-
-        proceedings = Proceedings.objects.create(
-            issue=issue,
-            submissions_open=datetime.datetime.now(),
-            submissions_close=datetime.datetime.now(),
-            submissions_deadline=datetime.datetime.now(),
-            event_end_date=datetime.datetime(2021, 5, 5),
-            event_start_date=datetime.datetime(2021, 5, 1),
-            event_suffix="ProcName21",
-        )
-
-        submission = Submission.objects.get(
-            preprint__identifier_w_vn_nr="scipost_202101_00001v1"
-        )
-
-        submission.proceedings = proceedings
+        submission.author_list = "Ryan MacVigor"
         submission.save()
 
-        settings.GITLAB_ROOT = "ProjectRoot"
+        EditorialDecisionFactory(
+            submission=submission,
+            for_journal=JournalFactory.SciPostPhysics(),
+            taken_on=make_aware(datetime.datetime(1994, 2, 20)),
+            decision=EIC_REC_PUBLISH,
+        )
+
+        proofs_repo = ProofsRepositoryFactory(
+            stream__submission=submission,
+            stream__opened=make_aware(datetime.datetime(1994, 2, 23)),
+        )
 
         self.assertEqual(
             proofs_repo.git_path,
-            "ProjectRoot/Proofs/SciPostPhysProc/2021/ProcName21/scipost_202101_00001v1_User",
+            "ProjectRoot/Proofs/SciPostPhys/1994/02/scipost_199402_00223v3_MacVigor",
         )
 
         self.assertIn(
+            "ProjectRoot/Templates/SciPostPhys",
             proofs_repo.template_paths,
-            "ProjectRoot/Templates/SciPostPhysProc/2021/ProcName21",
+        )
+
+    # Warning: Flaky test, sometimes the editorial decision cannot
+    # be found through the related name.
+    def test_repo_paths_scipostphysproc(self):
+        settings.GITLAB_ROOT = "ProjectRoot"
+
+        scipost_phys_proc = JournalFactory.SciPostPhysicsProc()
+
+        topology_conf = ProceedingsFactory(
+            event_end_date=datetime.datetime(2019, 5, 5),
+            event_start_date=datetime.datetime(2019, 5, 20),
+            event_suffix="TopCon2019",
+        )
+
+        ProfileFactory(first_name="Tylla M.", last_name="Jones")
+
+        submission = SubmissionFactory(
+            preprint__identifier_w_vn_nr="scipost_200101_00323v2",
+            proceedings=topology_conf,
+        )
+        submission.author_list = "Tylla Maria Jones"
+        submission.save()
+
+        EditorialDecisionFactory(
+            submission=submission,
+            for_journal=scipost_phys_proc,
+            taken_on=make_aware(datetime.datetime(1994, 2, 20)),
+            decision=EIC_REC_PUBLISH,
+        )
+
+        proofs_repo = ProofsRepositoryFactory(
+            stream__submission=submission,
+            stream__opened=make_aware(datetime.datetime(1994, 2, 23)),
+        )
+
+        self.assertEqual(
+            proofs_repo.git_path,
+            "ProjectRoot/Proofs/SciPostPhysProc/2019/TopCon2019/scipost_200101_00323v2_Jones",
+        )
+
+        self.assertIn(
+            "ProjectRoot/Templates/SciPostPhysProc/2019/TopCon2019",
+            proofs_repo.template_paths,
         )
