@@ -28,3 +28,5 @@ from .report import (
 )
 
 from .recommendation import EICRecommendationFactory
+
+from .preprintserver import PreprintServerFactory

@@ -9,6 +9,9 @@ from django.test import TestCase
 from common.helpers import model_form_data
 from scipost.factories import UserFactory, ContributorFactory
 
+
+from submissions.factories import PreprintServerFactory
+
 from ..factories import (
     CommentaryFactory,
     UnvettedCommentaryFactory,
@@ -33,6 +36,8 @@ class TestArxivQueryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
+        # Create the arXiv preprint server
+        PreprintServerFactory.arxiv()
 
     def test_new_arxiv_identifier_is_valid(self):
         new_identifier_data = {"identifier": "1612.07611v1"}
