@@ -1,3 +1,5 @@
+from contextlib import redirect_stdout
+from io import StringIO
 from django.core.management import call_command
 from django.test import TestCase
 
@@ -87,7 +89,13 @@ class ModelEmailBackendTests(TestCase):
             mail_util.send_mail()
 
         mail_log = MailLog.objects.last()
-        call_command("send_mails", id=mail_log.id)
+
+        # Capture stdout to check for command output.
+        stdout = StringIO()
+        with redirect_stdout(stdout):
+            call_command("send_mails", id=mail_log.id)
+
+        self.assertIn("Sent 1 mails.", stdout.getvalue())
 
         mail_log.refresh_from_db()
         self.assertNotEqual(mail_log.body, "")
