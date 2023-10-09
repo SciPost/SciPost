@@ -2,7 +2,7 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">{{ jobapplication.jobopening }}</span>
+  <span class="breadcrumb-item">{{ job_application.job_opening }}</span>
 {% endblock %}
 
 {% block pagetitle %}: Job application details{% endblock pagetitle %}
@@ -13,11 +13,11 @@
     <div class="col-12">
 
       <h2>Information</h2>
-      {% if jobapplication.status == jobapplication.RECEIVED %}
+      {% if job_application.status == job_application.RECEIVED %}
 	<p>
 	  Your application has been received in good order.
 	  We have emailed a receipt at your email address
-	  <em>{{ jobapplication.email }}</em>.
+	  <em>{{ job_application.email }}</em>.
 	</p>
 	<p>
 	  <strong class="text-danger">
@@ -29,7 +29,7 @@
 	  If you have not received the email, please check your spam box;
 	  if you still cannot find it, <a href="mailto:admin@{{ request.get_host }}">contact SciPost admin</a>.
 	</p>
-      {% elif jobapplication.status == jobapplication.VERIFIED %}
+      {% elif job_application.status == job_application.VERIFIED %}
 	<p>
 	  Your email has been successfully verified.
 	</p>
@@ -45,12 +45,12 @@
 	carefully save its URL, which is the following:
       </p>
       <p>
-	https://{{ request.get_host }}{{ jobapplication.get_absolute_url }}
+	https://{{ request.get_host }}{{ job_application.get_absolute_url }}
       </p>
 
 
       <h2 class="highlight mt-5">Status information</h2>
-      {% include 'careers/_jobapplication_as_table.html' with jobapplication=jobapplication %}
+      {% include 'careers/_job_application_as_table.html' with job_application=job_application %}
 
     </div>
   </div>

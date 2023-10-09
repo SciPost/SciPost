@@ -18,7 +18,7 @@ class JobOpeningAdmin(admin.ModelAdmin):
 class JobApplicationAdmin(admin.ModelAdmin):
     fields = [
         "status",
-        "jobopening",
+        "job_opening",
         "date_received",
         "title",
         "first_name",

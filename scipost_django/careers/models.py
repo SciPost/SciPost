@@ -44,7 +44,7 @@ class JobOpening(models.Model):
         return "%s (%s)" % (self.title, self.slug)
 
     def get_absolute_url(self):
-        return reverse("careers:jobopening_detail", kwargs={"slug": self.slug})
+        return reverse("careers:job_opening_detail", kwargs={"slug": self.slug})
 
 
 class JobApplication(models.Model):
@@ -73,8 +73,10 @@ class JobApplication(models.Model):
     )
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     status = models.CharField(max_length=16, choices=JOBAPP_STATUSES)
-    last_udpated = models.DateTimeField(auto_now=True)
-    jobopening = models.ForeignKey("careers.JobOpening", on_delete=models.CASCADE)
+    last_updated = models.DateTimeField(default=timezone.now)
+    job_opening = models.ForeignKey(
+        "careers.JobOpening", on_delete=models.CASCADE, related_name="job_applications"
+    )
     date_received = models.DateTimeField(default=timezone.now)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30)
@@ -88,7 +90,7 @@ class JobApplication(models.Model):
         )
     )
     motivation = models.FileField(
-        upload_to="uploads/jobapplications/%Y/%m/",
+        upload_to="uploads/job_applications/%Y/%m/",
         validators=[validate_file_extension, validate_max_file_size],
         help_text=(
             "Please describe your motivations for applying, and "
@@ -96,19 +98,19 @@ class JobApplication(models.Model):
         ),
     )
     cv = models.FileField(  # pylint: disable=C0103
-        upload_to="uploads/jobapplications/%Y/%m/",
+        upload_to="uploads/job_applications/%Y/%m/",
         validators=[validate_file_extension, validate_max_file_size],
         help_text=(
-            "Your curriculum vitea, including details of training and "
+            "Your curriculum vitae, including details of training and "
             "skills pertinent to this particular job (pdf file)"
         ),
     )
 
     class Meta:
-        ordering = ["-jobopening__announced", "last_name"]
+        ordering = ["-job_opening__announced", "last_name"]
 
     def __str__(self):
-        return "%s: %s, %s" % (self.jobopening.slug, self.last_name, self.first_name)
+        return "%s: %s, %s" % (self.job_opening.slug, self.last_name, self.first_name)
 
     def get_absolute_url(self):
-        return reverse("careers:jobapplication_detail", kwargs={"uuid": self.uuid})
+        return reverse("careers:job_application_detail", kwargs={"uuid": self.uuid})

@@ -5,7 +5,7 @@
 {% block breadcrumb_items %}
   {{ block.super }}
   <span class="breadcrumb-item">
-    <a href="{{ jobopening.get_absolute_url }}">{{ jobopening }}</a>
+    <a href="{{ job_opening.get_absolute_url }}">{{ job_opening }}</a>
   </span>
   <span class="breadcrumb-item">Apply</span>
 {% endblock %}
@@ -17,17 +17,17 @@
   <div class="row">
     <div class="col-12">
 
-      <h1 class="highlight">Your application for job: {{ jobopening }}</h1>
+      <h1 class="highlight">Your application for job: {{ job_opening }}</h1>
 
     </div>
   </div>
 
   <div class="row">
     <div class="col-12">
-      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#jobdetails" aria-expanded="false" aria-controls="jobdetails">Show/hide job details</button>
+      <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#job_details" aria-expanded="false" aria-controls="job_details">Show/hide job details</button>
 
-      <div class="collapse" id="jobdetails">
-	{% include 'careers/_jobopening_card.html' with jobopening=jobopening %}
+      <div class="collapse" id="job_details">
+	{% include 'careers/_job_opening_card.html' with job_opening=job_opening %}
       </div>
     </div>
   </div>

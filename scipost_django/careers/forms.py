@@ -33,7 +33,7 @@ class JobApplicationForm(forms.ModelForm):
         model = JobApplication
         fields = [
             "status",
-            "jobopening",
+            "job_opening",
             "date_received",
             "title",
             "first_name",
@@ -51,5 +51,5 @@ class JobApplicationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["status"].widget = forms.HiddenInput()
         self.fields["date_received"].widget = forms.HiddenInput()
-        self.fields["jobopening"].widget = forms.HiddenInput()
+        self.fields["job_opening"].widget = forms.HiddenInput()
         self.fields["cv"].label = "CV"

@@ -1,0 +1,45 @@
+{% extends 'careers/base.html' %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">{{ job_opening }}</span>
+{% endblock %}
+
+{% block meta_description %}{{ block.super }} Job Opening Detail{% endblock meta_description %}
+{% block pagetitle %}: Job Opening details{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      {% include 'careers/_job_opening_card.html' with job_opening=job_opening %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <a href="{% url 'careers:job_opening_apply' slug=job_opening.slug %}" class="btn btn-success text-white btn-large" role="button"><strong>Apply for this job opening</strong></a>
+    </div>
+  </div>
+
+  {% if perms.careers.add_job_opening %}
+    <h1 class="highlight">Applications for this position</h1>
+    <div class="accordion" id="job_app_accordion">
+      {% for job_app in job_opening.job_applications.all %}
+	<div class="card">
+	  <div class="card-header">
+	    <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">{{ job_app.last_name }}, {{ job_app.get_title_display }} {{ job_app.first_name }}</button>
+	  </div>
+	  <div class="collapse" id="collapse{{ forloop.counter }}">
+	    <div class="card-body" data-parent="job_app_accordion">
+	      Link to application detail page as visible by candidate:
+	      <a href="{{ job_app.get_absolute_url }}">{{ job_app }}</a>
+	      {% include 'careers/_job_application_as_table.html' with job_application=job_app %}
+	    </div>
+	  </div>
+	</div>
+    {% endfor %}
+    </div>
+  {% endif %}
+
+{% endblock content %}
