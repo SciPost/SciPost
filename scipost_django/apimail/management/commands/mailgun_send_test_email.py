@@ -31,8 +31,7 @@ class Command(BaseCommand):
                 auth=("api", settings.MAILGUN_API_KEY),
                 data=data,
             )
-            print(data)
-            print(response)
+
         except Domain.MultipleObjectsReturned:
             raise APIMailError("Multiple domains found in mailgun_send_test_email")
         except Domain.DoesNotExist:

@@ -245,7 +245,6 @@ class TestRequestArxivPreprintForm(TestCase):
                 **{"arxiv_identifier": random_arxiv_identifier_with_version_number},
             }
         )
-        print("form.errors:\n\t%s" % form.errors)
         self.assertTrue(form.is_valid())
 
     def test_identifier_that_already_has_commentary_page_is_invalid(self):
