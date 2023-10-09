@@ -19,38 +19,42 @@ from .forms import JobOpeningForm, JobApplicationForm
 
 class JobOpeningCreateView(UserPassesTestMixin, CreateView):
     model = JobOpening
+    template_name = "careers/job_opening_form.html"
     form_class = JobOpeningForm
-    success_url = reverse_lazy("careers:jobopenings")
+    success_url = reverse_lazy("careers:job_openings")
 
     def test_func(self):
-        return self.request.user.has_perm("careers.add_jobopening")
+        return self.request.user.has_perm("careers.add_job_opening")
 
 
 class JobOpeningUpdateView(UserPassesTestMixin, UpdateView):
     model = JobOpening
     form_class = JobOpeningForm
-    success_url = reverse_lazy("careers:jobopenings")
+    success_url = reverse_lazy("careers:job_openings")
 
     def test_func(self):
-        return self.request.user.has_perm("careers.add_jobopening")
+        return self.request.user.has_perm("careers.add_job_opening")
 
 
 class JobOpeningListView(ListView):
     model = JobOpening
+    template_name = "careers/job_opening_list.html"
 
     def get_queryset(self):
         qs = JobOpening.objects.all()
-        if not self.request.user.has_perm("careers.add_jobopening"):
+        if not self.request.user.has_perm("careers.add_job_opening"):
             qs = qs.publicly_visible()
         return qs
 
 
 class JobOpeningDetailView(DetailView):
     model = JobOpening
+    template_name = "careers/job_opening_detail.html"
+    context_object_name = "job_opening"
 
     def get_queryset(self):
         qs = JobOpening.objects.all()
-        if not self.request.user.has_perm("careers.add_jobopening"):
+        if not self.request.user.has_perm("careers.add_job_opening"):
             qs = qs.publicly_visible()
         return qs
 
@@ -58,14 +62,15 @@ class JobOpeningDetailView(DetailView):
 class JobOpeningApplyView(CreateView):
     model = JobApplication
     form_class = JobApplicationForm
-    template_name = "careers/jobopening_apply.html"
+    context_object_name = "job_opening"
+    template_name = "careers/job_opening_apply.html"
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
         initial.update(
             {
                 "status": JobApplication.RECEIVED,
-                "jobopening": get_object_or_404(
+                "job_opening": get_object_or_404(
                     JobOpening, slug=self.kwargs.get("slug")
                 ),
             }
@@ -74,7 +79,7 @@ class JobOpeningApplyView(CreateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["jobopening"] = get_object_or_404(
+        context["job_opening"] = get_object_or_404(
             JobOpening, slug=self.kwargs.get("slug")
         )
         return context
@@ -82,27 +87,29 @@ class JobOpeningApplyView(CreateView):
     def form_valid(self, form):
         self.object = form.save()
         mail_sender = DirectMailUtil(
-            "careers/jobapplication_ack",
+            "careers/job_application_ack",
             delayed_processing=False,
             bcc=[
                 "admin@{domain}".format(domain=get_current_domain()),
             ],
-            jobapplication=self.object,
+            job_application=self.object,
         )
         mail_sender.send_mail()
         return redirect(self.get_success_url())
 
 
-def jobapplication_verify(request, uuid):
-    jobapp = get_object_or_404(JobApplication, uuid=uuid)
-    jobapp.status = jobapp.VERIFIED
-    jobapp.save()
+def job_application_verify(request, uuid):
+    job_app = get_object_or_404(JobApplication, uuid=uuid)
+    job_app.status = job_app.VERIFIED
+    job_app.save()
     messages.success(request, "Your email has been verified successfully.")
-    return redirect(jobapp.get_absolute_url())
+    return redirect(job_app.get_absolute_url())
 
 
 class JobApplicationDetailView(DetailView):
     model = JobApplication
+    context_object_name = "job_application"
+    template_name = "careers/job_application_detail.html"
 
     def get_object(self, *args, **kwargs):
         return get_object_or_404(JobApplication, uuid=self.kwargs.get("uuid"))

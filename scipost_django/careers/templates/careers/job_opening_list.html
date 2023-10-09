@@ -18,9 +18,9 @@
 	Job Openings
       </h1>
 
-      {% if perms.careers.add_jobopening %}
+      {% if perms.careers.add_job_opening %}
 	<ul>
-	  <li><a href="{% url 'careers:jobopening_create' %}">Add a Job Opening</a></li>
+	  <li><a href="{% url 'careers:job_opening_create' %}">Add a Job Opening</a></li>
 	</ul>
       {% endif %}
 
@@ -32,7 +32,7 @@
 	    <h1><a href="{{ job.get_absolute_url }}"><strong>{{ job.title }}</strong></a></h1>
 	    <p>
 	      Announced on {{ job.announced|date:'Y-m-d' }}
-	      {% if perms.careers.add_jobopening %}
+	      {% if perms.careers.add_job_opening %}
 		;&emsp;Status: {{ job.get_status_display }}
 	      {% endif %}
 	    </p>
