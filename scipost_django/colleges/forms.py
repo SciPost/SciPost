@@ -455,7 +455,7 @@ class FellowshipNominationForm(forms.ModelForm):
             self.profile
         )
         if failed_eligibility_criteria:
-            for critetion in failed_eligibility_criteria:
+            for criterion in failed_eligibility_criteria:
                 self.add_error(None, criterion)
         if data["college"].acad_field != self.profile.acad_field:
             self.add_error(
@@ -790,6 +790,10 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
         if voting_round:
             self.fields["voting_round"].initial = voting_round
             self.fields["outcome"].initial = voting_round.vote_outcome
+
+        if nomination := getattr(self.instance, "nomination", None):
+            if voting_outcome := nomination.latest_voting_round.outcome:
+                self.fields["outcome"].initial = voting_outcome
 
 
 #################
