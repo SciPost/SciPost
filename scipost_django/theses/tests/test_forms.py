@@ -50,7 +50,5 @@ class TestRequestThesisLink(TestCase):
         form = RequestThesisLinkForm(form_data, request=self.request)
 
         # Check if the user is properly saved to the new ThesisLink as `requested_by`
-        print(form.is_valid())
-        print(form.errors)
         thesislink = form.save()
         self.assertEqual(thesislink.requested_by, self.contributor)

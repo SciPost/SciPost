@@ -34,4 +34,3 @@ class MailLogFilesTests(TestCase):
             except Exception as e:
                 self.fail('Mail ("{}") configuration invalid:\n{}'.format(mail_code, e))
             i += 1
-        print("Tested {} files".format(i))
