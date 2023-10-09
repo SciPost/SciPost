@@ -73,7 +73,7 @@ class ProductionStream(models.Model):
         on_delete=models.CASCADE,
         related_name="production_stream",
     )
-    opened = models.DateTimeField(auto_now_add=True)
+    opened = models.DateTimeField(default=timezone.now)
     closed = models.DateTimeField(default=timezone.now)
     status = models.CharField(
         max_length=32,
