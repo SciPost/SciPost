@@ -115,7 +115,15 @@
       {% for fellow in object_list %}
         <tr>
           <td><a href="{{ fellow.get_absolute_url }}">{{ fellow.contributor }}</a></td>
-	  <td>{% if fellow.guest %}<span class="text-warning">Guest Fellow</span>{% else %}<span class="text-success">Regular Fellow</span>{% endif %}</td>
+	  <td>
+	    {% if fellow.guest %}
+	      <span class="text-warning">Guest<br>Fellow</span>
+	    {% elif fellow.senior %}
+	      <span class="text-success">Senior<br>Fellow</span>
+	    {% else %}
+	      <span class="text-primary">Regular<br>Fellow
+	    {% endif %}
+	  </td>
           <td>{{ fellow.contributor.profile.acad_field }}
 	    <br/>
 	    {% for specialty in fellow.contributor.profile.specialties.all %}
