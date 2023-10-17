@@ -54,7 +54,15 @@
           </tr>
           <tr>
             <th>Type</th>
-            <td>{{ fellowship.guest|yesno:"Guest fellowship,Regular fellowship"|safe }}</td>
+            <td>
+	      {% if fellowship.guest %}
+	      	<span class="text-warning">Guest</span>
+	      {% elif fellowship.senior %}
+	      	<span class="text-success">Senior</span>
+	      {% else %}
+	      	<span class="text-primary">Regular</span>
+	      {% endif %}
+`	    </td>
           </tr>
         </tbody>
       </table>
@@ -87,7 +95,15 @@
           {% for fship in fellowship.sibling_fellowships %}
             <tr>
               <td>{{ fship.id }}</td>
-              <td>{{ fship.guest|yesno:"Guest fellowship,Regular fellowship"|safe }}</td>
+              <td>
+		{% if fship.guest %}
+		  <span class="text-warning">Guest</span>
+		{% elif fship.senior %}
+		  <span class="text-success">Senior</span>
+		{% else %}
+		  <span class="text-primary">Regular</span>
+		{% endif %}
+	      </td>
               <td>
                 {% if fship.start_date %}
                   from {{ fship.start_date }}

@@ -201,6 +201,13 @@ class FellowshipDetailView(PermissionsMixin, DetailView):
     permission_required = "scipost.can_manage_college_composition"
     model = Fellowship
 
+    def get_queryset(self):
+        queryset = Fellowship.objects.all().prefetch_related(
+            "pool__preprint",
+            "pool__editor_in_charge",
+        )
+        return queryset
+
 
 class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
     """
