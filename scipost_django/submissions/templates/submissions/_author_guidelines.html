@@ -47,12 +47,18 @@
 	  {% endif %}
 	</li>
       {% empty %}
-	<li>No templates are available at this time &emsp;<em>(for Proceedings: you will find templates in the Proceedings' detail page)</em></li>
+      {% if journal %}
+      <li>No templates are available at this time &emsp;<em>(for Proceedings: you will find templates in the Proceedings' detail page)</em></li>
+      {% else %}
+      <li>To access available templates, please visit the author guidelines page in the "about" section for your prefered <a href="{% url 'scipost:index' %}?tab=journals">target journal</a>.</li>
+      {% endif %}
       {% endfor %}
       </ul>
 
+      {% if journal.required_article_elements %}
       <h3 class="mb-2">The article should contain the following elements:</h3>
       {% automarkup journal.required_article_elements language_forced='reStructuredText' %}
+      {% endif %}
 
       <hr>
       <h2 class="highlight" id="manusub">Manuscript submission</h2>
