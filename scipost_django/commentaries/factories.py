@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import factory
+from common.faker import LazyRandEnum
 
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.models import Contributor
@@ -25,14 +26,9 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
     requested_by = factory.SubFactory("scipost.factories.ContributorFactory")
     vetted = True
     vetted_by = factory.SubFactory("scipost.factories.ContributorFactory")
-    type = factory.Iterator(COMMENTARY_TYPES, getter=lambda c: c[0])
+    type = LazyRandEnum(COMMENTARY_TYPES)
     acad_field = factory.SubFactory("ontology.factories.AcademicFieldFactory")
-    approaches = factory.Iterator(
-        SCIPOST_APPROACHES,
-        getter=lambda c: [
-            c[0],
-        ],
-    )
+    approaches = LazyRandEnum(SCIPOST_APPROACHES)
     open_for_commenting = True
 
     title = factory.Faker("sentence")
@@ -63,7 +59,7 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
     @classmethod
     def create(cls, **kwargs):
         if AcademicField.objects.count() < 5:
-            from ontology.factories import AcademicFieldactory
+            from ontology.factories import AcademicFieldFactory
 
             AcademicFieldFactory.create_batch(5)
         if Specialty.objects.count() < 5:
