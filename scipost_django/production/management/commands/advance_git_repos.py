@@ -583,6 +583,12 @@ class Command(BaseCommand):
             status=ProofsRepository.PROOFS_REPO_TEMPLATE_ONLY
         )
         for repo in repos_to_be_formatted:
+            if repo.journal_abbrev == "MigPol":
+                # We cannot format the skeleton of MigPol because it is not a LaTeX file
+                repo.status = ProofsRepository.PROOFS_REPO_TEMPLATE_FORMATTED
+                repo.save()
+                continue
+
             try:
                 self._format_skeleton(repo)
                 repo.status = ProofsRepository.PROOFS_REPO_TEMPLATE_FORMATTED
@@ -604,6 +610,11 @@ class Command(BaseCommand):
                     self._copy_arxiv_source_files(repo)
                     repo.status = ProofsRepository.PROOFS_REPO_PRODUCTION_READY
                     repo.save()
+                else:
+                    # We cannot automatically copy the source files of non-arXiv submissions
+                    repo.status = ProofsRepository.PROOFS_REPO_PRODUCTION_READY
+                    repo.save()
+
             except Exception as e:
                 self.stdout.write(
                     self.style.ERROR(

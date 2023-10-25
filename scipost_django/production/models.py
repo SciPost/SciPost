@@ -372,7 +372,7 @@ class ProofsRepository(models.Model):
         if proceedings_issue := self.stream.submission.proceedings:
             return "{journal}/{year}/{conference}".format(
                 journal=self.journal_abbrev,
-                year=self.stream.submission.proceedings.event_end_date.year,
+                year=proceedings_issue.event_end_date.year,
                 conference=proceedings_issue.event_suffix.replace(" ", ""),
             )
         else:
