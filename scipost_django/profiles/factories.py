@@ -3,14 +3,14 @@ __license__ = "AGPL v3"
 
 
 import factory
+from common.faker import LazyRandEnum
+from scipost.constants import TITLE_CHOICES
 
 from .models import Profile
 
-from scipost.constants import TITLE_CHOICES
-
 
 class ProfileFactory(factory.django.DjangoModelFactory):
-    title = factory.Iterator(TITLE_CHOICES, getter=lambda c: c[0])
+    title = LazyRandEnum(TITLE_CHOICES)
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
 
