@@ -103,7 +103,7 @@ class FellowQuerySet(models.QuerySet):
 
         profile_CI, related_CI = CompetingInterest.objects.filter(
             Q(profile=profile) | Q(related_profile=profile)
-        ).values_list("profile", "related_profile")
+        ).values_list("profile", "related_profile") or ([], [])
 
         return self.exclude(
             contributor__profile__pk__in=profile_CI + related_CI,

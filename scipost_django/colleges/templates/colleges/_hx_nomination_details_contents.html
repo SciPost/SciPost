@@ -136,7 +136,7 @@
     <details 
       {% if not nomination.invitation or 'edadmin' not in user_roles %}open{% endif %}
        class="card mb-3">
-      <summary class="card-header list-triangle">Voting Rounds</summary>
+      <summary class="card-header d-block list-triangle">Voting Rounds</summary>
       <div class="card-body">
         <div hx-get="{% url 'colleges:_hx_nomination_voting_rounds_tab' nomination_id=nomination.id round_id=nomination.latest_voting_round.id|default:0 %}"
              hx-trigger="intersect once"></div>
