@@ -7,27 +7,36 @@ import pytz
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from profiles.factories import ProfileFactory
 
-from common.helpers import generate_orcid
-from submissions.models import Submission
-
+from .constants import NORMAL_CONTRIBUTOR
 from .models import Contributor, Remark, TOTPDevice
-from .constants import TITLE_CHOICES, NORMAL_CONTRIBUTOR
+from common.faker import fake
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
-    profile = factory.SubFactory("profiles.factories.ProfileFactory")
+    class Meta:
+        model = Contributor
+        django_get_or_create = ("user",)
+
     user = factory.SubFactory("scipost.factories.UserFactory", contributor=None)
+    profile = factory.SubFactory(
+        ProfileFactory,
+        first_name=factory.SelfAttribute("..user.first_name"),
+        last_name=factory.SelfAttribute("..user.last_name"),
+    )
     invitation_key = factory.Faker("md5")
     activation_key = factory.Faker("md5")
     key_expires = factory.Faker("future_datetime", tzinfo=pytz.utc)
     status = NORMAL_CONTRIBUTOR  # normal user
     address = factory.Faker("address")
-    # vetted_by = factory.Iterator(Contributor.objects.all())
 
-    class Meta:
-        model = Contributor
-        django_get_or_create = ("user",)
+    @classmethod
+    def from_profile(cls, profile):
+        return cls(
+            user__first_name=profile.first_name,
+            user__last_name=profile.last_name,
+        )
 
 
 class VettingEditorFactory(ContributorFactory):
@@ -39,11 +48,15 @@ class VettingEditorFactory(ContributorFactory):
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    username = factory.Faker("user_name")
-    password = factory.PostGenerationMethodCall("set_password", "adm1n")
-    email = factory.Faker("safe_email")
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
+    username = factory.LazyAttribute(
+        lambda self: "{first_char}{last_name}".format(
+            first_char=self.first_name[0].lower(), last_name=self.last_name.lower()
+        )
+    )
+    password = factory.PostGenerationMethodCall("set_password", "adm1n")
+    email = factory.Faker("safe_email")
     is_active = True
 
     # When user object is created, associate new Contributor object to it.
@@ -70,15 +83,15 @@ class UserFactory(factory.django.DjangoModelFactory):
 class TOTPDeviceFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory("scipost.factories.UserFactory")
     name = factory.Faker("pystr")
-    token = factory.Faker("md5")
+    token = factory.LazyFunction(lambda: fake.md5()[:16])
 
     class Meta:
         model = TOTPDevice
 
 
 class SubmissionRemarkFactory(factory.django.DjangoModelFactory):
-    contributor = factory.Iterator(Contributor.objects.all())
-    submission = factory.Iterator(Submission.objects.all())
+    contributor = factory.SubFactory(ContributorFactory)
+    submission = factory.SubFactory("submissions.factories.SubmissionFactory")
     date = factory.Faker("date_time_this_decade")
     remark = factory.Faker("paragraph")
 

@@ -7,8 +7,13 @@ import pytz
 import random
 
 from faker import Faker
+from common.faker import LazyRandEnum, fake
+from journals.factories import JournalFactory
+from ontology.factories import AcademicFieldFactory
+from preprints.factories import PreprintFactory
 
 from scipost.constants import SCIPOST_APPROACHES
+from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 from comments.factories import SubmissionCommentFactory
 from journals.models import Journal
@@ -23,29 +28,24 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     """
 
     author_list = factory.Faker("name")
-    submitted_by = factory.Iterator(Contributor.objects.all())
-    submitted_to = factory.Iterator(Journal.objects.all())
+    submitted_by = factory.SubFactory(ContributorFactory)
+    submitted_to = factory.SubFactory(JournalFactory)
     title = factory.Faker("sentence")
     abstract = factory.Faker("paragraph", nb_sentences=10)
     list_of_changes = factory.Faker("paragraph", nb_sentences=10)
-    acad_field = factory.Iterator(AcademicField.objects.all())
-    approaches = factory.Iterator(
-        SCIPOST_APPROACHES,
-        getter=lambda c: [
-            c[0],
-        ],
-    )
+    acad_field = factory.SubFactory(AcademicFieldFactory)
+    approaches = [LazyRandEnum(SCIPOST_APPROACHES)]
     abstract = factory.Faker("paragraph")
     author_comments = factory.Faker("paragraph")
     remarks_for_editors = factory.Faker("paragraph")
     thread_hash = factory.Faker("uuid4")
     submission_date = factory.Faker("date_time_this_decade", tzinfo=pytz.utc)
     latest_activity = factory.LazyAttribute(
-        lambda o: Faker().date_time_between(
-            start_date=o.submission_date, end_date="now", tzinfo=pytz.UTC
+        lambda self: fake.date_time_between(
+            start_date=self.submission_date, end_date="now", tzinfo=pytz.UTC
         )
     )
-    preprint = factory.SubFactory("preprints.factories.PreprintFactory")
+    preprint = factory.SubFactory(PreprintFactory)
 
     visible_public = True
     visible_pool = False
@@ -53,49 +53,49 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Submission
 
-    @classmethod
-    def create(cls, **kwargs):
-        if Contributor.objects.count() < 5:
-            from scipost.factories import ContributorFactory
+    # @classmethod
+    # def create(cls, **kwargs):
+    #     if Contributor.objects.count() < 5:
+    #         from scipost.factories import ContributorFactory
 
-            ContributorFactory.create_batch(5)
-        if Journal.objects.count() < 3:
-            from journals.factories import JournalFactory
+    #         ContributorFactory.create_batch(5)
+    #     if Journal.objects.count() < 3:
+    #         from journals.factories import JournalFactory
 
-            JournalFactory.create_batch(3)
-        if AcademicField.objects.count() < 10:
-            from ontology.factories import AcademicFieldFactory
+    #         JournalFactory.create_batch(3)
+    #     if AcademicField.objects.count() < 10:
+    #         from ontology.factories import AcademicFieldFactory
 
-            AcademicFieldFactory.create_batch(10)
-        if Specialty.objects.count() < 5:
-            from ontology.factories import SpecialtyFactory
+    #         AcademicFieldFactory.create_batch(10)
+    #     if Specialty.objects.count() < 5:
+    #         from ontology.factories import SpecialtyFactory
 
-            SpecialtyFactory.create_batch(5)
-        return super().create(**kwargs)
+    #         SpecialtyFactory.create_batch(5)
+    #     return super().create(**kwargs)
 
-    @factory.post_generation
-    def add_specialties(self, create, extracted, **kwargs):
-        if create:
-            self.specialties.set(Specialty.objects.order_by("?")[:3])
+    # @factory.post_generation
+    # def add_specialties(self, create, extracted, **kwargs):
+    #     if create:
+    #         self.specialties.set(Specialty.objects.order_by("?")[:3])
 
-    @factory.post_generation
-    def contributors(self, create, extracted, **kwargs):
-        contribs = Contributor.objects.all()
-        if self.editor_in_charge:
-            contribs = contribs.exclude(id=self.editor_in_charge.id)
-        contribs = contribs.order_by("?")[: random.randint(1, 6)]
+    # @factory.post_generation
+    # def contributors(self, create, extracted, **kwargs):
+    #     contribs = Contributor.objects.all()
+    #     if self.editor_in_charge:
+    #         contribs = contribs.exclude(id=self.editor_in_charge.id)
+    #     contribs = contribs.order_by("?")[: random.randint(1, 6)]
 
-        # Auto-add the submitter as an author
-        self.submitted_by = contribs[0]
-        self.author_list = ", ".join(
-            ["%s %s" % (c.user.first_name, c.user.last_name) for c in contribs]
-        )
+    #     # Auto-add the submitter as an author
+    #     self.submitted_by = contribs[0]
+    #     self.author_list = ", ".join(
+    #         ["%s %s" % (c.user.first_name, c.user.last_name) for c in contribs]
+    #     )
 
-        if not create:
-            return
+    #     if not create:
+    #         return
 
-        # Add three random authors
-        self.authors.add(*contribs)
+    #     # Add three random authors
+    #     self.authors.add(*contribs)
 
 
 class SeekingAssignmentSubmissionFactory(SubmissionFactory):
