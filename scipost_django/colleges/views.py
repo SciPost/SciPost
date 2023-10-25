@@ -727,12 +727,6 @@ def _hx_nomination_form(request, profile_id):
     if nomination_form.is_valid():
         nomination = nomination_form.save()
         nomination.add_event(description="Nominated", by=request.user.contributor)
-        event = FellowshipNominationEvent(
-            nomination=nomination,
-            description="Nominated",
-            by=request.user.contributor,
-        )
-        event.save()
         return HTMXResponse(
             f"{nomination.profile} successfully nominated to {nomination.college}.",
             tag="success",
