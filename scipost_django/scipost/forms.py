@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from django.db.models import Q
 import pyotp
 import re
 
@@ -308,6 +309,15 @@ class RegistrationForm(forms.Form):
             contributor.user.groups.add(group)
             contributor.user.is_active = True
             contributor.user.save()
+
+            # Update referee invitations to use the new Contributor
+            RefereeInvitation.objects.awaiting_response().filter(
+                Q(referee__isnull=True)
+                & (
+                    Q(email_address=contributor.user.email)
+                    | Q(invitation_key=contributor.invitation_key)
+                )
+            ).update(referee=contributor)
 
         return contributor
 
