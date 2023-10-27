@@ -1,15 +1,24 @@
 <p>Dear {{ contributor.profile.get_title_display }} {{ contributor.user.last_name }},</p>
 
 <p>
-    Your request for a new email activation link for registration to the SciPost publication portal has been received. You now need to visit this link within the next 48 hours:
+  Your request for a new email activation link for registration to the SciPost publication portal has been received. You now need to visit this link within the next 48 hours:
 </p>
 <p>
-    <a href="https://{{ domain }}{% url 'scipost:activation' contributor.id contributor.activation_key %}">Activate your account</a>
+  <a href="https://{{ domain }}{% url 'scipost:activation' contributor.id contributor.activation_key %}">Activate your account</a>
 </p>
 
+{% if contributor.invitation_key %}
+  <p>After confirming your email through the activation link, you will be able to log in to the platform immediately.</p>
+{% else %}
+  <p>
+    After confirming your email through the activation link, your registration will have to be vetted by our staff. When this happens, you will be notified by email and you will be able to log in immediately.
+  </p>
+{% endif %}
+
 <p>
-    Your registration will thereafter be vetted. Many thanks for your interest.<br>
-    The SciPost Team.
+  Many thanks for your interest.
+  <br />
+  The SciPost Team.
 </p>
 
 {% include 'email/_footer.html' %}
