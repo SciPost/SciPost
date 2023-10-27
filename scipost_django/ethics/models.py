@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
 
@@ -122,3 +124,24 @@ class CompetingInterest(models.Model):
 
     def __str__(self):
         return f"{self.profile} - {self.related_profile} ({self.get_nature_display()})"
+
+
+class RedFlag(models.Model):
+    concerning_object_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    concerning_object_id = models.PositiveIntegerField()
+    concerning_object = GenericForeignKey(
+        "concerning_object_type", "concerning_object_id"
+    )
+
+    description = models.TextField(blank=True)
+
+    raised_by = models.ForeignKey(
+        "scipost.Contributor",
+        on_delete=models.CASCADE,
+        related_name="red_flags_raised",
+    )
+    raised_on = models.DateField(default=timezone.now)
+    resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Red flag for {self.concerning_object} raised by {self.raised_by.profile} on {self.raised_on}"

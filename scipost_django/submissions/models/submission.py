@@ -399,6 +399,13 @@ class Submission(models.Model):
     # Temporary
     invitation_order = models.IntegerField(default=0)
 
+    red_flags = GenericRelation(
+        "ethics.RedFlag",
+        object_id_field="concerning_object_id",
+        content_type_field="concerning_object_type",
+        related_query_name="submission",
+    )
+
     class Meta:
         app_label = "submissions"
         ordering = ["-submission_date"]

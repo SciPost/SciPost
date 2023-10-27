@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models import Q
 
 from django.urls import reverse
@@ -78,6 +79,13 @@ class Profile(models.Model):
     # Preferences for interactions with SciPost:
     accepts_SciPost_emails = models.BooleanField(default=True)
     accepts_refereeing_requests = models.BooleanField(default=True)
+
+    red_flags = GenericRelation(
+        "ethics.RedFlag",
+        object_id_field="concerning_object_id",
+        content_type_field="concerning_object_type",
+        related_query_name="profile",
+    )
 
     objects = ProfileQuerySet.as_manager()
 
