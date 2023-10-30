@@ -1,0 +1,54 @@
+{% load crispy_forms_tags %}
+{% load scipost_extras %}
+
+<div class="row">
+  <div class="col-12 col-md-6">
+    <h3 class="highlight">Merge Profile {{ profile_to_merge.id }}</h3>
+    {% include "profiles/_profile_card_narrow.html" with profile=profile_to_merge %}
+  </div>
+  <div class="col-12 col-md-6">
+    <h3 class="highlight">into Profile {{ profile_to_merge_into.id }}</h3>
+    {% include "profiles/_profile_card_narrow.html" with profile=profile_to_merge_into %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+
+    {% if profile_to_merge.contributor and not profile_to_merge_into.contributor %}
+      <h3 class="text-danger">
+        Warning: the profile to merge has an active contributor account, while the one to merge into does not. Consider swapping the order with "Swap & Merge".
+      </h3>
+    {% endif %}
+
+    <div class="d-flex flex-row justify-content-between">
+
+      <div>
+        <div id="profile-merge-btn"
+             class="btn btn-primary me-3"
+             hx-target="#merge-form"
+             hx-post="{% url "profiles:_hx_profile_merge" to_merge=profile_to_merge.id to_merge_into=profile_to_merge_into.id %}">
+          Merge
+        </div>
+
+        <span>
+
+          <div id="profile-swap-merge-btn"
+               class="btn btn-secondary"
+               hx-target="#merge-form"
+               hx-post="{% url "profiles:_hx_profile_merge" to_merge=profile_to_merge_into.id to_merge_into=profile_to_merge.id %}">
+            Swap & Merge
+          </div>
+        </span>
+      </div>
+
+      <div id="profile-non-duplicates-btn"
+           class="btn btn-warning"
+           hx-post="{% url "profiles:_hx_profile_mark_non_duplicate" profile1=profile_to_merge_into.id profile2=profile_to_merge.id %}">
+        Mark as Different
+      </div>
+
+    </div>
+
+  </div>
+</div>

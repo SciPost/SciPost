@@ -29,15 +29,13 @@ class ProfileQuerySet(models.QuerySet):
         # Start by treating name duplicates, excluding marked Profile non-duplicates
         from .models import ProfileNonDuplicates
 
-        profiles = self.with_full_names()
-        nonduplicate_full_names = [
-            dup.full_name for dup in ProfileNonDuplicates.objects.all()
-        ]
+        profiles = self.with_full_names().exclude(
+            id__in=ProfileNonDuplicates.objects.values_list("profiles", flat=True)
+        )
         duplicates_by_full_name = (
             profiles.values("full_name_annot")
             .annotate(nr_count=Count("full_name_annot"))
             .filter(nr_count__gt=1)
-            .exclude(full_name_annot__in=nonduplicate_full_names)
         )
         from .models import ProfileEmail
 

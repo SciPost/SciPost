@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from functools import reduce
+import re
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse, reverse_lazy
@@ -17,6 +18,7 @@ from django.views.generic.list import ListView
 
 from dal import autocomplete
 from guardian.decorators import permission_required
+from profiles import constants
 
 from scipost.mixins import PermissionsMixin, PaginationMixin
 from scipost.models import Contributor
@@ -25,9 +27,10 @@ from scipost.forms import SearchTextForm
 from common.utils import Q_with_alternative_spellings
 from invitations.models import RegistrationInvitation
 from ontology.models import Specialty
+from scipost.permissions import HTMXResponse, permission_required_htmx
 from submissions.models import RefereeInvitation
 
-from .models import Profile, ProfileEmail, Affiliation
+from .models import Profile, ProfileEmail, Affiliation, ProfileNonDuplicates
 from .forms import (
     ProfileForm,
     ProfileDynSelForm,
@@ -316,29 +319,86 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         return context
 
 
-class ProfileDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
+def profile_duplicates(request):
     """
     List Profiles with potential duplicates; allow to merge if necessary.
     """
+    # profile_duplicates = Profile.objects.potential_duplicates()
+    # context = {
+    #     "profile_duplicates": profile_duplicates,
+    # }
+    return render(request, "profiles/profile_duplicates.html")
 
-    permission_required = "scipost.can_create_profiles"
-    model = Profile
-    template_name = "profiles/profile_duplicate_list.html"
-    paginate_by = 16
 
-    def get_queryset(self):
-        return Profile.objects.potential_duplicates()
+@transaction.atomic
+@permission_required_htmx(
+    "scipost.can_create_profiles",
+    "You do not have permission to create profiles.",
+)
+def _hx_profile_mark_non_duplicate(request, profile1: int, profile2: int):
+    # Find already existing ProfileNonDuplicates object, or create one if it doesn't exist
+    prof_non_dupes = ProfileNonDuplicates.objects.filter(
+        profiles__in=[profile1, profile2]
+    ).first() or ProfileNonDuplicates.objects.create(reason=constants.DIFFERENT_PEOPLE)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
+    prof_non_dupes.profiles.add(profile1, profile2)
+    return HTMXResponse(
+        f"Profiles marked as different people.",
+    )
 
-        if len(context["object_list"]) > 1:
-            initial = {
-                "to_merge": context["object_list"][1].id,
-                "to_merge_into": context["object_list"][0].id,
+
+@transaction.atomic
+@permission_required_htmx(
+    "scipost.can_create_profiles",
+    "You do not have permission to create profiles.",
+)
+def _hx_profile_merge(request, to_merge: int, to_merge_into: int):
+    # Update the post data with the profiles to merge
+    duplicate_profiles = Profile.objects.potential_duplicates()
+
+    if request.method == "POST":
+        post_data = {
+            **(request.POST or {}),
+            "to_merge": to_merge,
+            "to_merge_into": to_merge_into,
+        }
+        merge_form = ProfileMergeForm(post_data)
+        if merge_form.is_valid():
+            profile = merge_form.save()
+            messages.success(request, "Profiles merged successfully.")
+
+    else:
+        merge_form = ProfileMergeForm(
+            queryset=duplicate_profiles,
+            initial={
+                "to_merge": duplicate_profiles[1].id,
+                "to_merge_into": duplicate_profiles[0].id,
+            },
+        )
+
+    context = {
+        "duplicate_profiles": duplicate_profiles,
+        "form": merge_form,
+    }
+
+    return render(request, "profiles/_hx_profile_merge.html", context)
+
+
+def _hx_profile_comparison(request):
+    if request.method == "GET":
+        try:
+            context = {
+                "profile_to_merge": get_object_or_404(
+                    Profile, pk=int(request.GET["to_merge"])
+                ),
+                "profile_to_merge_into": get_object_or_404(
+                    Profile, pk=int(request.GET["to_merge_into"])
+                ),
             }
-            context["merge_form"] = ProfileMergeForm(initial=initial)
-        return context
+        except ValueError:
+            raise Http404
+
+    return render(request, "profiles/_hx_profile_comparison.html", context)
 
 
 @permission_required("scipost.can_create_profiles")
@@ -383,53 +443,6 @@ def _hx_profile_specialties(request, profile_id):
         "other_specialties": other_specialties,
     }
     return render(request, "profiles/_hx_profile_specialties.html", context)
-
-
-@transaction.atomic
-@permission_required("scipost.can_create_profiles")
-def profile_merge(request):
-    """
-    Merges one Profile into another.
-    """
-    merge_form = ProfileMergeForm(request.POST or None, initial=request.GET)
-    context = {"merge_form": merge_form}
-
-    if request.method == "POST":
-        if merge_form.is_valid():
-            profile = merge_form.save()
-            messages.success(request, "Profiles merged")
-            return redirect(profile.get_absolute_url())
-        else:
-            try:
-                context.update(
-                    {
-                        "profile_to_merge": get_object_or_404(
-                            Profile, pk=merge_form.cleaned_data["to_merge"].id
-                        ),
-                        "profile_to_merge_into": get_object_or_404(
-                            Profile, pk=merge_form.cleaned_data["to_merge_into"].id
-                        ),
-                    }
-                )
-            except ValueError:
-                raise Http404
-
-    elif request.method == "GET":
-        try:
-            context.update(
-                {
-                    "profile_to_merge": get_object_or_404(
-                        Profile, pk=int(request.GET["to_merge"])
-                    ),
-                    "profile_to_merge_into": get_object_or_404(
-                        Profile, pk=int(request.GET["to_merge_into"])
-                    ),
-                }
-            )
-        except ValueError:
-            raise Http404
-
-    return render(request, "profiles/profile_merge.html", context)
 
 
 @permission_required("scipost.can_create_profiles")

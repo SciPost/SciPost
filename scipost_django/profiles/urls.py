@@ -57,8 +57,22 @@ urlpatterns = [
         ),
     ),
     # Duplicates and merging
-    path("duplicates/", views.ProfileDuplicateListView.as_view(), name="duplicates"),
-    path("merge/", views.profile_merge, name="merge"),
+    path("duplicates/", views.profile_duplicates, name="duplicates"),
+    path(
+        "_hx_profile_comparison",
+        views._hx_profile_comparison,
+        name="_hx_profile_comparison",
+    ),
+    path(
+        "_hx_profile_merge/<int:to_merge>/<int:to_merge_into>",
+        views._hx_profile_merge,
+        name="_hx_profile_merge",
+    ),
+    path(
+        "_hx_profile_mark_non_duplicate/<int:profile1>/<int:profile2>",
+        views._hx_profile_mark_non_duplicate,
+        name="_hx_profile_mark_non_duplicate",
+    ),
     # Emails
     path(
         "<int:profile_id>/add_email", views.add_profile_email, name="add_profile_email"

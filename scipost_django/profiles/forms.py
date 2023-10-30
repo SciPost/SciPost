@@ -8,9 +8,11 @@ from django import forms
 from django.db.models import Q
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Layout, Field, Div
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
+from django.forms import ChoiceField
+from django.urls import reverse
 
 from common.forms import ModelChoiceFieldwithid
 from invitations.models import RegistrationInvitation
@@ -115,15 +117,54 @@ class SimpleProfileForm(ProfileForm):
 
 class ProfileMergeForm(forms.Form):
     to_merge = ModelChoiceFieldwithid(
-        queryset=Profile.objects.all(),
-        widget=autocomplete.ModelSelect2(url="/profiles/profile-autocomplete"),
+        queryset=Profile.objects.potential_duplicates(),
         empty_label=None,
+        label="Merge this profile",
     )
     to_merge_into = ModelChoiceFieldwithid(
-        queryset=Profile.objects.all(),
-        widget=autocomplete.ModelSelect2(url="/profiles/profile-autocomplete"),
+        queryset=Profile.objects.potential_duplicates(),
         empty_label=None,
+        label="into this profile",
     )
+
+    def __init__(self, *args, **kwargs):
+        queryset = kwargs.pop("queryset", None)
+        super().__init__(*args, **kwargs)
+        if queryset:
+            self.fields["to_merge"].queryset = queryset
+            self.fields["to_merge_into"].queryset = queryset
+
+        self.helper = FormHelper()
+        self.helper.attrs = {
+            "hx-target": "#merge-form-info",
+            "hx-get": reverse(
+                "profiles:_hx_profile_comparison",
+            ),
+            "hx-trigger": "intersect once, change from:select",
+        }
+        self.layout = Layout(
+            Div(
+                Div(
+                    Field("to_merge"),
+                    css_id="to_merge",
+                    css_class="col-12 col-md",
+                ),
+                Div(
+                    Field("to_merge_into"),
+                    css_id="to_merge_into",
+                    css_class="col-12 col-md",
+                ),
+                css_class="row mb-0",
+            ),
+            Div(
+                Div(
+                    css_class="col-12",
+                    css_id="merge-form-info",
+                ),
+                css_class="row mb-0",
+            ),
+        )
+        self.helper.layout = self.layout
 
     def clean(self):
         """
@@ -143,8 +184,7 @@ class ProfileMergeForm(forms.Form):
                 "Each of these two Profiles has an active Contributor. "
                 "Merge the Contributors first.\n"
                 "If these are distinct people or if two separate "
-                "accounts are needed, a ProfileNonDuplicate instance should be created; "
-                "contact techsupport.",
+                "accounts are needed, a ProfileNonDuplicate instance should be created.",
             )
         return data
 

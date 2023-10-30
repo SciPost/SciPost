@@ -1,0 +1,226 @@
+{% load bootstrap %}
+{% load scipost_extras %}
+{% load user_groups %}
+
+{% is_ed_admin request.user as is_ed_admin %}
+{% is_scipost_admin request.user as is_scipost_admin %}
+
+
+<table class="table table-sm">
+  <tr>
+    <td>Title:</td>
+    <td>{{ profile.get_title_display }}</td>
+  </tr>
+  <tr>
+    <td>First name:</td>
+    <td>{{ profile.first_name }}</td>
+  </tr>
+  <tr>
+    <td>Last name:</td>
+    <td>{{ profile.last_name }}</td>
+  </tr>
+  <tr>
+    <td>Email(s)</td>
+    <td>
+
+      {% for profile_mail in profile.emails.all %}
+        {{ profile_mail.email }}
+        {{ profile_mail.primary|yesno:'Primary,Alternative' }}
+
+        {% if profile_mail.still_valid %}
+          <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+        {% else %}
+          <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+        {% endif %}
+
+        <br />
+      {% endfor %}
+
+
+    </td>
+
+  </td>
+</tr>
+<tr>
+  <td>Field</td>
+  <td>{{ profile.acad_field }}</td>
+</tr>
+<tr>
+  <td>Specialties</td>
+  <td>
+
+    {% for specialty in profile.specialties.all %}
+      <div class="single d-inline"
+           data-specialty="{{ specialty }}"
+           data-bs-toggle="tooltip"
+           data-bs-placement="bottom"
+           title="{{ specialty }}">{{ specialty.code }}</div>
+    {% endfor %}
+
+
+  </td>
+</tr>
+<tr>
+  <td>ORCID ID</td>
+  <td>
+    <a href="//orcid.org/{{ profile.orcid_id }}"
+       target="_blank"
+       rel="noopener">{{ profile.orcid_id }}</a>
+  </td>
+</tr>
+<tr>
+  <td>Webpage</td>
+  <td>
+    <a href="{{ profile.webpage }}" target="_blank" rel="noopener">{{ profile.webpage|default:'-' }}</a>
+  </td>
+</tr>
+
+<tr class="text-muted">
+  <td>Username</td>
+  <td>{{ profile.contributor.user.username }}</td>
+</tr>
+<tr class="text-muted">
+  <td>Date joined</td>
+  <td>{{ profile.contributor.user.date_joined }}</td>
+</tr>
+<tr class="text-muted">
+  <td>Last login</td>
+  <td>{{ profile.contributor.user.last_login }}</td>
+</tr>
+<tr class="text-muted">
+  <td>Status</td>
+  <td>{{ profile.contributor.get_status_display }}</td>
+</tr>
+<tr class="text-muted">
+  <td>User active?</td>
+  <td>{{ profile.contributor.user.is_active }}</td>
+</tr>
+
+</table>
+
+<h4 class="mb-2 mt-4">Affiliations</h4>
+{% include 'profiles/_affiliations_table.html' %}
+
+
+<h4 class="mb-2 mt-4">SciPost interactions</h4>
+
+<table class="table table-sm">
+  <tr>
+    <td>Publications</td>
+    <td>{{ profile.publications.count }}</td>
+  </tr>
+  <tr class="text-muted">
+    <td>Submissions</td>
+    <td>{{ profile.contributor.submissions.count }}</td>
+  </tr>
+  <tr>
+    <td>Comments</td>
+    <td>{{ profile.comments.count }}</td>
+  </tr>
+  <tr>
+    <td>Theses</td>
+    <td>{{ profile.theses.count }}</td>
+  </tr>
+  <tr class="text-muted">
+    <td>Fellowships</td>
+    <td>{{ profile.contributor.fellowships.count }}</td>
+  </tr>
+  <tr>
+    <td>Potential Fellowships</td>
+    <td>{{ profile.potentialfellowship_set.count }}</td>
+  </tr>
+  <tr>
+    <td>Refereeing invitations</td>
+    <td>{{ profile.refereeinvitation_set.count }}</td>
+  </tr>
+
+</table>
+
+{% comment %} 
+{% if is_scipost_admin or is_ed_admin %}
+  <h4 class="highlight p-2 text-danger">Admin-level info</h4>
+  <div class="row">
+    <div class="col-md-6 col-lg-4 mb-2">
+      <div class="card">
+	<div class="card-header">
+	  Registration invitations
+	</div>
+	<div class="card-body">
+	  <ul>
+	    {% for reginv in profile.registrationinvitation_set.all %}
+	      <li>{{ reginv }}<br />status: {{ reginv.get_status_display }}</li>
+	    {% empty %}
+	      <li>No invitation found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-2">
+      <div class="card">
+	<div class="card-header">
+	  Fellowships and Potential Fellowships
+	</div>
+	<div class="card-body">
+	  <h5>Fellowships</h5>
+	  <ul>
+	    {% for fellowship in profile.fellowships.all %}
+	      <li><a href="{{ fellowship.get_absolute_url }}">{{ fellowship }}</a></li>
+	    {% empty %}
+	      <li>No fellowships found</li>
+	    {% endfor %}
+	  </ul>
+	  <h5>Potential Fellowships</h5>
+	  <ul>
+	    {% for potfellowship in profile.potentialfellowship_set.all %}
+	      <li>{{ potfellowship }}</li>
+	    {% empty %}
+	      <li>No Potential Fellowships found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-2">
+      <div class="card">
+	<div class="card-header">
+	  Refereeing invitations
+	</div>
+	<div class="card-body">
+	  <ul>
+	    {% for inv in profile.refereeinvitation_set.all %}
+	      <li>{{ inv.submission.title }}<br />(invited {{ inv.date_invited }}; fulfilled: {% if inv.fulfilled %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/x-circle-fill.html' %}{% endif %})</li>
+	    {% empty %}
+	      <li>No refereeing invitation found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-2">
+      <div class="card">
+	<div class="card-header">
+	  Actions
+	</div>
+	<div class="card-body">
+	  <ul>
+    	    <li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> this Profile</li>
+    	    <li><a href="{% url 'profiles:profile_delete' pk=profile.id %}" class="text-danger">Delete</a> this Profile</li>
+            {% if email_form %}
+              <li>
+		<div>
+        	  Add an email to this Profile:
+        	  <form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
+        	    {% csrf_token %}
+        	    {{ email_form|bootstrap }}
+        	    <input class="btn btn-outline-secondary" type="submit" value="Add" />
+        	  </form>
+		</div>
+              </li>
+            {% endif %}
+	  </ul>
+	</div>
+      </div>
+    </div>
+  </div>
+{% endif %} {% endcomment %}
