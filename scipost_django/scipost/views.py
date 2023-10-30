@@ -1625,12 +1625,14 @@ def _hx_contributor_merge(request, to_merge: int, to_merge_into: int):
     to solve one person - multiple registrations issues.
     """
 
+    post_data = {
+        **(request.POST or {}),
+        "to_merge": to_merge,
+        "to_merge_into": to_merge_into,
+    }
+
     merge_form = ContributorMergeForm(
-        request.POST or None,
-        initial={
-            "to_merge": to_merge,
-            "to_merge_into": to_merge_into,
-        },
+        post_data,
         queryset=Contributor.objects.filter(id__in=[to_merge, to_merge_into]),
     )
 

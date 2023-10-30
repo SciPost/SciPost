@@ -14,20 +14,23 @@
 
 <div class="row">
   <div class="col-12">
+
     {% if contributor_to_merge.user.is_active and not contributor_to_merge_into.user.is_active %}
       <h3 class="text-danger">
         Warning: the contributor to merge is active, while the one to merge into is not. Consider swapping the order with "Swap & Merge".
       </h3>
-      <div id="contributor-swap-merge-btn"
-           class="btn btn-warning me-2"
-           hx-post="{% url "scipost:_hx_contributor_merge" to_merge=contributor_to_merge.id to_merge_into=contributor_to_merge_into.id %}">
-        Swap & Merge
-      </div>
     {% endif %}
+
     <div id="contributor-merge-btn"
-         class="btn btn-primary"
-         hx-post="{% url "scipost:_hx_contributor_merge" to_merge=contributor_to_merge_into.id to_merge_into=contributor_to_merge.id %}">
+         class="btn btn-primary me-3"
+         hx-post="{% url "scipost:_hx_contributor_merge" to_merge=contributor_to_merge.id to_merge_into=contributor_to_merge_into.id %}">
       Merge
+    </div>
+
+    <div id="contributor-swap-merge-btn"
+         class="btn btn-secondary"
+         hx-post="{% url "scipost:_hx_contributor_merge" to_merge=contributor_to_merge_into.id to_merge_into=contributor_to_merge.id %}">
+      Swap & Merge
     </div>
   </div>
 </div>
