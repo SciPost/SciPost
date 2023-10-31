@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.urls import reverse
 from .appraisal import QualificationForm, ReadinessForm
 
 
@@ -1744,11 +1745,13 @@ class SubmissionForm(forms.ModelForm):
             ).return_active_for_submission(submission)
         elif len(submission.collections.all()) > 0:
             # Add the Fellowships of the collections
-            fellows = set([
-                fellow
-                for collection in submission.collections.all()
-                for fellow in collection.expected_editors.all()
-            ])
+            fellows = set(
+                [
+                    fellow
+                    for collection in submission.collections.all()
+                    for fellow in collection.expected_editors.all()
+                ]
+            )
 
         # Check if neither a Proceedings nor a Collection is set
         # or whether the above queries returned no results
@@ -2867,17 +2870,6 @@ class RecommendationVoteForm(forms.Form):
         choices=ALT_REC_CHOICES,
         required=False,
     )
-    remark = forms.CharField(
-        widget=forms.Textarea(
-            attrs={
-                "rows": 3,
-                "cols": 30,
-                "placeholder": "Any further remark you want to add? (optional)",
-            }
-        ),
-        label="",
-        required=False,
-    )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -2889,6 +2881,51 @@ class RecommendationVoteForm(forms.Form):
                 "If you disagree, you must provide an alternative recommendation "
                 "(by filling both the for journal and recommendation fields)."
             )
+
+
+class RecommendationRemarkForm(forms.Form):
+    """Add a remark to an EICRecommendation."""
+
+    remark = forms.CharField(
+        widget=forms.Textarea(
+            attrs={"rows": 5, "placeholder": "Write your remark in this box."}
+        ),
+        label="",
+    )
+
+    def __init__(self, *args, **kwargs):
+        identifier_w_vn_nr = kwargs.pop("identifier_w_vn_nr")
+        self.rec_id = kwargs.pop("rec_id")
+        self.contributor = kwargs.pop("contributor")
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.attrs = {
+            "hx-target": "#recommendation-remarks",
+            "hx-post": reverse(
+                "submissions:pool:decisionmaking:_hx_recommendation_remarks",
+                kwargs={
+                    "identifier_w_vn_nr": identifier_w_vn_nr,
+                    "rec_id": self.rec_id,
+                },
+            ),
+        }
+        self.helper.layout = Layout(
+            Field("remark"),
+            ButtonHolder(
+                Submit("submit", "Add remark", css_class="mt-2 btn btn-primary")
+            ),
+        )
+
+    def save(self):
+        """Save the remark."""
+        remark = Remark(
+            recommendation=get_object_or_404(EICRecommendation, id=self.rec_id),
+            contributor=self.contributor,
+            remark=self.cleaned_data["remark"],
+        )
+        remark.save()
+        return remark
 
 
 class EditorialDecisionForm(forms.ModelForm):

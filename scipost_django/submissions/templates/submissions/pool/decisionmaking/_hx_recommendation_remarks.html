@@ -1,0 +1,21 @@
+{% load crispy_forms_tags %}
+
+<h3 class="card-title">Remarks:</h3>
+<ul>
+
+  {% for remark in recommendation.remarks.all %}
+    <li class='mb-1'>
+      {{ remark }}
+      <br />
+      {{ remark.remark|linebreaksbr }}
+    </li>
+  {% empty %}
+    <li>
+      <em>No remarks</em>
+    </li>
+  {% endfor %}
+
+  <h5 class="mt-4">Add a new Remark to this recommendation</h5>
+  {% crispy form %}
+
+</ul>

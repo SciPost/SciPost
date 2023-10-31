@@ -2212,26 +2212,16 @@ def vote_on_rec(request, rec_id):
                 )
                 pass
         votechanged = previous_vote and form.cleaned_data["vote"] != previous_vote
-        if form.cleaned_data["remark"] or votechanged:
-            # If the vote is changed, we automatically put a remark
-            extra_remark = ""
-            if votechanged:
-                if form.cleaned_data["remark"]:
-                    extra_remark += "\n"
-                extra_remark += (
-                    "Note from EdAdmin: %s %s changed vote from %s to %s"
-                    % (
-                        request.user.first_name,
-                        request.user.last_name,
-                        previous_vote,
-                        form.cleaned_data["vote"],
-                    )
-                )
+        if votechanged:
             remark = Remark(
                 contributor=request.user.contributor,
                 recommendation=recommendation,
                 date=timezone.now(),
-                remark=form.cleaned_data["remark"] + extra_remark,
+                remark="Note from EdAdmin: {full_name} changed vote from {previous} to {current}".format(
+                    full_name=request.user.get_full_name(),
+                    previous=previous_vote,
+                    current=form.cleaned_data["vote"],
+                ),
             )
             remark.save()
         recommendation.save()

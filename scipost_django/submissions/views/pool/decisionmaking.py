@@ -11,6 +11,7 @@ from colleges.permissions import (
     is_edadmin,
     is_edadmin_or_senior_fellow,
 )
+from submissions.forms import RecommendationRemarkForm
 
 from submissions.models import Submission, EICRecommendation
 from submissions.constants import PUT_TO_VOTING
@@ -166,4 +167,24 @@ def _hx_recommendation_open_voting(
         context={
             "submission": submission,
         },
+    )
+
+
+def _hx_recommendation_remarks(request, identifier_w_vn_nr, rec_id):
+    recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
+
+    new_remark_form = RecommendationRemarkForm(
+        request.POST or None,
+        rec_id=rec_id,
+        identifier_w_vn_nr=identifier_w_vn_nr,
+        contributor=request.user.contributor,
+    )
+
+    if request.method == "POST" and new_remark_form.is_valid():
+        new_remark_form.save()
+
+    return render(
+        request,
+        "submissions/pool/decisionmaking/_hx_recommendation_remarks.html",
+        context={"recommendation": recommendation, "form": new_remark_form},
     )

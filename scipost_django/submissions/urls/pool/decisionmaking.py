@@ -11,7 +11,7 @@ app_name = "decisionmaking"
 
 urlpatterns = [  # building on /submissions/pool/decisionmaking
     path(
-        "<identifier:identifier_w_vn_nr>/",
+        "/<identifier:identifier_w_vn_nr>/",
         include(
             [
                 path(
@@ -22,6 +22,11 @@ urlpatterns = [  # building on /submissions/pool/decisionmaking
                                 "_hx_recommendation_voting_details_contents",
                                 views._hx_recommendation_voting_details_contents,
                                 name="_hx_recommendation_voting_details_contents",
+                            ),
+                            path(
+                                "_hx_recommendation_remarks",
+                                views._hx_recommendation_remarks,
+                                name="_hx_recommendation_remarks",
                             ),
                             path(
                                 "voting_rights/grant/",

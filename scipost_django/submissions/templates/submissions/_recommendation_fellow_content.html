@@ -102,14 +102,10 @@
 	</table>
       {% endif %}
 
-      <h3 class="card-title">Remarks:</h3>
-      <ul>
-        {% for rem in recommendation.remarks.all %}
-          <li>{% include 'submissions/_remark_small.html' with remark=rem %}</li>
-        {% empty %}
-          <li><em>No remarks</em></li>
-        {% endfor %}
-      </ul>
+      <div id="recommendation-remarks"
+          hx-get="{% url "submissions:pool:decisionmaking:_hx_recommendation_remarks" identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id%}"
+          hx-trigger="load">
+      </div>
 
     </div>
 
