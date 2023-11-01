@@ -55,8 +55,8 @@
       {% endif %}
 
       <br>
-      {% if submission.eicrecommendations %}
-	<h3 class="highlight" id="editorial-recommendation">Editorial Recommendation</h3>
+      <h3 class="highlight" id="editorial-recommendation">Editorial Recommendation</h3>
+      {% if submission.eicrecommendations.all %}
 	{% include 'submissions/_previous_recommendations_card_fellow_content.html' with recommendation=submission.eicrecommendations.last %}
         {% include 'submissions/_recommendation_fellow_content.html' with recommendation=submission.eicrecommendations.last %}
       {% endif %}
