@@ -1,9 +1,9 @@
 {% load scipost_extras %}
 {% load submissions_extras %}
 
-<div class="row mb-5">
-  <div class="col-12">
-    <div class="report" id="report_{{ report.report_nr }}">
+<div class="report" id="report_{{ report.report_nr }}">
+  <div class="row mb-5">
+    <div class="col-12">
       <div class="reportid">
         <h3>
           {% if report.anonymous %}
@@ -52,6 +52,12 @@
 	      </div>
 	    </div>
 	  {% endif %}
+    {% else %}
+      {% if user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
+        <button class="btn btn-sm btn-danger text-white my-2" hx-get="{% url "submissions:_hx_anonymize_report" report_id=report.id %}" hx-target="#report_{{report.report_nr}}" hx-swap="outerHTML">
+          Anonymize this report
+        </button>
+      {% endif %}
 	{% endif %}
         {% if report.doi_string or report.pdf_report %}
           <ul class="clickables">

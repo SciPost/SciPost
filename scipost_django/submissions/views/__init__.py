@@ -99,6 +99,7 @@ from colleges.models import PotentialFellowship, Fellowship
 from colleges.permissions import (
     fellowship_required,
     fellowship_or_admin_required,
+    is_edadmin,
     is_edadmin_or_senior_fellow,
 )
 from comments.forms import CommentForm
@@ -857,6 +858,25 @@ def report_pdf_compile(request, report_id):
         "form": form,
     }
     return render(request, "submissions/admin/report_compile_form.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_anonymize_report(request, report_id):
+    report = get_object_or_404(Report, id=report_id)
+    report.anonymous = True
+    report.save()
+    report.submission.add_event_for_eic(
+        f"{request.user.get_full_name()} anonymized "
+        f"referee report #{report.report_nr} "
+        f"(by {report.author.profile.full_name})"
+    )
+
+    return render(
+        request,
+        "submissions/_report_public.html",
+        {"report": report, "submission": report.submission},
+    )
 
 
 @permission_required("scipost.can_manage_reports", raise_exception=True)

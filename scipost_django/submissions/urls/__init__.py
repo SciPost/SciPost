@@ -226,9 +226,9 @@ urlpatterns = [
         name="report_pdf_compile",
     ),
     path(
-        "admin/reports/<int:report_id>/compile",
-        views.report_pdf_compile,
-        name="report_pdf_compile",
+        "admin/reports/<int:report_id>/_hx_anonymize_report",
+        views._hx_anonymize_report,
+        name="_hx_anonymize_report",
     ),
     # Submission, resubmission, withdrawal
     path(  # Start a new submission process; choose resub or new sub (with field choice)
