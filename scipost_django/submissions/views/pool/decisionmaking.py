@@ -182,6 +182,11 @@ def _hx_recommendation_remarks(request, identifier_w_vn_nr, rec_id):
 
     if request.method == "POST" and new_remark_form.is_valid():
         new_remark_form.save()
+        new_remark_form = RecommendationRemarkForm(
+            rec_id=rec_id,
+            identifier_w_vn_nr=identifier_w_vn_nr,
+            contributor=request.user.contributor,
+        )
 
     return render(
         request,
