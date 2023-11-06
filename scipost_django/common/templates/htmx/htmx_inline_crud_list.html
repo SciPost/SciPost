@@ -1,0 +1,9 @@
+{% load crispy_forms_tags %}
+
+{% for object in object_list %}
+  <div hx-get="{{ object.model_form_view_url }}"
+       hx-swap="outerHTML"
+       hx-trigger="load"></div>
+{% endfor %}
+
+{% include "htmx/htmx_inline_crud_new_form.html" %}

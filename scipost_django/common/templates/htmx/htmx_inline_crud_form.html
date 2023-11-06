@@ -1,0 +1,63 @@
+{% load crispy_forms_tags %}
+
+<div id="{{ target_element_id }}" class="htmx-crud-element">
+
+  {% if form %}
+    <form id="{{ target_element_id }}-form">
+
+      {% if form.errors %}
+        <h1 class="text-danger">Warning: there was an error filling the voting form</h1>
+
+        {% for field in form %}
+
+          {% for error in field.errors %}
+            <div class="alert alert-danger">
+              <strong>{{ error|escape }}</strong>
+            </div>
+          {% endfor %}
+        {% endfor %}
+
+        {% for error in form.non_field_errors %}
+          <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+          </div>
+        {% endfor %}
+
+      {% endif %}
+
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="block w-100">{% crispy form %}</div>
+        <div id="{{ target_element_id }}-actions" class="htmx-crud-button-actions">
+          <button class="btn text-success"
+                  title="Save"
+                  hx-post="{{ view.request.path|add:"?&edit=1" }}"
+                  hx-target="#{{ target_element_id }}">{% include "bi/check-circle.html" %}</button>
+          <button class="btn text-secondary"
+                  title="Cancel"
+                  hx-get="{{ view.request.path }}"
+                  hx-target="#{{ target_element_id }}">{% include "bi/x-circle.html" %}</button>
+        </div>
+      </div>
+ 
+    </form>
+
+  {% else %}
+
+    <div class="d-flex justify-content-between align-items-center">
+      {% include ""|add:instance_li_template_name %}
+      <div id="{{ target_element_id }}-actions" class="htmx-crud-button-actions">
+        <button class="btn text-primary"
+                title="Edit"
+                hx-get="{{ view.request.path|add:"?&edit=1" }}"
+                hx-target="#{{ target_element_id }}">{% include "bi/pencil-square.html" %}</button>
+        <button class="btn text-danger"
+                title="Delete"
+                hx-confirm="Are you sure you want to delete this {{ instance_type|title }}?"
+                hx-delete="{{ view.request.path }}"
+                hx-target="#{{ target_element_id }}">{% include "bi/trash-fill.html" %}</button>
+      </div>
+    </div>
+
+  {% endif %}
+
+</div>

@@ -3,6 +3,14 @@ __license__ = "AGPL v3"
 
 
 from django import forms
+from crispy_forms.helper import FormHelper
+
+
+class HTMXInlineCRUDModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper() if not hasattr(self, "helper") else self.helper
+        self.helper.form_tag = False
 
 
 class ModelChoiceFieldwithid(forms.ModelChoiceField):

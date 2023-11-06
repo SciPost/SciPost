@@ -1,0 +1,24 @@
+{% load crispy_forms_tags %}
+
+<div id="{{ instance_type }}-new-container">
+ 
+
+  {% if add_form %}
+    <form id="{{ instance_type }}-new-form"
+          class="d-flex"
+          hx-post="{{ post_url }}"
+          hx-target="#{{ instance_type }}-new-container">
+      {% crispy add_form %}
+      <input type="submit" class="btn btn-sm btn-primary" />
+    </form>
+ 
+  {% else %}
+ 
+    <div class="d-flex justify-content-end m-2">
+      <button class="btn btn-sm btn-primary"
+              hx-post="{{ post_url }}"
+              hx-target="#{{ instance_type }}-new-container">Create</button>
+    </div>
+  {% endif %}
+
+</div>
