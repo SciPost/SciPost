@@ -31,3 +31,14 @@ def rstrip_minutes(text):
     if "day" in text or "hour" in text:
         return re.split("[0-9]+\xa0minutes", text, 1)[0].rstrip(", ")
     return text
+
+
+# Math
+@register.filter
+def int_divide(a, b):
+    return a // b
+
+
+@register.filter
+def multiply(a, b):
+    return a * b
