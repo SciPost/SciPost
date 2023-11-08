@@ -9,6 +9,8 @@ import datetime
 import dateutil.parser
 import logging
 
+from common.utils import remove_extra_spacing
+
 from submissions.constants import FIGSHARE_PREPRINT_SERVERS
 from submissions.models import PreprintServer
 
@@ -155,12 +157,12 @@ class ArxivCaller:
 
     def _format_data(self):
         data = self._arxiv_data
-        title = data["title"]
+        title = remove_extra_spacing(data["title"])
         author_list = [author["name"] for author in data.get("authors", [])]
         # author_list is given as a comma separated list of names on the relevant models (Commentary, Submission)
         author_list = ", ".join(author_list)
         arxiv_link = data["id"].replace("http:", "https:")
-        abstract = data["summary"]
+        abstract = remove_extra_spacing(data["summary"])
         pub_date = dateutil.parser.parse(data["published"]).date()
 
         self.data = {

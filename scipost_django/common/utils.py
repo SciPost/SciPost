@@ -177,6 +177,13 @@ def get_current_domain():
         return "fake.domain"
 
 
+def remove_extra_spacing(text):
+    """
+    Remove extra spacing from text in the form of multiple spaces.
+    """
+    return " ".join(text.strip().split())
+
+
 # MARKED FOR DEPRECATION
 class BaseMailUtil(object):
     mail_sender = "no-reply@%s" % get_current_domain()

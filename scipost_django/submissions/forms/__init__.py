@@ -67,7 +67,7 @@ from ..models import (
 from ..regexes import CHEMRXIV_DOI_PATTERN
 
 from colleges.models import Fellowship
-from common.utils import Q_with_alternative_spellings
+from common.utils import Q_with_alternative_spellings, remove_extra_spacing
 from journals.models import Journal, Publication
 from journals.constants import (
     PUBLISHABLE_OBJECT_TYPE_ARTICLE,
@@ -1617,6 +1617,12 @@ class SubmissionForm(forms.ModelForm):
                 "You must agree to the terms and conditions to submit a manuscript."
             )
 
+    def clean_title(self):
+        return remove_extra_spacing(self.cleaned_data["title"])
+    
+    def clean_abstract(self):
+        return remove_extra_spacing(self.cleaned_data["abstract"])
+    
     @transaction.atomic
     def save(self):
         """
