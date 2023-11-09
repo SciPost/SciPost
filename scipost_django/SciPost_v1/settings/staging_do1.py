@@ -33,6 +33,9 @@ LOGGING["handlers"]["api_file"][
 LOGGING["handlers"]["oauth_file"][
     "filename"
 ] = "/home/scipost/SciPost/local_files/logs/oauth.log"
+LOGGING["handlers"]["submission_fellowship_updates"][
+    "filename"
+] = "/home/scipost/SciPost/local_files/logs/submission_fellowship_updates.log"
 
 # Cookies
 SESSION_COOKIE_SECURE = True
