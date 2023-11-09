@@ -7,6 +7,7 @@ from django.db.models import Q
 from django import forms
 
 from guardian.admin import GuardedModelAdmin
+from ethics.admin import RedFlagInline
 
 from submissions.models import (
     SubmissionAuthorProfile,
@@ -172,6 +173,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         SubmissionClearanceInline,
         SubmissionTieringInline,
         CollectionInline,
+        RedFlagInline,
     ]
 
     # Admin fields should be added in the fieldsets

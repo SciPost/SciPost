@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
+from ethics.admin import RedFlagInline
+
 from .models import Profile, ProfileEmail, ProfileNonDuplicates, Affiliation
 
 
@@ -23,10 +25,8 @@ class AffiliationInline(admin.TabularInline):
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ["__str__", "email", "acad_field", "has_active_contributor"]
     search_fields = ["first_name", "last_name", "emails__email", "orcid_id"]
-    inlines = [ProfileEmailInline, AffiliationInline]
-    autocomplete_fields = [
-        "topics",
-    ]
+    inlines = [ProfileEmailInline, AffiliationInline, RedFlagInline]
+    autocomplete_fields = ["topics"]
 
 
 admin.site.register(Profile, ProfileAdmin)

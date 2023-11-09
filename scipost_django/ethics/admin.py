@@ -2,9 +2,17 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from typing import Any, Optional
 from django.contrib import admin
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib.contenttypes.models import ContentType
-from django.forms import ChoiceField
+from django.db.models.fields import Field
+from django.forms import ChoiceField, widgets
+from django.forms.fields import TypedChoiceField
+from django.http.request import HttpRequest
+from blog import forms
+
+from profiles.models import Profile
 
 from .models import CompetingInterest, RedFlag
 
@@ -59,12 +67,33 @@ class ConcerningObjectExistingFilter(admin.SimpleListFilter):
 
 @admin.register(RedFlag)
 class RedFlagAdmin(admin.ModelAdmin):
-    search_fields = ("concerning_object_id", "raised_by__last_name")
-    list_filter = ["resolved", ConcerningObjectExistingFilter]
+    model = RedFlag
     list_display = (
-        "concerning_object",
-        "raised_by",
         "description",
+        "raised_by",
         "raised_on",
         "resolved",
     )
+
+
+class RedFlagInline(GenericTabularInline):
+    ct_field = "concerning_object_type"
+    ct_fk_field = "concerning_object_id"
+    fk_name = "concerning_object"
+    model = RedFlag
+    extra = 0
+
+    fields = ["raised_on", "raised_by", "description", "resolved"]
+    autocomplete_fields = ["raised_by"]
+
+    # modify the description textarea field to have 2 rows
+    def formfield_for_dbfield(self, db_field: Field, **kwargs: Any) -> Any:
+        if db_field.name == "description":
+            kwargs["widget"] = widgets.Textarea(attrs={"rows": 1})
+        return super().formfield_for_dbfield(db_field, **kwargs)
+
+    # prefill the autocomplete field with the current user
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "raised_by":
+            kwargs["initial"] = request.user.contributor
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
