@@ -2,7 +2,9 @@
 {% load ethics_extras %}
 
 <tr>
-  <td>{{ fellowship.contributor }}</td>
+  <td>
+    <a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor }}</a>
+  </td>
   <td>{{ fellowship.get_status_display }}</td>
   <td>
 
@@ -12,6 +14,9 @@
       <span class="text-danger">{% include "bi/x-square-fill.html" %}</span>
     {% endif %}
 
+  </td>
+  <td>
+    {% include "icons/reception.html" with value=fellowship.contributor.editorial_assignments.ongoing.count max=4 %}
   </td>
   <td>{% get_fellow_qualification_expertise_level_display submission fellowship %}</td>
 
