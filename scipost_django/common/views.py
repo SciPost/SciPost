@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.db.models.query import QuerySet
 from django.forms.forms import BaseForm
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic import CreateView, FormView, ListView
@@ -28,6 +28,7 @@ class HTMXInlineCRUDModelFormView(FormView):
         context = super().get_context_data(**kwargs)
         context["target_element_id"] = self.get_target_element_id()
         context["instance_li_template_name"] = self.instance_li_template_name
+        context["instance_type"] = self.instance_type
         context[self.instance_type] = context["instance"] = self.instance
         return context
 
@@ -87,33 +88,51 @@ class HTMXInlineCRUDModelListView(ListView):
         super().__init__(**kwargs)
         self.instance_type = self.model.__name__.lower()
 
-    def _append_model_form_view_url(self, queryset: QuerySet) -> QuerySet:
+    def _append_model_form_view_url(self, queryset: QuerySet, **kwargs) -> QuerySet:
         for object in queryset:
+            kwargs.update({"pk": object.pk})
             object.model_form_view_url = reverse(
-                self.model_form_view_url, kwargs={"pk": object.pk}
+                self.model_form_view_url, kwargs=kwargs
             )
+
         return queryset
 
     def post(self, request, *args, **kwargs):
+        """
+        Post requests to the list view are treated as new object creation requests.
+        """
         if self.add_form_class is None:
             return empty(request)
-        add_form = self.add_form_class(request.POST or None)
+
+        add_form = self.add_form_class(request.POST or None, **kwargs)
+
         if add_form.is_valid():
-            add_form.save()
+            object = add_form.save()
+            kwargs.update({"pk": object.pk})
+
             messages.success(self.request, f"{self.instance_type.title()} successfully")
-        return TemplateResponse(
-            request,
-            "htmx/htmx_inline_crud_new_form.html",
-            {
-                "post_url": request.path,
-                "add_form": add_form,
-                "instance_type": self.instance_type,
-            },
-        )
+
+            return redirect(reverse(self.model_form_view_url, kwargs=kwargs))
+        else:
+            response = TemplateResponse(
+                request,
+                "htmx/htmx_inline_crud_new_form.html",
+                {
+                    "list_url": request.path,
+                    "add_form": add_form,
+                    "instance_type": self.instance_type,
+                },
+            )
+
+            # Modify headers to swap in place with "HX-Reswap": "outerHTML"
+            # This will avoid duplication of the form if errors are present
+            response["HX-Reswap"] = "outerHTML"
+
+            return response
 
     def get_context_data(self, **kwargs: Any):
         context = super().get_context_data(**kwargs)
-        context["post_url"] = self.request.path
+        context["list_url"] = self.request.path
         context["instance_type"] = self.instance_type
         return context
 

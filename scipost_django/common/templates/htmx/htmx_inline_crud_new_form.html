@@ -5,20 +5,27 @@
 
   {% if add_form %}
     <form id="{{ instance_type }}-new-form"
-          class="d-flex"
-          hx-post="{{ post_url }}"
+          class="row"
+          hx-post="{{ list_url }}"
+          hx-swap="beforebegin"
           hx-target="#{{ instance_type }}-new-container">
       {% crispy add_form %}
-      <input type="submit" class="btn btn-sm btn-primary" />
+      <div class="col-auto align-self-center">
+        <input type="submit" class="btn btn-sm btn-primary" />
+      </div>
     </form>
- 
-  {% else %}
- 
-    <div class="d-flex justify-content-end m-2">
-      <button class="btn btn-sm btn-primary"
-              hx-post="{{ post_url }}"
-              hx-target="#{{ instance_type }}-new-container">Create</button>
-    </div>
   {% endif %}
 
+  <div class="d-flex justify-content-end m-2">
+    <button class="btn btn-sm"
+            title="Add new {{ instance_type }}"
+            hx-post="{{ list_url }}"
+            hx-target="#{{ instance_type }}-new-container"
+            hx-swap="outerHTML">
+      <span class="text-success fs-2">{% include "bi/plus-square.html" %}</span>
+    </button>
+
+
+  </div>
+ 
 </div>
