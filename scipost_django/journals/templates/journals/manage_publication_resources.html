@@ -1,0 +1,19 @@
+
+{% extends "scipost/base.html" %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Publication resources</span>
+{% endblock breadcrumb_items %}
+
+{% block pagetitle %}
+  : Publication resources
+{% endblock pagetitle %}
+
+{% block content %}
+  <h2>Publication resources</h2>
+  <div hx-get="{% url "journals:_hx_publication_resource_list" doi_label=publication.doi_label %}"
+       hx-trigger="load once"></div>
+{% endblock content %}

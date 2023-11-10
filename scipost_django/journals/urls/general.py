@@ -174,6 +174,21 @@ urlpatterns = [
         journals_views.draft_accompanying_publication,
         name="draft_accompanying_publication",
     ),
+    path(
+        "admin/<publication_doi_label:doi_label>/manage_publication_resources",
+        journals_views.manage_publication_resources,
+        name="manage_publication_resources",
+    ),
+    path(
+        "admin/<publication_doi_label:doi_label>/_hx_publication_resource/<int:pk>",
+        journals_views.HTMXInlinePublicationResourceFormView.as_view(),
+        name="_hx_publication_resource",
+    ),
+    path(
+        "admin/<publication_doi_label:doi_label>/_hx_publication_resource_list",
+        journals_views.HTMXInlinePublicationResourceListView.as_view(),
+        name="_hx_publication_resource_list",
+    ),
     # Admin: Volumes and Issues
     path(
         "admin/volumes/",

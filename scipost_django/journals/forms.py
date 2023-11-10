@@ -21,6 +21,9 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
+from common.forms import HTMXInlineCRUDModelForm
+
+from journals.models.resource import PublicationResource
 
 from .constants import (
     STATUS_DRAFT,
@@ -650,15 +653,32 @@ class DraftAccompanyingPublicationForm(forms.Form):
     title = forms.CharField(max_length=300)
     abstract = forms.CharField(widget=forms.Textarea())
     doi_label_suffix = forms.CharField(max_length=128)
+    pubtype = forms.ChoiceField(
+        choices=Publication.PUBTYPE_CHOICES,
+        widget=forms.RadioSelect(),
+        label="Publication type",
+    )
+    inherit = forms.MultipleChoiceField(
+        choices=[
+            ("abstract_jats", "Abstract (JATS)"),
+            ("metadata.funding_statement", "Funding statement"),
+        ],
+        widget=forms.CheckboxSelectMultiple(attrs={"checked": "checked"}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("anchor"),
-            FloatingField("title"),
-            Field("abstract"),
-            FloatingField("doi_label_suffix"),
+            Field("anchor", css_class="mb-3"),
+            Field("pubtype", css_class="d-flex flex-wrap gap-3 mb-3"),
+            Field("title", css_class="mb-3"),
+            Field("abstract", css_class="mb-3"),
+            Field("doi_label_suffix", css_class="mb-3"),
+            Field(
+                "inherit",
+                css_class="d-flex flex-wrap gap-2 mb-3",
+            ),
             ButtonHolder(Submit("submit", "Submit", css_class="btn btn-primary")),
         )
 
@@ -681,6 +701,7 @@ class DraftAccompanyingPublicationForm(forms.Form):
             submission_date=anchor.submission_date,
             acceptance_date=anchor.acceptance_date,
             publication_date=anchor.publication_date,
+            pubtype=self.cleaned_data["pubtype"],
         )
         companion.save()
         # Handle ManyToMany fields
@@ -716,6 +737,36 @@ class DraftAccompanyingPublicationForm(forms.Form):
                 publication=companion,
                 fraction=pubfrac.fraction,
             )
+
+        # Add DOI of each companion to the anchor's metadata and vice versa
+        anchor.metadata["citation_list"].append(
+            {
+                "doi": companion.doi_string,
+                "key": "ref" + str(len(anchor.metadata["citation_list"]) + 1),
+            }
+        )
+        anchor.save()
+
+        companion.metadata.setdefault("citation_list", [])
+        companion.metadata["citation_list"].append(
+            {
+                "doi": anchor.doi_string,
+                "key": "ref" + str(len(companion.metadata["citation_list"]) + 1),
+            }
+        )
+
+        # Inherit the selected fields from the anchor
+        for field in self.cleaned_data["inherit"]:
+            if "." not in field:
+                setattr(companion, field, getattr(anchor, field))
+            # Inherit the selected fields from the anchor's field as a dict
+            else:
+                field, key = field.split(".")
+                field_dict = getattr(companion, field)
+                field_dict[key] = getattr(anchor, field).get(key)
+                setattr(companion, field, field_dict)
+
+        companion.save()
 
         return companion
 
@@ -990,3 +1041,29 @@ class PublicationDynSelForm(forms.Form):
             return publications
         else:
             return Publication.objects.none()
+
+
+class HTMXInlinePublicationResourceForm(HTMXInlineCRUDModelForm):
+    class Meta:
+        model = PublicationResource
+        fields = ["publication", "_type", "url", "comments"]
+        widgets = {
+            "publication": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        doi = kwargs.pop("doi_label", None)
+        super().__init__(*args, **kwargs)
+        self.fields["_type"].choices = PublicationResource.TYPE_CHOICES
+        self.fields["_type"].label = "Resource type"
+        self.fields["url"].label = "URL"
+
+        if doi:
+            self.fields["publication"].initial = Publication.objects.get(doi_label=doi)
+
+        self.helper.layout = Layout(
+            Div(FloatingField("publication"), css_class="col-12"),
+            Div(FloatingField("_type"), css_class="col-3"),
+            Div(FloatingField("url"), css_class="col-9"),
+            Div(FloatingField("comments"), css_class="col"),
+        )

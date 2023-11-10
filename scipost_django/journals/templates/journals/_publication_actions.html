@@ -6,6 +6,7 @@
   <li><a href="{% url 'journals:create_citation_list_metadata' publication.doi_label %}">Create/update citation list metadata</a></li>
   <li><a href="{% url 'journals:create_funding_info_metadata' publication.doi_label %}">Create/update funding info metadata</a></li>
   <li><a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">Create/update the XML metadata</a></li>
+  <li><a href="{% url 'journals:manage_publication_resources' publication.doi_label %}">Manage publication resources</a></li>
   <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'test' %}">Test metadata deposit (via Crossref test server)</a></li>
   <li><a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'deposit' %}">Deposit the metadata to Crossref</a></li>
   <li><a href="{% url 'journals:produce_metadata_DOAJ' doi_label=publication.doi_label %}">Produce DOAJ metadata</a></li>
