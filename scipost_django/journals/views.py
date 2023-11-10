@@ -688,6 +688,7 @@ def draft_accompanying_publication(request, doi_label):
     return render(request, "journals/draft_accompanying_publication.html", context)
 
 
+@permission_required("scipost.can_draft_publication", raise_exception=True)
 def manage_publication_resources(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
     context = {
@@ -698,6 +699,11 @@ def manage_publication_resources(request, doi_label):
     )
 
 
+@method_decorator(login_required, name="dispatch")
+@method_decorator(
+    permission_required("scipost.can_draft_publication", raise_exception=True),
+    name="dispatch",
+)
 class HTMXInlinePublicationResourceListView(HTMXInlineCRUDModelListView):
     model = PublicationResource
     model_form_view_url = "journals:_hx_publication_resource"
