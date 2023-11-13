@@ -1,19 +1,31 @@
 
-{% extends "scipost/base.html" %}
+{% extends 'scipost/_personal_page_base.html' %}
 
 {% load bootstrap %}
 
-{% block breadcrumb_items %}
-  {{ block.super }}
-  <span class="breadcrumb-item">Publication resources</span>
-{% endblock breadcrumb_items %}
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+        <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+        <span class="breadcrumb-item active">Publication resources</span>
+      </nav>
+    </div>
+  </div>
+{% endblock %}
 
 {% block pagetitle %}
   : Publication resources
 {% endblock pagetitle %}
 
 {% block content %}
-  <h2>Publication resources</h2>
+  <h2>
+    Publication resources for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a>
+  </h2>
   <div hx-get="{% url "journals:_hx_publication_resource_list" doi_label=publication.doi_label %}"
        hx-trigger="load once"></div>
+
+  <a class="btn btn-sm btn-primary"
+     href="{{ publication.get_absolute_url }}">Back to Publication</a>
 {% endblock content %}
