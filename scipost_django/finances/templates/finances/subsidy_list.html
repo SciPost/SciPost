@@ -1,78 +1,111 @@
 {% extends 'finances/base.html' %}
-
 {% load crispy_forms_tags %}
 
-{% block meta_description %}{{ block.super }} Subsidies List{% endblock meta_description %}
-{% block pagetitle %}: Subsidies{% endblock pagetitle %}
+{% block meta_description %}
+  {{ block.super }} Subsidies List
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Subsidies
+{% endblock pagetitle %}
 
 {% load static %}
 {% load bootstrap %}
 
-
-{% block breadcrumb_items %}
-  {{ block.super }}
-  <span class="breadcrumb-item">Subsidies</span>
-{% endblock %}
+{% block breadcrumb_items %}{{ block.super }}  <span class="breadcrumb-item">Subsidies</span>{% endblock %}
 
 {% block content %}
-
+ 
   <div class="row">
     <div class="col-12">
       <h1 class="highlight">Subsidies</h1>
+
       {% if perms.scipost.can_manage_subsidies %}
-	<ul>
-	  <li><a href="{% url 'finances:subsidy_create' %}">Add a Subsidy</a></li>
-	  <li><a href="{% url 'finances:subsidies_old' %}" target="_blank">Go to the old list page</a></li>
-	</ul>
+ 
+        <ul>
+          <li>
+            <a href="{% url 'finances:subsidy_create' %}">Add a Subsidy</a>
+          </li>
+          <li>
+            <a href="{% url 'finances:subsidies_old' %}" target="_blank">Go to the old list page</a>
+          </li>
+        </ul>
       {% endif %}
+
+ 
     </div>
   </div>
-
   <div class="row">
     <div class="col">
-      <div class="card mb-2">
-	<div class="card-header">
-	  Search / filter
-	  <span id="indicator-subsidy-list"
-		class="htmx-indicator p-2"
-	  >
-	    <button class="btn btn-warning" type="button" disabled>
-	      <strong>Loading...</strong>
-	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	    </button>
-	  </span>
-	</div>
-	<div class="card-body">
-	  <form
-	      id="subsidy-search-form"
-	      hx-post="{% url 'finances:_hx_subsidy_list' %}"
-	      hx-trigger="load, keyup delay:500ms, change"
-	      hx-target="#subsidy-table-tbody"
-	      hx-indicator="#indicator-subsidy-list"
-	  >
-	    {% crispy form %}
-	  </form>
-	</div>
-      </div>
-      <table class="table">
-	<thead class="table-light">
-	  <tr>
-	    <th>From Organization</th>
-	    <th>Type</th>
-	    <th>Amount</th>
-	    <th>From</th>
-	    <th>Until</th>
-	    {% if perms.scipost.can_manage_subsidies %}
-	      <th>Status</th>
-	      <th><span class="small" style="writing-mode: vertical-lr;">Renewable?</span></th>
-	      <th><span class="small" style="writing-mode: vertical-lr;">Renewed?</span></th>
-	      <th>Renewal<br/>action date</th>
-	    {% endif %}
-	  </tr>
-	<tbody id="subsidy-table-tbody">
-	</tbody>
-      </table>
-    </div>
-  </div>
 
-{% endblock content %}
+      <div class="card mb-2">
+
+        <div class="card-header d-flex flex-row align-items-center justify-content-between">
+          <span class="fs-5">Search / filter</span>
+ 
+          <span>
+            <span id="indicator-subsidy-list" class="htmx-indicator p-2">
+              <button class="btn btn-warning" type="button" disabled>
+                <strong>Loading...</strong>
+                <div class="spinner-grow spinner-grow-sm ms-2"
+                     role="status"
+                     aria-hidden="true"></div>
+              </button>
+            </span>
+            <button id="refresh-button" class="m-2 btn btn-primary">
+              {% include "bi/arrow-clockwise.html" %}
+              &nbsp;Refresh
+            </button>
+          </span>
+        </div>
+
+        <div class="card-body">
+          <form id="subsidy-search-form"
+                hx-post="{% url 'finances:_hx_subsidy_list' %}"
+                hx-trigger="load, keyup delay:500ms, change, click from:#refresh-button"
+                hx-target="#subsidy-table-tbody"
+                hx-indicator="#indicator-subsidy-list">
+            {% crispy form %}
+          </form>
+        </div>
+
+      </div>
+
+
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>From Organization</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>From</th>
+            <th>Until</th>
+
+            {% if perms.scipost.can_manage_subsidies %}
+ 
+              <th>Status</th>
+              <th>
+                <span class="small" style="writing-mode: vertical-lr;">Renewable?</span>
+              </th>
+              <th>
+                <span class="small" style="writing-mode: vertical-lr;">Renewed?</span>
+              </th>
+              <th>
+                Renewal
+                <br />
+                action date
+              </th>
+            {% endif %}
+
+ 
+          </tr>
+ 
+          <tbody id="subsidy-table-tbody">
+          </tbody>
+ 
+        </table>
+
+
+      </div>
+    </div>
+  {% endblock content %}

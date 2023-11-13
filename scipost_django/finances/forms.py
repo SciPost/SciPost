@@ -7,16 +7,20 @@ import re
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.dates import MONTHS
-from django.db.models import Q, Sum
+from django.db.models import Q, Case, DateField, Sum, Value, When, F
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
-from crispy_forms.bootstrap import InlineRadios
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
 from dateutil.rrule import rrule, MONTHLY
+from finances.constants import (
+    SUBSIDY_STATUS,
+    SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
+    SUBSIDY_TYPES,
+)
 
 from organizations.models import Organization
 from scipost.fields import UserModelChoiceField
@@ -65,14 +69,34 @@ class SubsidySearchForm(forms.Form):
         required=False,
         label="Country name or code",
     )
-    ordering = forms.ChoiceField(
+    status = forms.MultipleChoiceField(
+        label="Status",
+        choices=SUBSIDY_STATUS,
+        required=False,
+    )
+    type = forms.MultipleChoiceField(
+        choices=SUBSIDY_TYPES,
+        required=False,
+    )
+
+    orderby = forms.ChoiceField(
+        label="Order by",
         choices=(
             ("amount", "Amount"),
             ("date_from", "Date from"),
             ("date_until", "Date until"),
+            ("annot_renewal_action_date", "Renewal date"),
         ),
-        initial="date_from",
-        widget=forms.RadioSelect,
+        required=False,
+    )
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=(
+            # FIXME: Emperically, the ordering appers to be reversed for dates?
+            ("-", "Ascending"),
+            ("+", "Descending"),
+        ),
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
@@ -80,10 +104,19 @@ class SubsidySearchForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(FloatingField("organization_query"), css_class="col-lg-5"),
-                Div(FloatingField("country"), css_class="col-lg-3"),
-                Div(InlineRadios("ordering"), css_class="col-lg-4"),
-                css_class="row",
+                Div(
+                    Div(FloatingField("organization_query"), css_class="col-12"),
+                    Div(
+                        Div(FloatingField("country"), css_class="col-12 col-lg-4"),
+                        Div(FloatingField("orderby"), css_class="col-6 col-lg-4"),
+                        Div(FloatingField("ordering"), css_class="col-6 col-lg-4"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col-12 col-lg",
+                ),
+                Div(Field("status", size=6), css_class="col-12 col-lg-auto"),
+                Div(Field("type", size=6), css_class="col-12 col-lg-auto"),
+                css_class="row mb-0",
             ),
         )
 
@@ -92,6 +125,19 @@ class SubsidySearchForm(forms.Form):
             subsidies = Subsidy.objects.all()
         else:
             subsidies = Subsidy.objects.obtained()
+
+        # Include `renewal_action_date` property in queryset
+        subsidies = subsidies.annotate(
+            annot_renewal_action_date=Case(
+                When(
+                    Q(subsidy_type=SUBSIDY_TYPE_SPONSORSHIPAGREEMENT),
+                    then=F("date_until") - datetime.timedelta(days=122),
+                ),
+                default=Value(None),
+                output_field=DateField(),
+            )
+        )
+
         if self.cleaned_data["organization_query"]:
             subsidies = subsidies.filter(
                 Q(organization__name__icontains=self.cleaned_data["organization_query"])
@@ -105,13 +151,30 @@ class SubsidySearchForm(forms.Form):
             subsidies = subsidies.filter(
                 organization__country__icontains=self.cleaned_data["country"],
             )
-        if self.cleaned_data["ordering"]:
-            if self.cleaned_data["ordering"] == "amount":
-                subsidies = subsidies.order_by("-amount")
-            if self.cleaned_data["ordering"] == "date_from":
-                subsidies = subsidies.order_by("-date_from")
-            if self.cleaned_data["ordering"] == "date_until":
-                subsidies = subsidies.order_by("-date_until")
+
+        if status := self.cleaned_data["status"]:
+            subsidies = subsidies.filter(status__in=status)
+
+        if subsidy_type := self.cleaned_data["type"]:
+            subsidies = subsidies.filter(subsidy_type__in=subsidy_type)
+
+        # Ordering of subsidies
+        # Only order if both fields are set
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            subsidies = subsidies.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
+                ]
+            )
+
         return subsidies
 
 
@@ -123,22 +186,27 @@ class SubsidyPaymentForm(forms.ModelForm):
             "reference",
             "amount",
             "date_scheduled",
-            "invoice",
-            "proof_of_payment",
         )
         widgets = {
             "date_scheduled": forms.DateInput(attrs={"type": "date"}),
         }
+
+    invoice = forms.ChoiceField(required=False)
+    proof_of_payment = forms.ChoiceField(required=False)
 
     def __init__(self, *args, **kwargs):
         subsidy = kwargs.pop("subsidy")
         super().__init__(*args, **kwargs)
         self.fields["subsidy"].initial = subsidy
         self.fields["subsidy"].widget = forms.HiddenInput()
-        self.fields["invoice"].queryset = subsidy.attachments.invoices()
-        self.fields[
-            "proof_of_payment"
-        ].queryset = subsidy.attachments.proofs_of_payment()
+        self.fields["invoice"].choices = [
+            (att.id, f"{att.attachment.name.split('/')[-1]}")
+            for att in subsidy.attachments.invoices()
+        ]
+        self.fields["proof_of_payment"].choices = [
+            (att.id, f"{att.attachment.name.split('/')[-1]}")
+            for att in subsidy.attachments.proofs_of_payment()
+        ]
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("subsidy"),

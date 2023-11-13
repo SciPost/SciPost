@@ -27,10 +27,12 @@ SUBSIDY_PROMISED = "promised"
 SUBSIDY_INVOICED = "invoiced"
 SUBSIDY_RECEIVED = "received"
 SUBSIDY_WITHDRAWN = "withdrawn"
+SUBSIDY_UPTODATE = "uptodate"
 
 SUBSIDY_STATUS = (
-    (SUBSIDY_PROMISED, "promised"),
-    (SUBSIDY_INVOICED, "invoiced"),
-    (SUBSIDY_RECEIVED, "received"),
-    (SUBSIDY_WITHDRAWN, "withdrawn"),
+    (SUBSIDY_PROMISED, "Promised"),
+    (SUBSIDY_INVOICED, "Invoiced"),
+    (SUBSIDY_RECEIVED, "Received"),
+    (SUBSIDY_WITHDRAWN, "Withdrawn"),
+    (SUBSIDY_UPTODATE, "Up to date"),
 )
