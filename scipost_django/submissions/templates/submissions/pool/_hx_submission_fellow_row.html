@@ -1,6 +1,8 @@
 {% load submissions_pool %}
 {% load ethics_extras %}
 
+{% get_fellow_readiness submission fellowship as readiness %}
+
 <tr>
   <td>
     <a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor }}</a>
@@ -85,9 +87,17 @@
            hx-get="{% url 'colleges:_hx_submission_remove_fellowship' submission.preprint.identifier_w_vn_nr fellowship.id %}"
            hx-confirm="Remove this Fellow from this Submission's Fellowship?"
            hx-target="#submission-{{ submission.pk }}-fellows-details">{% include "bi/trash-fill.html" %}</a>
+
+        {% if readiness.status != 'desk_reject' %}
+          <a class="btn btn-sm btn-primary px-1 py-0"
+             href="{% url "submissions:pool:manual_EIC_invitation" submission.preprint.identifier_w_vn_nr fellowship.id %}">
+            {% include "bi/envelope-fill.html" %}
+          </a>
+        {% endif %}
+
       </td>
     {% endif %}
   {% endif %}
 
-  <td>{% get_fellow_readiness_status_display submission fellowship %}</td>
+  <td>{{ readiness.get_status_display }}</td>
 </tr>

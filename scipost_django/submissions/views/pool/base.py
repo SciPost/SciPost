@@ -7,7 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
+from mails.views import MailView
+from scipost.mixins import PermissionsMixin
 
 from scipost.models import Remark
 from scipost.forms import RemarkForm
@@ -249,3 +251,30 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
         "assignment": assignment,
     }
     return render(request, "submissions/pool/editorial_assignment.html", context)
+
+
+class EICManualEICInvitationEmailView(PermissionsMixin, MailView):
+    """Send a templated email to a Potential Fellow."""
+
+    permission_required = "scipost.can_manage_college_composition"
+    mail_code = "eic/manual_EIC_invitation"
+    success_url = reverse_lazy("submissions:pool:pool")
+
+    def get_queryset(self):
+        """Return the fellows of this submission."""
+        self.fellowship = get_object_or_404(Fellowship, pk=self.kwargs["pk"])
+        self.submission = get_object_or_404(
+            Submission.objects.in_pool(self.fellowship.contributor.user),
+            preprint__identifier_w_vn_nr=self.kwargs["identifier_w_vn_nr"],
+        )
+
+        return self.submission.fellows.all()
+
+    def get_mail_config(self):
+        config = super().get_mail_config()
+
+        config["fellowship"] = self.fellowship
+        config["submission"] = self.submission
+        config["signee"] = self.request.user.contributor.profile
+
+        return config

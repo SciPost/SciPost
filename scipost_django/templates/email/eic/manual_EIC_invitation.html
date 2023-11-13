@@ -1,0 +1,52 @@
+{% load submissions_pool %}
+{% load ethics_extras %}
+
+{% get_fellow_qualification submission fellowship as qualification %}
+{% get_fellow_readiness submission fellowship as readiness %}
+{% get_profile_clearance submission.clearances fellowship.contributor.profile as clearance %}
+
+<p>Dear {{ fellowship.contributor.profile.get_title_display }} {{ fellowship.contributor.profile.last_name }},</p>
+
+<p>
+  We are writing this email to point your attention to the following SciPost submission entitled <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a> by {{ submission.author_list }}. This submission has been waiting for an Editor in Charge (EIC) for some time now, prompting us to help guide the process along.
+</p>
+
+<p>
+
+  {% if not qualification or not readiness %}
+    {% comment %} For fellows who haven't yet appraised {% endcomment %}
+    Based on your previous commitments as EIC, we believe that you might be well suited to take charge of this submission. Considering the time that has passed since the paper was initially submitted, we would like to ask you to consider supervising the submission via the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">Submissions Pool</a>. Please also indicate in the pool if you are unable to take on this task, be it due to qualifications or possible competing interests, as this will help us accelerate the process and find a suitable EIC.
+  {% else %}
+    {% comment %} For fellows who have appraised {% endcomment %}
+    We noticed that, at the time of submission, you mentioned that
+
+    {% if readiness.status == "perhaps_later" and qualification.expertise_level == "marginally_qualified" %}
+      you were interested but (only) marginally qualified to supervise refereeing on the subject matter.
+    {% elif readiness.status == "perhaps_later" or readiness.status == "too_busy" %}
+      you were interested but did not have the time to take charge at that moment.
+    {% elif readiness.status == "could_if_transferred" or readiness.status == "not_interested" %}
+      you were not very interested in it given its state.
+    {% endif %}
+
+    Considering the time that has passed since then, we would like to ask you to reconsider taking charge of the submission.
+  {% endif %}
+
+</p>
+
+<p>
+  If you are unavailable or believe that you are not really qualified to take charge of this submission, do you perhaps have any recommendations for other fellows that might be interested in this submission?
+</p>
+
+<p>
+  Finally, we would also like to thank you for your continued efforts for SciPost, and we hope to hear back from you.
+</p>
+
+<p>
+  With kind regards,
+  <br />
+  {{ signee.first_name }} {{ signee.last_name }}, on behalf of the SciPost EdAdmin Team.
+</p>
+
+{% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid.html' with submission=submission %}

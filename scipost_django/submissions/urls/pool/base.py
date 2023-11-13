@@ -74,6 +74,11 @@ urlpatterns = [  # building on /submissions/pool/
                         ]
                     ),
                 ),
+                path(
+                    "manual_EIC_invitation/<int:pk>",
+                    views_base.EICManualEICInvitationEmailView.as_view(),
+                    name="manual_EIC_invitation",
+                ),
             ]
         ),
     ),

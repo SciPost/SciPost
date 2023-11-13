@@ -1,6 +1,6 @@
 {% load crispy_forms_tags %}
 
-<td colspan="7">
+<td colspan="8">
   <form hx-post="{% url "ethics:_hx_submission_competing_interest_create" identifier_w_vn_nr fellowship_id %}"
         hx-target="closest tr"
         hx-swap="outerHTML">
