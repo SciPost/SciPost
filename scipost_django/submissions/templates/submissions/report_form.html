@@ -113,8 +113,8 @@
               {% csrf_token %}
               {{ form|bootstrap:'12,12' }}
               <div class="anonymous-alert" style="display: none;">
-                <h3 class="anonymous-yes">Your Report will remain anonymous.</h3>
-                <h3 class="anonymous-no"><span class="text-danger">Your Report will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
+                <h3 class="anonymous-yes fw-bold">Your Report will remain anonymous.</h3>
+                <h3 class="anonymous-no fw-bold"><span class="text-danger">Your Report will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
               </div>
               <p>Any fields with an asterisk (*) are required.</p>
               <input class="btn btn-primary" type="submit" name="save_submit" value="Submit your report"/>
