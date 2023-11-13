@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join, html_safe
 
+from common.utils import get_current_domain
+
 from . import constants
 
 
@@ -89,6 +91,12 @@ class BaseAction:
             print
             deadline = obj.submission.reporting_deadline - timezone.now()
 
+        # Add the domain name to the url so that it is clickable in the email
+        if self.url.startswith("/"):
+            base_url = "https://" + get_current_domain() + self.url
+        else:
+            base_url = self.url
+
         return text.format(
             count=len(self._objects),
             object=obj.__class__.__name__,
@@ -99,7 +107,7 @@ class BaseAction:
             days=timedelta.days,
             deadline=deadline.days,
             deadline_min=-deadline.days,
-            url=self.url,
+            url=base_url,
             url2=self.url2,
         )
 
