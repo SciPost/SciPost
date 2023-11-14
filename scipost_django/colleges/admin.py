@@ -74,16 +74,19 @@ admin.site.register(PotentialFellowship, PotentialFellowshipAdmin)
 class FellowshipNominationEventInline(admin.TabularInline):
     model = FellowshipNominationEvent
     extra = 0
+    autocomplete_fields = ["by"]
 
 
 class FellowshipNominationCommentInline(admin.TabularInline):
     model = FellowshipNominationComment
     extra = 0
+    autocomplete_fields = ["by"]
 
 
 class FellowshipNominationVotingRoundInline(admin.TabularInline):
     model = FellowshipNominationVotingRound
     extra = 0
+    autocomplete_fields = ["eligible_to_vote"]
 
 
 class FellowshipNominationDecisionInline(admin.TabularInline):
