@@ -136,7 +136,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div><pre><code>{{ publication.BiBTeX|linebreaksbr }}</code></pre></div>
+        <div><pre>{% for pub_item in publication.bundle %}<code>{{ pub_item.BiBTeX|linebreaksbr }}</code><br><br>{% endfor %}</pre></div>
       </div>
     </div>
   </div>
