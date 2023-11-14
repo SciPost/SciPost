@@ -29,11 +29,7 @@
     <div class="col-6">
       <div class="border border-danger p-2">
 	Do you know qualified candidates who could serve as Fellow in a College?<br/>
-	Nominate them by <a href="{% url 'colleges:potential_fellowship_create' %}">adding a Potential Fellowship</a>.
-	{% if nr_potfels_to_vote_on > 0 %}
-          <br/>
-          <span class="text-danger">You can vote on {{ nr_potfels_to_vote_on }} nomination{{ nr_potfels_to_vote_on|pluralize }}: please go to the <a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a> page.</span>
-	{% endif %}
+	<a href="{% url 'colleges:nominations' %}">Nominate them</a>.
       </div>
     </div>
   </div>
