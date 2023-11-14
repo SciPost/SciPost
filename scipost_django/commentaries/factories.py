@@ -28,7 +28,7 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
     vetted_by = factory.SubFactory("scipost.factories.ContributorFactory")
     type = LazyRandEnum(COMMENTARY_TYPES)
     acad_field = factory.SubFactory("ontology.factories.AcademicFieldFactory")
-    approaches = LazyRandEnum(SCIPOST_APPROACHES)
+    approaches = LazyRandEnum(SCIPOST_APPROACHES, repeat=2)
     open_for_commenting = True
 
     title = factory.Faker("sentence")
