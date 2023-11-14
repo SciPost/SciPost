@@ -51,7 +51,7 @@
 
       {% comment %} If round is closed show results if they exist {% endcomment %}
     {% else %}
-      <div>{% include "colleges/_voting_results_box.html" with voting_round=voting_round %}</div>
+      <div>{% include "colleges/_voting_results_box.html" with voting_round=round %}</div>
  
 
       {% if round.decision %}
@@ -62,6 +62,8 @@
             <div class="badge fs-5 mb-2 bg-success">{{ round.decision.get_outcome_display }}</div>
           {% elif round.decision.outcome == 'notelected' %}
             <div class="badge fs-5 mb-2 bg-danger">{{ round.decision.get_outcome_display }}</div>
+          {% elif round.decision.outcome == 'inconclusive' %}
+            <div class="badge fs-5 mb-2 bg-warning">{{ round.decision.get_outcome_display }}</div>
           {% endif %}
 
           {% if round.decision.comments %}

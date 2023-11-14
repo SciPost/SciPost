@@ -66,12 +66,14 @@
 
         <div class="col-auto">
 
-          {% if round.decision.outcome == "elected" %}
+          {% if not round.decision %}
+            <span class="badge bg-warning">Pending</span>
+          {% elif round.decision.outcome == "elected" %}
             <span class="badge bg-success">{{ round.decision.get_outcome_display }}</span>
           {% elif round.decision.outcome == "notelected" %}
             <span class="badge bg-danger">{{ round.decision.get_outcome_display }}</span>
-          {% else %}
-            <span class="badge bg-warning">Pending</span>
+          {% elif round.decision.outcome == "inconclusive"  %}
+            <span class="badge bg-warning">{{ round.decision.get_outcome_display }}</span>
           {% endif %}
 
         </div>

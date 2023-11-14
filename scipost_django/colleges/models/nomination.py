@@ -341,9 +341,11 @@ class FellowshipNominationDecision(models.Model):
 
     OUTCOME_ELECTED = "elected"
     OUTCOME_NOT_ELECTED = "notelected"
+    OUTCOME_INCONCLUSIVE = "inconclusive"
     OUTCOME_CHOICES = [
         (OUTCOME_ELECTED, "Elected"),
         (OUTCOME_NOT_ELECTED, "Not elected"),
+        (OUTCOME_INCONCLUSIVE, "Inconclusive"),
     ]
     outcome = models.CharField(max_length=16, choices=OUTCOME_CHOICES)
 

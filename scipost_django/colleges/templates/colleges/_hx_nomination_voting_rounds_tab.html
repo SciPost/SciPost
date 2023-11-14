@@ -7,6 +7,7 @@
            type="button"
            class="me-2 px-2 nav-link border border-success"
            hx-get="{% url 'colleges:_hx_nomination_voting_rounds_create' nomination_id=nomination.id %}"
+           {% if nomination.decision.outcome == 'notelected' %}hx-confirm="Are you sure you want to create a new voting round for a previously non-elected nominee? This should only be performed as a rare exception and after considerable time has passed since the last round."{% endif %}
            hx-target="#nomination-{{ nomination.id }}-round-tab-holder"
            hx-swap="outerHTML">
         <span class="fs-1 align-items-center text-success">+</span>
