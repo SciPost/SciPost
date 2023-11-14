@@ -8,6 +8,7 @@ from django.utils.timezone import make_aware
 import factory
 from faker import Faker
 from faker.providers import BaseProvider
+import pytz
 
 
 class LazyRandEnum(factory.LazyAttribute):
@@ -18,12 +19,31 @@ class LazyRandEnum(factory.LazyAttribute):
     The attribute evalutates to the value, not the human-readable name.
     """
 
-    def __init__(self, enum, *args, **kwargs):
+    def __init__(self, enum, repeat=1, *args, **kwargs):
         self.enum = enum
+        self.repeat = repeat
         super().__init__(function=self._random_choice_from_enum, *args, **kwargs)
 
     def _random_choice_from_enum(self, _):
-        return random.choice(self.enum)[0]
+        if self.repeat == 1:
+            return random.choice(self.enum)[0]
+        else:
+            return [random.choice(self.enum)[0] for _ in range(self.repeat)]
+
+
+class LazyObjectCount(factory.LazyAttribute):
+    """
+    Define a lazy attribute that returns the total number of objects of a model.
+    """
+
+    def __init__(self, model, *args, **kwargs):
+        self.model = model
+        self.offset = kwargs.pop("offset", 0)
+
+        super().__init__(function=self._get_object_count, *args, **kwargs)
+
+    def _get_object_count(self, _):
+        return self.model.objects.count() + self.offset
 
 
 class LazyAwareDate(factory.LazyAttribute):
@@ -55,5 +75,30 @@ class DurationProvider(BaseProvider):
         return timedelta(seconds=seconds)
 
 
+class TZAwareDateAccessor:
+    """
+    Accessor to modify providers to return timezone-aware dates.
+    """
+
+    def __init__(self, parent_obj):
+        def aware_wrapper(func):
+            def wrapper(*args, **kwargs):
+                faker_date = func(*args, **kwargs)
+                faker_datetime = datetime.combine(faker_date, datetime.min.time())
+
+                return make_aware(faker_datetime, timezone=pytz.utc)
+
+            return wrapper
+
+        # create a new attribute on self for each method of parent object
+        # where each attribute is a method that returns a timezone-aware date
+        for attr in dir(parent_obj):
+            if attr.startswith("date"):
+                setattr(self, attr, aware_wrapper(func=getattr(parent_obj, attr)))
+
+
 fake = Faker()
 fake.add_provider(DurationProvider)
+
+aware_date_accessor = TZAwareDateAccessor(fake)
+fake.aware = aware_date_accessor
