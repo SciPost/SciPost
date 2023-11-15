@@ -563,6 +563,11 @@ class FellowshipNominationSearchForm(forms.Form):
         required=False,
         initial=True,
     )
+    needs_specialties = forms.BooleanField(
+        label="Needs specialties",
+        required=False,
+        initial=False,
+    )
 
     orderby = forms.ChoiceField(
         label="Order by",
@@ -609,6 +614,7 @@ class FellowshipNominationSearchForm(forms.Form):
             Div(Field("can_vote"), css_class="col-auto col-lg-12 col-xl-auto"),
             Div(Field("voting_open"), css_class="col-auto col-lg-12 col-xl-auto"),
             Div(Field("has_rounds"), css_class="col-auto col-lg-12 col-xl-auto"),
+            Div(Field("needs_specialties"), css_class="col-auto col-lg-12 col-xl-auto"),
             css_class="row mb-0",
         )
 
@@ -702,6 +708,8 @@ class FellowshipNominationSearchForm(forms.Form):
             )
         if self.cleaned_data.get("has_rounds"):
             nominations = nominations.filter(voting_rounds__isnull=False)
+        if self.cleaned_data.get("needs_specialties"):
+            nominations = nominations.filter(profile__specialties__isnull=True)
 
         # Ordering of nominations
         # Only order if both fields are set
