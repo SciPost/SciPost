@@ -17,9 +17,13 @@
     {% endif %}
 
   </td>
-  <td>
-    {% include "icons/reception.html" with value=fellowship.contributor.editorial_assignments.ongoing.count max=4 %}
-  </td>
+
+  {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+    <td>
+      {% include "icons/reception.html" with value=fellowship.contributor.editorial_assignments.ongoing.count max=4 %}
+    </td>
+  {% endif %}
+
   <td>{% get_fellow_qualification_expertise_level_display submission fellowship %}</td>
 
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
@@ -67,6 +71,7 @@
                   </td>
                 </tr>
               {% endfor %}
+
 
             </tbody>
           </table>
