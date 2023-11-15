@@ -239,6 +239,11 @@ urlpatterns = [
                     name="_hx_nomination_voter_table",
                 ),
                 path(
+                    "_hx_voting_round_summary",
+                    views._hx_voting_round_summary,
+                    name="_hx_voting_round_summary",
+                ),
+                path(
                     "forms/",
                     include(
                         [

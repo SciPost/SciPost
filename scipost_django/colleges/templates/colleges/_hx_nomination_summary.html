@@ -65,7 +65,10 @@
       <div class="col-12 col-md-5">
 
         {% if nomination.latest_voting_round %}
-          {% include "colleges/_hx_voting_round_summary.html" with round=nomination.latest_voting_round %}
+          <div hx-get="{% url "colleges:_hx_voting_round_summary" round_id=nomination.latest_voting_round.id %}"
+               hx-trigger="submit from:#nomination-{{ nomination.id }}-details target:form delay:1000">
+            {% include "colleges/_hx_voting_round_summary.html" with round=nomination.latest_voting_round %}
+          </div>
  
         {% else %}
           <div class="h-100 d-flex align-items-center justify-content-end">

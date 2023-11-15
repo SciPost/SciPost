@@ -766,6 +766,17 @@ def _hx_nomination_details_contents(request, nomination_id):
     return render(request, "colleges/_hx_nomination_details_contents.html", context)
 
 
+@login_required
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def _hx_voting_round_summary(request, round_id):
+    """For (re)loading the round summary if modified."""
+    round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
+    context = {
+        "round": round,
+    }
+    return render(request, "colleges/_hx_voting_round_summary.html", context)
+
+
 def _hx_nominations_search_form(request, filter_set: str):
     form = FellowshipNominationSearchForm(
         user=request.user,
