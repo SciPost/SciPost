@@ -681,7 +681,6 @@ class FellowshipNominationSearchForm(forms.Form):
         )
 
         if self.cleaned_data.get("can_vote"):
-            # or not self.user.has_perm("scipost.can_view_all_nomination_voting_rounds"):
             # Restrict rounds to those the user can vote on
             nominations = nominations.with_user_votable_rounds(self.user).distinct()
 

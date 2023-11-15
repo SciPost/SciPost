@@ -28,7 +28,7 @@ from colleges.permissions import (
     is_edadmin_or_advisory_or_active_regular_or_senior_fellow,
 )
 from colleges.utils import check_profile_eligibility_for_fellowship
-from scipost.permissions import HTMXResponse
+from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
 from submissions.models import Submission
 
 from .constants import (
@@ -802,8 +802,6 @@ def _hx_nominations_list(request):
     return render(request, "colleges/_hx_nominations_list.html", context)
 
 
-@login_required
-@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_voting_rounds_tab(request, nomination_id, round_id):
     """Render the selected voting round contents and display the others as tabs."""
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
@@ -1167,8 +1165,6 @@ def _hx_nomination_round_add_eligible_voter_set(request, round_id, voter_set_nam
     )
 
 
-@login_required
-@user_passes_test(is_edadmin_or_senior_fellow)
 def _hx_voting_round_details(request, round_id):
     round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
     context = {
@@ -1176,7 +1172,12 @@ def _hx_voting_round_details(request, round_id):
     }
 
     if not round.can_view(request.user):
-        return HTMXResponse("You are not allowed to view this round.", tag="danger")
+        return HTMXResponse(
+            "You are not allowed to vote in this round. ",
+            # "This may be because you are not a senior Fellow of the College "
+            # "or because you may not have been invited to vote in it.",
+            tag="danger",
+        )
 
     if not round.is_closed:
         voter_add_form = FellowshipDynSelForm(
