@@ -40,7 +40,7 @@
           </div>
         {% else %}
           <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
-          <span>&nbsp;A fellowship has been created from this nomination.</span>
+          <span>&nbsp;A <a href="{{ invitation.nomination.fellowship.get_absolute_url }}">Fellowship</a> has been created from this nomination.</span>
         {% endif %}
 
       </li>
