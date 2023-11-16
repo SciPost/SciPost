@@ -31,18 +31,38 @@
     {% if invitation.response == 'accepted' or invitation.response == 'postponed' %}
       <li class="list-group-item p-2">
 
-        {% if invitation.nomination.fellowship %}
+        {% if not invitation.nomination.fellowship %}
           <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
           <span>&nbsp;This nominee has no associated Fellowship with this college.</span>
-          <a href="{% url 'colleges:fellowship_create' contributor_id=invitation.nomination.profile.contributor.id %}"
-             target="_blank">Set up a Fellowship</a>
+          <div>
+            <a href="{% url 'colleges:fellowship_create' contributor_id=invitation.nomination.profile.contributor.id %}"
+               target="_blank">Set up a Fellowship</a>
+          </div>
         {% else %}
           <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
           <span>&nbsp;A fellowship has been created from this nomination.</span>
         {% endif %}
 
- 
       </li>
+
+      {% if invitation.nomination.fellowship %}
+        <li class="list-group-item p-2">
+ 
+
+          {% if not start_email_sent %}
+            <span class="text-primary">{% include 'bi/question-square-fill.html' %}</span>
+            <span>&nbsp;Uncertain whether a nomination start email has been sent.</span>
+            <div>
+              <a href="{% url 'colleges:fellowship_email_start' pk=nomination.fellowship.id %}"
+                 target="_blank">Send Fellowship start email</a>
+            </div>
+          {% else %}
+            <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
+            <span>&nbsp;Nomination start email has been sent.</span>
+          {% endif %}
+
+        </li>
+      {% endif %}
     {% endif %}
 
   </ul>
