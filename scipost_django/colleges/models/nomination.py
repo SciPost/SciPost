@@ -277,9 +277,12 @@ class FellowshipNominationVotingRound(models.Model):
         if is_edadmin(user):
             return True
 
-        fellowships = user.contributor.fellowships.active().senior()
-        senior_in_college = self.nomination.college in fellowships.values("college")
-
+        user_senior_colleges = (
+            user.contributor.fellowships.active()
+            .senior()
+            .values_list("college__id", flat=True)
+        )
+        senior_in_college = self.nomination.college.id in user_senior_colleges
         eligibility_per_fellowship = [
             fellowship in self.eligible_to_vote.all()
             for fellowship in user.contributor.fellowships.all()
