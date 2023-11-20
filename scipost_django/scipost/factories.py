@@ -7,11 +7,13 @@ import pytz
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from journals.models.publication import Publication
 from profiles.factories import ProfileFactory
+from submissions.models.submission import Submission
 
 from .constants import NORMAL_CONTRIBUTOR
-from .models import Contributor, Remark, TOTPDevice
-from common.faker import fake
+from .models import *
+from common.faker import LazyRandEnum, fake
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
@@ -20,10 +22,11 @@ class ContributorFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ("user",)
 
     user = factory.SubFactory("scipost.factories.UserFactory", contributor=None)
-    profile = factory.SubFactory(
+    profile = factory.RelatedFactory(
         ProfileFactory,
         first_name=factory.SelfAttribute("..user.first_name"),
         last_name=factory.SelfAttribute("..user.last_name"),
+        factory_related_name="contributor",
     )
     invitation_key = factory.Faker("md5")
     activation_key = factory.Faker("md5")
@@ -33,10 +36,13 @@ class ContributorFactory(factory.django.DjangoModelFactory):
 
     @classmethod
     def from_profile(cls, profile):
-        return cls(
+        contributor = cls(
             user__first_name=profile.first_name,
             user__last_name=profile.last_name,
         )
+        contributor.profile = profile
+        contributor.save()
+        return contributor
 
 
 class VettingEditorFactory(ContributorFactory):
@@ -64,6 +70,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = get_user_model()
+        django_get_or_create = ("username",)
 
     @factory.post_generation
     def groups(self, create, extracted, **kwargs):
@@ -80,6 +87,13 @@ class UserFactory(factory.django.DjangoModelFactory):
             )
 
 
+class GroupFactory(factory.django.DjangoModelFactory):
+    name = factory.Faker("word")
+
+    class Meta:
+        model = Group
+
+
 class TOTPDeviceFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory("scipost.factories.UserFactory")
     name = factory.Faker("pystr")
@@ -87,6 +101,7 @@ class TOTPDeviceFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = TOTPDevice
+        django_get_or_create = ("user", "name")
 
 
 class SubmissionRemarkFactory(factory.django.DjangoModelFactory):
@@ -97,3 +112,42 @@ class SubmissionRemarkFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Remark
+
+
+class UnavailabilityPeriodFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = UnavailabilityPeriod
+
+    contributor = factory.SubFactory(ContributorFactory)
+    start = factory.Faker("date_time_this_decade")
+    end = factory.LazyAttribute(
+        lambda self: fake.aware.date_between(start_date=self.start, end_date="+1y")
+    )
+
+
+class AuthorshipClaimFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = AuthorshipClaim
+
+    claimant = factory.SubFactory(ContributorFactory)
+    status = LazyRandEnum(AUTHORSHIP_CLAIM_STATUS)
+    vetted_by = factory.LazyAttribute(
+        lambda self: VettingEditorFactory() if self.status != 0 else None
+    )
+
+
+class CitationNotificationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CitationNotification
+
+    class Params:
+        item = None
+
+    contributor = factory.SubFactory(ContributorFactory)
+    processed = factory.Faker("boolean")
+    cited_in_submission = factory.LazyAttribute(
+        lambda self: self.item if isinstance(self.item, Submission) else None
+    )
+    cited_in_publication = factory.LazyAttribute(
+        lambda self: self.item if isinstance(self.item, Publication) else None
+    )
