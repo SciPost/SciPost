@@ -199,6 +199,7 @@ class SubsidyPaymentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["subsidy"].initial = subsidy
         self.fields["subsidy"].widget = forms.HiddenInput()
+        print(subsidy.attachments.invoices())
         self.fields["invoice"].choices = [
             (att.id, f"{att.attachment.name.split('/')[-1]}")
             for att in subsidy.attachments.invoices()
@@ -211,8 +212,8 @@ class SubsidyPaymentForm(forms.ModelForm):
         self.helper.layout = Layout(
             Field("subsidy"),
             Div(
-                Div(FloatingField("reference"), css_class="col-lg-5"),
-                Div(FloatingField("amount"), css_class="col-lg-3"),
+                Div(Field("reference"), css_class="col-lg-5"),
+                Div(Field("amount"), css_class="col-lg-3"),
                 Div(Field("date_scheduled"), css_class="col-lg-4"),
                 css_class="row",
             ),
@@ -223,6 +224,26 @@ class SubsidyPaymentForm(forms.ModelForm):
             ),
             ButtonHolder(Submit("submit", "Submit", css_class="btn-sm")),
         )
+
+    def clean_invoice(self):
+        if invoice := self.cleaned_data["invoice"]:
+            invoice = SubsidyAttachment.objects.get(id=invoice)
+        return invoice
+
+    def clean_proof_of_payment(self):
+        if proof_of_payment := self.cleaned_data["proof_of_payment"]:
+            proof_of_payment = SubsidyAttachment.objects.get(id=proof_of_payment)
+        return proof_of_payment
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if invoice := self.cleaned_data["invoice"]:
+            instance.invoice = invoice
+        if proof_of_payment := self.cleaned_data["proof_of_payment"]:
+            instance.proof_of_payment = proof_of_payment
+        if commit:
+            instance.save()
+        return instance
 
 
 class SubsidyAttachmentForm(forms.ModelForm):
@@ -236,6 +257,9 @@ class SubsidyAttachmentForm(forms.ModelForm):
             "description",
             "visibility",
         )
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def clean_attachment(self):
         attachment = self.cleaned_data["attachment"]
