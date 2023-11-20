@@ -147,13 +147,11 @@ class TestProofRepository(TestCase):
         EditorialDecisionFactory(
             submission=submission,
             for_journal=scipost_phys_proc,
-            taken_on=make_aware(datetime.datetime(1994, 2, 20)),
             decision=EIC_REC_PUBLISH,
         )
 
         proofs_repo = ProofsRepositoryFactory(
             stream__submission=submission,
-            stream__opened=make_aware(datetime.datetime(1994, 2, 23)),
         )
 
         self.assertEqual(
