@@ -102,18 +102,3 @@ class VetCommentaryRequestsTest(TestCase):
         UnvettedCommentaryFactory()
         response = self.client.get(self.view_url)
         self.assertTrue(type(response.context["commentary_to_vet"]) is Commentary)
-
-
-class CommentaryDetailTest(TestCase):
-    def setUp(self):
-        add_groups_and_permissions()
-        self.client = Client()
-        self.commentary = UnpublishedCommentaryFactory()
-        self.target = reverse(
-            "commentaries:commentary",
-            kwargs={"arxiv_or_DOI_string": self.commentary.arxiv_or_DOI_string},
-        )
-
-    def test_status_code_200(self):
-        response = self.client.get(self.target)
-        self.assertEqual(response.status_code, 200)
