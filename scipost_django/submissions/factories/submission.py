@@ -7,9 +7,11 @@ import pytz
 import random
 
 from faker import Faker
+from colleges.factories import FellowshipFactory
 from common.faker import LazyRandEnum, fake
 from journals.factories import JournalFactory
 from ontology.factories import AcademicFieldFactory
+from organizations.factories import OrganizationFactory
 from preprints.factories import PreprintFactory
 
 from scipost.constants import SCIPOST_APPROACHES
@@ -19,7 +21,7 @@ from comments.factories import SubmissionCommentFactory
 from journals.models import Journal
 from ontology.models import Specialty, AcademicField
 
-from ..models import Submission, EditorialAssignment
+from ..models.submission import *
 
 
 class SubmissionFactory(factory.django.DjangoModelFactory):
@@ -27,24 +29,30 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     Generate random basic Submission instances.
     """
 
-    author_list = factory.Faker("name")
     submitted_by = factory.SubFactory(ContributorFactory)
+    author_list = factory.LazyAttribute(
+        lambda self: self.submitted_by.profile.full_name
+    )
     submitted_to = factory.SubFactory(JournalFactory)
+
     title = factory.Faker("sentence")
     abstract = factory.Faker("paragraph", nb_sentences=10)
-    list_of_changes = factory.Faker("paragraph", nb_sentences=10)
+
     acad_field = factory.SubFactory(AcademicFieldFactory)
-    approaches = [LazyRandEnum(SCIPOST_APPROACHES)]
-    abstract = factory.Faker("paragraph")
+    approaches = LazyRandEnum(SCIPOST_APPROACHES, repeat=2)
+
+    list_of_changes = factory.Faker("paragraph", nb_sentences=10)
     author_comments = factory.Faker("paragraph")
     remarks_for_editors = factory.Faker("paragraph")
-    thread_hash = factory.Faker("uuid4")
+
     submission_date = factory.Faker("date_time_this_decade", tzinfo=pytz.utc)
     latest_activity = factory.LazyAttribute(
         lambda self: fake.date_time_between(
             start_date=self.submission_date, end_date="now", tzinfo=pytz.UTC
         )
     )
+
+    thread_hash = factory.Faker("md5")
     preprint = factory.SubFactory(PreprintFactory)
 
     visible_public = True
@@ -53,49 +61,26 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Submission
 
-    # @classmethod
-    # def create(cls, **kwargs):
-    #     if Contributor.objects.count() < 5:
-    #         from scipost.factories import ContributorFactory
+    @factory.post_generation
+    def add_specialties(self, create, extracted, **kwargs):
+        if create:
+            if extracted:
+                self.specialties.add(*extracted)
+            else:
+                self.specialties.set(Specialty.objects.order_by("?")[:3])
 
-    #         ContributorFactory.create_batch(5)
-    #     if Journal.objects.count() < 3:
-    #         from journals.factories import JournalFactory
+    @factory.post_generation
+    def authors(self, create, extracted, **kwargs):
+        if create:
+            if extracted:
+                # Add submitted_by to the list of authors
+                if self.submitted_by not in extracted:
+                    extracted.append(self.submitted_by)
 
-    #         JournalFactory.create_batch(3)
-    #     if AcademicField.objects.count() < 10:
-    #         from ontology.factories import AcademicFieldFactory
-
-    #         AcademicFieldFactory.create_batch(10)
-    #     if Specialty.objects.count() < 5:
-    #         from ontology.factories import SpecialtyFactory
-
-    #         SpecialtyFactory.create_batch(5)
-    #     return super().create(**kwargs)
-
-    # @factory.post_generation
-    # def add_specialties(self, create, extracted, **kwargs):
-    #     if create:
-    #         self.specialties.set(Specialty.objects.order_by("?")[:3])
-
-    # @factory.post_generation
-    # def contributors(self, create, extracted, **kwargs):
-    #     contribs = Contributor.objects.all()
-    #     if self.editor_in_charge:
-    #         contribs = contribs.exclude(id=self.editor_in_charge.id)
-    #     contribs = contribs.order_by("?")[: random.randint(1, 6)]
-
-    #     # Auto-add the submitter as an author
-    #     self.submitted_by = contribs[0]
-    #     self.author_list = ", ".join(
-    #         ["%s %s" % (c.user.first_name, c.user.last_name) for c in contribs]
-    #     )
-
-    #     if not create:
-    #         return
-
-    #     # Add three random authors
-    #     self.authors.add(*contribs)
+                self.authors.add(*extracted)
+                self.author_list = ", ".join(
+                    [f"{c.profile.first_name} {c.profile.last_name}" for c in extracted]
+                )
 
 
 class SeekingAssignmentSubmissionFactory(SubmissionFactory):
@@ -292,14 +277,24 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
     @factory.post_generation
     def generate_publication(self, create, extracted, **kwargs):
         if create and extracted is not False:
-            from journals.factories import PublicationFactory
+            from journals.factories import JournalPublicationFactory
 
-            PublicationFactory(
+            JournalPublicationFactory(
                 journal=self.submitted_to.doi_label,
                 accepted_submission=self,
                 title=self.title,
                 author_list=self.author_list,
             )
+
+    @factory.post_generation
+    def editor_in_charge(self, create, extracted, **kwargs):
+        if create:
+            return
+        if extracted:
+            return extracted
+
+        eic = FellowshipFactory()
+        return eic.contributor
 
     @factory.post_generation
     def eic_assignment(self, create, extracted, **kwargs):
@@ -323,3 +318,45 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
             FulfilledRefereeInvitationFactory(submission=self)
         for i in range(random.randint(0, 2)):
             CancelledRefereeInvitationFactory(submission=self)
+
+
+class SubmissionAuthorProfileFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SubmissionAuthorProfile
+
+    submission = factory.SubFactory(SubmissionFactory)
+    profile = factory.SubFactory("profiles.factories.ProfileFactory")
+    order = factory.LazyAttribute(
+        lambda self: self.submission.author_profiles.count() + 1
+    )
+
+    @factory.post_generation
+    def affiliations(self, create, extracted, **kwargs):
+        if create:
+            return
+        if extracted:
+            for affiliation in extracted:
+                self.affiliations.add(affiliation)
+        else:
+            self.affiliations.add(
+                *OrganizationFactory.create_batch(random.randint(1, 3))
+            )
+
+
+class SubmissionEventFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SubmissionEvent
+
+    submission = factory.SubFactory(SubmissionFactory)
+    event = LazyRandEnum(EVENT_TYPES)
+    text = factory.Faker("paragraph")
+
+
+class SubmissionTieringFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SubmissionTiering
+
+    submission = factory.SubFactory(SubmissionFactory)
+    fellow = factory.SubFactory(ContributorFactory)
+    for_journal = factory.SelfAttribute("submission.submitted_to")
+    tier = LazyRandEnum(SUBMISSION_TIERS)

@@ -3,44 +3,50 @@ __license__ = "AGPL v3"
 
 
 import factory
-import pytz
-import random
 
-from faker import Faker
+from common.faker import fake
 
-from scipost.models import Contributor
-
-from submissions.models import RefereeInvitation
+from ..models import RefereeInvitation
 
 
 class RefereeInvitationFactory(factory.django.DjangoModelFactory):
-    submission = factory.SubFactory("submissions.factories.SubmissionFactory")
-    referee = factory.lazy_attribute(
-        lambda o: Contributor.objects.exclude(id__in=o.submission.authors.all())
-        .order_by("?")
-        .first()
-    )
-
-    title = factory.lazy_attribute(lambda o: o.referee.profile.title)
-    first_name = factory.lazy_attribute(lambda o: o.referee.user.first_name)
-    last_name = factory.lazy_attribute(lambda o: o.referee.user.last_name)
-    email_address = factory.lazy_attribute(lambda o: o.referee.user.email)
-    date_invited = factory.lazy_attribute(lambda o: o.submission.latest_activity)
-    nr_reminders = factory.lazy_attribute(lambda o: random.randint(0, 4))
-    date_last_reminded = factory.lazy_attribute(lambda o: o.submission.latest_activity)
-
-    invitation_key = factory.Faker("md5")
-    invited_by = factory.lazy_attribute(lambda o: o.submission.editor_in_charge)
-
     class Meta:
         model = RefereeInvitation
+        exclude = ("profile_info",)
+        django_get_or_create = ("submission", "profile")
+
+    class Params:
+        registered = factory.Trait(
+            referee=factory.SubFactory("scipost.factories.ContributorFactory"),
+            profile=None,
+            profile_info=factory.SelfAttribute("referee.profile"),
+        )
+
+    referee = None
+    profile = factory.SubFactory("profiles.factories.ProfileFactory")
+
+    profile_info = factory.SelfAttribute("profile")
+    title = factory.SelfAttribute("profile_info.title")
+    first_name = factory.SelfAttribute("profile_info.first_name")
+    last_name = factory.SelfAttribute("profile_info.last_name")
+    email_address = factory.SelfAttribute("profile_info.email")
+
+    submission = factory.SubFactory("submissions.factories.SubmissionFactory")
+
+    date_invited = factory.SelfAttribute("submission.latest_activity")
+    date_last_reminded = factory.SelfAttribute("submission.latest_activity")
+    invited_by = factory.SelfAttribute("submission.editor_in_charge")
+
+    nr_reminders = factory.Faker("random_int", min=0, max=3)
+    invitation_key = factory.Faker("md5")
 
 
 class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
+    registered = True
     accepted = True
-    date_responded = factory.lazy_attribute(
-        lambda o: Faker().date_time_between(
-            start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC
+    date_responded = factory.LazyAttribute(
+        lambda self: fake.aware.date_time_between(
+            start_date=self.date_invited, end_date="+1y"
         )
     )
 
@@ -54,25 +60,8 @@ class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
 
 class FulfilledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
     fulfilled = True
-    date_responded = factory.lazy_attribute(
-        lambda o: Faker().date_time_between(
-            start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC
-        )
-    )
-
-    @factory.post_generation
-    def report(self, create, extracted, **kwargs):
-        if create:
-            from submissions.factories import VettedReportFactory
-
-            VettedReportFactory(submission=self.submission, author=self.referee)
 
 
 class CancelledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
     fulfilled = False
     cancelled = True
-    date_responded = factory.lazy_attribute(
-        lambda o: Faker().date_time_between(
-            start_date=o.date_invited, end_date="now", tzinfo=pytz.UTC
-        )
-    )
