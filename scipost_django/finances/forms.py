@@ -263,6 +263,11 @@ class SubsidyAttachmentForm(forms.ModelForm):
 
     def clean_attachment(self):
         attachment = self.cleaned_data["attachment"]
+
+        # Allow already uploaded attachments
+        if hasattr(self.instance, "attachment") and not attachment is None:
+            return attachment
+
         filename_regex = (
             "^SciPost_"
             "[0-9]{4,}(-[0-9]{4,})?_[A-Z]{2,}_[\w]+_"

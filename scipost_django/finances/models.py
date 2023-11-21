@@ -10,6 +10,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 from django.db.models import Sum
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -278,6 +280,17 @@ class SubsidyAttachment(models.Model):
         ).exists():
             return True
         return False
+
+
+# Delete attachment files with same name if they exist, allowing replacement without name change
+@receiver(pre_save, sender=SubsidyAttachment)
+def delete_old_attachment_file(sender, instance, **kwargs):
+    if instance.pk:
+        old_attachment = SubsidyAttachment.objects.get(pk=instance.pk)
+        old_filename = old_attachment.attachment.name.split("/")[-1]
+
+        if old_attachment.attachment and old_filename == instance.attachment.name:
+            old_attachment.attachment.delete(save=False)
 
 
 ###########################
