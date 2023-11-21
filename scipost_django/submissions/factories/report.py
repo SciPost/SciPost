@@ -3,11 +3,10 @@ __license__ = "AGPL v3"
 
 
 import factory
-import pytz
 
-from faker import Faker
+from common.faker import LazyRandEnum, fake
+from scipost.factories import ContributorFactory
 
-from scipost.models import Contributor
 from common.helpers import random_scipost_report_doi_label
 
 from submissions.constants import (
@@ -24,40 +23,36 @@ from submissions.models import Report
 
 
 class ReportFactory(factory.django.DjangoModelFactory):
-    status = factory.Iterator(REPORT_STATUSES, getter=lambda c: c[0])
+    class Meta:
+        model = Report
+
+    status = LazyRandEnum(REPORT_STATUSES)
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
-    report_nr = factory.LazyAttribute(lambda o: o.submission.reports.count() + 1)
-    date_submitted = factory.Faker("date_time_this_decade", tzinfo=pytz.utc)
-    vetted_by = factory.Iterator(Contributor.objects.all())
-    author = factory.Iterator(Contributor.objects.all())
+    report_nr = factory.LazyAttribute(lambda self: self.submission.reports.count() + 1)
+    date_submitted = factory.LazyAttribute(
+        lambda self: fake.aware.date_between(
+            start_date=self.submission.submission_date, end_date="+1y"
+        )
+    )
+    vetted_by = factory.SubFactory(ContributorFactory)
+    author = factory.SubFactory(ContributorFactory)
     strengths = factory.Faker("paragraph")
     weaknesses = factory.Faker("paragraph")
     report = factory.Faker("paragraph")
     requested_changes = factory.Faker("paragraph")
 
-    qualification = factory.Iterator(REFEREE_QUALIFICATION[1:], getter=lambda c: c[0])
-    validity = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
-    significance = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
-    originality = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
-    clarity = factory.Iterator(RANKING_CHOICES[1:], getter=lambda c: c[0])
-    formatting = factory.Iterator(QUALITY_SPEC[1:], getter=lambda c: c[0])
-    grammar = factory.Iterator(QUALITY_SPEC[1:], getter=lambda c: c[0])
-    recommendation = factory.Iterator(REPORT_REC[1:], getter=lambda c: c[0])
+    qualification = LazyRandEnum(REFEREE_QUALIFICATION)
+    validity = LazyRandEnum(RANKING_CHOICES)
+    significance = LazyRandEnum(RANKING_CHOICES)
+    originality = LazyRandEnum(RANKING_CHOICES)
+    clarity = LazyRandEnum(RANKING_CHOICES)
+    formatting = LazyRandEnum(QUALITY_SPEC)
+    grammar = LazyRandEnum(QUALITY_SPEC)
+    recommendation = LazyRandEnum(REPORT_REC)
 
     remarks_for_editors = factory.Faker("paragraph")
     flagged = factory.Faker("boolean", chance_of_getting_true=10)
     anonymous = factory.Faker("boolean", chance_of_getting_true=75)
-
-    class Meta:
-        model = Report
-
-    @classmethod
-    def create(cls, **kwargs):
-        if Contributor.objects.count() < 5:
-            from scipost.factories import ContributorFactory
-
-            ContributorFactory.create_batch(5)
-        return super().create(**kwargs)
 
 
 class DraftReportFactory(ReportFactory):
@@ -73,6 +68,5 @@ class UnVettedReportFactory(ReportFactory):
 class VettedReportFactory(ReportFactory):
     status = STATUS_VETTED
     needs_doi = True
-    doideposit_needs_updating = factory.Faker("boolean")
-    doi_label = factory.lazy_attribute(lambda n: random_scipost_report_doi_label())
-    pdf_report = factory.Faker("file_name", extension="pdf")
+    doi_label = factory.LazyAttribute(lambda _: random_scipost_report_doi_label)
+    pdf_report = factory.django.FileField(filename="report.pdf")

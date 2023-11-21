@@ -2,13 +2,29 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import include, path, re_path
+from django.urls import include, path, re_path, register_converter
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
+from journals.converters import JournalDOILabelConverter
+
+from ontology.converters import AcademicFieldSlugConverter
+
+from ..converters import (
+    IdentifierConverter,
+    IdentifierWithoutVersionNumberConverter,
+    ReportDOILabelConverter,
+)
 
 from .. import views
 
 app_name = "submissions"
+
+# converters
+register_converter(JournalDOILabelConverter, "journal_doi_label")
+register_converter(AcademicFieldSlugConverter, "acad_field")
+register_converter(IdentifierWithoutVersionNumberConverter, "identifier_wo_vn_nr")
+register_converter(IdentifierConverter, "identifier")
+register_converter(ReportDOILabelConverter, "report_doi_label")
 
 
 urlpatterns = [
