@@ -1,20 +1,50 @@
 <p>Dear {{ object.contributor.profile.get_title_display }} {{ object.contributor.user.last_name }},</p>
-<p>Many thanks for accepting to become an Editorial Fellow at SciPost! We wish you a very warm welcome, and very much appreciate your willingness to help out.</p>
-<p>Your account has now been given Fellow-level rights, so you now have access to a few additional Fellows-only pages. We have also included you in our list of Fellows at our <a href="https://{{ domain }}{% url 'colleges:colleges' %}">Colleges page</a>.</p>
-<p>This email is meant as a quick helper to make sure everything is set up properly, and to help you start finding your way around our systems.</p>
+<p>
+  Many thanks for accepting to become an Editorial Fellow at SciPost! We wish you a very warm welcome, and very much appreciate your willingness to help out.
+</p>
+<p>
+  Your account has now been given Fellow-level rights, so you now have access to a few additional Fellows-only pages. We have also included you in our list of Fellows at our <a href="https://{{ domain }}{% url 'colleges:colleges' %}">Colleges page</a>.
+</p>
+<p>
+  This email is meant as a quick helper to make sure everything is set up properly, and to help you start finding your way around our systems.
+</p>
 <h3>Making sure your data is correct</h3>
-<p>From your <a href="https://{{ domain }}{% url 'scipost:personal_page' %}">personal page</a>, please have a look at the basic information associated to your account (in particular, your areas of specialization). If necessary, please update the data by following the "Update your personal data" link.</p>
-<p>Though we do not require it, we greatly encourage you to use our two-factor authentication setup (see <a a href="https://{{ domain }}{% url 'scipost:totp' %}">this link</a>) to ensure that your account is robust against hacking attempts.</p>
+<p>
+  From your <a href="https://{{ domain }}{% url 'scipost:personal_page' %}">personal page</a>, please have a look at the basic information associated to your account (in particular, your areas of specialization). If necessary, please update the data by following the "Update your personal data" link.
+</p>
+<p>
+  Though we do not require it, we greatly encourage you to use our two-factor authentication setup (see <a a href="https://{{ domain }}{% url 'scipost:totp' %}">this link</a>) to ensure that your account is robust against hacking attempts.
+</p>
 <h3>Your new Fellows-only pages</h3>
-<p>Again on your personal page, you should now see an "Editorial Actions" tab. This contains a number of links relevant to our editorial processes, most importantly to the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">submissions pool</a>, which is the place where all submissions currently under consideration are listed. As a newcomer, this will be more or less empty for you, but will fill as new submissions come in.</p>
-<p>To get an idea of the editorial workflow, the best is to look at the <a href="https://{{ domain }}{% url 'submissions:editorial_workflow' %}">editorial workflow summary</a>.</p>
+<p>
+  Again on your personal page, you should now see an "Editorial Actions" tab. This contains a number of links relevant to our editorial processes, most importantly to the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">submissions pool</a>, which is the place where all submissions currently under consideration are listed. As a newcomer, this will be more or less empty for you, but will fill as new submissions come in.
+</p>
+<p>
+  To get an idea of the editorial workflow, the best is to look at the <a href="https://{{ domain }}{% url 'submissions:editorial_workflow' %}">editorial workflow summary</a>.
+</p>
 <h3>What happens now?</h3>
-<p>As new submissions come in for which your expertises match, you will start receiving assignment request emails inviting you to take charge of a particular Submission. You are never obliged to do so. Once you do take charge of one, you will be given access to that Submission's Editorial Page from which you will be able to run the refereeing process.</p>
-<p>You will also regularly be invited to vote on Editorial Recommendations on Submissions which have undergone our refereeing process (we remind you that publication decisions are taken by the College, as a collective).</p>
-<p>Everything is more or less self-explanatory, but you are most welcome to email our Editorial Administration at edadmin@{{ domain }} if you have any questions.</p>
-<p>Once per week, you will also receive an email containing a weekly summary of tasks or activities relevant to your activities as Fellow. This email contains handy direct links to the instances concerned.</p>
-<p>At least once per year, you will be invited to a Virtual General Meeting where SciPost Administration, Advisory Board and Editorial Colleges gather to discuss important points about our activities. You will receive separate email communications concerning these. You can find links to past meetings on our site's top navbar, under the "Logged in as ..." submenu.</p>
+<p>
+  As new Submissions come in for which your specialties match, you will see them in the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">submissions pool</a> and will be able to select which Submissions you take charge of. Once you do take charge of one, you will be given access to that Submission's Editorial Page from which you will be able to run the refereeing process.
+</p>
+<p>
+  You will also regularly be invited to vote on Editorial Recommendations on Submissions which have undergone our refereeing process (we remind you that publication decisions are taken by the College as a collective). You can find a list of Recommendations you have been invited to vote on in the submissions pool. You can also request access to any vote on Submissions in your specialties from the submissions pool.
+</p>
+<p>
+  Everything is more or less self-explanatory, but you are most welcome to email our Editorial Administration at edadmin@{{ domain }} if you have any questions.
+</p>
+<p>
+  Once per week, you will also receive an email containing a weekly summary of tasks or activities relevant to your activities as Fellow. This email contains handy direct links to the instances concerned.
+</p>
+<p>
+  At least once per year, you will be invited to a Virtual General Meeting where SciPost Administration, Advisory Board and Editorial Colleges gather to discuss important points about our activities. You will receive separate email communications concerning these. You can find links to past meetings on our site's top navbar, under the "Logged in as ..." submenu.
+</p>
 <h3>Thank you again</h3>
-<p>Enjoy looking around! We are very grateful to you for joining our efforts, and are very much looking forward to working with you towards a healthier publishing infrastructure for the sciences.</p>
-<p>Prof. J.-S. Caux,<br/>on behalf of the SciPost Foundation</p>
+<p>
+  Enjoy looking around! We are very grateful to you for joining our efforts, and are very much looking forward to working with you towards a healthier publishing infrastructure for the sciences.
+</p>
+<p>
+  Prof. J.-S. Caux,
+  <br />
+  on behalf of the SciPost Foundation
+</p>
 {% include 'email/_footer.html' %}
