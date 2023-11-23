@@ -117,6 +117,18 @@ class Command(BaseCommand):
             content_type=content_type,
         )
 
+        # Profile Management
+        can_merge_profiles, created = Permission.objects.get_or_create(
+            codename="can_merge_profiles",
+            name="Can merge Profiles",
+            content_type=content_type,
+        )
+        can_merge_contributors, created = Permission.objects.get_or_create(
+            codename="can_merge_contributors",
+            name="Can merge Contributors",
+            content_type=content_type,
+        )
+
         # Communications
         can_email_group_members, created = Permission.objects.get_or_create(
             codename="can_email_group_members",
@@ -443,6 +455,8 @@ class Command(BaseCommand):
                 can_view_statistics,
                 can_create_profiles,
                 can_view_profiles,
+                can_merge_profiles,
+                can_merge_contributors,
                 can_manage_ontology,
                 can_manage_organizations,
                 can_view_potentialfellowship_list,
@@ -503,6 +517,8 @@ class Command(BaseCommand):
                 can_view_statistics,
                 can_create_profiles,
                 can_view_profiles,
+                can_merge_profiles,
+                can_merge_contributors,
                 can_manage_ontology,
                 can_manage_organizations,
                 can_view_potentialfellowship_list,

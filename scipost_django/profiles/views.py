@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from functools import reduce
 import re
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
@@ -319,6 +320,8 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         return context
 
 
+@login_required
+@permission_required("scipost.can_merge_profiles")
 def profile_duplicates(request):
     """
     List Profiles with potential duplicates; allow to merge if necessary.
@@ -332,7 +335,7 @@ def profile_duplicates(request):
 
 @transaction.atomic
 @permission_required_htmx(
-    "scipost.can_create_profiles",
+    "scipost.can_merge_profiles",
     "You do not have permission to create profiles.",
 )
 def _hx_profile_mark_non_duplicate(request, profile1: int, profile2: int):
@@ -349,7 +352,7 @@ def _hx_profile_mark_non_duplicate(request, profile1: int, profile2: int):
 
 @transaction.atomic
 @permission_required_htmx(
-    "scipost.can_create_profiles",
+    "scipost.can_merge_profiles",
     "You do not have permission to create profiles.",
 )
 def _hx_profile_merge(request, to_merge: int, to_merge_into: int):
@@ -384,6 +387,7 @@ def _hx_profile_merge(request, to_merge: int, to_merge_into: int):
     return render(request, "profiles/_hx_profile_merge.html", context)
 
 
+@permission_required("scipost.can_merge_profiles")
 def _hx_profile_comparison(request):
     if request.method == "GET":
         try:

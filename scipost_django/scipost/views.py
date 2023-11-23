@@ -1583,8 +1583,8 @@ class ContributorDuplicateListView(PermissionsMixin, ListView):
 
 @transaction.atomic
 @permission_required_htmx(
-    "scipost.can_vet_registration_requests",
-    "You do not have permission to vet registration requests.",
+    "scipost.can_merge_contributors",
+    "You are not allowed to merge Contributors.",
 )
 def _hx_contributor_comparison(request):
     """
@@ -1616,8 +1616,8 @@ def _hx_contributor_comparison(request):
 
 @transaction.atomic
 @permission_required_htmx(
-    "scipost.can_vet_registration_requests",
-    "You do not have permission to vet registration requests.",
+    "scipost.can_merge_contributors",
+    "You are not allowed to merge Contributors.",
 )
 def _hx_contributor_merge(request, to_merge: int, to_merge_into: int):
     """

@@ -225,11 +225,21 @@ class ProfileMergeForm(forms.Form):
         profile_old.publicationauthorstable_set.all().update(profile=profile)
 
         # Move all invitations to the "new" profile
-        profile_old.refereeinvitation_set.all().update(profile=profile)
+        profile_old.refereeinvitation_set.all().update(
+            profile=profile,
+            referee=getattr(profile, "contributor", None)
+            or getattr(profile_old, "contributor", None),
+        )
         profile_old.registrationinvitation_set.all().update(profile=profile)
 
         # Move all PotentialFellowships to the "new" profile
         profile_old.potentialfellowship_set.all().update(profile=profile)
+
+        # Move all RedFlags to the "new" profile
+        profile.red_flags.add(*profile_old.red_flags.all())
+
+        # Move all Nomination instances to the "new" profile
+        profile.fellowship_nominations.add(*profile_old.fellowship_nominations.all())
 
         profile_old.delete()
         return Profile.objects.get(
