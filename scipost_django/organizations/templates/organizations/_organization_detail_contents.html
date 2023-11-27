@@ -47,12 +47,14 @@
         No ROR id found.
       {% endif %}
 
-      <button class="btn btn-sm btn-primary ms-auto"
-              hx-get="{% url "organizations:ror_search_form" pk=org.id %}"
-              hx-target="#ror-container">Edit</button>
-      <button class="btn btn-sm btn-secondary ms-2"
-              hx-get="{% url "organizations:ror_add" pk=org.id ror_id="None" %}"
-              hx-target="#organization-info">Remove</button>
+      {% if perms.scipost.can_manage_organizations %}
+        <button class="btn btn-sm btn-primary ms-auto"
+                hx-get="{% url "organizations:ror_search_form" pk=org.id %}"
+                hx-target="#ror-container">Edit</button>
+        <button class="btn btn-sm btn-secondary ms-2"
+                hx-get="{% url "organizations:ror_add" pk=org.id ror_id="None" %}"
+                hx-target="#organization-info">Remove</button>
+      {% endif %}
 
     </td>
   </tr>
