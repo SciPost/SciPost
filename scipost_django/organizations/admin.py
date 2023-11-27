@@ -37,11 +37,16 @@ class OrganizationAdmin(GuardedModelAdmin):
         OrganizationEventInline,
         ContactPersonInline,
     ]
-    search_fields = ["name", "acronym"]
+    list_display = ["id", "name", "acronym", "ror_id", "status", "orgtype"]
+    search_fields = ["name", "acronym", "name_original", "ror_json"]
+    list_filter = ["status", "orgtype"]
     autocomplete_fields = [
         "parent",
         "superseded_by",
     ]
+
+    def ror_id(self, obj):
+        return obj.ror_json.get("id", None) if obj.ror_json else None
 
 
 admin.site.register(Organization, OrganizationAdmin)

@@ -124,9 +124,9 @@ class Organization(models.Model):
     css_class = models.CharField(
         max_length=256, blank=True, verbose_name="Additional logo CSS class"
     )
-    grid_json = models.JSONField(
+    ror_json = models.JSONField(
         default=dict, blank=True, null=True
-    )  # JSON data from GRID
+    )  # JSON data from ROR
     crossref_json = models.JSONField(
         default=dict, blank=True, null=True
     )  # JSON data from Crossref
@@ -207,7 +207,7 @@ class Organization(models.Model):
         return publications.filter(pk__in=self.cf_associated_publication_ids["all"])
 
     def get_affiliate_publications(self, journal):
-        return AffiliatePublications.objects.filter(
+        return AffiliatePublication.objects.filter(
             pubfractions__organization=self,
             journal=journal,
         )
