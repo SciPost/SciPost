@@ -52,8 +52,7 @@
 	    <hr/>
 	  {% endif %}
 
-	  <h3>Details:</h3>
-	  {% include 'organizations/_organization_detail_contents.html' with org=org %}
+    {% include "organizations/_hx_organization_info.html" %}
 
 	  <h3>Funder Registry instances associated to this Organization:</h3>
 	  <ul>

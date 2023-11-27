@@ -1,0 +1,19 @@
+<div id="organization-info" class="row">
+  <div class="col">
+    <h3>Details:</h3>
+    {% include 'organizations/_organization_detail_contents.html' with org=org %}
+  </div>
+
+  <div id="ror-container" class="col-6">
+
+    {% if org.ror_json %}
+      {% comment %} <details>
+      <summary class="list-triangle"> {% endcomment %}
+        <h3>ROR information</h3>
+        {% comment %} </summary> {% endcomment %}
+        {% include 'organizations/_organization_ror_detail_contents.html' with ror=org.ror_json %}
+        {% comment %} </details> {% endcomment %}
+      {% endif %}
+
+    </div>
+  </div>

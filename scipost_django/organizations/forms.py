@@ -10,6 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
+
 from django.utils import timezone
 
 from dal import autocomplete
@@ -19,6 +20,9 @@ from .constants import ROLE_GENERAL
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
 from scipost.constants import TITLE_CHOICES
+
+from crispy_forms.helper import FormHelper, Layout
+from crispy_forms.layout import Div, Field
 
 
 class SelectOrganizationForm(forms.Form):
@@ -277,3 +281,25 @@ class ContactRoleForm(forms.ModelForm):
         if self.instance.id:
             self.fields["organization"].disabled = True
             self.fields["contact"].disabled = True
+
+
+class RORSearchForm(forms.Form):
+    query = forms.CharField(
+        label="Query",
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "e.g. SciPost Foundation"}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.query = kwargs.pop("query", None)
+        super().__init__(*args, **kwargs)
+        self.fields["query"].widget.attrs.update({"autofocus": "autofocus"})
+        self.fields["query"].initial = self.query
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("query"), css_class="col mb-0"),
+                css_class="row",
+            ),
+        )

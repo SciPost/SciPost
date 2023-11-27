@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
+from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.db import transaction
 from django.db.models import Q
@@ -42,8 +43,10 @@ from mails.views import MailEditorSubview
 from organizations.decorators import has_contact
 from organizations.models import Organization
 
-from scipost.mixins import PermissionsMixin, PaginationMixin
+from organizations.utils import RORAPIHandler
 
+from scipost.mixins import PermissionsMixin, PaginationMixin
+from scipost.permissions import permission_required_htmx
 
 ######################
 # Autocomplete views #
@@ -527,3 +530,63 @@ def email_contactrole(request, contactrole_id, mail=None):
         return redirect(contactrole.organization.get_absolute_url())
     else:
         return mail_request.interrupt()
+
+
+### ROR ###
+@permission_required_htmx("scipost.can_manage_organizations")
+def _hx_ror_search_form(request, pk):
+    """
+    Helper function to generate the form for ROR search.
+    """
+    from organizations.forms import RORSearchForm
+
+    organization = get_object_or_404(Organization, id=pk)
+    form = RORSearchForm(query=organization.name)
+
+    return TemplateResponse(
+        request,
+        "organizations/_hx_ror_search_form.html",
+        {"organization": organization, "form": form},
+    )
+
+
+@permission_required_htmx("scipost.can_manage_organizations")
+# @for_htmx(use_block_from_params=True)
+def _hx_ror_search_results(request, pk):
+    """
+    Perform ROR search and return results.
+    """
+
+    ror_api_handler = RORAPIHandler()
+    results = ror_api_handler.query(request.POST["query"])
+
+    return TemplateResponse(
+        request,
+        "organizations/_hx_ror_search_results.html",
+        {"pk": pk, "results": results},
+    )
+
+
+@permission_required_htmx("scipost.can_manage_organizations")
+# @for_htmx(use_block_from_params=True)
+def _hx_add_ror(request, pk, ror_id):
+    """
+    Get ROR data and add it to the organization.
+    """
+
+    organization = get_object_or_404(Organization, id=pk)
+    ror_api_handler = RORAPIHandler()
+
+    if ror_id == "None":
+        organization.ror_json = {}
+    else:
+        ror_data = ror_api_handler.from_id(ror_id)
+        organization.ror_json = ror_data
+
+    organization.save()
+
+    return TemplateResponse(
+        request,
+        "organizations/_hx_organization_info.html",
+        {"org": organization},
+    )

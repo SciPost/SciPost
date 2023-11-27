@@ -1,0 +1,57 @@
+
+<table class="table">
+  <tr>
+    <td>ROR ID (link)</td>
+    <td>
+      <a target="_blank"  href="{{ ror.ror_link }}">{{ ror.ror_link }}</a>
+    </td>
+  </tr>
+
+  <tr>
+    <td>Primary Name</td>
+    <td>{{ ror.name }}</td>
+  </tr>
+ 
+
+  {% if ror.labels %}
+ 
+    <tr>
+      <td>Alternative Names</td>
+
+      <td>
+
+        {% for label in ror.labels %}
+          {{ label.label }}
+          <br />
+        {% endfor %}
+
+      </td>
+    </tr>
+ 
+  {% endif %}
+
+
+  {% comment %} <tr>
+    <td>Country</td>
+    <td>{{ ror.country.country_name }}</td>
+  </tr>
+
+  <tr>
+    <td>Year established</td>
+    <td>{{ ror.established }}</td>
+  </tr> {% endcomment %}
+
+  {% if ror.links %}
+    <tr>
+      <td>Website(s)</td>
+
+      {% for link in ror.links %}
+        <td>
+          <a href="{{ link }}" target="_blank" rel="noopener noreferrer">{{ link }}</a>
+        </td>
+      {% endfor %}
+
+    </tr>
+  {% endif %}
+
+</table>

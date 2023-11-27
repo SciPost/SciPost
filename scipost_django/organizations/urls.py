@@ -117,4 +117,19 @@ urlpatterns = [
         views.email_contactrole,
         name="email_contactrole",
     ),
+    path(
+        "<int:pk>/ror/search/form",
+        views._hx_ror_search_form,
+        name="ror_search_form",
+    ),
+    path(
+        "<int:pk>/ror/search/resuls",
+        views._hx_ror_search_results,
+        name="ror_search_results",
+    ),
+    path(
+        "<int:pk>/ror/add/<str:ror_id>",
+        views._hx_add_ror,
+        name="ror_add",
+    ),
 ]

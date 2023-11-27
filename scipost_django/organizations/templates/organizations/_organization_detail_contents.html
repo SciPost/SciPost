@@ -1,62 +1,119 @@
-<div class="row">
-  <div class="col-6">
-    <table class="table">
-      <tr>
-	<td>Name</td><td>{{ org.name }}</td>
-      </tr>
-      {% if org.name_original %}
-	<tr>
-	  <td>Name (original vn)</td><td>{{ org.name_original }}</td>
-	</tr>
+ 
+<table class="table">
+  <tr>
+    <td>Name</td>
+    <td>{{ org.name }}</td>
+  </tr>
+
+  {% if org.name_original %}
+    <tr>
+      <td>Name (original vn)</td>
+      <td>{{ org.name_original }}</td>
+    </tr>
+  {% endif %}
+
+  <tr>
+    <td>Acronym</td>
+    <td>{{ org.acronym }}</td>
+  </tr>
+ 
+  <tr>
+    <td>Country</td>
+    <td>{{ org.get_country_display }}</td>
+  </tr>
+ 
+  <tr>
+    <td>Address</td>
+    <td>{{ org.address }}</td>
+  </tr>
+ 
+  <tr>
+    <td>Type</td>
+    <td>{{ org.get_orgtype_display }}</td>
+  </tr>
+ 
+  <tr>
+    <td>Status</td>
+    <td>{{ org.get_status_display }}</td>
+  </tr>
+ 
+  <tr>
+    <td>ROR id (link)</td>
+    <td class="d-flex">
+
+      {% if org.ror_json.id %}
+        <a href="{{ org.ror_json.ror_link }}" target="_blank" rel="noopener">{{ org.ror_json.ror_link }}</a>
+      {% else %}
+        No ROR id found.
       {% endif %}
-      <tr>
-	<td>Acronym</td><td>{{ org.acronym }}</td>
-      </tr>
-      <tr>
-	<td>Country</td><td>{{ org.get_country_display }}</td>
-      </tr>
-      <tr>
-	<td>Address</td><td>{{ org.address }}</td>
-      </tr>
-      <tr>
-	<td>Type</td><td>{{ org.get_orgtype_display }}</td>
-      </tr>
-      <tr>
-	<td>Status</td><td>{{ org.get_status_display }}</td>
-      </tr>
-      <tr>
-	<td>GRID id (link)</td><td>{% if org.grid_json.id %}<a href="https://grid.ac/institutes/{{ org.grid_json.id }}" target="_blank" rel="noopener">{{ org.grid_json.id }}</a>{% else %}No GRID id found{% endif %}</td>
-      </tr>
-      <tr>
-	<td>Crossref Org ID (link)</td><td>{% if org.crossref_json.org_id %}<a href="https://crossref.org" target="_blank" rel="noopener">{{ org.crossref_json.org_id }}{% else %}No Crossref Org ID found{% endif %}</td>
-      </tr>
-      {% if org.parent %}
-	<tr>
-	  <td>Parent</td><td><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></td>
-	</tr>
+
+      <button class="btn btn-sm btn-primary ms-auto"
+              hx-get="{% url "organizations:ror_search_form" pk=org.id %}"
+              hx-target="#ror-container">Edit</button>
+      <button class="btn btn-sm btn-secondary ms-2"
+              hx-get="{% url "organizations:ror_add" pk=org.id ror_id="None" %}"
+              hx-target="#organization-info">Remove</button>
+
+    </td>
+  </tr>
+
+  <tr>
+    <td>Crossref Org ID (link)</td>
+    <td>
+
+      {% if org.crossref_json.org_id %}
+        <a href="https://crossref.org" target="_blank" rel="noopener">{{ org.crossref_json.org_id }}</a>
+      {% else %}
+        No Crossref Org ID found
       {% endif %}
-      {% if org.superseded_by %}
-	<tr>
-	  <td>Superseded by</td><td><a href="{{ org.superseded_by.get_absolute_url }}">{{ org.superseded_by }}</a></td>
-	</tr>
-      {% endif %}
-    </table>
-  </div>
-  <div class="col-6">
-    {% if org.logos %}
-      <li class="p-2">
-	<picture>
-	  {% for source in org.logos.all %}
-	    <source type="{{ source.mimetype }}" srcset="{{ source.image.url }} {{ source.width }}w">
-	    {% if forloop.last %}
-	      <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
-		   src="{{ source.url }}" alt="{{ org.name }} logo">
-	    {% endif %}
-	  {% endfor %}
-	</picture>
-      </li>
-    {% elif org.logo %}
-      <img class="d-flex me-3 {{ org.css_class }}" src="{{ org.logo.url }}" alt="image"/>
-    {% endif %}
-  </div>
-</div>
+
+    </td>
+  </tr>
+
+  {% if org.parent %}
+    <tr>
+      <td>Parent</td>
+      <td>
+        <a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a>
+      </td>
+    </tr>
+  {% endif %}
+
+  {% if org.superseded_by %}
+    <tr>
+      <td>Superseded by</td>
+      <td>
+        <a href="{{ org.superseded_by.get_absolute_url }}">{{ org.superseded_by }}</a>
+      </td>
+    </tr>
+  {% endif %}
+
+</table>
+
+{% comment %} <div class="col-auto">
+
+  {% if org.logos %}
+ 
+    <li class="p-2">
+      <picture>
+
+        {% for source in org.logos.all %}
+ 
+          <source type="{{ source.mimetype }}" srcset="{{ source.image.url }} {{ source.width }}w" />
+
+          {% if forloop.last %}
+ 
+            <img class="rounded" style="max-height: 8rem; max-width: 16rem" src="{{ source.url }}" alt="{{ org.name }} logo" />
+          {% endif %}
+
+        {% endfor %}
+
+
+      </picture>
+    </li>
+  {% elif org.logo %}
+ 
+    <img class="d-flex me-3 {{ org.css_class }}" src="{{ org.logo.url }}" alt="image" />
+  {% endif %}
+
+</div> {% endcomment %}
