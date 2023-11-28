@@ -1,4 +1,4 @@
-
+{% load static %}
 
 {% for item in results.items %}
  
@@ -10,11 +10,18 @@
  
       <div>{{ item.name }}</div>
  
-      <a class="ms-auto"
-         href="{{ item.ror_link }}"
-         target="_blank"
-         title="Visit page on ROR.org">{% include "bi/link.html" %}</a>
- 
+      <div class="ms-auto">
+        <img class="me-2"
+             width="16"
+             height="11"
+             title="{{ item.country.name }}"
+             alt="{{ item.country.name }}"
+             src="{% static 'flags/'|add:item.country.country_code|lower|add:'.gif' %}" />
+
+        <a href="{{ item.ror_link }}"
+           target="_blank"
+           title="Visit page on ROR.org">{% include "bi/link.html" %}</a>
+      </div>
     </div>
     <div class="ps-4">
 
