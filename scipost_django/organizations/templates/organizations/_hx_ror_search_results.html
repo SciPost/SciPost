@@ -8,15 +8,26 @@
          hx-get="{% url "organizations:ror_add" pk=pk ror_id=item.id %}"
          hx-target="#organization-info">{% include "bi/plus-square-fill.html" %}</a>
  
-      <div>{{ item.name }}</div>
+      <div>
+
+        {% for name in item.names %}
+
+          {% if "ror_display" in name.types %}{{ name.value }}{% endif %}
+
+        {% endfor %}
+
+      </div>
  
       <div class="ms-auto">
-        <img class="me-2"
-             width="16"
-             height="11"
-             title="{{ item.country.name }}"
-             alt="{{ item.country.name }}"
-             src="{% static 'flags/'|add:item.country.country_code|lower|add:'.gif' %}" />
+
+        {% for location in item.locations %}
+          <img class="me-2"
+               width="16"
+               height="11"
+               title="{{ location.geonames_details.country_name }}"
+               alt="{{ location.geonames_details.country_name }}"
+               src="{% static 'flags/'|add:location.geonames_details.country_code|lower|add:'.gif' %}" />
+        {% endfor %}
 
         <a href="{{ item.ror_link }}"
            target="_blank"
@@ -25,15 +36,17 @@
     </div>
     <div class="ps-4">
 
-      {% if item.labels %}
- 
+      {% if item.names|length > 1 %}
         <div class="d-flex text-nowrap flex-wrap">
           <div class="text-muted me-2">Other names:</div>
 
-          {% for label in item.labels %}
-            <div class="ms-1 d-block">{{ label.label }}</div>
+          {% for name in item.names %}
 
-            {% if not forloop.last %},{% endif %}
+            {% if "ror_display" not in name.types %}
+              <div class="ms-1">{{ name.value }}</div>
+
+              {% if not forloop.last %},{% endif %}
+            {% endif %}
 
           {% endfor %}
 

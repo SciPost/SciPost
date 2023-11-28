@@ -9,48 +9,66 @@
 
   <tr>
     <td>Primary Name</td>
-    <td>{{ ror.name }}</td>
+    <td>
+
+      {% for name in ror.names %}
+
+        {% if "ror_display" in name.types %}{{ name.value }}{% endif %}
+
+      {% endfor %}
+
+    </td>
   </tr>
  
 
-  {% if ror.labels %}
+  {% if ror.names|length > 1 %}
  
     <tr>
       <td>Alternative Names</td>
 
       <td>
 
-        {% for label in ror.labels %}
-          {{ label.label }}
-          <br />
+        {% for name in ror.names %}
+
+          {% if "ror_display" not in name.types %}
+            {{ name.value }}
+            <br />
+          {% endif %}
+
         {% endfor %}
 
-      </td>
-    </tr>
- 
-  {% endif %}
+      </div>
 
-  <tr>
-    <td>Country</td>
-    <td>{{ ror.country.country_name }}</td>
+    </td>
   </tr>
+ 
+{% endif %}
 
-  {% comment %} <tr>
+<tr>
+  <td>Country</td>
+  <td>{{ ror.locations.0.geonames_details.country_name }}</td>
+</tr>
+
+{% comment %} <tr>
     <td>Year established</td>
     <td>{{ ror.established }}</td>
-  </tr> {% endcomment %}
+</tr> {% endcomment %}
 
-  {% if ror.links %}
-    <tr>
-      <td>Website(s)</td>
+{% if ror.links %}
+  <tr>
+    <td>Website(s)</td>
+
+    <td>
 
       {% for link in ror.links %}
-        <td>
-          <a href="{{ link }}" target="_blank" rel="noopener noreferrer">{{ link }}</a>
-        </td>
+        <a href="{{ link.value }}" target="_blank" rel="noopener noreferrer">{{ link.value }}</a>
+        <br />
       {% endfor %}
 
-    </tr>
-  {% endif %}
+    </td>
+
+
+  </tr>
+{% endif %}
 
 </table>
