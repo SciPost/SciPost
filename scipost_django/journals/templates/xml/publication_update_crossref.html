@@ -1,6 +1,6 @@
 {% spaceless %}
 <?xml version="1.0" encoding="UTF-8"?>
-<doi_batch version="4.4.1" xmlns="http://www.crossref.org/schema/4.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fr="http://www.crossref.org/fundref.xsd" xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 http://www.crossref.org/shema/deposit/crossref4.4.1.xsd">
+<doi_batch version="5.3.1" xmlns="http://www.crossref.org/schema/5.3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fr="http://www.crossref.org/fundref.xsd" xsi:schemaLocation="http://www.crossref.org/schema/5.3.1 http://www.crossref.org/shema/deposit/crossref5.3.1.xsd">
   <head>
     <doi_batch_id>{{ doi_batch_id }}</doi_batch_id>
     <timestamp>{% now "YmdHis" %}</timestamp>
@@ -56,11 +56,22 @@
             {% endif %}
             <given_name>{{ author_object.first_name }}</given_name>
             <surname>{{ author_object.last_name }}</surname>
-	    {% if author_object.affiliations %}
-	      {% for aff in author_object.affiliations.all %}
-		<affiliation>{{ aff.name }}</affiliation>
-	      {% endfor %}
-	    {% endif %}
+            {% if author_object.affiliations %}
+              <affiliations>
+              {% for aff in author_object.affiliations.all %}
+                <institution>
+                  <institution_name>{{ aff.name }}</institution_name>
+                  {% if aff.ror_json.ror_link %}
+                  <institution_id type="ror">{{ aff.ror_json.ror_link }}</institution_id>
+                  {% else %} {% comment %} Only if ror doesn't exist, acronyms may help {% endcomment %}
+                    {% if aff.acronym %}
+                      <institution_acronym>{{ aff.acronym }}</institution_acronym>
+                    {% endif %}
+                  {% endif %}
+                </institution>
+              {% endfor %}
+              </affiliations>
+	          {% endif %}
             {% if author_object.contributor and author_object.contributor.profile.orcid_id %}
               <ORCID>https://orcid.org/{{ author_object.contributor.profile.orcid_id }}</ORCID>
             {% endif %}

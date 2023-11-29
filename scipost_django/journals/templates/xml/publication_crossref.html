@@ -1,6 +1,6 @@
 {% spaceless %}
 <?xml version="1.0" encoding="UTF-8"?>
-<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fr="http://www.crossref.org/fundref.xsd" xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 http://www.crossref.org/shema/deposit/crossref4.4.0.xsd" xmlns:ai="http://www.crossref.org/AccessIndicators.xsd" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<doi_batch version="5.3.1" xmlns="http://www.crossref.org/schema/5.3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fr="http://www.crossref.org/fundref.xsd" xsi:schemaLocation="http://www.crossref.org/schema/5.3.1 http://www.crossref.org/shema/deposit/crossref5.3.1.xsd" xmlns:ai="http://www.crossref.org/AccessIndicators.xsd" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1" xmlns:mml="http://www.w3.org/1998/Math/MathML">
     <head>
         <doi_batch_id>{{ doi_batch_id }}</doi_batch_id>
         <timestamp>{% now "YmdHis" %}</timestamp>
@@ -71,18 +71,29 @@
                         {% endif %}
                         <given_name>{{ author_object.first_name }}</given_name>
                         <surname>{{ author_object.last_name }}</surname>
-			{% if author_object.affiliations %}
-			{% for aff in author_object.affiliations.all %}
-			<affiliation>{{ aff.name }}</affiliation>
-			{% endfor %}
-			{% endif %}
+                        <affiliations>
+                        {% if author_object.affiliations %}
+                          {% for aff in author_object.affiliations.all %}
+                          <institution>
+                            <institution_name>{{ aff.name }}</institution_name>
+                            {% if aff.ror_json.ror_link %}
+                            <institution_id type="ror">{{ aff.ror_json.ror_link }}</institution_id>
+                            {% else %} {% comment %} Only if ror doesn't exist, acronyms may help {% endcomment %}
+                              {% if aff.acronym %}
+                                <institution_acronym>{{ aff.acronym }}</institution_acronym>
+                              {% endif %}
+                            {% endif %}
+                          </institution>
+                          {% endfor %}
+                        {% endif %}
+                        </affiliations>
                         {% if author_object.contributor and author_object.contributor.profile.orcid_id %}
                             <ORCID>https://orcid.org/{{ author_object.contributor.profile.orcid_id }}</ORCID>
                         {% endif %}
                         </person_name>
                     {% endfor %}
                 </contributors>
-		<jats:abstract>{{ publication.abstract_jats|safe }}</jats:abstract>
+		            <jats:abstract>{{ publication.abstract_jats|safe }}</jats:abstract>
                 <publication_date media_type='online'>
                     <month>{{ publication.publication_date|date:'m' }}</month>
                     <day>{{ publication.publication_date|date:'d' }}</day>
@@ -117,7 +128,7 @@
                             </fr:program>
                         {% endif %}
                             <ai:program name="AccessIndicators">
-			      <ai:free_to_read start_date="{{ publication.publication_date|date:'Y-m-d' }}"/>
+			                      <ai:free_to_read start_date="{{ publication.publication_date|date:'Y-m-d' }}"/>
                             <ai:license_ref applies_to="vor">{{ publication.get_cc_license_URI }}</ai:license_ref>
                         </ai:program>
                     </custom_metadata>
@@ -128,7 +139,7 @@
                 <doi_data>
                     <doi>{{ publication.doi_string }}</doi>
                     <resource>https://{{ domain }}/{{ publication.doi_string }}</resource>
-		    {% if publication.pdf_file %}
+		                {% if publication.pdf_file %}
                       <collection property='crawler-based'>
                         <item crawler='iParadigms'>
                           <resource>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
@@ -139,7 +150,7 @@
                           <resource mime_type='application/pdf'>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
                         </item>
                       </collection>
-		    {% endif %}
+		                {% endif %}
                 </doi_data>
                 {% if publication.metadata.citation_list %}
                     <citation_list>
