@@ -1,5 +1,6 @@
 # MARKED FOR DEPRECATION
 from django.core.mail import EmailMultiAlternatives
+from django.template import loader
 from common.utils.models import get_current_domain
 
 
