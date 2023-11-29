@@ -87,6 +87,7 @@ class OrganizationAutocompleteView(autocomplete.Select2QuerySetView):
                 Q(name__icontains=self.q)
                 | Q(name_original__icontains=self.q)
                 | Q(acronym__icontains=self.q)
+                | Q(ror_json__names__contains=[{"value": self.q}])  # Search ROR
             )
         return qs
 
