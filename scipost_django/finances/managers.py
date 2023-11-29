@@ -4,14 +4,12 @@ __license__ = "AGPL v3"
 
 from django.db import models
 
-from .constants import SUBSIDY_PROMISED, SUBSIDY_INVOICED, SUBSIDY_RECEIVED
+from .constants import SUBSIDY_WITHDRAWN
 
 
 class SubsidyQuerySet(models.QuerySet):
     def obtained(self):
-        return self.filter(
-            status__in=[SUBSIDY_PROMISED, SUBSIDY_INVOICED, SUBSIDY_RECEIVED],
-        )
+        return self.exclude(status=SUBSIDY_WITHDRAWN)
 
 
 class SubsidyPaymentQuerySet(models.QuerySet):
