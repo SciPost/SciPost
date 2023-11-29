@@ -117,18 +117,18 @@ class SimpleProfileForm(ProfileForm):
 
 class ProfileMergeForm(forms.Form):
     to_merge = ModelChoiceFieldwithid(
-        queryset=Profile.objects.potential_duplicates(),
+        queryset=Profile.objects.none(),
         empty_label=None,
         label="Merge this profile",
     )
     to_merge_into = ModelChoiceFieldwithid(
-        queryset=Profile.objects.potential_duplicates(),
+        queryset=Profile.objects.none(),
         empty_label=None,
         label="into this profile",
     )
 
     def __init__(self, *args, **kwargs):
-        queryset = kwargs.pop("queryset", None)
+        queryset = kwargs.pop("queryset", Profile.objects.potential_duplicates())
         super().__init__(*args, **kwargs)
         if queryset:
             self.fields["to_merge"].queryset = queryset
