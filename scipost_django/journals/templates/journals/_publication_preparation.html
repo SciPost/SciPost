@@ -11,7 +11,7 @@
   <li>{% if publication.has_funding_statement %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/square.html' %}{% endif %}<a href="{% url 'journals:create_funding_info_metadata' publication.doi_label %}">Create/update funding info metadata</a></li>
   <li>{% if publication.grants.exists %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/square.html' %}{% endif %}<a href="{% url 'journals:update_grants' publication.doi_label %}">Create/update grants</a></li>
   <li>{% if publication.has_xml_metadata %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/square.html' %}{% endif %}<a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">Create/update Crossref metadata</a> <em>(please do after citation and funding info are added)</em></li>
-  <li>{% if publication.references.exists %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/square.html' %}{% endif %}<a href="{% url 'journals:update_references' doi_label=publication.doi_label %}">Create/update references</a></li>
+  {% comment %} <li>{% if publication.references.exists %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/square.html' %}{% endif %}<a href="{% url 'journals:update_references' doi_label=publication.doi_label %}">Create/update references</a></li> {% endcomment %}
 </ul>
 
 <h3>Tools</h3>
