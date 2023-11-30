@@ -9,6 +9,7 @@ import os
 import random
 import string
 import shutil
+from typing import Any, Dict
 import requests
 
 import matplotlib
@@ -1067,6 +1068,13 @@ class CreateMetadataXMLView(
 
     form_class = CreateMetadataXMLForm
     template_name = "journals/create_metadata_xml.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        form = context["form"]
+        valid, errors, xml_str = form.validate_xml(form.xml_str)
+
+        return {**context, "valid": valid, "errors": errors, "xml_str": xml_str}
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)

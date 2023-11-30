@@ -17,6 +17,9 @@ from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
+import lxml.etree as ET
+from html.entities import entitydefs
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
@@ -240,13 +243,38 @@ class AuthorsTableOrganizationSelectForm(forms.ModelForm):
 
 
 class CreateMetadataXMLForm(forms.ModelForm):
+    # schema = ET.XMLSchema(file=static(settings.CROSSREF_SCHEMA_FILE))
+    schema = ET.XMLSchema(file=settings.STATIC_ROOT + settings.CROSSREF_SCHEMA_FILE)
+    parser = ET.XMLParser(schema=schema)
+
     class Meta:
         model = Publication
         fields = ["metadata_xml"]
 
     def __init__(self, *args, **kwargs):
-        kwargs["initial"] = {"metadata_xml": self.new_xml(kwargs.get("instance"))}
+        xml = self.new_xml(kwargs.get("instance"))
+        self.xml_str = self.format_xml(self.decode_html_entities(xml))
+        kwargs["initial"] = {"metadata_xml": self.xml_str}
+
         super().__init__(*args, **kwargs)
+
+    @staticmethod
+    def decode_html_entities(xml: str):
+        # Replace any encoded HTML entities with their decoded counterparts
+        for entity, symbol in entitydefs.items():
+            if entity in ["lt", "gt", "amp", "quot", "apos"]:
+                continue
+
+            xml = xml.replace(f"&{entity};", symbol)
+
+        return xml
+
+    def clean_metadata_xml(self):
+        # Flatten the XML before saving
+        xml = self.cleaned_data["metadata_xml"]
+        xml = re.sub(r"\s*\n+\s*", "", xml, flags=re.MULTILINE)
+
+        return xml
 
     def save(self, *args, **kwargs):
         self.instance.latest_metadata_update = timezone.now()
@@ -280,6 +308,35 @@ class CreateMetadataXMLForm(forms.ModelForm):
             "funders": funders,
         }
         return template.render(context)
+
+    def format_xml(self, xml_str: str) -> str:
+        """
+        Format XML by pretty printing it.
+        Returns the formatted XML as a string.
+        """
+        # Try to parse the XML, if it fails, just return the string
+        try:
+            xml = ET.fromstring(bytes(xml_str, encoding="utf8"))
+            xml_str = ET.tostring(xml, pretty_print=True).decode("utf8")
+        except:
+            pass
+
+        return xml_str
+
+    def validate_xml(self, xml_str: str):
+        """
+        Validate XML by running it through the schema.
+        Returns a tuple of (valid, errors, xml_str).
+        """
+        # Try to parse the XML, if it fails, just return the string
+        try:
+            xml_str = self.format_xml(xml_str)
+            xml = ET.fromstring(bytes(xml_str, encoding="utf8"))
+            valid = self.schema.validate(xml)
+            errors = list(self.schema.error_log)
+            return valid, errors, xml_str
+        except ET.XMLSyntaxError as error:
+            return False, [str(error)], xml_str
 
 
 class CreateMetadataDOAJForm(forms.ModelForm):

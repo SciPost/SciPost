@@ -1,6 +1,8 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: Create metadata xml{% endblock pagetitle %}
+{% block pagetitle %}
+  : Create metadata xml
+{% endblock pagetitle %}
 
 {% block breadcrumb %}
   <div class="breadcrumb-container">
@@ -22,20 +24,38 @@
     <div class="col-12">
       <h1 class="highlight">Create metadata XML (for Crossref deposit)</h1>
       <p>
-        The following field is prefilled with data from the Publication object. Once you accept them, they will overwrite the current metadata, shown below.
+        The following field is prefilled with data from the Publication object, formatted for readability. Once you accept them, they will be flattened to a single line and overwrite the current metadata shown below.
       </p>
-      <br>
-      <form action="{% url 'journals:create_metadata_xml' publication.doi_label %}" method="post">
+      <br />
+      <form action="{% url 'journals:create_metadata_xml' publication.doi_label %}"
+            method="post">
         {% csrf_token %}
         {{ form|bootstrap }}
-        <input type="submit" class="btn btn-primary" value="Accept the metadata">
+
+        {% if errors %}
+          <div class="bg-danger bg-opacity-10 p-3 mb-2">
+            <span class="fw-bold me-2">XML validation result:</span>
+            <ul class="mb-0">
+
+              {% for error in errors %}<li>{{ error }}</li>{% endfor %}
+
+            </ul>
+          </div>
+        {% else %}
+          <div class="bg-success bg-opacity-10 p-3 mb-2">
+            <span class="fw-bold me-2">XML validation result:</span>
+            Valid
+          </div>
+        {% endif %}
+
+        <input type="submit" class="btn btn-primary" value="Accept the metadata" />
         <a href="{% url 'journals:manage_metadata' %}" class="ms-3 btn btn-link">Back to Admin</a>
       </form>
 
-      <hr class="divider">
+      <hr class="divider" />
 
       <h3>Current metadata xml</h3>
-      <br>
+      <br />
       <pre><code>{{ publication.metadata_xml|linebreaksbr }}</code></pre>
     </div>
   </div>
