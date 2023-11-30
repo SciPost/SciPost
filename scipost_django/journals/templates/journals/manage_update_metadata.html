@@ -14,16 +14,7 @@
 
 {% block content %}
   <h1 class="highlight">Manage PublicationUpdate metadata</h1>
-
-  <ul>
-    <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
-    <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
-    <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
-    <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
-    <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
-    <li><a href="{% url 'journals:manage_comment_metadata' %}">Manage Comment metadata</a></li>
-    <li><a href="{% url 'journals:manage_update_metadata' %}" class="active">Manage PublicationUpdate metadata</a></li>
-  </ul>
+  {% include "journals/_manage_link_list.html" with active="publicationupdate" %}
 
   <h2 class="mt-4">Publication Updates</h2>
 

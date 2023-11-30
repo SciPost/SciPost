@@ -1,0 +1,37 @@
+<ul>
+  <li>
+    <a 
+      {% if active == "volumes" %}class="active"{% endif %}
+     href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a>
+  </li>
+  <li>
+    <a 
+      {% if active == "issues" %}class="active"{% endif %}
+     href="{% url 'journals:admin_issue_list' %}">Manage Issues</a>
+  </li>
+  <li>
+    <a 
+      {% if active == "proceedings" %}class="active"{% endif %}
+     href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a>
+  </li>
+  <li>
+    <a 
+      {% if active == "publication" %}class="active"{% endif %}
+     href="{% url 'journals:manage_metadata' %}">Manage Publication metadata</a>
+  </li>
+  <li>
+    <a 
+      {% if active == "report" %}class="active"{% endif %}
+     href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a>
+  </li>
+  <li>
+    <a 
+      {% if active == "comment" %}class="active"{% endif %}
+     href="{% url 'journals:manage_comment_metadata' %}">Manage Comment metadata</a>
+  </li>
+  <li>
+    <a 
+      {% if active == "publicationupdate" %}class="active"{% endif %}
+     href="{% url 'journals:manage_update_metadata' %}">Manage PublicationUpdate metadata</a>
+  </li>
+</ul>

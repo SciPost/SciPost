@@ -8,14 +8,9 @@
 {% block pagetitle %}: Manage Proceedings{% endblock pagetitle %}
 
 {% block content %}
-  <h1>Manage Proceedings</h1>
-  <ul>
-    <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
-    <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
-    <li><a href="{% url 'proceedings:proceedings' %}" class="active">Manage Proceedings Issues</a></li>
-    <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
-    <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
-  </ul>
+  <h1 class="highlight">Manage Proceedings</h1>
+  {% include "journals/_manage_link_list.html" with active="proceedings" %}
+
   <a href="{% url 'proceedings:proceedings_add' %}">Add new Proceedings</a>
 
   <table class="table mt-3">

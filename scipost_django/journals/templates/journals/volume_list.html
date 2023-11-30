@@ -14,13 +14,7 @@
   <div class="row">
     <div class="col-12">
       <h1 class="highlight">Manage Volumes</h1>
-      <ul>
-	<li><a href="{% url 'journals:admin_volumes_list' %}" class="active">Manage Volumes</a></li>
-	<li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
-	<li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
-	<li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
-	<li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
-      </ul>
+      {% include "journals/_manage_link_list.html" with active="volumes" %}
 
       <h3 class="my-3">Journals overview</h3>
       <table class="table">

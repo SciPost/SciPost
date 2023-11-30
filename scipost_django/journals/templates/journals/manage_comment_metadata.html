@@ -13,16 +13,8 @@
 {% endblock %}
 
 {% block content %}
-
-  <ul>
-    <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
-    <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
-    <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
-    <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
-    <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
-    <li><a href="{% url 'journals:manage_comment_metadata' %}" class="active">Manage Comment metadata</a></li>
-    <li><a href="{% url 'journals:manage_update_metadata' %}">Manage PublicationUpdate metadata</a></li>
-  </ul>
+  <h1 class="highlight">Manage Comment metadata</h1>
+  {% include "journals/_manage_link_list.html" with active="comment" %}
 
   <table class="table table-hover mb-5">
     <thead class="table-light">
