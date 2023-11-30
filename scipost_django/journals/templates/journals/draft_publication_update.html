@@ -1,0 +1,37 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}
+  : Draft Publication Update
+{% endblock pagetitle %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+        <span class="breadcrumb-item active">Draft publication update</span>
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">
+        Draft publication update to <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a>
+      </h1>
+      <br />
+      <form action="{% url 'journals:draft_publication_update' publication.doi_label %}"
+            method="post">
+        {% crispy form %}
+        {{ form.errors }}
+      </form>
+    </div>
+  </div>
+
+
+{% endblock %}

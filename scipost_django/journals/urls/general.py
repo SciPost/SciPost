@@ -175,6 +175,11 @@ urlpatterns = [
         name="draft_accompanying_publication",
     ),
     path(
+        "admin/<publication_doi_label:doi_label>/draft_publication_update",
+        journals_views.draft_publication_update,
+        name="draft_publication_update",
+    ),
+    path(
         "admin/<publication_doi_label:doi_label>/manage_publication_resources",
         journals_views.manage_publication_resources,
         name="manage_publication_resources",

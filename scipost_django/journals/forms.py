@@ -24,6 +24,7 @@ from dal import autocomplete
 from common.forms import HTMXInlineCRUDModelForm
 
 from journals.models.resource import PublicationResource
+from journals.models.update import PublicationUpdate
 
 from .constants import (
     STATUS_DRAFT,
@@ -769,6 +770,45 @@ class DraftAccompanyingPublicationForm(forms.Form):
         companion.save()
 
         return companion
+
+
+class DraftPublicationUpdateForm(forms.ModelForm):
+    class Meta:
+        model = PublicationUpdate
+        fields = [
+            "publication",
+            "update_type",
+            "text",
+            "number",
+            "publication_date",
+            "doi_label",
+        ]
+        widgets = {
+            "publication": forms.HiddenInput(),
+            "number": forms.HiddenInput(),
+            "text": forms.Textarea(
+                attrs={"placeholder": "Describe the changes made to the publication."}
+            ),
+            "publication_date": forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        publication = kwargs.pop("publication", None)
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("publication", css_class="mb-3"),
+            Field("number", css_class="mb-3"),
+            Field("update_type", css_class="mb-3"),
+            Field("publication_date", css_class="mb-3"),
+            Field("text", css_class="mb-3"),
+            ButtonHolder(Submit("submit", "Submit", css_class="btn btn-primary")),
+        )
+
+        self.initial["publication"] = publication
+        self.initial["doi_label"] = publication.doi_label
+        self.initial["number"] = publication.updates.count() + 1
+        self.initial["publication_date"] = timezone.now()
 
 
 class DraftPublicationApprovalForm(forms.ModelForm):

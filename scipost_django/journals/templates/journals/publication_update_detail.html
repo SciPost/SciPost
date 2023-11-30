@@ -65,4 +65,18 @@
     {% endfor %}
   </ul>
 
+  {% if is_ed_admin %}
+    <hr class="divider" />
+    <div class="row">
+      <div class="col-12">
+        <h3>EdAdmin actions</h3>
+        <ul>
+          <li>
+            <a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='update' object_id=update.id %}">Create the metadata and deposit it to Crossref</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+
 {% endblock content %}
