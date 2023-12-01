@@ -90,7 +90,7 @@ class Profile(models.Model):
     objects = ProfileQuerySet.as_manager()
 
     class Meta:
-        ordering = ["last_name"]
+        ordering = ["last_name", "first_name"]
 
     def __str__(self):
         return "%s, %s %s" % (
