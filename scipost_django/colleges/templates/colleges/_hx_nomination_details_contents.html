@@ -7,6 +7,15 @@
     <div id="profile-{{ nomination.profile.id }}-specialties"
          class="border border-danger mb-4 d-none-empty"></div>
 
+    {% if nomination.nominator_comments %}
+      <div class="col-12 mb-3">
+        <div class="card">
+          <div class="card-header">Nominatior motivation</div>
+          <div class="card-body">{{ nomination.nominated_by.profile.full_name }}: {{ nomination.nominator_comments }}</div>
+        </div>
+      </div>
+    {% endif %}
+
     <div class="col-12 col-md mb-3">
       <div class="card">
         <div class="card-header">Details</div>
@@ -111,16 +120,6 @@
         </summary>
         <div class="card-body">
           <div class="p-3">
-
-            {% if nomination.nominator_comments %}
-              <div class="row">
-                <div class="fs-6">Nominator comments:</div>
-                <div>
-                  <em>{{ nomination.nominator_comments }}</em>
-                </div>
-              </div>
-              <hr class="text-muted" />
-            {% endif %}
 
             <div id="nomination-{{ nomination.id }}-comments"
                  hx-get="{% url 'colleges:_hx_nomination_comments' nomination_id=nomination.id %}"

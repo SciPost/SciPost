@@ -102,6 +102,7 @@
 	      {% if perms.scipost.can_manage_college_composition %}
 		<li><a href="{% url 'colleges:fellowships' %}">Fellowships</a></li>
 	      {% endif %}
+	      <li><a href="{% url 'colleges:nominations' %}">Fellowship Nominations</a></li>
 	      <li><a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships: view{% if perms.scipost.can_manage_college_composition %} and manage{% endif %}</a></li>
 	    </ul>
 	  {% endif %}

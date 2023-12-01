@@ -415,6 +415,13 @@ class FellowshipNominationForm(forms.ModelForm):
         model = FellowshipNomination
         fields = ["nominated_by", "college", "nominator_comments"]  # hidden  # visible
 
+    specialties = forms.MultipleChoiceField(
+        choices=[],
+        label="Specialties",
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+    )
+
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop("profile")
         super().__init__(*args, **kwargs)
@@ -426,10 +433,23 @@ class FellowshipNominationForm(forms.ModelForm):
         )
         self.fields["college"].empty_label = None
         self.fields["nominator_comments"].label = False
-        self.fields["nominator_comments"].widget.attrs["rows"] = 4
-        self.fields["nominator_comments"].widget.attrs[
-            "placeholder"
-        ] = "Optional comments and/or recommendations"
+        self.fields["nominator_comments"].widget = forms.Textarea(
+            attrs={
+                "rows": 4,
+                "placeholder": "Please provide a short motivation for the nomination, "
+                "as well as a personal website or external profile page to help us identify the nominee.",
+            }
+        )
+        self.fields["nominator_comments"].required = True
+
+        self.fields["specialties"].choices = [
+            (s.pk, s.name)
+            for s in Specialty.objects.filter(acad_field=self.profile.acad_field)
+        ]
+        self.fields["specialties"].initial = list(
+            self.profile.specialties.all().values_list("pk", flat=True)
+        )
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("profile_id", type="hidden"),
@@ -444,6 +464,13 @@ class FellowshipNominationForm(forms.ModelForm):
                         )
                     ),
                     css_class="col-lg-4",
+                ),
+                Div(
+                    Field(
+                        "specialties",
+                        css_class="border border-secondary p-2 d-flex flex-wrap gap-3",
+                    ),
+                    css_class="col-12",
                 ),
                 css_class="row pt-1",
             ),
@@ -471,11 +498,22 @@ class FellowshipNominationForm(forms.ModelForm):
                 "college",
                 "You do not have an active Fellowship in the selected College.",
             )
+
+        profile_specialties_of_field = self.profile.specialties.filter(
+            acad_field=data["college"].acad_field
+        )
+        if profile_specialties_of_field.count() == 0 and len(data["specialties"]) == 0:
+            self.add_error(
+                None,
+                "You must denote at least one specialty for the nominee in their nominated college.",
+            )
         return data
 
     def save(self):
         nomination = super().save(commit=False)
         nomination.profile = self.profile
+        # add specialties to profile
+        nomination.profile.specialties.add(*self.cleaned_data["specialties"])
         nomination.save()
         return nomination
 
