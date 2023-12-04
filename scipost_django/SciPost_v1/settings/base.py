@@ -277,6 +277,8 @@ CSP_IMG_SRC = (
     "licensebuttons.net",
     "crossmark-cdn.crossref.org",
     "www.paypalobjects.com",
+    "orcid.org",
+    "http://info.orcid.org",
 )
 CSP_SCRIPT_SRC = (
     "'self'",
@@ -610,3 +612,8 @@ CORS_ALLOWED_ORIGINS = [
 GITLAB_ROOT = "SciPost"
 GITLAB_URL = "git.scipost.org"
 GITLAB_KEY = get_secret("GITLAB_KEY")
+
+
+# ORCID API
+ORCID_CLIENT_ID = get_secret("ORCID_CLIENT_ID")
+ORCID_CLIENT_SECRET = get_secret("ORCID_CLIENT_SECRET")

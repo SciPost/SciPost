@@ -49,33 +49,29 @@
         </titles>
         <contributors>
           {% for author_object in update.publication.authors.all %}
-            {% if author_object.order == 1 %}
-              <person_name sequence='first' contributor_role='author'>
-            {% else %}
-                <person_name sequence='additional' contributor_role='author'>
-            {% endif %}
-            <given_name>{{ author_object.first_name }}</given_name>
-            <surname>{{ author_object.last_name }}</surname>
-            {% if author_object.affiliations %}
+            <person_name sequence="{% if author_object.order == 1 %}first{% else %}additional{% endif %}" contributor_role='author'>
+              <given_name>{{ author_object.first_name }}</given_name>
+              <surname>{{ author_object.last_name }}</surname>
               <affiliations>
-              {% for aff in author_object.affiliations.all %}
+              {% if author_object.affiliations %}
+                {% for aff in author_object.affiliations.all %}
                 <institution>
                   <institution_name>{{ aff.name }}</institution_name>
                   {% if aff.ror_json.ror_link %}
-                  <institution_id type="ror">{{ aff.ror_json.ror_link }}</institution_id>
+                    <institution_id type="ror">{{ aff.ror_json.ror_link }}</institution_id>
                   {% else %} {% comment %} Only if ror doesn't exist, acronyms may help {% endcomment %}
                     {% if aff.acronym %}
                       <institution_acronym>{{ aff.acronym }}</institution_acronym>
                     {% endif %}
                   {% endif %}
                 </institution>
-              {% endfor %}
+                {% endfor %}
+              {% endif %}
               </affiliations>
-	          {% endif %}
-            {% if author_object.contributor and author_object.contributor.profile.orcid_id %}
-              <ORCID>https://orcid.org/{{ author_object.contributor.profile.orcid_id }}</ORCID>
-            {% endif %}
-                </person_name>
+              {% if author_object.profile.orcid_id %}
+                <ORCID authenticated="{{ author_object.profile.orcid_authenticated|yesno:"true,false" }}">https://orcid.org/{{ author_object.profile.orcid_id }}</ORCID>
+              {% endif %}
+            </person_name>
           {% endfor %}
         </contributors>
         <publication_date media_type='online'>

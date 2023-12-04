@@ -29,8 +29,17 @@ class ProfileAdmin(admin.ModelAdmin):
     search_fields = ["first_name", "last_name", "emails__email", "orcid_id"]
     inlines = [ProfileEmailInline, AffiliationInline, RedFlagInline]
     autocomplete_fields = ["topics"]
+    readonly_fields = ["orcid_authenticated"]
 
 
+    # Set the orcid_authenticated field to false 
+    # if the orcid_id has been changed by the user
+    def save_model(self, request, obj, form, change):
+        if change:
+            original_obj = Profile.objects.get(pk=obj.pk)
+            if original_obj.orcid_id != obj.orcid_id:
+                obj.orcid_authenticated = False
+        obj.save()
 
 
 @admin.register(ProfileNonDuplicates)
@@ -38,5 +47,3 @@ class ProfileNonDuplicatesAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "profiles",
     ]
-
-

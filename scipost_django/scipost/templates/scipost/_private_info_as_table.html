@@ -1,38 +1,76 @@
 <table class="contributor-info">
-  <tr><td>Title:</td><td>{{ contributor.profile.get_title_display }}</td></tr>
-  <tr><td>First name:</td><td>{{ contributor.user.first_name }}</td></tr>
-  <tr><td>Last name: </td><td>{{ contributor.user.last_name }}</td></tr>
   <tr>
-    <td>Email: </td>
-    <td>{{ contributor.user.email }}&nbsp;
+    <td>Title:</td>
+    <td>{{ contributor.profile.get_title_display }}</td>
+  </tr>
+  <tr>
+    <td>First name:</td>
+    <td>{{ contributor.user.first_name }}</td>
+  </tr>
+  <tr>
+    <td>Last name:</td>
+    <td>{{ contributor.user.last_name }}</td>
+  </tr>
+  <tr>
+    <td>Email:</td>
+    <td>
+      {{ contributor.user.email }}&nbsp;
       <a href="{% url 'security:security' %}" class="text-warning">&rarr;&nbsp;security&nbsp;check</a>
     </td>
   </tr>
   <tr>
-    <td>ORCID id: </td>
+    <td>ORCID iD:</td>
     <td>
+
       {% if contributor.profile.orcid_id %}
-	<a href="https://orcid.org/{{ contributor.profile.orcid_id }}" target="_blank">{{ contributor.profile.orcid_id }}</a>
-      {% else %}(no ORCID id known)
+        <a href="https://orcid.org/{{ contributor.profile.orcid_id }}"
+           target="_blank">{{ contributor.profile.orcid_id }}</a> -
+
+        {% if contributor.profile.orcid_authenticated %}
+          <span class="text-success">Authenticated via ORCID</span>
+        {% else %}
+          <span class="text-warning">Not verified by ORCID</span>
+        {% endif %}
       {% endif %}
+
+      {% if not contributor.profile.orcid_id or not contributor.profile.orcid_authenticated %}
+        <div class="d-flex justify-content-start">
+          <a id="orcid-auth"
+             class="btn btn-sm btn-outline-secondary d-flex align-items-center"
+             href="https://orcid.org/oauth/authorize?client_id={{ orcid_client_id }}&redirect_uri=https://{{ request.get_host }}{% url "scipost:update_orcid_from_authentication" %}&response_type=code&scope=/authenticate">
+            <img height="24"
+                 width="24"
+                 class="me-2"
+                 alt="ORCID logo"
+                 src="https://orcid.org/sites/default/files/images/orcid_24x24.png" />
+          Connect your ORCID iD</a>
+        </div>
+      {% endif %}
+
     </td>
   </tr>
   <tr>
     <td>Affiliation(s):</td>
-    <td>
-      {% include 'profiles/_affiliations_table.html' with contributor=contributor actions=False %}
-    </td>
+    <td>{% include 'profiles/_affiliations_table.html' with contributor=contributor actions=False %}</td>
   </tr>
-  <tr><td>Address: </td><td>{{ contributor.address }}</td></tr>
+  <tr>
+    <td>Address:</td>
+    <td>{{ contributor.address }}</td>
+  </tr>
   <tr>
     <td>Personal web page:</td>
     <td>
+
       {% if contributor.profile.webpage %}
-	<a href="{{ contributor.profile.webpage }}" target="_blank">{{ contributor.profile.webpage }}</a>
+        <a href="{{ contributor.profile.webpage }}" target="_blank">{{ contributor.profile.webpage }}</a>
       {% else %}
-	(no webpage known)
+        (no webpage known)
       {% endif %}
+
     </td>
   </tr>
-  <tr><td>Accept SciPost emails: </td><td>{{ contributor.profile.accepts_SciPost_emails }}</td></tr>
+  <tr>
+    <td>Accept SciPost emails:</td>
+    <td>{{ contributor.profile.accepts_SciPost_emails }}</td>
+  </tr>
 </table>
