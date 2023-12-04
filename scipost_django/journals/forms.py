@@ -243,7 +243,6 @@ class AuthorsTableOrganizationSelectForm(forms.ModelForm):
 
 
 class CreateMetadataXMLForm(forms.ModelForm):
-    # schema = ET.XMLSchema(file=static(settings.CROSSREF_SCHEMA_FILE))
     schema = ET.XMLSchema(file=settings.STATIC_ROOT + settings.CROSSREF_SCHEMA_FILE)
     parser = ET.XMLParser(schema=schema)
 
