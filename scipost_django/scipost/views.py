@@ -28,7 +28,7 @@ from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
@@ -42,6 +42,7 @@ from django.views.static import serve
 
 from dal import autocomplete
 from guardian.decorators import permission_required
+import requests
 from scipost.permissions import permission_required_htmx, HTMXResponse
 
 from .constants import SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR
@@ -1050,8 +1051,59 @@ def personal_page_hx_account(request):
     contributor = request.user.contributor
     context = {
         "contributor": contributor,
+        "orcid_client_id": settings.ORCID_CLIENT_ID,
     }
     return render(request, "scipost/personal_page/_hx_account.html", context)
+
+
+@login_required
+def update_orcid_from_authentication(request):
+    """
+    Handler for ORCID redirection after authentication.
+    """
+    contributor = request.user.contributor
+    code = request.GET.get("code", None)
+
+    if code is None:
+        return HttpResponseBadRequest(
+            "ORCID authentication did not provide a code. "
+            "Please try to authenticate again."
+        )
+
+    r = requests.post(
+        "https://orcid.org/oauth/token",
+        data={
+            "grant_type": "authorization_code",
+            "client_id": settings.ORCID_CLIENT_ID,
+            "client_secret": settings.ORCID_CLIENT_SECRET,
+            "code": code,
+        },
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    )
+
+    data = r.json()
+    orcid = data.get("orcid", None)
+
+    if orcid is None:
+        return HttpResponseBadRequest(
+            "ORCID authentication did not provide an ORCID identifier. "
+            "Please try to authenticate again."
+        )
+
+    contributor.profile.orcid_authenticated = True
+    contributor.profile.orcid_id = orcid
+
+    contributor.profile.save()
+
+    messages.success(
+        request,
+        f"Your ORCID account {orcid} has been successfully linked to your SciPost account.",
+    )
+
+    return redirect(reverse("scipost:personal_page"))
 
 
 @login_required

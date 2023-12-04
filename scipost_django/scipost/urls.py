@@ -358,6 +358,11 @@ urlpatterns = [
     ################
     path("personal_page/", views.personal_page, name="personal_page"),
     path(
+        "personal_page/update_orcid_from_authentication",
+        views.update_orcid_from_authentication,
+        name="update_orcid_from_authentication",
+    ),
+    path(
         "personal_page/_hx_account",
         views.personal_page_hx_account,
         name="personal_page_hx_account",

@@ -58,9 +58,11 @@ class Profile(models.Model):
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
 
+    orcid_authenticated = models.BooleanField(default=False)
     orcid_id = models.CharField(
         max_length=20, verbose_name="ORCID id", blank=True, validators=[orcid_validator]
     )
+
     webpage = models.URLField(max_length=300, blank=True)
 
     # Ontology-based semantic linking

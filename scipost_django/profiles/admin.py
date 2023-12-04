@@ -28,6 +28,14 @@ class ProfileAdmin(admin.ModelAdmin):
     inlines = [ProfileEmailInline, AffiliationInline, RedFlagInline]
     autocomplete_fields = ["topics"]
 
+    # remove the `orcid_authenticated` field from the admin
+    # no one, not even superusers, should be able to change this field
+    # (it is set automatically by the `orcid` authentication handler)
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        fields.remove("orcid_authenticated")
+        return fields
+
 
 admin.site.register(Profile, ProfileAdmin)
 
