@@ -1053,6 +1053,7 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
             nonexpired_fellowship = (
                 Fellowship.objects.exclude(
                     until_date__lte=timezone.now().date(),
+                    status=Fellowship.STATUS_GUEST,
                 )
                 .filter(
                     college=invitation.nomination.college,
@@ -1065,7 +1066,7 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
             # Create a new Fellowship if no object exists
             if not nonexpired_fellowship:
                 start_date = invitation.postpone_start_to or timezone.now()
-                fellowship = Fellowship.objects.create(
+                nonexpired_fellowship = Fellowship.objects.create(
                     college=invitation.nomination.college,
                     contributor=invitation.nomination.profile.contributor,
                     start_date=start_date,
@@ -1073,11 +1074,12 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
                 )
 
                 invitation.nomination.add_event(
-                    description=f"Fellowship created (start: {fellowship.start_date.strftime('%Y-%m-%d')})",
+                    description=f"Fellowship created (start: {nonexpired_fellowship.start_date.strftime('%Y-%m-%d')})",
                     by=request.user.contributor,
                 )
 
-                invitation.nomination.fellowship = fellowship
+            invitation.nomination.fellowship = nonexpired_fellowship
+            invitation.nomination.save()
         #     else:
         #         # Update the start date of the Fellowship if an object already exists
         #         nonexpired_fellowship.start_date = (
