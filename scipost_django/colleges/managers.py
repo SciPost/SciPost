@@ -99,17 +99,10 @@ class FellowQuerySet(models.QuerySet):
         """
         Returns all Fellowships whose profiles have no competing interests with the specified profile.
         """
-        from ethics.models import CompetingInterest
+        from profiles.models import Profile
 
-        profile_CI, related_CI = zip(
-            *CompetingInterest.objects.filter(
-                Q(profile=profile) | Q(related_profile=profile)
-            ).values_list("profile", "related_profile")
-        ) or ([], [])
-
-        return self.exclude(
-            contributor__profile__pk__in=profile_CI + related_CI,
-        )
+        clear_profiles = Profile.objects.no_competing_interests_with(profile)
+        return self.filter(contributor__profile__pk__in=clear_profiles)
 
 
 class PotentialFellowshipQuerySet(models.QuerySet):

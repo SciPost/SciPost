@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 import datetime
 
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 
@@ -20,4 +21,10 @@ class CompetingInterestQuerySet(models.QuerySet):
             | Q(date_from__isnull=True, date_until__gte=date)
             | Q(date_from__lte=date, date_until__gte=date)
             | Q(date_from__isnull=True, date_until__isnull=True)
-        ).ordered()
+        ).order_by()
+
+    def involving_profile(self, profile):
+        """
+        Filter for CompetingInterests involving given Profile.
+        """
+        return self.filter(Q(profile=profile) | Q(related_profile=profile))

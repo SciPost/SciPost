@@ -76,11 +76,11 @@ class ProfileQuerySet(models.QuerySet):
         """
         from ethics.models import CompetingInterest
 
-        profile_CI, related_CI = zip(
-            *CompetingInterest.objects.filter(
-                Q(profile=profile) | Q(related_profile=profile)
-            ).values_list("profile", "related_profile")
-        ) or ([], [])
+        CI_profiles = CompetingInterest.objects.involving_profile(profile).values_list(
+            "profile", "related_profile"
+        )
+        # Unpack the list of two-tuples into two lists
+        profile_CI, related_CI = list(zip(*CI_profiles)) or ([], [])
 
         return self.exclude(id__in=profile_CI + related_CI)
 
