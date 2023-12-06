@@ -46,6 +46,13 @@ class FellowshipNomination(models.Model):
         blank=True,
     )
 
+    # vetoes collected by other fellows
+    vetoes = models.ManyToManyField(
+        "colleges.Fellowship",
+        related_name="nominations_vetoed",
+        blank=True,
+    )
+
     # if elected and invitation accepted, link to Fellowship
     fellowship = models.OneToOneField(
         "colleges.Fellowship",
@@ -245,7 +252,7 @@ class FellowshipNominationVotingRound(models.Model):
     @property
     def vote_outcome(self):
         """The outcome as determined by the votes."""
-        if self.votes.veto():
+        if self.nomination.vetoes.all():
             return FellowshipNominationDecision.OUTCOME_NOT_ELECTED
 
         nr_votes_agree = self.votes.agree().count()
@@ -296,18 +303,15 @@ class FellowshipNominationVote(models.Model):
     VOTE_AGREE = "agree"
     VOTE_ABSTAIN = "abstain"
     VOTE_DISAGREE = "disagree"
-    VOTE_VETO = "veto"
     VOTE_CHOICES = (
         (VOTE_AGREE, "Agree"),
         (VOTE_ABSTAIN, "Abstain"),
         (VOTE_DISAGREE, "Disagree"),
-        (VOTE_VETO, "Veto"),
     )
     VOTE_BS_CLASSES = {
         VOTE_AGREE: "success",
         VOTE_ABSTAIN: "warning",
         VOTE_DISAGREE: "danger",
-        VOTE_VETO: "black",
     }
 
     voting_round = models.ForeignKey(
