@@ -7,16 +7,29 @@
     <div id="profile-{{ nomination.profile.id }}-specialties"
          class="border border-danger mb-4 d-none-empty"></div>
 
-    {% if nomination.nominator_comments %}
-      <div class="col-12 mb-3">
-        <div class="card">
-          <div class="card-header">Nominator motivation</div>
-          <div class="card-body">{{ nomination.nominated_by.profile.full_name }}: {{ nomination.nominator_comments }}</div>
+    <div class="col mb-3">
+      <div class="card">
+        <div class="card-header">Nominator motivation</div>
+        <div class="card-body">
+
+          {% if nomination.nominator_comments %}
+            <strong>{{ nomination.nominated_by.profile.full_name }}:</strong> {{ nomination.nominator_comments }}
+          {% else %}
+            No motivation provided.
+          {% endif %}
+
         </div>
       </div>
+    </div>
+ 
+
+    {% if not is_ed_admin %}
+      {% include "colleges/_hx_nomination_veto_btn.html" %}
     {% endif %}
 
-    <div class="col-12 col-md mb-3">
+  </div>
+  <div class="row mb-0">
+    <div class="col-12 col-md-6 mb-3">
       <div class="card">
         <div class="card-header">Details</div>
         <div class="card-body p-0">
@@ -65,7 +78,7 @@
         </div>
       </div>
     </div>
-    <div class="col-12 col-md mb-3">
+    <div class="col-12 col-md-6 mb-3">
       <div class="card">
         <div class="card-header">Publications in SciPost Journals</div>
         <div class="card-body">

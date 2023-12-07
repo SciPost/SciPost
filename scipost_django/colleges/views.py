@@ -43,6 +43,7 @@ from .constants import (
 from .forms import (
     CollegeChoiceForm,
     FellowshipNominationSearchForm,
+    FellowshipNominationVetoForm,
     FellowshipNominationVotingRoundStartForm,
     FellowshipSearchForm,
     FellowshipDynSelForm,
@@ -770,12 +771,14 @@ def _hx_nomination_round_remove_voter(request, round_id, voter_id):
 def _hx_nomination_details_contents(request, nomination_id):
     """For (re)loading the details if modified."""
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+    fellow = request.user.contributor.session_fellowship(request)
     start_email_sent = nomination.events.filter(
         description__contains="start email sent",
     ).exists()
     context = {
         "nomination": nomination,
         "start_email_sent": start_email_sent,
+        "fellow": fellow,
     }
     return render(request, "colleges/_hx_nomination_details_contents.html", context)
 
@@ -940,6 +943,42 @@ def _hx_nomination_vote(request, round_id):
         "VOTE_BS_CLASSES": FellowshipNominationVote.VOTE_BS_CLASSES,
     }
     return render(request, "colleges/_hx_nomination_vote.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def _hx_nomination_veto(request, nomination_id):
+    fellow = request.user.contributor.session_fellowship(request)
+    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+
+    # Check that vetoer is a sneior fellow is in the same college as the nomination
+    if (
+        not fellow.contributor.fellowships.filter(college=nomination.college)
+        .senior()
+        .active()
+        .exists()
+    ):
+        return HTMXResponse(
+            """You are not an active senior fellow of this college.""",
+            tag="danger",
+        )
+
+    form = FellowshipNominationVetoForm(
+        request.POST or None, fellow=fellow, nomination=nomination
+    )
+
+    if form.is_valid():
+        form.save()
+        return render(
+            request,
+            "colleges/_hx_nomination_veto_btn.html",
+            {
+                "nomination": nomination,
+                "fellow": fellow,
+            },
+        )
+
+    return render(request, "colleges/_hx_nomination_veto.html", {"form": form})
 
 
 @login_required

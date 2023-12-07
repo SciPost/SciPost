@@ -1,0 +1,18 @@
+<div class="col-auto d-flex flex-column justify-content-between mb-3 veto-btn-container">
+
+  {% if fellow in nomination.vetoes.all %}
+    <div class="bg-dark p-2 text-center">
+      <span class="fs-5 text-white">Nomination
+        <br />
+      Vetoed</span>
+    </div>
+  {% else %}
+    <div class="fs-5 text-muted align-self-center">Something wrong?</div>
+    <button class="btn btn-sm btn-dark"
+            hx-get="{% url "colleges:_hx_nomination_veto" nomination_id=nomination.id %}"
+            hx-target="closest .veto-btn-container">
+      <span class="text-white">Veto</span>
+    </button>
+  {% endif %}
+
+</div>

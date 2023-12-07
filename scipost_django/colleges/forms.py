@@ -35,6 +35,7 @@ from .models import (
     FellowshipNominationComment,
     FellowshipNominationDecision,
     FellowshipNominationVotingRound,
+    FellowshipNominationEvent,
     FellowshipInvitation,
 )
 from .constants import (
@@ -1086,6 +1087,65 @@ class FellowshipNominationVotingRoundStartForm(forms.ModelForm):
                 "There must be at least one eligible voter to start the round. "
                 "Please add voters to the round before setting the dates.",
             )
+
+
+class FellowshipNominationVetoForm(forms.Form):
+    edadmin_comments = forms.CharField(
+        label="Comments for editorial administration",
+        widget=forms.Textarea(attrs={"rows": 4}),
+        required=True,
+    )
+
+    fellow_comments = forms.CharField(
+        label="Comments for voting Fellows",
+        widget=forms.Textarea(attrs={"rows": 4}),
+        required=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.fellow = kwargs.pop("fellow", None)
+        self.nomination = kwargs.pop("nomination", None)
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.attrs = {
+            "hx-post": reverse(
+                "colleges:_hx_nomination_veto",
+                kwargs={"nomination_id": self.nomination.id},
+            ),
+            "hx-target": "closest .veto-btn-container",
+            "hx-swap": "outerHTML",
+        }
+
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("edadmin_comments"), css_class="col"),
+                Div(Field("fellow_comments"), css_class="col"),
+                Div(
+                    ButtonHolder(Submit("submit", "Veto", css_class="btn btn-dark")),
+                    css_class="col-auto d-flex align-items-end",
+                ),
+                css_class="row mb-0",
+            ),
+        )
+
+    def save(self):
+        self.nomination.vetoes.add(self.fellow)
+        self.nomination.save()
+
+        # Fellow's comments are added as a regular comment
+        FellowshipNominationComment.objects.create(
+            nomination=self.nomination,
+            by=self.fellow.contributor,
+            text=self.cleaned_data["fellow_comments"],
+        )
+
+        # EdAdmin's comments are added as an event
+        FellowshipNominationEvent.objects.create(
+            nomination=self.nomination,
+            by=self.fellow.contributor,
+            description=f"Vetoed with justification: {self.cleaned_data['edadmin_comments']}",
+        )
 
 
 ###############

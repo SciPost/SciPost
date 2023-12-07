@@ -1,0 +1,10 @@
+{% load crispy_forms_tags %}
+
+<div class="veto-btn-container col-12 border border-dark p-2">
+  <h3>Exercise your right to veto:</h3>
+  <p>
+    Use this form to veto a nomination by providing some justification for your decision.
+    Comments provided to fellows will be visible to all other fellows, while those to editorial administration will remain private.
+  </p>
+  {% crispy form %}
+</div>

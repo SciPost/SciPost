@@ -216,6 +216,11 @@ urlpatterns = [
                                 views._hx_nomination_comments,
                                 name="_hx_nomination_comments",
                             ),
+                            path(
+                                "_hx_veto",
+                                views._hx_nomination_veto,
+                                name="_hx_nomination_veto",
+                            ),
                         ]
                     ),
                 ),
