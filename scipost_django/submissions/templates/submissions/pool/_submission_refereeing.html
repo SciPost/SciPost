@@ -1,23 +1,36 @@
 {% load submissions_extras %}
 {% load request_filters %}
+{% load conflict_tags %}
 
+{% load user_groups %}
+{% is_ed_admin request.user as is_ed_admin %}
 
 {% if submission.thread_full.first.publication and submission.thread_full.first.publication.is_published %}
   <h4 class="my-4">
     <span class="border border-2 border-success p-2">
       Published as
       <a href="{{ submission.thread_full.first.publication.get_absolute_url }}">
-	{{ submission.thread_full.first.publication.citation }}
+        {{ submission.thread_full.first.publication.citation }}
       </a>
     </span>
   </h4>
 {% endif %}
 
-<div class="row row-cols-1 row-cols-md-2 g-4">
-  <div class="col">
-    {% include "submissions/pool/_submission_refereeing_history_card.html" %}
+<div class="row">
+  <div class="col-12 col-md-6">
+    <div>{% include "submissions/pool/_submission_recommendation_card.html" %}</div>
+    <div class="mt-4">{% include "submissions/pool/_submission_refereeing_history_card.html" %}</div>
   </div>
-  <div class="col">
-    {% include "submissions/pool/_submission_recommendation_card.html" %}
-  </div>
+
+  {% if is_ed_admin and submission.editor_in_charge %}
+    <div class="col-12 col-md">
+      <h4>Editor in Charge potential conflicts of interest</h4>
+      <div class="overflow-scroll" style="max-height: 50vh">
+        {% with submission.editor_in_charge.conflict_of_interests.non_deprecated|filter_for_submission:submission as conflicts %}
+          {% include 'submissions/admin/_conflicts.html' with conflicts=conflicts %}
+        {% endwith %}
+      </div>
+    </div>
+  {% endif %}
+
 </div>
