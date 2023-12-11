@@ -42,7 +42,7 @@ class MailEngine:
         bcc=[],
         from_email="",
         from_name="",
-        **kwargs
+        **kwargs,
     ):
         """
         Start engine with specific mail_code. Any other keyword argument that is passed will
@@ -257,16 +257,20 @@ class MailEngine:
     def _validate_email_fields(self):
         """Validate all email addresses in the mail config."""
         for email_key in self._email_fields:
-            if email_key in self.mail_data:
-                if isinstance(self.mail_data[email_key], list):
-                    for i, email in enumerate(self.mail_data[email_key]):
-                        self.mail_data[email_key][i] = self._validate_email_addresses(
-                            email
-                        )
-                else:
-                    self.mail_data[email_key] = self._validate_email_addresses(
-                        self.mail_data[email_key]
+            if emails := self.mail_data.get(email_key, None):
+                emails = emails if isinstance(emails, list) else [emails]
+                valid_emails = [
+                    valid_entry
+                    for entry in emails
+                    if (valid_entry := self._validate_email_addresses(entry))
+                ]
+
+                if len(valid_emails) == 0:
+                    raise ConfigurationError(
+                        "No valid email addresses found for %s." % email_key
                     )
+
+                self.mail_data[email_key] = valid_emails
 
     def _validate_email_addresses(self, entry):
         """
@@ -280,13 +284,16 @@ class MailEngine:
             return "%s%s" % (entry, get_current_domain())
         elif self.template_variables["object"]:
             mail_to = self.template_variables["object"]
-            for attr in entry.split("."):
+            for attr in entry.split("|")[0].split("."):
                 try:
                     mail_to = getattr(mail_to, attr)
                     if inspect.ismethod(mail_to):
                         mail_to = mail_to()
                 except AttributeError:
                     # Invalid property/mail
+                    if entry.endswith("|None"):
+                        # Allow None values
+                        return None
                     raise KeyError("The property (%s) does not exist." % entry)
             return mail_to
         raise KeyError("Neither an email adress nor db instance is given.")

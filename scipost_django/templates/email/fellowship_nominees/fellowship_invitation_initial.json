@@ -2,7 +2,7 @@
     "subject": "Invitation to become a Fellow at SciPost",
     "recipient_list": [
         "nomination.profile.email",
-        "nomination.profile.contributor.user.email"
+        "nomination.profile.contributor.user.email|None"
     ],
     "bcc": [
         "edadmin@"
