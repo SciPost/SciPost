@@ -258,7 +258,9 @@ class MailEngine:
         """Validate all email addresses in the mail config."""
         for email_key in self._email_fields:
             if emails := self.mail_data.get(email_key, None):
-                emails = emails if isinstance(emails, list) else [emails]
+                was_list = isinstance(emails, list)
+                emails = emails if was_list else [emails]
+
                 valid_emails = [
                     valid_entry
                     for entry in emails
@@ -270,10 +272,9 @@ class MailEngine:
                         "No valid email addresses found for %s." % email_key
                     )
 
-                if len(emails) == 1 and len(valid_emails) == 1:
-                    valid_emails = valid_emails[0]
-
-                self.mail_data[email_key] = valid_emails
+                self.mail_data[email_key] = (
+                    valid_emails if was_list else valid_emails[0]
+                )
 
     def _validate_email_addresses(self, entry):
         """
