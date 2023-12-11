@@ -270,6 +270,9 @@ class MailEngine:
                         "No valid email addresses found for %s." % email_key
                     )
 
+                if len(emails) == 1 and len(valid_emails) == 1:
+                    valid_emails = valid_emails[0]
+
                 self.mail_data[email_key] = valid_emails
 
     def _validate_email_addresses(self, entry):
