@@ -35,6 +35,19 @@
         <div class="card-body p-0">
           <table class="table mb-0">
             <tr>
+              <td>Linked to</td>
+              <td>
+                <a class="me-2" href="{{ nomination.profile.get_absolute_url }}">Profile</a>
+
+                {% if nomination.profile.contributor %}
+                  -
+                  <a class="ms-2"
+                     href="{{ nomination.profile.contributor.get_absolute_url }}">Contributor</a>
+                {% endif %}
+
+              </td>
+            </tr>
+            <tr>
               <td>Field</td>
               <td>{{ nomination.profile.acad_field }}</td>
             </tr>
@@ -91,6 +104,7 @@
             {% empty %}
               <li>No Publication found</li>
             {% endfor %}
+
 
           </ul>
         </div>
