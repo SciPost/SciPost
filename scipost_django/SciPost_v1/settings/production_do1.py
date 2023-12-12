@@ -67,7 +67,9 @@ LOGGING["handlers"]["scipost_file_doi"][
 ] = "/home/scipost/SciPost_logs/doi.log"
 LOGGING["handlers"]["api_file"]["filename"] = "/home/scipost/SciPost_logs/api.log"
 LOGGING["handlers"]["oauth_file"]["filename"] = "/home/scipost/SciPost_logs/oauth.log"
-LOGGING["handlers"]["submission_fellowship_updates"]["filename"] = "/home/scipost/SciPost_logs/submission_fellowship_updates.log"
+LOGGING["handlers"]["submission_fellowship_updates"][
+    "filename"
+] = "/home/scipost/SciPost_logs/submission_fellowship_updates.log"
 
 
 # API
@@ -80,6 +82,7 @@ MAILGUN_API_KEY = get_secret("MAILGUN_API_KEY")
 sentry_sdk.init(
     dsn=get_secret("SENTRY_DSN"),
     integrations=[DjangoIntegration(), CeleryIntegration()],
+    enable_tracing=True,
 )
 CSP_REPORT_URI = get_secret("CSP_SENTRY")
 CSP_REPORT_ONLY = False
