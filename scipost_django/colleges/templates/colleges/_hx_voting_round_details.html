@@ -55,24 +55,9 @@
  
 
       {% if round.decision %}
-        <div>
-          <h3>Decision</h3>
+        {% include "colleges/_voting_round_decision.html" with voting_round=round %}
+      {% endif %}
 
-          {% if round.decision.outcome == 'elected' %}
-            <div class="badge fs-5 mb-2 bg-success">{{ round.decision.get_outcome_display }}</div>
-          {% elif round.decision.outcome == 'notelected' %}
-            <div class="badge fs-5 mb-2 bg-danger">{{ round.decision.get_outcome_display }}</div>
-          {% elif round.decision.outcome == 'inconclusive' %}
-            <div class="badge fs-5 mb-2 bg-warning">{{ round.decision.get_outcome_display }}</div>
-          {% endif %}
-
-          {% if round.decision.comments %}
-            <h4 class="mt-2">Decision comments</h4>
-            <span>{{ round.decision.comments }}</span>
-          {% endif %}
-        {% endif %}
-
-      </div>
     {% endif %}
 
   </div>

@@ -1,0 +1,17 @@
+<div>
+  <h3>Decision</h3>
+
+  {% if voting_round.decision.outcome == 'elected' %}
+    <div class="badge fs-5 mb-2 bg-success">{{ voting_round.decision.get_outcome_display }}</div>
+  {% elif voting_round.decision.outcome == 'notelected' %}
+    <div class="badge fs-5 mb-2 bg-danger">{{ voting_round.decision.get_outcome_display }}</div>
+  {% elif voting_round.decision.outcome == 'inconclusive' %}
+    <div class="badge fs-5 mb-2 bg-warning">{{ voting_round.decision.get_outcome_display }}</div>
+  {% endif %}
+
+  {% if voting_round.decision.comments %}
+    <h4 class="mt-2">Decision comments</h4>
+    <span>{{ voting_round.decision.comments }}</span>
+  {% endif %}
+
+</div>

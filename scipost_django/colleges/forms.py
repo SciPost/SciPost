@@ -10,7 +10,7 @@ from django.contrib.sessions.backends.db import SessionStore
 from django.db.models import Q, Max, OuterRef, Subquery
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
+from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit, HTML
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 from django.urls import reverse
@@ -1054,6 +1054,12 @@ class FellowshipNominationVotingRoundStartForm(forms.ModelForm):
                     ButtonHolder(Submit("submit", "Start")),
                     css_class="col-auto align-self-end mb-3",
                 ),
+                Div(
+                    HTML(
+                        "Tip: Set both dates to today and remove all fellows to take decision immediately."
+                    ),
+                    css_class="col-12 text-muted small",
+                ),
                 css_class="row mb-0",
             )
         )
@@ -1082,11 +1088,22 @@ class FellowshipNominationVotingRoundStartForm(forms.ModelForm):
             )
 
         if self.instance.eligible_to_vote.count() == 0:
-            self.add_error(
-                None,
-                "There must be at least one eligible voter to start the round. "
-                "Please add voters to the round before setting the dates.",
-            )
+            # If both dates are set to today, then it is implied that
+            # the voting round should never be opened and
+            # the decision should be made by the foundation
+            if open_date.date() == deadline_date.date() == date.today():
+                yesterday = date.today() - timedelta(days=1)
+                self.instance.voting_opens = yesterday
+                self.instance.voting_deadline = yesterday
+                self.instance.save()
+
+            # If the dates are propertly set, just error out
+            else:
+                self.add_error(
+                    None,
+                    "There must be at least one eligible voter to start the round. "
+                    "Please add voters to the round before setting the dates.",
+                )
 
 
 class FellowshipNominationVetoForm(forms.Form):

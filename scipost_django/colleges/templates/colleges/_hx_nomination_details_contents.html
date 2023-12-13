@@ -92,23 +92,35 @@
       </div>
     </div>
     <div class="col-12 col-md-6 mb-3">
-      <div class="card">
-        <div class="card-header">Publications in SciPost Journals</div>
-        <div class="card-body">
-          <ul>
+ 
 
-            {% for pub in nomination.profile.publications.all %}
-              <li>
-                <a href="{{ pub.get_absolute_url }}">{{ pub.citation }}</a>
-              </li>
-            {% empty %}
-              <li>No Publication found</li>
-            {% endfor %}
+      {% if nomination.latest_voting_round.decision %}
+        {% include "colleges/_voting_round_decision.html" with voting_round=nomination.latest_voting_round %}
+        {% comment %} <div class="card">
+          <div class="card-header">Latest Decision</div>
+          <div class="card-body">
+          </div>
+        </div> {% endcomment %}
+      {% else %}
+        <div class="card">
+          <div class="card-header">Publications in SciPost Journals</div>
+          <div class="card-body">
+            <ul>
+
+              {% for pub in nomination.profile.publications.all %}
+                <li>
+                  <a href="{{ pub.get_absolute_url }}">{{ pub.citation }}</a>
+                </li>
+              {% empty %}
+                <li>No Publication found</li>
+              {% endfor %}
 
 
-          </ul>
+            </ul>
+          </div>
         </div>
-      </div>
+      {% endif %}
+
     </div>
   </div>
  
