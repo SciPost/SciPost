@@ -1,0 +1,16 @@
+<p>Dear {{ object.nomination.profile.get_title_display }} {{ object.nomination.profile.last_name }},</p>
+
+<p>
+  Recently, we contacted you concerning our invitation to join <a href="https://scipost.org">SciPost</a>'s Editorial College in {{ object.nomination.college.name }}. With this email, we would simply like to reiterate this invitation, and inquire about your interest in joining our initiative. Please see below for more details.
+</p>
+
+<p>Sincerely,</p>
+<p>
+  Prof. J.-S. Caux,
+  <br />
+  on behalf of the SciPost Foundation
+</p>
+
+<hr />
+
+{% include "email/fellowship_nominees/fellowship_invitation_initial.html" %}

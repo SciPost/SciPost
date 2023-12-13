@@ -23,6 +23,8 @@
       {% else %}
         <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
         <span>&nbsp;This nominee has been invited to serve as a Fellow.</span>
+        <a class="btn btn-sm btn-secondary"
+           href="{% url 'colleges:fellowship_invitation_email_reminder' pk=invitation.id %}">Reinvite</a>
       {% endif %}
 
     </li>

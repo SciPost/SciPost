@@ -292,6 +292,11 @@ urlpatterns = [
         name="fellowship_invitation_email_initial",
     ),
     path(
+        "fellowship_invitation/<int:pk>/email_reminder",
+        views.FellowshipInvitationEmailReminderView.as_view(),
+        name="fellowship_invitation_email_reminder",
+    ),
+    path(
         "_hx_fellowship_invitation/<int:invitation_id>/update_response",
         views._hx_fellowship_invitation_update_response,
         name="_hx_fellowship_invitation_update_response",

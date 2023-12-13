@@ -1069,6 +1069,26 @@ class FellowshipInvitationEmailInitialView(PermissionsMixin, MailView):
         return super().form_valid(form)
 
 
+class FellowshipInvitationEmailReminderView(PermissionsMixin, MailView):
+    """Send a templated email to an elected nominee to remind them of the invitation."""
+
+    permission_required = "scipost.can_manage_college_composition"
+    queryset = FellowshipInvitation.objects.all()
+    mail_code = "fellowship_nominees/fellowship_invitation_reminder"
+    success_url = reverse_lazy("colleges:nominations")
+
+    def form_valid(self, form):
+        """Create an event associated to this outgoing email."""
+        self.object.nomination.add_event(
+            description="Invitation reminder email sent",
+            by=self.request.user.contributor,
+        )
+        self.object.invited_on = timezone.now()
+        self.object.response = FellowshipInvitation.RESPONSE_REINVITED
+        self.object.save()
+        return super().form_valid(form)
+
+
 @login_required
 @user_passes_test(is_edadmin)
 def _hx_fellowship_invitation_update_response(request, invitation_id):
