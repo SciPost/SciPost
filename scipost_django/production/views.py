@@ -59,7 +59,7 @@ from .utils import proofs_slug_to_id, ProductionUtils
 
 @is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
-def production_new(request):
+def production(request):
     search_productionstreams_form = ProductionStreamSearchForm(
         user=request.user, session_key=request.session.session_key
     )
@@ -68,7 +68,7 @@ def production_new(request):
         "search_productionstreams_form": search_productionstreams_form,
         "bulk_assign_officer_form": bulk_assign_officer_form,
     }
-    return render(request, "production/production_new.html", context)
+    return render(request, "production/production.html", context)
 
 
 @is_production_user()
@@ -236,7 +236,7 @@ def _hx_event_delete(request, productionstream_id, event_id):
 
 @is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
-def production(request, stream_id=None):
+def production_old(request, stream_id=None):
     """
     Overview page for the production process.
     All papers with accepted but not yet published status are included here.
@@ -275,7 +275,7 @@ def production(request, stream_id=None):
     if request.user.has_perm("scipost.can_promote_user_to_production_officer"):
         context["production_officers"] = ProductionUser.objects.active()
         context["new_officer_form"] = UserToOfficerForm()
-    return render(request, "production/production.html", context)
+    return render(request, "production/production_old.html", context)
 
 
 @is_production_user()
@@ -351,7 +351,7 @@ def user_to_officer(request):
         messages.success(
             request, "{user} promoted to Production Officer".format(user=officer)
         )
-    return redirect(reverse("production:production"))
+    return redirect(reverse("production:production_old"))
 
 
 @is_production_user()
@@ -391,7 +391,7 @@ def add_event(request, stream_id):
         messages.success(request, "Comment added to Stream.")
     else:
         messages.warning(request, "The form was invalidly filled.")
-    return redirect(reverse("production:production", args=(stream.id,)))
+    return redirect(reverse("production:production_old", args=(stream.id,)))
 
 
 @is_production_user()
@@ -465,7 +465,7 @@ def update_status(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_perform_supervisory_actions", stream):
-        return redirect(reverse("production:production", args=(stream.id,)))
+        return redirect(reverse("production:production_old", args=(stream.id,)))
 
     p = request.user.production_user
     form = StreamStatusForm(request.POST or None, instance=stream, production_user=p)
@@ -532,7 +532,7 @@ def add_officer(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_perform_supervisory_actions", stream):
-        return redirect(reverse("production:production", args=(stream.id,)))
+        return redirect(reverse("production:production_old", args=(stream.id,)))
 
     form = AssignOfficerForm(request.POST or None, instance=stream)
     if form.is_valid():
@@ -559,7 +559,7 @@ def add_officer(request, stream_id):
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
-    return redirect(reverse("production:production", args=(stream.id,)))
+    return redirect(reverse("production:production_old", args=(stream.id,)))
 
 
 @is_production_user()
@@ -569,7 +569,7 @@ def remove_officer(request, stream_id, officer_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_perform_supervisory_actions", stream):
-        return redirect(reverse("production:production", args=(stream.id,)))
+        return redirect(reverse("production:production_old", args=(stream.id,)))
 
     if getattr(stream.officer, "id", 0) == int(officer_id):
         officer = stream.officer
@@ -582,7 +582,7 @@ def remove_officer(request, stream_id, officer_id):
             request, "Officer {officer} has been removed.".format(officer=officer)
         )
 
-    return redirect(reverse("production:production", args=(stream.id,)))
+    return redirect(reverse("production:production_old", args=(stream.id,)))
 
 
 @is_production_user()
@@ -670,7 +670,7 @@ def delete_officer(request, officer_id):
     messages.success(
         request, "{user} removed as Production Officer".format(user=production_user)
     )
-    return redirect(reverse("production:production"))
+    return redirect(reverse("production:production_old"))
 
 
 @is_production_user()
@@ -701,7 +701,7 @@ def add_invitations_officer(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_perform_supervisory_actions", stream):
-        return redirect(reverse("production:production", args=(stream.id,)))
+        return redirect(reverse("production:production_old", args=(stream.id,)))
 
     form = AssignInvitationsOfficerForm(request.POST or None, instance=stream)
     if form.is_valid():
@@ -728,7 +728,7 @@ def add_invitations_officer(request, stream_id):
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
-    return redirect(reverse("production:production", args=(stream.id,)))
+    return redirect(reverse("production:production_old", args=(stream.id,)))
 
 
 @is_production_user()
@@ -738,7 +738,7 @@ def remove_invitations_officer(request, stream_id, officer_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_perform_supervisory_actions", stream):
-        return redirect(reverse("production:production", args=(stream.id,)))
+        return redirect(reverse("production:production_old", args=(stream.id,)))
 
     if getattr(stream.invitations_officer, "id", 0) == int(officer_id):
         officer = stream.invitations_officer
@@ -752,7 +752,7 @@ def remove_invitations_officer(request, stream_id, officer_id):
             "Invitations Officer {officer} has been removed.".format(officer=officer),
         )
 
-    return redirect(reverse("production:production", args=(stream.id,)))
+    return redirect(reverse("production:production_old", args=(stream.id,)))
 
 
 @is_production_user()
@@ -861,7 +861,7 @@ def add_supervisor(request, stream_id):
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
-    return redirect(reverse("production:production", args=(stream.id,)))
+    return redirect(reverse("production:production_old", args=(stream.id,)))
 
 
 @is_production_user()
@@ -880,7 +880,7 @@ def remove_supervisor(request, stream_id, officer_id):
             "Supervisor {supervisor} has been removed.".format(supervisor=supervisor),
         )
 
-    return redirect(reverse("production:production", args=(stream.id,)))
+    return redirect(reverse("production:production_old", args=(stream.id,)))
 
 
 @method_decorator(is_production_user(), name="dispatch")
@@ -1088,7 +1088,7 @@ def mark_as_completed(request, stream_id):
     )
     prodevent.save()
     messages.success(request, "Stream marked as completed.")
-    return redirect(reverse("production:production"))
+    return redirect(reverse("production:production_old"))
 
 
 @is_production_user()
@@ -1152,7 +1152,7 @@ def upload_proofs(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_work_for_stream", stream):
-        return redirect(reverse("production:production"))
+        return redirect(reverse("production:production_old"))
 
     form = ProofsUploadForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -1196,7 +1196,7 @@ def proofs(request, stream_id, version):
     stream = get_object_or_404(ProductionStream.objects.all(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_work_for_stream", stream):
-        return redirect(reverse("production:production"))
+        return redirect(reverse("production:production_old"))
 
     try:
         proofs = stream.proofs.get(version=version)
@@ -1299,7 +1299,7 @@ def toggle_accessibility(request, stream_id, version):
     stream = get_object_or_404(ProductionStream.objects.all(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_work_for_stream", stream):
-        return redirect(reverse("production:production"))
+        return redirect(reverse("production:production_old"))
 
     try:
         proofs = stream.proofs.exclude(status=constants.PROOFS_UPLOADED).get(
@@ -1364,7 +1364,7 @@ def decision(request, stream_id, version, decision):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_work_for_stream", stream):
-        return redirect(reverse("production:production"))
+        return redirect(reverse("production:production_old"))
 
     try:
         proofs = stream.proofs.get(version=version, status=constants.PROOFS_UPLOADED)
@@ -1465,7 +1465,7 @@ def send_proofs(request, stream_id, version):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
     checker = ObjectPermissionChecker(request.user)
     if not checker.has_perm("can_work_for_stream", stream):
-        return redirect(reverse("production:production"))
+        return redirect(reverse("production:production_old"))
 
     try:
         proofs = stream.proofs.can_be_send().get(version=version)

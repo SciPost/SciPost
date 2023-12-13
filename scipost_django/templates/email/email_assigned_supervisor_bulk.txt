@@ -5,6 +5,6 @@ You are now assigned as Production Supervisor to the streams:
 {% for stream in streams %}* {{ stream }}
 {% endfor %}
 
-The stream will now be open for you on the Production page (https://{{ domain }}{% url 'production:production_new' %}).
+The stream will now be open for you on the Production page (https://{{ domain }}{% url 'production:production' %}).
 
 This mail is automatically generated and therefore not signed.

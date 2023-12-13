@@ -11,9 +11,9 @@ app_name = "production"
 urlpatterns = [
     # refactoring 2023-05  htmx-driven production page
     path(
-        "new",
-        production_views.production_new,
-        name="production_new",
+        "",
+        production_views.production,
+        name="production",
     ),
     path(
         "team",
@@ -124,8 +124,8 @@ urlpatterns = [
         ),
     ),
     # end refactoring 2023-05
-    path("", production_views.production, name="production"),
-    path("<int:stream_id>", production_views.production, name="production"),
+    path("old/", production_views.production_old, name="production_old"),
+    path("old/<int:stream_id>", production_views.production_old, name="production_old"),
     path("completed", production_views.completed, name="completed"),
     path("officers/new", production_views.user_to_officer, name="user_to_officer"),
     path(

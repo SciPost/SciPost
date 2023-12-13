@@ -2,14 +2,16 @@
 <p>You are now assigned as Production Supervisor to the streams:</p>
 
 <ul>
-    {% for stream in streams %}<li>{{ stream }}</li>{% endfor %}
+
+  {% for stream in streams %}<li>{{ stream }}</li>{% endfor %}
+
 </ul>
 
 <p>
-    The streams will now be open for you on the <a href="https://{{ domain }}{% url 'production:production_new' %}">Production page</a>.
+  The streams will now be open for you on the <a href="https://{{ domain }}{% url 'production:production' %}">Production page</a>.
 </p>
 
 
 <p>
-    <em>This mail is automatically generated and therefore not signed.</em>
+  <em>This mail is automatically generated and therefore not signed.</em>
 </p>

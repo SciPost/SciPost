@@ -11,215 +11,351 @@
   <div class="container">
     <div class="flex-fill" id="main-navbar">
       <ul class="nav nav-pills flex-wrap flex-sm-row mb-0 justify-content-center"
-	  id="portal-tablist"
-	  role="tablist">
+          id="portal-tablist"
+          role="tablist">
 
-	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
-	    <button class="nav-link{% if not request.GET.tab %} active{% endif %}"
-		    id="home-tab"
-		    data-bs-toggle="tab" data-bs-target="#home"
-		    type="button" role="tab"
-		    aria-controls="home" aria-selected="true">
-	      Home
-	    </button>
-	  {% else %}
-	    <a href="{% url 'scipost:index' %}">Home</a>
-	  {% endif %}
-	</li>
+	
+        <li class="nav-item" role="presentation">
+ 
 
-	{% if is_active_fellow %}
-	  <li class="nav-item" role="presentation">
-	    {% if request.path == '/' %}
-	      <button class="nav-link{% if request.GET.tab == 'tasklist' %} active{% endif %} border border-warning"
-		      id="tasklist-tab"
-		      data-bs-toggle="tab" data-bs-target="#tasklist"
-		      type="button" role="tab"
-		      aria-controls="tasklist" aria-selected="true">
-		Tasklist
-	      </button>
-	    {% else %}
-	      <a href="{% url 'scipost:index' %}?tab=tasklist">Tasklist</a>
-	    {% endif %}
-	  </li>
-	{% endif %}
+          {% if request.path == '/' %}
+ 
+            <button class="nav-link 
+              {% if not request.GET.tab %}active{% endif %}
+               " id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">
+              Home
+ 
+            </button>
+ 
+          {% else %}
+            <a href="{% url 'scipost:index' %}">Home</a>
+ 
+          {% endif %}
 
-	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
-	    <button class="nav-link{% if request.GET.tab == 'journals' %} active{% endif %}"
-		    id="journals-tab"
-		    data-bs-toggle="tab" data-bs-target="#journals"
-		    type="button" role="tab"
-		    aria-controls="journals" aria-selected="true">
-	      Journals
-	    </button>
-	  {% else %}
-	    <a href="{% url 'scipost:index' %}?tab=journals">Journals</a>
-	  {% endif %}
-	</li>
+	
+        </li>
 
-	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
-	    <button class="nav-link{% if request.GET.tab == 'publications' %} active{% endif %}"
-		    id="publications-tab"
-		    data-bs-toggle="tab" data-bs-target="#publications"
-		    type="button" role="tab"
-		    aria-controls="publications" aria-selected="true">
-	      Publications
-	    </button>
-	  {% else %}
-	    <a href="{% url 'scipost:index' %}?tab=publications">Publications</a>
-	  {% endif %}
-	</li>
+	
 
-	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
-	    <button class="nav-link{% if request.GET.tab == 'submissions' %} active{% endif %}"
-		    id="submissions-tab"
-		    data-bs-toggle="tab" data-bs-target="#submissions"
-		    type="button" role="tab"
-		    aria-controls="submissions" aria-selected="true">
-	      Submissions
-	    </button>
-	  {% else %}
-	    <a href="{% url 'scipost:index' %}?tab=submissions">Submissions</a>
-	  {% endif %}
-	</li>
+        {% if is_active_fellow %}
+ 
+          <li class="nav-item" role="presentation">
+ 
 
-	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
-	    <button class="nav-link{% if request.GET.tab == 'reportsneeded' %} active{% endif %}"
-		    id="reports-needed-tab"
-		    data-bs-toggle="tab" data-bs-target="#reports-needed"
-		    type="button" role="tab"
-		    aria-controls="reports-needed" aria-selected="true">
-	      Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
-	    </button>
-	  {% else %}
-	    <a href="{% url 'scipost:index' %}?tab=reportsneeded">
-	      Reports needed&nbsp;
-	      <span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
-	    </a>
-	  {% endif %}
-	</li>
-
-	<li class="nav-item dropdown" role="presentation">
-          <a class="nav-link dropdown-toggle" href="#" id="MoreDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">More</a>
-          <ul class="dropdown-menu" aria-labelledby="MoreDropdown">
-	    <li>
-	      {% if request.path == '/' %}
-		<button class="nav-link{% if request.GET.tab == 'reports' %} active{% endif %}"
-			       id="reports-tab"
-			       data-bs-toggle="tab" data-bs-target="#reports"
-			       type="button" role="tab"
-			       aria-controls="reports" aria-selected="true">
-		  Reports
-		</button>
-	      {% else %}
-		<a href="{% url 'scipost:index' %}?tab=reports">Reports</a>
-	      {% endif %}
-	    </li>
-            <li>
-	      {% if request.path == '/' %}
-		<button class="nav-link{% if request.GET.tab == 'comments' %} active{% endif %}"
-			       id="comments-tab"
-			       data-bs-toggle="tab" data-bs-target="#comments"
-			       type="button" role="tab"
-			       aria-controls="comments" aria-selected="true">
-		  Comments
-		</button>
-	      {% else %}
-		<a href="{% url 'scipost:index' %}?tab=comments">Comments</a>
-	      {% endif %}
-            </li>
-            <li>
-	      {% if request.path == '/' %}
-		<button class="nav-link{% if request.GET.tab == 'commentaries' %} active{% endif %}"
-			id="commentaries-tab"
-			data-bs-toggle="tab" data-bs-target="#commentaries"
-			type="button" role="tab"
-			aria-controls="commentaries" aria-selected="true">
-		  Commentaries
-		</button>
-	      {% else %}
-		<a href="{% url 'scipost:index' %}?tab=commentaries">Commentaries</a>
-	      {% endif %}
-            </li>
-            <li>
-	      {% if request.path == '/' %}
-		<button class="nav-link{% if request.GET.tab == 'theses' %} active{% endif %}"
-			id="theses-tab"
-			data-bs-toggle="tab" data-bs-target="#theses"
-			type="button" role="tab"
-			aria-controls="theses" aria-selected="true">
-		  Theses
-		</button>
-	      {% else %}
-		<a href="{% url 'scipost:index' %}?tab=theses">Theses</a>
-	      {% endif %}
-            </li>
-          </ul>
-	</li>
-
-	<li class="nav-item" role="presentation">
-	  <a class="btn btn-outline-success border-2 border-success ms-2"
-	     href="{% url 'submissions:submit_manuscript' %}">
-	    {% include 'bi/arrow-right.html' %}<strong>Submit</strong>
-	  </a>
-	</li>
-
-        {% if user.is_authenticated %}
-          <li class="nav-item dropdown mx-2 ms-lg-auto" role="presentation">
-            <a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
-	      Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.profile.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
-
-            {% if request.user.contributor and not request.user.contributor.is_currently_available %}
-	      <button type="button" class="btn btn-link p-0 text-warning" data-bs-toggle="tooltip" data-bs-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-bs-html="true">{% include 'bi/exclamation-triangle-fill.html' %}</button>
-	      &nbsp;
+            {% if request.path == '/' %}
+ 
+              <button class="nav-link 
+                {% if request.GET.tab == 'tasklist' %}active{% endif %}
+                 border border-warning" id="tasklist-tab" data-bs-toggle="tab" data-bs-target="#tasklist" type="button" role="tab" aria-controls="tasklist" aria-selected="true">
+                Tasklist
+ 
+              </button>
+ 
+            {% else %}
+              <a href="{% url 'scipost:index' %}?tab=tasklist">Tasklist</a>
+ 
             {% endif %}
-            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="PersonalDropdown">
-	      {% if user.contributor %}
-                <div class="dropdown-item">
-                  <a href="{% url 'scipost:personal_page' %}">Personal Page</a>
-                </div>
-                {% if is_active_fellow %}
-                  <div class="dropdown-item">
-                    <a href="{% url 'submissions:pool:pool' %}">Submissions Pool</a>
-                  </div>
-                {% endif %}
-	      {% endif %}
-	      {% if perms.scipost.can_view_production %}
-                <div class="dropdown-item">
-                  <a href="{% url 'production:production' %}">Production</a>
-                </div>
-	      {% endif %}
-	      {% if perms.scipost.can_manage_organizations or user.org_contact %}
-                <div class="dropdown-item">
-                  <a href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
-                </div>
-	      {% endif %}
-	      <div class="dropdown-divider"></div>
-	      <div class="dropdown-item">
-		<a href="{% url 'forums:forums' %}">Forums and Meetings</a>
-	      </div>
-	      <div class="dropdown-divider"></div>
-	      <div class="dropdown-item">
-		<a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a>
-	      </div>
-	      <div class="dropdown-divider"></div>
-	      <div class="dropdown-item">
-                <a href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
-	      </div>
-            </div>
 
-	    <a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><span style="font-size: 80%;" data-bs-toggle="tooltip" data-bs-html="true" title="Notice something wrong?<br/>Open a support ticket">{% include 'bi/sticky-fill.html' %}</span></a>
-	  </li>
-        {% else %}
-          <li class="mx-2 mx-lg-auto nav-item{% if request.path == '/login/' %} active{% endif %}" role="presentation">
-            <a class="nav-link" href="{% url 'scipost:login' %}?next={{ request.path }}">Login or register</a>
+ 
           </li>
+	
         {% endif %}
-      </ul>
-    </div>
+
+	
+        <li class="nav-item" role="presentation">
+ 
+
+          {% if request.path == '/' %}
+ 
+            <button class="nav-link 
+              {% if request.GET.tab == 'journals' %}active{% endif %}
+               " id="journals-tab" data-bs-toggle="tab" data-bs-target="#journals" type="button" role="tab" aria-controls="journals" aria-selected="true">
+              Journals
+ 
+            </button>
+ 
+          {% else %}
+            <a href="{% url 'scipost:index' %}?tab=journals">Journals</a>
+ 
+          {% endif %}
+
+	
+        </li>
+
+	
+        <li class="nav-item" role="presentation">
+ 
+
+          {% if request.path == '/' %}
+ 
+            <button class="nav-link 
+              {% if request.GET.tab == 'publications' %}active{% endif %}
+               " id="publications-tab" data-bs-toggle="tab" data-bs-target="#publications" type="button" role="tab" aria-controls="publications" aria-selected="true">
+              Publications
+ 
+            </button>
+ 
+          {% else %}
+            <a href="{% url 'scipost:index' %}?tab=publications">Publications</a>
+ 
+          {% endif %}
+
+	
+        </li>
+
+	
+        <li class="nav-item" role="presentation">
+ 
+
+          {% if request.path == '/' %}
+ 
+            <button class="nav-link 
+              {% if request.GET.tab == 'submissions' %}active{% endif %}
+               " id="submissions-tab" data-bs-toggle="tab" data-bs-target="#submissions" type="button" role="tab" aria-controls="submissions" aria-selected="true">
+              Submissions
+ 
+            </button>
+ 
+          {% else %}
+            <a href="{% url 'scipost:index' %}?tab=submissions">Submissions</a>
+ 
+          {% endif %}
+
+	
+        </li>
+
+	
+        <li class="nav-item" role="presentation">
+ 
+
+          {% if request.path == '/' %}
+ 
+            <button class="nav-link 
+              {% if request.GET.tab == 'reportsneeded' %}active{% endif %}
+               " id="reports-needed-tab" data-bs-toggle="tab" data-bs-target="#reports-needed" type="button" role="tab" aria-controls="reports-needed" aria-selected="true">
+              Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
+ 
+          </button>
+ 
+        {% else %}
+          <a href="{% url 'scipost:index' %}?tab=reportsneeded">
+            Reports needed&nbsp;
+            <span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
+          </a>
+ 
+        {% endif %}
+
+	
+      </li>
+
+	
+      <li class="nav-item dropdown" role="presentation">
+        <a class="nav-link dropdown-toggle"
+           href="#"
+           id="MoreDropdown"
+           role="button"
+           data-bs-toggle="dropdown"
+           aria-haspopup="true"
+           aria-expanded="false"
+           data-trigger="hover">More</a>
+        <ul class="dropdown-menu" aria-labelledby="MoreDropdown">
+ 
+          <li>
+ 
+
+            {% if request.path == '/' %}
+	
+              <button class="nav-link 
+                {% if request.GET.tab == 'reports' %}active{% endif %}
+                 " id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports" type="button" role="tab" aria-controls="reports" aria-selected="true">
+                Reports
+	
+              </button>
+ 
+            {% else %}
+              <a href="{% url 'scipost:index' %}?tab=reports">Reports</a>
+ 
+            {% endif %}
+
+ 
+          </li>
+          <li>
+ 
+
+            {% if request.path == '/' %}
+	
+              <button class="nav-link 
+                {% if request.GET.tab == 'comments' %}active{% endif %}
+                 " id="comments-tab" data-bs-toggle="tab" data-bs-target="#comments" type="button" role="tab" aria-controls="comments" aria-selected="true">
+                Comments
+	
+              </button>
+ 
+            {% else %}
+              <a href="{% url 'scipost:index' %}?tab=comments">Comments</a>
+ 
+            {% endif %}
+
+          </li>
+          <li>
+ 
+
+            {% if request.path == '/' %}
+	
+              <button class="nav-link 
+                {% if request.GET.tab == 'commentaries' %}active{% endif %}
+                 " id="commentaries-tab" data-bs-toggle="tab" data-bs-target="#commentaries" type="button" role="tab" aria-controls="commentaries" aria-selected="true">
+                Commentaries
+	
+              </button>
+ 
+            {% else %}
+              <a href="{% url 'scipost:index' %}?tab=commentaries">Commentaries</a>
+ 
+            {% endif %}
+
+          </li>
+          <li>
+ 
+
+            {% if request.path == '/' %}
+	
+              <button class="nav-link 
+                {% if request.GET.tab == 'theses' %}active{% endif %}
+                 " id="theses-tab" data-bs-toggle="tab" data-bs-target="#theses" type="button" role="tab" aria-controls="theses" aria-selected="true">
+                Theses
+	
+              </button>
+ 
+            {% else %}
+              <a href="{% url 'scipost:index' %}?tab=theses">Theses</a>
+ 
+            {% endif %}
+
+          </li>
+        </ul>
+	
+      </li>
+
+	
+      <li class="nav-item" role="presentation">
+        <a class="btn btn-outline-success border-2 border-success ms-2"
+           href="{% url 'submissions:submit_manuscript' %}">
+ 
+          {% include 'bi/arrow-right.html' %}
+          <strong>Submit</strong>
+        </a>
+	
+      </li>
+
+      {% if user.is_authenticated %}
+        <li class="nav-item dropdown mx-2 ms-lg-auto" role="presentation">
+          <a class="nav-link dropdown-toggle"
+             href="#"
+             id="PersonalDropdown"
+             role="button"
+             data-bs-toggle="dropdown"
+             aria-haspopup="true"
+             aria-expanded="false"
+             data-trigger="hover">
+            Logged in as
+
+            {% if user.last_name %}
+
+              {% if user.contributor %}{{ user.contributor.profile.get_title_display }}{% endif %}
+
+              {{ user.first_name }} {{ user.last_name }}
+            {% else %}
+              {{ user.username }}
+            {% endif %}
+
+          </a>
+
+          {% if request.user.contributor and not request.user.contributor.is_currently_available %}
+ 
+            <button type="button" class="btn btn-link p-0 text-warning" data-bs-toggle="tooltip" data-bs-title="You are currently unavailable.
+              <br>Check your availability on your Personal Page if this should not be the case." data-bs-html="true">
+              {% include 'bi/exclamation-triangle-fill.html' %}
+            </button>
+            &nbsp;
+          {% endif %}
+
+          <div class="dropdown-menu dropdown-menu-right"
+               aria-labelledby="PersonalDropdown">
+ 
+
+            {% if user.contributor %}
+              <div class="dropdown-item">
+                <a href="{% url 'scipost:personal_page' %}">Personal Page</a>
+              </div>
+
+              {% if is_active_fellow %}
+                <div class="dropdown-item">
+                  <a href="{% url 'submissions:pool:pool' %}">Submissions Pool</a>
+                </div>
+              {% endif %}
+
+ 
+            {% endif %}
+
+ 
+
+            {% if perms.scipost.can_view_production %}
+              <div class="dropdown-item">
+                <a href="{% url 'production:production' %}">Production</a>
+              </div>
+ 
+            {% endif %}
+
+ 
+
+            {% if perms.scipost.can_manage_organizations or user.org_contact %}
+              <div class="dropdown-item">
+                <a href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
+              </div>
+ 
+            {% endif %}
+
+ 
+            <div class="dropdown-divider"></div>
+ 
+            <div class="dropdown-item">
+              <a href="{% url 'forums:forums' %}">Forums and Meetings</a>
+ 
+            </div>
+ 
+            <div class="dropdown-divider"></div>
+ 
+            <div class="dropdown-item">
+              <a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a>
+ 
+            </div>
+ 
+            <div class="dropdown-divider"></div>
+ 
+            <div class="dropdown-item">
+              <a href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
+ 
+            </div>
+          </div>
+
+          <a href="{% url 'helpdesk:ticket_create' %}"
+             target="_blank"
+             class="nav-link"><span style="font-size: 80%;" data-bs-toggle="tooltip" data-bs-html="true" title="Notice something wrong?
+            <br/>
+            Open a support ticket">{% include 'bi/sticky-fill.html' %}</span></a>
+ 
+        </li>
+      {% else %}
+        <li class="mx-2 mx-lg-auto nav-item 
+          {% if request.path == '/login/' %}active{% endif %}
+           " role="presentation">
+          <a class="nav-link"
+             href="{% url 'scipost:login' %}?next={{ request.path }}">Login or register</a>
+        </li>
+      {% endif %}
+
+    </ul>
   </div>
+</div>
 </nav>

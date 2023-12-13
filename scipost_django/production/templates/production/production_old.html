@@ -1,0 +1,183 @@
+{% extends 'production/base.html' %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Production page</span>
+{% endblock %}
+
+{% block pagetitle %}: Production page{% endblock pagetitle %}
+
+{% load bootstrap %}
+{% load scipost_extras %}
+{% load submissions_extras %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Production</h1>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-12">
+      <div class="tab-nav-container">
+	<div class="tab-nav-inner">
+	  <ul class="nav btn-group personal-page-nav" role="tablist">
+            <li class="nav-item btn btn-outline-secondary">
+              <a href="#summary" class="nav-link active" data-bs-toggle="tab">Production streams</a>
+            </li>
+	    <li class="nav-item btn btn-outline-secondary">
+	      <a href="#mytimesheet" class="nav-link" data-bs-toggle="tab">My Timesheet</a>
+	    </li>
+	    {% if perms.scipost.can_promote_user_to_production_officer %}
+              <li class="nav-item btn btn-outline-secondary">
+		<a href="#officers" class="nav-link" data-bs-toggle="tab">Production Team</a>
+              </li>
+	    {% endif %}
+	  </ul>
+	</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content">
+    <div class="tab-pane active" id="summary" role="tabpanel">
+      <div class="row">
+        <div class="col-12">
+          <h2 class="highlight">Production streams</h2>
+          <table class="table table-fixed">
+            <thead>
+              <tr>
+                <th style="width: 30%;">Submission</th>
+                <th>Target Journal</th>
+                <th>Status</th>
+                <th class="py-1">
+                  Latest activity
+                  <br>
+                  Submission accepted
+                </th>
+                <th>Has supervisor</th>
+                <th>
+                  Production officer
+                  <br>
+                  Invitations officer
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for stream in streams %}
+                <tr>
+                  <td>
+                    <a href="{{ stream.get_absolute_url }}">{{ stream.submission.title }}</a>
+                    <br>
+                    by {{ stream.submission.author_list }}
+                  </td>
+                  <td>{{ stream.submission.editorial_decision.for_journal }}</td>
+                  <td>
+                    <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %}">{{ stream.get_status_display }}</div>
+		    {% if stream.submission.editorial_decision.status == stream.submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}<br><strong class="text-danger">Wait! author<br>acceptance of puboffer<br>required!</strong>{% endif %}
+                  </td>
+                  <td>
+                    {{ stream.latest_activity|timesince }} ago
+                    <br>
+                    <span class="text-muted">{{ stream.opened|timesince }} ago</span>
+                  </td>
+                  <td>
+                    {% if stream.supervisor %}
+                      <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+                      {{ stream.supervisor }}
+                    {% else %}
+                      <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if stream.officer %}
+                      <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+                      {{ stream.officer }}
+                    {% else %}
+                      <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+                    {% endif %}
+                    <br>
+                    {% if stream.invitations_officer %}
+                      <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+                      {{ stream.invitations_officer }}
+                    {% else %}
+                      <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="mytimesheet" role="tabpanel">
+      <div class="row">
+	<div class="col-12">
+    	  <h2 class="highlight">My Timesheet</h2>
+          {% if perms.scipost.can_view_timesheets %}
+            <a href="{% url 'finances:timesheets' %}">See team timesheets</a>
+          {% endif %}
+	</div>
+      </div>
+
+      <table class="table mb-5">
+	<thead class="table-light">
+	  <tr>
+	    <th>Date</th>
+	    <th>Comment</th>
+	    <th>Stream</th>
+	    <th>Log type</th>
+	    <th>Duration</th>
+	  </tr>
+	</thead>
+	<tbody role="tablist">
+	  {% for log in request.user.work_logs.all %}
+    	    <tr>
+    	      <td>{{ log.work_date }}</td>
+    	      <td>{{ log.comments }}</td>
+    	      <td>{{ log.content }}</td>
+              <td>{{ log.log_type }}</td>
+    	      <td>{{ log.duration|duration }}</td>
+    	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td colspan="4">No logs found.</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+    </div>
+
+    {% if perms.scipost.can_promote_user_to_production_officer %}
+      <div class="tab-pane" id="officers" role="tabpanel">
+        <h2 class="highlight">Production Tream</h2>
+        <h3>Current Production Team</h3>
+        <ul>
+          {% for officer in production_officers %}
+            <li>{{ officer }}
+              <form action="{% url 'production:delete_officer' officer.id %}" class="d-inline px-1" method="post">
+                {% csrf_token %}
+                <input type="submit" class="btn btn-danger mb-1" value="Remove Officer">
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+
+        {% if new_officer_form %}
+          <h3>Promote user to Production Officer</h3>
+          <form action="{% url 'production:user_to_officer' %}" method="post">
+            {% csrf_token %}
+            {{ new_officer_form|bootstrap }}
+            <input type="submit" class="btn btn-primary" value="Promote to Production Officer">
+          </form>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+
+{% endblock content %}
