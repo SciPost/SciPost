@@ -1,3 +1,5 @@
+{% load automarkup %}
+
 <div>
   <h3>Decision</h3>
 
@@ -11,7 +13,7 @@
 
   {% if voting_round.decision.comments %}
     <h4 class="mt-2">Decision comments</h4>
-    <span>{{ voting_round.decision.comments }}</span>
+    <span>{% automarkup voting_round.decision.comments %}</span>
   {% endif %}
 
 </div>
