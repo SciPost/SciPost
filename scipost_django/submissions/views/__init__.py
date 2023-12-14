@@ -122,7 +122,7 @@ from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm, SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
 from scipost.models import Contributor, Remark
-
+from scipost.views import prompt_to_login
 
 ################
 # Autocomplete #
@@ -616,12 +616,13 @@ def submission_detail(request, identifier_w_vn_nr):
 
     if not submission.visible_public and not is_author:
         if not request.user.is_authenticated:
-            raise Http404
+            return prompt_to_login(request)
+
         elif (
             not request.user.has_perm("scipost.can_assign_submissions")
             and not submission.fellows.filter(contributor__user=request.user).exists()
         ):
-            raise Http404
+            raise PermissionDenied()
 
     if is_author:
         context["proofs_decision_form"] = ProofsDecisionForm()

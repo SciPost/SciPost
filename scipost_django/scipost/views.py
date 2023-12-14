@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-import json
+import urllib
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
@@ -880,6 +880,15 @@ class SciPostLoginView(LoginView):
             return reverse_lazy("organizations:dashboard")
         else:
             return reverse_lazy("scipost:index")
+
+
+def prompt_to_login(request):
+    """Prompt to login before viewing the requested page."""
+    return redirect(
+        reverse("scipost:login")
+        + "?next="
+        + urllib.parse.quote(request.get_full_path())
+    )
 
 
 def raw_user_auth_info(request):
