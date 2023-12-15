@@ -2,4 +2,8 @@
    hx-get="{% url "submissions:pool:_hx_submission_tab" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr tab=target %}"
    hx-target="#tabs-{{ submission.id }}"
    hx-indicator="#tabs-{{ submission.id }}-indicator"
->{{ text }}</a>
+>{{ text }}
+{% if notification %}
+  <span class="badge bg-danger mb-2 ms-1">{{ notification }}</span>
+{% endif %}
+</a>
