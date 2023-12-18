@@ -1,3 +1,4 @@
+import re
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
@@ -78,11 +79,58 @@ LOGGING["handlers"]["submission_fellowship_updates"][
 # Mailgun credentials
 MAILGUN_API_KEY = get_secret("MAILGUN_API_KEY")
 
+
+# Sentry trace sampling
+def traces_sampler(sampling_context):
+    def _matches_in(s):
+        return lambda patterns: any(re.search(p, s) for p in patterns)
+
+    name = sampling_context["transaction_context"]["name"]
+    name_matches = _matches_in(name)
+
+    # We get approx 20k a day, and we need to stay under 3k
+    # a 10% sample rate should be fine
+    BASE_RATE = 0.1
+
+    INVALID = [
+        "wp-login.php",
+        "xmlrpc.php",
+    ]
+
+    JUNK = [
+        "/messages",
+        "/pdf",
+        "_hx_sponsors",
+        "/rss",
+    ]
+
+    VERY_COMMON = [
+        "journal_tag",  # Publications detail
+        "/login",
+        "/contributor",
+    ]
+
+    COMMON = [
+        "/personal_page",
+        "/submissions",
+    ]
+
+    if name_matches(JUNK + INVALID):
+        return 0.0
+    elif name_matches(VERY_COMMON):
+        return BASE_RATE * 0.05
+    elif name_matches(COMMON):
+        return BASE_RATE * 0.2
+
+    return BASE_RATE
+
+
 # Sentry
 sentry_sdk.init(
     dsn=get_secret("SENTRY_DSN"),
     integrations=[DjangoIntegration(), CeleryIntegration()],
     enable_tracing=True,
+    traces_sampler=traces_sampler,
 )
 CSP_REPORT_URI = get_secret("CSP_SENTRY")
 CSP_REPORT_ONLY = False
