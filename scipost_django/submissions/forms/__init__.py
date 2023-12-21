@@ -80,7 +80,13 @@ from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
 from proceedings.models import Proceedings
 from profiles.models import Profile
-from scipost.services import DOICaller, ArxivCaller, FigshareCaller, OSFPreprintsCaller
+from scipost.services import (
+    ChemRxivCaller,
+    DOICaller,
+    ArxivCaller,
+    FigshareCaller,
+    OSFPreprintsCaller,
+)
 from scipost.models import Contributor, Remark
 from series.models import Collection
 import strings
@@ -721,45 +727,18 @@ def check_arxiv_identifier_w_vn_nr(identifier):
 def check_chemrxiv_doi(doi):
     """
     Call Crossref to get ChemRxiv preprint data.
+    `doi` is the DOI of the preprint, but can also be a link to the submission, or its database ID.
     """
-    caller = DOICaller(doi)
-    if caller.is_valid:
-        data = caller.data
-        metadata = caller.data["crossref_data"]
-    else:
-        error_message = "A preprint associated to this DOI does not exist."
-        raise forms.ValidationError(error_message)
-
-    # Check if the type of this resource is indeed a preprint
-    if "subtype" in metadata:
-        if metadata["subtype"] != "preprint":
-            error_message = (
-                "This does not seem to be a preprint: the type "
-                "returned by Crossref on behalf of "
-                "%(preprint_server) is %(subtype). "
-                "Please contact techsupport."
-            )
-            raise forms.ValidationError(
-                error_message,
-                code="wrong_subtype",
-                params={
-                    "preprint_server": preprint_server.name,
-                    "subtype": metadata["subtype"],
-                },
-            )
-    else:
-        raise forms.ValidationError(
-            "Crossref failed to return a subtype. Please contact techsupport.",
-            code="wrong_subtype",
+    caller = ChemRxivCaller(doi)
+    if not caller.is_valid or not (data := caller.data):
+        error_message = (
+            "The preprint could not be found. Please check the provided identifier."
         )
+        raise forms.ValidationError(error_message)
 
     # Explicitly add ChemRxiv as the preprint server:
     data["preprint_server"] = PreprintServer.objects.get(name="ChemRxiv")
-    data["preprint_link"] = "https://doi.org/%s" % doi
-    # Build the identifier by stripping the DOI prefix:
-    identifier = doi
-    data["identifier_w_vn_nr"] = identifier
-    return data, metadata, identifier
+    return data, caller.metadata, data.get("identifier_w_vn_nr")
 
 
 def check_figshare_identifier_w_vn_nr(preprint_server, figshare_identifier_w_vn_nr):
@@ -1054,14 +1033,14 @@ class ChemRxivPrefillForm(SubmissionPrefillForm):
 
     chemrxiv_doi = forms.RegexField(
         label="",
-        regex=CHEMRXIV_DOI_PATTERN,
+        regex=ChemRxivCaller.valid_patterns,
         strip=True,
         error_messages={"invalid": "Invalid ChemRxiv DOI"},
         widget=forms.TextInput(),
     )
 
     def __init__(self, *args, **kwargs):
-        self.crossref_data = {}
+        self.data = {}
         self.metadata = {}
         super().__init__(*args, **kwargs)
 
@@ -1070,7 +1049,7 @@ class ChemRxivPrefillForm(SubmissionPrefillForm):
         identifier = self.cleaned_data.get("chemrxiv_doi", None).partition("/")[2]
 
         check_identifier_is_unused(identifier)
-        self.crossref_data, self.metadata, identifier = check_chemrxiv_doi(
+        self.data, self.metadata, identifier = check_chemrxiv_doi(
             self.cleaned_data["chemrxiv_doi"]
         )
         return identifier
@@ -1080,7 +1059,21 @@ class ChemRxivPrefillForm(SubmissionPrefillForm):
         Return dictionary to prefill `SubmissionForm`.
         """
         form_data = super().get_prefill_data()
-        form_data.update(self.crossref_data)
+        form_data.update(self.data)
+
+        # check metadata for specialties
+        category_titles = (
+            [c["name"].title() for c in self.metadata["categories"]]
+            if self.metadata
+            else []
+        )
+        form_data["specialties"] = Specialty.objects.filter(name__in=category_titles)
+
+        # check keywords for topics
+        keyword_titles = (
+            [k.title() for k in self.metadata["keywords"]] if self.metadata else []
+        )
+        form_data["topics"] = Topic.objects.filter(name__in=keyword_titles)
 
         if self.is_resubmission():
             form_data.update(
@@ -1619,10 +1612,10 @@ class SubmissionForm(forms.ModelForm):
 
     def clean_title(self):
         return remove_extra_spacing(self.cleaned_data["title"])
-    
+
     def clean_abstract(self):
         return remove_extra_spacing(self.cleaned_data["abstract"])
-    
+
     @transaction.atomic
     def save(self):
         """

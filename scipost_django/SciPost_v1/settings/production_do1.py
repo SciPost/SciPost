@@ -63,6 +63,9 @@ ITHENTICATE_PASSWORD = get_secret("ITHENTICATE_PASSWORD")
 LOGGING["handlers"]["scipost_file_arxiv"][
     "filename"
 ] = "/home/scipost/SciPost_logs/arxiv.log"
+LOGGING["handlers"]["scipost_file_chemrxiv"][
+    "filename"
+] = "/home/scipost/SciPost_logs/chemrxiv.log"
 LOGGING["handlers"]["scipost_file_doi"][
     "filename"
 ] = "/home/scipost/SciPost_logs/doi.log"

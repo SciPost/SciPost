@@ -489,6 +489,12 @@ LOGGING = {
             "filename": "/path/to/logs/arxiv.log",
             "formatter": "verbose",
         },
+        "scipost_file_chemrxiv": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "/path/to/logs/chemrxiv.log",
+            "formatter": "verbose",
+        },
         "scipost_file_doi": {
             "level": "INFO",
             "class": "logging.FileHandler",
@@ -517,6 +523,12 @@ LOGGING = {
     "loggers": {
         "scipost.services.arxiv": {
             "handlers": ["scipost_file_arxiv"],
+            "level": "INFO",
+            "propagate": True,
+            "formatter": "simple",
+        },
+        "scipost.services.chemrxiv": {
+            "handlers": ["scipost_file_chemrxiv"],
             "level": "INFO",
             "propagate": True,
             "formatter": "simple",

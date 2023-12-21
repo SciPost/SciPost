@@ -3,6 +3,8 @@ __license__ = "AGPL v3"
 
 
 # Module for making external api calls as needed in the submissions cycle
+import re
+from django.db.models import query
 import feedparser
 import requests
 import datetime
@@ -13,8 +15,10 @@ from common.utils import remove_extra_spacing
 
 from submissions.constants import FIGSHARE_PREPRINT_SERVERS
 from submissions.models import PreprintServer
+from submissions.regexes import CHEMRXIV_DOI_PATTERN
 
 arxiv_logger = logging.getLogger("scipost.services.arxiv")
+chemrxiv_logger = logging.getLogger("scipost.services.chemrxiv")
 doi_logger = logging.getLogger("scipost.services.doi")
 figshare_logger = logging.getLogger("scipost.services.figshare")
 osfpreprints_logger = logging.getLogger("scipost.services.osfpreprints")
@@ -186,6 +190,69 @@ class ArxivCaller:
         if len(data.get("entries", [])) > 0:
             return "title" in data["entries"][0]
         return False
+
+
+class ChemRxivCaller:
+    """ChemRxiv Caller will help retrieve Submission data from ChemRxiv API."""
+
+    query_base_url = "https://chemrxiv.org/engage/chemrxiv/public-api/v1/items/"
+    doi_pattern = r"(https://doi.org/)?" + f"({CHEMRXIV_DOI_PATTERN})"
+    url_id_pattern = (
+        r"(https://chemrxiv.org/engage/chemrxiv/article-details/)?([a-z0-9]{24})"
+    )
+    valid_patterns = f"(({doi_pattern})|({url_id_pattern}))"
+
+    def __init__(self, identifier):
+        self.identifier = identifier
+        chemrxiv_logger.info("New ChemRxiv call for identifier %s" % identifier)
+
+        self.metadata = self._call_chemrxiv()
+        self.data = self._format_data(self.metadata) if self.is_valid else None
+
+    def _call_chemrxiv(self):
+        if m := re.match(self.doi_pattern, self.identifier):
+            doi = m.group(2)
+            url = self.query_base_url + "doi/" + doi
+        elif m := re.match(self.url_id_pattern, self.identifier):
+            item_id = m.group(2)
+            url = self.query_base_url + item_id
+        else:
+            self.is_valid = False
+            return
+
+        request = requests.get(url)
+        try:
+            response_content = request.json()
+        except:
+            self.is_valid = False
+            return
+
+        chemrxiv_logger.info(
+            "GET [{chemrxiv}] [request] | {url}".format(
+                chemrxiv=self.identifier, url=url
+            )
+        )
+
+        self.url = url
+        self.is_valid = True
+        return response_content
+
+    @staticmethod
+    def _format_data(data):
+        formatted_data = {
+            "title": data.get("title", ""),
+            "author_list": ", ".join(
+                [a["firstName"] + " " + a["lastName"] for a in data.get("authors", [])]
+            ),
+            "abstract": data.get("abstract", ""),
+            "pub_date": datetime.datetime.fromisoformat(pub_date)
+            if (pub_date := data.get("publishedDate"))
+            else None,
+            "identifier_w_vn_nr": data.get("doi", ""),
+            "preprint_link": "https://doi.org/" + data.get("doi", ""),
+        }
+
+        return formatted_data
 
 
 class FigshareCaller:

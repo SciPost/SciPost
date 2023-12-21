@@ -4,7 +4,9 @@
 {% load bootstrap %}
 {% load journals_extras %}
 
-{% block pagetitle %}: submit manuscript{% endblock pagetitle %}
+{% block pagetitle %}
+  : submit manuscript
+{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -14,7 +16,16 @@
 {% block content %}
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">{% if thread_hash %}Resubmit a{% else %}Submit a new{% endif %} manuscript to {{ journal }}</h1>
+      <h1 class="highlight">
+
+        {% if thread_hash %}
+          Resubmit a
+        {% else %}
+          Submit a new
+        {% endif %}
+
+        manuscript to {{ journal }}
+      </h1>
     </div>
   </div>
 
@@ -22,106 +33,159 @@
 
     <div class="row">
       <div class="col-md-6">
-	<h2 class=highlight>Step 3</h2>
-	{% if preprint_server_list|length > 1 %}
-	  <h3>Which preprint server do you wish to use for your {% if thread_hash %}re{% endif %}submission?</h3>
-	  <p>SciPost's own preprint server is always available.
-	    We however strongly encourage you to use your field's customary
-	    preprint server, to ensure maximal dissemination of your preprint.</p>
-	  <p>If you use an external preprint server, make sure your submission
-	    is publicly available there before proceeding here (our machines will query theirs
-	    in order to automatically prefill our submission form for you).</p>
-	{% else %}
-	  <h3>Please proceed with the SciPost preprint server (others are not available)</h3>
-	{% endif %}
+        <h2 class=highlight>Step 3</h2>
+
+        {% if preprint_server_list|length > 1 %}
+          <h3>
+            Which preprint server do you wish to use for your
+
+            {% if thread_hash %}re{% endif %}
+
+            submission?
+          </h3>
+          <p>
+            SciPost's own preprint server is always available.
+            We however strongly encourage you to use your field's customary
+            preprint server, to ensure maximal dissemination of your preprint.
+          </p>
+          <p>
+            If you use an external preprint server, make sure your submission
+            is publicly available there before proceeding here (our machines will query theirs
+            in order to automatically prefill our submission form for you).
+          </p>
+        {% else %}
+          <h3>Please proceed with the SciPost preprint server (others are not available)</h3>
+        {% endif %}
+
       </div>
-      <div class="col-md-6">
-	{% include 'submissions/submit_steps.html' with step=3 thread_hash=thread_hash %}
-      </div>
+      <div class="col-md-6">{% include 'submissions/submit_steps.html' with step=3 thread_hash=thread_hash %}</div>
     </div>
 
-    <br>
+    <br />
     <div class="container">
       <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3">
-	{% for preprint_server in preprint_server_list %}
-	  <div class="col col-sm-12 col-lg-6 mb-2">
-	    <div class="card mb-4">
-	      <div class="card-header bg-dark text-white">
-		<h3 class="p-2 m-0"><em>{% if thread_hash %}Resubmit{% else %}Submit{% endif %} via</em>&emsp;<strong class="text-warning">{{ preprint_server.server }}</strong></h3>
-	      </div>
-	      <div class="card-body text-center">
-		{% if preprint_server.server.name == 'SciPost' %}
-		  <form action="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ preprint_server.prefill_form }}
-		    {% if thread_hash %}
-		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
-		    {% endif %}
-		    <input type="submit" class="btn btn-primary text-white" value="Go to the SciPost submission form"/>
-		  </form>
-		{% elif preprint_server.server.name == 'arXiv' %}
-		  <h3>Please provide the arXiv identifier for your Submission</h3>
-		  <p><em>without the website prefix but with version number, e.g.
-		    <br> ####.####(#)v#(#)</em></p>
-		  <form action="{% url 'submissions:submit_manuscript_arxiv' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ preprint_server.prefill_form }}
-		    {% if thread_hash %}
-		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
-		    {% endif %}
-	            {% include 'bi/arrow-right.html' %}
-		    <input type="submit" class="btn btn-primary text-white" value="Query arXiv"/>
-		  </form>
-		{% elif preprint_server.server.name == 'ChemRxiv' %}
-		  <h3>Please provide the ChemRxiv DOI for your Submission</h3>
-		  <p class="mb-0">Pattern: either
-		    <ul>
-		      <li>old style: <em>10.#####/chemrxiv.#######(.v#)</em></li>
-		      <li>new style: <em>10.#####/chemrxiv-*****(-v#)</em></li>
-		    </ul>
-		  </p>
-		  <form action="{% url 'submissions:submit_manuscript_chemrxiv' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ preprint_server.prefill_form }}
-		    {% if thread_hash %}
-		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
-		    {% endif %}
-	            {% include 'bi/arrow-right.html' %}
-		    <input type="submit" class="btn btn-primary text-white" value="Query ChemRxiv"/>
-		  </form>
-		{% elif preprint_server.server.served_by and preprint_server.server.served_by.name == 'OSFPreprints' %}
-		  <h3>Please provide the {{ preprint_server.server.name }} identifier for your Submission</h3>
-		  <p><em>just a few lowercase alphanumeric characters, e.g. #####</em></p>
-		  <p><em>Hint: on the submission's {{ preprint_server.server.name }} page, look for the last few characters in the DOI to see the identifier.</em></p>
-		  <p><em>Example: if the DOI is <strong>10.31235/osf.io/xxzbx</strong>,
-		    then you need <strong>xxzbx</strong></em></p>
-		  <form action="{% url 'submissions:submit_manuscript_osfpreprints' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ preprint_server.prefill_form }}
-		    {% if thread_hash %}
-		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
-		    {% endif %}
-	            {% include 'bi/arrow-right.html' %}
-		    <input type="submit" class="btn btn-primary text-white" value="Query {{ preprint_server.server.name }}"/>
-		  </form>
-		{% elif preprint_server.server.served_by and preprint_server.server.served_by.name == 'Figshare' %}
-		  <h3>Please provide the {{ preprint_server.server.name }} identifier for your Submission</h3>
-		  <p><em>without the url prefix but with version number, e.g.
-		    <br> ########.v#</em></p>
-		  <p><em>Hint: on the submission's {{ preprint_server.server.name }} page, click on the "Cite" button to see the identifier.</em></p>
-		  <form action="{% url 'submissions:submit_manuscript_figshare' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ preprint_server.prefill_form }}
-		    {% if thread_hash %}
-		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
-		    {% endif %}
-	            {% include 'bi/arrow-right.html' %}
-		    <input type="submit" class="btn btn-primary text-white" value="Query {{ preprint_server.server.name }}"/>
-		  </form>
-		{% endif %}
-	      </div>
-	    </div>
-	  </div>
-	{% endfor %}
-      </div>
-    </div>
 
-  {% else %}
-    <h3>You are currently not allowed to submit a manuscript.</h3>
-  {% endif %}
-{% endblock content %}
+        {% for preprint_server in preprint_server_list %}
+          <div class="col col-sm-12 col-lg-6 mb-2">
+            <div class="card mb-4">
+              <div class="card-header bg-dark text-white">
+                <h3 class="p-2 m-0">
+                  <em>
+
+                    {% if thread_hash %}
+                      Resubmit
+                    {% else %}
+                      Submit
+                    {% endif %}
+
+                    via</em>&emsp;<strong class="text-warning">{{ preprint_server.server }}</strong>
+                  </h3>
+                </div>
+                <div class="card-body">
+
+                  {% if preprint_server.server.name == 'SciPost' %}
+                    <form action="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label %}"
+                          method="get">
+                      {{ preprint_server.prefill_form }}
+
+                      {% if thread_hash %}<input type="hidden" name="thread_hash" value="{{ thread_hash }}" />{% endif %}
+
+                      <input type="submit"
+                             class="btn btn-primary text-white"
+                             value="Go to the SciPost submission form" />
+                    </form>
+                  {% elif preprint_server.server.name == 'arXiv' %}
+                    <h3>Please provide the arXiv identifier for your Submission</h3>
+                    <p>
+                      <em>without the website prefix but with version number, e.g.
+                        <br />
+                      ####.####(#)v#(#)</em>
+                    </p>
+                    <form action="{% url 'submissions:submit_manuscript_arxiv' journal_doi_label=journal.doi_label %}"
+                          method="get">
+                      {{ preprint_server.prefill_form }}
+
+                      {% if thread_hash %}<input type="hidden" name="thread_hash" value="{{ thread_hash }}" />{% endif %}
+
+                      {% include 'bi/arrow-right.html' %}
+                      <input type="submit" class="btn btn-primary text-white" value="Query arXiv" />
+                    </form>
+                  {% elif preprint_server.server.name == 'ChemRxiv' %}
+                    <h3>Please provide the ChemRxiv DOI/URL for your Submission</h3>
+                    <p class="mb-0">
+                      Patterns:
+                      <ul>
+                        <li>10.#####/chemrxiv-*****(-v#)</li>
+                        <li>https://chemrxiv.org/****/article-details/****</li>
+                      </ul>
+                    </p>
+                    <form action="{% url 'submissions:submit_manuscript_chemrxiv' journal_doi_label=journal.doi_label %}"
+                          method="get">
+                      {{ preprint_server.prefill_form }}
+
+                      {% if thread_hash %}<input type="hidden" name="thread_hash" value="{{ thread_hash }}" />{% endif %}
+
+                      {% include 'bi/arrow-right.html' %}
+                      <input type="submit"
+                             class="btn btn-primary text-white"
+                             value="Query ChemRxiv" />
+                    </form>
+                  {% elif preprint_server.server.served_by and preprint_server.server.served_by.name == 'OSFPreprints' %}
+                    <h3>Please provide the {{ preprint_server.server.name }} identifier for your Submission</h3>
+                    <p>
+                      <em>just a few lowercase alphanumeric characters, e.g. #####</em>
+                    </p>
+                    <p>
+                      <em>Hint: on the submission's {{ preprint_server.server.name }} page, look for the last few characters in the DOI to see the identifier.</em>
+                    </p>
+                    <p>
+                      <em>Example: if the DOI is <strong>10.31235/osf.io/xxzbx</strong>,
+                      then you need <strong>xxzbx</strong></em>
+                    </p>
+                    <form action="{% url 'submissions:submit_manuscript_osfpreprints' journal_doi_label=journal.doi_label %}"
+                          method="get">
+                      {{ preprint_server.prefill_form }}
+
+                      {% if thread_hash %}<input type="hidden" name="thread_hash" value="{{ thread_hash }}" />{% endif %}
+
+                      {% include 'bi/arrow-right.html' %}
+                      <input type="submit"
+                             class="btn btn-primary text-white"
+                             value="Query {{ preprint_server.server.name }}" />
+                    </form>
+                  {% elif preprint_server.server.served_by and preprint_server.server.served_by.name == 'Figshare' %}
+                    <h3>Please provide the {{ preprint_server.server.name }} identifier for your Submission</h3>
+                    <p>
+                      <em>without the url prefix but with version number, e.g.
+                        <br />
+                      ########.v#</em>
+                    </p>
+                    <p>
+                      <em>Hint: on the submission's {{ preprint_server.server.name }} page, click on the "Cite" button to see the identifier.</em>
+                    </p>
+                    <form action="{% url 'submissions:submit_manuscript_figshare' journal_doi_label=journal.doi_label %}"
+                          method="get">
+                      {{ preprint_server.prefill_form }}
+
+                      {% if thread_hash %}<input type="hidden" name="thread_hash" value="{{ thread_hash }}" />{% endif %}
+
+                      {% include 'bi/arrow-right.html' %}
+                      <input type="submit"
+                             class="btn btn-primary text-white"
+                             value="Query {{ preprint_server.server.name }}" />
+                    </form>
+                  {% endif %}
+
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+
+        </div>
+      </div>
+
+    {% else %}
+      <h3>You are currently not allowed to submit a manuscript.</h3>
+    {% endif %}
+
+  {% endblock content %}
