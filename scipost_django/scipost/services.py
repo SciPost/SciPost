@@ -245,7 +245,7 @@ class ChemRxivCaller:
                 [a["firstName"] + " " + a["lastName"] for a in data.get("authors", [])]
             ),
             "abstract": data.get("abstract", ""),
-            "pub_date": datetime.datetime.fromisoformat(pub_date)
+            "pub_date": dateutil.parser.parse(pub_date)
             if (pub_date := data.get("publishedDate"))
             else None,
             "identifier_w_vn_nr": data.get("doi", ""),
