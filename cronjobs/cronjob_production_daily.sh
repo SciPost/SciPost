@@ -17,4 +17,4 @@ python manage.py affiliatejournal_update_publications_from_Crossref --settings=S
 
 
 # Update the fellowship of submissions for new fellows
-python manage.py update_submission_fellowships --settings=SciPost_v1.settings.production_do1 >
+python manage.py update_submission_fellowships --settings=SciPost_v1.settings.production_do1
