@@ -30,7 +30,7 @@
 
   <div id="new-nomination-container"></div>
 
-  <details id="nominations-filter-details" class="card my-4">
+  <details open id="nominations-filter-details" class="card my-4">
     <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
       <div class="fs-3">Search / Filter</div>
       <div class="d-none d-md-flex align-items-center">
@@ -69,7 +69,7 @@
     </summary>
     <div class="card-body">
       <div id="nominations-search-form-container"
-           hx-get="{% url 'colleges:_hx_nominations_search_form' filter_set='default' %}"
+           hx-get="{% url 'colleges:_hx_nominations_search_form' filter_set='latest' %}"
            hx-trigger="load, intersect once"></div>
     </div>
   </details>
