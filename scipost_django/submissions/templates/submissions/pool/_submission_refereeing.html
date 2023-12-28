@@ -22,15 +22,21 @@
     <div class="mt-4">{% include "submissions/pool/_submission_refereeing_history_card.html" %}</div>
   </div>
 
-  {% if is_ed_admin and submission.editor_in_charge %}
-    <div class="col-12 col-md">
+  <div class="col-12 col-md d-flex flex-column">
+
+    {% if is_ed_admin and submission.editor_in_charge %}
       <h4>Editor in Charge potential conflicts of interest</h4>
       <div class="overflow-scroll" style="max-height: 50vh">
         {% with submission.editor_in_charge.conflict_of_interests.non_deprecated|filter_for_submission:submission as conflicts %}
           {% include 'submissions/admin/_conflicts.html' with conflicts=conflicts %}
         {% endwith %}
       </div>
-    </div>
-  {% endif %}
+    {% endif %}
+
+    <a class="mt-auto"
+       href="{% url "submissions:conflicts" submission.preprint.identifier_w_vn_nr %}">View other possible conflicts of interest</a>
+
+  </div>
+
 
 </div>
