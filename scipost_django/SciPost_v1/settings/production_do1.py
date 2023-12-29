@@ -88,7 +88,7 @@ def traces_sampler(sampling_context):
     def _matches_in(s):
         return lambda patterns: any(re.search(p, s) for p in patterns)
 
-    name = sampling_context["wsgi_environ"]["PATH_INFO"]
+    name = sampling_context["transaction_context"]["name"]
     name_matches = _matches_in(name)
 
     # We get approx 20k a day, and we need to stay under 3k
@@ -105,8 +105,6 @@ def traces_sampler(sampling_context):
         "/pdf",
         "_hx_sponsors",
         "/rss",
-        "/media/",
-        "/static/",
     ]
 
     VERY_COMMON = [
