@@ -20,6 +20,9 @@
         <span>&nbsp;This nominee is elected, but not yet invited.</span>
         <a class="btn btn-sm btn-primary"
            href="{% url 'colleges:fellowship_invitation_email_initial' pk=invitation.id %}">Invite</a>
+      {% elif invitation.response == 'accepted' or invitation.response == 'postponed' %}
+        <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
+        <span>&nbsp;This nominee has accepted to become a fellow.</span>
       {% else %}
         <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
         <span>&nbsp;This nominee has been invited to serve as a Fellow.</span>
@@ -37,8 +40,14 @@
           <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
           <span>&nbsp;This nominee has no associated Fellowship with this college.</span>
           <div>
-            <a href="{% url 'colleges:fellowship_create' contributor_id=invitation.nomination.profile.contributor.id %}"
-               target="_blank">Set up a Fellowship</a>
+
+            {% if invitation.nomination.profile.contributor %}
+              <a href="{% url 'colleges:fellowship_create' contributor_id=invitation.nomination.profile.contributor.id %}"
+                 target="_blank">Set up a Fellowship</a>
+            {% else %}
+              <a class="text-muted pe-none">Set up a Fellowship (active once registered)</a>
+            {% endif %}
+
           </div>
         {% else %}
           <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>

@@ -1210,9 +1210,6 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
         )
 
     def clean(self):
-        has_contributor = hasattr(
-            self.cleaned_data["nomination"].profile, "contributor"
-        )
         invitation_accepted = self.cleaned_data["response"] == (
             FellowshipInvitation.RESPONSE_ACCEPTED
         )
@@ -1220,12 +1217,6 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
             FellowshipInvitation.RESPONSE_POSTPONED
         )
         postponed_date = self.cleaned_data["postpone_start_to"]
-
-        if (invitation_accepted or invitation_postponed) and not has_contributor:
-            self.add_error(
-                "response",
-                "This profile does not have a Contributor account to create a Fellowship with. Please create one before updating the invitation response to a positive answer.",
-            )
 
         if postponed_date and (timezone.now().date() > postponed_date):
             self.add_error(
