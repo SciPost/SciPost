@@ -85,10 +85,11 @@ MAILGUN_API_KEY = get_secret("MAILGUN_API_KEY")
 
 # Sentry trace sampling
 def traces_sampler(sampling_context):
-    def _matches_in(s):
-        return lambda patterns: any(re.search(p, s) for p in patterns)
+    def _matches_in(string):
+        """Return a function that takes a list of REs and checks whether the given string matches any of them"""
+        return lambda patterns: any(re.search(pattern, string) for pattern in patterns)
 
-    name = sampling_context["transaction_context"]["name"]
+    name = sampling_context.get("wsgi_environ", {}).get("PATH_INFO", "")
     name_matches = _matches_in(name)
 
     # We get approx 20k a day, and we need to stay under 3k
@@ -105,6 +106,8 @@ def traces_sampler(sampling_context):
         "/pdf",
         "_hx_sponsors",
         "/rss",
+        "/media/",
+        "/static/",
     ]
 
     VERY_COMMON = [
