@@ -591,9 +591,16 @@ def invitation(request, key):
     elif timezone.now() > invitation.key_expires:
         errormessage = "The invitation key has expired."
     else:
+        prefilled_fields = invitation.__dict__
+
+        profile = Profile.objects.get(pk=prefilled_fields["profile_id"])
+        if profile:
+            prefilled_fields["acad_field"] = profile.acad_field
+            prefilled_fields["specialties"] = profile.specialties.all()
+
         context = {
             "invitation": invitation,
-            "form": RegistrationForm(initial=invitation.__dict__),
+            "form": RegistrationForm(initial=prefilled_fields),
         }
         return render(request, "scipost/register.html", context)
     return render(
