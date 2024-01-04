@@ -1,25 +1,30 @@
 <p>Dear {{ object.nomination.profile.get_title_display }} {{ object.nomination.profile.last_name }},</p>
 
 <p>
-  We are sending you this email to formally invite you to join <a href="https://scipost.org">SciPost</a>'s Editorial College in {{ object.nomination.college.name }}.
+  We are sending you this email to formally invite you to join <a href="https://{{ domain }}/">SciPost</a>'s Editorial College in {{ object.nomination.college.name }}.
 </p>
 
 <p>
-  For the past several years, the SciPost Foundation has built a community-run, open and not-for-profit infrastructure for scientific publishing (see our <a href="https://scipost.org/about">about page</a> for a quick introduction or reminder). We are grateful for the positive reception that our journals enjoyed and look forward to strengthening our Editorial Colleges with prominent members of the scientific community. As mentioned above, on behalf of the SciPost Foundation and in light of your professional expertise and reputation, we hereby would like to invite you to join the Editorial College (Physics) by becoming one of our Editorial Fellows.
-</p>
-
-
-<p>
-  Academic excellence is the most important criterion guiding our considerations of who should belong to our Editorial Colleges. The current list of Colleges and their Fellows can be found <a href="https://scipost.org/colleges/">at this page</a>.
+  For the past several years, the SciPost Foundation has built a community-run, open and not-for-profit infrastructure for scientific publishing (see our <a href="https://{{ domain }}//about">about page</a> for a quick introduction or reminder). We are grateful for the positive reception that our journals enjoyed and look forward to strengthening our Editorial Colleges with prominent members of the scientific community. As mentioned above, on behalf of the SciPost Foundation and in light of your professional expertise and reputation, we hereby would like to invite you to join the Editorial College (Physics) by becoming one of our Editorial Fellows.
 </p>
 
 <p>
-  Participation in the College typically takes a couple hours a week. We ask Fellows to share the workload equitably and to take charge of at least 4 submissions per year. However, you will always remain in control of your level of commitment and of which submissions you take charge of. Functioning of the Colleges proceeds according to the <a href="https://scipost.org/EdCol_by-laws">by-laws</a>, and a short summary of the editorial workflow can be found <a href="https://scipost.org/submissions/editorial_workflow">at this page</a>.
+  Academic excellence is the most important criterion guiding our considerations of who should belong to our Editorial Colleges. The current list of Colleges and their Fellows can be found <a href="https://{{ domain }}//colleges/">at this page</a>.
+</p>
+
+<p>
+  Participation in the College typically takes a couple hours a week. We ask Fellows to share the workload equitably and to take charge of at least 4 submissions per year. However, you will always remain in control of your level of commitment and of which submissions you take charge of. Functioning of the Colleges proceeds according to the <a href="https://{{ domain }}//EdCol_by-laws">by-laws</a>, and a short summary of the editorial workflow can be found <a href="https://{{ domain }}//submissions/editorial_workflow">at this page</a>.
 </p>
 
 <p>
   We would be very happy to provide you with more information should you require it. Could we kindly ask you to give us a response (by replying to this email) within the next couple of weeks?
 </p>
+
+{% if not object.nomination.profile.contributor %}
+  <p>
+    Additionally, regardless of your response, we would like to cordially invite you to become a SciPost Contributor by registering on our website. This will allow you to submit your own articles, deliver reports, comment on articles, and perform all duties as Fellow should you also accept that role. For your convenience, we have prepared a pre-filled <a href="https://{{ domain }}/invitation/{{ registration_invitation.invitation_key }}">registration form</a> for you.
+  </p>
+{% endif %}
 
 <p>Many thanks in advance,</p>
 <p>

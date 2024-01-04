@@ -28,6 +28,9 @@ from colleges.permissions import (
     is_edadmin_or_advisory_or_active_regular_or_senior_fellow,
 )
 from colleges.utils import check_profile_eligibility_for_fellowship
+from invitations.constants import INVITATION_EDITORIAL_FELLOW
+from invitations.models import RegistrationInvitation
+from scipost.constants import TITLE_DR
 from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
 from submissions.models import Submission
 
@@ -1057,6 +1060,27 @@ class FellowshipInvitationEmailInitialView(PermissionsMixin, MailView):
     mail_code = "fellowship_nominees/fellowship_invitation_initial"
     success_url = reverse_lazy("colleges:nominations")
 
+    def get_mail_config(self):
+        config = super().get_mail_config()
+        profile = self.object.nomination.profile
+        (
+            registration_invitation,
+            reginv_created,
+        ) = RegistrationInvitation.objects.get_or_create(
+            profile=profile,
+            title=profile.title if profile.title else TITLE_DR,
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            email=profile.email,
+            created_by=self.request.user,
+            invited_by=self.request.user,
+            invitation_type=INVITATION_EDITORIAL_FELLOW,
+        )
+        self.reg_inv = registration_invitation
+        config["registration_invitation"] = registration_invitation
+
+        return config
+
     def form_valid(self, form):
         """Create an event associated to this outgoing email."""
         self.object.nomination.add_event(
@@ -1066,6 +1090,10 @@ class FellowshipInvitationEmailInitialView(PermissionsMixin, MailView):
         self.object.invited_on = timezone.now()
         self.object.response = FellowshipInvitation.RESPONSE_INVITED
         self.object.save()
+
+        # run actions on successful invitation sent
+        self.reg_inv.mail_sent()
+
         return super().form_valid(form)
 
 
@@ -1077,6 +1105,27 @@ class FellowshipInvitationEmailReminderView(PermissionsMixin, MailView):
     mail_code = "fellowship_nominees/fellowship_invitation_reminder"
     success_url = reverse_lazy("colleges:nominations")
 
+    def get_mail_config(self):
+        config = super().get_mail_config()
+        profile = self.object.nomination.profile
+        (
+            registration_invitation,
+            reginv_created,
+        ) = RegistrationInvitation.objects.get_or_create(
+            profile=profile,
+            title=profile.title if profile.title else TITLE_DR,
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            email=profile.email,
+            created_by=self.request.user,
+            invited_by=self.request.user,
+            invitation_type=INVITATION_EDITORIAL_FELLOW,
+        )
+        self.reg_inv = registration_invitation
+        config["registration_invitation"] = registration_invitation
+
+        return config
+
     def form_valid(self, form):
         """Create an event associated to this outgoing email."""
         self.object.nomination.add_event(
@@ -1086,6 +1135,10 @@ class FellowshipInvitationEmailReminderView(PermissionsMixin, MailView):
         self.object.invited_on = timezone.now()
         self.object.response = FellowshipInvitation.RESPONSE_REINVITED
         self.object.save()
+
+        # run actions on successful invitation sent
+        self.reg_inv.mail_sent()
+
         return super().form_valid(form)
 
 
