@@ -1,4 +1,4 @@
-<button class="btn btn-sm btn-primary ms-2 mt-1 px-1 py-0"
+<button class="btn btn-sm btn-link p-0"
         hx-get="{% url 'forums:_hx_post_form' slug=slug parent_model=parent_model parent_id=parent_id text=text %}"
         hx-swap="innerHTML"
         {% if parent_model == 'forum' %}
@@ -7,6 +7,10 @@
           hx-target="#post-{{ parent_id }}-reply"
         {% endif %}
         >
-  {% include "bi/arrow-return-right.html" %}
+  {% if parent_model == 'forum' %}
+    {% include "bi/plus.html" %}
+  {% else %}
+    {% include "bi/arrow-return-right.html" %}
+  {% endif %}
   <small>{{ text }}</small>
 </button>
