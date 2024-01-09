@@ -1,20 +1,28 @@
 {% load profiles_extras %}
 
 <ul class="list list-unstyled dynsel-list">
+
   {% for profile in profiles|slice:":11" %}
+
     {% if forloop.counter == 11 %}
       <li>&emsp;...</li>
-    {% else  %}
-      <li class="m-1">
-	<a
-	    hx-get="{% profile_dynsel_action_url profile %}"
-	    hx-target="#{{ action_target_element_id }}"
-	    hx-swap="{{ action_target_swap }}"
-	    hx-indicator="#{{ action_target_element_id }}-indicator"
-	>
-	  {{ profile }}
-	</a>
+    {% else %}
+      <li class="m-1 d-flex">
+        <a hx-get="{% profile_dynsel_action_url profile %}"
+           hx-target="#{{ action_target_element_id }}"
+           hx-swap="{{ action_target_swap }}"
+           hx-indicator="#{{ action_target_element_id }}-indicator">
+          {{ profile }}
+          <a class="ms-auto p-0"
+             target="_blank"
+             title="{{ profile.id }}"
+             href="{{ profile.get_absolute_url }}">
+            <span>{% include 'bi/info-circle-fill.html' %}</span>
+          </a>
+        </a>
       </li>
     {% endif %}
+
   {% endfor %}
+
 </ul>
