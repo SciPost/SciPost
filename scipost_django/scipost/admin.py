@@ -162,6 +162,11 @@ class AuthorshipClaimAdmin(admin.ModelAdmin):
         "thesislink",
         "vetted_by",
     ]
+    search_fields = [
+        "claimant__user__last_name",
+        "submission__title",
+        "submission__preprint__identifier_w_vn_nr",
+    ]
 
 
 admin.site.register(AuthorshipClaim, AuthorshipClaimAdmin)
