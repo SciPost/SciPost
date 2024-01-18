@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import re
 import requests
 
 from django.urls import reverse
@@ -58,7 +59,10 @@ class Preprint(models.Model):
             return self._file.read()
         url = self.citation_pdf_url
         response = requests.get(url)
-        if response.status_code != 200:
+        if response.status_code != 200 or not response.headers.get("Content-Type") in [
+            "application/pdf",
+            "application/octet-stream",
+        ]:
             raise PreprintDocumentNotFoundError(url)
         return response.content
 
@@ -72,6 +76,16 @@ class Preprint(models.Model):
             )
         elif self.is_arXiv:
             return "%s.pdf" % self.get_absolute_url().replace("/abs/", "/pdf/")
+        # Match SocArXiv preprints
+        elif m := re.match(r"https://doi.org/10.31235/osf.io/(\w*?)$", self.url):
+            return "https://osf.io/%s/download" % m.group(1)
+        # Match ChemRxiv preprints
+        elif m := re.match(r"https://doi.org/(10.26434/.+)$", self.url):
+            r = requests.get(
+                f"https://chemrxiv.org/engage/chemrxiv/public-api/v1/items/doi/"
+                + self.identifier_w_vn_nr
+            )
+            return r.json().get("asset").get("original").get("url")
         else:
             return self.get_absolute_url()
 
