@@ -5,10 +5,12 @@ import os
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect
+from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 
 from submissions.helpers import check_verified_author
 from submissions.models import Submission
+from scipost.views import prompt_to_login
 
 
 def preprint_pdf_wo_vn_nr(request, identifier_wo_vn_nr):
@@ -44,12 +46,12 @@ def preprint_pdf(request, identifier_w_vn_nr):
 
     if not submission.visible_public and not is_author:
         if not request.user.is_authenticated:
-            raise Http404
+            return prompt_to_login(request)
         elif (
             not request.user.has_perm("scipost.can_assign_submissions")
             and not submission.fellows.filter(contributor__user=request.user).exists()
         ):
-            raise Http404
+            raise PermissionDenied()
 
     __, extension = os.path.splitext(preprint._file.name)
     if extension == ".pdf":
