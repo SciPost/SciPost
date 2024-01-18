@@ -75,7 +75,6 @@
                 <span class="text-primary">Regular</span>
               {% endif %}
 
-              `
             </td>
           </tr>
         </tbody>
@@ -194,11 +193,16 @@
 
   <div class="highlight d-flex justify-content-between p-2">
     <h3 class="m-0 ">Assignments</h3>
-    <h5 class="m-0 ms-3 pe-2">
-      Workload indicator
-      {% include "icons/reception.html" with value=fellowship.contributor.editorial_assignments.ongoing.count max=4 %}
-    </h5>
+
+    {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+      <h5 class="m-0 ms-3 pe-2">
+        Workload indicator
+        {% include "icons/reception.html" with value=fellowship.contributor.editorial_assignments.ongoing.count max=4 %}
+      </h5>
+    {% endif %}
+
   </div>
+
   <div class="row">
     <div class="col-12">
       <h4>Ongoing:</h4>
@@ -216,6 +220,7 @@
         {% empty %}
           <li class="list-group-item">No ongoing assignments</li>
         {% endfor %}
+
 
       </ul>
     </div>
@@ -237,6 +242,7 @@
         {% empty %}
           <li class="list-group-item">No completed assignments</li>
         {% endfor %}
+
 
       </ul>
     </div>
@@ -270,6 +276,7 @@
           </td>
         </tr>
       {% endfor %}
+
 
       <tr>
         <td colspan="3" class="py-3 text-center">
