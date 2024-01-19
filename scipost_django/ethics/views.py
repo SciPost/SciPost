@@ -15,6 +15,7 @@ from ethics.forms import (
 
 from colleges.permissions import is_edadmin
 from colleges.models.fellowship import Fellowship
+from ethics.services import CrossrefCIChecker
 from submissions.models import Submission
 
 
@@ -179,5 +180,23 @@ def _hx_submission_competing_interest_create(
     return render(
         request,
         "ethics/_hx_submission_competing_interest_create.html",
+        context,
+    )
+
+
+@login_required
+def _hx_submission_competing_interest_crossref_audit(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission.objects.in_pool(request.user),
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+
+    fellow_name = request.user.contributor.profile.full_name
+    ci_checker = CrossrefCIChecker(fellow_name, submission.authors_as_list)
+
+    context = {"submission": submission, "ci_checker": ci_checker}
+    return render(
+        request,
+        "submissions/pool/_hx_crossref_CIs.html",
         context,
     )

@@ -1,0 +1,66 @@
+ 
+{% with nr_possible=ci_checker.possible_works|length nr_exact=ci_checker.exact_works|length %}
+
+  {% comment %} Matches found {% endcomment %}
+  {% if nr_exact > 0 %}
+
+    <details class="bg-white bg-opacity-75 border border-warning p-2">
+      <summary class="list-none">
+        <div class="d-flex">
+          <div class="text-warning me-1">{% include "bi/exclamation-triangle-fill.html" %}</div>
+          <div>
+            <div class="fs-6">Possible co-authorships:</div>
+            <div>
+              {{ nr_exact }} exact match{{ nr_exact|pluralize:'es' }} out of
+              {{ nr_possible }} possible work{{ nr_possible|pluralize }} found
+            </div>
+ 
+          </div>
+          <div class="ms-auto">(see more)</div>
+        </div>
+      </summary>
+
+      {% for work in ci_checker.exact_works %}
+        <div class="mt-2">
+          {{ work.title }}
+
+          {% if work.doi %}
+            <a href="https://doi.org/{{ work.doi }}"
+               target="_blank"
+               rel="noopener noreferrer">
+              <span>{% include "bi/link.html" %}</span>
+            </a>
+          {% endif %}
+
+          <div class="text-muted">
+            by
+
+            {% for work_author in work.author_list %}
+              <span class="{% if work_author in work.metadata.matched_authors %}text-warning{% endif %}">{{ work_author }}</span>
+
+              {% if not forloop.last %},{% endif %}
+
+            {% endfor %}
+
+          </div>
+        </div>
+      {% empty %}
+        No works found.
+      {% endfor %}
+
+    {% comment %} No matches found {% endcomment %}
+    {% else %}
+
+    <div class="bg-white bg-opacity-75 border border-success p-2">
+      <div class="d-flex">
+        <div class="text-success me-1">{% include "bi/check-circle-fill.html" %}</div>
+        <div>
+          <div class="fs-6">No possible co-authorships found</div>
+        </div>
+      </div>
+    </div>
+
+    {% endif %}
+
+  </details>
+{% endwith %}

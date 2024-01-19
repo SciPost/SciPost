@@ -4,40 +4,53 @@
 {% get_fellow_qualification submission session_fellowship as qualification %}
 {% get_profile_clearance submission.clearances request.user.contributor.profile as clearance %}
 
+<div class="row">
+
+  {% if qualification and qualification.is_qualified and not clearance %}
+    <div id="submission-{{ submission.id }}-crossref-CI-audit"
+         class="col-12"
+         hx-get="{% url 'ethics:_hx_submission_competing_interest_crossref_audit' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+         hx-trigger="revealed">
+        <div class="btn btn-secondary htmx-indicator">
+          Searching CrossRef for common works ... 
+        </div>
+      </div>
+  {% endif %}
+
+</div>
 <div class="row mb-0">
   <div id="submission-{{ submission.id }}-qualification-form"
        class="col-lg-4"
        hx-get="{% url 'submissions:pool:_hx_qualification_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-       hx-trigger="revealed"
-  >
-  </div>
+       hx-trigger="revealed"></div>
+ 
 
   {% if qualification %}
+
     <div class="col-lg-{% if clearance %}4{% else %}8{% endif %}">
+
       {% if qualification.is_qualified %}
-	<div id="submission-{{ submission.pk }}-ethics"
-	     hx-get="{% url 'ethics:_hx_submission_ethics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	     hx-trigger="revealed"
-	>
-	</div>
+	
+        <div id="submission-{{ submission.pk }}-ethics"
+             hx-get="{% url 'ethics:_hx_submission_ethics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+             hx-trigger="revealed"></div>
       {% else %}
-	<div class="border border-danger bg-danger bg-opacity-10 p-2 d-inline-flex">
-	  <span class="mx-auto">Other experts will handle this Submission</span>
-	</div>
+	
+        <div class="border border-danger bg-danger bg-opacity-10 p-2 d-inline-flex">
+          <span class="mx-auto">Other experts will handle this Submission</span>
+	
+        </div>
       {% endif %}
+
     </div>
   {% endif %}
 
-  {% if qualification and qualification.is_qualified %}
-    {% if clearance %}
-      <div class="col-lg-4">
-	<div id="submission-{{ submission.id }}-readiness-form"
-	     hx-get="{% url 'submissions:pool:_hx_readiness_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	     hx-trigger="revealed"
-	>
-	</div
-      </div>
-    {% endif %}
+  {% if qualification and qualification.is_qualified and clearance %}
+    <div class="col-lg-4">
+      <div id="submission-{{ submission.id }}-readiness-form"
+           hx-get="{% url 'submissions:pool:_hx_readiness_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+           hx-trigger="revealed"></div>
+    </div>
   {% endif %}
 
 </div>

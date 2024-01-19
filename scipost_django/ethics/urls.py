@@ -51,7 +51,12 @@ urlpatterns = [
                     views._hx_submission_competing_interest_delete,
                     name="_hx_submission_competing_interest_delete",
                 ),
-            ]
+                path(
+                    "_hx_submission_competing_interest_crossref_audit",
+                    views._hx_submission_competing_interest_crossref_audit,
+                    name="_hx_submission_competing_interest_crossref_audit",
+                ),
+            ],
         ),
     ),
 ]
