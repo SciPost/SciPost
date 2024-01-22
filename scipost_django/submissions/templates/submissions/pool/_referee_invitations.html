@@ -38,11 +38,13 @@
         <td class="py-3">{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}</td>
         <td>
 	  {% if not invitation.date_invited %}
-	    <span class="text-danger">Invitation email not sent!!</span>
-	    <br>
-	    <a class="btn btn-sm btn-danger text-white" href="{% url 'submissions:invite_referee' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr profile_id=invitation.profile.id auto_reminders_allowed=invitation.auto_reminders_allowed|yesno:"1,0" %}">
-	      {% include 'bi/arrow-right.html' %}&nbsp;Resend
-	    </a>
+      {% if not invitation.cancelled %}
+        <span class="text-danger">Invitation email not sent!!</span>
+        <br>
+        <a class="btn btn-sm btn-danger text-white" href="{% url 'submissions:invite_referee' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr profile_id=invitation.profile.id auto_reminders_allowed=invitation.auto_reminders_allowed|yesno:"1,0" %}">
+          {% include 'bi/arrow-right.html' %}&nbsp;Resend
+        </a>
+      {% endif %}
 	  {% else %}
             {{ invitation.date_invited }}
 	  {% endif %}

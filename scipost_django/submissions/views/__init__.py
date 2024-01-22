@@ -1512,7 +1512,8 @@ def cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     invitation.cancelled = True
     invitation.save()
     SubmissionUtils.load({"invitation": invitation})
-    SubmissionUtils.send_ref_cancellation_email()
+    if invitation.date_invited is not None:
+        SubmissionUtils.send_ref_cancellation_email()
 
     # Add SubmissionEvents
     invitation.submission.add_event_for_author(
