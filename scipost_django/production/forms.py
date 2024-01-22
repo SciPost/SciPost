@@ -79,6 +79,8 @@ class AssignOfficerForm(forms.ModelForm):
                 constants.PROOFS_SOURCE_REQUESTED,
             ]:
                 stream.status = constants.PROOFS_TASKED
+            elif stream.status == constants.PROOFS_TASKED:
+                stream.status = constants.PRODUCTION_STREAM_INITIATED
             stream.save()
         return stream
 
