@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django import forms
 
+from common.forms import MultiEmailField
+
 from .core import MailEngine
 from .exceptions import ConfigurationError
 from .widgets import SummernoteEditor
@@ -17,7 +19,7 @@ class EmailForm(forms.Form):
 
     subject = forms.CharField(max_length=255, label="Subject*")
     text = forms.CharField(widget=SummernoteEditor, label="Text*")
-    mail_field = forms.EmailField(label="Optional: bcc this email to", required=False)
+    mail_field = MultiEmailField(label="Optional: bcc this email to", required=False)
     prefix = "mail_form"
     extra_config = {}
 
@@ -73,8 +75,8 @@ class EmailForm(forms.Form):
     def save(self):
         self.engine.render_template(self.cleaned_data["text"])
         self.engine.mail_data["subject"] = self.cleaned_data["subject"]
-        if self.cleaned_data["mail_field"]:
-            self.engine.mail_data["bcc"].append(self.cleaned_data["mail_field"])
+        if bcc_mail_str := self.cleaned_data["mail_field"]:
+            self.engine.mail_data["bcc"] += [m.strip() for m in bcc_mail_str.split(",")]
         self.engine.send_mail()
         return self.engine.template_variables["object"]
 
