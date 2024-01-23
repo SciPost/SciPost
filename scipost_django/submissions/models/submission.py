@@ -878,7 +878,11 @@ class Submission(models.Model):
         which have at least one Specialty in common with the Submission.
         - For a Proceedings Submission, this is the guest Editor of the Proceedings.
         """
-        fellowships = Fellowship.objects.active()
+        # fmt: off
+        # I wish Black didn't format chaining of method calls so badly...
+        fellowships = Fellowship.objects.active() \
+            .without_competing_interests_against_submission_authors_of(self)
+        # fmt: on
 
         if self.proceedings:
             # Add only Proceedings-related Fellowships

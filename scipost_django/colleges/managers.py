@@ -6,6 +6,8 @@ from django.db import models
 from django.db.models import Q, Prefetch
 from django.utils import timezone
 
+from ethics.models import CompetingInterest
+
 from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
 
 
@@ -103,6 +105,25 @@ class FellowQuerySet(models.QuerySet):
 
         clear_profiles = Profile.objects.no_competing_interests_with(profile)
         return self.filter(contributor__profile__pk__in=clear_profiles)
+
+    def without_competing_interests_against_submission_authors_of(self, submission):
+        """
+        Returns all Fellowships whose profiles have no competing interests with any of the authors of the specified submission.
+        """
+        fellow_profile_ids = self.values_list("contributor__profile", flat=True)
+        submission_author_profile_ids = submission.author_profiles.all().values_list(
+            "profile_id", flat=True
+        )
+
+        fellow_author_cis = CompetingInterest.objects.between_profile_sets(
+            fellow_profile_ids, submission_author_profile_ids
+        )
+
+        CI_profiles = fellow_author_cis.values_list("profile", "related_profile")
+        # Unpack the list of two-tuples into two lists
+        profile_CI, related_CI = list(zip(*CI_profiles)) or ([], [])
+
+        return self.exclude(contributor__profile__id__in=profile_CI + related_CI)
 
 
 class PotentialFellowshipQuerySet(models.QuerySet):

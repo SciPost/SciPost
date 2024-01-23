@@ -28,3 +28,12 @@ class CompetingInterestQuerySet(models.QuerySet):
         Filter for CompetingInterests involving given Profile.
         """
         return self.filter(Q(profile=profile) | Q(related_profile=profile))
+
+    def between_profile_sets(self, profile_set_1, profile_set_2):
+        """
+        Filter for CompetingInterests between two sets of Profiles.
+        """
+        return self.filter(
+            Q(profile__in=profile_set_1, related_profile__in=profile_set_2)
+            | Q(profile__in=profile_set_2, related_profile__in=profile_set_1)
+        )
