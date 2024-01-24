@@ -47,8 +47,6 @@ class Fellowship(TimeStampedModel):
         max_length=16, choices=STATUS_CHOICES, default=STATUS_REGULAR
     )
 
-    guest = models.BooleanField("Guest Fellowship", default=False)
-
     objects = FellowQuerySet.as_manager()
 
     class Meta:

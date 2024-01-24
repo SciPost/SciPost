@@ -250,11 +250,8 @@ class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
                 queryset = queryset.filter(
                     contributor__profile__specialties=self.kwargs["specialty"]
                 )
-        if self.request.GET.get("type", None):
-            if self.request.GET.get("type") == "regular":
-                queryset = queryset.filter(guest=False)
-            elif self.request.GET.get("type") == "guest":
-                queryset = queryset.filter(guest=True)
+        if fellow_type := self.request.GET.get("type", None):
+            queryset = queryset.filter(status=fellow_type)
         if self.request.GET.get("text"):
             query = Q_with_alternative_spellings(
                 contributor__profile__last_name__istartswith=self.request.GET["text"]
