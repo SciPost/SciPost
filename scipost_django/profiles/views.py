@@ -272,10 +272,8 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
             queryset = queryset.filter(contributor__isnull=True)
         elif self.request.GET.get("contributor") == "True":
             queryset = queryset.filter(contributor__isnull=False)
-        if self.request.GET.get("text"):
-            query = Q_with_alternative_spellings(
-                last_name__icontains=self.request.GET["text"]
-            )
+        if search_text := self.request.GET.get("text"):
+            query = Q(last_name__unaccent__icontains=search_text)
             queryset = queryset.filter(query)
         return queryset
 
