@@ -1,5 +1,7 @@
 {% extends 'colleges/base.html' %}
 
+{% load user_groups %}
+
 {% block breadcrumb_items %}
   {{ block.super }}
   <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
@@ -12,6 +14,8 @@
 {% endblock pagetitle %}
 
 {% block content %}
+  {% is_ed_admin request.user as is_ed_admin %}
+ 
   <h1 class="highlight">Fellowship details</h1>
   <h2 class="text-primary">{{ fellowship }}</h2>
   <br />
@@ -89,14 +93,17 @@
     </div>
 
     <div class="col-md-6">
-      <div class="adminLinks">
-        <h3>Admin actions</h3>
-        <ul>
-          <li>
-            After initial setup: <a href="{% url 'colleges:fellowship_email_start' pk=fellowship.id %}">send Fellowship start email</a>
-          </li>
-        </ul>
-      </div>
+
+      {% if is_ed_admin %}
+        <div class="adminLinks">
+          <h3>Admin actions</h3>
+          <ul>
+            <li>
+              After initial setup: <a href="{% url 'colleges:fellowship_email_start' pk=fellowship.id %}">send Fellowship start email</a>
+            </li>
+          </ul>
+        </div>
+      {% endif %}
 
       <h3>All fellowships of this fellow</h3>
 
@@ -248,42 +255,44 @@
     </div>
   </div>
 
-  <h3 class="highlight">Pool for this Fellowship</h3>
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        <th>Submission</th>
-        <th colspan="2">Status</th>
-      </tr>
-    </thead>
-    <tbody>
-
-      {% for submission in fellowship.pool.all %}
+  {% if is_ed_admin %}
+    <h3 class="highlight">Pool for this Fellowship</h3>
+    <table class="table table-hover">
+      <thead>
         <tr>
-          <td>
-            <a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}, {{ submission.title|truncatechars:50 }}</a>
-          </td>
-          <td>{{ submission.get_status_display }}</td>
-          <td>
+          <th>Submission</th>
+          <th colspan="2">Status</th>
+        </tr>
+      </thead>
+      <tbody>
 
-            {% if submission.editor_in_charge == fellowship.contributor %}
-              <strong>Fellow is Editor-in-charge</strong>
-            {% else %}
-              <a class="text-danger"
-                 href="{% url 'colleges:fellowship_remove_submission' fellowship.id submission.preprint.identifier_w_vn_nr %}">Remove from this Fellowship's pool</a>
-            {% endif %}
+        {% for submission in fellowship.pool.all %}
+          <tr>
+            <td>
+              <a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}, {{ submission.title|truncatechars:50 }}</a>
+            </td>
+            <td>{{ submission.get_status_display }}</td>
+            <td>
 
+              {% if submission.editor_in_charge == fellowship.contributor %}
+                <strong>Fellow is Editor-in-charge</strong>
+              {% else %}
+                <a class="text-danger"
+                   href="{% url 'colleges:fellowship_remove_submission' fellowship.id submission.preprint.identifier_w_vn_nr %}">Remove from this Fellowship's pool</a>
+              {% endif %}
+
+            </td>
+          </tr>
+        {% endfor %}
+
+
+        <tr>
+          <td colspan="3" class="py-3 text-center">
+            <a href="{% url 'colleges:fellowship_add_submission' fellowship.id %}">Add Submission to this Fellowship's pool</a>
           </td>
         </tr>
-      {% endfor %}
-
-
-      <tr>
-        <td colspan="3" class="py-3 text-center">
-          <a href="{% url 'colleges:fellowship_add_submission' fellowship.id %}">Add Submission to this Fellowship's pool</a>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+      </tbody>
+    </table>
+  {% endif %}
 
 {% endblock %}

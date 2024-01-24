@@ -51,7 +51,7 @@
 
     {% for fellowship in fellowships.all %}
       <tr>
-	<td>{{ fellowship.contributor }}</td>
+	<td><a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor }}</a></td>
 	<td>
 	  {% for specialty in fellowship.contributor.profile.specialties.all %}
 	    <div class="single d-inline" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}

@@ -7,6 +7,7 @@ import datetime
 from dal import autocomplete
 
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import (
     login_required,
@@ -201,8 +202,7 @@ class FellowshipUpdateView(PermissionsMixin, UpdateView):
     template_name = "colleges/fellowship_form.html"
 
 
-class FellowshipDetailView(PermissionsMixin, DetailView):
-    permission_required = "scipost.can_manage_college_composition"
+class FellowshipDetailView(LoginRequiredMixin, DetailView):
     model = Fellowship
 
     def get_queryset(self):
@@ -211,6 +211,21 @@ class FellowshipDetailView(PermissionsMixin, DetailView):
             "pool__editor_in_charge",
         )
         return queryset
+
+    def get(self, request, *args, **kwargs):
+        fellow = self.get_object()
+        request_fellow = request.user.contributor.session_fellowship(request)
+
+        # Return the admin fellowship page if edadmin or senior fellow in the fellow's college
+        # or follow through to the contributor object instead.
+        if not (
+            request.user.contributor.is_scipost_admin
+            or request.user.contributor.is_ed_admin
+            or (request_fellow.senior and (request_fellow.college == fellow.college))
+        ):
+            return redirect(fellow.contributor.get_absolute_url())
+        else:
+            return super().get(request, *args, **kwargs)
 
 
 class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
