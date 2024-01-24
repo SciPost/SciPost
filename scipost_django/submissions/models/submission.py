@@ -313,6 +313,7 @@ class Submission(models.Model):
         max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True
     )
 
+    auto_updated_fellowship = models.BooleanField(default=True)
     fellows = models.ManyToManyField(
         "colleges.Fellowship", blank=True, related_name="pool"
     )

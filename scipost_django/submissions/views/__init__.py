@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 from difflib import SequenceMatcher
+from django.template.response import TemplateResponse
 import feedparser
 import strings
 import urllib.parse
@@ -688,6 +689,24 @@ def submission_detail(request, identifier_w_vn_nr):
         }
     )
     return render(request, "submissions/submission_detail.html", context)
+
+
+@login_required()
+@user_passes_test(is_edadmin)
+def _hx_submission_autoupdate_fellowship(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    if request.method == "POST":
+        submission.auto_updated_fellowship = not submission.auto_updated_fellowship
+        submission.save()
+
+    return TemplateResponse(
+        request,
+        "submissions/_hx_submission_autoupdate_fellowship.html",
+        context={"submission": submission},
+    )
 
 
 def _hx_submission_topics(request, identifier_w_vn_nr):

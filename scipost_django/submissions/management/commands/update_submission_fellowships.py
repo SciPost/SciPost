@@ -21,7 +21,10 @@ class Command(BaseCommand):
             Submission.SEEKING_ASSIGNMENT,
         ]
 
-        for submission in Submission.objects.filter(status__in=status_no_eic):
+        for submission in Submission.objects.filter(
+            auto_updated_fellowship=True,
+            status__in=status_no_eic,
+        ):
             old_fellowship = set(submission.fellows.all())
             new_fellowship = set(submission.get_default_fellowship())
 

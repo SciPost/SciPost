@@ -77,6 +77,12 @@ urlpatterns = [
                         ]
                     ),
                 ),
+                # Fellowship
+                path(
+                    "_hx_submission_autoupdate_fellowship",
+                    views._hx_submission_autoupdate_fellowship,
+                    name="_hx_submission_autoupdate_fellowship",
+                ),
             ]
         ),
     ),

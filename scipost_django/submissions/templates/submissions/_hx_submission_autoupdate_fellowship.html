@@ -1,0 +1,7 @@
+<div id="submission-{{ submission.pk }}-autoupdated-fellowship">
+  Keep this fellowship updated automatically
+  <button class="ms-2 btn btn-sm text-white btn-{{ submission.auto_updated_fellowship|yesno:"success,danger" }}"
+          hx-post="{% url "submissions:_hx_submission_autoupdate_fellowship" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+          hx-target="closest div"
+          hx-swap="outerHTML">{{ submission.auto_updated_fellowship|yesno:"ON,OFF" }}</button>
+</div>

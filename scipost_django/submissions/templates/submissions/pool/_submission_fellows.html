@@ -1,10 +1,19 @@
 <h2>This Submission's Fellowship</h2>
 
 {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
-  <div id="submission-{{ submission.pk }}-add-fellow">
-    <a class="btn btn-sm btn-primary m-2"
-       hx-get="{% url 'colleges:_hx_submission_add_fellowship' submission.preprint.identifier_w_vn_nr %}"
-       hx-target="#submission-{{ submission.pk }}-add-fellow">Add a Fellow to this Submission's fellowship</a>
+  <div class="d-flex justify-content-between align-items-center">
+    <div id="submission-{{ submission.pk }}-add-fellow">
+      <button class="btn btn-sm btn-primary m-2"
+              hx-get="{% url 'colleges:_hx_submission_add_fellowship' submission.preprint.identifier_w_vn_nr %}"
+              hx-target="#submission-{{ submission.pk }}-add-fellow">
+        Add a Fellow to this Submission's fellowship
+      </button>
+    </div>
+
+    {% if "edadmin" in user_roles %}
+      {% include "submissions/_hx_submission_autoupdate_fellowship.html" %}
+    {% endif %}
+
   </div>
 {% endif %}
 

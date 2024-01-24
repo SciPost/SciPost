@@ -1684,6 +1684,9 @@ class SubmissionForm(forms.ModelForm):
         # Set the fellowship to the default one
         submission.fellows.set(submission.get_default_fellowship())
 
+        # Switch off auto-updating of the fellowship
+        if collection or self.submitted_to_journal.name == "Migration Politics":
+            submission.auto_update_fellowship = False
 
         # Return latest version of the Submission. It could be outdated by now.
         submission.refresh_from_db()
