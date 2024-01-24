@@ -871,7 +871,7 @@ class Submission(models.Model):
         ).values_list("id", flat=True)
         return self.editor_in_charge.id not in contributors_ids
 
-    def get_fellowship(self) -> List["Fellowship"]:
+    def get_default_fellowship(self):
         """
         Return the default *list* of Fellows for this Submission.
         - For a regular Submission, this is the subset of Fellowships of the Editorial College
@@ -880,27 +880,42 @@ class Submission(models.Model):
         """
         # fmt: off
         # I wish Black didn't format chaining of method calls so badly...
-        fellowships = Fellowship.objects.active() \
+        fellows = Fellowship.objects.none()
+        non_comp_fellows = Fellowship.objects.active() \
             .without_competing_interests_against_submission_authors_of(self)
         # fmt: on
 
         if self.proceedings:
             # Add only Proceedings-related Fellowships
-            fellows = fellowships.filter(
+            fellows = non_comp_fellows.filter(
                 proceedings=self.proceedings
             ).return_active_for_submission(self)
-        else:
+        elif len(self.collections.all()) > 0:
+            # Add the Fellowships of the collections
+            fellows = [
+                fellow
+                for collection in self.collections.all()
+                for fellow in collection.expected_editors.all()
+                if fellow in non_comp_fellows
+            ]
+
+        if len(fellows) == 0:
             # Add only Fellowships from the same College and with matching specialties
-            fellows = (
-                fellowships.regular_or_senior()
-                .filter(
-                    college=self.submitted_to.college,
-                    contributor__profile__specialties__in=self.specialties.all(),
-                )
-                .return_active_for_submission(self)
+            fellows = non_comp_fellows.filter(
+                college=self.submitted_to.college,
+                contributor__profile__specialties__in=self.specialties.all(),
             )
 
-        return fellows
+            # As a special rule, MigPol only wants Senior Fellows to be assigned
+            if self.submitted_to.name == "Migration Politics":
+                fellows = fellows.senior()
+            else:
+                fellows = fellows.regular_or_senior()
+
+            fellows = fellows.return_active_for_submission(self)
+
+        # Remove duplicates from the list
+        return list(set(fellows))
 
     @property
     def editorial_decision(self):

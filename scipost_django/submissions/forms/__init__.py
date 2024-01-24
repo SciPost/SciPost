@@ -1680,7 +1680,10 @@ class SubmissionForm(forms.ModelForm):
 
         # Gather first known author and Fellows.
         submission.authors.add(self.requested_by.contributor)
-        self.set_fellowship(submission)
+
+        # Set the fellowship to the default one
+        submission.fellows.set(submission.get_default_fellowship())
+
 
         # Return latest version of the Submission. It could be outdated by now.
         submission.refresh_from_db()
@@ -1729,42 +1732,6 @@ class SubmissionForm(forms.ModelForm):
             to=previous_submission.editor_in_charge,
             status=EditorialAssignment.STATUS_ACCEPTED,
         )
-
-    def set_fellowship(self, submission):
-        """
-        Set the default set of (guest) Fellows for this Submission.
-        """
-        qs = Fellowship.objects.active()
-        fellows = None
-
-        if submission.proceedings:
-            # Add only Proceedings-related Fellowships
-            fellows = qs.filter(
-                proceedings=submission.proceedings
-            ).return_active_for_submission(submission)
-        elif len(submission.collections.all()) > 0:
-            # Add the Fellowships of the collections
-            fellows = set(
-                [
-                    fellow
-                    for collection in submission.collections.all()
-                    for fellow in collection.expected_editors.all()
-                ]
-            )
-
-        # Check if neither a Proceedings nor a Collection is set
-        # or whether the above queries returned no results
-        if fellows is None or len(fellows) == 0:
-            fellows = (
-                qs.regular_or_senior()
-                .filter(
-                    college=submission.submitted_to.college,
-                    contributor__profile__specialties__in=submission.specialties.all(),
-                )
-                .return_active_for_submission(submission)
-            )
-
-        submission.fellows.set(fellows)
 
 
 class SubmissionReportsForm(forms.ModelForm):

@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
         for submission in Submission.objects.filter(status__in=status_no_eic):
             old_fellowship = set(submission.fellows.all())
-            new_fellowship = set(submission.get_fellowship())
+            new_fellowship = set(submission.get_default_fellowship())
 
             to_add_fellows = new_fellowship - old_fellowship
 
