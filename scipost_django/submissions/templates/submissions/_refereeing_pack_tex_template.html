@@ -134,7 +134,7 @@ Submitted to {{ submission.submitted_to }}
   %%%%%%%%%% DATES
   {\small Received {{ report.date_submitted|date:'d-m-Y' }}
   {% if report.doi_string %}
-    doi:\href{//doi.org{{ report.doi_string|safe_tex_url }} }{ {{ report.doi_string|safe_tex_url }} }
+    doi:\href{https://doi.org{{ report.doi_string|safe_tex_url }} }{ {{ report.doi_string|safe_tex_url }} }
   {% endif %}
   }
   \end{minipage}
