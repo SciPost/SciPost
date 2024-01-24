@@ -267,6 +267,9 @@ class MailEngine:
                     if (valid_entry := self._validate_email_addresses(entry))
                 ]
 
+                # Remove duplicate recipients from email list
+                valid_emails = list(set(valid_emails))
+
                 if len(valid_emails) == 0:
                     raise ConfigurationError(
                         "No valid email addresses found for %s." % email_key
