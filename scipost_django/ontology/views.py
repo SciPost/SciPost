@@ -33,14 +33,17 @@ def set_session_acad_field(request):
     """Set the Academic Field to be viewed in the current user session."""
     form = SessionAcademicFieldForm(request.GET or None)
     if form.is_valid():
-        if (
-            form.cleaned_data["acad_field_slug"]
-            != request.session["session_acad_field_slug"]
+        # Reset the Specialty if the Academic Field has changed
+        if (session_acad_field := request.session.get("session_acad_field_slug")) and (
+            form.cleaned_data["acad_field_slug"] != session_acad_field
         ):
             request.session["session_specialty_slug"] = ""
+
+        # Set the Academic Field
         request.session["session_acad_field_slug"] = form.cleaned_data[
             "acad_field_slug"
         ]
+
     try:
         initial = {
             "acad_field_slug": AcademicField.objects.get(
