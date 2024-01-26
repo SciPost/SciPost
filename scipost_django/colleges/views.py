@@ -295,12 +295,19 @@ class FellowshipStartEmailView(PermissionsMixin, MailView):
 
     def form_valid(self, form):
         """Create an event associated to this outgoing email."""
-        event = FellowshipNominationEvent(
-            nomination=self.object.nomination,
-            description="Fellowship start email sent",
-            by=self.request.user.contributor,
-        )
-        event.save()
+        try:
+            event = FellowshipNominationEvent(
+                nomination=self.object.nomination,
+                description="Fellowship start email sent",
+                by=self.request.user.contributor,
+            )
+            event.save()
+        except Fellowship.nomination.RelatedObjectDoesNotExist:
+            messages.warning(
+                self.request,
+                "No Nomination was found for this Fellowship, "
+                "so no event about sending a start email was created.",
+            )
         return super().form_valid(form)
 
 
