@@ -81,11 +81,14 @@ class Preprint(models.Model):
             return "https://osf.io/%s/download" % m.group(1)
         # Match ChemRxiv preprints
         elif m := re.match(r"https://doi.org/(10.26434/.+)$", self.url):
-            r = requests.get(
-                f"https://chemrxiv.org/engage/chemrxiv/public-api/v1/items/doi/"
-                + self.identifier_w_vn_nr
-            )
-            return r.json().get("asset").get("original").get("url")
+            try:
+                r = requests.get(
+                    f"https://chemrxiv.org/engage/chemrxiv/public-api/v1/items/doi/"
+                    + m.group(1)
+                )
+                return r.json().get("asset").get("original").get("url")
+            except:
+                return self.get_absolute_url()
         else:
             return self.get_absolute_url()
 
