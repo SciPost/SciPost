@@ -7,7 +7,7 @@ import re
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.dates import MONTHS
-from django.db.models import Q, Case, DateField, Sum, Value, When, F
+from django.db.models import Q, Case, DateField, Max, Min, Sum, Value, When, F
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
@@ -78,6 +78,10 @@ class SubsidySearchForm(forms.Form):
         choices=SUBSIDY_TYPES,
         required=False,
     )
+    active_year = forms.ChoiceField(
+        label="Active year",
+        required=False,
+    )
 
     orderby = forms.ChoiceField(
         label="Order by",
@@ -105,7 +109,14 @@ class SubsidySearchForm(forms.Form):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Div(FloatingField("organization_query"), css_class="col-12"),
+                    Div(
+                        Div(FloatingField("organization_query"), css_class="col"),
+                        Div(
+                            FloatingField("active_year"),
+                            css_class="col-4 col-sm-3 col-md-2 col-lg-4 col-xl-3 col-xxl-2",
+                        ),
+                        css_class="row mb-0",
+                    ),
                     Div(
                         Div(FloatingField("country"), css_class="col-12 col-lg-4"),
                         Div(FloatingField("orderby"), css_class="col-6 col-lg-4"),
@@ -119,6 +130,15 @@ class SubsidySearchForm(forms.Form):
                 css_class="row mb-0",
             ),
         )
+
+        min_year, max_year = (
+            Subsidy.objects.all()
+            .aggregate(min=Min("date_from"), max=Max("date_until"))
+            .values()
+        )
+        self.fields["active_year"].choices = [("", "---")] + [
+            (year, year) for year in range(min_year.year, max_year.year + 1)
+        ]
 
     def search_results(self, user):
         if user.groups.filter(name="Financial Administrators").exists():
@@ -153,6 +173,12 @@ class SubsidySearchForm(forms.Form):
 
         if subsidy_type := self.cleaned_data["type"]:
             subsidies = subsidies.filter(subsidy_type__in=subsidy_type)
+
+        if active_year := self.cleaned_data["active_year"]:
+            subsidies = subsidies.filter(
+                Q(date_from__year__lte=int(active_year))
+                & Q(date_until__year__gte=int(active_year))
+            )
 
         # Ordering of subsidies
         # Only order if both fields are set
