@@ -48,6 +48,8 @@ function init_page() {
     });
 
     activate_tooltip();
+    document.body.addEventListener("htmx:afterSettle", activate_tooltip);
+
     sort_form_list('form ul.sortable-list');
     sort_form_list('table.sortable-rows > tbody');
     select_form_table('.table-selectable');

@@ -130,6 +130,58 @@ class FellowshipNomination(models.Model):
 
         return eligible_voters
 
+    @property
+    def edadmin_notes(self):
+        """Notes to be displayed to edadmin on the nomination page."""
+        notes = []
+
+        if self.invitation is None:
+            return None
+
+        if self.invitation.accepted and not hasattr(self.profile, "contributor"):
+            notes.append(
+                (
+                    "info",
+                    "Fellow has accepted their invitation, but has not registered yet.",
+                )
+            )
+
+        last_reinvited = self.events.filter(
+            description__icontains="invitation reminder"
+        ).first()
+        two_weeks_ago = timezone.now() - timezone.timedelta(days=14)
+        need_reminder_responses = [
+            FellowshipInvitation.RESPONSE_INVITED,
+            FellowshipInvitation.RESPONSE_REINVITED,
+            FellowshipInvitation.RESPONSE_MULTIPLY_REINVITED,
+            FellowshipInvitation.RESPONSE_UNRESPONSIVE,
+        ]
+        if (
+            (self.invitation.response in need_reminder_responses)
+            and last_reinvited
+            and (last_reinvited.on < two_weeks_ago)
+        ):
+            notes.append(
+                (
+                    "warning",
+                    "Last invitation reminder sent more than two weeks ago.",
+                )
+            )
+
+        in_one_week = timezone.now() + timezone.timedelta(days=7)
+        if (
+            self.invitation.response == FellowshipInvitation.RESPONSE_POSTPONED
+            and self.invitation.postpone_start_to < in_one_week.date()
+        ):
+            notes.append(
+                (
+                    "warning",
+                    "Postponed start date is less than one week away.",
+                )
+            )
+
+        return notes
+
 
 class FellowshipNominationEvent(models.Model):
     nomination = models.ForeignKey(
@@ -439,6 +491,10 @@ class FellowshipInvitation(models.Model):
 
     def __str__(self):
         return f"Invitation for {self.nomination}"
+
+    @property
+    def accepted(self):
+        return self.response in [self.RESPONSE_ACCEPTED, self.RESPONSE_POSTPONED]
 
     @property
     def declined(self):

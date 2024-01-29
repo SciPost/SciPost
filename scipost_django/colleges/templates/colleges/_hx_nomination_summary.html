@@ -1,5 +1,13 @@
+{% load user_groups %}
+{% is_ed_admin request.user as is_ed_admin %}
+
 <div class="row mb-0">
   <div class="col-12 col-md">
+    {% if is_ed_admin %}
+      <div class="fs-5 float-start position-absolute top-0 start-0 translate-middle">
+        {% include "error_hover_explainer.html" with notes=nomination.edadmin_notes %}
+      </div>
+    {% endif %}
     <div class="row mb-0">
  
       <div class="col">

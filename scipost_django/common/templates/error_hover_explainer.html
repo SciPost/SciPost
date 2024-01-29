@@ -1,0 +1,10 @@
+{% if notes %}
+  <div class="text-primary" data-bs-toggle="tooltip" data-bs-html="true" title='
+    <div class="p-2">
+      {% for level, note in notes %}
+        <div class="text-{{ level }}"> {{ note }}</div>
+      {% endfor %}
+    </div>  '>
+  {% include 'bi/info-circle-fill.html' %}
+  </div>
+{% endif %}
