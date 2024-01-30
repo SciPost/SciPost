@@ -24,6 +24,9 @@ WEBPACK_LOADER["DEFAULT"][
 LOGGING["handlers"]["scipost_file_arxiv"][
     "filename"
 ] = "/home/scipost/SciPost/local_files/logs/arxiv.log"
+LOGGING["handlers"]["scipost_file_chemrxiv"][
+    "filename"
+] = "/home/scipost/SciPost/local_files/logs/chemrxiv.log"
 LOGGING["handlers"]["scipost_file_doi"][
     "filename"
 ] = "/home/scipost/SciPost/local_files/logs/doi.log"
