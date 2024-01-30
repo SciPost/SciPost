@@ -21,9 +21,10 @@
       <a href="{% url 'colleges:fellowships' %}">View all</a>
     </li>
     <li>
-      View <a href="{% add_get_parameters type='all' %}">all (regular/guest)</a>,
-      <a href="{% add_get_parameters type='regular' %}">only regular</a> or
-      <a href="{% add_get_parameters type='guest' %}">only guest</a> Fellows.
+      View only
+      <a href="{% add_get_parameters type='senior' %}">senior</a>,
+      <a href="{% add_get_parameters type='regular' %}">regular</a> or
+      <a href="{% add_get_parameters type='guest' %}">guest</a> Fellows.
     </li>
   </ul>
   <br>
