@@ -96,3 +96,15 @@ class EICRecommendationQuerySet(models.QuerySet):
                 constants.EIC_REC_MAJOR_REVISION,
             ]
         )
+
+    def last_year(self):
+        """Return EICRecommendation submitted last year."""
+        return self.filter(
+            date_submitted__gte=timezone.now() - datetime.timedelta(days=365)
+        )
+
+    def last_two_years(self):
+        """Return EICRecommendation submitted last two years."""
+        return self.filter(
+            date_submitted__gte=timezone.now() - datetime.timedelta(days=730)
+        )

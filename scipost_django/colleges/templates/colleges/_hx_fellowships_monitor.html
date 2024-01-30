@@ -59,6 +59,20 @@
 	    [{{ fellow.contributor.editorial_assignments.completed.count }}]
 	  </small>
 	</td>
+  <td>
+	  {{ fellow.contributor.eligible_to_vote.last_year.count }}<br/>
+    <small class="text-muted">
+	    {{ fellow.contributor.eligible_to_vote.last_two_years.count }}<br/>
+	    [{{ fellow.contributor.eligible_to_vote.count }}]
+	  </small>
+	</td>
+	<td>
+	  {{ fellow.contributor.voted_for.last_year.count|add:fellow.contributor.voted_against.last_year.count|add:fellow.contributor.voted_abstain.last_year.count }}<br/>
+    <small class="text-muted">
+	    {{ fellow.contributor.voted_for.last_two_years.count|add:fellow.contributor.voted_against.last_two_years.count|add:fellow.contributor.voted_abstain.last_two_years.count }}<br/>
+	    [{{ fellow.contributor.voted_for.count|add:fellow.contributor.voted_against.count|add:fellow.contributor.voted_abstain.count }}]
+	  </small>
+	</td>
     </tr>
 {% empty %}
     <tr>
