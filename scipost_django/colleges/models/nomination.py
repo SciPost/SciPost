@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.functional import cached_property
 
@@ -147,7 +148,8 @@ class FellowshipNomination(models.Model):
             )
 
         last_reinvited = self.events.filter(
-            description__icontains="invitation reminder"
+            Q(description__icontains="invitation reminder")
+            | Q(description__icontains="invitation email")
         ).first()
         two_weeks_ago = timezone.now() - timezone.timedelta(days=14)
         need_reminder_responses = [
