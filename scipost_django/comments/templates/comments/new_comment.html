@@ -5,11 +5,11 @@
   {% if user_is_referee and submission %}
     <h4 class="text-danger my-3">
       {% include 'bi/exclamation-triangle-fill.html' %}
-      You are an invited referee, please <a href="{% url 'submissions:submit_report' submission.preprint.identifier_w_vn_nr %}">submit a Report</a> instead.
+      You are an invited referee, please <a href="{% url 'submissions:submit_report' submission.preprint.identifier_w_vn_nr %}">submit a Report</a> instead of just making a comment.
     </h4>
 
     <details id="contribute_comment">
-      <summary class="highlight fs-5 p-2">I'm know, but let me contribute a Comment anyway</summary>
+      <summary class="highlight fs-5 p-2">I know, but let me contribute a Comment anyway</summary>
 
       {% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object as url %}
       {% include 'comments/_add_comment_form.html' with form=form url=url %}
