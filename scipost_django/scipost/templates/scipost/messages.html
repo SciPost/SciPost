@@ -1,6 +1,6 @@
 <div id="global-message-container"
      class="alert-fixed-container"
      hx-get="{% url 'scipost:_hx_messages' %}"
-     hx-trigger="load, htmx:trigger from:body delay:1000"
+     hx-trigger="load, htmx:afterSettle from:body delay:250 throttle:2000"
      hx-swap="beforeend"
      hx-sync="body:drop"></div>

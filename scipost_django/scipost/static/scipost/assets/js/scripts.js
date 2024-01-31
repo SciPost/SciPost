@@ -1,9 +1,6 @@
 require('jquery-ui/ui/widgets/sortable');
 require('jquery-ui/ui/disable-selection');
 
-function hide_all_alerts() {
-    $(".alert").remove('.no-dismiss').fadeOut(300);
-}
 
 var activate_tooltip = function() {
     jQuery('[data-bs-toggle="tooltip"]').tooltip({
@@ -48,7 +45,12 @@ function init_page() {
     });
 
     activate_tooltip();
-    document.body.addEventListener("htmx:afterSettle", activate_tooltip);
+
+    // Run scripts after htmx settles
+    document.body.addEventListener("htmx:afterSettle", () =>{
+        activate_tooltip(); // Re-activate tooltips
+        $('.alert-dismissible').delay(10000).fadeOut(300); // Auto-hide alerts
+    });
 
     sort_form_list('form ul.sortable-list');
     sort_form_list('table.sortable-rows > tbody');
@@ -57,9 +59,5 @@ function init_page() {
 
 
 $(function(){
-    // Remove all alerts in screen automatically after 15sec.
-    setTimeout(function() {hide_all_alerts()}, 15000);
-
     init_page();
-
 });
