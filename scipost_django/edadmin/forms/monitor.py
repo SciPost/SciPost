@@ -3,7 +3,8 @@ __license__ = "AGPL v3"
 
 
 from django import forms
-from django.db.models import Count, Max, Prefetch, Q
+from django.db.models import Count, Max, OuterRef, Prefetch, Subquery
+from django.db.models.functions import Coalesce
 
 from ontology.models import Specialty
 from crispy_forms.helper import FormHelper
@@ -12,6 +13,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from scipost.models import UnavailabilityPeriod
 from submissions.models import Submission
+from submissions.models.qualification import Qualification
 
 
 class EdAdminFellowshipSearchForm(forms.Form):
@@ -55,6 +57,15 @@ class EdAdminFellowshipSearchForm(forms.Form):
             queryset=Submission.objects.in_stage_in_refereeing(),
             to_attr="EIC_in_stage_in_refereeing",
         )
+
+        in_pool_seeking_assignment = Submission.objects.filter(
+            status=Submission.SEEKING_ASSIGNMENT,
+            fellows__id__exact=OuterRef("id"),
+        )
+        qualifications_by_fellow = Qualification.objects.filter(
+            fellow=OuterRef("id"), submission__status=Submission.SEEKING_ASSIGNMENT
+        )
+
         return fellowships.prefetch_related(
             "contributor__user",
             "contributor__profile__specialties",
@@ -62,22 +73,25 @@ class EdAdminFellowshipSearchForm(forms.Form):
             prefetch_EIC_in_stage_in_refereeing,
             "qualification_set",
         ).annotate(
-            nr_visible=Count(
-                "pool",
-                filter=Q(pool__status=Submission.SEEKING_ASSIGNMENT),
-                distinct=True,
-            ),
-            nr_appraised=Count(
-                "qualification",
-                filter=Q(
-                    qualification__submission__status=Submission.SEEKING_ASSIGNMENT,
+            nr_visible=Coalesce(
+                Subquery(
+                    in_pool_seeking_assignment.values("fellows")
+                    .annotate(nr=(Count("fellows")))
+                    .values("nr")
                 ),
-                distinct=True,
+                0,
             ),
-            latest_appraisal_datetime=Max(
-                "qualification__datetime",
-                filter=Q(
-                    qualification__submission__status=Submission.SEEKING_ASSIGNMENT,
+            nr_appraised=Coalesce(
+                Subquery(
+                    qualifications_by_fellow.values("fellow")
+                    .annotate(nr=(Count("fellow")))
+                    .values("nr")
                 ),
+                0,
+            ),
+            latest_appraisal_datetime=Subquery(
+                qualifications_by_fellow.values("fellow")
+                .annotate(latest=Max("datetime"))
+                .values("latest")
             ),
         )
