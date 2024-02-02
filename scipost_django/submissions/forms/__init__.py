@@ -456,11 +456,11 @@ class SubmissionPoolSearchForm(forms.Form):
             )
         if self.cleaned_data.get("author"):
             submissions = submissions.filter(
-                author_list__icontains=self.cleaned_data.get("author")
+                author_list__unaccent__icontains=self.cleaned_data.get("author")
             )
         if self.cleaned_data.get("title"):
             submissions = submissions.filter(
-                title__icontains=self.cleaned_data.get("title")
+                title__unaccent__icontains=self.cleaned_data.get("title")
             )
         if self.cleaned_data.get("identifier"):
             submissions = submissions.filter(
@@ -2414,9 +2414,9 @@ class ReportForm(forms.ModelForm):
             }
         )
 
-        self.fields[
-            "file_attachment"
-        ].label = "File attachment (2MB limit; for a figure or similar - please avoid annotated pdfs)"
+        self.fields["file_attachment"].label = (
+            "File attachment (2MB limit; for a figure or similar - please avoid annotated pdfs)"
+        )
 
         # Required fields on submission; optional on save as draft
         if "save_submit" in self.data:
@@ -3019,11 +3019,11 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
         self.fields["refereeing_cycle"].choices = SUBMISSION_CYCLE_CHOICES
         other_submissions = self.instance.other_versions.all()
         if other_submissions:
-            self.fields[
-                "referees_reinvite"
-            ].queryset = RefereeInvitation.objects.filter(
-                submission__in=other_submissions
-            ).distinct()
+            self.fields["referees_reinvite"].queryset = (
+                RefereeInvitation.objects.filter(
+                    submission__in=other_submissions
+                ).distinct()
+            )
 
     def save(self):
         """
@@ -3059,9 +3059,9 @@ class iThenticateReportForm(forms.ModelForm):
                 self.add_error(
                     None, "Preprint document not found. Please upload the pdf manually."
                 )
-                self.fields[
-                    "file"
-                ] = forms.FileField()  # Add this field now it's needed
+                self.fields["file"] = (
+                    forms.FileField()
+                )  # Add this field now it's needed
         elif not doc_id and cleaned_data.get("file"):
             cleaned_data["document"] = cleaned_data["file"].read()
         elif doc_id:
