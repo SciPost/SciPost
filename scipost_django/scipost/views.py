@@ -1086,9 +1086,9 @@ def personal_page_hx_admin(request):
     if contributor.is_scipost_admin:
         # count the number of pending registration requests
         context["nr_reg_to_vet"] = Contributor.objects.awaiting_vetting().count()
-        context[
-            "nr_reg_awaiting_validation"
-        ] = Contributor.objects.awaiting_validation().count()
+        context["nr_reg_awaiting_validation"] = (
+            Contributor.objects.awaiting_validation().count()
+        )
     return render(request, "scipost/personal_page/_hx_admin.html", context)
 
 
@@ -1117,9 +1117,9 @@ def personal_page_hx_edadmin(request):
     contributor = request.user.contributor
     if contributor.is_scipost_admin:
         context["nr_submissions_to_assign"] = Submission.objects.preassignment().count()
-        context[
-            "nr_recommendations_to_prepare_for_voting"
-        ] = EICRecommendation.objects.voting_in_preparation().count()
+        context["nr_recommendations_to_prepare_for_voting"] = (
+            EICRecommendation.objects.voting_in_preparation().count()
+        )
     if contributor.is_vetting_editor:
         context["nr_commentary_page_requests_to_vet"] = (
             Commentary.objects.awaiting_vetting()
@@ -1127,16 +1127,16 @@ def personal_page_hx_edadmin(request):
             .count()
         )
         context["nr_comments_to_vet"] = Comment.objects.awaiting_vetting().count()
-        context[
-            "nr_thesislink_requests_to_vet"
-        ] = ThesisLink.objects.awaiting_vetting().count()
-        context[
-            "nr_authorship_claims_to_vet"
-        ] = AuthorshipClaim.objects.awaiting_vetting().count()
+        context["nr_thesislink_requests_to_vet"] = (
+            ThesisLink.objects.awaiting_vetting().count()
+        )
+        context["nr_authorship_claims_to_vet"] = (
+            AuthorshipClaim.objects.awaiting_vetting().count()
+        )
     if contributor.is_active_fellow:
-        context[
-            "nr_assignments_to_consider"
-        ] = contributor.editorial_assignments.invited().count()
+        context["nr_assignments_to_consider"] = (
+            contributor.editorial_assignments.invited().count()
+        )
         context["active_assignments"] = contributor.editorial_assignments.ongoing()
         context["nr_reports_to_vet"] = (
             Report.objects.awaiting_vetting()
@@ -1552,6 +1552,7 @@ def contributor_info(request, contributor_id):
     return render(request, "scipost/contributor_info.html", context)
 
 
+@permission_required("scipost.can_vet_registration_requests")
 def contributor_duplicates(request, group_by: str):
     return render(
         request, "scipost/contributor_duplicates.html", {"group_by": group_by}

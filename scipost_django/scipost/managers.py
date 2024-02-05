@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib.postgres.lookups import Unaccent
 from django.db import models
 from django.db.models import Count, Q
 from django.db.models.functions import Concat, Lower
@@ -56,7 +57,13 @@ class ContributorQuerySet(models.QuerySet):
             self.exclude(status=DOUBLE_ACCOUNT)
             .exclude(user__is_superuser=True)
             .exclude(user__is_staff=True)
-            .annotate(full_name=Concat("profile__last_name", "profile__first_name"))
+            .exclude(profile__isnull=True)
+            .annotate(
+                full_name=Concat(
+                    Unaccent("profile__last_name"),
+                    Unaccent("profile__first_name"),
+                )
+            )
         )
         duplicates = (
             contribs.values("full_name")
@@ -64,9 +71,7 @@ class ContributorQuerySet(models.QuerySet):
             .filter(nr_count__gt=1)
             .values_list("full_name", flat=True)
         )
-        return contribs.filter(full_name__in=duplicates).order_by(
-            "profile__last_name", "profile__first_name", "-id"
-        )
+        return contribs.filter(full_name__in=duplicates).order_by("full_name", "-id")
 
     def with_duplicate_email(self):
         """

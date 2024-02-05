@@ -3,8 +3,9 @@ __license__ = "AGPL v3"
 
 
 import re
+from django.contrib.postgres.lookups import Unaccent
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Value
 from django.db.models.functions import Concat, Lower
 from django.utils import timezone
 
@@ -20,7 +21,13 @@ class ProfileQuerySet(models.QuerySet):
         return None
 
     def with_full_names(self):
-        return self.annotate(full_name_annot=Concat("first_name", "last_name"))
+        return self.annotate(
+            full_name_annot=Concat(
+                Unaccent("first_name"),
+                Value(" "),
+                Unaccent("last_name"),
+            )
+        )
 
     def potential_duplicates(self):
         """
@@ -37,6 +44,7 @@ class ProfileQuerySet(models.QuerySet):
             profiles.values("full_name_annot")
             .annotate(nr_count=Count("full_name_annot"))
             .filter(nr_count__gt=1)
+            .values_list("full_name_annot", flat=True)
         )
         from .models import ProfileEmail
 
@@ -55,11 +63,7 @@ class ProfileQuerySet(models.QuerySet):
         ]
         # Now return list of potential duplicates
         return profiles.filter(
-            models.Q(
-                full_name_annot__in=[
-                    item["full_name_annot"] for item in duplicates_by_full_name
-                ]
-            )
+            models.Q(full_name_annot__in=duplicates_by_full_name)
             | models.Q(id__in=ids_of_duplicates_by_email)
         ).order_by("last_name", "first_name", "-id")
 
