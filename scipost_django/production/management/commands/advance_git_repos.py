@@ -356,7 +356,7 @@ class Command(BaseCommand):
             """
             affiliations = []
             for i, author in enumerate(authors):
-                affiliations += [f"{{{SLASH}bf {i+1}}} Affiliation {author}"]
+                affiliations += [f"{{{SLASH}bf {i+1}}} Affiliation"]
 
             return f"\n{NEWLINE}\n".join(affiliations)
 
