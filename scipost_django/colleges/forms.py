@@ -587,6 +587,11 @@ class FellowshipNominationSearchForm(forms.Form):
         required=False,
     )
 
+    invitation_response = forms.ChoiceField(
+        choices=[("", "Any")] + FellowshipInvitation.RESPONSE_CHOICES,
+        required=False,
+    )
+
     can_vote = forms.BooleanField(
         label="I can vote",
         required=False,
@@ -604,6 +609,11 @@ class FellowshipNominationSearchForm(forms.Form):
     )
     needs_specialties = forms.BooleanField(
         label="Needs specialties",
+        required=False,
+        initial=False,
+    )
+    needs_edadmin_attention = forms.BooleanField(
+        label="Needs EdAdmin attention",
         required=False,
         initial=False,
     )
@@ -657,12 +667,24 @@ class FellowshipNominationSearchForm(forms.Form):
             css_class="row mb-0",
         )
 
+        if is_edadmin(self.user):
+            div_block_checkbox.append(
+                Div(
+                    Field("needs_edadmin_attention"),
+                    css_class="col-auto col-lg-12 col-xl-auto",
+                )
+            )
+
         self.helper.layout = Layout(
             Div(
                 Div(
                     Div(
-                        Div(FloatingField("nominee"), css_class="col-8"),
-                        Div(FloatingField("decision"), css_class="col-4"),
+                        Div(FloatingField("nominee"), css_class="col-12 col-lg-6"),
+                        Div(FloatingField("decision"), css_class="col-6 col-lg-3"),
+                        Div(
+                            FloatingField("invitation_response"),
+                            css_class="col-6 col-lg-3",
+                        ),
                         Div(div_block_ordering, css_class="col-12 col-md-6 col-xl-12"),
                         Div(div_block_checkbox, css_class="col-12 col-md-6 col-xl-12"),
                         css_class="row mb-0",
@@ -739,6 +761,10 @@ class FellowshipNominationSearchForm(forms.Form):
                 nominations = nominations.filter(
                     voting_rounds__decision__outcome=decision,
                 )
+        if invitation_response := self.cleaned_data.get("invitation_response"):
+            nominations = nominations.filter(
+                invitation__response=invitation_response,
+            )
         if self.cleaned_data.get("voting_open"):
             nominations = nominations.filter(
                 Q(voting_rounds__voting_opens__lte=timezone.now())
@@ -765,6 +791,14 @@ class FellowshipNominationSearchForm(forms.Form):
                     for order_part in orderby_value.split(",")
                 ]
             )
+
+        # Render the queryset to evaluate properties
+        nominations = list(nominations)
+
+        if self.cleaned_data.get("needs_edadmin_attention"):
+            nominations = [
+                nomination for nomination in nominations if nomination.edadmin_notes
+            ]
 
         return nominations
 

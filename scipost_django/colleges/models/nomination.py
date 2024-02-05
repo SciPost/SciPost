@@ -136,8 +136,8 @@ class FellowshipNomination(models.Model):
         """Notes to be displayed to edadmin on the nomination page."""
         notes = []
 
-        if self.invitation is None:
-            return None
+        if not hasattr(self, "invitation"):
+            return notes
 
         if self.invitation.accepted and not hasattr(self.profile, "contributor"):
             notes.append(
@@ -463,7 +463,7 @@ class FellowshipInvitation(models.Model):
     RESPONSE_ACCEPTED = "accepted"
     RESPONSE_POSTPONED = "postponed"
     RESPONSE_DECLINED = "declined"
-    RESPONSE_CHOICES = (
+    RESPONSE_CHOICES = [
         (RESPONSE_NOT_YET_INVITED, "Not yet invited"),
         (RESPONSE_INVITED, "Invited"),
         (RESPONSE_REINVITED, "Reinvited"),
@@ -472,7 +472,7 @@ class FellowshipInvitation(models.Model):
         (RESPONSE_ACCEPTED, "Accepted, for immediate start"),
         (RESPONSE_POSTPONED, "Accepted, but start date postponed"),
         (RESPONSE_DECLINED, "Declined"),
-    )
+    ]
     response = models.CharField(max_length=16, choices=RESPONSE_CHOICES, blank=True)
 
     postpone_start_to = models.DateField(blank=True, null=True)
