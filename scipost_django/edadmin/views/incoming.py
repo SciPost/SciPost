@@ -52,7 +52,7 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
             mail_util = DirectMailUtil(
                 "authors/admission_failed",
                 submission=submission,
-                comments_for_authors=form.cleaned_data["comments_for_authors"],
+                rejection_email_text=form.cleaned_data["rejection_email_text"],
             )
             mail_util.send_mail()
         submission.refresh_from_db()
