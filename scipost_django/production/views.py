@@ -511,7 +511,7 @@ def _hx_update_status(request, stream_id):
         messages.success(request, "Production Stream succesfully changed status.")
 
     else:
-        messages.error(request, "\\n".join(status_form.errors.values()))
+        messages.error(request, status_form.errors.as_text())
 
     context = {
         "stream": productionstream,
