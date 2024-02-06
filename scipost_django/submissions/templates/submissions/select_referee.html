@@ -99,7 +99,7 @@
           <tbody>
             {% for profile in profiles_found %}
               <tr>
-            	<td>{{ profile }}</td>
+            	<td><a href="{{ profile.get_absolute_url }}">{{ profile }}</a></td>
             	<td>{% if profile.contributor %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
             	<td>{% if profile.email %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> <span class="text-muted">{{ profile.email }}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
                 <td>
