@@ -30,7 +30,7 @@ djangorestframework-csv		# 2020-10-13
 
 # Django types
 django-types==0.19.1
-django-types-ext==0.4.4
+django-stubs-ext==4.2.2
 
 
 # Plotting
