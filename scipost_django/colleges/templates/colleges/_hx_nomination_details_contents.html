@@ -185,7 +185,7 @@
   {% if is_ed_admin and nomination.decision.outcome == 'elected' %}
     <details 
       {% if nomination.invitation %}open{% endif %}
-       class="card">
+       class="card mb-3">
       <summary class="card-header d-flex flex-row justify-content-between list-triangle">
         <div>Invitation</div>
         <div>{{ nomination.invitation.get_response_display }}</div>
@@ -216,6 +216,23 @@
         </div>
       </div>
     </details>
+  {% endif %}
+
+  {% if is_ed_admin %}
+    <div class="d-flex flex-row align-items-center mb-2 position-relative bg-danger bg-opacity-10 p-2">
+      <div class="position-absolute top-0 end-0 bg-danger rounded-circle d-flex align-items-center justify-content-center"
+           style="width: 1.8rem;
+                  height: 1.8rem;
+                  transform: translate(20%, -20%)">
+        <span class="text-white fs-6">{% include "bi/pen-nib-fill.html" %}</span>
+      </div>
+      <button class="ms-2 btn btn-sm btn-danger"
+              hx-delete="{% url 'colleges:_hx_nomination_delete' nomination_id=nomination.id %}"
+              hx-target="#nomination-{{ nomination.id }}-details-contents"
+              hx-confirm="Are you sure you want to delete this nomination?">
+        <span class="me-2">{% include "bi/trash-fill.html" %}</span>Delete
+      </button>
+    </div>
   {% endif %}
 
 </div>

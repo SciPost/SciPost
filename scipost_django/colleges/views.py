@@ -32,7 +32,7 @@ from colleges.utils import check_profile_eligibility_for_fellowship
 from invitations.constants import INVITATION_EDITORIAL_FELLOW
 from invitations.models import RegistrationInvitation
 from scipost.constants import TITLE_DR
-from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
+from scipost.permissions import HTMXResponse
 from submissions.models import Submission
 
 from .constants import (
@@ -1069,6 +1069,15 @@ def _hx_nomination_new(request):
     }
 
     return render(request, "colleges/_hx_nomination_new.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin)
+def _hx_nomination_delete(request, nomination_id):
+    nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
+    nomination.delete()
+    messages.success(request, "Nomination deleted.")
+    return HTMXResponse("Nomination deleted.", tag="danger")
 
 
 class FellowshipInvitationEmailInitialView(PermissionsMixin, MailView):
