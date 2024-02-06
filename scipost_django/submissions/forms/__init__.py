@@ -1683,6 +1683,9 @@ class SubmissionForm(forms.ModelForm):
 
         # Set the fellowship to the default one
         submission.fellows.set(submission.get_default_fellowship())
+        if self.is_resubmission():
+            # Add the fellows of the previous submission to the new one
+            submission.fellows.add(*submission.is_resubmission_of.fellows.all())
 
         # Switch off auto-updating of the fellowship
         if collection or self.submitted_to_journal.name == "Migration Politics":
