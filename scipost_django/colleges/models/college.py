@@ -2,10 +2,15 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from typing import TYPE_CHECKING
+
 from django.db import models
 from django.urls import reverse
-
 from ontology.models import Specialty
+
+if TYPE_CHECKING:
+    from colleges.models import FellowshipNomination
+    from django.db.models.manager import RelatedManager
 
 
 class College(models.Model):
@@ -20,6 +25,8 @@ class College(models.Model):
     The `@property` `is_field_wide` checks the Journals run by the College and
     returns a Boolean specifying whether the College operates field-wide, or is specialized.
     """
+
+    nominations: "RelatedManager[FellowshipNomination]"
 
     name = models.CharField(
         max_length=256,

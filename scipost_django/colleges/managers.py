@@ -2,16 +2,20 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.db import models
-from django.db.models import Q, Prefetch
-from django.utils import timezone
+from typing import TYPE_CHECKING
 
+from django.db import models
+from django.db.models import Q
+from django.utils import timezone
 from ethics.models import CompetingInterest
 
 from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
 
+if TYPE_CHECKING:
+    from colleges.models import Fellowship
 
-class FellowQuerySet(models.QuerySet):
+
+class FellowQuerySet(models.QuerySet["Fellowship"]):
     ########################################
     # select_related template accelerators #
     ########################################

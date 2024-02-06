@@ -2,36 +2,48 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from typing import TYPE_CHECKING
+
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.functional import cached_property
 
-from colleges.permissions import is_edadmin
-
+from ..permissions import is_edadmin
 from ..managers import (
     FellowshipNominationQuerySet,
     FellowshipNominationVotingRoundQuerySet,
     FellowshipNominationVoteQuerySet,
 )
 
-from colleges.models import Fellowship
-
 from scipost.models import get_sentinel_user
+
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+    from colleges.models import College, Fellowship
+    from profiles.models import Profile
+    from scipost.models import Contributor
 
 
 class FellowshipNomination(models.Model):
-    college = models.ForeignKey(
+    voting_rounds: "RelatedManager[FellowshipNominationVotingRound]"
+    events: "RelatedManager[FellowshipNominationEvent]"
+    invitation: "FellowshipInvitation | None"
+
+    college_id: int
+    college = models.ForeignKey["College"](
         "colleges.College", on_delete=models.PROTECT, related_name="nominations"
     )
 
-    profile = models.ForeignKey(
+    profile_id: int
+    profile = models.ForeignKey["Profile"](
         "profiles.Profile",
         on_delete=models.CASCADE,
         related_name="fellowship_nominations",
     )
 
-    nominated_by = models.ForeignKey(
+    nominated_by_id: int
+    nominated_by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.CASCADE,
         related_name="fellowship_nominations_initiated",
@@ -48,14 +60,14 @@ class FellowshipNomination(models.Model):
     )
 
     # vetoes collected by other fellows
-    vetoes = models.ManyToManyField(
+    vetoes = models.ManyToManyField["FellowshipNomination", "Fellowship"](
         "colleges.Fellowship",
         related_name="nominations_vetoed",
         blank=True,
     )
 
     # if elected and invitation accepted, link to Fellowship
-    fellowship = models.OneToOneField(
+    fellowship = models.OneToOneField["Fellowship"](
         "colleges.Fellowship",
         on_delete=models.CASCADE,
         related_name="nomination",
@@ -78,7 +90,11 @@ class FellowshipNomination(models.Model):
             f'on {self.nominated_on.strftime("%Y-%m-%d")}'
         )
 
-    def add_event(self, description="", by=None):
+    def add_event(
+        self,
+        description: str = "",
+        by: "Contributor | None" = None,
+    ):
         event = FellowshipNominationEvent(
             nomination=self,
             description=description,
@@ -111,7 +127,8 @@ class FellowshipNomination(models.Model):
             votes_count = latest_round.votes.count()
             if (
                 eligible_count == votes_count  # everybody (>=3) has voted
-                or latest_round.voting_deadline < timezone.now()
+                or latest_round.voting_deadline
+                and latest_round.voting_deadline < timezone.now()
             ):
                 return None
             return "Latest voting round is ongoing, and not everybody has voted."
@@ -134,9 +151,12 @@ class FellowshipNomination(models.Model):
     @property
     def edadmin_notes(self):
         """Notes to be displayed to edadmin on the nomination page."""
-        notes = []
+        notes: list[tuple[str, str]] = []
 
-        if not hasattr(self, "invitation"):
+        try:
+            if self.invitation is None:
+                return notes
+        except FellowshipInvitation.DoesNotExist:
             return notes
 
         if self.invitation.accepted and not hasattr(self.profile, "contributor"):
@@ -173,6 +193,7 @@ class FellowshipNomination(models.Model):
         in_one_week = timezone.now() + timezone.timedelta(days=7)
         if (
             self.invitation.response == FellowshipInvitation.RESPONSE_POSTPONED
+            and self.invitation.postpone_start_to is not None
             and self.invitation.postpone_start_to < in_one_week.date()
         ):
             notes.append(
@@ -186,12 +207,18 @@ class FellowshipNomination(models.Model):
 
 
 class FellowshipNominationEvent(models.Model):
-    nomination = models.ForeignKey(
-        "colleges.FellowshipNomination", on_delete=models.CASCADE, related_name="events"
+    nomination_id: int
+    nomination = models.ForeignKey["FellowshipNomination"](
+        "colleges.FellowshipNomination",
+        on_delete=models.CASCADE,
+        related_name="events",
     )
+
     description = models.TextField()
     on = models.DateTimeField(default=timezone.now)
-    by = models.ForeignKey(
+
+    by_id: int
+    by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.SET(get_sentinel_user),
         blank=True,
@@ -211,13 +238,15 @@ class FellowshipNominationEvent(models.Model):
 
 
 class FellowshipNominationComment(models.Model):
-    nomination = models.ForeignKey(
+    nomination_id: int
+    nomination = models.ForeignKey["FellowshipNomination"](
         "colleges.FellowshipNomination",
         on_delete=models.CASCADE,
         related_name="comments",
     )
 
-    by = models.ForeignKey(
+    by_id: int
+    by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.CASCADE,
     )
@@ -240,13 +269,18 @@ class FellowshipNominationComment(models.Model):
 
 
 class FellowshipNominationVotingRound(models.Model):
-    nomination = models.ForeignKey(
+    votes: "RelatedManager[FellowshipNominationVote]"
+
+    nomination_id: int
+    nomination = models.ForeignKey["FellowshipNomination"](
         "colleges.FellowshipNomination",
         on_delete=models.CASCADE,
         related_name="voting_rounds",
     )
 
-    eligible_to_vote = models.ManyToManyField(
+    eligible_to_vote = models.ManyToManyField[
+        "FellowshipNominationVotingRound", "Fellowship"
+    ](
         "colleges.Fellowship",
         related_name="voting_rounds_eligible_to_vote_in",
         blank=True,
@@ -274,12 +308,10 @@ class FellowshipNominationVotingRound(models.Model):
         )
 
     def vote_of_Fellow(self, fellow):
-        vote = self.votes.filter(fellow=fellow)
-        if vote:
-            return vote.vote
-        return None
+        fellow_vote = self.votes.filter(fellow=fellow).first()
+        return fellow_vote.vote if fellow_vote else None
 
-    def add_voter(self, fellow):
+    def add_voter(self, fellow: "Fellowship"):
         self.eligible_to_vote.add(fellow)
         self.save()
 
@@ -325,7 +357,7 @@ class FellowshipNominationVotingRound(models.Model):
         else:
             return FellowshipNominationDecision.OUTCOME_NOT_ELECTED
 
-    def can_view(self, user) -> bool:
+    def can_view(self, user: User) -> bool:
         """Return whether the user can view this voting round.
         They must either be edadmin or all of the following:
          - authenticated
@@ -368,13 +400,15 @@ class FellowshipNominationVote(models.Model):
         VOTE_DISAGREE: "danger",
     }
 
-    voting_round = models.ForeignKey(
+    voting_round_id: int
+    voting_round = models.ForeignKey["FellowshipNominationVotingRound"](
         "colleges.FellowshipNominationVotingRound",
         on_delete=models.CASCADE,
         related_name="votes",
     )
 
-    fellow = models.ForeignKey(
+    fellow_id: int
+    fellow = models.ForeignKey["Fellowship"](
         "colleges.Fellowship",
         on_delete=models.CASCADE,
         related_name="fellowship_nomination_votes",
@@ -447,7 +481,7 @@ class FellowshipNominationDecision(models.Model):
 
 
 class FellowshipInvitation(models.Model):
-    nomination = models.OneToOneField(
+    nomination = models.OneToOneField["FellowshipNomination"](
         "colleges.FellowshipNomination",
         on_delete=models.CASCADE,
         related_name="invitation",

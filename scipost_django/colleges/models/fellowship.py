@@ -3,14 +3,17 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.urls import reverse
+from scipost.behaviors import TimeStampedModel
 
 from ..managers import FellowQuerySet
 
-from scipost.behaviors import TimeStampedModel
-from scipost.models import get_sentinel_user
+if TYPE_CHECKING:
+    from colleges.models import FellowshipNomination
+    from django.db.models.manager import ManyToManyRelatedManager, RelatedManager
 
 
 class Fellowship(TimeStampedModel):
@@ -22,6 +25,10 @@ class Fellowship(TimeStampedModel):
     The date range will effectively be used while determining 'the pool' for a specific
     Submission, so it has a direct effect on the submission date.
     """
+
+    id: int
+
+    nominations_vetoed: "ManyToManyRelatedManager[FellowshipNomination, Fellowship]"
 
     STATUS_REGULAR = "regular"
     STATUS_SENIOR = "senior"
