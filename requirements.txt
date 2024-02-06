@@ -28,6 +28,11 @@ django-webpack-loader==1.0.0    # 2021-05-22, implicitly loads vendor bundles
 django-maintenancemode-2	# 2021-07-15
 djangorestframework-csv		# 2020-10-13
 
+# Django types
+django-types==0.19.1
+django-types-ext==0.4.4
+
+
 # Plotting
 plotly==4.6.0			# 2020-05-05
 matplotlib==3.6.3		# 2023-02-05

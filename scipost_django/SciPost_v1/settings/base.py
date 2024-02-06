@@ -21,6 +21,11 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.messages import constants as message_constants
 
+# Enable Django-type's stub subscripting of models
+import django_stubs_ext
+
+django_stubs_ext.monkeypatch()
+
 # Build paths inside the project
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
