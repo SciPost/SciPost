@@ -3,16 +3,17 @@
 
 <div class="row mb-0">
   <div class="col-12 col-md">
+
     {% if is_ed_admin %}
       <div class="fs-5 float-start position-absolute top-0 start-0 translate-middle">
         {% include "error_hover_explainer.html" with notes=nomination.edadmin_notes %}
       </div>
     {% endif %}
-    <div class="row mb-0">
- 
-      <div class="col">
-        <div class="row mb-0">
 
+    <div class="row mb-0">
+      <div class="col">
+
+        <div class="row mb-0">
           <div class="col-12 col-lg-4">
             <div class="row mb-0 h-100 align-content-between">
               <div class="col col-lg-12 fs-5">{{ nomination.profile }}</div>
@@ -45,9 +46,9 @@
               <div class="col text-nowrap ">
                 <small class="text-muted">Last event</small>
                 <br />
-                {{ nomination.events.latest.on|date:'Y-m-d' }}
+                <time>{{ nomination.events.latest.on|date:'Y-m-d' }}</time>
                 -
-                <span class="">{{ nomination.events.latest.description }}</span>
+                <span>{{ nomination.events.latest.description }}</span>
               </div>
  
             </div>
@@ -57,6 +58,11 @@
                 <small class="col-auto text-muted text-nowrap">Invitation status</small>
                 <div class="col">
                   <span class="badge bg-{{ nomination.invitation.get_response_color }}">{{ nomination.invitation.get_response_display }}</span>
+
+                  {% if nomination.invitation.postponement_date %}
+                    - <time>{{ nomination.invitation.postponement_date }}</time>
+                  {% endif %}
+
                 </div>
               {% else %}
                 <small class="col text-muted text-nowrap">Publications</small>
@@ -94,3 +100,5 @@
 
       </div>
     </div>
+  </div>
+</div>
