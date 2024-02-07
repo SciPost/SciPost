@@ -192,16 +192,25 @@ class FellowshipNomination(models.Model):
 
         in_one_week = timezone.now() + timezone.timedelta(days=7)
         if (
-            self.invitation.response == FellowshipInvitation.RESPONSE_POSTPONED
-            and self.invitation.postpone_start_to is not None
-            and self.invitation.postpone_start_to < in_one_week.date()
+            self.invitation.postponement_date is not None
+            and self.invitation.postponement_date < in_one_week.date()
         ):
-            notes.append(
-                (
-                    "warning",
-                    "Postponed start date is less than one week away.",
+            if self.invitation.response == FellowshipInvitation.RESPONSE_POSTPONED:
+                notes.append(
+                    (
+                        "warning",
+                        "Postponed start date is less than one week away.",
+                    )
                 )
-            )
+            elif (
+                self.invitation.response == FellowshipInvitation.RESPONSE_REINVITE_LATER
+            ):
+                notes.append(
+                    (
+                        "warning",
+                        "Date to reinvite the fellow is less than one week away.",
+                    )
+                )
 
         return notes
 
@@ -494,6 +503,7 @@ class FellowshipInvitation(models.Model):
     RESPONSE_REINVITED = "reinvited"
     RESPONSE_MULTIPLY_REINVITED = "multireinvited"
     RESPONSE_UNRESPONSIVE = "unresponsive"
+    RESPONSE_REINVITE_LATER = "reinvitelater"
     RESPONSE_ACCEPTED = "accepted"
     RESPONSE_POSTPONED = "postponed"
     RESPONSE_DECLINED = "declined"
@@ -503,13 +513,14 @@ class FellowshipInvitation(models.Model):
         (RESPONSE_REINVITED, "Reinvited"),
         (RESPONSE_MULTIPLY_REINVITED, "Multiply reinvited"),
         (RESPONSE_UNRESPONSIVE, "Unresponsive"),
+        (RESPONSE_REINVITE_LATER, "Reinvite later"),
         (RESPONSE_ACCEPTED, "Accepted, for immediate start"),
         (RESPONSE_POSTPONED, "Accepted, but start date postponed"),
         (RESPONSE_DECLINED, "Declined"),
     ]
     response = models.CharField(max_length=16, choices=RESPONSE_CHOICES, blank=True)
 
-    postpone_start_to = models.DateField(blank=True, null=True)
+    postponement_date = models.DateField(blank=True, null=True)
 
     comments = models.TextField(
         help_text=(

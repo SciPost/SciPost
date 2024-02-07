@@ -1214,7 +1214,7 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
 
                 # Create a new Fellowship if no object exists
                 if not nonexpired_fellowship:
-                    start_date = invitation.postpone_start_to or timezone.now()
+                    start_date = invitation.postponement_date or timezone.now()
                     nonexpired_fellowship = Fellowship.objects.create(
                         college=invitation.nomination.college,
                         contributor=invitation.nomination.profile.contributor,
@@ -1234,7 +1234,7 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
             #         nonexpired_fellowship.start_date = (
             #             timezone.now()
             #             if invitation.response == FellowshipInvitation.RESPONSE_ACCEPTED
-            #             else invitation.postpone_start_to
+            #             else invitation.postponement_date
             #         )
             #         nonexpired_fellowship.until_date = None
             #         invitation.nomination.add_event(

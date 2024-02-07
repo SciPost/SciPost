@@ -1208,24 +1208,23 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
         fields = [
             "nomination",
             "response",
-            "postpone_start_to",
+            "postponement_date",
             "comments",
         ]
         widgets = {
-            "postpone_start_to": forms.DateInput(attrs={"type": "date"}),
+            "postponement_date": forms.DateInput(attrs={"type": "date"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.fields
         self.helper.layout = Layout(
             Field("nomination", type="hidden"),
             Div(
                 Div(
                     Div(
                         Div(Field("response"), css_class="col-12"),
-                        Div(Field("postpone_start_to"), css_class="col-12"),
+                        Div(Field("postponement_date"), css_class="col-12"),
                         css_class="row mb-0",
                     ),
                     css_class="col-12 col-md-5",
@@ -1247,29 +1246,30 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
         invitation_accepted = self.cleaned_data["response"] == (
             FellowshipInvitation.RESPONSE_ACCEPTED
         )
-        invitation_postponed = self.cleaned_data["response"] == (
-            FellowshipInvitation.RESPONSE_POSTPONED
-        )
-        postponed_date = self.cleaned_data["postpone_start_to"]
+        invitation_postponed = self.cleaned_data["response"] in [
+            FellowshipInvitation.RESPONSE_POSTPONED,
+            FellowshipInvitation.RESPONSE_REINVITE_LATER,
+        ]
+        postponement_date = self.cleaned_data["postponement_date"]
 
-        if postponed_date and (timezone.now().date() > postponed_date):
+        if postponement_date and (timezone.now().date() > postponement_date):
             self.add_error(
-                "postpone_start_to",
+                "postponement_date",
                 "You cannot set a postponed start date in the past.",
             )
 
         if (
             invitation_accepted
-            and (postponed_date is not None)
-            and (postponed_date != timezone.now().date())
+            and (postponement_date is not None)
+            and (postponement_date != timezone.now().date())
         ):
             self.add_error(
-                "postpone_start_to",
+                "postponement_date",
                 "If the invitation is accepted for immediate start, you cannot postpone its start date.",
             )
 
-        if invitation_postponed and not postponed_date:
+        if invitation_postponed and not postponement_date:
             self.add_error(
-                "postpone_start_to",
-                "If the invitation is postponed, you must set a start date in the future.",
+                "postponement_date",
+                "If the invitation is postponed, you must set a postponement date in the future.",
             )
