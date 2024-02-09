@@ -893,7 +893,7 @@ def _hx_nomination_voting_rounds_create(request, nomination_id):
     )
     new_round.save()
     _ = _hx_nomination_round_add_eligible_voter_set(
-        request, new_round.id, "with_specialty_overlap"
+        request, new_round.id, "seniors_with_specialty_overlap"
     )
 
     return _hx_nomination_voting_rounds_tab(request, nomination_id, new_round.id)
@@ -973,15 +973,24 @@ def _hx_nomination_veto(request, nomination_id):
     fellow = request.user.contributor.session_fellowship(request)
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
 
-    # Check that vetoer is a sneior fellow is in the same college as the nomination
-    if (
-        not fellow.contributor.fellowships.filter(college=nomination.college)
-        .senior()
-        .active()
-        .exists()
-    ):
+    fellowship_in_college = fellow.contributor.fellowships.filter(
+        college=nomination.college
+    ).active()
+
+    can_regular_fellows_veto = nomination.voting_rounds.filter(
+        type=FellowshipNominationVotingRound.TYPE_REGULAR
+    ).exists()
+
+    if not fellowship_in_college.exists():
         return HTMXResponse(
-            """You are not an active senior fellow of this college.""",
+            """You cannot veto this nomination, since you are not a fellow in this college.""",
+            tag="danger",
+        )
+
+    # Guard when regular fellows cannot veto
+    if not fellowship_in_college.senior().exists() and not can_regular_fellows_veto:
+        return HTMXResponse(
+            """You cannot veto this nomination, since all rounds are senior-only.""",
             tag="danger",
         )
 
@@ -1318,23 +1327,31 @@ def _hx_nomination_round_eligible_voter_action(
 @login_required
 @user_passes_test(is_edadmin)
 def _hx_nomination_round_add_eligible_voter_set(request, round_id, voter_set_name):
+    """
+    Add a set of voters to a nomination's voting round.
+    The following sets are available:
+    - `all_seniors`: All senior Fellows of the College
+    - `seniors_with_specialty_overlap`: All senior Fellows of the College with overlapping specialties
+    - `specialty__<specialty_slug>`: All Fellows with the specified specialty
+    """
     round = get_object_or_404(FellowshipNominationVotingRound, pk=round_id)
 
     voter_set = Fellowship.objects.none()
 
-    senior_active_fellows = (
-        Fellowship.objects.active()
-        .no_competing_interests_with(round.nomination.profile)
-        .senior()
+    active_fellows = Fellowship.objects.active().no_competing_interests_with(
+        round.nomination.profile
     )
 
-    if voter_set_name == "with_specialty_overlap":
+    if voter_set_name.startswith("specialty__"):
+        specialty_slug = voter_set_name.replace("specialty__", "")
+        voter_set = active_fellows.specialties_overlap([specialty_slug])
+    elif voter_set_name == "seniors_with_specialty_overlap":
         specialties_slug_list = [
             s.slug for s in round.nomination.profile.specialties.all()
         ]
-        voter_set = senior_active_fellows.specialties_overlap(specialties_slug_list)
+        voter_set = active_fellows.senior().specialties_overlap(specialties_slug_list)
     elif voter_set_name == "all_seniors":
-        voter_set = senior_active_fellows.filter(college=round.nomination.college)
+        voter_set = active_fellows.senior().filter(college=round.nomination.college)
 
     round.eligible_to_vote.add(*voter_set.distinct())
     return redirect(

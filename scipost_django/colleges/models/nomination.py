@@ -370,7 +370,6 @@ class FellowshipNominationVotingRound(models.Model):
         """Return whether the user can view this voting round.
         They must either be edadmin or all of the following:
          - authenticated
-         - a senior fellow in the nomination's college and
          - have voting eligibility in the round."""
 
         if not user.is_authenticated:
@@ -379,19 +378,13 @@ class FellowshipNominationVotingRound(models.Model):
         if is_edadmin(user):
             return True
 
-        user_senior_colleges = (
-            user.contributor.fellowships.active()
-            .senior()
-            .values_list("college__id", flat=True)
-        )
-        senior_in_college = self.nomination.college.id in user_senior_colleges
         eligibility_per_fellowship = [
             fellowship in self.eligible_to_vote.all()
             for fellowship in user.contributor.fellowships.all()
         ]
         eligible_to_vote = any(eligibility_per_fellowship)
 
-        return senior_in_college and eligible_to_vote
+        return eligible_to_vote
 
 
 class FellowshipNominationVote(models.Model):

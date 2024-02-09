@@ -166,14 +166,9 @@ class FellowshipNominationQuerySet(models.QuerySet):
         )
 
     def with_user_votable_rounds(self, user):
-        # Get colleges of senior fellowships of user so that non-senior fellows
-        # cannot vote despite being on the eligible_to_vote list.
-        user_senior_fellowship_colleges = (
-            user.contributor.fellowships.senior().active().values("college")
-        )
+        """Return all Fellowship nominations where the user is eligible to vote."""
         return self.filter(
-            Q(voting_rounds__eligible_to_vote__in=user.contributor.fellowships.active())
-            & Q(voting_rounds__nomination__college__in=user_senior_fellowship_colleges)
+            voting_rounds__eligible_to_vote__in=user.contributor.fellowships.active()
         )
 
 

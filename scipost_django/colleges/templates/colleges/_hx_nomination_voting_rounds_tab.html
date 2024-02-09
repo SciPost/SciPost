@@ -33,6 +33,8 @@
           <span class="d-flex justify-content-between align-items-center">
             <span>Round #{{ forloop.revcounter }}</span>
 
+            <span>{{ voting_round.type|slice:":1"|upper }}</span>
+            
             {% if voting_round.is_scheduled %}
               <span class="badge bg-primary">Scheduled</span>
             {% elif voting_round.is_open %}

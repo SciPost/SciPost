@@ -4,11 +4,16 @@
 
 <div class="row mb-0">
   <div class="col mb-3">
-    <h3>Eligible voters</h3>
-    <div id="nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters"
-         hx-get="{% url 'colleges:_hx_nomination_voter_table' round_id=round.id %}"
-         hx-trigger="intersect once"></div>
-  </div>
+
+    {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+      <h3>Eligible voters</h3>
+      <div id="nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters"
+           class="overflow-scroll"
+           style="max-height: max(50vh, 40em)"
+           hx-get="{% url 'colleges:_hx_nomination_voter_table' round_id=round.id %}"
+           hx-trigger="intersect once"></div>
+    </div>
+  {% endif %}
 
   <div class="col-12 col-md-auto d-flex flex-column justify-content-between">
 

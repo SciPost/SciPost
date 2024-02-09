@@ -151,23 +151,24 @@
       </div>
     {% endif %}
 
-    <div class="col-12 col-md mb-3">
-      <details class="card">
-        <summary class="card-header d-flex flex-row justify-content-between list-triangle">
-          <span>Comments</span>
-          <span>({{ nomination.comments.all.count }})</span>
-        </summary>
-        <div class="card-body">
-          <div class="p-3">
-
-            <div id="nomination-{{ nomination.id }}-comments"
-                 hx-get="{% url 'colleges:_hx_nomination_comments' nomination_id=nomination.id %}"
-                 hx-trigger="intersect once"></div>
+    {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+      <div class="col-12 col-md mb-3">
+        <details class="card">
+          <summary class="card-header d-flex flex-row justify-content-between list-triangle">
+            <span>Comments</span>
+            <span>({{ nomination.comments.all.count }})</span>
+          </summary>
+          <div class="card-body">
+            <div class="p-3">
+              <div id="nomination-{{ nomination.id }}-comments"
+                   hx-get="{% url 'colleges:_hx_nomination_comments' nomination_id=nomination.id %}"
+                   hx-trigger="intersect once"></div>
+            </div>
           </div>
-        </div>
-      </details>
+        </details>
+      </div>
+    {% endif %}
 
-    </div>
   </div>
 
   {% if nomination.voting_rounds.exists or perms.scipost.can_manage_college_composition %}

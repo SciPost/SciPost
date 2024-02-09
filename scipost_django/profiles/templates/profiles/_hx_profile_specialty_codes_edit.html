@@ -8,6 +8,8 @@
   <span class="badge bg-danger">unknown</span>
 {% endfor %}
 
-<a class="p-2 mt-2"
-   hx-get="{% url 'profiles:_hx_profile_specialties' profile_id=profile.id %}"
-   hx-target="#profile-{{ profile.id }}-specialties">edit</a>
+{% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+  <a class="p-2 mt-2"
+     hx-get="{% url 'profiles:_hx_profile_specialties' profile_id=profile.id %}"
+     hx-target="#profile-{{ profile.id }}-specialties">edit</a>
+{% endif %}

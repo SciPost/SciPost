@@ -826,7 +826,7 @@ class FellowshipNominationCommentForm(forms.ModelForm):
                 Div(
                     Field(
                         "text",
-                        placeholder="Add a comment (visible to EdAdmin and all Fellows)",
+                        placeholder="Add a comment (visible to EdAdmin and Senior Fellows)",
                         rows=2,
                     ),
                 ),

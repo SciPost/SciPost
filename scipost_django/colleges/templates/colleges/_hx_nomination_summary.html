@@ -43,13 +43,17 @@
 
               </div>
  
-              <div class="col text-nowrap ">
-                <small class="text-muted">Last event</small>
-                <br />
-                <time>{{ nomination.events.latest.on|date:'Y-m-d' }}</time>
-                -
-                <span>{{ nomination.events.latest.description }}</span>
-              </div>
+
+              {% if is_ed_admin %}
+                <div class="col text-nowrap ">
+                  <small class="text-muted">Last event</small>
+                  <br />
+                  <time>{{ nomination.events.latest.on|date:'Y-m-d' }}</time>
+                  -
+                  <span>{{ nomination.events.latest.description }}</span>
+                </div>
+              {% endif %}
+
  
             </div>
             <div class="row mb-2 justify-content-between">
