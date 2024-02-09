@@ -278,6 +278,13 @@ class FellowshipNominationComment(models.Model):
 
 
 class FellowshipNominationVotingRound(models.Model):
+    TYPE_SENIOR = "senior"
+    TYPE_REGULAR = "regular"
+    VOTING_ROUND_TYPES = [
+        (TYPE_SENIOR, "Senior"),
+        (TYPE_REGULAR, "Regular"),
+    ]
+
     votes: "RelatedManager[FellowshipNominationVote]"
 
     nomination_id: int
@@ -295,8 +302,11 @@ class FellowshipNominationVotingRound(models.Model):
         blank=True,
     )
 
-    voting_opens = models.DateTimeField(blank=True, null=True)
+    type = models.CharField(
+        max_length=16, choices=VOTING_ROUND_TYPES, default=TYPE_SENIOR
+    )
 
+    voting_opens = models.DateTimeField(blank=True, null=True)
     voting_deadline = models.DateTimeField(blank=True, null=True)
 
     objects = FellowshipNominationVotingRoundQuerySet.as_manager()

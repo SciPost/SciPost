@@ -32,18 +32,38 @@
         </div>
 
         <div>
-          <h5>Add senior fellows</h5>
-          <button type="button"
-                  class="mb-2 btn btn-primary btn-sm"
-                  hx-get="{% url 'colleges:_hx_nomination_round_add_eligible_voter_set' round_id=round.id  voter_set_name='with_specialty_overlap' %}"
-                  hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">
-            With specialty overlap
-          </button>
-          <button type="button"
-                  class="mb-2 btn btn-warning text-white btn-sm"
-                  hx-get="{% url 'colleges:_hx_nomination_round_add_eligible_voter_set' round_id=round.id  voter_set_name='all_seniors' %}"
-                  hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">ALL seniors</button>
-        </div>
+
+          {% if round.type == 'senior' %}
+            <h5>Add senior fellows</h5>
+            <button type="button"
+                    class="mb-2 btn btn-primary btn-sm"
+                    hx-get="{% url 'colleges:_hx_nomination_round_add_eligible_voter_set' round_id=round.id  voter_set_name='seniors_with_specialty_overlap' %}"
+                    hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">
+              With specialty overlap
+            </button>
+            <button type="button"
+                    class="mb-2 btn btn-warning text-white btn-sm"
+                    hx-get="{% url 'colleges:_hx_nomination_round_add_eligible_voter_set' round_id=round.id  voter_set_name='all_seniors' %}"
+                    hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">ALL seniors</button>
+          </div>
+        {% elif round.type == 'regular' %}
+          <h5>Add fellows</h5>
+
+          <div class="d-flex flex-column">
+
+            {% for specialty in round.nomination.profile.specialties.all %}
+
+              <button type="button"
+                      class="mb-2 btn btn-primary text-white btn-sm"
+                      hx-get="{% url 'colleges:_hx_nomination_round_add_eligible_voter_set' round_id=round.id  voter_set_name='specialty__'|add:specialty.slug %}"
+                      hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">
+                Add {{ specialty.slug }}
+              </button>
+            {% endfor %}
+
+          </div>
+
+        {% endif %}
 
         {% comment %} If round is open and the viewer can vote, show the voting form {% endcomment %}
       {% elif session_fellowship and session_fellowship in round.eligible_to_vote.all and round.is_open %}

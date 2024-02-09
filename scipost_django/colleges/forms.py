@@ -1042,7 +1042,7 @@ from datetime import date
 class FellowshipNominationVotingRoundStartForm(forms.ModelForm):
     class Meta:
         model = FellowshipNominationVotingRound
-        fields = ["voting_opens", "voting_deadline"]
+        fields = ["type", "voting_opens", "voting_deadline"]
 
         widgets = {
             "voting_opens": forms.DateInput(attrs={"type": "date"}),
@@ -1082,6 +1082,7 @@ class FellowshipNominationVotingRoundStartForm(forms.ModelForm):
         }
         self.helper.layout = Layout(
             Div(
+                Div(Field("type"), css_class="col-2"),
                 Div(Field("voting_opens"), css_class="col"),
                 Div(Field("voting_deadline"), css_class="col"),
                 Div(
@@ -1130,14 +1131,6 @@ class FellowshipNominationVotingRoundStartForm(forms.ModelForm):
                 self.instance.voting_opens = yesterday
                 self.instance.voting_deadline = yesterday
                 self.instance.save()
-
-            # If the dates are propertly set, just error out
-            else:
-                self.add_error(
-                    None,
-                    "There must be at least one eligible voter to start the round. "
-                    "Please add voters to the round before setting the dates.",
-                )
 
 
 class FellowshipNominationVetoForm(forms.Form):
