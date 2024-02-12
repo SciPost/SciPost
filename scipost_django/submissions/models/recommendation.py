@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from typing import TYPE_CHECKING
 from django.db import models
 from django.utils import timezone
 
@@ -16,6 +17,9 @@ from ..constants import (
     ALT_REC_CHOICES,
 )
 from ..managers import EICRecommendationQuerySet
+
+if TYPE_CHECKING:
+    from scipost.models import Contributor
 
 
 class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
@@ -33,6 +37,13 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         on_delete=models.CASCADE,
         related_name="eicrecommendations",
     )
+    formulated_by = models.ForeignKey["Contributor"](
+        "scipost.Contributor",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="eic_recommendations_formulated",
+    )
+
     date_submitted = models.DateTimeField("date submitted", default=timezone.now)
     remarks_for_authors = models.TextField(blank=True, null=True)
     requested_changes = models.TextField(

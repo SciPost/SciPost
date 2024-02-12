@@ -4,7 +4,7 @@
 
 
 {% block recommendation_header %}
-  <h4 class="text-muted mb-2">By {{ recommendation.submission.editor_in_charge.profile.get_title_display }} {{ recommendation.submission.editor_in_charge.user.first_name }} {{ recommendation.submission.editor_in_charge.user.last_name }}, formulated on {{ recommendation.date_submitted }}</h4>
+  <h4 class="text-muted mb-2">By {{ recommendation.formulated_by.profile.get_title_display }} {{ recommendation.formulated_by.user.first_name }} {{ recommendation.formulated_by.user.last_name }}, formulated on {{ recommendation.date_submitted }}</h4>
 {% endblock %}
 
 {% block recommendation_remarks_for_editorial_college %}
@@ -14,7 +14,7 @@
 
 {% block recommendation_reformulation %}
   {% if recommendation.may_be_reformulated %}
-    {% if perms.scipost.can_fix_College_decision or request.user.contributor == recommendation.submission.editor_in_charge %}
+    {% if perms.scipost.can_fix_College_decision or request.user.contributor == recommendation.formulated_by %}
       <a href="{% url 'submissions:reformulate_eic_recommendation' recommendation.submission.preprint.identifier_w_vn_nr %}" class="d-block my-2">Reformulate Editorial Recommendation</a>
     {% endif %}
   {% endif %}

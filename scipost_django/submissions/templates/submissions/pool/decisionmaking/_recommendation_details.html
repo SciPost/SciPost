@@ -18,7 +18,7 @@
     <table class="mb-2">
       <tr>
 	<td class="pe-2">Editor-in-charge:</td>
-	<td>{{ recommendation.submission.editor_in_charge }}</td>
+	<td>{{ recommendation.formulated_by }}</td>
       </tr>
       <tr>
 	<td>Date:</td>
@@ -46,7 +46,7 @@
 
 
     {% if recommendation.may_be_reformulated %}
-      {% if perms.scipost.can_fix_College_decision or request.user.contributor == recommendation.submission.editor_in_charge %}
+      {% if perms.scipost.can_fix_College_decision or request.user.contributor == recommendation.formulated_by %}
 	<a href="{% url 'submissions:reformulate_eic_recommendation' recommendation.submission.preprint.identifier_w_vn_nr %}" class="d-block my-2">Reformulate Editorial Recommendation</a>
       {% endif %}
     {% endif %}

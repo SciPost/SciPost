@@ -397,6 +397,7 @@ class EICRecommendationAdmin(admin.ModelAdmin):
     ]
     autocomplete_fields = [
         "submission",
+        "formulated_by",
         "eligible_to_vote",
         "voted_for",
         "voted_against",

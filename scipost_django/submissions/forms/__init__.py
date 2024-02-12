@@ -2692,6 +2692,7 @@ class EICRecommendationForm(forms.ModelForm):
             self.submission.save()
 
         recommendation = super().save(commit=False)
+        recommendation.formulated_by = self.submission.editor_in_charge
         recommendation.submission = self.submission
         recommendation.voting_deadline += datetime.timedelta(
             days=self.DAYS_TO_VOTE
@@ -2786,7 +2787,7 @@ class EICRecommendationForm(forms.ModelForm):
         # id is determined for use in the ManyToMany relation.
         # Tiering has already been created above, and no special objects are required
         # in the event of submission rejection.
-        recommendation.voted_for.add(self.submission.editor_in_charge)
+        recommendation.voted_for.add(recommendation.formulated_by)
         recommendation.save()
 
         return recommendation
