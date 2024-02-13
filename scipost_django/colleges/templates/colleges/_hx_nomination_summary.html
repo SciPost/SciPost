@@ -45,12 +45,12 @@
  
 
               {% if is_ed_admin %}
-                <div class="col text-nowrap ">
+                <div class="col text-truncate ">
                   <small class="text-muted">Last event</small>
                   <br />
                   <time>{{ nomination.events.latest.on|date:'Y-m-d' }}</time>
                   -
-                  <span>{{ nomination.events.latest.description }}</span>
+                  <span>{{ nomination.events.latest.description|truncatechars:40 }}</span>
                 </div>
               {% endif %}
 

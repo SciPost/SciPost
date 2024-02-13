@@ -1028,6 +1028,14 @@ def _hx_voting_round_start_form(request, round_id):
             f"from {round.voting_opens} until {round.voting_deadline}.",
         )
 
+        all_rounds = round.nomination.voting_rounds.values_list("id", flat=True)
+        round_index = list(sorted(all_rounds)).index(round.id) + 1
+        round.nomination.add_event(
+            description=f"Voting round #{round_index} started "
+            f"({round.voting_opens} - {round.voting_deadline})",
+            by=request.user.contributor,
+        )
+
     return render(
         request,
         "colleges/_hx_voting_round_start_form.html",
