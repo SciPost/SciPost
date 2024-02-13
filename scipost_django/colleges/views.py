@@ -1346,8 +1346,11 @@ def _hx_nomination_round_add_eligible_voter_set(request, round_id, voter_set_nam
 
     voter_set = Fellowship.objects.none()
 
-    active_fellows = Fellowship.objects.active().no_competing_interests_with(
-        round.nomination.profile
+    active_fellows = (
+        Fellowship.objects.active()
+        .exclude(status=Fellowship.STATUS_GUEST)
+        .filter(college=round.nomination.college)
+        .no_competing_interests_with(round.nomination.profile)
     )
 
     if voter_set_name.startswith("specialty__"):
@@ -1359,7 +1362,7 @@ def _hx_nomination_round_add_eligible_voter_set(request, round_id, voter_set_nam
         ]
         voter_set = active_fellows.senior().specialties_overlap(specialties_slug_list)
     elif voter_set_name == "all_seniors":
-        voter_set = active_fellows.senior().filter(college=round.nomination.college)
+        voter_set = active_fellows.senior()
 
     round.eligible_to_vote.add(*voter_set.distinct())
     return redirect(
