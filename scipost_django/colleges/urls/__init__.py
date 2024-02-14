@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.urls import include, path
 
-from . import views
+from .. import views
 
 
 app_name = "colleges"
@@ -89,21 +89,6 @@ urlpatterns = [
         "fellowships/<int:id>/proceedings/<int:proceedings_id>/remove",
         views.fellowship_remove_proceedings,
         name="fellowship_remove_proceedings",
-    ),
-    path(
-        "fellowships_monitor",
-        views.fellowships_monitor,
-        name="fellowships_monitor",
-    ),
-    path(
-        "_hx_fellowships_monitor_college_choice",
-        views._hx_fellowships_monitor_college_choice,
-        name="_hx_fellowships_monitor_college_choice",
-    ),
-    path(
-        "_hx_fellowships_monitor",
-        views._hx_fellowships_monitor,
-        name="_hx_fellowships_monitor",
     ),
     # Potential Fellowships
     path(
@@ -290,6 +275,13 @@ urlpatterns = [
                 ),
             ],
         ),
+    ),
+    #######################
+    # Fellowships Monitor #
+    #######################
+    path(
+        "fellowships_monitor/",
+        include("colleges.urls.fellowships_monitor", namespace="fellowships_monitor"),
     ),
     path(
         "fellowship_invitation/<int:pk>/email_initial",

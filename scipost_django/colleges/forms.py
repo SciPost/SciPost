@@ -1266,3 +1266,134 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
                 "postponement_date",
                 "If the invitation is postponed, you must set a postponement date in the future.",
             )
+
+
+class FellowshipsMonitorSearchForm(forms.Form):
+    all_fellowships = Fellowship.objects.all()
+    fellowships_colleges = all_fellowships.values_list("college", flat=True).distinct()
+
+    fellow = forms.CharField(max_length=100, required=False, label="Fellow")
+
+    college = forms.MultipleChoiceField(
+        choices=College.objects.filter(id__in=fellowships_colleges)
+        .order_by("name")
+        .values_list("id", "name"),
+        required=False,
+    )
+
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=[
+            # ("latest_round_deadline", "Deadline"),
+            # ("latest_round_open", "Voting start"),
+            # ("latest_round_decision_outcome", "Decision"),
+            # ("profile__last_name", "Nominee"),
+            # ("nominated_on", "Nominated date"),
+        ],
+        required=False,
+    )
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=[
+            # FIXME: Emperically, the ordering appers to be reversed for dates?
+            ("-", "Ascending"),
+            ("+", "Descending"),
+        ],
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        self.session_key = kwargs.pop("session_key", None)
+        super().__init__(*args, **kwargs)
+
+        # Set the initial values of the form fields from the session data
+        if self.session_key:
+            session = SessionStore(session_key=self.session_key)
+
+            for field in self.fields:
+                if field in session:
+                    self.fields[field].initial = session[field]
+
+        self.helper = FormHelper()
+
+        div_block_ordering = Div(
+            Div(FloatingField("orderby"), css_class="col-6 col-md-12 col-xl-6"),
+            Div(FloatingField("ordering"), css_class="col-6 col-md-12 col-xl-6"),
+            css_class="row mb-0",
+        )
+
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Div(
+                        Div(FloatingField("fellow"), css_class="col-12 col-lg-6"),
+                        Div(div_block_ordering, css_class="col-12 col-md-6 col-xl-12"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col",
+                ),
+                Div(
+                    Field("college", size=6),
+                    css_class="col-12 col-md-6 col-lg-4",
+                ),
+                css_class="row mb-0",
+            ),
+        )
+
+    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
+        # Apply the filter set to the form
+        for key in self.fields:
+            if key in filters:
+                self.fields[key].initial = filters[key]
+            elif none_on_empty:
+                if isinstance(self.fields[key], forms.MultipleChoiceField):
+                    self.fields[key].initial = []
+                else:
+                    self.fields[key].initial = None
+
+    def search_results(self):
+        # Save the form data to the session
+        if self.session_key is not None:
+            session = SessionStore(session_key=self.session_key)
+
+            for key in self.cleaned_data:
+                session[key] = self.cleaned_data.get(key)
+
+            session.save()
+
+        fellowships = Fellowship.objects.all().distinct()
+
+        if self.cleaned_data.get("can_vote"):
+            # Restrict rounds to those the user can vote on
+            fellowships = fellowships.with_user_votable_rounds(self.user).distinct()
+
+        if fellow := self.cleaned_data.get("fellow"):
+            fellowships = fellowships.filter(
+                Q(contributor__profile__first_name__unaccent__icontains=fellow)
+                | Q(contributor__profile__last_name__unaccent__icontains=fellow)
+            )
+        if college := self.cleaned_data.get("college"):
+            fellowships = fellowships.filter(college__id__in=college)
+
+        # Ordering of nominations
+        # Only order if both fields are set
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            fellowships = fellowships.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
+                ]
+            )
+
+        # Render the queryset to evaluate properties
+        fellowships = list(fellowships)
+
+        return fellowships

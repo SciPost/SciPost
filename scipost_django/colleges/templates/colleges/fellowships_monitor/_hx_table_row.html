@@ -1,0 +1,25 @@
+<tr>
+  <td>
+    <a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor.profile.full_name }}</a>
+  </td>
+  <td>
+    <time>{{ fellowship.start_date|date:"Y-m-d" }}</time>
+  </td>
+  <td>
+
+    {% if fellowship.until_date %}
+      <time>{{ fellowship.until_date|date:"Y-m-d" }}</time>
+    {% else %}
+      -
+    {% endif %}
+
+  </td>
+  <td>530</td>
+  <td>95</td>
+  <td>14</td>
+  <td>3</td>
+  <td>1</td>
+  {% comment %} EIC Rec Votes {% endcomment %}
+  <td>53</td>
+  <td>42</td>
+</tr>
