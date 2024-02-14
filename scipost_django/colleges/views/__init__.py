@@ -35,7 +35,7 @@ from scipost.constants import TITLE_DR
 from scipost.permissions import HTMXResponse
 from submissions.models import Submission
 
-from .constants import (
+from ..constants import (
     POTENTIAL_FELLOWSHIP_STATUSES,
     POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,
     POTENTIAL_FELLOWSHIP_INVITED,
@@ -44,7 +44,7 @@ from .constants import (
     POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON,
     POTENTIAL_FELLOWSHIP_EVENT_EMAILED,
 )
-from .forms import (
+from ..forms import (
     CollegeChoiceForm,
     FellowshipNominationSearchForm,
     FellowshipNominationVetoForm,
@@ -66,7 +66,7 @@ from .forms import (
     FellowshipNominationDecisionForm,
     FellowshipInvitationResponseForm,
 )
-from .models import (
+from ..models import (
     College,
     Fellowship,
     PotentialFellowship,
