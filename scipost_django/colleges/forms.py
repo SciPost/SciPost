@@ -7,7 +7,8 @@ from typing import Any, Dict
 
 from django import forms
 from django.contrib.sessions.backends.db import SessionStore
-from django.db.models import Q, Max, OuterRef, Subquery
+from django.db.models import F, Q, Count, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit, HTML
@@ -18,9 +19,13 @@ from django.utils import timezone
 from django.utils.timezone import timedelta
 
 from ontology.models import Specialty
+from ontology.models.academic_field import AcademicField
 from proceedings.models import Proceedings
 from profiles.models import Profile
 from submissions.models import Submission
+from submissions.models.assignment import EditorialAssignment
+from submissions.models.qualification import Qualification
+from submissions.models.recommendation import EICRecommendation
 from scipost.forms import RequestFormMixin
 from scipost.models import Contributor
 
@@ -1271,6 +1276,7 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
 class FellowshipsMonitorSearchForm(forms.Form):
     all_fellowships = Fellowship.objects.all()
     fellowships_colleges = all_fellowships.values_list("college", flat=True).distinct()
+    fellowships_acad_fields = all_fellowships.values("college__acad_field")
 
     fellow = forms.CharField(max_length=100, required=False, label="Fellow")
 
@@ -1281,23 +1287,50 @@ class FellowshipsMonitorSearchForm(forms.Form):
         required=False,
     )
 
+    # Specialty multiple-choice grouped by the academic field that contains it.
+    acad_fields = AcademicField.objects.filter(
+        colleges__in=fellowships_acad_fields
+    ).values_list("name", "id")
+    specialty_grouped_choices = [
+        (
+            field_name,
+            tuple(
+                Specialty.objects.filter(acad_field=field_id).values_list("id", "name")
+            ),
+        )
+        for (field_name, field_id) in acad_fields
+    ]
+    specialties = forms.MultipleChoiceField(
+        choices=specialty_grouped_choices,
+        label="Specialties",
+        required=False,
+    )
+
+    date_from = forms.DateField(
+        label="From date",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        required=False,
+    )
+    date_to = forms.DateField(
+        label="To date",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        required=False,
+    )
+
     orderby = forms.ChoiceField(
         label="Order by",
         choices=[
-            # ("latest_round_deadline", "Deadline"),
-            # ("latest_round_open", "Voting start"),
-            # ("latest_round_decision_outcome", "Decision"),
-            # ("profile__last_name", "Nominee"),
-            # ("nominated_on", "Nominated date"),
+            ("nr_in_pool", "# in pool"),
+            ("nr_appraised", "# appraised"),
+            ("nr_assignments_completed", "# completed"),
         ],
         required=False,
     )
     ordering = forms.ChoiceField(
         label="Ordering",
         choices=[
-            # FIXME: Emperically, the ordering appers to be reversed for dates?
-            ("-", "Ascending"),
-            ("+", "Descending"),
+            ("-", "Descending"),
+            ("+", "Ascending"),
         ],
         required=False,
     )
@@ -1318,8 +1351,37 @@ class FellowshipsMonitorSearchForm(forms.Form):
         self.helper = FormHelper()
 
         div_block_ordering = Div(
-            Div(FloatingField("orderby"), css_class="col-6 col-md-12 col-xl-6"),
-            Div(FloatingField("ordering"), css_class="col-6 col-md-12 col-xl-6"),
+            Div(Field("orderby"), css_class="col-6"),
+            Div(Field("ordering"), css_class="col-6"),
+            css_class="row mb-0",
+        )
+        div_block_dates = Div(
+            Div(Field("date_from"), css_class="col-6"),
+            Div(Field("date_to"), css_class="col-6"),
+            css_class="row mb-0",
+        )
+
+        # Date ranges until today
+        today = date.today()
+        time_ranges = [
+            ("Last month", today - timedelta(days=30), today),
+            ("Last year", today - timedelta(days=365), today),
+            ("Last 2 years", today - timedelta(days=2 * 365), today),
+        ]
+
+        div_block_date_buttons = Div(
+            Div(
+                *[
+                    HTML(
+                        f'<button class="btn btn-outline-secondary" '
+                        f"""hx-get={reverse("colleges:fellowships_monitor:_hx_search_form", kwargs={"filter_set":f"from_{from_date}_to_{to_date}"})} """
+                        f'hx-target="#fellowships-monitor-search-form-container"'
+                        f">{date_range_name}</button>"
+                    )
+                    for (date_range_name, from_date, to_date) in time_ranges
+                ],
+                css_class="d-grid gap-1 my-3",
+            ),
             css_class="row mb-0",
         )
 
@@ -1327,15 +1389,24 @@ class FellowshipsMonitorSearchForm(forms.Form):
             Div(
                 Div(
                     Div(
-                        Div(FloatingField("fellow"), css_class="col-12 col-lg-6"),
-                        Div(div_block_ordering, css_class="col-12 col-md-6 col-xl-12"),
-                        css_class="row mb-0",
+                        Div(Field("fellow"), css_class="col-12 mb-1"),
+                        Div(Field("college", size=8), css_class="col-12"),
+                        css_class="row mb-0 d-flex flex-column justify-content-between h-100",
                     ),
                     css_class="col",
                 ),
                 Div(
-                    Field("college", size=6),
-                    css_class="col-12 col-md-6 col-lg-4",
+                    Field("specialties", size=12),
+                    css_class="col-12 col-sm-6 col-md-4 col-lg-5 col-xl-6",
+                ),
+                Div(
+                    Div(
+                        Div(div_block_dates, css_class="col-12"),
+                        Div(div_block_date_buttons, css_class="col-12"),
+                        Div(div_block_ordering, css_class="col-12"),
+                        css_class="row mb-0 d-flex flex-column justify-content-between h-100",
+                    ),
+                    css_class="col-12 col-md",
                 ),
                 css_class="row mb-0",
             ),
@@ -1358,15 +1429,15 @@ class FellowshipsMonitorSearchForm(forms.Form):
             session = SessionStore(session_key=self.session_key)
 
             for key in self.cleaned_data:
-                session[key] = self.cleaned_data.get(key)
+                if value := self.cleaned_data.get(key):
+                    if isinstance(value, date):
+                        value = value.strftime("%Y-%m-%d")
+
+                    session[key] = value
 
             session.save()
 
         fellowships = Fellowship.objects.all().distinct()
-
-        if self.cleaned_data.get("can_vote"):
-            # Restrict rounds to those the user can vote on
-            fellowships = fellowships.with_user_votable_rounds(self.user).distinct()
 
         if fellow := self.cleaned_data.get("fellow"):
             fellowships = fellowships.filter(
@@ -1375,6 +1446,11 @@ class FellowshipsMonitorSearchForm(forms.Form):
             )
         if college := self.cleaned_data.get("college"):
             fellowships = fellowships.filter(college__id__in=college)
+        if specialties := self.cleaned_data.get("specialties"):
+            fellowships = fellowships.filter(
+                contributor__profile__specialties__in=specialties
+            )
+
 
         # Ordering of nominations
         # Only order if both fields are set
@@ -1392,8 +1468,5 @@ class FellowshipsMonitorSearchForm(forms.Form):
                     for order_part in orderby_value.split(",")
                 ]
             )
-
-        # Render the queryset to evaluate properties
-        fellowships = list(fellowships)
 
         return fellowships
