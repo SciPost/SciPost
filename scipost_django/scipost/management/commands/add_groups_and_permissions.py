@@ -29,6 +29,7 @@ class Command(BaseCommand):
         EditorialCollege, created = Group.objects.get_or_create(
             name="Editorial College"
         )
+        SeniorFellow, created = Group.objects.get_or_create(name="Senior Fellow")
         VettingEditors, created = Group.objects.get_or_create(name="Vetting Editors")
         RegisteredContributors, created = Group.objects.get_or_create(
             name="Registered Contributors"
@@ -427,6 +428,13 @@ class Command(BaseCommand):
             content_type=content_type,
         )
 
+        # Fellowships Monitor
+        can_view_fellowships_monitor, created = Permission.objects.get_or_create(
+            codename="can_view_fellowships_monitor",
+            name="Can view the fellowships monitor",
+            content_type=content_type,
+        )
+
         # Assign permissions to groups
         SciPostAdmin.permissions.set(
             [
@@ -463,6 +471,7 @@ class Command(BaseCommand):
                 can_add_potentialfellowship,
                 can_preview_new_features,
                 can_view_all_nomination_voting_rounds,
+                can_view_fellowships_monitor,
             ]
         )
 
@@ -525,6 +534,7 @@ class Command(BaseCommand):
                 can_add_potentialfellowship,
                 can_preview_new_features,
                 can_view_all_nomination_voting_rounds,
+                can_view_fellowships_monitor,
             ]
         )
 
@@ -541,6 +551,12 @@ class Command(BaseCommand):
                 can_add_potentialfellowship,
                 can_vote_on_potentialfellowship,
                 can_preview_new_features,
+            ]
+        )
+
+        SeniorFellow.permissions.set(
+            [
+                can_view_fellowships_monitor,
             ]
         )
 
