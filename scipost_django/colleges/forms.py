@@ -1451,6 +1451,126 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 contributor__profile__specialties__in=specialties
             )
 
+        date_from = self.cleaned_data.get("date_from")
+        date_to = self.cleaned_data.get("date_to")
+
+        def filter_submissions_in_pool(qs, prefix=""):
+            """
+            Filter a Submission queryset to only items in the pool between some dates.
+            """
+            if not date_from and not date_to:
+                return qs
+            else:
+                date_filter = Q()
+
+            # Should not have left the pool before the "from" start date or not left at all
+            if date_from:
+                date_filter = Q(**{prefix + "completion_date__isnull": True})
+                date_filter |= Q(**{prefix + "completion_date__gte": date_from})
+
+            # Should have been added to the pool before the "to" final date
+            if date_to:
+                date_filter &= Q(**{prefix + "submission_date__lte": date_to})
+
+            return qs.filter(date_filter)
+
+        def count_q(qs, key="pk"):
+            """Count the number of items in a queryset, or return 0 if the queryset is empty."""
+            return Coalesce(
+                Subquery(qs.values(key).annotate(count=Count(key)).values("count")),
+                0,
+            )
+
+        fellowships = fellowships.annotate(
+            nr_in_pool=count_q(
+                filter_submissions_in_pool(
+                    Submission.objects.filter(fellows__exact=OuterRef("id")),
+                ),
+                key="fellows",
+            ),
+            nr_appraised=count_q(
+                filter_submissions_in_pool(
+                    Qualification.objects.filter(fellow=OuterRef("id")),
+                    prefix="submission__",
+                ),
+                key="fellow",
+            ),
+            nr_qualified_for=count_q(
+                filter_submissions_in_pool(
+                    Qualification.objects.filter(
+                        fellow=OuterRef("id"),
+                        expertise_level__in=[
+                            Qualification.EXPERT,
+                            Qualification.VERY_KNOWLEDGEABLE,
+                            Qualification.KNOWLEDGEABLE,
+                            Qualification.MARGINALLY_QUALIFIED,
+                        ],
+                    ),
+                    prefix="submission__",
+                ),
+                key="fellow",
+            ),
+            nr_assignments_completed=count_q(
+                filter_submissions_in_pool(
+                    EditorialAssignment.objects.filter(
+                        to=OuterRef("contributor"),
+                        status=EditorialAssignment.STATUS_COMPLETED,
+                    ),
+                    prefix="submission__",
+                ),
+                key="to",
+            ),
+            nr_assignments_ongoing=count_q(
+                filter_submissions_in_pool(
+                    EditorialAssignment.objects.filter(
+                        to=OuterRef("contributor"),
+                        status=EditorialAssignment.STATUS_ACCEPTED,
+                    ),
+                    prefix="submission__",
+                ),
+                key="to",
+            ),
+            nr_recommendations_eligible=count_q(
+                filter_submissions_in_pool(
+                    EICRecommendation.objects.filter(
+                        eligible_to_vote__exact=OuterRef("contributor")
+                    ),
+                    prefix="submission__",
+                ),
+                key="eligible_to_vote",
+            ),
+            nr_recommendations_voted_for=count_q(
+                filter_submissions_in_pool(
+                    EICRecommendation.objects.filter(
+                        voted_for__exact=OuterRef("contributor"),
+                    ),
+                    prefix="submission__",
+                ),
+                key="voted_for",
+            ),
+            nr_recommendations_voted_against=count_q(
+                filter_submissions_in_pool(
+                    EICRecommendation.objects.filter(
+                        voted_against__exact=OuterRef("contributor"),
+                    ),
+                    prefix="submission__",
+                ),
+                key="voted_against",
+            ),
+            nr_recommendations_voted_abstain=count_q(
+                filter_submissions_in_pool(
+                    EICRecommendation.objects.filter(
+                        voted_abstain__exact=OuterRef("contributor"),
+                    ),
+                    prefix="submission__",
+                ),
+                key="voted_abstain",
+            ),
+        ).annotate(
+            nr_recommendations_voted=F("nr_recommendations_voted_for")
+            + F("nr_recommendations_voted_against")
+            + F("nr_recommendations_voted_abstain")
+        )
 
         # Ordering of nominations
         # Only order if both fields are set
