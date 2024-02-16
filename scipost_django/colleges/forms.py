@@ -1274,6 +1274,7 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
 
 
 class FellowshipsMonitorSearchForm(forms.Form):
+    form_id = "fellowships-monitor-search-form"
     all_fellowships = Fellowship.objects.all()
     fellowships_colleges = all_fellowships.values_list("college", flat=True).distinct()
     fellowships_acad_fields = all_fellowships.values("college__acad_field")
@@ -1344,9 +1345,15 @@ class FellowshipsMonitorSearchForm(forms.Form):
         if self.session_key:
             session = SessionStore(session_key=self.session_key)
 
-            for field in self.fields:
-                if field in session:
-                    self.fields[field].initial = session[field]
+            for field_key in self.fields:
+                session_key = (
+                    f"{self.form_id}_{field_key}"
+                    if hasattr(self, "form_id")
+                    else field_key
+                )
+
+                if session_value := session.get(session_key):
+                    self.fields[field_key].initial = session_value
 
         self.helper = FormHelper()
 
@@ -1412,6 +1419,26 @@ class FellowshipsMonitorSearchForm(forms.Form):
             ),
         )
 
+    def save_fields_to_session(self):
+        # Save the form data to the session
+        if self.session_key is not None:
+            session = SessionStore(session_key=self.session_key)
+
+            for field_key in self.cleaned_data:
+                session_key = (
+                    f"{self.form_id}_{field_key}"
+                    if hasattr(self, "form_id")
+                    else field_key
+                )
+
+                if field_value := self.cleaned_data.get(field_key):
+                    if isinstance(field_value, date):
+                        field_value = field_value.strftime("%Y-%m-%d")
+
+                session[session_key] = field_value
+
+            session.save()
+
     def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
         # Apply the filter set to the form
         for key in self.fields:
@@ -1424,18 +1451,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
                     self.fields[key].initial = None
 
     def search_results(self):
-        # Save the form data to the session
-        if self.session_key is not None:
-            session = SessionStore(session_key=self.session_key)
-
-            for key in self.cleaned_data:
-                if value := self.cleaned_data.get(key):
-                    if isinstance(value, date):
-                        value = value.strftime("%Y-%m-%d")
-
-                    session[key] = value
-
-            session.save()
+        self.save_fields_to_session()
 
         fellowships = Fellowship.objects.all().distinct()
 
