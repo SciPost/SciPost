@@ -3,24 +3,26 @@ __license__ = "AGPL v3"
 
 
 import re
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.utils.datetime_safe import date
 
 from colleges.forms import FellowshipsMonitorSearchForm
 from colleges.models.fellowship import Fellowship
-from colleges.permissions import is_edadmin_or_senior_fellow
+from scipost.permissions import permission_required_htmx
 
 
-@login_required
-@user_passes_test(is_edadmin_or_senior_fellow)
+@login_required()
+@permission_required("scipost.can_view_fellowships_monitor", raise_exception=True)
 def fellowships_monitor(request):
     return render(request, "colleges/fellowships_monitor/fellowships_monitor.html")
 
 
-@login_required
-@user_passes_test(is_edadmin_or_senior_fellow)
+@permission_required_htmx(
+    "scipost.can_view_fellowships_monitor",
+    "You do not have permission to view the fellowships monitor.",
+)
 def _hx_table(request):
     form = FellowshipsMonitorSearchForm(
         request.POST or None,
