@@ -1481,12 +1481,12 @@ class FellowshipsMonitorSearchForm(forms.Form):
 
             # Should not have left the pool before the "from" start date or not left at all
             if date_from:
-                date_filter = Q(**{prefix + "completion_date__isnull": True})
-                date_filter |= Q(**{prefix + "completion_date__gte": date_from})
+                date_filter = Q(**{prefix + "eic_first_assigned_date__isnull": True})
+                date_filter |= Q(**{prefix + "eic_first_assigned_date__gte": date_from})
 
             # Should have been added to the pool before the "to" final date
             if date_to:
-                date_filter &= Q(**{prefix + "submission_date__lte": date_to})
+                date_filter &= Q(**{prefix + "checks_cleared_date__lte": date_to})
 
             return qs.filter(date_filter)
 
