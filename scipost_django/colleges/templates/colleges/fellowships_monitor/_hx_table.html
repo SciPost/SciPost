@@ -1,37 +1,5 @@
 {% for fellowship in page_obj %}
   {% include 'colleges/fellowships_monitor/_hx_table_row.html' %}
-
-  {% if page_obj.has_next %}
-    <tr id="fellowships-monitor-search-results-load-next"
-        class="htmx-indicator"
-        hx-swap-oob="true"
-        hx-post="{% url 'colleges:fellowships_monitor:_hx_table' %}?page={{ page_obj.next_page_number }}"
-        hx-target="#fellowships-monitor-search-results"
-        hx-include="#fellowships-monitor-search-form"
-        hx-trigger="revealed"
-        hx-swap="beforeend"
-        hx-indicator="#fellowships-monitor-search-results-load-next">
- 
-      <td colspan="12" class="text-center p-0">
-        <div class="p-2 bg-primary bg-opacity-25 d-flex justify-content-center">
-          <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
-          <div class="spinner-grow spinner-grow-sm ms-2"
-               role="status"
-               aria-hidden="true"></div>
-        </div>
-      </td>
-    </tr>
-  {% else %}
-    <tr id="fellowships-monitor-search-results-load-next" hx-swap-oob="true">
- 
-      <td colspan="12" class="text-center p-0">
-        <div class="p-2 d-flex justify-content-center">
-          <strong>All Fellowships loaded</strong>
-        </div>
-      </td>
-    </tr>
-  {% endif %}
-
 {% empty %}
   <tr id="fellowships-monitor-search-results-load-next" hx-swap-oob="true">
     <td colspan="12" class="text-center p-0">
@@ -41,3 +9,34 @@
     </td>
   </tr>
 {% endfor %}
+
+{% if page_obj.has_next %}
+  <tr id="fellowships-monitor-search-results-load-next"
+      class="htmx-indicator"
+      hx-swap-oob="true"
+      hx-post="{% url 'colleges:fellowships_monitor:_hx_table' %}?page={{ page_obj.next_page_number }}"
+      hx-target="#fellowships-monitor-search-results"
+      hx-include="#fellowships-monitor-search-form"
+      hx-trigger="revealed"
+      hx-swap="beforeend"
+      hx-indicator="#fellowships-monitor-search-results-load-next">
+ 
+    <td colspan="12" class="text-center p-0">
+      <div class="p-2 bg-primary bg-opacity-25 d-flex justify-content-center">
+        <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+        <div class="spinner-grow spinner-grow-sm ms-2"
+             role="status"
+             aria-hidden="true"></div>
+      </div>
+    </td>
+  </tr>
+{% else %}
+  <tr id="fellowships-monitor-search-results-load-next" hx-swap-oob="true">
+ 
+    <td colspan="12" class="text-center p-0">
+      <div class="p-2 d-flex justify-content-center">
+        <strong>All Fellowships loaded</strong>
+      </div>
+    </td>
+  </tr>
+{% endif %}

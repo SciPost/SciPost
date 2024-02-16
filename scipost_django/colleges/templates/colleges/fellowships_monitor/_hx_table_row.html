@@ -3,23 +3,25 @@
     <a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor.profile.full_name }}</a>
   </td>
   <td>
-    <time>{{ fellowship.start_date|date:"Y-m-d" }}</time>
+    <time datetime="{{ fellowship.start_date }}">{{ fellowship.start_date|date:"Y-m-d" }}</time>
   </td>
   <td>
 
     {% if fellowship.until_date %}
-      <time>{{ fellowship.until_date|date:"Y-m-d" }}</time>
+      <time datetime="{{ fellowship.until_date }}">{{ fellowship.until_date|date:"Y-m-d" }}</time>
     {% else %}
       -
     {% endif %}
 
   </td>
-  <td>530</td>
-  <td>95</td>
-  <td>14</td>
-  <td>3</td>
-  <td>1</td>
-  {% comment %} EIC Rec Votes {% endcomment %}
-  <td>53</td>
-  <td>42</td>
+  <td>{{ fellowship.nr_in_pool }}</td>
+  <td>{{ fellowship.nr_appraised }}</td>
+  <td>{{ fellowship.nr_qualified_for }}</td>
+  <td>{{ fellowship.nr_assignments_ongoing }}</td>
+  <td>{{ fellowship.nr_assignments_completed }}</td>
+  <td>{{ fellowship.nr_recommendations_eligible }}</td>
+  <td>{{ fellowship.nr_recommendations_voted }}</td>
+  <td>
+    <span role="button" class="text-muted">{% include "bi/ellipsis-vertical.html" %}</span>
+  </td>
 </tr>
