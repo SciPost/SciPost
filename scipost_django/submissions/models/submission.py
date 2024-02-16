@@ -389,8 +389,17 @@ class Submission(models.Model):
     submission_date = models.DateTimeField(
         verbose_name="submission date", default=timezone.now
     )
+    checks_cleared_date = models.DateTimeField(
+        verbose_name="checks cleared date", null=True, blank=True
+    )
+    eic_first_assigned_date = models.DateTimeField(
+        verbose_name="EIC first assigned date", null=True, blank=True
+    )
     acceptance_date = models.DateField(
         verbose_name="acceptance date", null=True, blank=True
+    )
+    completion_date = models.DateField(
+        verbose_name="completion date", null=True, blank=True
     )
     latest_activity = models.DateTimeField(auto_now=True)
     update_search_index = models.BooleanField(default=True)
@@ -847,9 +856,9 @@ class Submission(models.Model):
                 )  # Fallback for some last names with spaces
                 queryresults = feedparser.parse(queryurl)
                 if queryresults.entries:
-                    coauthorships[
-                        fellow.contributor.user.last_name
-                    ] = queryresults.entries
+                    coauthorships[fellow.contributor.user.last_name] = (
+                        queryresults.entries
+                    )
         return coauthorships
 
     def is_sending_editorial_invitations(self):
