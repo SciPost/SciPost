@@ -1318,12 +1318,35 @@ class FellowshipsMonitorSearchForm(forms.Form):
         required=False,
     )
 
+    has_regular = forms.BooleanField(
+        label="Regular",
+        required=False,
+        initial=True,
+    )
+    has_senior = forms.BooleanField(
+        label="Senior",
+        required=False,
+        initial=True,
+    )
+    has_guest = forms.BooleanField(
+        label="Guest",
+        required=False,
+        initial=True,
+    )
+    show_expired = forms.BooleanField(
+        label="Expired",
+        required=False,
+        initial=False,
+    )
+
     orderby = forms.ChoiceField(
         label="Order by",
         choices=[
             ("nr_in_pool", "# in pool"),
             ("nr_appraised", "# appraised"),
             ("nr_assignments_completed", "# completed"),
+            ("start_date", "Start date"),
+            ("until_date", "End date"),
         ],
         required=False,
     )
@@ -1367,6 +1390,13 @@ class FellowshipsMonitorSearchForm(forms.Form):
             Div(Field("date_to"), css_class="col-6"),
             css_class="row mb-0",
         )
+        div_block_fellow_types = Div(
+            Div(Field("has_regular"), css_class="col-auto"),
+            Div(Field("has_senior"), css_class="col-auto"),
+            Div(Field("has_guest"), css_class="col-auto"),
+            Div(Field("show_expired"), css_class="col-auto"),
+            css_class="row mb-0",
+        )
 
         # Date ranges until today
         today = date.today()
@@ -1396,14 +1426,15 @@ class FellowshipsMonitorSearchForm(forms.Form):
             Div(
                 Div(
                     Div(
-                        Div(Field("fellow"), css_class="col-12 mb-1"),
+                        Div(Field("fellow"), css_class="col-12 mb-2"),
+                        Div(div_block_fellow_types, css_class="col-12"),
                         Div(Field("college", size=8), css_class="col-12"),
                         css_class="row mb-0 d-flex flex-column justify-content-between h-100",
                     ),
                     css_class="col",
                 ),
                 Div(
-                    Field("specialties", size=12),
+                    Field("specialties", size=13),
                     css_class="col-12 col-sm-6 col-md-4 col-lg-5 col-xl-6",
                 ),
                 Div(
@@ -1587,6 +1618,15 @@ class FellowshipsMonitorSearchForm(forms.Form):
             + F("nr_recommendations_voted_against")
             + F("nr_recommendations_voted_abstain")
         )
+
+        if not self.cleaned_data.get("has_regular"):
+            fellowships = fellowships.exclude(status=Fellowship.STATUS_REGULAR)
+        if not self.cleaned_data.get("has_senior"):
+            fellowships = fellowships.exclude(status=Fellowship.STATUS_SENIOR)
+        if not self.cleaned_data.get("has_guest"):
+            fellowships = fellowships.exclude(status=Fellowship.STATUS_GUEST)
+        if not self.cleaned_data.get("show_expired"):
+            fellowships = fellowships.filter(until_date__gte=timezone.now())
 
         # Ordering of nominations
         # Only order if both fields are set

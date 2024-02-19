@@ -1,5 +1,8 @@
 <tr>
   <td>
+    <span title="{{ fellowship.get_status_display }}">{{ fellowship.status|upper|slice:":1" }}</span>
+  </td>
+  <td>
     <a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor.profile.full_name }}</a>
   </td>
   <td>
