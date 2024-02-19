@@ -1,21 +1,26 @@
-<p>
-  Dear {{ contributor.profile.get_title_display }} {{ contributor.user.last_name }},
-</p>
+<p>Dear {{ contributor.profile.get_title_display }} {{ contributor.user.last_name }},</p>
 <p>
   Your request for registration to the SciPost publication portal has been received. You now need to validate your email by visiting this link within the next 48 hours:
 </p>
 <p>
   <a href="https://{{ domain }}{% url 'scipost:activation' contributor.id contributor.activation_key %}">Activate your account</a>
 </p>
-<h3>What happens now?</h3>
-<ul>
-  <li>Your credentials will thereafter be verified. If you fulfil our
-    eligibility requirements, your account will be vetted through
-    (you will receive confirmation by email).</li>
-  <li>If vetted through, you will then be able to login and use our facilities.</li>
-</ul>
+
+{% if contributor.invitation_key %}
+  <h3>What happens now?</h3>
+  <ul>
+    <li>
+      Your credentials will thereafter be verified. If you fulfil our
+      eligibility requirements, your account will be vetted through
+      (you will receive confirmation by email).
+    </li>
+    <li>If vetted through, you will then be able to login and use our facilities.</li>
+  </ul>
+{% endif %}
+
 <p>
-  Many thanks for your interest.<br>
+  Many thanks for your interest.
+  <br />
   The SciPost Team.
 </p>
 
