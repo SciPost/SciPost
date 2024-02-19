@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import subprocess
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
@@ -10,6 +11,7 @@ from django.utils.functional import cached_property
 from scipost.storage import SecureFileStorage
 from comments.behaviors import validate_file_extension, validate_max_file_size
 from journals.models import Publication
+from submissions.utils import clean_pdf, linearize_pdf, remove_file_metadata
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
@@ -165,7 +167,13 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             else:
                 new_report_nr = 1
             self.report_nr = new_report_nr
-        return super().save(*args, **kwargs)
+
+        super_save = super().save(*args, **kwargs)
+
+        if self.pdf_report and self.anonymous:
+            clean_pdf(self.pdf_report.path)
+
+        return super_save
 
     def get_absolute_url(self):
         """Return url of the Report on the Submission detail page."""

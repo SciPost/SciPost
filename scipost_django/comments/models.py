@@ -15,6 +15,7 @@ from guardian.shortcuts import assign_perm
 from scipost.behaviors import TimeStampedModel
 from scipost.models import Contributor
 from commentaries.constants import COMMENTARY_PUBLISHED
+from submissions.utils import clean_pdf
 
 from .behaviors import validate_file_extension, validate_max_file_size
 from .constants import (
@@ -117,6 +118,14 @@ class Comment(TimeStampedModel):
             + ", "
             + self.comment_text[:30]
         )
+
+    def save(self, *args, **kwargs):
+        super_save = super().save(*args, **kwargs)
+
+        if self.file_attachment and self.anonymous:
+            clean_pdf(self.file_attachment.path)
+
+        return super_save
 
     @property
     def title(self):
