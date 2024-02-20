@@ -36,7 +36,7 @@ from .forms import (
     ProfileForm,
     ProfileDynSelForm,
     ProfileMergeForm,
-    ProfileEmailForm,
+    AddProfileEmailForm,
     AffiliationForm,
 )
 
@@ -242,11 +242,6 @@ class ProfileDetailView(PermissionsMixin, DetailView):
     permission_required = "scipost.can_view_profiles"
     model = Profile
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context["email_form"] = ProfileEmailForm()
-        return context
-
 
 class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
     """
@@ -302,7 +297,6 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
                 "next_refinv_wo_profile": refinv_wo_profile.first(),
                 "nr_reginv_wo_profile": reginv_wo_profile.count(),
                 "next_reginv_wo_profile": reginv_wo_profile.first(),
-                "email_form": ProfileEmailForm(),
             }
         )
         return context
@@ -443,7 +437,7 @@ def add_profile_email(request, profile_id):
     Add an email address to a Profile.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
-    form = ProfileEmailForm(request.POST or None, profile=profile)
+    form = AddProfileEmailForm(request.POST or None, profile=profile, request=request)
     if form.is_valid():
         form.save()
         messages.success(request, "Email successfully added.")

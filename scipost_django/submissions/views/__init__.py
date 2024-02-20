@@ -117,7 +117,7 @@ from preprints.models import Preprint
 from production.forms import ProofsDecisionForm
 from production.utils import get_or_create_production_stream
 from profiles.models import Profile
-from profiles.forms import SimpleProfileForm, ProfileEmailForm
+from profiles.forms import SimpleProfileForm
 from scipost.constants import TITLE_DR, INVITATION_REFEREEING
 from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm, SearchTextForm
@@ -1184,7 +1184,6 @@ def select_referee(request, identifier_w_vn_nr):
             ),
             "referee_search_form": form,
             "queryresults": queryresults,
-            "profile_email_form": ProfileEmailForm(initial={"primary": True}),
         }
     )
     return render(request, "submissions/select_referee.html", context)

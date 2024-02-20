@@ -238,18 +238,6 @@
 	  <ul>
     	    <li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> this Profile</li>
     	    <li><a href="{% url 'profiles:profile_delete' pk=profile.id %}" class="text-danger">Delete</a> this Profile</li>
-            {% if email_form %}
-              <li>
-		<div>
-        	  Add an email to this Profile:
-        	  <form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
-        	    {% csrf_token %}
-        	    {{ email_form|bootstrap }}
-        	    <input class="btn btn-outline-secondary" type="submit" value="Add">
-        	  </form>
-		</div>
-              </li>
-            {% endif %}
 	  </ul>
 	</div>
       </div>

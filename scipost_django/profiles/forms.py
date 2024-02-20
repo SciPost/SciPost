@@ -8,7 +8,7 @@ from django import forms
 from django.db.models import Q
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Div
+from crispy_forms.layout import Layout, Field, Div, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 from django.forms import ChoiceField
@@ -247,13 +247,33 @@ class ProfileMergeForm(forms.Form):
         )  # Retrieve again because of all the db updates.
 
 
-class ProfileEmailForm(forms.ModelForm):
+class AddProfileEmailForm(forms.ModelForm):
     class Meta:
         model = ProfileEmail
-        fields = ["email", "still_valid", "primary"]
+        fields = ["email"]
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop("request", None)
         self.profile = kwargs.pop("profile", None)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field("email", type="email", placeholder="Email address"),
+                    css_class="col",
+                ),
+                Div(Submit("submit", "Add"), css_class="col-auto mt-auto"),
+                css_class="row",
+            ),
+        )
+        self.helper.attrs = {
+            "hx-post": reverse(
+                "profiles:add_profile_email", kwargs={"profile_id": self.profile.id}
+            ),
+            "hx-target": "#email-action-container",
+        }
+
         super().__init__(*args, **kwargs)
 
     def clean_email(self):
@@ -264,10 +284,18 @@ class ProfileEmailForm(forms.ModelForm):
         return email
 
     def save(self):
-        """Save to a profile."""
-        if self.cleaned_data["primary"]:
-            self.profile.emails.update(primary=False)
+        """Mark the email as still_valid but not primary."""
+
         self.instance.profile = self.profile
+
+        if self.request:
+            is_editing_self = self.request.user.contributor.profile == self.profile
+            is_ed_admin = self.request.user.contributor.is_ed_admin
+            self.instance.verified = is_editing_self or is_ed_admin
+
+        self.instance.still_valid = True
+        self.instance.primary = False
+        self.instance.added_by = self.request.user.contributor
         return super().save()
 
 

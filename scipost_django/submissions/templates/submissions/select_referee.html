@@ -112,13 +112,7 @@
                     {% if profile.email %}
                       Send refereeing invitation <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> auto-reminders. {% include 'submissions/_refinv_auto_reminders_tooltip.html' %}
                     {% else %}
-                      <span class="text-danger">Cannot send an invitation without an email</span> {% include 'bi/arrow-right.html' %} Add one:
-                      <form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
-                        {% csrf_token %}
-                        {{ profile_email_form|bootstrap }}
-                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                        <input class="btn btn-outline-secondary" type="submit" value="Add">
-                      </form>
+                      <span class="text-danger">Cannot send an invitation without an email</span>
                     {% endif %}
                   {% else %}
                     <span class="text-danger">This person does not accept refereeing requests</span>

@@ -191,6 +191,14 @@ class ProfileEmail(models.Model):
     profile = models.ForeignKey("profiles.Profile", on_delete=models.CASCADE)
     email = models.EmailField()
     still_valid = models.BooleanField(default=True)
+    verified = models.BooleanField(default=False)
+    added_by = models.ForeignKey(
+        "scipost.Contributor",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="profile_emails_added",
+    )
     primary = models.BooleanField(default=False)
 
     class Meta:
