@@ -27,6 +27,7 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     REFUSE_NOT_IMPARTIAL = "NIR"
     REFUSE_NOT_INTERESTED = "NIE"
     REFUSE_DESK_REJECT = "DNP"
+    REFUSE_OTHER = "OTH"
     REFUSAL_REASONS = (
         (REFUSE_OUTSIDE_EXPERTISE, "Outside of my field of expertise"),
         (REFUSE_TOO_BUSY, "Too busy"),
@@ -41,6 +42,7 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
             REFUSE_DESK_REJECT,
             "SciPost should desk reject this paper",
         ),
+        (REFUSE_OTHER, "Other"),
     )
 
     STATUS_PREASSIGNED = "preassigned"

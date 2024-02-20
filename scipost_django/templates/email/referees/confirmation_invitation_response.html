@@ -3,6 +3,9 @@
 <p>
   We hereby confirm your choice to {% if invitation.accepted %}accept{% else %}decline (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
 </p>
+{% if invitation.other_refusal_reason %}
+  <p>Your "other" refusal reason states: {{ invitation.other_refusal_reason }}</p>
+{% endif %}
 <p>
   {{ invitation.submission.title }}
   <br/>

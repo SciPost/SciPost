@@ -2266,6 +2266,40 @@ class ConsiderRefereeInvitationForm(forms.Form):
     refusal_reason = forms.ChoiceField(
         choices=EditorialAssignment.REFUSAL_REASONS, required=False
     )
+    other_refusal_reason = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            {
+                "placeholder": "Please shortly describe your reason for declining. (255 characters max)"
+            }
+        ),
+        max_length=255,
+    )
+
+    def clean(self):
+        accepted = self.cleaned_data.get("accept", None)
+        reason = self.cleaned_data.get("refusal_reason", None)
+        other_refusal_reason = self.cleaned_data.get("other_refusal_reason", None)
+
+        if accepted == "False":
+            if reason is None:
+                self.add_error(
+                    "refusal_reason", "Please select a reason for declining."
+                )
+            if reason == "other" and other_refusal_reason is None:
+                self.add_error(
+                    "other_refusal_reason", "Please specify your reason for declining."
+                )
+            elif reason != "other" and other_refusal_reason is not None:
+                self.add_error(
+                    "other_refusal_reason",
+                    'Please select "Other" to specify your reason for declining.',
+                )
+        elif reason is not None:
+            self.add_error(
+                "refusal_reason",
+                "You cannot select a refusal reason if you accept.",
+            )
 
 
 class SetRefereeingDeadlineForm(forms.Form):

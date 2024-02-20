@@ -71,6 +71,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         blank=True,
         null=True,
     )
+    other_refusal_reason = models.CharField(max_length=255, blank=True, null=True)
     fulfilled = models.BooleanField(
         default=False
     )  # True if a Report has been submitted

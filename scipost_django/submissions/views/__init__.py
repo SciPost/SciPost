@@ -1418,6 +1418,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
             invitation.accepted = False
             decision_string = "declined"
             invitation.refusal_reason = form.cleaned_data["refusal_reason"]
+            invitation.other_refusal_reason = form.cleaned_data["other_refusal_reason"]
             messages.success(
                 request,
                 (
@@ -2964,9 +2965,11 @@ def submissions_versus_fellows(submissions):
                         "fellows_senior": fellows_senior,
                         "fellows_regular": fellows_regular,
                         "fellows_guest": fellows_guest,
-                        "ratio": nr_streams / fellows_total
-                        if fellows_total > 0
-                        else nr_streams,
+                        "ratio": (
+                            nr_streams / fellows_total
+                            if fellows_total > 0
+                            else nr_streams
+                        ),
                     }
                 )
     return sorted(stats, key=lambda tup: tup["ratio"], reverse=True)

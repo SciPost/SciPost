@@ -47,5 +47,8 @@
     <h3>Your Referee Invitation</h3>
     <p>You have declined to contribute a Report. Nonetheless, we thank you very much for considering this refereeing invitation.</p>
     <p>Reason: {{ invitation.get_refusal_reason_display }}</p>
+    {% if invitation.refusal_reason == 'OTH' %}
+      <p>{{ invitation.other_refusal_reason }}</p>
+    {% endif %}
   {% endif %}
 </div>
