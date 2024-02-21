@@ -41,6 +41,19 @@
     <div class="col-12">
       <h2 class="highlight" id="form">Select an additional Referee</h2>
 
+      {% if workdays_left_to_report < 15 %}
+        <div class="mb-3 p-3 border border-danger border-2">
+          <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span>
+          <strong class="text-danger">
+            Warning: there are {{ workdays_left_to_report }} working days left before the refereeing deadline.
+          </strong>
+
+          <div class="my-2">Standard refereeing period for {{ submission.submitted_to }}: <strong>{{ submission.submitted_to.refereeing_period.days }} days</strong>.</div>
+
+          Consider resetting the refereeing deadline at the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> before inviting a referee.
+        </div>
+      {% endif %}
+
       <form action="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="get">
         {{ referee_search_form|bootstrap }}
         <input class="btn btn-primary" type="submit" value="Find referee">
@@ -72,81 +85,10 @@
 
   <div class="row">
     <div class="col-12">
-      {% if workdays_left_to_report < 15 %}
-        <div class="my-5 p-3 border border-danger" style="border-width: 2px !important;">
-          <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span>
-          <strong class="text-danger">
-            Warning: there are {{ workdays_left_to_report }} working days left before the refereeing deadline.
-          </strong>
-
-          <div class="my-2">Standard refereeing period for {{ submission.submitted_to }}: <strong>{{ submission.submitted_to.refereeing_period.days }} days</strong>.</div>
-
-          Consider resetting the refereeing deadline at the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> before inviting a referee.
-        </div>
-      {% endif %}
       {% if profiles_found %}
-        <h3 class="mt-4">Matching people in our database:</h3>
-        <table class="table table-light table-hover v-center">
-          <thead class="table-light">
-            <tr>
-              <th>Name<br/><br/></th>
-              <th>Registered<br>Contributor?<br/><br/></th>
-              <th>Email<br>known?<br/><br/></th>
-              <th>Accepts<br/>requests?</th>
-              <th>Action<br/><span class="text-muted fw-normal">(Unregistered people will also automatically receive a registration invitation)</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for profile in profiles_found %}
-              <tr>
-            	<td><a href="{{ profile.get_absolute_url }}">{{ profile }}</a></td>
-            	<td>{% if profile.contributor %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
-            	<td>{% if profile.email %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> <span class="text-muted">{{ profile.email }}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
-                <td>
-                  {% if profile.accepts_refereeing_requests %}
-                    <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
-                  {% endif %}
-                </td>
-            	<td>
-                  {% if profile.accepts_refereeing_requests %}
-                    {% if profile.email %}
-                      Send refereeing invitation <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> auto-reminders. {% include 'submissions/_refinv_auto_reminders_tooltip.html' %}
-                    {% else %}
-                      <span class="text-danger">Cannot send an invitation without an email</span>
-                    {% endif %}
-                  {% else %}
-                    <span class="text-danger">This person does not accept refereeing requests</span>
-                  {% endif %}
-            	</td>
-              </tr>
-	      {% with profile.responsiveness_as_referee as stats %}
-		{% if stats.sent %}
-		  <tr>
-		    <td colspan="5">
-		      <em class="ms-4">
-			{% include "bi/arrow-return-right.html" %}&nbsp;
-			Responsiveness (last 5 years) --
-			Sent: {{ stats.sent }},&nbsp;
-			Accepted: {{ stats.accepted }},&nbsp;
-			Declined: {{ stats.declined }},&nbsp;
-			Cancelled: {{ stats.cancelled }},&nbsp;
-			Fulfilled: {{ stats.fulfilled }}
-		      </em>
-		    </td>
-		  </tr>
-		{% endif %}
-	      {% endwith %}
-            {% empty %}
-              <tr>
-            	<td>No Profiles found</td>
-            	<td></td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <h3 class="mt-4">Matching Profiles in our database:</h3>
+        {% include "submissions/_hx_select_referee_table.html" %}
       {% endif %}
-
-
       {% if profile_form %}
         <h3 class="mb-3 mt-5">Not found? Then add to our database by filling this form:</h3>
         <form action="{% url 'submissions:add_referee_profile' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">

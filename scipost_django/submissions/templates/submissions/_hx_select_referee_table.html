@@ -1,0 +1,37 @@
+<table class="table align-center">
+  <thead class="table-light align-top">
+    <tr>
+      <th>
+        Name
+        <br />
+        <small class="text-muted">Click to add emails etc.</small>
+      </th>
+      <th>Registered</th>
+      <th>
+        Emails
+        <br />
+        <small class="text-muted">Primary, Valid, Verified, Address</small>
+      </th>
+      <th>
+        Accepts
+        <br />
+        requests?
+      </th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for profile in profiles_found %}
+      {% include "submissions/_hx_select_referee_table_row.html" %}
+    {% empty %}
+      <tr>
+	
+        <td>No Profiles found</td>
+	
+        <td></td>
+      </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
