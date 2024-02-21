@@ -1,0 +1,16 @@
+<table id="profile-emails-table" class="table table-sm table-borderless">
+  <thead>
+    <tr>
+      <th colspan="2">Email</th>
+      <th>Valid</th>
+      <th>Verified</th>
+      <th>Added by</th>
+      <th>Mark as</th>
+    </tr>
+  </thead>
+
+  {% for profile_mail in profile.emails.all %}
+    {% include "profiles/_hx_profile_emails_table_row.html" %}
+  {% endfor %}
+
+</table>

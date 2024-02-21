@@ -75,17 +75,34 @@ urlpatterns = [
     ),
     # Emails
     path(
-        "<int:profile_id>/add_email", views.add_profile_email, name="add_profile_email"
+        "<int:profile_id>/add_email",
+        views._hx_add_profile_email,
+        name="_hx_add_profile_email",
     ),
     path(
         "emails/<int:email_id>/",
         include(
             [
                 path(
-                    "make_primary", views.email_make_primary, name="email_make_primary"
+                    "make_primary",
+                    views._hx_profile_email_mark_primary,
+                    name="_hx_profile_email_mark_primary",
                 ),
-                path("toggle", views.toggle_email_status, name="toggle_email_status"),
-                path("delete", views.delete_profile_email, name="delete_profile_email"),
+                path(
+                    "toggle_valid",
+                    views._hx_profile_email_toggle_valid,
+                    name="_hx_profile_email_toggle_valid",
+                ),
+                path(
+                    "toggle_verified",
+                    views._hx_profile_email_toggle_verified,
+                    name="_hx_profile_email_toggle_verified",
+                ),
+                path(
+                    "delete",
+                    views._hx_profile_email_delete,
+                    name="_hx_profile_email_delete",
+                ),
             ]
         ),
     ),

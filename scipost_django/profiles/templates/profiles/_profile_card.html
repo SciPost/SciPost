@@ -28,50 +28,16 @@
 	  {% include 'profiles/_affiliations_table.html' with profile=profile actions=True %}
 	</td>
 	<tr>
-	  <td>Email(s)</td>
+    <td>Email(s)
+      <ul>
+        {% if perms.scipost.can_add_profile_emails %}
+	        <li><a role="button" type="button" class="btn-link" hx-get="{% url 'profiles:_hx_add_profile_email' profile_id=profile.id %}" hx-target="#email-action-container">Add a new Email</a></li>
+        {% endif %}
+      </ul>
+      <div id="email-action-container"></div>
+    </td>
 	  <td>
-	    <table class="table table-sm">
-              <thead>
-		<tr>
-                  <th colspan="2">Email</th>
-                  <th>Still valid</th>
-                  <th></th>
-		</tr>
-              </thead>
-    	      {% for profile_mail in profile.emails.all %}
-		<tr>
-		  <td>{% if profile_mail.primary %}<strong>{% endif %}{{ profile_mail.email }}{% if profile_mail.primary %}</strong>{% endif %}</td>
-		  <td>{{ profile_mail.primary|yesno:'Primary,Alternative' }}</td>
-		  <td>
-		    {% if profile_mail.still_valid %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}
-		  </td>
-		  <td class="d-flex">
-                    <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link py-0">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>
-		    <form method="post" action="{% url 'profiles:email_make_primary' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link py-0">Make primary</button></form>
-		    <a type="button" class="btn py-0" data-bs-toggle="modal" data-bs-target="#confirmDeleteEmailModal-{{ profile_mail.id }}"><span class="text-danger">{% include 'bi/trash-fill.html' %}</span></a>
-		    <div class="modal" id="confirmDeleteEmailModal-{{ profile_mail.id }}" tabindex="-1" role="dialog">
-		      <div class="modal-dialog" role="document">
-			<div class="modal-content">
-			  <div class="modal-header">
-			    <h4 class="modal-title">Confirm email deletion</h4>
-			    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-			      <span aria-hidden="true">&times;</span>
-			    </button>
-			  </div>
-			  <div class="modal-body">
-			    Are you sure you want to delete {{ profile_mail.email }}?
-			  </div>
-			  <div class="modal-footer">
-			    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-			    <form method="post" action="{% url 'profiles:delete_profile_email' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-danger">Confirm</button></form>
-			  </div>
-			</div>
-		      </div>
-		    </div>
-		  </td>
-		</tr>
-    	      {% endfor %}
-            </table>
+      {% include 'profiles/_hx_profile_emails_table.html' %}
 	  </td>
 	</tr>
 	<tr>

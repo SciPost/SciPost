@@ -2,17 +2,15 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from functools import reduce
-import re
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.views.decorators.http import require_POST
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -431,57 +429,82 @@ def _hx_profile_specialties(request, profile_id):
     return render(request, "profiles/_hx_profile_specialties.html", context)
 
 
-@permission_required("scipost.can_create_profiles")
-def add_profile_email(request, profile_id):
+@permission_required_htmx("scipost.can_add_profile_emails")
+def _hx_add_profile_email(request, profile_id):
     """
     Add an email address to a Profile.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
     form = AddProfileEmailForm(request.POST or None, profile=profile, request=request)
     if form.is_valid():
-        form.save()
-        messages.success(request, "Email successfully added.")
-    else:
-        for field, err in form.errors.items():
-            messages.warning(request, err[0])
-    if request.POST.get("next", None):
-        return HttpResponseRedirect(request.POST.get("next"))
-    return redirect(profile.get_absolute_url())
+        profile_email = form.save()
+        response = TemplateResponse(
+            request,
+            "profiles/_hx_profile_emails_table_row.html",
+            {"profile_mail": profile_email},
+        )
+        response["HX-Retarget"] = "#profile-emails-table"
+        response["HX-Reswap"] = "beforeend"
+
+        return response
+
+    return TemplateResponse(
+        request, "profiles/_hx_add_profile_email_form.html", {"form": form}
+    )
 
 
-@require_POST
-@permission_required("scipost.can_create_profiles")
-def email_make_primary(request, email_id):
+@permission_required_htmx("scipost.can_mark_profile_emails_primary")
+def _hx_profile_email_mark_primary(request, email_id):
     """
     Make this email the primary one for this Profile.
     """
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
-    ProfileEmail.objects.filter(profile=profile_email.profile).update(primary=False)
-    profile_email.primary = True
-    profile_email.save()
-    return redirect(profile_email.profile.get_absolute_url())
+    if request.method == "PATCH":
+        ProfileEmail.objects.filter(profile=profile_email.profile).update(primary=False)
+        profile_email.primary = True
+        profile_email.save()
+    return TemplateResponse(
+        request,
+        "profiles/_hx_profile_emails_table.html",
+        {"profile": profile_email.profile},
+    )
 
 
-@require_POST
-@permission_required("scipost.can_create_profiles")
-def toggle_email_status(request, email_id):
+@permission_required_htmx("scipost.can_validate_profile_emails")
+def _hx_profile_email_toggle_valid(request, email_id):
     """Toggle valid/deprecated status of ProfileEmail."""
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
-    ProfileEmail.objects.filter(id=email_id).update(
-        still_valid=not profile_email.still_valid
+    if request.method == "PATCH":
+        profile_email.still_valid = not profile_email.still_valid
+        profile_email.save()
+    return TemplateResponse(
+        request,
+        "profiles/_hx_profile_emails_table_row.html",
+        {"profile_mail": profile_email},
     )
-    messages.success(request, "Email updated")
-    return redirect(profile_email.profile.get_absolute_url())
 
 
-@require_POST
-@permission_required("scipost.can_create_profiles")
-def delete_profile_email(request, email_id):
+@permission_required_htmx("scipost.can_verify_profile_emails")
+def _hx_profile_email_toggle_verified(request, email_id):
+    """Toggle verified/unverified status of ProfileEmail."""
+    profile_email = get_object_or_404(ProfileEmail, pk=email_id)
+    if request.method == "PATCH":
+        profile_email.verified = not profile_email.verified
+        profile_email.save()
+    return TemplateResponse(
+        request,
+        "profiles/_hx_profile_emails_table_row.html",
+        {"profile_mail": profile_email},
+    )
+
+
+@permission_required_htmx("scipost.can_delete_profile_emails")
+def _hx_profile_email_delete(request, email_id):
     """Delete ProfileEmail."""
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
-    profile_email.delete()
-    messages.success(request, "Email deleted")
-    return redirect(profile_email.profile.get_absolute_url())
+    if request.method == "DELETE":
+        profile_email.delete()
+    return HttpResponse("")
 
 
 class AffiliationCreateView(UserPassesTestMixin, CreateView):

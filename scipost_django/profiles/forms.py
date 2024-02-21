@@ -269,7 +269,7 @@ class AddProfileEmailForm(forms.ModelForm):
         )
         self.helper.attrs = {
             "hx-post": reverse(
-                "profiles:add_profile_email", kwargs={"profile_id": self.profile.id}
+                "profiles:_hx_add_profile_email", kwargs={"profile_id": self.profile.id}
             ),
             "hx-target": "#email-action-container",
         }

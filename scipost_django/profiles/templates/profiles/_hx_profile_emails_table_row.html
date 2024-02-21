@@ -1,0 +1,70 @@
+<tr>
+  <td class=" 
+    {% if profile_mail.primary %}fw-bold{% endif %}
+     ">{{ profile_mail.email }}</td>
+  <td>{{ profile_mail.primary|yesno:'Primary,Alternative' }}</td>
+  <td>
+
+    {% if profile_mail.still_valid %}
+      <span class="text-success">{% include "bi/check-circle-fill.html" %}</span>
+    {% else %}
+      <span class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
+    {% endif %}
+
+  </td>
+  <td>
+
+    {% if profile_mail.verified %}
+      <span class="text-success">{% include "bi/check-circle-fill.html" %}</span>
+    {% else %}
+      <span class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
+    {% endif %}
+
+  </td>
+  <td>
+
+    {% if profile_mail.added_by %}{{ profile_mail.added_by }}{% endif %}
+
+  </td>
+
+  {% if perms.scipost.can_validate_profile_emails %}
+    <td class="d-flex justify-content-between">
+      <button type="button"
+              class="btn btn-sm btn-light py-0"
+              hx-target="closest tr"
+              hx-swap="outerHTML"
+              hx-patch="{% url 'profiles:_hx_profile_email_toggle_valid' profile_mail.id %}">
+        {{ profile_mail.still_valid|yesno:'Depr.,Valid' }}
+      </button>
+    {% endif %}
+
+    {% if perms.scipost.can_verify_profile_emails %}
+      <button type="button"
+              class="btn btn-sm btn-light py-0"
+              hx-target="closest tr"
+              hx-swap="outerHTML"
+              hx-patch="{% url 'profiles:_hx_profile_email_toggle_verified' profile_mail.id %}">
+        {{ profile_mail.verified|yesno:'Unverified,Verified' }}
+      </button>
+    {% endif %}
+
+    {% if perms.scipost.can_mark_profile_emails_primary %}
+      <button type="button"
+              class="btn btn-sm btn-light py-0"
+              hx-target="closest table"
+              hx-swap="outerHTML"
+              hx-patch="{% url 'profiles:_hx_profile_email_mark_primary' profile_mail.id %}">Primary</button>
+    {% endif %}
+
+    {% if perms.scipost.can_delete_profile_emails %}
+      <button type="button"
+              class="btn py-0"
+              hx-target="closest tr"
+              hx-delete="{% url 'profiles:_hx_profile_email_delete' profile_mail.id %}"
+              hx-confirm="Are you sure you want to delete this email?">
+        <span class="text-danger">{% include 'bi/trash-fill.html' %}</span>
+      </button>
+    {% endif %}
+
+  </td>
+</tr>

@@ -124,6 +124,32 @@ class Command(BaseCommand):
             name="Can add affiliations to Profiles",
             content_type=content_type,
         )
+        can_add_profile_emails, created = Permission.objects.get_or_create(
+            codename="can_add_profile_emails",
+            name="Can add emails to Profiles",
+            content_type=content_type,
+        )
+        can_validate_profile_emails, created = Permission.objects.get_or_create(
+            codename="can_validate_profile_emails",
+            name="Can set emails of Profiles as still valid",
+            content_type=content_type,
+        )
+        can_verify_profile_emails, created = Permission.objects.get_or_create(
+            codename="can_verify_profile_emails",
+            name="Can verify emails of Profiles",
+            content_type=content_type,
+        )
+        can_mark_profile_emails_primary, created = Permission.objects.get_or_create(
+            codename="can_mark_profile_emails_primary",
+            name="Can mark emails of Profiles as primary",
+            content_type=content_type,
+        )
+        can_delete_profile_emails, created = Permission.objects.get_or_create(
+            codename="can_delete_profile_emails",
+            name="Can delete emails of Profiles",
+            content_type=content_type,
+        )
+
         can_merge_profiles, created = Permission.objects.get_or_create(
             codename="can_merge_profiles",
             name="Can merge Profiles",
@@ -469,6 +495,11 @@ class Command(BaseCommand):
                 can_create_profiles,
                 can_view_profiles,
                 can_add_profile_affiliations,
+                can_add_profile_emails,
+                can_verify_profile_emails,
+                can_validate_profile_emails,
+                can_mark_profile_emails_primary,
+                can_delete_profile_emails,
                 can_merge_profiles,
                 can_merge_contributors,
                 can_manage_ontology,
@@ -533,6 +564,11 @@ class Command(BaseCommand):
                 can_create_profiles,
                 can_view_profiles,
                 can_add_profile_affiliations,
+                can_add_profile_emails,
+                can_verify_profile_emails,
+                can_validate_profile_emails,
+                can_mark_profile_emails_primary,
+                can_delete_profile_emails,
                 can_merge_profiles,
                 can_merge_contributors,
                 can_manage_ontology,
@@ -552,6 +588,8 @@ class Command(BaseCommand):
                 can_create_profiles,
                 can_view_profiles,
                 can_add_profile_affiliations,
+                can_add_profile_emails,
+                can_validate_profile_emails,
                 can_attend_VGMs,
                 can_view_statistics,
                 can_manage_ontology,
@@ -623,6 +661,7 @@ class Command(BaseCommand):
             [
                 can_view_profiles,
                 can_add_profile_affiliations,
+                can_add_profile_emails,
                 can_assign_production_officer,
                 can_take_decisions_related_to_proofs,
                 # can_draft_publication,
