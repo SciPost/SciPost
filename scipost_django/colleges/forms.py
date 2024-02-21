@@ -1342,12 +1342,16 @@ class FellowshipsMonitorSearchForm(forms.Form):
     orderby = forms.ChoiceField(
         label="Order by",
         choices=[
+            ("", "-----"),
+            ("contributor__profile__last_name", "Fellow"),
             ("nr_in_pool", "# in pool"),
             ("nr_appraised", "# appraised"),
             ("nr_assignments_completed", "# completed"),
+            ("nr_assignments_ongoing", "# ongoing"),
             ("start_date", "Start date"),
             ("until_date", "End date"),
         ],
+        initial="",
         required=False,
     )
     ordering = forms.ChoiceField(
@@ -1627,7 +1631,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
         if not self.cleaned_data.get("has_guest"):
             fellowships = fellowships.exclude(status=Fellowship.STATUS_GUEST)
         if not self.cleaned_data.get("show_expired"):
-            fellowships = fellowships.filter(until_date__gte=timezone.now())
+            fellowships = fellowships.exclude(until_date__lt=date.today())
 
         # Ordering of nominations
         # Only order if both fields are set

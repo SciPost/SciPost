@@ -54,7 +54,14 @@ def _hx_search_form(request, filter_set: str):
     )
 
     if filter_set == "empty":
-        form.apply_filter_set({}, none_on_empty=True)
+        form.apply_filter_set(
+            {
+                "has_regular": True,
+                "has_senior": True,
+                "has_guest": True,
+            },
+            none_on_empty=True,
+        )
     elif m := re.match(f"^from_({DATE_REGEX})_to_({DATE_REGEX})$", filter_set):
         date_from = date.fromisoformat(m.group(1))
         date_to = date.fromisoformat(m.group(2))
