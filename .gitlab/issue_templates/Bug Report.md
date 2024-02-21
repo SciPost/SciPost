@@ -30,9 +30,9 @@ Include any relevant screenshots or images to help illustrate the bug.
 
 ## Issue Checklist 
  - [ ] The search function has been used to ensure that this feature request is not a duplicate.
- - [ ] If related to other issues, the /relate command has been used to link them.
+ - [ ] If related to other issues, it has been mentioned in the "Related Issues" section using #IssueNumber *AND* /relate #IssueNumber.
  - [ ] Title includes square bracket categorization tag, e.g. [Journals].
- - [ ] Labels have been assigned.
+ - [ ] Labels have been assigned, e.g. type, priority and impact.
  - [ ] URLs and Screenshots have been provided and confidential information has been removed/blurred (if applicable).
  - [ ] Empty / default / non-applicable sections of this template have been removed.
  - [ ] This checklist has been removed.
@@ -40,5 +40,4 @@ Include any relevant screenshots or images to help illustrate the bug.
 <!-- DEFAULT ACTIONS -->
 <!--  Do not remove  -->
 /label ~Bug 
-/assign @gkatsikas
 <!-- =============== -->
