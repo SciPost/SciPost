@@ -19,7 +19,9 @@
       <tr>
 	<td>Affiliations
 	  <ul>
-	    <li><a href="{% url 'profiles:affiliation_create' profile_id=profile.id %}">Add a new Affiliation</a></li>
+      {% if perms.scipost.can_add_profile_affiliations %}
+	      <li><a href="{% url 'profiles:affiliation_create' profile_id=profile.id %}">Add a new Affiliation</a></li>
+      {% endif %}
 	  </ul>
 	</td>
 	<td>

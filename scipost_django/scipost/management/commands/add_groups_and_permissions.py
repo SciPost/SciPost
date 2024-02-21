@@ -119,6 +119,11 @@ class Command(BaseCommand):
         )
 
         # Profile Management
+        can_add_profile_affiliations, created = Permission.objects.get_or_create(
+            codename="can_add_profile_affiliations",
+            name="Can add affiliations to Profiles",
+            content_type=content_type,
+        )
         can_merge_profiles, created = Permission.objects.get_or_create(
             codename="can_merge_profiles",
             name="Can merge Profiles",
@@ -463,6 +468,7 @@ class Command(BaseCommand):
                 can_view_statistics,
                 can_create_profiles,
                 can_view_profiles,
+                can_add_profile_affiliations,
                 can_merge_profiles,
                 can_merge_contributors,
                 can_manage_ontology,
@@ -526,6 +532,7 @@ class Command(BaseCommand):
                 can_view_statistics,
                 can_create_profiles,
                 can_view_profiles,
+                can_add_profile_affiliations,
                 can_merge_profiles,
                 can_merge_contributors,
                 can_manage_ontology,
@@ -544,6 +551,7 @@ class Command(BaseCommand):
                 can_take_charge_of_submissions,
                 can_create_profiles,
                 can_view_profiles,
+                can_add_profile_affiliations,
                 can_attend_VGMs,
                 can_view_statistics,
                 can_manage_ontology,
@@ -614,6 +622,7 @@ class Command(BaseCommand):
         ProductionSupervisors.permissions.set(
             [
                 can_view_profiles,
+                can_add_profile_affiliations,
                 can_assign_production_officer,
                 can_take_decisions_related_to_proofs,
                 # can_draft_publication,
