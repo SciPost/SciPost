@@ -1567,6 +1567,7 @@ def decline_ref_invitation(request, invitation_key):
         invitation.accepted = False
         invitation.date_responded = timezone.now()
         invitation.refusal_reason = form.cleaned_data["refusal_reason"]
+        invitation.other_refusal_reason = form.cleaned_data["other_refusal_reason"]
         invitation.save()
 
         mail_util = DirectMailUtil(

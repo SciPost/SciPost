@@ -2483,7 +2483,7 @@ class ConsiderRefereeInvitationForm(forms.Form):
         label="Are you willing to referee this Submission?",
     )
     refusal_reason = forms.ChoiceField(
-        choices=EditorialAssignment.REFUSAL_REASONS, required=False
+        choices=[(None, "")] + list(EditorialAssignment.REFUSAL_REASONS), required=False
     )
     other_refusal_reason = forms.CharField(
         required=False,
@@ -2497,24 +2497,24 @@ class ConsiderRefereeInvitationForm(forms.Form):
 
     def clean(self):
         accepted = self.cleaned_data.get("accept", None)
-        reason = self.cleaned_data.get("refusal_reason", None)
-        other_refusal_reason = self.cleaned_data.get("other_refusal_reason", None)
+        reason = self.cleaned_data.get("refusal_reason", "")
+        other_refusal_reason = self.cleaned_data.get("other_refusal_reason", "")
 
         if accepted == "False":
-            if reason is None:
+            if reason == "":
                 self.add_error(
                     "refusal_reason", "Please select a reason for declining."
                 )
-            if reason == "other" and other_refusal_reason is None:
+            if reason == "OTH" and other_refusal_reason == "":
                 self.add_error(
                     "other_refusal_reason", "Please specify your reason for declining."
                 )
-            elif reason != "other" and other_refusal_reason is not None:
+            elif reason != "OTH" and other_refusal_reason != "":
                 self.add_error(
                     "other_refusal_reason",
                     'Please select "Other" to specify your reason for declining.',
                 )
-        elif reason is not None:
+        elif accepted == "True" and reason != "":
             self.add_error(
                 "refusal_reason",
                 "You cannot select a refusal reason if you accept.",
