@@ -1220,9 +1220,11 @@ def add_referee_profile(request, identifier_w_vn_nr):
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allowed):
+def invite_referee(
+    request, identifier_w_vn_nr, profile_id, profile_email, auto_reminders_allowed
+):
     """
-    Invite a referee linked to a Profile.
+    Invite a referee linked to a Profile using their profile email.
     If the Profile has a Contributor object, a simple invitation is sent.
     If there is no associated Contributor, a registration invitation is included.
     """
@@ -1231,6 +1233,13 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     profile = get_object_or_404(Profile, pk=profile_id)
+    auto_reminders_allowed = auto_reminders_allowed == "True"
+
+    # We cannot proceed if the Profile has no email address
+    # or if the email address is not linked to the Profile.
+    profile_email = profile.emails.get(email=profile_email)
+    if profile_email is None:
+        raise Http404
 
     contributor = None
     if hasattr(profile, "contributor") and profile.contributor:
@@ -1243,7 +1252,7 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
         title=profile.title if profile.title else TITLE_DR,
         first_name=profile.first_name,
         last_name=profile.last_name,
-        email_address=profile.email,
+        email_address=profile_email.email,
         auto_reminders_allowed=auto_reminders_allowed,
         invited_by=request.user.contributor,
     )
@@ -1269,19 +1278,18 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
             invitation=referee_invitation,
         )
     else:  # no Contributor, so registration invitation
-        (
-            registration_invitation,
-            reginv_created,
-        ) = RegistrationInvitation.objects.get_or_create(
-            profile=profile,
-            title=profile.title if profile.title else TITLE_DR,
-            first_name=profile.first_name,
-            last_name=profile.last_name,
-            email=profile.email,
-            invitation_type=INVITATION_REFEREEING,
-            created_by=request.user,
-            invited_by=request.user,
-            invitation_key=referee_invitation.invitation_key,
+        registration_invitation, reginv_created = (
+            RegistrationInvitation.objects.get_or_create(
+                profile=profile,
+                title=profile.title if profile.title else TITLE_DR,
+                first_name=profile.first_name,
+                last_name=profile.last_name,
+                email=profile_email.email,
+                invitation_type=INVITATION_REFEREEING,
+                created_by=request.user,
+                invited_by=request.user,
+                invitation_key=referee_invitation.invitation_key,
+            )
         )
         mail_request = MailEditorSubview(
             request,

@@ -309,7 +309,7 @@ urlpatterns = [
         name="add_referee_profile",
     ),
     path(
-        "invite_referee/<identifier:identifier_w_vn_nr>/<int:profile_id>/<int:auto_reminders_allowed>",
+        "invite_referee/<identifier:identifier_w_vn_nr>/<int:profile_id>/<str:profile_email>/auto_remind/<str:auto_reminders_allowed>",
         views.invite_referee,
         name="invite_referee",
     ),
