@@ -4,9 +4,8 @@ __license__ = "AGPL v3"
 
 import datetime
 
+from django.core.paginator import Paginator
 from django.template.response import TemplateResponse
-import feedparser
-import urllib.parse
 
 from django.contrib import messages
 from django.contrib.auth.decorators import (
@@ -36,6 +35,8 @@ from django.views.generic.list import ListView
 
 from dal import autocomplete
 
+from scipost.permissions import permission_required_htmx
+
 from ..constants import (
     STATUS_VETTED,
     STATUS_DRAFT,
@@ -60,6 +61,7 @@ from ..models import (
 )
 from ..mixins import SubmissionMixin, SubmissionAdminViewMixin
 from ..forms import (
+    InviteRefereeSearchFrom,
     SciPostPrefillForm,
     ArXivPrefillForm,
     ChemRxivPrefillForm,
@@ -73,7 +75,6 @@ from ..forms import (
     EditorialAssignmentForm,
     VetReportForm,
     SetRefereeingDeadlineForm,
-    RefereeSearchForm,
     iThenticateReportForm,
     VotingEligibilityForm,
     WithdrawSubmissionForm,
@@ -1121,6 +1122,75 @@ def cycle_form_submit(request, identifier_w_vn_nr):
     )
 
 
+@permission_required_htmx(
+    "scipost.can_invite_referees",
+    "You do not have permission to invite referees.",
+)
+def _hx_select_referee_table(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission,
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+
+    # Guard against non-admin and non-EIC users
+    is_eic_for_submission = submission.editor_in_charge == request.user.contributor
+    can_oversee_refereeing = request.user.has_perm("scipost.can_oversee_refereeing")
+    is_admin = request.user.is_staff
+    if not (is_eic_for_submission or can_oversee_refereeing or is_admin):
+        raise PermissionDenied()
+
+    form = InviteRefereeSearchFrom(
+        request.POST or None,
+        submission=submission,
+    )
+    if form.is_valid():
+        fellowships = form.search_results()
+    else:
+        fellowships = Fellowship.objects.all()
+    paginator = Paginator(fellowships, 16)
+    page_nr = request.GET.get("page")
+    page_obj = paginator.get_page(page_nr)
+    count = paginator.count
+    start_index = page_obj.start_index
+    context = {
+        "submission": submission,
+        "count": count,
+        "page_obj": page_obj,
+        "start_index": start_index,
+    }
+    return render(request, "submissions/_hx_select_referee_table.html", context)
+
+
+def _hx_select_referee_search_form(request, identifier_w_vn_nr, filter_set: str):
+    submission = get_object_or_404(
+        Submission,
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+
+    # Guard against non-admin and non-EIC users
+    is_eic_for_submission = submission.editor_in_charge == request.user.contributor
+    can_oversee_refereeing = request.user.has_perm("scipost.can_oversee_refereeing")
+    is_admin = request.user.is_staff
+    if not (is_eic_for_submission or can_oversee_refereeing or is_admin):
+        raise PermissionDenied()
+
+    form = InviteRefereeSearchFrom(
+        request.POST or None,
+        submission=submission,
+    )
+
+    if filter_set == "empty":
+        form.apply_filter_set(
+            {
+                "show_email_unknown": True,
+            },
+            none_on_empty=True,
+        )
+
+    context = {"form": form, "submission": submission}
+    return render(request, "submissions/_hx_select_referee_search_form.html", context)
+
+
 @login_required
 @fellowship_or_admin_required()
 def select_referee(request, identifier_w_vn_nr):
@@ -1146,45 +1216,13 @@ def select_referee(request, identifier_w_vn_nr):
             )
         )
 
-    context = {}
-    queryresults = ""
-    form = RefereeSearchForm(request.GET or None)
-    if form.is_valid():
-        context["profiles_found"] = form.search()
-        # Check for recent co-authorship (thus referee disqualification)
-        try:
-            sub_auth_boolean_str = "((" + (
-                submission.metadata["entries"][0]["authors"][0]["name"].split()[-1]
-            )
-            for author in submission.metadata["entries"][0]["authors"][1:]:
-                sub_auth_boolean_str += "+OR+" + author["name"].split()[-1]
-            sub_auth_boolean_str += ")+AND+"
-            search_str = sub_auth_boolean_str + form.cleaned_data["last_name"] + ")"
-            querydict = {
-                "search_query": "au:%s" % search_str,
-                "sortBy": "submittedDate",
-                "sortorder": "descending",
-                "max_results": 5,
-            }
-            queryurl = (
-                "https://export.arxiv.org/api/query?"
-                "%s" % urllib.parse.urlencode(querydict)
-            )
-            arxivquery = feedparser.parse(queryurl)
-            queryresults = arxivquery
-        except KeyError:
-            pass
-        context["profile_form"] = SimpleProfileForm()
-    context.update(
-        {
-            "submission": submission,
-            "workdays_left_to_report": workdays_between(
-                timezone.now(), submission.reporting_deadline
-            ),
-            "referee_search_form": form,
-            "queryresults": queryresults,
-        }
-    )
+    context = {
+        "submission": submission,
+        "new_profile_form": SimpleProfileForm(),
+        "workdays_left_to_report": workdays_between(
+            timezone.now(), submission.reporting_deadline
+        ),
+    }
     return render(request, "submissions/select_referee.html", context)
 
 
@@ -1196,7 +1234,9 @@ def _hx_configure_refereeing_invitation(request, identifier_w_vn_nr, profile_id)
     profile = get_object_or_404(Profile, pk=profile_id)
 
     form = ConfigureRefereeInvitationForm(
-        request.POST or None, profile=profile, submission=submission,
+        request.POST or None,
+        profile=profile,
+        submission=submission,
     )
 
     context = {

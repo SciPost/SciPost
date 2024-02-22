@@ -9,6 +9,8 @@ from django.db.models import Count, Q, Value
 from django.db.models.functions import Concat, Lower
 from django.utils import timezone
 
+from ethics.models import CompetingInterest
+
 
 class ProfileQuerySet(models.QuerySet):
     def get_unique_from_email_or_None(self, email):
@@ -79,8 +81,6 @@ class ProfileQuerySet(models.QuerySet):
         """
         Returns all Profiles which have no competing interests with the specified profile.
         """
-        from ethics.models import CompetingInterest
-
         CI_profiles = CompetingInterest.objects.involving_profile(profile).values_list(
             "profile", "related_profile"
         )
@@ -88,6 +88,24 @@ class ProfileQuerySet(models.QuerySet):
         profile_CI, related_CI = list(zip(*CI_profiles)) or ([], [])
 
         return self.exclude(id__in=profile_CI + related_CI)
+
+    def without_competing_interests_against_submission_authors_of(self, submission):
+        """
+        Returns all Fellowships whose profiles have no competing interests with any of the authors of the specified submission.
+        """
+        submission_author_profile_ids = submission.author_profiles.all().values_list(
+            "profile_id", flat=True
+        )
+
+        fellow_author_cis = CompetingInterest.objects.between_profile_sets(
+            self.values("id"), submission_author_profile_ids
+        )
+
+        CI_profiles = fellow_author_cis.values_list("profile", "related_profile")
+        # Unpack the list of two-tuples into two lists
+        profile_CI, related_CI = list(zip(*CI_profiles)) or ([], [])
+
+        return self.exclude(contributor__profile__id__in=profile_CI + related_CI)
 
     def search(self, query):
         """

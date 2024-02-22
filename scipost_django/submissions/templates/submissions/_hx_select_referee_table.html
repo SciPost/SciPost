@@ -1,37 +1,42 @@
-<table class="table align-center">
-  <thead class="table-light align-top">
-    <tr>
-      <th>
-        Name
-        <br />
-        <small class="text-muted">Click to add emails etc.</small>
-      </th>
-      <th>Registered</th>
-      <th>
-        Emails
-        <br />
-        <small class="text-muted">Primary, Valid, Verified, Address</small>
-      </th>
-      <th>
-        Accepts
-        <br />
-        requests?
-      </th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
+{% for profile in page_obj %}
+  {% include 'submissions/_hx_select_referee_table_row.html' %}
+{% empty %}
+  <tr id="select-referee-search-results-load-next" hx-swap-oob="true">
+    <td colspan="12" class="text-center p-0">
+      <div class="p-2 d-flex justify-content-center">
+        <strong>No Profiles could be found</strong>
+      </div>
+    </td>
+  </tr>
+{% endfor %}
 
-    {% for profile in profiles_found %}
-      {% include "submissions/_hx_select_referee_table_row.html" %}
-    {% empty %}
-      <tr>
-	
-        <td>No Profiles found</td>
-	
-        <td></td>
-      </tr>
-    {% endfor %}
+{% if page_obj.has_next %}
+  <tr id="select-referee-search-results-load-next"
+      class="htmx-indicator"
+      hx-swap-oob="true"
+      hx-post="{% url 'submissions:_hx_select_referee_table' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}?page={{ page_obj.next_page_number }}"
+      hx-target="#select-referee-search-results"
+      hx-include="#select-referee-search-form"
+      hx-trigger="revealed"
+      hx-swap="beforeend"
+      hx-indicator="#select-referee-search-results-load-next">
 
-  </tbody>
-</table>
+    <td colspan="12" class="text-center p-0">
+      <div class="p-2 bg-primary bg-opacity-25 d-flex justify-content-center">
+        <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+        <div class="spinner-grow spinner-grow-sm ms-2"
+             role="status"
+             aria-hidden="true"></div>
+      </div>
+    </td>
+  </tr>
+{% else %}
+  <tr id="select-referee-search-results-load-next" hx-swap-oob="true">
+
+    <td colspan="12" class="text-center p-0">
+      <div class="p-2 d-flex justify-content-center">
+        <strong>All Profiles loaded</strong>
+      </div>
+    </td>
+  </tr>
+{% endif %}

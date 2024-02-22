@@ -1,13 +1,16 @@
 {% extends 'submissions/pool/base.html' %}
 
-{% block pagetitle %}: select referee for submission{% endblock pagetitle %}
+{% block pagetitle %}
+  : select referee for submission
+{% endblock pagetitle %}
 
 {% load scipost_extras %}
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-  {{block.super}}
-  <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
+  {{ block.super }}
+  <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}"
+     class="breadcrumb-item">Editorial Page ({{ submission.preprint.identifier_w_vn_nr }})</a>
   <span class="breadcrumb-item">Select Referee</span>
 {% endblock %}
 
@@ -18,8 +21,12 @@
       <div class="card bg-light">
         <div class="card-body">
           <h1 class="card-text">Referee Selection Page for Submission</h1>
-          <p class="card-text">(go to the <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
-          <p class="card-text">(go back to the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</p>
+          <p class="card-text">
+            (go to the <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)
+          </p>
+          <p class="card-text">
+            (go back to the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)
+          </p>
         </div>
       </div>
     </div>
@@ -34,73 +41,108 @@
         <h3>Referees flagged upon submission (treat reports with caution):</h3>
         <p>{{ submission.referees_flagged }}</p>
       {% endif %}
+
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-12">
-      <h2 class="highlight" id="form">Select an additional Referee</h2>
+  <h2 class="highlight">Invite an additional Referee</h2>
 
-      {% if workdays_left_to_report < 15 %}
-        <div class="mb-3 p-3 border border-danger border-2">
-          <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span>
-          <strong class="text-danger">
-            Warning: there are {{ workdays_left_to_report }} working days left before the refereeing deadline.
-          </strong>
+  {% if workdays_left_to_report < 15 %}
+    <div class="mb-3 p-3 border border-danger border-2">
+      <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span>
+      <strong class="text-danger">
+        Warning: there are {{ workdays_left_to_report }} working days left before the refereeing deadline.
+      </strong>
 
-          <div class="my-2">Standard refereeing period for {{ submission.submitted_to }}: <strong>{{ submission.submitted_to.refereeing_period.days }} days</strong>.</div>
-
-          Consider resetting the refereeing deadline at the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> before inviting a referee.
-        </div>
-      {% endif %}
-
-      <form action="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="get">
-        {{ referee_search_form|bootstrap }}
-        <input class="btn btn-primary" type="submit" value="Find referee">
-      </form>
-    </div>
-  </div>
-
-  {% if queryresults.entries %}
-    <div class="row">
-      <div class="col-12">
-        <div class="card border-danger">
-          <div class="card-body">
-            <h3 class="card-title text-danger">The system identified the following potential coauthorships (from arXiv database)</h3>
-            <p class="card-text text-danger">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
-          </div>
-          <div class="card-body">
-            <ul class="list-group list-group-flush px-0">
-              {% for entry in queryresults.entries %}
-                <li class="list-group-item">
-                  {% include 'submissions/_arxiv_queryresult.html' with item=entry id=forloop.counter id2=0 %}
-                </li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
+      <div class="my-2">
+        Standard refereeing period for {{ submission.submitted_to }}: <strong>{{ submission.submitted_to.refereeing_period.days }} days</strong>.
       </div>
+
+      Consider resetting the refereeing deadline at the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> before inviting a referee.
     </div>
   {% endif %}
 
-  <div class="row">
-    <div class="col-12">
-      {% if profiles_found %}
-        <h3 class="mt-4">Matching Profiles in our database:</h3>
-        {% include "submissions/_hx_select_referee_table.html" %}
-      {% endif %}
-      {% if profile_form %}
-        <h3 class="mb-3 mt-5">Not found? Then add to our database by filling this form:</h3>
-        <form action="{% url 'submissions:add_referee_profile' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
-          {% csrf_token %}
-          {{ profile_form|bootstrap }}
+  <section name="search_form">
+    <details open id="select-referee-filter-details" class="card my-4">
+      <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
+        <h2 class="fs-3 my-2">Search / Filter</h2>
+        <div class="d-none d-md-flex align-items-center">
+ 
+          <div id="select-referee-search-indicator" class="htmx-indicator">
+            <button class="btn btn-warning text-white d-none d-md-block me-2"
+                    type="button"
+                    disabled>
+              <strong>Loading...</strong>
+ 
+              <div class="spinner-grow spinner-grow-sm ms-2"
+                   role="status"
+                   aria-hidden="true"></div>
+            </button>
+          </div>
 
-          <p><em>This form does not send invitation yet: you will return to this page, from which you can then invite this referee.</em></p>
-          <button type="submit" name="submit" class="btn btn-primary">Add to database</button>
-        </form>
-    </div>
-  </div>
-      {% endif %}
+          <button class="btn btn-outline-secondary me-2"
+                  type="button"
+                  hx-get="{% url 'submissions:_hx_select_referee_search_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr filter_set="empty" %}"
+                  hx-target="#select-referee-search-form-container">Clear Filters</button>
+ 
+          <a id="refresh-button" class="me-2 btn btn-primary">
+            {% include "bi/arrow-clockwise.html" %}
+          &nbsp;Refresh</a>
+        </div>
 
+      </summary>
+      <div class="card-body">
+        <div id="select-referee-search-form-container"
+             hx-get="{% url 'submissions:_hx_select_referee_search_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr filter_set='latest' %}"
+             hx-trigger="load, intersect once"></div>
+      </div>
+    </details>
+  </section>
+
+  <section name="search_results" class="p-2">
+    <table class="table table-hover table-center table-responsive position-relative">
+      <thead class="position-sticky top-0 table-light align-top">
+        <tr>
+          <th>
+            Name
+            <br />
+            <small class="text-muted">Click to add emails etc.</small>
+          </th>
+          <th>Registered</th>
+          <th>
+            Emails
+            <br />
+            <small class="text-muted">Primary, Valid, Verified, Address</small>
+          </th>
+          <th>
+            Accepts
+            <br />
+            requests?
+          </th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="select-referee-search-results">
+      </tbody>
+      <tfoot>
+        <tr id="select-referee-search-results-load-next"></tr>
+      </tfoot>
+    </table>
+ 
+  </section>
+
+  {% if new_profile_form %}
+    <h3 class="mb-3 mt-5">Not found? Then add to our database by filling this form:</h3>
+    <form action="{% url 'submissions:add_referee_profile' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+          method="post">
+      {% csrf_token %}
+      {{ new_profile_form|bootstrap }}
+
+      <p>
+        This form does not send invitation yet: you will return to this page, from which you can then invite this referee.
+      </p>
+      <button type="submit" name="submit" class="btn btn-primary">Add to database</button>
+    </form>
+  {% endif %}
 
 {% endblock %}

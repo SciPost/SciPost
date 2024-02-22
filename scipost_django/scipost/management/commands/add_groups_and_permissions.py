@@ -216,6 +216,11 @@ class Command(BaseCommand):
             name="Can request Thesis Links",
             content_type=content_type,
         )
+        can_invite_referees, created = Permission.objects.get_or_create(
+            codename="can_invite_referees",
+            name="Can invite referees",
+            content_type=content_type,
+        )
 
         # Vetting of objects
         can_vet_commentary_requests, created = Permission.objects.get_or_create(
@@ -504,6 +509,7 @@ class Command(BaseCommand):
                 can_merge_contributors,
                 can_manage_ontology,
                 can_manage_organizations,
+                can_invite_referees,
                 can_view_potentialfellowship_list,
                 can_add_potentialfellowship,
                 can_preview_new_features,
@@ -573,6 +579,7 @@ class Command(BaseCommand):
                 can_merge_contributors,
                 can_manage_ontology,
                 can_manage_organizations,
+                can_invite_referees,
                 can_view_potentialfellowship_list,
                 can_add_potentialfellowship,
                 can_preview_new_features,
@@ -589,6 +596,7 @@ class Command(BaseCommand):
                 can_view_profiles,
                 can_add_profile_affiliations,
                 can_add_profile_emails,
+                can_invite_referees,
                 can_validate_profile_emails,
                 can_attend_VGMs,
                 can_view_statistics,

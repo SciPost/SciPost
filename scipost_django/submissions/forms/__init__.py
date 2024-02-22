@@ -11,7 +11,7 @@ import datetime
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Q, Count, Value
+from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value
 from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
 from django.forms.formsets import ORDERING_FIELD_NAME
@@ -87,7 +87,7 @@ from scipost.services import (
     FigshareCaller,
     OSFPreprintsCaller,
 )
-from scipost.models import Contributor, Remark
+from scipost.models import Contributor, Remark, UnavailabilityPeriod
 from series.models import Collection
 import strings
 
@@ -2239,22 +2239,163 @@ class EditorialAssignmentForm(forms.ModelForm):
         return assignment
 
 
-class RefereeSearchForm(forms.Form):
-    last_name = forms.CharField(
-        widget=forms.TextInput(
-            {"placeholder": "Search for a referee in the SciPost Profiles database"}
-        )
+class InviteRefereeSearchFrom(forms.Form):
+    text = forms.CharField(
+        required=False, help_text="Fill in a name, email or ORCID", label="Search"
+    )
+    affiliation = forms.CharField(required=False)
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.none(),
+        label="Submission specialties",
+        required=False,
     )
 
-    def search(self):
-        query = Q_with_alternative_spellings(
-            last_name__unaccent__icontains=self.cleaned_data["last_name"]
+    show_unavailable = forms.BooleanField(
+        required=False,
+        label="Show unavailable",
+    )
+    show_with_CI = forms.BooleanField(
+        required=False,
+        label="Include those with competing interests",
+    )
+    show_email_unknown = forms.BooleanField(
+        required=False,
+        initial=True,
+        label="Show without email",
+    )
+
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=[
+            ("", "-----"),
+            ("last_name", "Name"),
+        ],
+        initial="",
+        required=False,
+    )
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=[
+            ("-", "Descending"),
+            ("+", "Ascending"),
+        ],
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop("submission")
+        super().__init__(*args, **kwargs)
+
+        self.fields["specialties"].queryset = self.submission.specialties.all()
+
+        self.helper = FormHelper()
+
+        div_block_ordering = Div(
+            Div(Field("orderby"), css_class="col-6"),
+            Div(Field("ordering"), css_class="col-6"),
+            css_class="row mb-0",
         )
-        return (
-            Profile.objects.filter(query)
-            .exclude(contributor__user__is_superuser=True)
-            .exclude(contributor__user__is_staff=True)
+        div_block_options = Div(
+            Div(Field("show_unavailable"), css_class="col-auto"),
+            Div(Field("show_with_CI"), css_class="col-auto"),
+            Div(Field("show_email_unknown"), css_class="col-auto"),
+            css_class="row mb-0",
         )
+
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Div(
+                        Div(FloatingField("text"), css_class="col-12 mb-2"),
+                        Div(FloatingField("affiliation"), css_class="col-12"),
+                        css_class="row mb-0 d-flex flex-column justify-content-between h-100",
+                    ),
+                    css_class="col",
+                ),
+                Div(
+                    Field("specialties", size=6),
+                    css_class="col-12 col-md-4",
+                ),
+                Div(
+                    Div(
+                        Div(div_block_options, css_class="col-12"),
+                        Div(div_block_ordering, css_class="col-12"),
+                        css_class="row mb-0 d-flex flex-column justify-content-between h-100",
+                    ),
+                    css_class="col-12 col-md",
+                ),
+                css_class="row mb-0",
+            ),
+        )
+
+    def apply_filter_set(self, filters: dict, none_on_empty: bool = False):
+        # Apply the filter set to the form
+        for key in self.fields:
+            if key in filters:
+                self.fields[key].initial = filters[key]
+            elif none_on_empty:
+                if isinstance(self.fields[key], forms.MultipleChoiceField):
+                    self.fields[key].initial = []
+                else:
+                    self.fields[key].initial = None
+
+    def search_results(self):
+        """
+        Return a queryset of Profiles based on the search form.
+        """
+        profiles = Profile.objects.all()
+
+        if text := self.cleaned_data.get("text"):
+            profiles = profiles.search(text)
+
+        if affiliation := self.cleaned_data.get("affiliation"):
+            profiles = profiles.filter(
+                affiliations__organization__name__icontains=affiliation
+            )
+
+        # Filter to only those without competing interests, unless the option is selected
+        if not self.cleaned_data.get("show_with_CI"):
+            profiles = (
+                profiles.without_competing_interests_against_submission_authors_of(
+                    self.submission
+                )
+            )
+        # Filter to only those available, unless the option is selected
+        if not self.cleaned_data.get("show_unavailable"):
+            current_unavailability_periods = Subquery(
+                UnavailabilityPeriod.objects.today().filter(
+                    contributor=OuterRef("contributor")
+                )
+            )
+            profiles = profiles.annotate(
+                is_unavailable=Exists(current_unavailability_periods)
+            ).exclude(is_unavailable=True)
+
+        # Exclude those without email, if the option is selected
+        if not self.cleaned_data.get("show_email_unknown"):
+            profiles = profiles.exclude(emails__isnull=True)
+
+        if specialties := self.cleaned_data.get("specialties"):
+            profiles = profiles.filter(specialties__in=specialties)
+
+        # Ordering of referees
+        # Only order if both fields are set
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            profiles = profiles.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
+                ]
+            )
+
+        return profiles
 
 
 class ConfigureRefereeInvitationForm(forms.Form):

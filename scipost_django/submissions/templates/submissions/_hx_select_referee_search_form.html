@@ -1,0 +1,10 @@
+{% load crispy_forms_tags %}
+
+<form hx-post="{% url 'submissions:_hx_select_referee_table' submission.preprint.identifier_w_vn_nr %}"
+      hx-trigger="load, keyup delay:500ms, change delay:500ms, click from:#refresh-button"
+      hx-sync="#select-referee-search-form:replace"
+      hx-target="#select-referee-search-results"
+      hx-indicator="#select-referee-search-indicator">
+ 
+  <div id="select-referee-search-form">{% crispy form %}</div>
+</form>

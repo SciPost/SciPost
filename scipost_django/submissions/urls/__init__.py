@@ -304,6 +304,16 @@ urlpatterns = [
         name="select_referee",
     ),
     path(
+        "_hx_select_referee_table/<identifier:identifier_w_vn_nr>",
+        views._hx_select_referee_table,
+        name="_hx_select_referee_table",
+    ),
+    path(
+        "_hx_select_referee_search_form/<identifier:identifier_w_vn_nr>/<str:filter_set>",
+        views._hx_select_referee_search_form,
+        name="_hx_select_referee_search_form",
+    ),
+    path(
         "add_referee_profile/<identifier:identifier_w_vn_nr>",
         views.add_referee_profile,
         name="add_referee_profile",
