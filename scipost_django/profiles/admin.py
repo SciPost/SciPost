@@ -11,6 +11,7 @@ from .models import Profile, ProfileEmail, ProfileNonDuplicates, Affiliation
 
 class ProfileEmailInline(admin.TabularInline):
     model = ProfileEmail
+    autocomplete_fields = ["added_by"]
     extra = 0
 
 
