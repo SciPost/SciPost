@@ -3,10 +3,9 @@ __license__ = "AGPL v3"
 
 
 import datetime
-from difflib import SequenceMatcher
+
 from django.template.response import TemplateResponse
 import feedparser
-import strings
 import urllib.parse
 
 from django.contrib import messages
@@ -22,7 +21,6 @@ from django.contrib.auth.mixins import (
 )
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
 from django.db import transaction, IntegrityError
 from django.db.models import Q, Count, Sum
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -67,6 +65,7 @@ from ..forms import (
     ChemRxivPrefillForm,
     FigsharePrefillForm,
     OSFPreprintsPrefillForm,
+    ConfigureRefereeInvitationForm,
     SubmissionForm,
     SubmissionPoolSearchForm,
     SubmissionOldSearchForm,
@@ -116,7 +115,7 @@ from ontology.forms import SelectTopicForm, TopicDynSelForm
 from preprints.models import Preprint
 from production.forms import ProofsDecisionForm
 from production.utils import get_or_create_production_stream
-from profiles.models import Profile
+from profiles.models import Profile, ProfileEmail
 from profiles.forms import SimpleProfileForm
 from scipost.constants import TITLE_DR, INVITATION_REFEREEING
 from scipost.decorators import is_contributor_user
@@ -1187,6 +1186,40 @@ def select_referee(request, identifier_w_vn_nr):
         }
     )
     return render(request, "submissions/select_referee.html", context)
+
+
+def _hx_configure_refereeing_invitation(request, identifier_w_vn_nr, profile_id):
+    submission = get_object_or_404(
+        Submission.objects.in_pool_filter_for_eic(request.user),
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+    profile = get_object_or_404(Profile, pk=profile_id)
+
+    form = ConfigureRefereeInvitationForm(
+        request.POST or None, profile=profile, submission=submission,
+    )
+
+    context = {
+        "submission": submission,
+        "form": form,
+    }
+
+    if request.method == "POST" and form.is_valid():
+        return redirect(
+            reverse(
+                "submissions:invite_referee",
+                kwargs={
+                    "identifier_w_vn_nr": submission.preprint.identifier_w_vn_nr,
+                    "profile_id": profile_id,
+                    "profile_email": form.cleaned_data["profile_email"],
+                    "auto_reminders_allowed": form.cleaned_data["has_auto_reminders"],
+                },
+            )
+        )
+
+    return render(
+        request, "submissions/_hx_configure_refereeing_invitation.html", context
+    )
 
 
 @login_required

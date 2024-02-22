@@ -18,7 +18,7 @@ from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
+from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit, Button, HTML
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
@@ -2255,6 +2255,84 @@ class RefereeSearchForm(forms.Form):
             .exclude(contributor__user__is_superuser=True)
             .exclude(contributor__user__is_staff=True)
         )
+
+
+class ConfigureRefereeInvitationForm(forms.Form):
+    """
+    Displayed when the EIC has selected a referee and wants to configure the invitation to be sent.
+    Allows the selection of profile emails to send the invitation to, as well as invitation reminder parameters.
+    """
+
+    has_auto_reminders = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=((True, "Yes"), (False, "No")),
+        initial=False,
+        required=False,
+        label="Send automatic reminders?",
+    )
+    profile_email = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=[],
+        required=True,
+        label="Email address",
+    )
+
+    def __init__(self, *args, **kwargs):
+        """
+        Add the list of available profile emails to the form.
+        """
+        self.submission = kwargs.pop("submission")
+        self.profile: "Profile" = kwargs.pop("profile")
+        super().__init__(*args, **kwargs)
+
+        self.fields["profile_email"].choices = [
+            (email.email, email.email) for email in self.profile.emails.all()
+        ]
+        self.fields["profile_email"].initial = self.profile.emails.first().email
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse(
+            "submissions:_hx_configure_refereeing_invitation",
+            kwargs={
+                "identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr,
+                "profile_id": self.profile.id,
+            },
+        )
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Field("has_auto_reminders"),
+                    HTML(
+                        '<span class="text-muted">Whether to remind the referee automatically '
+                        '{% include "submissions/_refinv_auto_reminders_tooltip.html" %}</span>'
+                    ),
+                ),
+                Div(Field("profile_email"), css_class="mx-4"),
+                ButtonHolder(
+                    Submit("submit", "Invite", css_class="btn btn-sm btn-primary"),
+                    Button(
+                        "cancel",
+                        "Cancel",
+                        css_class="btn btn-sm btn-secondary",
+                        hx_get=reverse("common:empty"),
+                        hx_target="closest tr",
+                        hx_swap="outerHTML",
+                    ),
+                    css_class="d-flex flex-column justify-content-between",
+                ),
+                css_class="d-flex flex-row justify-content-center",
+            )
+        )
+
+    def clean(self):
+        if (
+            contributor := getattr(self.profile, "contributor", None)
+        ) and not contributor.is_currently_available:
+            self.add_error(
+                None,
+                "This Contributor is marked as currently unavailable. "
+                "Please cancel and select another referee.",
+            )
 
 
 class ConsiderRefereeInvitationForm(forms.Form):
