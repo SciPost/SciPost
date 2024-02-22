@@ -35,7 +35,7 @@
             <div class="badge bg-danger">overdue</div>
           {% endif %}
         </td>
-        <td class="py-3">{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}</td>
+        <td class="py-3">{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }} <br /> <span class="text-muted text-truncate">{{invitation.email_address}}</span> </td>
         <td>
 	  {% if not invitation.date_invited %}
       {% if not invitation.cancelled %}
