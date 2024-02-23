@@ -117,7 +117,7 @@ from preprints.models import Preprint
 from production.forms import ProofsDecisionForm
 from production.utils import get_or_create_production_stream
 from profiles.models import Profile, ProfileEmail
-from profiles.forms import SimpleProfileForm
+from profiles.forms import AddProfileEmailForm, SimpleProfileForm
 from scipost.constants import TITLE_DR, INVITATION_REFEREEING
 from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm, SearchTextForm
@@ -1259,6 +1259,43 @@ def _hx_configure_refereeing_invitation(request, identifier_w_vn_nr, profile_id)
 
     return render(
         request, "submissions/_hx_configure_refereeing_invitation.html", context
+    )
+
+
+@permission_required_htmx("scipost.can_add_profile_emails")
+def _hx_add_referee_profile_email(request, profile_id):
+    """
+    Add an email address to a Profile from the select referee page.
+    """
+    profile = get_object_or_404(Profile, pk=profile_id)
+
+    form = AddProfileEmailForm(
+        request.POST or None,
+        profile=profile,
+        request=request,
+        hx_attrs={
+            "hx-post": reverse(
+                "submissions:_hx_add_referee_profile_email",
+                kwargs={"profile_id": profile.id},
+            ),
+            "hx-target": "previous tbody",
+            "hx-swap": "beforeend",
+        },
+        cancel_parent_tag="tr",
+    )
+
+    if form.is_valid():
+        profile_email = form.save()
+        response = TemplateResponse(
+            request,
+            "submissions/_hx_select_referee_email_table_row.html",
+            {"profile_email": profile_email},
+        )
+
+        return response
+
+    return render(
+        request, "submissions/_hx_configure_refereeing_invitation.html", {"form": form}
     )
 
 

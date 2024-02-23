@@ -329,6 +329,11 @@ urlpatterns = [
         name="_hx_configure_refereeing_invitation",
     ),
     path(
+        "refereeing/_hx_add_referee_profile_email/<int:profile_id>",
+        views._hx_add_referee_profile_email,
+        name="_hx_add_referee_profile_email",
+    ),
+    path(
         "set_refinv_auto_reminder/<int:invitation_id>/<int:auto_reminders>",
         views.set_refinv_auto_reminder,
         name="set_refinv_auto_reminder",

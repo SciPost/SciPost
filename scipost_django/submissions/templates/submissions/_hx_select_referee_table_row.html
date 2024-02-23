@@ -57,6 +57,12 @@
               hx-get="{% url 'submissions:_hx_configure_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}"
               hx-target="closest tr"
               hx-swap="afterend">Select</button>
+      <button id="ref-inv-{{ profile.id }}-send-btn"
+              type="button"
+              class="btn btn-sm btn-light"
+              hx-get="{% url 'submissions:_hx_add_referee_profile_email' profile_id=profile.id %}"
+              hx-target="closest tr"
+              hx-swap="afterend">Add Email</button>
     {% endif %}
 
   </td>
