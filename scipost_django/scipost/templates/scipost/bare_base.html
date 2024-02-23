@@ -27,7 +27,9 @@
     {% endblock headsup %}
   </head>
 
-  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="{% block body_class %}{% endblock %}">
+  <body class="d-flex flex-column {% block body_class %}{% endblock %}"
+        style="min-height: 100vh" 
+        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% block header %}
       {% include 'scipost/header.html' %}
     {% endblock header %}
