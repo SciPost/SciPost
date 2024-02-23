@@ -13,65 +13,28 @@
   </td>
   <td>
 
-    <table>
-
-      {% for email in profile.emails.all %}
-        <tr>
-          <td>
-
-            {% if email.primary %}
-              <span class="text-primary" title="Primary">{% include "bi/check-circle-fill.html" %}</span>
-            {% else %}
-              <span class="text-secondary" title="Alternative">{% include "bi/x-circle-fill.html" %}</span>
-            {% endif %}
-
-          </td>
-          <td>
-
-            {% if email.still_valid %}
-              <span class="text-success" title="Valid">{% include "bi/check-circle-fill.html" %}</span>
-            {% else %}
-              <span class="text-danger" title="Deprecated">{% include "bi/x-circle-fill.html" %}</span>
-            {% endif %}
-
-          </td>
-          <td>
-
-            {% if email.verified %}
-              <span class="text-success" title="Verified">{% include "bi/check-circle-fill.html" %}</span>
-            {% else %}
-              <span class="text-warning" title="Unverified">{% include "bi/question-circle-fill.html" %}</span>
-            {% endif %}
-
-          </td>
-
-          <td>{{ email.email }}</td>
-        </tr>
-      {% empty %}
-        <td>
-          <span class="invisible">{% include "bi/x-circle-fill.html" %}</span>
-        </td>
-        <td>
-          <span class="invisible">{% include "bi/x-circle-fill.html" %}</span>
-        </td>
-        <td>
-          <span class="invisible">{% include "bi/x-circle-fill.html" %}</span>
-        </td>
-        <td>
-          <a href="{{ profile.get_absolute_url }}">Add new email address</a>
-        </td>
-      {% endfor %}
-
-    </table>
-
-  </td>
-  <td>
-
     {% if profile.accepts_refereeing_requests %}
       <span class="text-success">{% include "bi/check-circle-fill.html" %}</span>
     {% else %}
       <span class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
     {% endif %}
+
+  </td>
+  <td>
+
+    <table id="profile-{{ profile.id }}-emails-table">
+
+      {% for profile_email in profile.emails.all %}
+        {% include "submissions/_hx_select_referee_email_table_row.html" %}
+      {% empty %}
+        <tr>
+          <td>
+            <span class="invisible">{% include "bi/x-circle-fill.html" %}</span>
+          </td>
+        </tr>
+      {% endfor %}
+
+    </table>
 
   </td>
   <td>

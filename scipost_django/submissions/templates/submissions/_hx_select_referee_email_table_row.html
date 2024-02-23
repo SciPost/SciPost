@@ -1,0 +1,31 @@
+<tr>
+  <td>
+
+    {% if profile_email.primary %}
+      <span class="text-primary" title="Primary">{% include "bi/check-circle-fill.html" %}</span>
+    {% else %}
+      <span class="text-secondary" title="Alternative">{% include "bi/x-circle-fill.html" %}</span>
+    {% endif %}
+
+  </td>
+  <td>
+
+    {% if profile_email.still_valid %}
+      <span class="text-success" title="Valid">{% include "bi/check-circle-fill.html" %}</span>
+    {% else %}
+      <span class="text-danger" title="Deprecated">{% include "bi/x-circle-fill.html" %}</span>
+    {% endif %}
+
+  </td>
+  <td>
+
+    {% if profile_email.verified %}
+      <span class="text-success" title="Verified">{% include "bi/check-circle-fill.html" %}</span>
+    {% else %}
+      <span class="text-warning" title="Unverified">{% include "bi/question-circle-fill.html" %}</span>
+    {% endif %}
+
+  </td>
+
+  <td>{{ profile_email.email }}</td>
+</tr>
