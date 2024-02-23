@@ -8,7 +8,7 @@ from django import forms
 from django.db.models import Q
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Div, Submit
+from crispy_forms.layout import Layout, Field, Div, Submit, Button, ButtonHolder
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 from django.forms import ChoiceField
@@ -260,19 +260,28 @@ class AddProfileEmailForm(forms.ModelForm):
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field("email", type="email", placeholder="Email address"),
+                    FloatingField("email", type="email", placeholder="Email address"),
                     css_class="col",
                 ),
-                Div(Submit("submit", "Add"), css_class="col-auto mt-auto"),
+                Div(
+                    ButtonHolder(
+                        Submit("submit", "Add", css_class="btn btn-sm btn-primary"),
+                        Button(
+                            "cancel",
+                            "Cancel",
+                            css_class="btn btn-sm btn-secondary",
+                            hx_get=reverse("common:empty"),
+                            hx_target="closest " + kwargs.pop("cancel_parent_tag", "*"),
+                            hx_swap="outerHTML",
+                        ),
+                        css_class="d-flex flex-column justify-content-between",
+                    ),
+                    css_class="col-auto",
+                ),
                 css_class="row",
             ),
         )
-        self.helper.attrs = {
-            "hx-post": reverse(
-                "profiles:_hx_add_profile_email", kwargs={"profile_id": self.profile.id}
-            ),
-            "hx-target": "#email-action-container",
-        }
+        self.helper.attrs |= kwargs.pop("hx_attrs", {})
 
         super().__init__(*args, **kwargs)
 

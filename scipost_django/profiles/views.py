@@ -435,7 +435,19 @@ def _hx_add_profile_email(request, profile_id):
     Add an email address to a Profile.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
-    form = AddProfileEmailForm(request.POST or None, profile=profile, request=request)
+    form = AddProfileEmailForm(
+        request.POST or None,
+        profile=profile,
+        request=request,
+        hx_attrs={
+            "hx-post": reverse(
+                "profiles:_hx_add_profile_email", kwargs={"profile_id": profile.id}
+            ),
+            "hx-target": "next tbody",
+            "hx-swap": "beforeend",
+        },
+        cancel_parent_tag="form",
+    )
     if form.is_valid():
         profile_email = form.save()
         response = TemplateResponse(
@@ -443,8 +455,6 @@ def _hx_add_profile_email(request, profile_id):
             "profiles/_hx_profile_emails_table_row.html",
             {"profile_mail": profile_email},
         )
-        response["HX-Retarget"] = "#profile-emails-table"
-        response["HX-Reswap"] = "beforeend"
 
         return response
 
