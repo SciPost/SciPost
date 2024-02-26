@@ -1115,6 +1115,9 @@ def cycle_form_submit(request, identifier_w_vn_nr):
         else:
             # Reinvite only if not direct-cycle.
             submission.cycle.reinvite_referees(form.cleaned_data["referees_reinvite"])
+            submission.add_general_event(
+                "Referees have been reinvited for the new refereeing cycle."
+            )
     return redirect(
         reverse(
             "submissions:editorial_page", args=[submission.preprint.identifier_w_vn_nr]
