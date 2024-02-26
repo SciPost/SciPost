@@ -52,14 +52,38 @@
         <ul class="list-group list-group-flush">
           {% for referee in form.referees_reinvite.field.queryset %}
             <li class="list-group-item py-1">
-              <label for="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" class="mb-0">
-                <input checked="checked" id="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" name="{{ form.referees_reinvite.name }}" type="checkbox" value="{{referee.id}}">
-                <div class="d-inline-block" style="vertical-align: top;">
-                  {{ referee.referee_str }}
-                  <br>
-                  <span class="text-muted">Originally invited on {{ referee.date_invited }}</span>
+              <div class="d-flex flex-row">
+                  <label for="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" class="mb-0"></label>
+                  <input class="me-2" checked="checked" id="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" name="{{ form.referees_reinvite.name }}" type="checkbox" value="{{referee.id}}">
+                  <div class="d-flex flex-column">
+                    <div>{{ referee.referee_str }} <span class="text-muted">({{ referee.email_address }})</span></div>
+                    <div><span class="text-muted">Originally invited on {{ referee.date_invited }}</span></div>
+                  </div>
+                  <div class="ms-auto d-flex flex-column align-items-end">
+                    <div>Response: 
+                      {% if referee.accepted %}
+                        <span title="Accepted" class="text-success">{% include "bi/check-circle-fill.html" %}</span>
+                      {% elif referee.cancelled %}
+                        <span title="Cancelled" class="text-black">{% include "bi/circle-fill.html" %}</span>
+                      {% elif referee.accepted == False %}
+                        <span title="Refused" class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
+                      {% elif not referee.accepted %}
+                        <span title="Pending" class="text-warning">{% include "bi/question-circle-fill.html" %}</span>
+                      {% endif %}
+                    </div>
+                    {% if referee.accepted %}
+                      <div>Fulfilled: 
+                        {% if not referee.fulfilled or referee.cancelled %}
+                          <span title="Undelivered" class="text-black">{% include "bi/circle-fill.html" %}</span>
+                        {% elif referee.fulfilled %}
+                          <span title="Fulfilled" class="text-success">{% include "bi/check-circle-fill.html" %}</span>
+                        {% endif %}
+                      </div>
+                    {% elif referee.accepted == False %}
+                      <span>{{ referee.get_refusal_reason_display }}</span>
+                    {% endif %}
+                  </div>
                 </div>
-              </label>
             </li>
           {% empty %}
             <li class="list-group-item py-1"><em>No former referees found</em></li>
