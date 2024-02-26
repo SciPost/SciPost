@@ -21,3 +21,6 @@ python manage.py update_submission_fellowships --settings=SciPost_v1.settings.pr
 
 # Update the users' groups 
 python manage.py update_user_permission_groups --settings=SciPost_v1.settings.production_do1
+
+# Delete expired sessions (today's date implied)
+python manage.py delete_expired_sessions --settings=SciPost_v1.settings.production_do1
