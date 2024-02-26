@@ -159,13 +159,21 @@ class FellowshipNomination(models.Model):
         except FellowshipInvitation.DoesNotExist:
             return notes
 
-        if self.invitation.accepted and not hasattr(self.profile, "contributor"):
-            notes.append(
-                (
-                    "info",
-                    "Fellow has accepted their invitation, but has not registered yet.",
+        if self.invitation.accepted:
+            if not hasattr(self.profile, "contributor"):
+                notes.append(
+                    (
+                        "info",
+                        "Fellow has accepted their invitation, but has not registered yet.",
+                    )
                 )
-            )
+            elif getattr(self, "fellowship") is None:
+                notes.append(
+                    (
+                        "warning",
+                        "Fellow has created an account, but their Fellowship has not been created yet.",
+                    )
+                )
 
         last_reinvited = self.events.filter(
             Q(description__icontains="invitation reminder")
