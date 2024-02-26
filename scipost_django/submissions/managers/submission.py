@@ -156,7 +156,7 @@ class SubmissionQuerySet(models.QuerySet):
         try:
             return self.exclude(authors=user.contributor).exclude(
                 models.Q(
-                    author_list__icontains=user.last_name
+                    author_list__unaccent__icontains=user.last_name
                 ),  # TODO: replace by Profiles-based checks
                 ~models.Q(authors_false_claims=user.contributor),
             )
