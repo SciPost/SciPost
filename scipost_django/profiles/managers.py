@@ -105,7 +105,9 @@ class ProfileQuerySet(models.QuerySet):
         # Unpack the list of two-tuples into two lists
         profile_CI, related_CI = list(zip(*CI_profiles)) or ([], [])
 
-        return self.exclude(contributor__profile__id__in=profile_CI + related_CI)
+        return self.exclude(
+            id__in=profile_CI + related_CI + list(submission_author_profile_ids)
+        )
 
     def search(self, query):
         """
