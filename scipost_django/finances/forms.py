@@ -6,6 +6,7 @@ import re
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.urls import reverse_lazy
 from django.utils.dates import MONTHS
 from django.db.models import Q, Case, DateField, Max, Min, Sum, Value, When, F
 from django.utils import timezone
@@ -34,6 +35,14 @@ class SubsidyForm(forms.ModelForm):
         widget=autocomplete.ModelSelect2(
             url="/organizations/organization-autocomplete", attrs={"data-html": True}
         ),
+    )
+
+    renewal_of = forms.ModelChoiceField(
+        queryset=Subsidy.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url=reverse_lazy("finances:subsidy_autocomplete")
+        ),
+        help_text=("Start typing, and select from the popup."),
     )
 
     class Meta:
@@ -453,11 +462,13 @@ class LogsFilterForm(forms.Form):
 
                 if self.cleaned_data["hourly_rate"]:
                     salary_per_month = [
-                        duration.total_seconds()
-                        / 3600  # Convert to hours
-                        * self.cleaned_data["hourly_rate"]
-                        if duration is not None
-                        else 0
+                        (
+                            duration.total_seconds()
+                            / 3600  # Convert to hours
+                            * self.cleaned_data["hourly_rate"]
+                            if duration is not None
+                            else 0
+                        )
                         for duration in total_time_per_month
                     ]
                 else:

@@ -4,8 +4,9 @@ __license__ = "AGPL v3"
 
 import datetime
 from itertools import accumulate
-import mimetypes
+from dal import autocomplete
 
+from django.db.models import Q
 import matplotlib
 
 matplotlib.use("Agg")
@@ -288,6 +289,30 @@ class SubsidyDeleteView(PermissionsMixin, DeleteView):
     permission_required = "scipost.can_manage_subsidies"
     model = Subsidy
     success_url = reverse_lazy("finances:subsidies")
+
+
+class SubsidyAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    Autocomplete for Subsidy, meant to be used with Select2.
+    Will only show subsidies whose amounts are publicly visible
+    for users without the 'can_manage_subsidies' permission.
+    """
+
+    def get_queryset(self):
+        qs = Subsidy.objects.all()
+        if not self.request.user.has_perm("scipost.can_manage_subsidies"):
+            qs = qs.filter(amount_publicly_shown=True)
+        if self.q:
+            qs = qs.filter(
+                Q(organization__name__unaccent__icontains=self.q)
+                | Q(organization__name_original__unaccent__icontains=self.q)
+                | Q(organization__acronym__unaccent__icontains=self.q)
+                | Q(amount__icontains=self.q)
+                | Q(description__icontains=self.q)
+                | Q(date_from__year__icontains=self.q)
+                | Q(date_until__year__icontains=self.q)
+            )
+        return qs
 
 
 class SubsidyListView(ListView):
