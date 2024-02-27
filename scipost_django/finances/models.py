@@ -285,12 +285,22 @@ class SubsidyAttachment(models.Model):
 # Delete attachment files with same name if they exist, allowing replacement without name change
 @receiver(pre_save, sender=SubsidyAttachment)
 def delete_old_attachment_file(sender, instance, **kwargs):
-    if instance.pk:
-        old_attachment = SubsidyAttachment.objects.get(pk=instance.pk)
-        old_filename = old_attachment.attachment.name.split("/")[-1]
+    """
+    Replace existing file on update if a new one is provided.
+    """
+    if instance.pk and instance.attachment:
+        old = SubsidyAttachment.objects.get(pk=instance.pk)
+        if old.attachment and old.attachment != instance.attachment:
+            old.attachment.delete(save=False)
 
-        if old_attachment.attachment and old_filename == instance.attachment.name:
-            old_attachment.attachment.delete(save=False)
+
+@receiver(models.signals.post_delete, sender=SubsidyAttachment)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem when its object is deleted.
+    """
+    if instance.attachment:
+        instance.attachment.delete(save=False)
 
 
 ###########################
