@@ -1348,6 +1348,23 @@ def invite_referee(
     profile = get_object_or_404(Profile, pk=profile_id)
     auto_reminders_allowed = auto_reminders_allowed == "True"
 
+    # Guard against profiles with competing interests
+    if not (
+        Profile.objects.filter(profile=profile)
+        .without_competing_interests_against_submission_authors_of(submission)
+        .exists()
+    ):
+        messages.error(
+            request,
+            "This Profile has a competing interest with the authors of the Submission.",
+        )
+        return redirect(
+            reverse(
+                "submissions:editorial_page",
+                kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+            )
+        )
+
     # We cannot proceed if the Profile has no email address
     # or if the email address is not linked to the Profile.
     profile_email = profile.emails.get(email=profile_email)
