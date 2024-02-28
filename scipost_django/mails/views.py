@@ -6,7 +6,7 @@ from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.views.generic.edit import UpdateView
 
 from .forms import EmailForm, HiddenDataForm
@@ -107,7 +107,7 @@ class MailFormView(MailViewBase, UpdateView):
             if hasattr(self, "object") and self.object:
                 url = self.success_url.format(**self.object.__dict__)
             else:
-                url = force_text(self.success_url)
+                url = force_str(self.success_url)
         elif hasattr(self, "object") and self.object:
             try:
                 url = self.object.get_absolute_url()

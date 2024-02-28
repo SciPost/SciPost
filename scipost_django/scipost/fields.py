@@ -8,7 +8,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from .widgets import ReCaptcha
 
@@ -56,7 +56,7 @@ class ReCaptchaField(forms.CharField):
 
     def clean(self, values):
         super().clean(values[0])
-        recaptcha_response = force_text(values[0])
+        recaptcha_response = force_str(values[0])
 
         if not self.required:
             return

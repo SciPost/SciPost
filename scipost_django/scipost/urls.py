@@ -2,7 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
 from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView

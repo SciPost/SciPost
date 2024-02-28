@@ -9,7 +9,7 @@ from io import StringIO
 import re
 
 from django.template.defaultfilters import linebreaksbr
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 
 from .constants import (
@@ -348,9 +348,11 @@ def apply_markdown_preserving_displayed_maths_bracket(text):
         part[1],
         part2[0],
         part2[1],
-        apply_markdown_preserving_displayed_maths_bracket(part2[2])
-        if len(part2[2]) > 0
-        else "",
+        (
+            apply_markdown_preserving_displayed_maths_bracket(part2[2])
+            if len(part2[2]) > 0
+            else ""
+        ),
     )
 
 
@@ -370,9 +372,11 @@ def apply_markdown_preserving_displayed_maths(text):
         part[1],
         part2[0],
         part2[1],
-        apply_markdown_preserving_displayed_maths(part2[2])
-        if len(part2[2]) > 0
-        else "",
+        (
+            apply_markdown_preserving_displayed_maths(part2[2])
+            if len(part2[2]) > 0
+            else ""
+        ),
     )
 
 
@@ -452,7 +456,7 @@ def process_markup(text_given, language_forced=None, include_errors=False):
                     "warning_stream": warnStream,
                 },
             )
-            markup["processed"] = mark_safe(force_text(parts["html_body"]))
+            markup["processed"] = mark_safe(force_str(parts["html_body"]))
         except:
             markup["errors"] = warnStream.getvalue()
 

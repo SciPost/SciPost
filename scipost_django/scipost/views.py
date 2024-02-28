@@ -32,7 +32,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
-from django.utils.http import is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -874,7 +874,7 @@ class SciPostLoginView(LoginView):
         redirect_to = self.request.POST.get(
             self.redirect_field_name, self.request.GET.get(self.redirect_field_name, "")
         )
-        url_is_safe = is_safe_url(
+        url_is_safe = url_has_allowed_host_and_scheme(
             url=redirect_to,
             allowed_hosts=self.get_success_url_allowed_hosts(),
             require_https=self.request.is_secure(),
