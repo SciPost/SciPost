@@ -7,13 +7,13 @@ from django.contrib import admin
 from .models import Series, Collection, CollectionPublicationsTable
 
 
+@admin.register(Series)
 class SeriesAdmin(admin.ModelAdmin):
     search_fields = [
         "name",
     ]
 
 
-admin.site.register(Series, SeriesAdmin)
 
 
 class CollectionPublicationsTableAdmin(admin.StackedInline):
@@ -25,6 +25,7 @@ class CollectionPublicationsTableAdmin(admin.StackedInline):
     ]
 
 
+@admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     inlines = [
         CollectionPublicationsTableAdmin,
@@ -41,4 +42,3 @@ class CollectionAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Collection, CollectionAdmin)

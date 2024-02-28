@@ -18,13 +18,14 @@ from .models import (
 admin.site.register(Branch)
 
 
+@admin.register(AcademicField)
 class AcademicFieldAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-admin.site.register(AcademicField, AcademicFieldAdmin)
 
 
+@admin.register(Specialty)
 class SpecialtyAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     autocomplete_fields = [
@@ -32,18 +33,18 @@ class SpecialtyAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Specialty, SpecialtyAdmin)
 
 
+@admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     search_fields = [
         "name",
     ]
 
 
-admin.site.register(Tag, TagAdmin)
 
 
+@admin.register(Topic)
 class TopicAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     autocomplete_fields = [
@@ -51,9 +52,9 @@ class TopicAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Topic, TopicAdmin)
 
 
+@admin.register(RelationAsym)
 class RelationAsymAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "A",
@@ -61,13 +62,12 @@ class RelationAsymAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(RelationAsym, RelationAsymAdmin)
 
 
+@admin.register(RelationSym)
 class RelationSymAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "topics",
     ]
 
 
-admin.site.register(RelationSym, RelationSymAdmin)

@@ -7,18 +7,21 @@ from django.contrib import admin
 from .models import MailLog, MailLogRelation
 
 
+@admin.action(
+    description="Render and send email"
+)
 def send_email(modeladmin, request, queryset):
     for mail_id in queryset.values_list("id", flat=True):
         call_command("send_mails", id=mail_id)
 
 
-send_email.short_description = "Render and send email"
 
 
 class MailLogRelationInline(admin.TabularInline):
     model = MailLogRelation
 
 
+@admin.register(MailLog)
 class MailLogAdmin(admin.ModelAdmin):
     list_display = ["__str__", "to_recipients", "created", "status"]
     list_filter = ["status"]
@@ -28,4 +31,3 @@ class MailLogAdmin(admin.ModelAdmin):
     actions = [send_email]
 
 
-admin.site.register(MailLog, MailLogAdmin)

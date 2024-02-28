@@ -7,6 +7,7 @@ from django.contrib import admin
 from .models import Funder, Grant
 
 
+@admin.register(Funder)
 class FunderAdmin(admin.ModelAdmin):
     search_fields = [
         "name",
@@ -20,9 +21,9 @@ class FunderAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Funder, FunderAdmin)
 
 
+@admin.register(Grant)
 class GrantAdmin(admin.ModelAdmin):
     search_fields = [
         "funder__name",
@@ -36,4 +37,3 @@ class GrantAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Grant, GrantAdmin)

@@ -11,6 +11,7 @@ from commentaries.models import Commentary
 from scipost.models import Contributor
 
 
+@admin.register(Commentary)
 class CommentaryAdmin(admin.ModelAdmin):
     search_fields = ["author_list", "pub_abstract"]
     list_display = (
@@ -29,4 +30,3 @@ class CommentaryAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Commentary, CommentaryAdmin)

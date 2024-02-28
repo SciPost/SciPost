@@ -7,6 +7,7 @@ from django.contrib import admin
 from .models import Proceedings
 
 
+@admin.register(Proceedings)
 class ProceedingsAdmin(admin.ModelAdmin):
     list_display = (
         "__str__",
@@ -24,4 +25,3 @@ class ProceedingsAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Proceedings, ProceedingsAdmin)

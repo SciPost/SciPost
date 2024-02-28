@@ -26,6 +26,7 @@ def fellowhip_is_active(fellowship):
     return fellowship.is_active()
 
 
+@admin.register(Fellowship)
 class FellowshipAdmin(admin.ModelAdmin):
     search_fields = ["contributor__user__last_name", "contributor__user__first_name"]
     list_display = (
@@ -43,7 +44,6 @@ class FellowshipAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Fellowship, FellowshipAdmin)
 
 
 class PotentialFellowshipEventInline(admin.TabularInline):
@@ -54,6 +54,7 @@ class PotentialFellowshipEventInline(admin.TabularInline):
     ]
 
 
+@admin.register(PotentialFellowship)
 class PotentialFellowshipAdmin(admin.ModelAdmin):
     inlines = [
         PotentialFellowshipEventInline,
@@ -68,7 +69,6 @@ class PotentialFellowshipAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(PotentialFellowship, PotentialFellowshipAdmin)
 
 
 class FellowshipNominationEventInline(admin.TabularInline):
@@ -99,6 +99,7 @@ class FellowshipInvitationInline(admin.TabularInline):
     extra = 0
 
 
+@admin.register(FellowshipNomination)
 class FellowshipNominationAdmin(admin.ModelAdmin):
     inlines = [
         FellowshipNominationEventInline,
@@ -112,7 +113,6 @@ class FellowshipNominationAdmin(admin.ModelAdmin):
     autocomplete_fields = ["profile", "nominated_by", "fellowship"]
 
 
-admin.site.register(FellowshipNomination, FellowshipNominationAdmin)
 
 
 class FellowshipNominationVoteInline(admin.TabularInline):
@@ -128,6 +128,7 @@ class FellowshipNominationVoteInline(admin.TabularInline):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+@admin.register(FellowshipNominationVotingRound)
 class FellowshipNominationVotingRoundAdmin(admin.ModelAdmin):
     model = FellowshipNominationVotingRound
     inlines = [
@@ -163,6 +164,3 @@ class FellowshipNominationVotingRoundAdmin(admin.ModelAdmin):
         return obj.is_open
 
 
-admin.site.register(
-    FellowshipNominationVotingRound, FellowshipNominationVotingRoundAdmin
-)

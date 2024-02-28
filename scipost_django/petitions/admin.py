@@ -7,6 +7,7 @@ from django.contrib import admin
 from .models import Petition, PetitionSignatory
 
 
+@admin.register(Petition)
 class PetitionAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
     search_fields = [
@@ -20,9 +21,9 @@ class PetitionAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Petition, PetitionAdmin)
 
 
+@admin.register(PetitionSignatory)
 class PetitionSignatoryAdmin(admin.ModelAdmin):
     search_fields = ["last_name", "country", "institution"]
     autocomplete_fields = [
@@ -32,4 +33,3 @@ class PetitionSignatoryAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(PetitionSignatory, PetitionSignatoryAdmin)

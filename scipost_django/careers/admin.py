@@ -7,13 +7,14 @@ from django.contrib import admin
 from .models import JobOpening, JobApplication
 
 
+@admin.register(JobOpening)
 class JobOpeningAdmin(admin.ModelAdmin):
     pass
 
 
-admin.site.register(JobOpening, JobOpeningAdmin)
 
 
+@admin.register(JobApplication)
 class JobApplicationAdmin(admin.ModelAdmin):
     fields = [
         "status",
@@ -28,4 +29,3 @@ class JobApplicationAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(JobApplication, JobApplicationAdmin)

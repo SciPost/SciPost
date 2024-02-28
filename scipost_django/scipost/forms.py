@@ -101,7 +101,7 @@ class HttpRefererFormMixin(RequestFormMixin):
             widget=forms.HiddenInput(), required=False
         )
         if self.request:
-            self.fields["http_referer"].initial = self.request.META.get("HTTP_REFERER")
+            self.fields["http_referer"].initial = self.request.headers.get("referer")
 
 
 class RegistrationForm(forms.Form):

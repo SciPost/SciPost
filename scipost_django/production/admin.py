@@ -22,6 +22,7 @@ def event_count(obj):
     return obj.events.count()
 
 
+@admin.register(ProductionUser)
 class ProductionUserAdmin(admin.ModelAdmin):
     search_fields = [
         "user",
@@ -32,7 +33,6 @@ class ProductionUserAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(ProductionUser, ProductionUserAdmin)
 
 
 class ProductionUserInline(admin.StackedInline):
@@ -62,6 +62,7 @@ class ProductionEventInline(admin.TabularInline):
     ]
 
 
+@admin.register(ProductionStream)
 class ProductionStreamAdmin(GuardedModelAdmin):
     search_fields = [
         "submission__author_list",
@@ -79,9 +80,9 @@ class ProductionStreamAdmin(GuardedModelAdmin):
     ]
 
 
-admin.site.register(ProductionStream, ProductionStreamAdmin)
 
 
+@admin.register(Proofs)
 class ProductionProofsAdmin(admin.ModelAdmin):
     list_display = ["stream", "version", "status", "accessible_for_authors"]
     list_filter = ["status", "accessible_for_authors"]
@@ -94,12 +95,12 @@ class ProductionProofsAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Proofs, ProductionProofsAdmin)
 
 
 admin.site.register(ProductionEventAttachment)
 
 
+@admin.register(ProofsRepository)
 class ProofsRepositoryAdmin(GuardedModelAdmin):
     search_fields = [
         "stream__submission__author_list",
@@ -120,4 +121,3 @@ class ProofsRepositoryAdmin(GuardedModelAdmin):
         return format_html("<br>".join(obj.template_paths))
 
 
-admin.site.register(ProofsRepository, ProofsRepositoryAdmin)

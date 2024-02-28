@@ -24,6 +24,7 @@ def comment_is_anonymous(comment):
     return comment.anonymous
 
 
+@admin.register(Comment)
 class CommentAdmin(GuardedModelAdmin):
     list_display = (
         comment_opening,
@@ -42,4 +43,3 @@ class CommentAdmin(GuardedModelAdmin):
     ]
 
 
-admin.site.register(Comment, CommentAdmin)

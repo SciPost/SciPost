@@ -7,6 +7,7 @@ from django.contrib import admin
 from .models import MailchimpList
 
 
+@admin.register(MailchimpList)
 class MailchimpListAdmin(admin.ModelAdmin):
     list_display = ["__str__", "mailchimp_list_id", "status"]
     list_filter = ["status"]
@@ -15,4 +16,3 @@ class MailchimpListAdmin(admin.ModelAdmin):
         return False
 
 
-admin.site.register(MailchimpList, MailchimpListAdmin)

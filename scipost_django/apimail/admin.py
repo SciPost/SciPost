@@ -29,15 +29,16 @@ class EmailAccountAccessInline(admin.StackedInline):
     min_num = 0
 
 
+@admin.register(EmailAccount)
 class EmailAccountAdmin(admin.ModelAdmin):
     inlines = [
         EmailAccountAccessInline,
     ]
 
 
-admin.site.register(EmailAccount, EmailAccountAdmin)
 
 
+@admin.register(AttachmentFile)
 class AttachmentFileAdmin(admin.ModelAdmin):
     list_display = [
         "__str__",
@@ -46,7 +47,6 @@ class AttachmentFileAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(AttachmentFile, AttachmentFileAdmin)
 
 
 class AttachmentFileInline(admin.StackedInline):
@@ -61,34 +61,34 @@ class ComposedMessageAPIResponseInline(admin.StackedInline):
     min_num = 0
 
 
+@admin.register(ComposedMessage)
 class ComposedMessageAdmin(admin.ModelAdmin):
     inlines = [
         ComposedMessageAPIResponseInline,
     ]
 
 
-admin.site.register(ComposedMessage, ComposedMessageAdmin)
 
 
+@admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     pass
 
 
-admin.site.register(Event, EventAdmin)
 
 
+@admin.register(StoredMessage)
 class StoredMessageAdmin(admin.ModelAdmin):
     pass
 
 
-admin.site.register(StoredMessage, StoredMessageAdmin)
 
 
+@admin.register(UserTag)
 class UserTagAdmin(admin.ModelAdmin):
     pass
 
 
-admin.site.register(UserTag, UserTagAdmin)
 
 
 class AddressValidationInline(admin.StackedInline):
@@ -103,6 +103,7 @@ class AddressBookEntryInline(admin.StackedInline):
     min_num = 0
 
 
+@admin.register(ValidatedAddress)
 class ValidatedAddressAdmin(admin.ModelAdmin):
     inlines = [
         AddressValidationInline,
@@ -110,4 +111,3 @@ class ValidatedAddressAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(ValidatedAddress, ValidatedAddressAdmin)

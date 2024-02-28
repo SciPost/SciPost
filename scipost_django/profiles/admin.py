@@ -23,6 +23,7 @@ class AffiliationInline(admin.TabularInline):
     ]
 
 
+@admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ["__str__", "email", "acad_field", "has_active_contributor"]
     search_fields = ["first_name", "last_name", "emails__email", "orcid_id"]
@@ -30,13 +31,12 @@ class ProfileAdmin(admin.ModelAdmin):
     autocomplete_fields = ["topics"]
 
 
-admin.site.register(Profile, ProfileAdmin)
 
 
+@admin.register(ProfileNonDuplicates)
 class ProfileNonDuplicatesAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "profiles",
     ]
 
 
-admin.site.register(ProfileNonDuplicates, ProfileNonDuplicatesAdmin)

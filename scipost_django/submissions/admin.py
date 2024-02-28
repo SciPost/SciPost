@@ -41,13 +41,14 @@ def submission_short_authors(obj):
     return obj.submission.author_list[:20]
 
 
+@admin.register(PreprintServer)
 class PreprintServerAdmin(admin.ModelAdmin):
     autocomplete_fields = ["acad_fields"]
 
 
-admin.site.register(PreprintServer, PreprintServerAdmin)
 
 
+@admin.register(iThenticateReport)
 class iThenticateReportAdmin(admin.ModelAdmin):
     list_display = ["doc_id", "to_submission", "status"]
     list_filter = ["status"]
@@ -56,7 +57,6 @@ class iThenticateReportAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(iThenticateReport, iThenticateReportAdmin)
 
 
 class InternalPlagiarismAssessmentInline(admin.StackedInline):
@@ -126,6 +126,7 @@ class CollectionInline(admin.StackedInline):
     ]
 
 
+@admin.register(Submission)
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = "submission_date"
     list_display = (
@@ -282,9 +283,9 @@ class SubmissionAdmin(GuardedModelAdmin):
     )
 
 
-admin.site.register(Submission, SubmissionAdmin)
 
 
+@admin.register(EditorialAssignment)
 class EditorialAssignmentAdmin(admin.ModelAdmin):
     search_fields = [
         "submission__title",
@@ -308,9 +309,9 @@ class EditorialAssignmentAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(EditorialAssignment, EditorialAssignmentAdmin)
 
 
+@admin.register(RefereeInvitation)
 class RefereeInvitationAdmin(admin.ModelAdmin):
     search_fields = [
         "submission__title",
@@ -336,9 +337,9 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(RefereeInvitation, RefereeInvitationAdmin)
 
 
+@admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
     search_fields = ["author__user__last_name", "submission__title"]
     list_display = (
@@ -359,15 +360,14 @@ class ReportAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Report, ReportAdmin)
 
 
+@admin.register(EditorialCommunication)
 class EditorialCommunicationAdmin(admin.ModelAdmin):
     search_fields = ["submission__title", "referee__user__last_name", "text"]
     autocomplete_fields = ["submission", "referee"]
 
 
-admin.site.register(EditorialCommunication, EditorialCommunicationAdmin)
 
 
 class AlternativeRecommendationInline(admin.StackedInline):
@@ -380,6 +380,7 @@ class AlternativeRecommendationInline(admin.StackedInline):
     ]
 
 
+@admin.register(EICRecommendation)
 class EICRecommendationAdmin(admin.ModelAdmin):
     search_fields = ["submission__title"]
     list_filter = ("status",)
@@ -405,9 +406,9 @@ class EICRecommendationAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(EICRecommendation, EICRecommendationAdmin)
 
 
+@admin.register(EditorialDecision)
 class EditorialDecisionAdmin(admin.ModelAdmin):
     search_fields = [
         "submission__title",
@@ -433,13 +434,12 @@ class EditorialDecisionAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(EditorialDecision, EditorialDecisionAdmin)
 
 
+@admin.register(SubmissionEvent)
 class SubmissionEventAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "submission",
     ]
 
 
-admin.site.register(SubmissionEvent, SubmissionEventAdmin)

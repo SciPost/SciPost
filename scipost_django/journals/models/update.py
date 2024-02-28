@@ -8,7 +8,7 @@ import string
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 from django.db import models
 from django.template import loader
 from django.urls import reverse

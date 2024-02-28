@@ -11,18 +11,18 @@ class NewsLetterNewsItemsTableInline(admin.TabularInline):
     model = NewsLetterNewsItemsTable
 
 
+@admin.register(NewsLetter)
 class NewsLetterAdmin(admin.ModelAdmin):
     search_fields = ["intro", "closing"]
     list_display = ["__str__", "published"]
     inlines = [NewsLetterNewsItemsTableInline]
 
 
-admin.site.register(NewsLetter, NewsLetterAdmin)
 
 
+@admin.register(NewsItem)
 class NewsItemAdmin(admin.ModelAdmin):
     search_fields = ["blurb", "followup_link_text"]
     list_display = ["__str__", "published", "on_homepage"]
 
 
-admin.site.register(NewsItem, NewsItemAdmin)

@@ -7,10 +7,10 @@ from django.contrib import admin
 from .models import Preprint
 
 
+@admin.register(Preprint)
 class PreprintAdmin(admin.ModelAdmin):
     search_fields = [
         "identifier_w_vn_nr",
     ]
 
 
-admin.site.register(Preprint, PreprintAdmin)

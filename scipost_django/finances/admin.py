@@ -22,6 +22,7 @@ class SubsidyAttachmentInline(admin.TabularInline):
     model = SubsidyAttachment
 
 
+@admin.register(Subsidy)
 class SubsidyAdmin(admin.ModelAdmin):
     inlines = [
         SubsidyPaymentInline,
@@ -38,14 +39,13 @@ class SubsidyAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Subsidy, SubsidyAdmin)
 
 
+@admin.register(WorkLog)
 class WorkLogAdmin(admin.ModelAdmin):
     autocomplete_fields = ["user"]
 
 
-admin.site.register(WorkLog, WorkLogAdmin)
 
 
 admin.site.register(PeriodicReportType)

@@ -7,6 +7,7 @@ from django.contrib import admin
 from .models import RegistrationInvitation, CitationNotification
 
 
+@admin.register(RegistrationInvitation)
 class RegistrationInvitationAdmin(admin.ModelAdmin):
     date_hierarchy = "date_sent_first"
     search_fields = ["first_name", "last_name", "email", "invitation_key"]
@@ -19,9 +20,9 @@ class RegistrationInvitationAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(RegistrationInvitation, RegistrationInvitationAdmin)
 
 
+@admin.register(CitationNotification)
 class CitationNotificationAdmin(admin.ModelAdmin):
     date_hierarchy = "date_sent"
     search_fields = [
@@ -41,4 +42,3 @@ class CitationNotificationAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(CitationNotification, CitationNotificationAdmin)

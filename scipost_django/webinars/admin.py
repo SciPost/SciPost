@@ -12,10 +12,10 @@ class WebinarRegistrationInline(admin.TabularInline):
     model = WebinarRegistration
 
 
+@admin.register(Webinar)
 class WebinarAdmin(admin.ModelAdmin):
     inlines = [
         WebinarRegistrationInline,
     ]
 
 
-admin.site.register(Webinar, WebinarAdmin)

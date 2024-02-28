@@ -8,15 +8,15 @@ from django.contrib import admin
 from .models import Category, BlogPost
 
 
+@admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
 
 
-admin.site.register(Category, CategoryAdmin)
 
 
+@admin.register(BlogPost)
 class BlogPostAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
 
 
-admin.site.register(BlogPost, BlogPostAdmin)

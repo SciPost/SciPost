@@ -17,6 +17,7 @@ from profiles.models import Profile
 from .models import CompetingInterest, RedFlag
 
 
+@admin.register(CompetingInterest)
 class CompetingInterestAdmin(admin.ModelAdmin):
     search_fields = (
         "profile__last_name",
@@ -43,7 +44,6 @@ class CompetingInterestAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(CompetingInterest, CompetingInterestAdmin)
 
 
 class ConcerningObjectExistingFilter(admin.SimpleListFilter):

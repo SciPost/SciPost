@@ -31,6 +31,7 @@ class ContactPersonInline(admin.TabularInline):
     extra = 0
 
 
+@admin.register(Organization)
 class OrganizationAdmin(GuardedModelAdmin):
     inlines = [
         OrganizationLogoInline,
@@ -49,7 +50,6 @@ class OrganizationAdmin(GuardedModelAdmin):
         return obj.ror_json.get("id", None) if obj.ror_json else None
 
 
-admin.site.register(Organization, OrganizationAdmin)
 
 
 class ContactRoleInline(admin.TabularInline):
@@ -60,6 +60,7 @@ class ContactRoleInline(admin.TabularInline):
     ]
 
 
+@admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     inlines = [
         ContactRoleInline,
@@ -70,7 +71,6 @@ class ContactAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Contact, ContactAdmin)
 
 
 class ContactInline(admin.TabularInline):

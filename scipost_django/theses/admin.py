@@ -11,6 +11,7 @@ from theses.models import *
 from scipost.models import Contributor
 
 
+@admin.register(ThesisLink)
 class ThesisLinkAdmin(admin.ModelAdmin):
     search_fields = ["requested_by__user__username", "author", "title"]
     autocomplete_fields = [
@@ -23,4 +24,3 @@ class ThesisLinkAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(ThesisLink, ThesisLinkAdmin)

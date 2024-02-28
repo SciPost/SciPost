@@ -7,6 +7,7 @@ from django.contrib import admin
 from .models import ConflictOfInterest
 
 
+@admin.register(ConflictOfInterest)
 class ConflictAdmin(admin.ModelAdmin):
     search_fields = (
         "header",
@@ -24,4 +25,3 @@ class ConflictAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(ConflictOfInterest, ConflictAdmin)

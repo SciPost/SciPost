@@ -9,12 +9,12 @@ from guardian.admin import GuardedModelAdmin
 from .models import Queue, Ticket, Followup
 
 
+@admin.register(Queue)
 class QueueAdmin(GuardedModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ["name", "description"]
 
 
-admin.site.register(Queue, QueueAdmin)
 
 
 class FollowupInline(admin.TabularInline):
@@ -25,6 +25,7 @@ class FollowupInline(admin.TabularInline):
     ]
 
 
+@admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
     search_fields = [
         "title",
@@ -39,4 +40,3 @@ class TicketAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Ticket, TicketAdmin)

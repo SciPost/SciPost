@@ -35,15 +35,16 @@ class TOTPDeviceAdmin(admin.ModelAdmin):
 admin.site.register(TOTPDevice)
 
 
+@admin.register(UnavailabilityPeriod)
 class UnavailabilityPeriodAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "contributor",
     ]
 
 
-admin.site.register(UnavailabilityPeriod, UnavailabilityPeriodAdmin)
 
 
+@admin.register(Contributor)
 class ContributorAdmin(admin.ModelAdmin):
     search_fields = [
         "user__first_name",
@@ -89,15 +90,16 @@ class UserAdmin(UserAdmin):
     ]
     search_fields = ["username", "last_name", "email"]
 
+    @admin.display(
+        description="Is duplicate?",
+        boolean=True,
+    )
     def is_duplicate(self, obj):
         return obj.contributor.is_duplicate
 
-    is_duplicate.short_description = "Is duplicate?"
-    is_duplicate.boolean = True
 
 
 admin.site.unregister(User)
-admin.site.register(Contributor, ContributorAdmin)
 admin.site.register(User, UserAdmin)
 
 
@@ -139,6 +141,7 @@ def get_remark_type(remark):
     return ""
 
 
+@admin.register(Remark)
 class RemarkAdmin(admin.ModelAdmin):
     search_fields = ["contributor", "remark"]
     list_display = [remark_text, "contributor", "date", get_remark_type]
@@ -151,9 +154,9 @@ class RemarkAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Remark, RemarkAdmin)
 
 
+@admin.register(AuthorshipClaim)
 class AuthorshipClaimAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "claimant",
@@ -169,14 +172,13 @@ class AuthorshipClaimAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(AuthorshipClaim, AuthorshipClaimAdmin)
 
 
 admin.site.register(Permission)
 
 
+@admin.register(PrecookedEmail)
 class PrecookedEmailAdmin(admin.ModelAdmin):
     search_fields = ["email_subject", "email_text", "emailed_to"]
 
 
-admin.site.register(PrecookedEmail, PrecookedEmailAdmin)

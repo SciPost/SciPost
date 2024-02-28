@@ -16,20 +16,20 @@ from .models import (
 admin.site.register(AffiliatePublisher)
 
 
+@admin.register(AffiliateJournal)
 class AffiliateJournalAdmin(admin.ModelAdmin):
     search_fields = ["name"]
     list_display = ["name", "publisher"]
 
 
-admin.site.register(AffiliateJournal, AffiliateJournalAdmin)
 
 
+@admin.register(AffiliateJournalYearSubsidy)
 class AffiliateJournalYearSubsidyAdmin(admin.ModelAdmin):
     search_fields = ["journal", "organization", "year"]
     list_display = ["journal", "year", "amount", "organization"]
 
 
-admin.site.register(AffiliateJournalYearSubsidy, AffiliateJournalYearSubsidyAdmin)
 
 
 class AffiliatePubFractionInline(admin.TabularInline):
@@ -40,6 +40,7 @@ class AffiliatePubFractionInline(admin.TabularInline):
     ]
 
 
+@admin.register(AffiliatePublication)
 class AffiliatePublicationAdmin(admin.ModelAdmin):
     search_fields = ["doi", "journal__name", "publication_date"]
     list_display = ["doi", "journal", "publication_date"]
@@ -48,4 +49,3 @@ class AffiliatePublicationAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(AffiliatePublication, AffiliatePublicationAdmin)

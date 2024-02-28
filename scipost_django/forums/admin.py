@@ -9,6 +9,7 @@ from guardian.admin import GuardedModelAdmin
 from .models import Forum, Meeting, Post, Motion
 
 
+@admin.register(Forum)
 class ForumAdmin(GuardedModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ["name", "description"]
@@ -20,9 +21,9 @@ class ForumAdmin(GuardedModelAdmin):
         return super().get_queryset(request).anchors()
 
 
-admin.site.register(Forum, ForumAdmin)
 
 
+@admin.register(Meeting)
 class MeetingAdmin(GuardedModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ["name", "description", "preamble", "minutes"]
@@ -31,9 +32,9 @@ class MeetingAdmin(GuardedModelAdmin):
     ]
 
 
-admin.site.register(Meeting, MeetingAdmin)
 
 
+@admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ["anchor", "posted_by", "posted_on"]
     search_fields = ["posted_by__last_name", "subject", "text"]
@@ -44,9 +45,9 @@ class PostAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Post, PostAdmin)
 
 
+@admin.register(Motion)
 class MotionAdmin(admin.ModelAdmin):
     search_fields = ["posted_by__last_name", "subject", "text"]
     autocomplete_fields = [
@@ -61,4 +62,3 @@ class MotionAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Motion, MotionAdmin)
