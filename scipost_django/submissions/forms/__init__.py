@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse
 from .appraisal import QualificationForm, ReadinessForm
 
@@ -2240,12 +2241,14 @@ class EditorialAssignmentForm(forms.ModelForm):
 
 
 class InviteRefereeSearchFrom(forms.Form):
+    form_id = "invite-referee-search-form"
+
     text = forms.CharField(
         required=False, help_text="Fill in a name, email or ORCID", label="Search"
     )
     affiliation = forms.CharField(required=False)
-    specialties = forms.ModelMultipleChoiceField(
-        queryset=Specialty.objects.none(),
+    specialties = forms.MultipleChoiceField(
+        choices=[],
         label="Submission specialties",
         required=False,
     )
@@ -2284,9 +2287,28 @@ class InviteRefereeSearchFrom(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.submission = kwargs.pop("submission")
+        self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
 
-        self.fields["specialties"].queryset = self.submission.specialties.all()
+        # Set the initial values of the form fields from the session data
+        if self.session_key:
+            session = SessionStore(session_key=self.session_key)
+
+            for field_key in self.fields:
+                session_key = (
+                    f"{self.form_id}_{field_key}"
+                    if hasattr(self, "form_id")
+                    else field_key
+                )
+
+                if (session_value := session.get(session_key)) or (
+                    isinstance(session_value, bool)
+                ):
+                    self.fields[field_key].initial = session_value
+
+        self.fields["specialties"].choices = (
+            self.submission.specialties.all().values_list("id", "name")
+        )
 
         self.helper = FormHelper()
 
@@ -2339,11 +2361,34 @@ class InviteRefereeSearchFrom(forms.Form):
                 else:
                     self.fields[key].initial = None
 
+    def save_fields_to_session(self):
+        # Save the form data to the session
+        if self.session_key is not None:
+            session = SessionStore(session_key=self.session_key)
+
+            for field_key in self.cleaned_data:
+                session_key = (
+                    f"{self.form_id}_{field_key}"
+                    if hasattr(self, "form_id")
+                    else field_key
+                )
+
+                if (field_value := self.cleaned_data.get(field_key)) or isinstance(
+                    field_value, bool
+                ):
+                    # if isinstance(field_value, date):
+                    #     field_value = field_value.strftime("%Y-%m-%d")
+
+                    session[session_key] = field_value
+
+            session.save()
+
     def search_results(self):
         """
         Return a queryset of Profiles based on the search form.
         """
-        profiles = Profile.objects.all()
+        self.save_fields_to_session()
+
 
         if text := self.cleaned_data.get("text"):
             profiles = profiles.search(text)

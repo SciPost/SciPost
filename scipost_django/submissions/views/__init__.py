@@ -1145,6 +1145,7 @@ def _hx_select_referee_table(request, identifier_w_vn_nr):
     form = InviteRefereeSearchFrom(
         request.POST or None,
         submission=submission,
+        session_key=request.session.session_key,
     )
     if form.is_valid():
         fellowships = form.search_results()
@@ -1180,12 +1181,15 @@ def _hx_select_referee_search_form(request, identifier_w_vn_nr, filter_set: str)
     form = InviteRefereeSearchFrom(
         request.POST or None,
         submission=submission,
+        session_key=request.session.session_key,
     )
 
     if filter_set == "empty":
         form.apply_filter_set(
             {
                 "show_email_unknown": True,
+                "show_with_CI": True,
+                "show_unavailable": True,
             },
             none_on_empty=True,
         )
