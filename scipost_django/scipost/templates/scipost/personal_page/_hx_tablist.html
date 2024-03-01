@@ -15,7 +15,7 @@
     <a hx-get="{% url 'scipost:personal_page_hx_edadmin' %}"
        {% if selected == 'edadmin' %}class="selected"{% endif %}
     >
-      EdAdmin
+      Editorial Actions
     </a>
   {% endif %}
   {% if perms.scipost.can_referee %}
