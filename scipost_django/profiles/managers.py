@@ -5,14 +5,23 @@ __license__ = "AGPL v3"
 import re
 from django.contrib.postgres.lookups import Unaccent
 from django.db import models
-from django.db.models import Count, Q, Value
+from django.db.models import (
+    Count,
+    Q,
+    Exists,
+    ExpressionWrapper,
+    OuterRef,
+    QuerySet,
+    Subquery,
+    Value,
+)
 from django.db.models.functions import Concat, Lower
 from django.utils import timezone
 
 from ethics.models import CompetingInterest
 
 
-class ProfileQuerySet(models.QuerySet):
+class ProfileQuerySet(QuerySet):
     def get_unique_from_email_or_None(self, email):
         try:
             return self.get(emails__email=email)
@@ -65,8 +74,8 @@ class ProfileQuerySet(models.QuerySet):
         ]
         # Now return list of potential duplicates
         return profiles.filter(
-            models.Q(full_name_annot__in=duplicates_by_full_name)
-            | models.Q(id__in=ids_of_duplicates_by_email)
+            Q(full_name_annot__in=duplicates_by_full_name)
+            | Q(id__in=ids_of_duplicates_by_email)
         ).order_by("last_name", "first_name", "-id")
 
     def specialties_overlap(self, specialties_slug_list):
@@ -76,6 +85,75 @@ class ProfileQuerySet(models.QuerySet):
         This method is also separately implemented for Contributor and PotentialFellowship objects.
         """
         return self.filter(specialties__slug__in=specialties_slug_list)
+
+    def annot_has_competing_interests_with(self, profile):
+        """
+        Annotates the queryset with a boolean indicating whether each Profile
+        has a competing interest with the specified profile.
+        """
+        return self.annotate(
+            has_competing_interest=Exists(
+                CompetingInterest.objects.filter(
+                    Q(profile=OuterRef("pk"), related_profile=profile)
+                    | Q(profile=profile, related_profile=OuterRef("pk"))
+                )
+            )
+        )
+
+    def annot_has_competing_interests_with_any(self, profiles):
+        """
+        Annotates the queryset with a boolean indicating whether each Profile
+        has a competing interest with any of the specified profiles.
+        """
+        return self.annotate(
+            has_competing_interest=Exists(
+                CompetingInterest.objects.filter(
+                    Q(profile=OuterRef("pk"), related_profile__in=profiles)
+                    | Q(profile__in=profiles, related_profile=OuterRef("pk"))
+                )
+            )
+        )
+
+    def annot_has_competing_interests_with_submission_authors(self, submission):
+        """
+        Annotates the queryset with a boolean indicating whether each Profile
+        has a competing interest with any of the authors of the specified submission.
+        This also includes a boolean indicating whether the Profile is one of the authors.
+        """
+        submission_authors = submission.author_profiles.values_list(
+            "profile__id", flat=True
+        )
+        return (
+            self.annotate(
+                is_submission_author=Exists(
+                    Subquery(submission_authors.filter(profile=OuterRef("pk")))
+                )
+            )
+            .annotate(
+                has_submission_competing_interests=Exists(
+                    Subquery(
+                        CompetingInterest.objects.filter(
+                            Q(
+                                profile=OuterRef("pk"),
+                                related_profile__in=submission_authors,
+                            )
+                            | Q(
+                                profile__in=submission_authors,
+                                related_profile=OuterRef("pk"),
+                            )
+                        )
+                    )
+                )
+            )
+            .annotate(
+                # The flag is an "OR" of the two flags above
+                has_any_competing_interest_with_submission=ExpressionWrapper(
+                    Q(is_submission_author=True)
+                    | Q(has_submission_competing_interests=True),
+                    output_field=models.BooleanField(),
+                )
+            )
+        )
 
     def no_competing_interests_with(self, profile):
         """
@@ -93,21 +171,9 @@ class ProfileQuerySet(models.QuerySet):
         """
         Returns all Fellowships whose profiles have no competing interests with any of the authors of the specified submission.
         """
-        submission_author_profile_ids = submission.author_profiles.all().values_list(
-            "profile_id", flat=True
-        )
-
-        fellow_author_cis = CompetingInterest.objects.between_profile_sets(
-            self.values("id"), submission_author_profile_ids
-        )
-
-        CI_profiles = fellow_author_cis.values_list("profile", "related_profile")
-        # Unpack the list of two-tuples into two lists
-        profile_CI, related_CI = list(zip(*CI_profiles)) or ([], [])
-
-        return self.exclude(
-            id__in=profile_CI + related_CI + list(submission_author_profile_ids)
-        )
+        return self.annot_has_competing_interests_with_submission_authors(
+            submission
+        ).filter(has_any_competing_interest_with_submission=False)
 
     def search(self, query):
         """
@@ -174,7 +240,7 @@ class ProfileQuerySet(models.QuerySet):
         return contains_profiles
 
 
-class AffiliationQuerySet(models.QuerySet):
+class AffiliationQuerySet(QuerySet):
     def current(self):
         """
         Return affiliations which are currently valid.
