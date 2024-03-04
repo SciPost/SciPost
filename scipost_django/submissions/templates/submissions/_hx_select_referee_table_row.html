@@ -38,31 +38,47 @@
 
   </td>
   <td style="min-width:330px;">
+    <div class="d-flex">
+      <button id="ref-inv-{{ profile.id }}-send-btn"
+              type="button"
+              class="btn btn-sm btn-light me-2"
+              hx-get="{% url 'submissions:_hx_add_referee_profile_email' profile_id=profile.id %}"
+              hx-target="closest tr"
+              hx-swap="afterend">Add Email</button>
+
+      <button id="ref-inv-{{ profile.id }}-send-btn" type="button" class="me-2 btn btn-sm btn-{% if profile.warned_against_invitation %}warning{% else %}light{% endif %}" 
+      {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
+      hx-get="{% url 'submissions:_hx_configure_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" hx-target="closest tr" 
+      {% if not profile.can_be_sent_invitation %}disabled{% endif %}
+      hx-swap="afterend">Configure</button>
+      <button id="ref-inv-{{ profile.id }}-send-btn" type="button" class="ms-auto btn btn-sm btn-{% if profile.warned_against_invitation %}warning{% else %}primary{% endif %}" 
+      {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
+      hx-get="{% url 'submissions:_hx_quick_invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" hx-target="closest td" 
+      {% if not profile.can_be_sent_invitation %}disabled{% endif %}
+      hx-swap="outerHTML">Quick Send</button>
+    </div>
 
     {% if not profile.accepts_refereeing_requests %}
-      <span class="text-danger">This person does not accept refereeing requests</span>
-    {% elif not profile.emails.all %}
-      <div class="text-danger">Cannot send an invitation without an email.</div>
-    {% elif profile.contributor and not profile.contributor.is_currently_available %}
-      <div class="text-danger">
+      <div class="text-danger">This person does not accept refereeing requests</div>
+    {% endif %}
+
+    {% if profile.has_submission_competing_interests %}
+      <div class="text-danger">This person has a competing interest with the submission</div>
+    {% endif %}
+
+    {% if profile.is_submission_author %}
+      <div class="text-danger">This person is an author of the submission</div>
+    {% elif profile.last_name_matches %}
+      <div class="text-warning">This person could be an author of the submission (last name matches)</div>
+    {% endif %}
+
+    {% if profile.contributor and not profile.contributor.is_currently_available %}
+      <div class="text-warning">
         This person is not currently available, but will be after
         <time datetime="{{ profile.contributor.available_again_after_date }}">
           {{ profile.contributor.available_again_after_date }}
         </time>
       </div>
-    {% else %}
-      <button id="ref-inv-{{ profile.id }}-send-btn"
-              type="button"
-              class="btn btn-sm btn-light"
-              hx-get="{% url 'submissions:_hx_configure_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}"
-              hx-target="closest tr"
-              hx-swap="afterend">Select</button>
-      <button id="ref-inv-{{ profile.id }}-send-btn"
-              type="button"
-              class="btn btn-sm btn-light"
-              hx-get="{% url 'submissions:_hx_add_referee_profile_email' profile_id=profile.id %}"
-              hx-target="closest tr"
-              hx-swap="afterend">Add Email</button>
     {% endif %}
 
   </td>

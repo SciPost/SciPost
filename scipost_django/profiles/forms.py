@@ -48,7 +48,6 @@ class ProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["email"].initial = self.instance.email
         self.fields["instance_from_type"].widget = forms.HiddenInput()
         self.fields["instance_pk"].widget = forms.HiddenInput()
 

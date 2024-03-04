@@ -35,7 +35,11 @@ from django.views.generic.list import ListView
 
 from dal import autocomplete
 
-from scipost.permissions import permission_required_htmx
+from scipost.permissions import (
+    HTMXPermissionsDenied,
+    HTMXResponse,
+    permission_required_htmx,
+)
 
 from ..constants import (
     STATUS_VETTED,
@@ -1352,9 +1356,22 @@ def invite_referee(
     profile = get_object_or_404(Profile, pk=profile_id)
     auto_reminders_allowed = auto_reminders_allowed == "True"
 
+    # Guard against profiles who don't want to referee
+    if not profile.accepts_refereeing_requests:
+        messages.error(
+            request,
+            "This person has indicated that they do not want to be invited to referee.",
+        )
+        return redirect(
+            reverse(
+                "submissions:editorial_page",
+                kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+            )
+        )
+
     # Guard against profiles with competing interests
     if not (
-        Profile.objects.filter(profile=profile)
+        Profile.objects.filter(pk=profile.pk)
         .without_competing_interests_against_submission_authors_of(submission)
         .exists()
     ):
@@ -1398,13 +1415,22 @@ def invite_referee(
         referee_invitation.save()
 
     registration_invitation = None
+    has_agreed_to_previous_invitation = RefereeInvitation.objects.filter(
+        profile=profile, submission__thread_hash=submission.thread_hash, accepted=True
+    ).exists()
+
     if contributor:
-        if not profile.contributor.is_currently_available:
-            errormessage = (
-                "This Contributor is marked as currently unavailable. "
-                "Please go back and select another referee."
+        if (
+            not contributor.is_currently_available
+            and not has_agreed_to_previous_invitation
+        ):
+            error_message = (
+                "This referee is not currently available, "
+                "and has not accepted a previous invitation for this submission."
             )
-            return render(request, "scipost/error.html", {"errormessage": errormessage})
+            return render(
+                request, "scipost/error.html", {"errormessage": error_message}
+            )
 
         mail_request = MailEditorSubview(
             request,
@@ -1443,7 +1469,6 @@ def invite_referee(
         submission.add_event_for_author("A referee has been invited.")
         submission.add_event_for_eic("Referee %s has been invited." % profile.last_name)
         messages.success(request, "Invitation sent")
-        mail_request.send_mail()
         return redirect(
             reverse(
                 "submissions:editorial_page",
@@ -1452,6 +1477,115 @@ def invite_referee(
         )
     else:
         return mail_request.interrupt()
+
+
+@transaction.atomic
+def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    profile = get_object_or_404(Profile, pk=profile_id)
+
+    # Guard against non-admin and non-EIC users
+    is_eic_for_submission = submission.editor_in_charge == request.user.contributor
+    can_oversee_refereeing = request.user.has_perm("scipost.can_oversee_refereeing")
+    if not (is_eic_for_submission or can_oversee_refereeing):
+        return HTMXPermissionsDenied("You do not have permission to invite referees.")
+
+    # Guard against profiles who don't want to referee
+    if not profile.accepts_refereeing_requests:
+        return HTMXResponse(
+            "This person has indicated that they do not want to be invited to referee.",
+            tag="danger",
+        )
+
+    # Guard against profiles with competing interests
+    if not (
+        Profile.objects.filter(pk=profile.pk)
+        .without_competing_interests_against_submission_authors_of(submission)
+        .exists()
+    ):
+        return HTMXResponse(
+            "This Profile has a competing interest with the authors of the Submission.",
+            tag="danger",
+        )
+
+    contributor = None
+    if hasattr(profile, "contributor") and profile.contributor:
+        contributor = profile.contributor
+
+    referee_invitation, created = RefereeInvitation.objects.get_or_create(
+        profile=profile,
+        referee=contributor,
+        submission=submission,
+        title=profile.title if profile.title else TITLE_DR,
+        first_name=profile.first_name,
+        last_name=profile.last_name,
+        email_address=profile.email,
+        auto_reminders_allowed=True,
+        invited_by=request.user.contributor,
+    )
+
+    key = ""
+    if created:
+        key = get_new_secrets_key()
+        referee_invitation.invitation_key = key
+        referee_invitation.save()
+
+    registration_invitation = None
+    has_agreed_to_previous_invitation = RefereeInvitation.objects.filter(
+        profile=profile, submission__thread_hash=submission.thread_hash, accepted=True
+    ).exists()
+
+    if contributor:
+        if (
+            not contributor.is_currently_available
+            and not has_agreed_to_previous_invitation
+        ):
+            return HTMXResponse(
+                "This referee is not currently available, "
+                "and has not accepted a previous invitation for this submission.",
+                tag="danger",
+            )
+
+        mail_request = DirectMailUtil(
+            "referees/invite_contributor_to_referee",
+            invitation=referee_invitation,
+        )
+    else:  # no Contributor, so registration invitation
+        registration_invitation, reginv_created = (
+            RegistrationInvitation.objects.get_or_create(
+                profile=profile,
+                title=profile.title if profile.title else TITLE_DR,
+                first_name=profile.first_name,
+                last_name=profile.last_name,
+                email=profile.email,
+                invitation_type=INVITATION_REFEREEING,
+                created_by=request.user,
+                invited_by=request.user,
+                invitation_key=referee_invitation.invitation_key,
+            )
+        )
+        mail_request = DirectMailUtil(
+            mail_code="referees/invite_unregistered_to_referee",
+            invitation=referee_invitation,
+        )
+
+    mail_request.send_mail()
+
+    referee_invitation.date_invited = timezone.now()
+    referee_invitation.save()
+    if registration_invitation:
+        registration_invitation.status = STATUS_SENT
+        registration_invitation.key_expires = timezone.now() + datetime.timedelta(
+            days=365
+        )
+        registration_invitation.save()
+
+    submission.add_event_for_author("A referee has been invited.")
+    submission.add_event_for_eic("Referee %s has been invited." % profile.last_name)
+
+    return HTMXResponse("Invitation sent", tag="success")
 
 
 @login_required

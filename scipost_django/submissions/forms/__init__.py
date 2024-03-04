@@ -12,7 +12,15 @@ import datetime
 from django import forms
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Q, Count, Exists, OuterRef, Subquery, Value
+from django.db.models import (
+    Q,
+    Count,
+    Exists,
+    OuterRef,
+    Value,
+    BooleanField,
+    ExpressionWrapper,
+)
 from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
 from django.forms.formsets import ORDERING_FIELD_NAME
@@ -2255,10 +2263,12 @@ class InviteRefereeSearchFrom(forms.Form):
 
     show_unavailable = forms.BooleanField(
         required=False,
+        initial=True,
         label="Show unavailable",
     )
     show_with_CI = forms.BooleanField(
         required=False,
+        initial=True,
         label="Include those with competing interests",
     )
     show_email_unknown = forms.BooleanField(
@@ -2389,6 +2399,34 @@ class InviteRefereeSearchFrom(forms.Form):
         """
         self.save_fields_to_session()
 
+        profiles = (
+            Profile.objects.all()
+            .annot_has_competing_interests_with_submission_authors(self.submission)
+            .annotate(
+                is_unavailable=Exists(
+                    UnavailabilityPeriod.objects.today().filter(
+                        contributor=OuterRef("contributor")
+                    )
+                )
+            )
+            .annotate(
+                last_name_matches=Exists(
+                    Submission.objects.filter(
+                        id=self.submission.id,
+                        author_list__unaccent__icontains=OuterRef("last_name"),
+                    )
+                )
+            )
+            .annotate(
+                has_accepted_previous_invitation=Exists(
+                    RefereeInvitation.objects.filter(
+                        referee=OuterRef("contributor"),
+                        submission__thread_hash=self.submission.thread_hash,
+                        accepted=True,
+                    ).exclude(submission=self.submission)
+                )
+            )
+        )
 
         if text := self.cleaned_data.get("text"):
             profiles = profiles.search(text)
@@ -2400,22 +2438,10 @@ class InviteRefereeSearchFrom(forms.Form):
 
         # Filter to only those without competing interests, unless the option is selected
         if not self.cleaned_data.get("show_with_CI"):
-            profiles = (
-                profiles.without_competing_interests_against_submission_authors_of(
-                    self.submission
-                )
-            )
+            profiles = profiles.exclude(has_any_competing_interest_with_submission=True)
         # Filter to only those available, unless the option is selected
         if not self.cleaned_data.get("show_unavailable"):
-            current_unavailability_periods = Subquery(
-                UnavailabilityPeriod.objects.today().filter(
-                    contributor=OuterRef("contributor")
-                )
-            )
-            profiles = profiles.annotate(
-                is_unavailable=Exists(current_unavailability_periods)
-            ).exclude(is_unavailable=True)
-
+            profiles = profiles.exclude(is_unavailable=True)
         # Exclude those without email, if the option is selected
         if not self.cleaned_data.get("show_email_unknown"):
             profiles = profiles.exclude(emails__isnull=True)
@@ -2440,6 +2466,21 @@ class InviteRefereeSearchFrom(forms.Form):
                 ]
             )
 
+        profiles = profiles.annotate(
+            can_be_sent_invitation=ExpressionWrapper(
+                Q(emails__isnull=False)
+                & Q(accepts_refereeing_requests=True)
+                & ~Q(has_any_competing_interest_with_submission=True)
+                & (Q(is_unavailable=False) | Q(has_accepted_previous_invitation=True)),
+                output_field=BooleanField(),
+            ),
+            warned_against_invitation=ExpressionWrapper(
+                (Q(is_submission_author=False) & Q(last_name_matches=True))
+                | (Q(is_unavailable=True) & Q(has_accepted_previous_invitation=True)),
+                output_field=BooleanField(),
+            ),
+        )
+
         return profiles
 
 
@@ -2452,7 +2493,7 @@ class ConfigureRefereeInvitationForm(forms.Form):
     has_auto_reminders = forms.ChoiceField(
         widget=forms.RadioSelect,
         choices=((True, "Yes"), (False, "No")),
-        initial=False,
+        initial=True,
         required=False,
         label="Send automatic reminders?",
     )
@@ -2509,16 +2550,6 @@ class ConfigureRefereeInvitationForm(forms.Form):
                 css_class="d-flex flex-row justify-content-center",
             )
         )
-
-    def clean(self):
-        if (
-            contributor := getattr(self.profile, "contributor", None)
-        ) and not contributor.is_currently_available:
-            self.add_error(
-                None,
-                "This Contributor is marked as currently unavailable. "
-                "Please cancel and select another referee.",
-            )
 
 
 class ConsiderRefereeInvitationForm(forms.Form):

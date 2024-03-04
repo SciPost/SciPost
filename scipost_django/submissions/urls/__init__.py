@@ -319,9 +319,14 @@ urlpatterns = [
         name="add_referee_profile",
     ),
     path(
-        "invite_referee/<identifier:identifier_w_vn_nr>/<int:profile_id>/<str:profile_email>/auto_remind/<str:auto_reminders_allowed>",
+        "invite_referee/<identifier:identifier_w_vn_nr>/<int:profile_id>/custom/<str:profile_email>/auto_remind_<str:auto_reminders_allowed>",
         views.invite_referee,
         name="invite_referee",
+    ),
+    path(
+        "invite_referee/<identifier:identifier_w_vn_nr>/<int:profile_id>/quick",
+        views._hx_quick_invite_referee,
+        name="_hx_quick_invite_referee",
     ),
     path(
         "refereeing/_hx_configure_invitation/<identifier:identifier_w_vn_nr>/<int:profile_id>",
