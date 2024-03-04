@@ -1,6 +1,6 @@
 <tr>
-  <td>
-    <a href="{{ profile.get_absolute_url }}">{{ profile }}</a>
+  <td style="max-width:200px;" class="text-truncate overflow-hidden">
+    <a title={{ profile }} href="{{ profile.get_absolute_url }}">{{ profile }}</a>
   </td>
   <td>
 
@@ -37,7 +37,7 @@
     </table>
 
   </td>
-  <td>
+  <td style="min-width:330px;">
 
     {% if not profile.accepts_refereeing_requests %}
       <span class="text-danger">This person does not accept refereeing requests</span>
