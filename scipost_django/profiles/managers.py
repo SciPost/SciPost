@@ -162,8 +162,8 @@ class ProfileQuerySet(QuerySet):
         CI_profiles = CompetingInterest.objects.involving_profile(profile).values_list(
             "profile", "related_profile"
         )
-        # Unpack the list of two-tuples into two lists
-        profile_CI, related_CI = list(zip(*CI_profiles)) or ([], [])
+        # Unpack the collection of id-two-tuples into two tuples of ids
+        profile_CI, related_CI = tuple(zip(*CI_profiles)) or ((), ())
 
         return self.exclude(id__in=profile_CI + related_CI)
 

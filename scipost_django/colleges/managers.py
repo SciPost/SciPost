@@ -124,13 +124,13 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
         )
 
         CI_profiles = fellow_author_cis.values_list("profile", "related_profile")
-        # Unpack the list of two-tuples into two lists
-        profile_CI, related_CI = list(zip(*CI_profiles)) or ([], [])
+        # Unpack the collection of id-two-tuples into two tuples of ids
+        profile_CI, related_CI = tuple(zip(*CI_profiles)) or ((), ())
 
         return self.exclude(
             contributor__profile__id__in=profile_CI
             + related_CI
-            + list(submission_author_profile_ids)
+            + tuple(submission_author_profile_ids)
         )
 
 
