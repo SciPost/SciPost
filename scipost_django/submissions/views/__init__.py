@@ -1369,6 +1369,21 @@ def invite_referee(
             )
         )
 
+    # Guard against already invited referees
+    if RefereeInvitation.objects.filter(
+        profile=profile, submission=submission
+    ).exists():
+        messages.error(
+            request,
+            "This referee has already been invited.",
+        )
+        return redirect(
+            reverse(
+                "submissions:editorial_page",
+                kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+            )
+        )
+
     # Guard against profiles with competing interests
     if not (
         Profile.objects.filter(pk=profile.pk)
@@ -1499,6 +1514,15 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
             tag="danger",
         )
 
+    # Guard against already invited referees
+    if RefereeInvitation.objects.filter(
+        profile=profile, submission=submission
+    ).exists():
+        return HTMXResponse(
+            "This referee has already been invited.",
+            tag="danger",
+        )
+
     # Guard against profiles with competing interests
     if not (
         Profile.objects.filter(pk=profile.pk)
@@ -1514,6 +1538,7 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
     if hasattr(profile, "contributor") and profile.contributor:
         contributor = profile.contributor
 
+    primary_or_first_email = profile.emails.order_by("-primary").first().email
     referee_invitation, created = RefereeInvitation.objects.get_or_create(
         profile=profile,
         referee=contributor,
@@ -1521,7 +1546,7 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
         title=profile.title if profile.title else TITLE_DR,
         first_name=profile.first_name,
         last_name=profile.last_name,
-        email_address=profile.email,
+        email_address=primary_or_first_email,
         auto_reminders_allowed=True,
         invited_by=request.user.contributor,
     )

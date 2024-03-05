@@ -2420,10 +2420,18 @@ class InviteRefereeSearchFrom(forms.Form):
             .annotate(
                 has_accepted_previous_invitation=Exists(
                     RefereeInvitation.objects.filter(
-                        referee=OuterRef("contributor"),
+                        profile=OuterRef("id"),
                         submission__thread_hash=self.submission.thread_hash,
                         accepted=True,
                     ).exclude(submission=self.submission)
+                )
+            )
+            .annotate(
+                already_invited=Exists(
+                    RefereeInvitation.objects.filter(
+                        profile=OuterRef("id"),
+                        submission=self.submission,
+                    )
                 )
             )
         )
@@ -2469,6 +2477,7 @@ class InviteRefereeSearchFrom(forms.Form):
         profiles = profiles.annotate(
             can_be_sent_invitation=ExpressionWrapper(
                 Q(emails__isnull=False)
+                & ~Q(already_invited=True)
                 & Q(accepts_refereeing_requests=True)
                 & ~Q(has_any_competing_interest_with_submission=True)
                 & (Q(is_unavailable=False) | Q(has_accepted_previous_invitation=True)),

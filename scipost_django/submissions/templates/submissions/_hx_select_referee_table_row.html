@@ -58,6 +58,10 @@
       hx-swap="outerHTML">Quick Send</button>
     </div>
 
+    {% if profile.already_invited %}
+      <div class="text-warning">This person has already been invited</div>
+    {% endif %}
+
     {% if not profile.accepts_refereeing_requests %}
       <div class="text-danger">This person does not accept refereeing requests</div>
     {% endif %}
