@@ -45,8 +45,20 @@
 	</div>
       </div>
     {% endif %}
+    
+    <!-- Right side column -->
+    <aside class="col-lg-4 order-2">
+      {% for invitation in invitations %}
+	      {% include 'submissions/_refereeing_status_card.html' with invitation=invitation %}
+      {% endfor %}
 
-    <div class="col-lg-8">
+      {% include 'submissions/_submission_refereeing_history.html' with submission=submission %}
+
+      {% include 'submissions/_submission_quick_actions.html' with submission=submission %}
+    </aside>
+    <!-- End right side column -->
+
+    <div class="col-lg-8 order-1">
       <!-- Notifications -->
       {% if unfinished_report_for_user %}
 	<div class="w-100">
@@ -117,8 +129,6 @@
       >
       </div>
 
-      {% include 'submissions/_submission_status.html' with submission=submission %}
-
       {% if submission.editorial_decision %}
 	{% if is_author and submission.editorial_decision.status == submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}
 	  <p>
@@ -136,8 +146,6 @@
 	{% endif %}
       {% endif %}
 
-      <br>
-      <hr>
       {% if submission.author_comments %}
 	<h3>Author comments upon resubmission</h3>
 	<div class="blockquote">
@@ -151,17 +159,9 @@
       {% endif %}
     </div>
 
-    <div class="col-lg-4">
-      {% for invitation in invitations %}
-	{% include 'submissions/_refereeing_status_card.html' with invitation=invitation %}
-      {% endfor %}
-
-      {% include 'submissions/_submission_refereeing_history.html' with submission=submission %}
-
-      {% include 'submissions/_submission_quick_actions.html' with submission=submission %}
-    </div>
-
   </div>
+
+  {% include 'submissions/_submission_status.html' with submission=submission %}
 
   {% if is_author %}
     {% include 'submissions/_submission_author_information.html' with submission=submission %}
