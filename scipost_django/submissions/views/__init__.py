@@ -618,6 +618,7 @@ def submission_detail(request, identifier_w_vn_nr):
     # Check if Contributor is author of the Submission
     is_author = check_verified_author(submission, request.user)
     is_author_unchecked = check_unverified_author(submission, request.user)
+    is_submission_fellow = submission.fellows.filter(contributor__user=request.user.id).exists()
 
     if not submission.visible_public and not is_author:
         if not request.user.is_authenticated:
@@ -690,6 +691,7 @@ def submission_detail(request, identifier_w_vn_nr):
             "author_replies": author_replies,
             "is_author": is_author,
             "is_author_unchecked": is_author_unchecked,
+            "is_submission_fellow": is_submission_fellow,
         }
     )
     return render(request, "submissions/submission_detail.html", context)
