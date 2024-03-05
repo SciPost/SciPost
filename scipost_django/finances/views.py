@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 from itertools import accumulate
+import mimetypes
 from dal import autocomplete
 
 from django.db.models import Q
@@ -542,8 +543,9 @@ def subsidy_attachment(request, subsidy_id, attachment_id):
     content_type, encoding = mimetypes.guess_type(attachment.attachment.path)
     content_type = content_type or "application/octet-stream"
     response = HttpResponse(attachment.attachment.read(), content_type=content_type)
-    response["Content-Encoding"] = encoding
-    response["Content-Disposition"] = "filename=%s" % attachment.attachment.name
+    if encoding:
+        response["Content-Encoding"] = encoding
+        response["Content-Disposition"] = "filename=%s" % attachment.attachment.name
     return response
 
 
