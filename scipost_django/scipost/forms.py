@@ -335,6 +335,23 @@ class UpdateUserDataForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["last_name"].widget.attrs["readonly"] = True
 
+    def clean_email(self):
+        if email := self.cleaned_data.get("email"):
+            other_users = User.objects.filter(email=email).exclude(pk=self.instance.pk)
+            if other_users.exists():
+                self.add_error(
+                    "email",
+                    "This email is already in use by another user. "
+                    "If it belongs to you and you have forgotten your credentials, "
+                    "use the email in place of your username and/or reset your password.",
+                )
+        # other_profiles = Profile.objects.filter(emails__email=email).exclude(
+        #     user=self.instance
+        # )
+        # if other_profiles.exists():
+
+        return email or self.instance.email
+
     def clean_last_name(self):
         """Make sure the `last_name` cannot be saved via this form."""
         instance = getattr(self, "instance", None)
@@ -404,9 +421,9 @@ class UpdatePersonalDataForm(forms.ModelForm):
         ]
         self.fields["orcid_id"].initial = self.instance.profile.orcid_id
         self.fields["webpage"].initial = self.instance.profile.webpage
-        self.fields[
-            "accepts_SciPost_emails"
-        ].initial = self.instance.profile.accepts_SciPost_emails
+        self.fields["accepts_SciPost_emails"].initial = (
+            self.instance.profile.accepts_SciPost_emails
+        )
 
     def save(self):
         self.instance.profile.title = self.cleaned_data["title"]
