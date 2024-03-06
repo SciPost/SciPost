@@ -21,8 +21,8 @@ class Qualification(models.Model):
     NOT_AT_ALL_QUALIFIED = "not_at_all_qualified"
     EXPERTISE_LEVEL_CHOICES = (
         (EXPERT, "Expert in this subject"),
-        (VERY_KNOWLEDGEABLE, "Very knowledgeable in this subject"),
-        (KNOWLEDGEABLE, "Knowledgeable in this subject"),
+        (VERY_KNOWLEDGEABLE, "Very knowledgeable"),
+        (KNOWLEDGEABLE, "Knowledgeable"),
         (MARGINALLY_QUALIFIED, "Marginally qualified"),
         (NOT_REALLY_QUALIFIED, "Not really qualified"),
         (NOT_AT_ALL_QUALIFIED, "Not at all qualified"),

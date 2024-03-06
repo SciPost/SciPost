@@ -1,0 +1,8 @@
+{% load crispy_forms_tags %}
+
+<form id="radio-appraisal-form-{{ submission.id }}"
+      hx-post="{{ request.path }}"
+      hx-swap="outerHTML"
+      hx-trigger="change delay 1s">
+  {% crispy form %}
+</form>

@@ -44,6 +44,11 @@ urlpatterns = [  # building on /submissions/pool/
                                 views_appraisal._hx_readiness_form,
                                 name="_hx_readiness_form",
                             ),
+                            path(
+                                "radio_form",
+                                views_appraisal._hx_radio_appraisal_form,
+                                name="_hx_radio_appraisal_form",
+                            ),
                         ]
                     ),
                 ),

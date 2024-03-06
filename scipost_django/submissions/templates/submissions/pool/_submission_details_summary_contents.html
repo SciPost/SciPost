@@ -1,4 +1,7 @@
 {% load submissions_pool %}
+{% load ethics_extras %}
+
+{% get_profile_clearance submission.clearances request.user.contributor.profile as clearance %}
 
 <div class="row mb-0">
   <div class="col col-md-9">
@@ -131,11 +134,9 @@
   {% endif %}
 
   {% if session_fellowship %}
-    <div id="submission-{{ submission.id }}-appraisal"
-	 class="mb-0"
-    >
+    <section id="submission-{{ submission.id }}-appraisal" class="row mb-0 border-top border-2 pt-2">
       {% include "submissions/pool/_hx_appraisal.html" with submission=submission %}
-    </div>
+    </section>
   {% endif %}
 
 {% endif %}
