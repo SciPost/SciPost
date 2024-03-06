@@ -243,8 +243,17 @@ class AuthorsTableOrganizationSelectForm(forms.ModelForm):
 
 
 class CreateMetadataXMLForm(forms.ModelForm):
-    schema = ET.XMLSchema(file=settings.STATIC_ROOT + settings.CROSSREF_SCHEMA_FILE)
-    parser = ET.XMLParser(schema=schema)
+    schema = None
+    parser = None
+
+    @classmethod
+    def initialize_lxml(cls):
+        if cls.schema is None:
+            cls.schema = ET.XMLSchema(
+                file=settings.STATIC_ROOT + settings.CROSSREF_SCHEMA_FILE
+            )
+        if cls.parser is None:
+            cls.parser = ET.XMLParser(schema=cls.schema)
 
     class Meta:
         model = Publication
@@ -254,6 +263,9 @@ class CreateMetadataXMLForm(forms.ModelForm):
         xml = self.new_xml(kwargs.get("instance"))
         self.xml_str = self.format_xml(self.decode_html_entities(xml))
         kwargs["initial"] = {"metadata_xml": self.xml_str}
+
+        if self.schema is None or self.parser is None:
+            self.initialize_lxml()
 
         super().__init__(*args, **kwargs)
 
