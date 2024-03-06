@@ -8,6 +8,7 @@ import mimetypes
 from dal import autocomplete
 
 from django.db.models import Q
+from django.utils.html import format_html
 import matplotlib
 
 matplotlib.use("Agg")
@@ -314,6 +315,15 @@ class SubsidyAutocompleteView(autocomplete.Select2QuerySetView):
                 | Q(date_until__year__icontains=self.q)
             )
         return qs
+    
+    def get_result_label(self, item):
+        return format_html(
+            "{}<br>{} -> {} [{}]",
+            item.organization.name,
+            item.date_from,
+            item.date_until,
+            item.get_status_display(),
+        )
 
 
 class SubsidyListView(ListView):

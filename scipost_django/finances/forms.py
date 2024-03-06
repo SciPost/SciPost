@@ -33,16 +33,25 @@ class SubsidyForm(forms.ModelForm):
     organization = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
         widget=autocomplete.ModelSelect2(
-            url="/organizations/organization-autocomplete", attrs={"data-html": True}
+            url="/organizations/organization-autocomplete",
+            attrs={
+                "data-html": True,
+                "style": "width: 100%",
+            },
         ),
     )
 
-    renewal_of = forms.ModelChoiceField(
+    renewal_of = forms.ModelMultipleChoiceField(
         queryset=Subsidy.objects.all(),
-        widget=autocomplete.ModelSelect2(
-            url=reverse_lazy("finances:subsidy_autocomplete")
+        widget=autocomplete.ModelSelect2Multiple(
+            url=reverse_lazy("finances:subsidy_autocomplete"),
+            attrs={
+                "data-html": True,
+                "style": "width: 100%",
+            },
         ),
         help_text=("Start typing, and select from the popup."),
+        required=False,
     )
 
     class Meta:
