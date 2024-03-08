@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: refereeing request reminder",
     "recipient_list": [
-	"referee.profile.email"
+	    "email_address"
     ],
     "bcc": [
 	"submission.editor_in_charge.user.email",
