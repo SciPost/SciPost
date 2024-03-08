@@ -618,7 +618,9 @@ def submission_detail(request, identifier_w_vn_nr):
     # Check if Contributor is author of the Submission
     is_author = check_verified_author(submission, request.user)
     is_author_unchecked = check_unverified_author(submission, request.user)
-    is_submission_fellow = submission.fellows.filter(contributor__user=request.user.id).exists()
+    is_submission_fellow = submission.fellows.filter(
+        contributor__user=request.user.id
+    ).exists()
 
     if not submission.visible_public and not is_author:
         if not request.user.is_authenticated:
@@ -1372,9 +1374,13 @@ def invite_referee(
         )
 
     # Guard against already invited referees
-    if RefereeInvitation.objects.filter(
-        profile=profile, submission=submission
-    ).exists():
+    if (
+        RefereeInvitation.objects.filter(
+            profile=profile, submission=submission, cancelled=False
+        )
+        .exclude(email_address=profile_email)
+        .exists()
+    ):
         messages.error(
             request,
             "This referee has already been invited.",
@@ -1429,6 +1435,9 @@ def invite_referee(
     if created:
         key = get_new_secrets_key()
         referee_invitation.invitation_key = key
+        referee_invitation.save()
+    elif referee_invitation.cancelled:
+        referee_invitation.cancelled = False
         referee_invitation.save()
 
     registration_invitation = None
@@ -1518,7 +1527,7 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
 
     # Guard against already invited referees
     if RefereeInvitation.objects.filter(
-        profile=profile, submission=submission
+        profile=profile, submission=submission, cancelled=False
     ).exists():
         return HTMXResponse(
             "This referee has already been invited.",
@@ -1557,6 +1566,9 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
     if created:
         key = get_new_secrets_key()
         referee_invitation.invitation_key = key
+        referee_invitation.save()
+    elif referee_invitation.cancelled:
+        referee_invitation.cancelled = False
         referee_invitation.save()
 
     registration_invitation = None

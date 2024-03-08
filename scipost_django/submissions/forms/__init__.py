@@ -2431,6 +2431,7 @@ class InviteRefereeSearchFrom(forms.Form):
                     RefereeInvitation.objects.filter(
                         profile=OuterRef("id"),
                         submission=self.submission,
+                        cancelled=False,
                     )
                 )
             )
