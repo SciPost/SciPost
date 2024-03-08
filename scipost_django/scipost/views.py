@@ -1522,7 +1522,9 @@ def contributor_info(request, contributor_id):
             )
         )
 
-    contributor_publications = contributor.profile.publications()
+    contributor_publications = []
+    if profile := contributor.profile:
+        contributor_publications = profile.publications().published()
     contributor_submissions = Submission.objects.public_listed().filter(
         authors=contributor
     )
