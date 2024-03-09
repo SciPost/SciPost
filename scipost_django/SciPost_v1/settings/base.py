@@ -159,6 +159,7 @@ OAUTH2_PROVIDER = {
         "write": "Write scope",
         "introspection": "Introspect token scope",
     },
+    "PKCE_REQUIRED": False,
 }
 
 REST_FRAMEWORK = {
