@@ -205,6 +205,11 @@ urlpatterns = [
         TemplateView.as_view(template_name="scipost/privacy_policy.html"),
         name="privacy_policy",
     ),
+    path(
+        "posi",
+        TemplateView.as_view(template_name="scipost/posi.html"),
+        name="posi",
+    ),
     #
     ########
     # Feeds

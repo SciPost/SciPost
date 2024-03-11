@@ -1,0 +1,445 @@
+{% extends 'scipost/base.html' %}
+
+{% block meta_description %}{{ block.super }} POSI{% endblock meta_description %}
+{% block pagetitle %}: POSI{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">POSI</span>
+{% endblock %}
+
+
+{% block content %}
+
+  <h1 class="highlight">SciPost and the Principles of Open Scholarly Infrastructure</h1>
+
+
+  <p>SciPost is committed to the <a href="https://openscholarlyinfrastructure.org/">Principles of Open Scholarly Infrastructure</a>.</p>
+
+  <p>On this page, we provide details on our implementation of these principles.</p>
+
+  <!-- <h2 class="highlight">Foreword</h2>
+       <p>
+       Is SciPost an <em>infrastructure</em>?
+       </p> -->
+
+  <h2 class="highlight mt-4">Implementation table</h2>
+
+  <p><em>Note</em>: we first list the <a href="https://openscholarlyinfrastructure.org/">POSI</a> principles in table form, marking their relevance and the status of their implementation for SciPost with the following scheme:</p>
+  <table class="table">
+    <tr>
+      <td class="p-2">Relevance</td>
+      <td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+      <td class="p-2"><strong class="p-2 bg-success bg-opacity-75">mostly relevant</strong></td>
+      <td class="p-2"><strong class="p-2 bg-success bg-opacity-50">partly relevant</strong></td>
+      <td class="p-2"><strong class="p-2 bg-success bg-opacity-25">hardly relevant</strong></td>
+    </tr>
+    <tr>
+      <td class="p-2">Implementation</td>
+      <td class="p-2"><strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong></td>
+      <td class="p-2"><strong class="p-2 bg-success bg-opacity-75">mostly implemented</strong></td>
+      <td class="p-2"><strong class="p-2 bg-success bg-opacity-50">partly implemented</strong></td>
+      <td class="p-2"><strong class="p-2 bg-success bg-opacity-25">barely implemented</strong></td>
+    </tr>
+  </table>
+
+  <table class="table mt-5">
+    <thead>
+      <tr class="bg-secondary bg-opacity-50">
+	<th>Principle</th>
+	<th>Relevance</th>
+	<th>Status</th>
+	<th>Urgency</th>
+      </tr>
+    </thead>
+    <tbody class="table-group-divider">
+      <tr><th colspan="4" class="bg-secondary bg-opacity-25">Governance</th></tr>
+      <tr>
+	<td class="p-2">Coverage across the scholarly enterprise</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-50">partly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Stakeholder Governed</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-75">mostly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-75">mostly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Non-discriminatory participation or membership</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Transparent governance</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-75">mostly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Cannot lobby</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-75">mostly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-75">mostly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Living will</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-50">partly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Formal incentives to fulfil mission & wind-down</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-25">hardly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-25">barely implemented</strong></td>
+      </tr>
+      <tr><th colspan="4" class="bg-secondary bg-opacity-25">Sustainability</th></tr>
+      <tr>
+	<td class="p-2">Time-limited funds are used only for time-limited activities</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-50">partly implemented</strong></td>
+	<td class="p-2"><strong class="text-white p-2 bg-danger bg-opacity-100">High</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Goal to generate surplus</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-25">barely implemented</strong></td>
+	<td class="p-2"><strong class="text-white p-2 bg-danger bg-opacity-100">High</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Goal to create financial reserves</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-25">barely implemented</strong></td>
+	<td class="p-2"><strong class="text-white p-2 bg-danger bg-opacity-100">High</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Mission-consistent revenue generation</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Revenue based on services, not data</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong></td>
+      </tr>
+      <tr><th colspan="4" class="bg-secondary bg-opacity-25">Insurance</th></tr>
+      <tr>
+	<td class="p-2">Open source</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Open data (within constraints of privacy laws)</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">highly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-75">mostly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Available data (within constraints of privacy laws)</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-50">partly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-50">partly implemented</strong></td>
+      </tr>
+      <tr>
+	<td class="p-2">Patent non-assertion</td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-25">hardly relevant</strong></td>
+	<td class="p-2"><strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <h2 class="highlight mt-5">Implementation details</h2>
+
+  <div class="p-2">
+    <h3>Governance</h3>
+
+    <div class="p-2">
+      <h4>Coverage across the scholarly enterprise</h4>
+      <div><p><i>&bullet; research transcends disciplines, geography, institutions, and stakeholders. Organisations and the infrastructure they run need to reflect this.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-50">partly implemented</strong>
+	</p>
+	<p>
+	  Our activities transcend geography, institutions and stakeholders, as evidenced by the <a href="{% url 'organizations:organizations' %}">list of Organizations benefitting from our activities</a>. Although the bulk of our activities remains in the the field of Physics (at large), our roadmap is pointing towards a <a href="{% url 'scipost:PlanSciPost' %}">future with coverage extended to other fields</a>.
+	</p>
+	<h5>Further implementation steps</h5>
+	<ul>
+	  <li>expand to other fields</li>
+	</ul>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Stakeholder Governed</h4>
+      <div><p><i>&bullet; a board-governed organisation drawn from the stakeholder community builds confidence that the organisation will take decisions driven by community consensus and a balance of interests.</i></p></div>
+
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-75">mostly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-75">mostly implemented</strong>
+	</p>
+	<p>
+	  SciPost (see our <a href="{% url 'scipost:about' %}">about page</a>) has a multi-layered governance which is deeply embedded within the community. The <a href="{% url 'scipost:foundation' %}">SciPost Foundation</a> is a nonprofit organization whose board members are university-based staff. An international, multi-disciplinary <a href="{% url 'scipost:about' %}#advisory_board">Advisory Board</a> provides guidance. All editorial activities are driven by our <a href="{% url 'colleges:colleges' %}">Editorial Colleges</a> composed of Fellows who are by definition professionally active members of the community.
+	</p>
+	<p>
+	  Most of our activities have up to now involved stakeholders in the Western world, although our services have been used by Contributors throughout the world. An increasingly even distribution is expected as our services mature.
+	</p>
+	<h5>Further implementation steps</h5>
+	<ul>
+	  <li>maintain the Advisory Board</li>
+	  <li>increase of geographic, ethnic and gender diversity of Editorial Colleges</li>
+	  <li>attract contributions from further constituencies</li>
+	</ul>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Non-discriminatory participation or membership</h4>
+      <div><p><i>&bullet; we see the best option as an “opt-in” approach with principles of non-discrimination and inclusivity where any stakeholder group may express an interest and should be welcome. Representation in governance must reflect the character of the community or membership.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong>
+	</p>
+	<p>
+	  SciPost offers its services entirely openly. Contributors are however expected to be professionally active researchers. This striving for quality is however implemented in a non-discriminatory, inclusive fashion. Our governance structures are populated by community members and reflect their evolving character.
+	</p>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Transparent governance</h4>
+      <div><p><i>&bullet; to achieve trust, the processes and policies for selecting representatives to governance groups should be transparent (within the constraints of privacy laws).</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-75">mostly implemented</strong>
+	</p>
+	<p>
+	  SciPost's <a href="{% url 'scipost:EdCol_by-laws' %}">By-laws</a> provide a transparent set of mechanisms for maintaining the composition of the Editorial Colleges governing all editorial activities. Members of the Advisory Board are appointed by the SciPost Foundation's board.
+	</p>
+	<h5>Further implementation steps</h5>
+	<ul>
+	  <li>implement a more directly community-based appointment mechanism for the Advisory Board</li>
+	</ul>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Cannot lobby</h4>
+      <div><p><i>&bullet; infrastructure organisations should not lobby for regulatory change to cement their own positions or narrow self-interest. However, an infrastructure organisation’s role is to support its community, and this can include advocating for policy changes.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-75">mostly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-75">mostly implemented</strong>
+	</p>
+	<p>
+	  This is mostly but not entirely relevant for SciPost. In view of the fact that SciPost's mission has broad and ambitious objectives for reforming academic publishing, we cannot say that we do not lobby to make sure that our initiative survives. On the other hand, it is correct to say that SciPost does not lobby <em>to cement its own position of narrow self-interest</em>, since our interventions with higher instances typically advocate for changes which would benefit the whole community of similarly-spirited academic publishers.
+	</p>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Living will</h4>
+      <div><p><i>&bullet; a powerful way to create trust is to publicly describe a plan addressing the conditions under which an organisation or service would be wound down. It should include how this would happen and how any assets could be archived and preserved when passed to a successor organisation or service. Any such organisation or service must adopt POSI and honour the POSI principles.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-50">partly implemented</strong>
+	</p>
+	<p>
+	  SciPost does not have a publicly-visible plan for winding down its operations (our priority is to survive!).
+	  That said, the most important output of our activities, namely all the publications, would remain accessible beyond SciPost's demise through a <a href="https://clockss.org/">CLOCKSS</a> trigger event. We also have a plan to provide all source material for all our publications through our <a href="https://git.scipost.org">in-house repository server</a>, providing an added layer of redundancy to all the corpus created by our activities.
+	</p>
+	<h5>Further implementation steps</h5>
+	<ul>
+	  <li>launch the (currently in development) publication source files repository system</li>
+	</ul>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Formal incentives to fulfil mission & wind-down</h4>
+      <div><p><i>&bullet; infrastructures exist for a specific purpose, and that purpose can be radically simplified or even rendered unnecessary by technological or social change. Organisations and services should regularly review community support and the need for their activities. If it is possible, the organisation or service (and staff) should have direct incentives to deliver on the mission and wind down.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-25">hardly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-25">barely implemented</strong>
+	</p>
+	<p>
+	  Currently, in view of the long-term viability of the context in which we operate (scientific publishing) and of our intent to remain responsive to the community's need for continued and innovative services, we do not envision a future where winding down our activities would be the community's wish (we are open to changing our minds on this however). As such, our formal focus is (at worst) on survival and (at best) sustained growth, rather than on winding down.
+	</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="p-2">
+    <h3>Sustainability</h3>
+
+    <div class="p-2">
+      <h4>Time-limited funds are used only for time-limited activities</h4>
+      <div><p><i>&bullet; operations are supported by sustainable revenue sources - whereas time-limited funds are used only for time-limited activities. Depending on grants to fund ongoing and/or long-term infrastructure operations fully makes them fragile and distracts from building core infrastructure.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-50">partly implemented</strong>
+	  <strong class="text-white p-2 bg-danger bg-opacity-100">urgency: high</strong>
+	</p>
+	<p>
+	  Since its inception in 2016, SciPost has survived through institutional sponsorships following our consortial
+	  <a href="{% url 'finances:business_model' %}">business model</a>. Although many organizations have reliably <a href="{% url 'sponsors:sponsors' %}">supported our activities</a>, it would be an exaggeration to qualify our revenue sources as <em>sustainable</em>, in the sense that their contribution is dwarfed by our needs, and fluctuations weigh us down with an existential risk of bankruptcy. We have benefitted from (time-limited) grants to fuel our operations, but concur that this makes us only more fragile and distracts from the installation of a truly sustainable revenue stream.
+	</p>
+	<p>
+	  The ongoing absence of a sustainable revenue source for Diamond-style initiatives such as ours is a problem which neither originates from SciPost, nor can be solved by it (although we <strong>do</strong> claim that our business model offers a solution to the problem - the solution is on the table, but it remains ineffective if it is not picked up by academic institutions). We view it as a policy failure over the last couple of decades, leading to much delay and misdirection in the quest to reform the publishing business.
+	</p>
+	<h5>Further implementation steps</h5>
+	<ul>
+	  <li>strive for sustainability (see our <a href="https://scipost.org/news/newsitem/126/">Sustain Our Services campaign</a>)</li>
+	</ul>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Goal to generate surplus</h4>
+      <div><p><i>&bullet; organisations (or services) that define sustainability based merely on recovering costs are brittle and stagnant. It is not enough to merely survive; organisations and services have to be able to adapt and change. To weather economic, social and technological volatility, they need financial resources beyond immediate operating costs.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-25">barely implemented</strong>
+	  <strong class="text-white p-2 bg-danger bg-opacity-100">urgency: high</strong>
+	</p>
+	<p>
+	  We would love to dream of a day where we can count on sufficient support not only to cover our immediate costs, but also to build a bit of a cushion to secure our future and perhaps even turn some of our further development ideas and dreams into reality. In the current APC-pipelining, Diamond-ignoring financial context however, we must be realistic and remain rather pessimistic about achieving this. Once again, although we do have a workable model up for grabs, its fragmented adoption (and accompanying high levels of free-riding on our services) makes the idea of a "surplus" a pipe dream at this stage, and it is true that SciPost suffers a certain degree of stagnation.
+	</p>
+	<h5>Further implementation steps</h5>
+	<ul>
+	  <li>beg for sustainability (with surplus!!) (see our <a href="https://scipost.org/news/newsitem/126/">Sustain Our Services campaign</a>)</li>
+	</ul>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Goal to create financial reserves</h4>
+      <div><p><i>&bullet; a high priority should be having ring-fenced financial reserves, separate from operating funds, that can support implementing living will plans, including a complete, orderly wind down or transition to a successor organisation, or major unexpected events.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-25">barely implemented</strong>
+	  <strong class="text-white p-2 bg-danger bg-opacity-100">urgency: high</strong>
+	</p>
+	<p>
+	  For this point, we refer to our comments on the previous point. In the current context, for us to be able to create financial reserves would require a sea change at the higher/institutional level, which we have little confidence of seeing in view of current developments. We are waiting to be proved wrong.
+	</p>
+	<h5>Further implementation steps</h5>
+	<ul>
+	  <li>supplicate for sustainability (with reserves!!) (see our <a href="https://scipost.org/news/newsitem/126/">Sustain Our Services campaign</a>)</li>
+	</ul>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Mission-consistent revenue generation</h4>
+      <div><p><i>&bullet; revenue sources should be evaluated against the infrastructure’s mission and not run counter to the aims of the organisation or service.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong>
+	</p>
+	<p>
+	  On this point, we can confidently claim that our <a href="{% url 'finances:business_model' %}">business model</a> wholly implements this highly relevant criterion. If there is one thing SciPost does well on the business side, it's aligning revenue sources with the infrastructure's mission.
+	</p>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Revenue based on services, not data</h4>
+      <div><p><i>&bullet; data related to the running of the scholarly infrastructure should be community property. Appropriate revenue sources might include value-added services, consulting, API Service Level Agreements or membership fees.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong>
+	</p>
+	<p>
+	  SciPost does not generate revenue from data (for example, all metadata for our publications are public domain). We also do not run value-added services, consulting work or paid-for API services (all our APIs are openly accessible). Our revenues are in the end motivated by our publishing activities (we refer once again to our <a href="{% url 'finances:business_model' %}">business model</a> for a detailed explanation).
+	</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="p-2">
+    <h3>Insurance</h3>
+
+    <div class="p-2">
+      <h4>Open source</h4>
+      <div><p><i>&bullet; all software and assets required to run the infrastructure should be available under an open-source licence. This does not include other software that may be involved with running the organisation.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong>
+	</p>
+	<p>
+	  All software and assets required to run the infrastructure is published under an <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">AGPLv3</a> license at our <a href="https://git.scipost.org">in-house repository server</a> (the code for the site itself is in the <a href="https://git.scipost.org/scipost/SciPost">SciPost repo</a>, also <a href="https://github.com/SciPost/SciPost">(passively) mirrored at GitHub</a>).
+	</p>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Open data (within constraints of privacy laws)</h4>
+      <div><p><i>&bullet; For an infrastructure to be forked (reproduced), it will be necessary to replicate all relevant data. The CC0 waiver is the best practice in making data openly and legally available. Privacy and data protection laws will limit the extent to which this is possible.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-100">highly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-75">mostly implemented</strong>
+	</p>
+	<p>
+	  Publications are openly accessible on our site and archived at <a href="https://clockss.org/">CLOCKSS</a>; metadata is deposited at Crossref (public domain). Similarly, submission and refereeing material is openly accessible on our site.
+	</p>
+	<h5>Further implementation steps</h5>
+	<ul>
+	  <li>launch the (currently in development) publication source files repository system</li>
+	</ul>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Available data (within constraints of privacy laws)</h4>
+      <div><p><i>&bullet; it is not enough that the data be “open” if there is no practical way to obtain it. Underlying data should be made easily available via periodic open data dumps.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-50">partly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-50">partly implemented</strong>
+	</p>
+	<p>
+	  Currently, independently reconstituting the underlying data for all of SciPost's available online content would require scraping. Our upcoming publication source files system will help automate any such process. An open data dumb could be created if required by the community, however in view of the data which we handle (mostly: publications) this does not seem to be a pressing requirement.
+	</p>
+      </div>
+    </div>
+
+    <div class="p-2">
+      <h4>Patent non-assertion</h4>
+      <div><p><i>&bullet; the organisation should commit to a patent non-assertion policy or covenant. The organisation may obtain patents to protect its own operations but not use them to prevent the community from replicating the infrastructure.</i></p></div>
+      <div class="p-2">
+	<p>
+	  <strong class="p-2 bg-success bg-opacity-25">hardly relevant</strong>
+	  <strong class="p-2 bg-success bg-opacity-100">wholly implemented</strong>
+	</p>
+	<p>
+	  SciPost's mission of <em>developing, implementing and maintaining innovative forms of electronic scientific communication and publishing for the benefit of the international scientific community and further interested parties</em> is inconsistent with pursuing patents.
+	</p>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="p-2">
+    <h3>References</h3>
+    <p>Bilder G, Lin J, Neylon C (2020), The Principles of Open Scholarly Infrastructure, retrieved 2024-03-11, <a href="https://doi.org/10.24343/C34W2H">https://doi.org/10.24343/C34W2H</a>.</p>
+  </div>
+
+  <div class="p-2">
+    <h3>Changelog</h3>
+    <ul>
+      <li>2024-03-11: first published</li>
+    </ul>
+  </div>
+
+{% endblock content %}
