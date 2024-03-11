@@ -1,12 +1,19 @@
 {% load scipost_extras %}
 {% load automarkup %}
+{% load static %}
 
 <div class="row">
   <div class="col-12">
-    <h2 class="text-blue">{{ publication.title }}{% if publication.status == 'draft' %} <label class="label label-warning label-sm">{{ publication.get_status_display }}</label>{% endif %}
-    </h2>
+    <div class="d-flex">
+      <hgroup>
+        <h2 class="text-blue">{{ publication.title }}{% if publication.status == 'draft' %} <label class="label label-warning label-sm">{{ publication.get_status_display }}</label>{% endif %}</h2>
+        <p class="mb-1">{{ publication.author_list }}</p>
+      </hgroup>
+      {% if publication.accepted_submission.editorial_decision.for_journal.doi_label == "SciPostSelect" %}
+        <img src="{% static 'journals/logos/select.svg' %}" alt="SciPost Select logo" class="ms-auto" width="200" height="40">
+      {% endif %}
+    </div>
 
-    <p class="mb-1">{{ publication.author_list }}</p>
     <p class="text-muted mb-0">
     {{ publication.citation }} &middot; published {{ publication.publication_date|date:'j F Y' }}
     {% if publication.cc_license != 'CC BY 4.0' %}
