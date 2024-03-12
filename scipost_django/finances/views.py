@@ -315,7 +315,7 @@ class SubsidyAutocompleteView(autocomplete.Select2QuerySetView):
                 | Q(date_until__year__icontains=self.q)
             )
         return qs
-    
+
     def get_result_label(self, item):
         return format_html(
             "{}<br>{} -> {} [{}]",
@@ -494,13 +494,17 @@ class SubsidyAttachmentCreateView(PermissionsMixin, CreateView):
         return context
 
     def get_initial(self):
-        subsidy = get_object_or_404(Subsidy, pk=self.kwargs.get("subsidy_id"))
-        return {"subsidy": subsidy}
+        subsidy_id = self.kwargs.get("subsidy_id")
+        if subsidy_id is not None:
+            subsidy = get_object_or_404(Subsidy, pk=self.kwargs.get("subsidy_id"))
+            return {"subsidy": subsidy}
+        return {}
 
     def get_success_url(self):
-        return reverse_lazy(
-            "finances:subsidy_details", kwargs={"pk": self.object.subsidy.id}
-        )
+        if subsidy := self.object.subsidy:
+            return reverse_lazy("finances:subsidy_details", kwargs={"pk": subsidy.id})
+
+        return reverse_lazy("finances:subsidies")
 
 
 class SubsidyAttachmentUpdateView(PermissionsMixin, UpdateView):
@@ -544,10 +548,8 @@ class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
         )
 
 
-def subsidy_attachment(request, subsidy_id, attachment_id):
-    attachment = get_object_or_404(
-        SubsidyAttachment.objects, subsidy__id=subsidy_id, id=attachment_id
-    )
+def subsidy_attachment(request, attachment_id):
+    attachment = get_object_or_404(SubsidyAttachment.objects, id=attachment_id)
     if not (request.user.is_authenticated and attachment.visible_to_user(request.user)):
         raise PermissionDenied
     content_type, encoding = mimetypes.guess_type(attachment.attachment.path)

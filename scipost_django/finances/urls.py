@@ -120,6 +120,11 @@ urlpatterns = [
         name="subsidyattachment_create",
     ),
     path(
+        "subsidies/attachments/add/",
+        views.SubsidyAttachmentCreateView.as_view(),
+        name="subsidyattachment_create",
+    ),
+    path(
         "subsidies/attachments/<int:pk>/update/",
         views.SubsidyAttachmentUpdateView.as_view(),
         name="subsidyattachment_update",
@@ -130,7 +135,7 @@ urlpatterns = [
         name="subsidyattachment_delete",
     ),
     path(
-        "subsidies/<int:subsidy_id>/attachments/<int:attachment_id>",
+        "subsidies/attachments/<int:attachment_id>",
         views.subsidy_attachment,
         name="subsidy_attachment",
     ),

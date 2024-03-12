@@ -292,6 +292,7 @@ class SubsidyAttachmentForm(forms.ModelForm):
         fields = (
             "subsidy",
             "attachment",
+            "git_url",
             "kind",
             "date",
             "description",
@@ -316,9 +317,10 @@ class SubsidyAttachmentForm(forms.ModelForm):
 
     def clean_attachment(self):
         attachment = self.cleaned_data["attachment"]
+        existing_attachment = getattr(self.instance, "attachment", None)
 
         # Allow already uploaded attachments
-        if hasattr(self.instance, "attachment") and not attachment is None:
+        if existing_attachment and attachment is not None:
             return attachment
 
         filename_regex = (

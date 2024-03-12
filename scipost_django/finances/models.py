@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 import datetime
 import os
+from re import I
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -21,6 +23,9 @@ from .managers import SubsidyQuerySet, SubsidyPaymentQuerySet, SubsidyAttachment
 from .utils import id_to_slug
 
 from scipost.storage import SecureFileStorage
+
+if TYPE_CHECKING:
+    from organizations.models import Organization
 
 
 class Subsidy(models.Model):
@@ -43,7 +48,7 @@ class Subsidy(models.Model):
     after which the object of the Subsidy is officially terminated.
     """
 
-    organization = models.ForeignKey(
+    organization = models.ForeignKey["Organization"](
         "organizations.Organization", on_delete=models.CASCADE
     )
     subsidy_type = models.CharField(max_length=256, choices=SUBSIDY_TYPES)
@@ -188,10 +193,13 @@ class SubsidyPayment(models.Model):
         return self.proof_of_payment.date if self.proof_of_payment else None
 
 
-def subsidy_attachment_path(instance, filename):
+def subsidy_attachment_path(instance: "SubsidyAttachment", filename: str) -> str:
     """
     Save the uploaded SubsidyAttachments to country-specific folders.
     """
+    if instance.subsidy is None:
+        return "uploads/finances/subsidies/orphaned/%s" % filename
+
     return "uploads/finances/subsidies/{0}/{1}/{2}".format(
         instance.subsidy.date_from.strftime("%Y"),
         instance.subsidy.organization.country,
@@ -224,15 +232,21 @@ class SubsidyAttachment(models.Model):
         (VISIBILITY_FINADMINONLY, "SciPost FinAdmin only"),
     )
 
-    subsidy = models.ForeignKey(
+    subsidy = models.ForeignKey["Subsidy"](
         "finances.Subsidy",
         related_name="attachments",
+        null=True,
         blank=True,
         on_delete=models.CASCADE,
     )
 
     attachment = models.FileField(
-        upload_to=subsidy_attachment_path, storage=SecureFileStorage()
+        upload_to=subsidy_attachment_path,
+        storage=SecureFileStorage(),
+    )
+
+    git_url = models.URLField(
+        blank=True, help_text="URL to the file's location in GitLab"
     )
 
     kind = models.CharField(
@@ -259,7 +273,7 @@ class SubsidyAttachment(models.Model):
     def get_absolute_url(self):
         if self.subsidy:
             return reverse(
-                "finances:subsidy_attachment", args=(self.subsidy.id, self.id)
+                "finances:subsidy_attachment", kwargs={"attachment_id": self.id}
             )
 
     @property
@@ -284,14 +298,28 @@ class SubsidyAttachment(models.Model):
 
 # Delete attachment files with same name if they exist, allowing replacement without name change
 @receiver(pre_save, sender=SubsidyAttachment)
-def delete_old_attachment_file(sender, instance, **kwargs):
+def delete_old_attachment_file(sender, instance: SubsidyAttachment, **kwargs):
     """
     Replace existing file on update if a new one is provided.
+    Move file to the new location if the subsidy changes.
     """
     if instance.pk and instance.attachment:
         old = SubsidyAttachment.objects.get(pk=instance.pk)
-        if old.attachment and old.attachment != instance.attachment:
+        if old is None or old.attachment is None:
+            return
+
+        # Delete old file if it is replaced
+        if old.attachment != instance.attachment:
             old.attachment.delete(save=False)
+
+        # Move file to new location if subsidy changes
+        if old.subsidy != instance.subsidy:
+            old_relative_path = old.attachment.name
+            new_relative_path = subsidy_attachment_path(instance, instance.filename)
+
+            instance.attachment.storage.save(new_relative_path, instance.attachment)
+            instance.attachment.storage.delete(old_relative_path)
+            instance.attachment.name = new_relative_path
 
 
 @receiver(models.signals.post_delete, sender=SubsidyAttachment)
