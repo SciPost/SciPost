@@ -150,14 +150,14 @@ class SubsidyPayment(models.Model):
     date_scheduled = models.DateField()
     invoice = models.OneToOneField(
         "finances.SubsidyAttachment",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
         related_name="invoice_for",
     )
     proof_of_payment = models.OneToOneField(
         "finances.SubsidyAttachment",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
         related_name="proof_of_payment_for",
