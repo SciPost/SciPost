@@ -315,13 +315,13 @@ class SubsidyAttachmentForm(forms.ModelForm):
         required=False,
     )
 
-    def clean_attachment(self):
+    def clean(self):
+        orphaned = self.cleaned_data["subsidy"] is None
         attachment = self.cleaned_data["attachment"]
-        existing_attachment = getattr(self.instance, "attachment", None)
 
-        # Allow already uploaded attachments
-        if existing_attachment and attachment is not None:
-            return attachment
+        # Allow misnamed orphans
+        if orphaned:
+            return
 
         filename_regex = (
             "^SciPost_"
@@ -336,7 +336,6 @@ class SubsidyAttachmentForm(forms.ModelForm):
                 "The filename does not match the required regex pattern "
                 f"'{filename_regex}'",
             )
-        return attachment
 
 
 #############
