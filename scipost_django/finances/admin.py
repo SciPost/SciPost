@@ -39,6 +39,27 @@ class SubsidyAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(SubsidyAttachment)
+class SubsidyAttachmentAdmin(admin.ModelAdmin):
+    list_display = [
+        "kind",
+        "date",
+        "subsidy",
+    ]
+    list_filter = [
+        "kind",
+        "date",
+    ]
+    autocomplete_fields = [
+        "subsidy",
+    ]
+    search_fields = [
+        "description",
+        "subsidy__organization__name",
+        "subsidy__organization__name_original",
+        "subsidy__organization__acronym",
+    ]
+
 
 
 @admin.register(WorkLog)
