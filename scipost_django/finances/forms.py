@@ -301,6 +301,19 @@ class SubsidyAttachmentForm(forms.ModelForm):
             "date": forms.DateInput(attrs={"type": "date"}),
         }
 
+    subsidy = forms.ModelChoiceField(
+        queryset=Subsidy.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url=reverse_lazy("finances:subsidy_autocomplete"),
+            attrs={
+                "data-html": True,
+                "style": "width: 100%",
+            },
+        ),
+        help_text=("Start typing, and select from the popup."),
+        required=False,
+    )
+
     def clean_attachment(self):
         attachment = self.cleaned_data["attachment"]
 
