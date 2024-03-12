@@ -241,6 +241,7 @@ class SubsidyAttachment(models.Model):
     )
 
     attachment = models.FileField(
+        max_length=256,
         upload_to=subsidy_attachment_path,
         storage=SecureFileStorage(),
     )
