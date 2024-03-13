@@ -139,6 +139,21 @@ urlpatterns = [
         views.subsidy_attachment,
         name="subsidy_attachment",
     ),
+    path(
+        "subsidies/attachments/orphaned/",
+        views.subsidyattachment_orphaned_list,
+        name="subsidyattachment_orphaned_list",
+    ),
+    path(
+        "subsidies/attachments/orphaned/_hx_list_page",
+        views._hx_subsidyattachment_list_page,
+        name="_hx_subsidyattachment_list_page",
+    ),
+    path(
+        "subsidies/attachments/_hx_link_form/<int:attachment_id>",
+        views._hx_subsidyattachment_link_form,
+        name="_hx_subsidyattachment_link_form",
+    ),
     # Timesheets
     path("timesheets", views.timesheets, name="timesheets"),
     path("timesheets/detailed", views.timesheets_detailed, name="timesheets_detailed"),

@@ -1,0 +1,30 @@
+{% extends 'finances/base.html' %}
+{% load user_groups %}
+{% load crispy_forms_tags %}
+
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Orphaned SubsidyAttachments</span>
+{% endblock %}
+
+
+{% block meta_description %}
+  {{ block.super }} Orphaned SubsidyAttachment List
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Orphaned SubsidyAttachments
+{% endblock pagetitle %}
+
+{% block content %}
+  {% is_ed_admin request.user as is_ed_admin %}
+  <h1 class="highlight">Orphaned SubsidyAttachment List</h1>
+
+  <div id="orphaned-subsidies-results"
+       hx-get="{% url 'finances:_hx_subsidyattachment_list_page' %}?page=1"
+       hx-trigger="load once"></div>
+ 
+ 
+
+{% endblock content %}

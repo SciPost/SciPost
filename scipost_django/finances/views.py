@@ -8,6 +8,7 @@ import mimetypes
 from dal import autocomplete
 
 from django.db.models import Q
+from django.template.response import TemplateResponse
 from django.utils.html import format_html
 import matplotlib
 
@@ -16,7 +17,7 @@ import matplotlib.pyplot as plt
 import io, base64
 
 from django.contrib import messages
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
@@ -29,6 +30,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from .forms import (
+    SubsidyAttachmentInlineLinkForm,
     SubsidyForm,
     SubsidySearchForm,
     SubsidyPaymentForm,
@@ -529,9 +531,10 @@ class SubsidyAttachmentUpdateView(PermissionsMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        return reverse_lazy(
-            "finances:subsidy_details", kwargs={"pk": self.object.subsidy.id}
-        )
+        if subsidy := self.object.subsidy:
+            return reverse_lazy("finances:subsidy_details", kwargs={"pk": subsidy.id})
+
+        return reverse_lazy("finances:subsidies")
 
 
 class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
@@ -543,9 +546,48 @@ class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
     model = SubsidyAttachment
 
     def get_success_url(self):
-        return reverse_lazy(
-            "finances:subsidy_details", kwargs={"pk": self.object.subsidy.id}
-        )
+        if subsidy := self.object.subsidy:
+            return reverse_lazy("finances:subsidy_details", kwargs={"pk": subsidy.id})
+
+        return reverse_lazy("finances:subsidies")
+
+
+@login_required()
+@permission_required("scipost.can_manage_subsidies", raise_exception=True)
+def subsidyattachment_orphaned_list(request):
+    return TemplateResponse(
+        request, "finances/subsidyattachment_orphaned_list.html", {}
+    )
+
+
+def _hx_subsidyattachment_list_page(request):
+    attachments = SubsidyAttachment.objects.orphaned()
+    paginator = Paginator(attachments, 16)
+    page_nr = request.GET.get("page")
+    page_obj = paginator.get_page(page_nr)
+    count = paginator.count
+    start_index = page_obj.start_index
+
+    context = {
+        "count": count,
+        "page_obj": page_obj,
+        "start_index": start_index,
+        "form_media": SubsidyAttachmentForm().media,
+    }
+    return render(request, "finances/_hx_subsidyattachment_list_page.html", context)
+
+
+def _hx_subsidyattachment_link_form(request, attachment_id):
+    attachment = get_object_or_404(SubsidyAttachment, pk=attachment_id)
+    form = SubsidyAttachmentInlineLinkForm(request.POST or None, instance=attachment)
+    if form.is_valid():
+        form.save()
+
+    context = {
+        "attachment": attachment,
+        "form": form,
+    }
+    return render(request, "finances/_hx_subsidyattachment_link_form.html", context)
 
 
 def subsidy_attachment(request, attachment_id):

@@ -286,6 +286,91 @@ class SubsidyPaymentForm(forms.ModelForm):
         return instance
 
 
+class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
+    class Meta:
+        model = SubsidyAttachment
+        fields = [
+            "subsidy",
+        ]
+
+    filename = forms.CharField(
+        label="Filename",
+        required=True,
+    )
+    subsidy = forms.ModelChoiceField(
+        queryset=Subsidy.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url=reverse_lazy("finances:subsidy_autocomplete"),
+            attrs={
+                "data-html": True,
+                "style": "width: 100%",
+            },
+        ),
+        help_text=("Start typing, and select from the popup."),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("filename"), css_class="col-6 col"),
+                Div(Field("subsidy"), css_class="col-6 col"),
+                css_class="row mb-0",
+            )
+        )
+
+        self.fields["filename"].initial = self.instance.filename
+
+    def clean(self):
+        orphaned = self.cleaned_data["subsidy"] is None
+        filename = self.cleaned_data["filename"]
+
+        # Allow misnamed orphans
+        if orphaned:
+            return
+
+        filename_regex = (
+            "^SciPost_"
+            "[0-9]{4,}(-[0-9]{4,})?_[A-Z]{2,}_[\w]+_"
+            "(Agreement|Invoice|ProofOfPayment|Other)"
+            "(-[0-9]{2,})?(_[\w]+)?\.(pdf|docx|png)$"
+        )
+        pattern = re.compile(filename_regex)
+        if not pattern.match(filename):
+            self.add_error(
+                "filename",
+                "The filename does not match the required regex pattern "
+                f"'{filename_regex}'",
+            )
+
+    def save(self, commit=True):
+        instance: "SubsidyAttachment" = super().save(commit=False)
+
+        filename = self.cleaned_data["filename"]
+        old_relative_path = instance.attachment.name
+        new_relative_path = instance.attachment.name.replace(
+            instance.filename, filename
+        )
+
+        try:
+            instance.attachment.storage.save(new_relative_path, instance.attachment)
+            instance.attachment.storage.delete(old_relative_path)
+            instance.attachment.name = new_relative_path
+        except Exception as e:
+            self.add_error(
+                "filename",
+                f"An error occurred while renaming the file: {e}",
+            )
+
+        if commit:
+            instance.save()
+
+        return instance
+
+
 class SubsidyAttachmentForm(forms.ModelForm):
     class Meta:
         model = SubsidyAttachment
@@ -317,7 +402,7 @@ class SubsidyAttachmentForm(forms.ModelForm):
 
     def clean(self):
         orphaned = self.cleaned_data["subsidy"] is None
-        attachment = self.cleaned_data["attachment"]
+        attachment_filename = self.cleaned_data["attachment"].name.split("/")[-1]
 
         # Allow misnamed orphans
         if orphaned:
@@ -330,7 +415,9 @@ class SubsidyAttachmentForm(forms.ModelForm):
             "(-[0-9]{2,})?(_[\w]+)?\.(pdf|docx|png)$"
         )
         pattern = re.compile(filename_regex)
-        if not pattern.match(attachment.name):
+
+        #
+        if not pattern.match(attachment_filename):
             self.add_error(
                 "attachment",
                 "The filename does not match the required regex pattern "

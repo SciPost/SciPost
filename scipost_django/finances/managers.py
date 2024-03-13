@@ -29,3 +29,6 @@ class SubsidyAttachmentQuerySet(models.QuerySet):
 
     def proofs_of_payment(self):
         return self.filter(kind=self.model.KIND_PROOF_OF_PAYMENT)
+
+    def orphaned(self):
+        return self.filter(subsidy__isnull=True)
