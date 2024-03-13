@@ -1,0 +1,18 @@
+<div id="hx-dynsel-{{ widget.name }}" class="hx-dynsel-container">
+  <select name="{{ widget.name }}"
+          {% include "django/forms/widgets/attrs.html" %}></select>
+  <input id="hx-dynsel-{{ widget.name }}-q"
+         name="q"
+         value="{{ initial }}"
+         type="text"
+         hx-post="{{ dynsel_context.results_page_url }}"
+         hx-trigger="keyup changed delay:500ms"
+         hx-swap="innerHTML"
+         hx-target="next .hx-dynsel-result-list" />
+  <div class="hx-dynsel-result-container">
+    <ul id="hx-dynsel-{{ widget.name }}-results"
+        class="hx-dynsel-result-list">
+    </ul>
+    <div id="{{ dynsel_context.collection_name }}-results-load-next"></div>
+  </div>
+</div>

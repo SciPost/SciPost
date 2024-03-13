@@ -3,14 +3,22 @@ __license__ = "AGPL v3"
 
 from typing import Any, Dict
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db.models.query import QuerySet
 from django.forms.forms import BaseForm
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.views.generic import CreateView, FormView, ListView
+from django.utils.html import format_html
+from django.views import View
+from django.views.generic import FormView, ListView
+from django.views.generic.detail import SingleObjectMixin
 from .forms import HTMXInlineCRUDModelForm
+
+
+def empty(request):
+    return HttpResponse("")
 
 
 class HTMXInlineCRUDModelFormView(FormView):
@@ -137,5 +145,103 @@ class HTMXInlineCRUDModelListView(ListView):
         return context
 
 
-def empty(request):
-    return HttpResponse("")
+class HXDynselSelectOptionView(SingleObjectMixin, View):
+    def get(self, request):
+        obj = self.get_object()
+
+        return HttpResponse(
+            format_html(
+                '<option value="{}" selected>{}</option>',
+                obj.pk,
+                str(obj),
+            )
+        )
+
+    def get_object(self):
+        queryset = self.model.objects.all()
+        pk = self.request.GET.get("pk")
+        return get_object_or_404(queryset, pk=pk)
+
+
+class HXDynselResultPage(View):
+    model = None
+    collection_name = "results"
+    template_name = "htmx/dynsel_list_page.html"
+    paginate_by = 16
+    obj_select_option_url = None
+
+    def post(self, request):
+        self.page_nr = request.GET.get("page")
+        self.q = request.POST.get("q", "")
+
+        context = self.get_context_data()
+
+        return self.render_to_response(context)
+
+    def get_page_obj(self, page_nr):
+        paginator = Paginator(self.get_queryset(), self.paginate_by)
+        page_obj = paginator.get_page(page_nr)
+
+        return page_obj
+
+    def get_queryset(self):
+        result = self.search(
+            self.model.objects.all(),
+            self.q,
+        )
+        return result
+
+    def render_to_response(self, context):
+        return TemplateResponse(
+            self.request,
+            self.template_name,
+            context,
+        )
+
+    def search(self, queryset, q):
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context["collection_name"] = self.collection_name
+        context["obj_select_option_url"] = self.obj_select_option_url
+        context["model_name"] = self.model._meta.verbose_name_plural
+        context["q"] = self.q
+        context["page_obj"] = self.get_page_obj(self.page_nr)
+
+        return context
+
+
+# def _hx_dynsel_organization_page(request):
+#     model = Organization
+#     queryset = model.objects.all()
+
+#     collection_name = "organizations-list"
+
+#     if q := request.POST.get("q", ""):
+#         queryset = queryset.filter(
+#             Q(name__unaccent__icontains=q)
+#             | Q(name_original__unaccent__icontains=q)
+#             | Q(acronym__unaccent__icontains=q)
+#             | Q(ror_json__names__contains=[{"value": q}])  # Search ROR
+#         )
+
+#     paginator = Paginator(queryset, 50)
+#     page_nr = request.GET.get("page")
+#     page_obj = paginator.get_page(page_nr)
+
+#     context = {
+#         "page_obj": page_obj,
+#         "q": q,
+#         "model_name": model._meta.verbose_name_plural,
+#         "collection_name": collection_name,
+#         "obj_select_option_url": reverse(
+#             "organizations:organization-hx-dynsel-select-option"
+#         ),
+#     }
+
+#     return TemplateResponse(
+#         request,
+#         "organizations/_hx_dynsel_organization_page.html",
+#         context,
+#     )

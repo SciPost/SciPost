@@ -29,3 +29,17 @@ class MultiEmailValidator(EmailValidator):
 # Should not be an Email field because browser validation is unwanted.
 class MultiEmailField(CharField):
     default_validators = [MultiEmailValidator()]
+
+
+##### HTMX Class Based Forms #####
+class HTMXDynSelWidget(forms.Widget):
+    template_name = "htmx/dynsel.html"
+
+    def __init__(self, *args, **kwargs):
+        self.dynsel_context = kwargs.pop("dynsel_context", {})
+        super().__init__(*args, **kwargs)
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context["dynsel_context"] = self.dynsel_context
+        return context
