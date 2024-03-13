@@ -6,11 +6,6 @@
     "bcc": [
 	"admin@",
 	"edadmin@",
-	"refereeing@",
-        "submissions@",
-	"jscaux@",
-	"J.S.Caux@uva.nl",
-	"prof@jscaux.org"
     ],
     "from_name": "SciPost Helpdesk",
     "from_email": "helpdesk@"
