@@ -17,6 +17,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
 from dateutil.rrule import rrule, MONTHLY
+from common.forms import HTMXDynSelWidget
 from finances.constants import (
     SUBSIDY_STATUS,
     SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
@@ -299,12 +300,13 @@ class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
     )
     subsidy = forms.ModelChoiceField(
         queryset=Subsidy.objects.all(),
-        widget=autocomplete.ModelSelect2(
-            url=reverse_lazy("finances:subsidy_autocomplete"),
-            attrs={
-                "data-html": True,
-                "style": "width: 100%",
-            },
+        widget=HTMXDynSelWidget(
+            dynsel_context={
+                "results_page_url": reverse_lazy(
+                    "finances:_hx_dynsel_subsidy_result_page"
+                ),
+                "collection_name": "subsidies",
+            }
         ),
         help_text=("Start typing, and select from the popup."),
         required=False,
@@ -325,7 +327,7 @@ class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
         self.fields["filename"].initial = self.instance.filename
 
     def clean(self):
-        orphaned = self.cleaned_data["subsidy"] is None
+        orphaned = self.cleaned_data.get("subsidy") is None
         filename = self.cleaned_data["filename"]
 
         # Allow misnamed orphans
@@ -355,18 +357,10 @@ class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
             instance.filename, filename
         )
 
-        try:
-            instance.attachment.storage.save(new_relative_path, instance.attachment)
-            instance.attachment.storage.delete(old_relative_path)
-            instance.attachment.name = new_relative_path
-        except Exception as e:
-            self.add_error(
-                "filename",
-                f"An error occurred while renaming the file: {e}",
-            )
-
-        if commit:
-            instance.save()
+        instance.attachment.storage.save(new_relative_path, instance.attachment)
+        instance.attachment.name = new_relative_path
+        instance.save()
+        instance.attachment.storage.delete(old_relative_path)
 
         return instance
 

@@ -12,6 +12,8 @@ from django.template.response import TemplateResponse
 from django.utils.html import format_html
 import matplotlib
 
+from common.views import HXDynselResultPage, HXDynselSelectOptionView
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import io, base64
@@ -588,6 +590,27 @@ def _hx_subsidyattachment_link_form(request, attachment_id):
         "form": form,
     }
     return render(request, "finances/_hx_subsidyattachment_link_form.html", context)
+
+
+class HXDynselSubsidyResultPage(HXDynselResultPage):
+    model = Subsidy
+    collection_name = "subsidies"
+    obj_select_option_url = reverse_lazy("finances:_hx_dynsel_subsidy_select_option")
+
+    def search(self, queryset, q):
+        return queryset.filter(
+            Q(organization__name__unaccent__icontains=q)
+            | Q(organization__name_original__unaccent__icontains=q)
+            | Q(organization__acronym__unaccent__icontains=q)
+            | Q(amount__icontains=q)
+            | Q(description__icontains=q)
+            | Q(date_from__year__icontains=q)
+            | Q(date_until__year__icontains=q)
+        )
+
+
+class HXDynselSubsidySelectOption(HXDynselSelectOptionView):
+    model = Subsidy
 
 
 def subsidy_attachment(request, attachment_id):
