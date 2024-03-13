@@ -14,7 +14,7 @@
   <tr id="orphaned-subsidies-results-load-next"
       class="htmx-indicator"
       hx-swap-oob="true"
-      hx-post="{% url 'finances:_hx_subsidyattachment_list_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}?page={{ page_obj.next_page_number }}"
+      hx-post="{% url 'finances:_hx_subsidyattachment_list_page' %}?page={{ page_obj.next_page_number }}"
       hx-target="#orphaned-subsidies-results"
       hx-include="#orphaned-subsidies-form"
       hx-trigger="revealed"
