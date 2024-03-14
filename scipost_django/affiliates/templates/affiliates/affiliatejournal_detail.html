@@ -157,14 +157,17 @@
   <div class="row p-2">
     <div class="col">
       <h3 class="highlight">Balance</h3>
-      <div class="border border-warning mb-2 p-2">
-	<h4><strong class="text-warning">Management</strong></h4>
-	<h4>Specify cost info</h4>
-	<form action="{% url 'affiliates:journal_specify_cost_info' slug=object.slug %}" method="post">
-	  {% csrf_token %}
-	  {{ specify_cost_info_form }}
-	  <input type="submit" value="Submit" class="btn btn-primary">
-	</form>
+      {% if 'manage_journal_content' in user_perms %}
+        <div class="border border-warning mb-2 p-2">
+          
+        <h4><strong class="text-warning">Management</strong></h4>
+        <h4>Specify cost info</h4>
+        <form action="{% url 'affiliates:journal_specify_cost_info' slug=object.slug %}" method="post">
+          {% csrf_token %}
+          {{ specify_cost_info_form }}
+          <input type="submit" value="Submit" class="btn btn-primary">
+        </form>
+      {% endif %}
 
 	<table class="table mt-2" style="text-align: right;">
 	  <thead>
