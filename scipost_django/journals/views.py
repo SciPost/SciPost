@@ -1368,37 +1368,25 @@ def publication_remove_topic(request, doi_label, slug):
 
 
 @login_required
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def allocate_orgpubfractions(request, doi_label):
     """
     Set the relative support obtained from Organizations
     for the research contained in a Publication.
 
-    This view is accessible to EdAdmin as well as to the corresponding author
-    of the Publication.
+    This view is accessible to EdAdmin.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not request.user.is_authenticated:
-        raise Http404
-    elif not (
-        request.user == publication.accepted_submission.submitted_by.user
-        or request.user.has_perm("scipost.can_publish_accepted_submission")
-    ):
-        raise Http404
-
     # Create OrgPubFraction objects from existing organization links
     for org in publication.get_organizations():
         pubfrac, created = OrgPubFraction.objects.get_or_create(
             publication=publication, organization=org
         )
-
     formset = OrgPubFractionsFormSet(
         request.POST or None, queryset=publication.pubfractions.all()
     )
     if formset.is_valid():
         formset.save()
-        if request.user == publication.accepted_submission.submitted_by.user:
-            publication.pubfractions_confirmed_by_authors = True
-            publication.save()
         messages.success(request, "Funding fractions successfully allocated.")
         return redirect(publication.get_absolute_url())
     context = {
@@ -1436,28 +1424,6 @@ def preallocate_orgpubfractions_from_affiliations(request, doi_label):
             kwargs={"doi_label": doi_label},
         )
     )
-
-
-@login_required
-@permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def request_pubfrac_check(request, doi_label):
-    """
-    This view is used by EdAdmin to request confirmation of the OrgPubFractions
-    for a given Publication.
-
-    This occurs post-publication, after all the affiliations and funders have
-    been confirmed.
-    """
-    publication = get_object_or_404(Publication, doi_label=doi_label)
-    mail_request = MailEditorSubview(
-        request, "authors/request_pubfrac_check", publication=publication
-    )
-    if mail_request.is_valid():
-        messages.success(request, "The corresponding author has been emailed.")
-        mail_request.send_mail()
-        return redirect("journals:manage_metadata")
-    else:
-        return mail_request.interrupt()
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)

@@ -92,7 +92,7 @@
 	      </li>
 	      <li>
 		<strong>Determining PubFractions</strong><br>
-		After publication, authors are asked to specify PubFractions for their paper
+		After publication, PubFractions are specified
 		(a publication's set of PubFractions answers the question "what was each supporting Organization's share of the support for the research leading to this publication?";
 		see the <a href="#pubFractions">PubFractions system description</a> below).
 	      </li>
@@ -196,17 +196,15 @@
 	      each paper has one unit of support recognition to be distributed among
 	      the Organizations having supported the research detailed in that paper.
 	      This is not meant to be <em>extremely</em> accurate, but should still
-	      somehow honestly reflect the support circumstances. Authors of a paper might
-	      thus specify that Organizations A and B each have a $0.4$ pubfraction,
-	      while C has $0.2$. This splitting can be made among an arbitrary number
-	      of Organizations, as specified by the authors. The only requirement is that
-	      any given paper's pubfractions sum up to $1$.
+	      somehow honestly reflect the support circumstances.
 	    </p>
 	    <p>
-	      This information is prefilled by our editorial administration
-	      at the moment of publication based on a reasonable estimate,
-	      which the authors are then asked to correct/complement/confirm
-	      (see image).
+	      The weight is given by the following simple algorithm: first, the unit
+	      is split equally among each of the authors. Then, for each author,
+	      their share is split equally among their affiliations.
+	      Any given paper's pubfractions sum up to $1$.
+	      This information is filled by our editorial administration
+	      at the moment of publication.
 	      These pubfractions are then automatically compiled and linked to the relevant
 	      Organizations. This data is displayed on our Organization detail pages.
 	    </p>
