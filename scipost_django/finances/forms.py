@@ -290,14 +290,8 @@ class SubsidyPaymentForm(forms.ModelForm):
 class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
     class Meta:
         model = SubsidyAttachment
-        fields = [
-            "subsidy",
-        ]
+        fields = []
 
-    filename = forms.CharField(
-        label="Filename",
-        required=True,
-    )
     subsidy = forms.ModelChoiceField(
         queryset=Subsidy.objects.all(),
         widget=HTMXDynSelWidget(
@@ -312,57 +306,72 @@ class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
         required=False,
     )
 
+    subsidy_payment = forms.ModelChoiceField(
+        queryset=SubsidyPayment.objects.none(),
+        widget=forms.RadioSelect(),
+        required=False,
+    )
+
+    payment_attachment_type = forms.ChoiceField(
+        choices=(
+            ("proof_of_payment", "Proof of payment"),
+            ("invoice", "Invoice"),
+        ),
+        widget=forms.RadioSelect(),
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["payment_attachment_type"].initial = "proof_of_payment"
+
+        # Set the queryset to the payments of the subsidy if the subsidy is set
+        if subsidy := self.initial.get("subsidy"):
+            self.fields["subsidy_payment"].queryset = subsidy.payments.all()
+        if subsidy_payment := self.initial.get("subsidy_payment"):
+            self.fields["subsidy_payment"].initial = subsidy_payment
+
+            if inferred_subsidy := getattr(subsidy_payment, "subsidy", None):
+                self.fields["subsidy"].initial = inferred_subsidy
+                self.fields["subsidy_payment"].queryset = (
+                    inferred_subsidy.payments.all()
+                )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(Field("filename"), css_class="col-6 col"),
-                Div(Field("subsidy"), css_class="col-6 col"),
+                Div(Field("subsidy"), css_class="col-5 col"),
+                Div(Field("payment_attachment_type"), css_class="col-2 col"),
+                Div(Field("subsidy_payment"), css_class="col-5 col"),
                 css_class="row mb-0",
             )
         )
 
-        self.fields["filename"].initial = self.instance.filename
+    def clean_subsidy(self):
+        return
 
     def clean(self):
-        orphaned = self.cleaned_data.get("subsidy") is None
-        filename = self.cleaned_data["filename"]
+        return self.cleaned_data
 
-        # Allow misnamed orphans
-        if orphaned:
-            return
+    def save(self):
+        # Link to payment
+        if subsidy_payment := self.cleaned_data["subsidy_payment"]:
+            if attachment_type := self.cleaned_data["payment_attachment_type"]:
+                setattr(subsidy_payment, attachment_type, self.instance)
 
-        filename_regex = (
-            "^SciPost_"
-            "[0-9]{4,}(-[0-9]{4,})?_[A-Z]{2,}_[\w]+_"
-            "(Agreement|Invoice|ProofOfPayment|Other)"
-            "(-[0-9]{2,})?(_[\w]+)?\.(pdf|docx|png)$"
-        )
-        pattern = re.compile(filename_regex)
-        if not pattern.match(filename):
-            self.add_error(
-                "filename",
-                "The filename does not match the required regex pattern "
-                f"'{filename_regex}'",
-            )
+            self.instance.subsidy = subsidy_payment.subsidy
 
-    def save(self, commit=True):
-        instance: "SubsidyAttachment" = super().save(commit=False)
+        subsidy_payment.save()
+        self.instance.save()
 
-        filename = self.cleaned_data["filename"]
-        old_relative_path = instance.attachment.name
-        new_relative_path = instance.attachment.name.replace(
-            instance.filename, filename
-        )
+        return self.instance
 
-        instance.attachment.storage.save(new_relative_path, instance.attachment)
-        instance.attachment.name = new_relative_path
-        instance.save()
-        instance.attachment.storage.delete(old_relative_path)
-
-        return instance
+    def clean_subsidy_payment(self):
+        if subsidy_payment := self.cleaned_data["subsidy_payment"]:
+            subsidy_payment = SubsidyPayment.objects.get(id=subsidy_payment.id)
+        else:
+            self.add_error("subsidy_payment", "Please select a payment")
+        return subsidy_payment
 
 
 class SubsidyAttachmentForm(forms.ModelForm):

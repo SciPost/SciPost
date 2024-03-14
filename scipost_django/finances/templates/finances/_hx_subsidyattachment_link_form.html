@@ -1,7 +1,18 @@
 {% load crispy_forms_tags %}
 
-<form hx-post="{% url "finances:_hx_subsidyattachment_link_form" attachment_id=attachment.id %}"
-      hx-trigger="change delay:1000ms"
-      hx-swap="outerHTML">
-  {% crispy form %}
+{% with subsidy_id=request.POST.subsidy %}
+  <form hx-post="{% url "finances:_hx_subsidyattachment_link_form" attachment_id=attachment.id %}"
+        hx-trigger="change delay:1000ms"
+        hx-swap="outerHTML">
+    {% crispy form %}
+
+    {% if subsidy_id %}
+      <div id="subsidy-{{ subsidy_id }}-payment-form">
+        <a class="btn btn-sm btn-primary"
+           hx-get="{% url 'finances:_hx_subsidypayment_form' subsidy_id=subsidy_id %}"
+           hx-target="#subsidy-{{ subsidy_id }}-payment-form">Add a new payment</a>
+      </div>
+    {% endif %}
+
+  {% endwith %}
 </form>

@@ -5,7 +5,6 @@ __license__ = "AGPL v3"
 from django import forms
 from crispy_forms.helper import FormHelper
 from django.core.validators import EmailValidator
-from django.forms import CharField
 
 
 class HTMXInlineCRUDModelForm(forms.ModelForm):
@@ -27,7 +26,7 @@ class MultiEmailValidator(EmailValidator):
 
 
 # Should not be an Email field because browser validation is unwanted.
-class MultiEmailField(CharField):
+class MultiEmailField(forms.CharField):
     default_validators = [MultiEmailValidator()]
 
 

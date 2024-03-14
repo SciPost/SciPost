@@ -581,7 +581,22 @@ def _hx_subsidyattachment_list_page(request):
 
 def _hx_subsidyattachment_link_form(request, attachment_id):
     attachment = get_object_or_404(SubsidyAttachment, pk=attachment_id)
-    form = SubsidyAttachmentInlineLinkForm(request.POST or None, instance=attachment)
+    subsidy_id = request.POST.get("subsidy", None)
+    subsidy = Subsidy.objects.get(pk=subsidy_id) if subsidy_id else None
+    subsidy_payment_id = request.POST.get("subsidy_payment", None)
+    subsidy_payment = (
+        SubsidyPayment.objects.get(pk=subsidy_payment_id)
+        if subsidy_payment_id
+        else None
+    )
+    form = SubsidyAttachmentInlineLinkForm(
+        request.POST or None,
+        instance=attachment,
+        initial={
+            "subsidy": subsidy or getattr(attachment, "subsidy", None),
+            "subsidy_payment": subsidy_payment,
+        },
+    )
     if form.is_valid():
         form.save()
 
@@ -589,7 +604,9 @@ def _hx_subsidyattachment_link_form(request, attachment_id):
         "attachment": attachment,
         "form": form,
     }
-    return render(request, "finances/_hx_subsidyattachment_link_form.html", context)
+    return TemplateResponse(
+        request, "finances/_hx_subsidyattachment_link_form.html", context
+    )
 
 
 class HXDynselSubsidyResultPage(HXDynselResultPage):
