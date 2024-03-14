@@ -19,10 +19,15 @@
 	
         <div class="col-8 d-flex flex-column justify-content-between">
           <div>
-            Do you have any competing interest (as per the	<a href="{% url 'scipost:EdCol_by-laws' %}"><span class="text-primary">By-laws</span></a> 3.5) with regards to this Submission?
-            If so, please kindly declare it!
+            Do you have any competing interests?
+            <ul>
+              <li>No coauthorship with any author in the past 5 years</li>
+              <li>No personal/professional relationship with any author</li>
+            </ul>
           </div>
-          <div class="text-muted">Keep in mind this includes co-authorship of any paper in the last 5 years.</div>
+          <div class="text-muted">
+            Read more in <a href="{% url 'scipost:EdCol_by-laws' %}"><span class="text-primary">By-laws</span></a> 3.5
+          </div>
         </div>
 	
         <div class="col border-start border-secondary">
