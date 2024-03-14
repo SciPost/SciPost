@@ -32,7 +32,8 @@ from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 from affiliates.models import AffiliatePublication
 from colleges.models import Fellowship
-from journals.models import Journal, Publication, OrgPubFraction
+from finances.models import PubFrac
+from journals.models import Journal, Publication
 from profiles.models import Profile
 
 
@@ -323,10 +324,10 @@ class Organization(models.Model):
         """
         Return the organization's pubfraction for a publication.
         """
-        pfs = OrgPubFraction.objects.filter(publication__doi_label=doi_label)
+        pfs = PubFrac.objects.filter(publication__doi_label=doi_label)
         try:
             return pfs.get(organization=self).fraction
-        except OrgPubFraction.DoesNotExist:
+        except PubFrac.DoesNotExist:
             children_ids = [k["id"] for k in list(self.children.all().values("id"))]
             children_contribs = pfs.filter(organization__id__in=children_ids).aggregate(
                 Sum("fraction")
@@ -349,7 +350,7 @@ class Organization(models.Model):
             publication.publication_date.year
         )
         try:
-            pf = OrgPubFraction.objects.get(
+            pf = PubFrac.objects.get(
                 publication=publication,
                 organization=self,
             )
@@ -359,12 +360,12 @@ class Organization(models.Model):
                 "expenditure": int(pf.fraction * unitcost),
                 "message": "",
             }
-        except OrgPubFraction.DoesNotExist:
+        except PubFrac.DoesNotExist:
             pass
         children_ids = [k["id"] for k in list(self.children.all().values("id"))]
         children_contrib_ids = set(
             c
-            for c in OrgPubFraction.objects.filter(
+            for c in PubFrac.objects.filter(
                 publication=publication,
                 organization__id__in=children_ids,
             ).values_list("organization__id", flat=True)
@@ -386,7 +387,7 @@ class Organization(models.Model):
         """
         Returns the sum of pubfractions for the given year.
         """
-        fractions = OrgPubFraction.objects.filter(
+        fractions = PubFrac.objects.filter(
             organization=self, publication__publication_date__year=year
         )
         return {

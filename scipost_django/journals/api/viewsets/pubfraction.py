@@ -11,7 +11,7 @@ from rest_framework_csv import renderers as r
 
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
-from journals.models import OrgPubFraction
+from finances.models import PubFrac
 from journals.api.serializers import PubFractionPublicSerializer
 
 from journals.api.filtersets import PubFractionPublicAPIFilterSet
@@ -20,7 +20,7 @@ from journals.api.filtersets import PubFractionPublicAPIFilterSet
 class PubFractionPublicAPIViewSet(
     FilteringOptionsActionMixin, viewsets.ReadOnlyModelViewSet
 ):
-    queryset = OrgPubFraction.objects.all()
+    queryset = PubFrac.objects.all()
     permission_classes = [
         AllowAny,
     ]

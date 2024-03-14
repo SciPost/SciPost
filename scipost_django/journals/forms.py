@@ -42,12 +42,12 @@ from .models import (
     Reference,
     Volume,
     PublicationAuthorsTable,
-    OrgPubFraction,
 )
 from .utils import JournalUtils
 
 
 from common.utils import get_current_domain, jatsify_tags
+from finances.models import PubFrac
 from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
@@ -801,7 +801,7 @@ class DraftAccompanyingPublicationForm(forms.Form):
 
         # Add PubFractions
         for pubfrac in anchor.pubfractions.all():
-            OrgPubFraction.objects.create(
+            PubFrac.objects.create(
                 organization=pubfrac.organization,
                 publication=companion,
                 fraction=pubfrac.fraction,
@@ -1087,19 +1087,19 @@ class IssueForm(forms.ModelForm):
         return issue
 
 
-class SetOrgPubFractionForm(forms.ModelForm):
+class SetPubFracForm(forms.ModelForm):
     class Meta:
-        model = OrgPubFraction
+        model = PubFrac
         fields = ["organization", "publication", "fraction"]
 
     def __init__(self, *args, **kwargs):
-        super(SetOrgPubFractionForm, self).__init__(*args, **kwargs)
+        super(SetPubFracForm, self).__init__(*args, **kwargs)
         if self.instance.id:
             self.fields["organization"].disabled = True
             self.fields["publication"].widget = forms.HiddenInput()
 
 
-class BaseOrgPubFractionsFormSet(BaseModelFormSet):
+class BasePubFracsFormSet(BaseModelFormSet):
     def clean(self):
         """
         Checks that the fractions add up to one.
@@ -1114,11 +1114,11 @@ class BaseOrgPubFractionsFormSet(BaseModelFormSet):
             )
 
 
-OrgPubFractionsFormSet = modelformset_factory(
-    OrgPubFraction,
+PubFracsFormSet = modelformset_factory(
+    PubFrac,
     fields=("publication", "organization", "fraction"),
-    formset=BaseOrgPubFractionsFormSet,
-    form=SetOrgPubFractionForm,
+    formset=BasePubFracsFormSet,
+    form=SetPubFracForm,
     extra=0,
 )
 
