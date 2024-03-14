@@ -564,3 +564,9 @@ class OrgPubFraction(models.Model):
 
     class Meta:
         unique_together = (("organization", "publication"),)
+
+    @property
+    def value(self):
+        return int(self.fraction * self.publication.get_journal().cost_per_publication(
+            self.publication.publication_date.year
+        ))

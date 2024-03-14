@@ -504,7 +504,7 @@ class Organization(models.Model):
                 expenditures = int(costperpaper * sumpf)
                 if sumpf > 0:
                     rep[str(year)]["expenditures"][journal_label] = {
-                        "pubfractions": int(sumpf),
+                        "pubfractions": float(sumpf),
                         "costperpaper": costperpaper,
                         "expenditures": expenditures,
                     }
