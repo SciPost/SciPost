@@ -1,6 +1,6 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: Allocate support fractions{% endblock pagetitle %}
+{% block pagetitle %}: Allocate Publication Fractions{% endblock pagetitle %}
 
 {% block breadcrumb %}
   <div class="breadcrumb-container">
@@ -8,7 +8,7 @@
       <nav class="breadcrumb hidden-sm-down">
         <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
         <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
-        <span class="breadcrumb-item active">Allocate support fractions</span>
+        <span class="breadcrumb-item active">Allocate Publication Fractions</span>
       </nav>
     </div>
   </div>
@@ -29,10 +29,10 @@
       <p>Please indicate <strong>which Organizations should be credited with supporting the research published in this publication</strong>.<br/>Data provided here is indicative and does not need to be extremely accurate.<br/>Note however that this data <strong>is used</strong> to set the suggested level of support from external Organizations which SciPost needs to remain sustainable.<br/><br/>The Organizations listed here appear as either host institutions for the authors, or as acknowledged funders.</p>
 
 
-      <p><a class="btn btn-primary" href="{% url 'journals:preallocate_orgpubfractions_from_affiliations' doi_label=publication.doi_label %}">Preallocate fractions based on author affiliations</a></p>
+      <p><a class="btn btn-primary" href="{% url 'journals:preallocate_pubfracs_from_affiliations' doi_label=publication.doi_label %}">Preallocate fractions based on author affiliations</a></p>
 
 
-      <form method="post" action="{% url 'journals:allocate_orgpubfractions' doi_label=publication.doi_label %}">
+      <form method="post" action="{% url 'journals:allocate_pubfracs' doi_label=publication.doi_label %}">
 	{% csrf_token %}
 	{{ formset.management_form }}
 	<table class="table">

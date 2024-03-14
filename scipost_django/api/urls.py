@@ -14,7 +14,7 @@ from colleges.api.viewsets import FellowshipPublicAPIViewSet
 from journals.api.viewsets import (
     PublicationPublicAPIViewSet,
     PublicationPublicSearchAPIViewSet,
-    PubFractionPublicAPIViewSet,
+    PubFracPublicAPIViewSet,
 )
 
 # submissions
@@ -61,7 +61,7 @@ router.register("colleges/fellowships", FellowshipPublicAPIViewSet)
 
 # journals
 router.register("publications", PublicationPublicAPIViewSet)
-router.register("pubfractions", PubFractionPublicAPIViewSet)
+router.register("pubfracs", PubFracPublicAPIViewSet)
 
 # submissions
 router.register("submissions", SubmissionPublicAPIViewSet)

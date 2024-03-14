@@ -7,7 +7,7 @@ from django_filters import rest_framework as df_filters
 from finances.models import PubFrac
 
 
-class PubFractionPublicAPIFilterSet(df_filters.FilterSet):
+class PubFracPublicAPIFilterSet(df_filters.FilterSet):
     class Meta:
         model = PubFrac
         fields = {

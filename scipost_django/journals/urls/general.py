@@ -281,16 +281,16 @@ urlpatterns = [
         journals_views.publication_remove_topic,
         name="publication_remove_topic",
     ),
-    # PubFraction allocation:
+    # PubFrac allocation:
     path(
-        "allocate_orgpubfractions/<publication_doi_label:doi_label>",
-        journals_views.allocate_orgpubfractions,
-        name="allocate_orgpubfractions",
+        "allocate_pubfracs/<publication_doi_label:doi_label>",
+        journals_views.allocate_pubfracs,
+        name="allocate_pubfracs",
     ),
     path(
-        "preallocate_orgpubfractions_from_affiliations/<publication_doi_label:doi_label>",
-        journals_views.preallocate_orgpubfractions_from_affiliations,
-        name="preallocate_orgpubfractions_from_affiliations",
+        "preallocate_pubfracs_from_affiliations/<publication_doi_label:doi_label>",
+        journals_views.preallocate_pubfracs_from_affiliations,
+        name="preallocate_pubfracs_from_affiliations",
     ),
     # Citedby
     path(

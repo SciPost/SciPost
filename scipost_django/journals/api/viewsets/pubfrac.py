@@ -12,25 +12,25 @@ from rest_framework_csv import renderers as r
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
 from finances.models import PubFrac
-from journals.api.serializers import PubFractionPublicSerializer
+from journals.api.serializers import PubFracPublicSerializer
 
-from journals.api.filtersets import PubFractionPublicAPIFilterSet
+from journals.api.filtersets import PubFracPublicAPIFilterSet
 
 
-class PubFractionPublicAPIViewSet(
+class PubFracPublicAPIViewSet(
     FilteringOptionsActionMixin, viewsets.ReadOnlyModelViewSet
 ):
     queryset = PubFrac.objects.all()
     permission_classes = [
         AllowAny,
     ]
-    serializer_class = PubFractionPublicSerializer
+    serializer_class = PubFracPublicSerializer
     renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (r.CSVRenderer,)
     search_fields = ["organization__name", "publication__publication_date__year"]
     ordering_fields = [
         "-publication_date",
     ]
-    filterset_class = PubFractionPublicAPIFilterSet
+    filterset_class = PubFracPublicAPIFilterSet
     default_filtering_fields = [
         "organization__name__icontains",
         "publication__publication_date__year__exact",

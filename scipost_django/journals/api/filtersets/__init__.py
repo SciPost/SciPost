@@ -7,4 +7,4 @@ from .publication import (
     PublicationPublicSearchAPIFilterSet,
 )
 
-from .pubfraction import PubFractionPublicAPIFilterSet
+from .pubfrac import PubFracPublicAPIFilterSet

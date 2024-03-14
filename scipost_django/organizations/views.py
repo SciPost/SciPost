@@ -207,7 +207,7 @@ class OrganizationDetailView(DetailView):
             "contactrole_set",
             "funder_set",
             "organizationevent_set",
-            "pubfractions",
+            "pubfracs",
         )
 
 

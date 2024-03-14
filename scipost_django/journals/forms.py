@@ -799,8 +799,8 @@ class DraftAccompanyingPublicationForm(forms.Form):
                 link=reference.link,
             )
 
-        # Add PubFractions
-        for pubfrac in anchor.pubfractions.all():
+        # Add PubFracs
+        for pubfrac in anchor.pubfracs.all():
             PubFrac.objects.create(
                 organization=pubfrac.organization,
                 publication=companion,

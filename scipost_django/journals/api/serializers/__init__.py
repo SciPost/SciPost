@@ -7,4 +7,4 @@ from .publication import (
     PublicationPublicSearchSerializer,
 )
 
-from .pubfraction import PubFractionPublicSerializer
+from .pubfrac import PubFracPublicSerializer

@@ -209,7 +209,7 @@ class Organization(models.Model):
 
     def get_affiliate_publications(self, journal):
         return AffiliatePublication.objects.filter(
-            pubfractions__organization=self,
+            pubfracs__organization=self,
             journal=journal,
         )
 
@@ -320,9 +320,9 @@ class Organization(models.Model):
         self.cf_balance_info = self.get_balance_info()
         self.save()
 
-    def pubfraction_for_publication(self, doi_label):
+    def pubfrac_for_publication(self, doi_label):
         """
-        Return the organization's pubfraction for a publication.
+        Return the organization's pubfrac for a publication.
         """
         pfs = PubFrac.objects.filter(publication__doi_label=doi_label)
         try:
@@ -335,8 +335,8 @@ class Organization(models.Model):
             if children_contribs is not None:
                 message = "as parent (ascribed to "
                 for child in self.children.all():
-                    pfc = child.pubfraction_for_publication(doi_label)
-                    if pfc not in ["No PubFraction ascribed", "Not yet defined"]:
+                    pfc = child.pubfrac_for_publication(doi_label)
+                    if pfc not in ["No PubFrac ascribed", "Not yet defined"]:
                         message += "%s: %s; " % (child, pfc)
                 return message.rpartition(";")[0] + ")"
         return "Not yet defined"
@@ -383,20 +383,14 @@ class Organization(models.Model):
             "message": message,
         }
 
-    def pubfractions_in_year(self, year):
+    def pubfracs_in_year(self, year):
         """
-        Returns the sum of pubfractions for the given year.
+        Returns the sum of pubfracs for the given year.
         """
         fractions = PubFrac.objects.filter(
             organization=self, publication__publication_date__year=year
         )
         return {
-            "confirmed": fractions.filter(
-                publication__pubfractions_confirmed_by_authors=True
-            ).aggregate(Sum("fraction"))["fraction__sum"],
-            "estimated": fractions.filter(
-                publication__pubfractions_confirmed_by_authors=False
-            ).aggregate(Sum("fraction"))["fraction__sum"],
             "total": fractions.aggregate(Sum("fraction"))["fraction__sum"],
         }
 
@@ -462,7 +456,7 @@ class Organization(models.Model):
         cumulative_balance = 0
         cumulative_expenditures = 0
         cumulative_contribution = 0
-        pf = self.pubfractions.all()
+        pf = self.pubfracs.all()
         for year in pubyears:
             rep[str(year)] = {}
             contribution = self.total_subsidies_in_year(year)
@@ -505,7 +499,7 @@ class Organization(models.Model):
                 expenditures = int(costperpaper * sumpf)
                 if sumpf > 0:
                     rep[str(year)]["expenditures"][journal_label] = {
-                        "pubfractions": float(sumpf),
+                        "pubfracs": float(sumpf),
                         "costperpaper": costperpaper,
                         "expenditures": expenditures,
                     }

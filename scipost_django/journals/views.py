@@ -1369,7 +1369,7 @@ def publication_remove_topic(request, doi_label, slug):
 
 @login_required
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def allocate_orgpubfractions(request, doi_label):
+def allocate_pubfracs(request, doi_label):
     """
     Set the relative support obtained from Organizations
     for the research contained in a Publication.
@@ -1383,7 +1383,7 @@ def allocate_orgpubfractions(request, doi_label):
             publication=publication, organization=org
         )
     formset = PubFracsFormSet(
-        request.POST or None, queryset=publication.pubfractions.all()
+        request.POST or None, queryset=publication.pubfracs.all()
     )
     if formset.is_valid():
         formset.save()
@@ -1393,14 +1393,14 @@ def allocate_orgpubfractions(request, doi_label):
         "publication": publication,
         "formset": formset,
     }
-    return render(request, "journals/allocate_orgpubfractions.html", context)
+    return render(request, "journals/allocate_pubfracs.html", context)
 
 
 @login_required
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def preallocate_orgpubfractions_from_affiliations(request, doi_label):
+def preallocate_pubfracs_from_affiliations(request, doi_label):
     """
-    Prefill the pubfractions based on the author affiliations.
+    Prefill the pubfracs based on the author affiliations.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
     nr_authors = publication.authors.all().count()
@@ -1420,7 +1420,7 @@ def preallocate_orgpubfractions_from_affiliations(request, doi_label):
         ).update(fraction=Decimal(fraction[org.id]))
     return redirect(
         reverse(
-            "journals:allocate_orgpubfractions",
+            "journals:allocate_pubfracs",
             kwargs={"doi_label": doi_label},
         )
     )

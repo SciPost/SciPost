@@ -157,7 +157,6 @@ class Publication(models.Model):
     funders_generic = models.ManyToManyField(
         "funders.Funder", blank=True
     )  # not linked to a grant
-    pubfractions_confirmed_by_authors = models.BooleanField(default=False)
 
     # Metadata
     metadata = models.JSONField(default=dict, blank=True, null=True)
@@ -421,9 +420,9 @@ class Publication(models.Model):
         )
 
     @property
-    def pubfractions_sum_to_1(self):
+    def pubfracs_sum_to_1(self):
         """Checks that the support fractions sum up to one."""
-        return self.pubfractions.aggregate(Sum("fraction"))["fraction__sum"] == 1
+        return self.pubfracs.aggregate(Sum("fraction"))["fraction__sum"] == 1
 
     @property
     def citation(self):

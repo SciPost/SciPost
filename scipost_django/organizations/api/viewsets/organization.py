@@ -13,7 +13,7 @@ from rest_framework_csv import renderers as r
 
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
-from journals.api.serializers import PubFractionPublicSerializer
+from journals.api.serializers import PubFracPublicSerializer
 from organizations.models import Organization
 from organizations.api.filtersets import OrganizationPublicAPIFilterSet
 from organizations.api.serializers import (
@@ -47,10 +47,10 @@ class OrganizationPublicAPIViewSet(
     ]
 
     @action(detail=True)
-    def pubfractions(self, request, pk=None):
-        pubfractions = self.get_object().pubfractions.all()
-        serializer = PubFractionPublicSerializer(
-            pubfractions, many=True, context={"request": self.request}
+    def pubfracs(self, request, pk=None):
+        pubfracs = self.get_object().pubfracs.all()
+        serializer = PubFracPublicSerializer(
+            pubfracs, many=True, context={"request": self.request}
         )
         return Response(serializer.data)
 

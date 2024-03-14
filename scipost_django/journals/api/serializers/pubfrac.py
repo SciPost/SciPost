@@ -9,7 +9,7 @@ from journals.api.serializers import PublicationPublicSearchSerializer
 from organizations.api.serializers import OrganizationPublicSerializer
 
 
-class PubFractionPublicSerializer(serializers.ModelSerializer):
+class PubFracPublicSerializer(serializers.ModelSerializer):
     organization = OrganizationPublicSerializer(
         fields=["url", "name", "acronym", "country"]
     )
