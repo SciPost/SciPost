@@ -22,6 +22,7 @@ from journals.models import (
     PublicationResource,
 )
 
+from finances.models import PubFrac
 from scipost.models import Contributor
 from submissions.models import Submission
 
@@ -94,6 +95,14 @@ class OrgPubFractionInline(admin.TabularInline):
     ]
 
 
+class PubFracInline(admin.TabularInline):
+    model = PubFrac
+    list_display = ("organization", "publication", "fraction")
+    autocomplete_fields = [
+        "organization",
+    ]
+
+
 @admin.register(Publication)
 class PublicationAdmin(admin.ModelAdmin):
     exclude = ["cf_citation", "cf_author_affiliation_indices_list"]
@@ -112,6 +121,7 @@ class PublicationAdmin(admin.ModelAdmin):
         AuthorsInline,
         ReferenceInline,
         OrgPubFractionInline,
+        PubFracInline,
         PublicationResourceInline,
     ]
     autocomplete_fields = [
@@ -202,5 +212,3 @@ class PublicationUpdateAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "publication",
     ]
-
-

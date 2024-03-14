@@ -8,6 +8,7 @@ from .models import (
     Subsidy,
     SubsidyPayment,
     SubsidyAttachment,
+    PubFrac,
     WorkLog,
     PeriodicReportType,
     PeriodicReport,
@@ -62,10 +63,32 @@ class SubsidyAttachmentAdmin(admin.ModelAdmin):
 
 
 
+@admin.register(PubFrac)
+class PubFracAdmin(admin.ModelAdmin):
+    list_display = [
+        "organization",
+        "doi_label_display",
+        "fraction",
+    ]
+    autocomplete_fields = [
+        "organization",
+        "publication",
+    ]
+    search_fields = [
+        "publication__doi_label",
+        "organization__name",
+        "organization__name_original",
+        "organization__acronym",
+    ]
+
+    @admin.display(description='doi label')
+    def doi_label_display(self, obj):
+        return (obj.publication.doi_label)
+
+
 @admin.register(WorkLog)
 class WorkLogAdmin(admin.ModelAdmin):
     autocomplete_fields = ["user"]
-
 
 
 

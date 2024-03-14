@@ -8,6 +8,8 @@ from .periodic_report import (
     PeriodicReport,
 )
 
+from .pubfrac import PubFrac
+
 from .subsidy import Subsidy
 
 from .subsidy_payment import SubsidyPayment
