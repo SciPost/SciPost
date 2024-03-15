@@ -10,6 +10,8 @@ from .periodic_report import (
 
 from .pubfrac import PubFrac
 
+from .pubfrac_compensation import PubFracCompensation
+
 from .subsidy import Subsidy
 
 from .subsidy_payment import SubsidyPayment

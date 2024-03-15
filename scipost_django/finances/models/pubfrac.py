@@ -38,6 +38,12 @@ class PubFrac(models.Model):
 
     class Meta:
         unique_together = (("organization", "publication"),)
+        verbose_name = "PubFrac"
+        verbose_name_plural = "PubFracs"
+
+    def __str__(self):
+        return (f"{str(self.fraction)} (€{self.cf_value}) "
+                f"for {self.publication.doi_label} from {self.organization}")
 
 
 @receiver(pre_save, sender=PubFrac)
