@@ -5,6 +5,8 @@ __license__ = "AGPL v3"
 from decimal import Decimal
 
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 class PubFrac(models.Model):
@@ -31,11 +33,19 @@ class PubFrac(models.Model):
         max_digits=4, decimal_places=3, default=Decimal("0.000")
     )
 
+    # Calculated field
+    cf_value = models.PositiveIntegerField(blank=True, null=True)
+
     class Meta:
         unique_together = (("organization", "publication"),)
 
-    @property
-    def value(self):
-        return int(self.fraction * self.publication.get_journal().cost_per_publication(
-            self.publication.publication_date.year
-        ))
+
+@receiver(pre_save, sender=PubFrac)
+def calculate_cf_value(sender, instance: PubFrac, **kwargs):
+    """Calculate the cf_value field before saving."""
+    instance.cf_value = int(
+        instance.fraction * instance.publication.get_journal(
+        ).cost_per_publication(
+            instance.publication.publication_date.year
+        )
+    )

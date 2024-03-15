@@ -69,6 +69,7 @@ class PubFracAdmin(admin.ModelAdmin):
         "organization",
         "doi_label_display",
         "fraction",
+        "cf_value",
     ]
     autocomplete_fields = [
         "organization",
