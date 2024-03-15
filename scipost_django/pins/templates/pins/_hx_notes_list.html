@@ -1,0 +1,25 @@
+{% load scipost_extras %}
+
+<div class="row" 
+     hx-get="{% url "pins:_hx_notes_list" object|content_type_id object.id %}" 
+     hx-trigger="notes-updated from:body target:form delay:2s, {% if notes is None %}load{% endif %}" 
+     hx-swap="outerHTML">
+  <div class="col-12">
+    <h3>Notes</h3>
+
+    <div>
+      <button class="btn btn-light btn-sm"
+              hx-get="{% url "pins:_hx_note_create_form" object|content_type_id object.id %}"
+              hx-target="closest div">Add note</button>
+    </div>
+
+    <ul>
+      
+      {% for note in notes %}
+        <li>{% include "pins/_hx_note_item.html" %}</li>
+      {% endfor %}
+
+    </ul>
+
+  </div>
+</div>
