@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     "ontology",
     "organizations",
     "petitions",
+    "pins",
     "preprints",
     "proceedings",
     "production",
