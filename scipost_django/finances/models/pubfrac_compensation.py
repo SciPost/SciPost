@@ -18,7 +18,7 @@ class PubFracCompensation(models.Model):
 
     pubfrac = models.ForeignKey(
         "finances.PubFrac",
-        related_name="pubfracs",
+        related_name="pubfrac_compensations",
         on_delete=models.CASCADE,
     )
 

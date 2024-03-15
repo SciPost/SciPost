@@ -12,7 +12,8 @@ def populate_pubfracs(apps, schema_editor):
         pubfrac = PubFrac(
             organization=opf.organization,
             publication=opf.publication,
-            fraction=opf.fraction)
+            fraction=opf.fraction
+        )
         pubfrac.save()
 
 
@@ -26,5 +27,5 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             populate_pubfracs,
             reverse_code=migrations.RunPython.noop,
-            )
+        )
     ]

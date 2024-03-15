@@ -57,10 +57,14 @@ class Subsidy(models.Model):
 
     def __str__(self):
         if self.amount_publicly_shown:
-            return (f"{self.date_from}{f' - {self.date_until}' if self.date_until else ''}: "
-                    f"€{self.amount} from {self.organization}")
-        return (f"{self.date_from}{f' - {self.date_until}' if self.date_until else ''}: "
-                f"from {self.organization}")
+            return (
+                f"{self.date_from}{f' - {self.date_until}' if self.date_until else ''}: "
+                f"€{self.amount} from {self.organization}"
+            )
+        return (
+            f"{self.date_from}{f' - {self.date_until}' if self.date_until else ''}: "
+            f"from {self.organization}"
+        )
 
     def get_absolute_url(self):
         return reverse("finances:subsidy_details", args=(self.id,))
@@ -116,3 +120,21 @@ class Subsidy(models.Model):
         Verify that there exist SubsidyPayment objects covering full amount.
         """
         return self.amount == self.payments.aggregate(Sum("amount"))["amount__sum"]
+
+    @property
+    def committed(self):
+        """
+        Sum of the amounts of all PubFracCompensations related to this Subsidy.
+        """
+        return (
+            self.pubfrac_compensations.aggregate(Sum("amount"))["amount__sum"]
+            if self.pubfrac_compensations.exists()
+            else 0
+        )
+
+    @property
+    def remainder(self):
+        """
+        Part of the Subsidy amount which hasn't been used in a PubFracCompensation.
+        """
+        return self.amount - self.committed

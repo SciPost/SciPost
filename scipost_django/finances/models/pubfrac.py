@@ -42,16 +42,32 @@ class PubFrac(models.Model):
         verbose_name_plural = "PubFracs"
 
     def __str__(self):
-        return (f"{str(self.fraction)} (€{self.cf_value}) "
-                f"for {self.publication.doi_label} from {self.organization}")
+        return (
+            f"{str(self.fraction)} (€{self.cf_value}) "
+            f"for {self.publication.doi_label} from {self.organization}"
+        )
+
+    @property
+    def compensated(self):
+        """Compensated part of this PubFrac."""
+        return (
+            self.pubfrac_compensations.aggregate(models.Sum("amount"))["amount__sum"]
+            if self.pubfrac_compensations.exists()
+            else 0
+        )
+
+    @property
+    def arrears(self):
+        """Uncovered and uncompensated part of this PubFrac."""
+        return self.cf_value - self.compensated
 
 
 @receiver(pre_save, sender=PubFrac)
 def calculate_cf_value(sender, instance: PubFrac, **kwargs):
     """Calculate the cf_value field before saving."""
     instance.cf_value = int(
-        instance.fraction * instance.publication.get_journal(
-        ).cost_per_publication(
+        instance.fraction
+        * instance.publication.get_journal().cost_per_publication(
             instance.publication.publication_date.year
         )
     )
