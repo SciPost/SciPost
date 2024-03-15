@@ -1,0 +1,5 @@
+{% load crispy_forms_tags %}
+
+<form hx-post="{{ request.get_full_path }}" hx-swap="outerHTML">
+  {% crispy form %}
+</form>

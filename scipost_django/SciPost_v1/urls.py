@@ -114,6 +114,7 @@ urlpatterns = [
     path("ontology/", include("ontology.urls", namespace="ontology")),
     path("organizations/", include("organizations.urls", namespace="organizations")),
     path("petitions/", include("petitions.urls", namespace="petitions")),
+    path("pins/", include("pins.urls", namespace="pins")),
     path("preprints/", include("preprints.urls", namespace="preprints")),
     path("proceedings/", include("proceedings.urls", namespace="proceedings")),
     path("production/", include("production.urls", namespace="production")),
