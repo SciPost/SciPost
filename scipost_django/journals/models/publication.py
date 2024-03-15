@@ -157,7 +157,6 @@ class Publication(models.Model):
     funders_generic = models.ManyToManyField(
         "funders.Funder", blank=True
     )  # not linked to a grant
-    pubfractions_confirmed_by_authors = models.BooleanField(default=False)
 
     # Metadata
     metadata = models.JSONField(default=dict, blank=True, null=True)
@@ -421,9 +420,9 @@ class Publication(models.Model):
         )
 
     @property
-    def pubfractions_sum_to_1(self):
+    def pubfracs_sum_to_1(self):
         """Checks that the support fractions sum up to one."""
-        return self.pubfractions.aggregate(Sum("fraction"))["fraction__sum"] == 1
+        return self.pubfracs.aggregate(Sum("fraction"))["fraction__sum"] == 1
 
     @property
     def citation(self):
@@ -533,40 +532,3 @@ class Reference(models.Model):
         return "[{}] {}, {}".format(
             self.reference_number, self.authors[:30], self.citation[:30]
         )
-
-
-class OrgPubFraction(models.Model):
-    """
-    Associates a fraction of the funding credit for a given publication to an Organization,
-    to help answer the question: who funded this research?
-
-    Fractions for a given publication should sum up to one.
-
-    This data is used to compile publicly-displayed information on Organizations
-    as well as to set suggested contributions from Partners.
-
-    To be set (ideally) during production phase, based on information provided by the authors.
-    """
-
-    organization = models.ForeignKey(
-        "organizations.Organization",
-        on_delete=models.CASCADE,
-        related_name="pubfractions",
-        blank=True,
-        null=True,
-    )
-    publication = models.ForeignKey(
-        "journals.Publication", on_delete=models.CASCADE, related_name="pubfractions"
-    )
-    fraction = models.DecimalField(
-        max_digits=4, decimal_places=3, default=Decimal("0.000")
-    )
-
-    class Meta:
-        unique_together = (("organization", "publication"),)
-
-    @property
-    def value(self):
-        return int(self.fraction * self.publication.get_journal().cost_per_publication(
-            self.publication.publication_date.year
-        ))

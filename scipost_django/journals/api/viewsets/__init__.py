@@ -7,4 +7,4 @@ from .publication import (
     PublicationPublicSearchAPIViewSet,
 )
 
-from .pubfraction import PubFractionPublicAPIViewSet
+from .pubfrac import PubFracPublicAPIViewSet

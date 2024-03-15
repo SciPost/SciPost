@@ -17,7 +17,7 @@
 	  <a class="nav-link" id="details-{{ org.id }}-tab" data-bs-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-bs-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if perms.scipost.can_manage_organizations %} & PubFractions{% endif %}</a>
+	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-bs-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if perms.scipost.can_manage_organizations %} & PubFracs{% endif %}</a>
 	</li>
 	<li class="nav-item">
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-bs-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
@@ -75,9 +75,9 @@
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
 	  <h3>Publications associated to this Organization
 	    {% if perms.scipost.can_manage_organizations %}
-	      <span class="text-muted small">(with PubFractions <span data-bs-toggle="tooltip" data-bs-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>{% endif %}:</h3>
+	      <span class="text-muted small">(with PubFracs <span data-bs-toggle="tooltip" data-bs-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>{% endif %}:</h3>
 	  {% for pubyear in pubyears %}
-	    <h4>{{ pubyear }}{% if perms.scipost.can_manage_organizations %} <span class="text-muted small">(PubFractions {{ org|pubfractions_in_year:pubyear }})</span>{% endif %}</h4>
+	    <h4>{{ pubyear }}{% if perms.scipost.can_manage_organizations %} <span class="text-muted small">(PubFracs {{ org|pubfracs_in_year:pubyear }})</span>{% endif %}</h4>
 	    <ul>
 	      {% for publication in org.get_publications %}
 		{% if publication.publication_date|date:'Y'|add:"0" == pubyear %}
@@ -286,10 +286,14 @@
 			  <table class="table table-bordered">
 			    <thead class="table-dark">
 			      <tr>
-				<th>Journal</th>
-				<th class="text-end">Sum of PubFractions</th>
-				<th class="text-end">Cost per publication</th>
-				<th class="text-end">Expenditures</th>
+				<th class="align-top">Journal<br></th>
+				<th class="text-end">SciPost Expenditure<br>per publication</th>
+				<th class="text-end">NAP<br>for this Org</th>
+				<th class="text-end">
+				  Full Expenditures (unshared)<br>by SciPost for these Publications
+				</th>
+				<th class="text-end">Sum of PubFracs<br>for this Org</th>
+				<th class="text-end">Expenditures share<br>for this Org</th>
 			      </tr>
 			    </thead>
 			    <tbody>
@@ -297,15 +301,17 @@
 			      {% if journal != 'total' %}
 				<tr>
 				  <td>{{ journal }}</td>
-				  <td class="text-end">{{ journaldata.pubfractions }}</td>
 				  <td class="text-end">{{ journaldata.costperpaper }}</td>
+				  <td class="text-end">{{ journaldata.nap }}</td>
+				  <td class="text-end">{{ journaldata.undivided_expenditures }}</td>
+				  <td class="text-end">{{ journaldata.pubfracs }}</td>
 				  <td class="text-end">{{ journaldata.expenditures }}</td>
 				</tr>
 			      {% endif %}
 			    {% endfor %}
 			    </tbody>
 			  </table>
-			  <p>You can see the associated publications and their PubFractions under the <em>Publications & PubFractions</em> tab.</p>
+			  <p>You can see the associated publications and their PubFracs under the <em>Publications & PubFracs</em> tab.</p>
 			</div>
 		      </td>
 		    </tr>

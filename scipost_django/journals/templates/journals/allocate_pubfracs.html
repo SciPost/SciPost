@@ -1,0 +1,74 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Allocate Publication Fractions{% endblock pagetitle %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+        <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+        <span class="breadcrumb-item active">Allocate Publication Fractions</span>
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Allocate support fractions for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
+      {% include 'journals/_publication_li_content.html' with publication=publication %}
+
+      <hr class="divider">
+
+      <h3 class="highlight">Which Organizations supported the research in this publication?</h3>
+      <p>Please indicate <strong>which Organizations should be credited with supporting the research published in this publication</strong>.<br/>Data provided here is indicative and does not need to be extremely accurate.<br/>Note however that this data <strong>is used</strong> to set the suggested level of support from external Organizations which SciPost needs to remain sustainable.<br/><br/>The Organizations listed here appear as either host institutions for the authors, or as acknowledged funders.</p>
+
+
+      <p><a class="btn btn-primary" href="{% url 'journals:preallocate_pubfracs_from_affiliations' doi_label=publication.doi_label %}">Preallocate fractions based on author affiliations</a></p>
+
+
+      <form method="post" action="{% url 'journals:allocate_pubfracs' doi_label=publication.doi_label %}">
+	{% csrf_token %}
+	{{ formset.management_form }}
+	<table class="table">
+	  {% for form in formset %}
+	    {% if forloop.first %}
+	      <thead>
+		<tr>
+		  {% for field in form.visible_fields %}
+		    <th>{{ field.label }}</th>
+		  {% endfor %}
+		</tr>
+	      </thead>
+	    {% endif %}
+	    <tr>
+	      {% for field in form.visible_fields %}
+		<td>
+		  {% if forloop.first %}
+		    {% for hidden in form.hidden_fields %}
+		      {{ hidden }}
+		    {% endfor %}
+		  {% endif %}
+		  {{ field.errors.as_ul }}
+		  {{ field }}
+		</td>
+	      {% endfor %}
+	    </tr>
+	  {% endfor %}
+	</table>
+	{% if formset.non_form_errors %}
+	  <h4 class="text-danger">Error: {{ formset.non_form_errors }}</h4>
+	{% endif %}
+	<input type="submit" class="btn btn-primary" value="Save fractions">
+      </form>
+      <br/>
+      <p><a href="{% url 'journals:manage_metadata' %}" class="btn btn-link">Back to Admin</a></p>
+    </div>
+  </div>
+
+{% endblock content %}

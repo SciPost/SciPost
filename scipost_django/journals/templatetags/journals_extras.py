@@ -83,10 +83,7 @@ def latest_successful_crossref_generic_deposit(_object):
 
 @register.filter(name="pubfracs_fixed")
 def pubfracs_fixed(publication):
-    return (
-        publication.pubfractions_confirmed_by_authors
-        and publication.pubfractions_sum_to_1
-    )
+    return publication.pubfracs_sum_to_1
 
 
 @register.simple_tag(takes_context=True)

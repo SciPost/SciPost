@@ -4,12 +4,12 @@ __license__ = "AGPL v3"
 
 from django_filters import rest_framework as df_filters
 
-from journals.models import OrgPubFraction
+from finances.models import PubFrac
 
 
-class PubFractionPublicAPIFilterSet(df_filters.FilterSet):
+class PubFracPublicAPIFilterSet(df_filters.FilterSet):
     class Meta:
-        model = OrgPubFraction
+        model = PubFrac
         fields = {
             "organization__name": ["icontains", "istartswith", "exact"],
             "organization__country": [
