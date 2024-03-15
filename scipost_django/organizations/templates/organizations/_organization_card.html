@@ -210,6 +210,7 @@
 	  {% if org.subsidy_set.obtained|length > 0 or org.children.all|length > 0 %}
 	    {% if org.subsidy_set.obtained|length > 0 %}
 	      <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
+      <a href="{% url "finances:subsidy_sponsorship_create" organization_id=org.id %}">Create a new sponsorship agreement</a>
 	      <table class="table table-hover mb-5">
 		<thead class="table-light">
 		  <tr>

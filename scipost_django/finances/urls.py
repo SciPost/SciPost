@@ -92,6 +92,11 @@ urlpatterns = [
     ),  # deprecated
     path("subsidies/add/", views.SubsidyCreateView.as_view(), name="subsidy_create"),
     path(
+        "subsidies/add/sponsorship_from_organization/<int:organization_id>",
+        views.OrganizationSponsorshipSubsidyCreateView.as_view(),
+        name="subsidy_sponsorship_create",
+    ),
+    path(
         "subsidies/<int:pk>/update/",
         views.SubsidyUpdateView.as_view(),
         name="subsidy_update",

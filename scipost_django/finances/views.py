@@ -13,6 +13,7 @@ from django.utils.html import format_html
 import matplotlib
 
 from common.views import HXDynselResultPage, HXDynselSelectOptionView
+from finances.constants import SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_PROMISED
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -358,6 +359,37 @@ class SubsidyListView(ListView):
 
 class SubsidyDetailView(DetailView):
     model = Subsidy
+
+
+class OrganizationSponsorshipSubsidyCreateView(PermissionsMixin, CreateView):
+    """
+    Create a new Subsidy as a sponsorship from an Organization.
+    """
+
+    permission_required = "scipost.can_manage_subsidies"
+    model = Subsidy
+    form_class = SubsidyForm
+    template_name = "finances/subsidy_form.html"
+
+    def get_initial(self):
+        organization = get_object_or_404(
+            Organization, pk=self.kwargs.get("organization_id")
+        )
+        last_subsidy = Subsidy.objects.filter(organization=organization).last()
+        current_year = timezone.now().year
+        return {
+            "organization": organization,
+            "subsidy_type": SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
+            "status": SUBSIDY_PROMISED,
+            "renewable": True,
+            "amount": last_subsidy.amount if last_subsidy else None,
+            "renewal_of": last_subsidy,
+            "date_from": datetime.date(current_year, 1, 1),
+            "date_until": datetime.date(current_year, 12, 31),
+        }
+
+    def get_success_url(self):
+        return reverse_lazy("finances:subsidy_details", kwargs={"pk": self.object.id})
 
 
 def subsidy_list(request):
