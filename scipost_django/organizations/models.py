@@ -490,17 +490,21 @@ class Organization(models.Model):
             ]
             journal_labels = set(jl1 + jl2 + jl3)
             for journal_label in journal_labels:
-                sumpf = pfy.filter(
+                qs = pfy.filter(
                     publication__doi_label__istartswith=journal_label + "."
-                ).aggregate(Sum("fraction"))["fraction__sum"]
+                )
+                nap = qs.count()
+                sumpf = qs.aggregate(Sum("fraction"))["fraction__sum"]
                 costperpaper = get_object_or_404(
                     Journal, doi_label=journal_label
                 ).cost_per_publication(year)
                 expenditures = int(costperpaper * sumpf)
                 if sumpf > 0:
                     rep[str(year)]["expenditures"][journal_label] = {
-                        "pubfracs": float(sumpf),
                         "costperpaper": costperpaper,
+                        "nap": nap,
+                        "undivided_expenditures": nap * costperpaper,
+                        "pubfracs": float(sumpf),
                         "expenditures": expenditures,
                     }
                 year_expenditures += expenditures

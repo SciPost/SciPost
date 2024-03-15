@@ -285,10 +285,14 @@
 			  <table class="table table-bordered">
 			    <thead class="table-dark">
 			      <tr>
-				<th>Journal</th>
-				<th class="text-end">Sum of PubFracs</th>
-				<th class="text-end">Cost per publication</th>
-				<th class="text-end">Expenditures</th>
+				<th class="align-top">Journal<br></th>
+				<th class="text-end">SciPost Expenditure<br>per publication</th>
+				<th class="text-end">NAP<br>for this Org</th>
+				<th class="text-end">
+				  Full Expenditures (unshared)<br>by SciPost for these Publications
+				</th>
+				<th class="text-end">Sum of PubFracs<br>for this Org</th>
+				<th class="text-end">Expenditures share<br>for this Org</th>
 			      </tr>
 			    </thead>
 			    <tbody>
@@ -296,8 +300,10 @@
 			      {% if journal != 'total' %}
 				<tr>
 				  <td>{{ journal }}</td>
-				  <td class="text-end">{{ journaldata.pubfracs }}</td>
 				  <td class="text-end">{{ journaldata.costperpaper }}</td>
+				  <td class="text-end">{{ journaldata.nap }}</td>
+				  <td class="text-end">{{ journaldata.undivided_expenditures }}</td>
+				  <td class="text-end">{{ journaldata.pubfracs }}</td>
 				  <td class="text-end">{{ journaldata.expenditures }}</td>
 				</tr>
 			      {% endif %}
