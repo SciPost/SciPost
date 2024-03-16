@@ -283,14 +283,14 @@ urlpatterns = [
     ),
     # PubFrac allocation:
     path(
-        "allocate_pubfracs/<publication_doi_label:doi_label>",
-        journals_views.allocate_pubfracs,
-        name="allocate_pubfracs",
+        "define_pubfracs/<publication_doi_label:doi_label>",
+        journals_views.define_pubfracs,
+        name="define_pubfracs",
     ),
     path(
-        "preallocate_pubfracs_from_affiliations/<publication_doi_label:doi_label>",
-        journals_views.preallocate_pubfracs_from_affiliations,
-        name="preallocate_pubfracs_from_affiliations",
+        "adjust_pubfracs/<publication_doi_label:doi_label>",
+        journals_views.adjust_pubfracs,
+        name="adjust_pubfracs",
     ),
     # Citedby
     path(

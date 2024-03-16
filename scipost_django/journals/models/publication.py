@@ -25,6 +25,7 @@ from ..managers import PublicationQuerySet
 from ..validators import doi_publication_validator
 
 from common.utils import get_current_domain
+from finances.models import PubFrac
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 
@@ -320,17 +321,11 @@ class Publication(models.Model):
             models.Q(grants__publications=self) | models.Q(publications=self)
         ).distinct()
 
-    def get_organizations(self):
-        """
-        Returns a queryset of all Organizations which are associated to this Publication,
-        through being in author affiliations, funders or generic funders.
-        """
+    def get_affiliations(self):
+        """Returns the Organizations mentioned in author affiliations."""
         from organizations.models import Organization
-
         return Organization.objects.filter(
-            models.Q(publicationauthorstable__publication=self)
-            | models.Q(funder__grants__publications=self)
-            | models.Q(funder__publications=self)
+            publicationauthorstable__publication=self
         ).distinct()
 
     @property
@@ -423,6 +418,36 @@ class Publication(models.Model):
     def expenditures(self):
         """The expenditures (as defined by the Journal) to produce this Publication."""
         return self.get_journal().cost_per_publication(self.publication_date.year)
+
+    def recalculate_pubfracs(self):
+        """Recalculates PubFracs using the balanced affiliations algorithm."""
+        # First, rmove non-affiliation-related PubFracs
+        aff_ids = [aff.id for aff in self.get_affiliations()]
+        PubFrac.objects.filter(publication=self).exclude(pk__in=aff_ids).delete()
+        # Now recreate according to the balanced affiliations algorithm
+        nr_authors = self.authors.all().count()
+        affiliations = self.get_affiliations()
+        for org in affiliations.all():
+            pubfrac, created = PubFrac.objects.get_or_create(
+                publication=self, organization=org
+            )
+        fraction = {}
+        for org in affiliations.all():
+            fraction[org.id] = 0
+        for author in self.authors.all():
+            nr_affiliations = author.affiliations.all().count()
+            for aff in author.affiliations.all():
+                fraction[aff.id] += 1.0 / (nr_authors * nr_affiliations)
+        for org in affiliations.all():
+            value = int(fraction[org.id] * self.expenditures)
+            PubFrac.objects.filter(
+                publication=self,
+                organization=org,
+            ).update(
+                fraction=Decimal(fraction[org.id]),
+                cf_value=value,
+            )
+
 
     @property
     def pubfracs_sum_to_1(self):

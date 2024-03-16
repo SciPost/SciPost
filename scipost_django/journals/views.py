@@ -1369,7 +1369,22 @@ def publication_remove_topic(request, doi_label, slug):
 
 @login_required
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def allocate_pubfracs(request, doi_label):
+def define_pubfracs(request, doi_label):
+    """
+    Defines PubFracs based on balanced affiliations algorithm.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    publication.recalculate_pubfracs()
+    return redirect(
+        reverse(
+            "scipost:publication_detail", kwargs={"doi_label": publication.doi_label}
+        )
+    )
+
+
+@login_required
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
+def adjust_pubfracs(request, doi_label):
     """
     Set the relative support obtained from Organizations
     for the research contained in a Publication.
@@ -1378,7 +1393,7 @@ def allocate_pubfracs(request, doi_label):
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
     # Create PubFrac objects from existing organization links
-    for org in publication.get_organizations():
+    for org in publication.get_affiliations():
         pubfrac, created = PubFrac.objects.get_or_create(
             publication=publication, organization=org
         )
@@ -1393,37 +1408,7 @@ def allocate_pubfracs(request, doi_label):
         "publication": publication,
         "formset": formset,
     }
-    return render(request, "journals/allocate_pubfracs.html", context)
-
-
-@login_required
-@permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def preallocate_pubfracs_from_affiliations(request, doi_label):
-    """
-    Prefill the pubfracs based on the author affiliations.
-    """
-    publication = get_object_or_404(Publication, doi_label=doi_label)
-    nr_authors = publication.authors.all().count()
-    # Reset all existing pubfracs to zero
-    PubFrac.objects.filter(publication=publication).update(fraction=0)
-    fraction = {}
-    for org in publication.get_organizations():
-        fraction[org.id] = 0
-    for author in publication.authors.all():
-        nr_affiliations = author.affiliations.all().count()
-        for aff in author.affiliations.all():
-            fraction[aff.id] += 1.0 / (nr_authors * nr_affiliations)
-    for org in publication.get_organizations():
-        PubFrac.objects.filter(
-            publication=publication,
-            organization=org,
-        ).update(fraction=Decimal(fraction[org.id]))
-    return redirect(
-        reverse(
-            "journals:allocate_pubfracs",
-            kwargs={"doi_label": doi_label},
-        )
-    )
+    return render(request, "journals/adjust_pubfracs.html", context)
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
