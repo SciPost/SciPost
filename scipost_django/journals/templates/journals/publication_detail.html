@@ -172,17 +172,16 @@
 
   {% if 'edadmin' in user_roles %}
     <h3 class="mt-4">
-      Expenditures and Balance
+      Expenditures and Compensations
     </h3>
-    <table class="table mt-2 caption-top">
-      <caption>PubFracs, Compensations and Arrears</caption>
+    <table class="table mt-2">
       <thead class="table-light">
 	<tr>
 	  <th>Organization</th>
 	  <th>PubFrac</th>
 	  <th>Value</th>
 	  <th>Compensation</th>
-	  <th>Arrears</th>
+	  <th>Uncompensated</th>
 	</tr>
       </thead>
       <tbody>
@@ -191,88 +190,32 @@
 	    <td><a href="{% url 'organizations:organization_detail' pk=pubfrac.organization.id %}">{{ pubfrac.organization }}</a></td>
 	    <td>{{ pubfrac.fraction }}</td>
 	    <td>&euro;{{ pubfrac.cf_value }}</td>
-	    <td>
-	      <ul>
-		{% for pc in pubfrac.pubfrac_compensations.all %}
-		  <li>
-		    &euro;{{ pc.amount }}&emsp;
-		    {% if pc.subsidy.organization != pubfrac.organization %}
-		      from&nbsp;ally&nbsp;
-		      <a href="{% url 'organizations:organization_detail' pk=pc.subsidy.organization.id %}">{{ pc.subsidy.organization }}</a>
-		    {% endif %}
-		    (<a href="{% url 'finances:subsidy_details' pk=pc.subsidy.id %}" target="_blank">
-		      see Subsidy details
-		    </a>)
-		  </li>
-		{% empty %}
-		  <li>No compensation</li>
-		{% endfor %}
-	      </ul>
-	    </td>
-	    {% with pubfrac.arrears as arrears %}
-	      <td class="{% if arrears == 0 %}bg-success{{% else %}bg-danger{% endif %} bg-opacity-25">
-		&euro;{{ pubfrac.arrears }}
+	    {% if pubfrac.compensated %}
+	      <td class="bg-success bg-opacity-25">
+		by <a href="{% url 'organizations:organization_detail' pk=pubfrac.compensated_by.organization.id %}">{{ pubfrac.compensated_by.organization }}</a>
+		(<a href="{% url 'finances:subsidy_details' pk=pubfrac.compensated_by.id %}">
+		see Subsidy details
+		</a>)
 	      </td>
-	    {% endwith %}
+	      <td class="bg-success bg-opacity-25">&euro;0</td>
+	    {% else %}
+	      <td><span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span></td>
+	      <td class="bg-danger bg-opacity-25">&euro;{{ pubfrac.cf_value }}</td>
+	    {% endif %}
 	  </tr>
 	{% endfor %}
-	<tr>
-	  <th>Totals</th>
-	  <td>1</td>
-	  <td>{{ publication.expenditures }}</td>
-	  {% if publication.uncompensated_expenditures == 0 %}
-	    <td class="bg-success bg-opacity-25">{{ publication.compensated_expenditures }}</td>
-	    <td class="bg-success bg-opacity-25">{{ publication.uncompensated_expenditures }}</td>
-	  {% else %}
-	    <td class="bg-danger bg-opacity-25">{{ publication.compensated_expenditures }}</td>
-	    <td class="bg-danger bg-opacity-25">{{ publication.uncompensated_expenditures }}</td>
-	  {% endif %}
-	</tr>
-      </tbody>
-    </table>
-
-    <table class="table mt-2 caption-top">
-      <caption>Balance</caption>
-      <tbody>
-	<tr>
-	  <th>Expenditures</th>
-	  <td></td>
-	  <td>{{ publication.expenditures }}</td>
-	</tr>
-	<tr>
-	  <th>PubFrac Compensations</th>
-	  <td>
-	  </td>
-	  <td>{{ publication.compensated_expenditures }}</td>
-	</tr>
-	<tr>
-	  <th>Coverages</th>
-	  <td>
-	    <ul>
-	      {% for coverage in publication.pex_coverages.all %}
-		<li>
-		  &euro;{{ coverage.amount }}
-		  from <a href="{% url 'organizations:organization_detail' pk=coverage.subsidy.organization.id %}">{{ coverage.subsidy.organization }}</a>
-		  (<a href="{% url 'finances:subsidy_details' pk=coverage.subsidy.id %}" target="_blank">
-		  see Subsidy details
-		  </a>
-		</li>
-	      {% empty %}
-		<li>No coverage received</li>
-	      {% endfor %}
-	    </ul>
-	  </td>
-	  <td>{{ publication.covered_expenditures }}</td>
-	</tr>
-	{% with publication.outstanding_expenditures as outstanding %}
-	  <tr class="{% if outstanding > 0 %}bg-danger{% else %}bg-success{% endif %} bg-opacity-25">
-	    <th>Outstanding Expenditures</th>
-	    <td></td>
-	    <td>{{ outstanding }}</td>
+	{% with publication.uncompensated_expenditures as uncompensated %}
+	  <tr>
+	    <th>Totals</th>
+	    <td>1</td>
+	    <td>{{ publication.expenditures }}</td>
+	    <td class="{% if uncompensated == 0 %}bg-success{% else %}bg-danger{% endif %} bg-opacity-25">{{ publication.compensated_expenditures }}</td>
+	    <td class="{% if uncompensated == 0 %}bg-success{% else %}bg-danger{% endif %} bg-opacity-25">{{ publication.uncompensated_expenditures }}</td>
 	  </tr>
 	{% endwith %}
       </tbody>
     </table>
+
   {% endif %}
 
   {% if publication.status == 'draft' and perms.scipost.can_draft_publication %}

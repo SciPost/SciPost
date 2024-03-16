@@ -110,27 +110,24 @@
 {% if 'edadmin' in user_roles %}
   {% if subsidy.amount_publicly_shown %}
 
+    <h3 class="highlight">Expenditures compensated by this Subsidy</h3>
     <div class="row">
-      <div class="col-12">
-	<h3 class="highlight">Expenditures compensated or covered by this Subsidy</h3>
-
+      <div class="col-lg-6">
 	<table class="table mt-2 caption-top">
 	  <caption>PubFrac Compensations</caption>
 	  <thead class="table-light">
 	    <tr>
 	      <th>Publication</th>
 	      <th>PubFrac value</th>
-	      <th>PubFrac compensation</th>
 	    </tr>
 	  </thead>
 	  <tbody>
-	    {% for compensation in subsidy.pubfrac_compensations.all %}
+	    {% for compensated_pubfrac in subsidy.compensated_pubfracs.all %}
 	      <tr>
 		<td>
-		  <a href="{% url 'scipost:publication_detail' doi_label=compensation.pubfrac.publication.doi_label %}">{{ compensation.pubfrac.publication.doi_label }}</a>
+		  <a href="{% url 'scipost:publication_detail' doi_label=compensated_pubfrac.publication.doi_label %}">{{ compensated_pubfrac.publication.doi_label }}</a>
 		</td>
-		<td>&euro;{{ compensation.pubfrac.cf_value }}</td>
-		<td>&euro;{{ compensation.amount }}</td>
+		<td>&euro;{{ compensated_pubfrac.cf_value }}</td>
 	      </tr>
 	    {% empty %}
 	      <tr>
@@ -139,65 +136,29 @@
 	    {% endfor %}
 	    <tr class="bg-secondary bg-opacity-10">
 	      <th>Total compensations from this Subsidy</th>
-	      <td></td>
 	      <td>&euro;{{ subsidy.total_compensations }}</td>
 	    </tr>
 	  </tbody>
 	</table>
-
-	<table class="table caption-top">
-	  <caption>Expenditure Coverages</caption>
-	  <thead class="table-light">
-	    <tr>
-	      <th>Publication</th>
-	      <th>Expenditure</th>
-	      <th>Coverage</th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    {% for coverage in subsidy.pex_coverages.all %}
-	      <tr>
-		<td>
-		  <a href="{% url 'scipost:publication_detail' doi_label=coverage.publication.doi_label %}">{{ coverage.publication.doi_label }}</a>
-		</td>
-		<td>&euro;{{ coverage.publication.expenditures }}</td>
-		<td>&euro;{{ coverage.amount }}</td>
-	      </tr>
-	    {% empty %}
-	      <tr>
-		<td>No Coverage defined</td>
-	      </tr>
-	    {% endfor %}
-	    <tr class="bg-secondary bg-opacity-10">
-	      <th>Total coverages from this Subsidy</th>
-	      <td></td>
-	      <td>&euro;{{ subsidy.total_coverages }}</td>
-	    </tr>
-	  </tbody>
-	</table>
-
+      </div>
+      <div class="col-lg-6">
 	<table class="table mt-2 caption-top">
 	  <caption>Balance</caption>
 	  <tbody>
 	    <tr>
 	      <th>Subsidy amount</th>
-	      <td>{{ subsidy.amount }}</td>
+	      <td>&euro;{{ subsidy.amount }}</td>
 	    </tr>
 	    <tr>
 	      <th>Compensations</th>
-	      <td>{{ subsidy.total_compensations }}</td>
-	    </tr>
-	    <tr>
-	      <th>Coverages</th>
-	      <td>{{ subsidy.total_coverages }}</td>
+	      <td>&euro;{{ subsidy.total_compensations }}</td>
 	    </tr>
 	    <tr class="bg-secondary bg-opacity-10">
 	      <th>Remainder (allocated to reserve fund)</th>
-	      <td>{{ subsidy.remainder }}</td>
+	      <td>&euro;{{ subsidy.remainder }}</td>
 	    </tr>
 	  </tbody>
 	</table>
-
       </div>
     </div>
   {% endif %}

@@ -124,22 +124,11 @@ class Subsidy(models.Model):
     @property
     def total_compensations(self):
         """
-        Sum of the amounts of all PubFracCompensations related to this Subsidy.
+        Sum of the amounts of all compensations related to this Subsidy.
         """
         return (
-            self.pubfrac_compensations.aggregate(Sum("amount"))["amount__sum"]
-            if self.pubfrac_compensations.exists()
-            else 0
-        )
-
-    @property
-    def total_coverages(self):
-        """
-        Sum of the PublicationExpenditureCoverages related to this Subsidy.
-        """
-        return (
-            self.pex_coverages.aggregate(Sum("amount"))["amount__sum"]
-            if self.pex_coverages.exists()
+            self.compensated_pubfracs.aggregate(Sum("cf_value"))["cf_value__sum"]
+            if self.compensated_pubfracs.exists()
             else 0
         )
 
@@ -148,4 +137,4 @@ class Subsidy(models.Model):
         """
         Part of the Subsidy amount which hasn't been allocated.
         """
-        return self.amount - self.total_compensations - self.total_coverages
+        return self.amount - self.total_compensations

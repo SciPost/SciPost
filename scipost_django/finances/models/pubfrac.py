@@ -32,6 +32,13 @@ class PubFrac(models.Model):
     fraction = models.DecimalField(
         max_digits=4, decimal_places=3, default=Decimal("0.000")
     )
+    compensated_by = models.ForeignKey(
+        "finances.Subsidy",
+        related_name="compensated_pubfracs",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
 
     # Calculated field
     cf_value = models.PositiveIntegerField(blank=True, null=True)
@@ -49,17 +56,7 @@ class PubFrac(models.Model):
 
     @property
     def compensated(self):
-        """Compensated part of this PubFrac."""
-        return (
-            self.pubfrac_compensations.aggregate(models.Sum("amount"))["amount__sum"]
-            if self.pubfrac_compensations.exists()
-            else 0
-        )
-
-    @property
-    def arrears(self):
-        """Uncovered and uncompensated part of this PubFrac."""
-        return self.cf_value - self.compensated
+        return self.compensated_by is not None
 
 
 @receiver(pre_save, sender=PubFrac)

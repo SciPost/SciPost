@@ -25,7 +25,6 @@ from ..managers import PublicationQuerySet
 from ..validators import doi_publication_validator
 
 from common.utils import get_current_domain
-from finances.models import PubFracCompensation
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 
@@ -431,30 +430,15 @@ class Publication(models.Model):
         return self.pubfracs.aggregate(Sum("fraction"))["fraction__sum"] == 1
 
     @property
-    def covered_expenditures(self):
-        """Covered part of expenditures for this Publication."""
-        return (
-            self.pex_coverages.aggregate(Sum("amount"))["amount__sum"]
-            if self.pex_coverages.exists()
-            else 0
-        )
-
-    @property
     def compensated_expenditures(self):
         """Compensated part of expenditures for this Publication."""
-        qs = PubFracCompensation.objects.filter(pubfrac__publication=self)
-        return qs.aggregate(Sum("amount"))["amount__sum"] if qs.exists() else 0
+        qs = self.pubfracs.filter(compensated_by__isnull=False)
+        return qs.aggregate(Sum("cf_value"))["cf_value__sum"] if qs.exists() else 0
 
     @property
     def uncompensated_expenditures(self):
         """Unompensated part of expenditures for this Publication."""
         return self.expenditures - self.compensated_expenditures
-
-    @property
-    def outstanding_expenditures(self):
-        """Expenditures which hasn't been compensated or covered."""
-        return (self.expenditures - self.covered_expenditures -
-                self.compensated_expenditures)
 
     @property
     def citation(self):

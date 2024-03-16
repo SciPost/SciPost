@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from .models import Subsidy, PubFrac, PubFracCompensation
+from .models import Subsidy, PubFrac
 
 
 def id_to_slug(id):
@@ -13,9 +13,9 @@ def slug_to_id(slug):
     return max(0, int(slug) - 821)
 
 
-def distribute_subsidy(subsidy: Subsidy, algorithm: str):
+def allocate_subsidy(subsidy: Subsidy, algorithm: str):
     """
-    Allocate subsidy amount to compensations of PubFrac
+    Allocate subsidy amount to compensations of PubFrac or coverage of expenditures.
 
     Algorithm choices:
     * any PubFrac ascribed to org from affiliations
@@ -27,12 +27,13 @@ def distribute_subsidy(subsidy: Subsidy, algorithm: str):
     """
 
     algorithms = [
-        "PubFrac_ascribed_to_Org",
-        "full_PEX_if_author_affiliated_to_Org",
-        "PubFrac_author_affiliation_same_country_as_Org",
-        "full_PEX_author_affiliation_same_country_as_Org",
-        "full_PEX_if_pub_funding_ack_includes_Org",
-        "full_PEX_if_pub_matches_specialties",
+        "compensate_PubFrac_related_to_Org",
+        "cover_full_PEX_if_PubFrac_related_to_Org",
+        "compensate_PubFrac_if_author_affiliation_same_country_as_Org",
+        "cover_full_PEX_if_author_affiliation_same_country_as_Org",
+        "cover_full_PEX_if_pub_funding_ack_includes_Org",
+        "cover_full_PEX_if_pub_matches_specialties",
+        "allocate_to_reserve_fund",
     ]
 
     if algorithm is "PubFrac_ascribed_to_Org":
@@ -48,12 +49,8 @@ def distribute_subsidy(subsidy: Subsidy, algorithm: str):
         for pubfrac in pubfracs.all():
             print(f"{distributed = };\tadding {pubfrac = }")
             if pubfrac.cf_value <= subsidy.remainder:
-                pfc, created = PubFracCompensation.objects.get_or_create(
-                    subsidy=subsidy,
-                    pubfrac=pubfrac,
-                    amount=pubfrac.cf_value,
-                )
-                if created:
-                    distributed += pubfrac.cf_value
+                pubfrac.compensated_by = subsidy
+                pubfrac.save()
+                distributed += pubfrac.cf_value
             else:
                 break
