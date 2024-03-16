@@ -24,7 +24,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -418,6 +418,13 @@ def _hx_subsidy_list(request):
         "start_index": start_index,
     }
     return render(request, "finances/_hx_subsidy_list.html", context)
+
+
+@permission_required("scipost.can_manage_subsidies", raise_exception=True)
+def allocate_subsidy(request, subsidy_id:int):
+    subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
+    subsidy.allocate()
+    return redirect(reverse("finances:subsidy_details", kwargs={"pk": subsidy.id}))
 
 
 @permission_required("scipost.can_manage_subsidies", raise_exception=True)

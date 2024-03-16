@@ -42,6 +42,11 @@ urlpatterns = [
                     include(
                         [
                             path(
+                                "allocate",
+                                views.allocate_subsidy,
+                                name="allocate_subsidy",
+                            ),
+                            path(
                                 "_hx_subsidy_finadmin_details",
                                 views._hx_subsidy_finadmin_details,
                                 name="_hx_subsidy_finadmin_details",

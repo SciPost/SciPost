@@ -36,6 +36,10 @@
       {% endif %}
       {% if perms.scipost.can_manage_subsidies %}
 	<tr>
+	  <td>Allocation algorithm</td>
+	  <td>{{ subsidy.get_algorithm_display }}</td>
+	</tr>
+	<tr>
 	  <td>Renewable?</td><td>{% if subsidy.renewable == True %}Yes, renewal action date: <span class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</span>{% elif subsidy.renewable == None %}Undetermined [please update]{% else %}No{% endif %}</td>
 	</tr>
 	<tr>
@@ -111,6 +115,11 @@
   {% if subsidy.amount_publicly_shown %}
 
     <h3 class="highlight">Expenditures compensated by this Subsidy</h3>
+
+    {% if 'edadmin' in user_roles %}
+      <a class="btn btn-primary" href="{% url 'finances:allocate_subsidy' subsidy_id=subsidy.id %}">Allocate this Subsidy</a>
+    {% endif %}
+
     <div class="row">
       <div class="col-lg-6">
 	<table class="table mt-2 caption-top">
@@ -150,7 +159,7 @@
 	      <td>&euro;{{ subsidy.amount }}</td>
 	    </tr>
 	    <tr>
-	      <th>Compensations</th>
+	      <th>PubFrac Compensations</th>
 	      <td>&euro;{{ subsidy.total_compensations }}</td>
 	    </tr>
 	    <tr class="bg-secondary bg-opacity-10">
