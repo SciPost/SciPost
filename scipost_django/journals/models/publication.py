@@ -421,8 +421,8 @@ class Publication(models.Model):
         )
 
     @property
-    def expenditure(self):
-        """The expenditure (as defined by the Journal) to produce this Publication."""
+    def expenditures(self):
+        """The expenditures (as defined by the Journal) to produce this Publication."""
         return self.get_journal().cost_per_publication(self.publication_date.year)
 
     @property
@@ -431,15 +431,30 @@ class Publication(models.Model):
         return self.pubfracs.aggregate(Sum("fraction"))["fraction__sum"] == 1
 
     @property
+    def covered_expenditures(self):
+        """Covered part of expenditures for this Publication."""
+        return (
+            self.pex_coverages.aggregate(Sum("amount"))["amount__sum"]
+            if self.pex_coverages.exists()
+            else 0
+        )
+
+    @property
     def compensated_expenditures(self):
-        """Uncompensated part of expenditures for this Publication."""
+        """Compensated part of expenditures for this Publication."""
         qs = PubFracCompensation.objects.filter(pubfrac__publication=self)
-        return qs.aggregate(Sum("amount"))["amount__sum"]
+        return qs.aggregate(Sum("amount"))["amount__sum"] if qs.exists() else 0
 
     @property
     def uncompensated_expenditures(self):
-        """Compensated part of expenditures for this Publication."""
-        return self.expenditure - self.compensated_expenditures
+        """Unompensated part of expenditures for this Publication."""
+        return self.expenditures - self.compensated_expenditures
+
+    @property
+    def outstanding_expenditures(self):
+        """Expenditures which hasn't been compensated or covered."""
+        return (self.expenditures - self.covered_expenditures -
+                self.compensated_expenditures)
 
     @property
     def citation(self):

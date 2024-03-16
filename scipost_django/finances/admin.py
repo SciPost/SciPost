@@ -10,6 +10,7 @@ from .models import (
     SubsidyAttachment,
     PubFrac,
     PubFracCompensation,
+    PublicationExpenditureCoverage,
     WorkLog,
     PeriodicReportType,
     PeriodicReport,
@@ -109,6 +110,30 @@ class PubFracCompensationAdmin(admin.ModelAdmin):
     @admin.display(description='doi label')
     def doi_label_display(self, obj):
         return (obj.pubfrac.publication.doi_label)
+
+
+@admin.register(PublicationExpenditureCoverage)
+class PublicationExpenditureCoverageAdmin(admin.ModelAdmin):
+    list_display = [
+        "subsidy",
+        "doi_label_display",
+        "amount",
+    ]
+    autocomplete_fields = [
+        "subsidy",
+        "publication",
+    ]
+    search_fields = [
+        "subsidy",
+        "subsidy__organization__name",
+        "subsidy__organization__name_original",
+        "subsidy__organization__acronym",
+        "publication__doi_label",
+    ]
+
+    @admin.display(description='doi label')
+    def doi_label_display(self, obj):
+        return (obj.publication.doi_label)
 
 
 @admin.register(WorkLog)

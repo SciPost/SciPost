@@ -30,4 +30,5 @@ class PubFracCompensation(models.Model):
                 fields=["subsidy", "pubfrac"], name="unique_subsidy_pubfrac"
             ),
         ]
-        verbose_name_plural = "PubFrac Compensations"
+        verbose_name = "PubFrac compensation"
+        verbose_name_plural = "PubFrac compensations"
