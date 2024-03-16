@@ -122,7 +122,7 @@ class Subsidy(models.Model):
         return self.amount == self.payments.aggregate(Sum("amount"))["amount__sum"]
 
     @property
-    def committed(self):
+    def total_compensations(self):
         """
         Sum of the amounts of all PubFracCompensations related to this Subsidy.
         """
@@ -133,8 +133,19 @@ class Subsidy(models.Model):
         )
 
     @property
+    def total_coverages(self):
+        """
+        Sum of the PublicationExpenditureCoverages related to this Subsidy.
+        """
+        return (
+            self.pex_coverages.aggregate(Sum("amount"))["amount__sum"]
+            if self.pex_coverages.exists()
+            else 0
+        )
+
+    @property
     def remainder(self):
         """
-        Part of the Subsidy amount which hasn't been used in a PubFracCompensation.
+        Part of the Subsidy amount which hasn't been allocated.
         """
-        return self.amount - self.committed
+        return self.amount - self.total_compensations - self.total_coverages
