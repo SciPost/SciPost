@@ -19,11 +19,15 @@ from .models import (
 
 class SubsidyPaymentInline(admin.TabularInline):
     model = SubsidyPayment
-
+    autocomplete_fields = [
+        "invoice",
+        "proof_of_payment",
+    ]
+    extra = 0
 
 class SubsidyAttachmentInline(admin.TabularInline):
     model = SubsidyAttachment
-
+    extra = 0
 
 @admin.register(Subsidy)
 class SubsidyAdmin(admin.ModelAdmin):

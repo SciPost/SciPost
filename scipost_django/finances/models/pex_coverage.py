@@ -40,5 +40,5 @@ class PublicationExpenditureCoverage(models.Model):
     def __str__(self):
         return (
             f"€{self.amount} for {self.publication.doi_label} "
-            "from {self.subsidy.organization}"
+            f"from {self.subsidy.organization}"
         )
