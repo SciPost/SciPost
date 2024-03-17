@@ -1423,16 +1423,18 @@ class SubmissionForm(forms.ModelForm):
 
         if "Proc" not in self.submitted_to_journal.doi_label:
             del self.fields["proceedings"]
+        else:
+            # Filter the list of proceedings to those open for submission
+            qs = self.fields["proceedings"].queryset.open_for_submission()
 
-        # Filter the list of proceedings to those open for submission
-        qs = self.fields["proceedings"].queryset.open_for_submission()
-        # If this is a resubmission, add the previous proceedings to the list
-        if self.is_resubmission():
-            resubmission = Submission.objects.get(id=self.is_resubmission_of)
-            qs = qs | Proceedings.objects.filter(id=resubmission.proceedings.id)
-        if not qs.exists():
-            del self.fields["proceedings"]
-        self.fields["proceedings"].queryset = qs
+            # If this is a resubmission, add the previous proceedings to the list
+            if self.is_resubmission():
+                resubmission = Submission.objects.get(id=self.is_resubmission_of)
+                qs = qs | Proceedings.objects.filter(id=resubmission.proceedings.id)
+            if not qs.exists():
+                del self.fields["proceedings"]
+            else:
+                self.fields["proceedings"].queryset = qs
 
     def is_resubmission(self):
         return self.is_resubmission_of is not None
