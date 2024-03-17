@@ -394,6 +394,10 @@ class Organization(models.Model):
             "total": fractions.aggregate(Sum("fraction"))["fraction__sum"],
         }
 
+    def has_pubfracs(self):
+        """Whether this Organization is mentioned in any author affiliation."""
+        return self.pubfracs.exists()
+
     @property
     def has_current_subsidy(self):
         """
