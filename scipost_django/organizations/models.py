@@ -513,9 +513,12 @@ class Organization(models.Model):
             journal_labels = set(jl1 + jl2 + jl3)
             for journal_label in journal_labels:
                 qs = pfy.filter(publication__doi_label__istartswith=journal_label + ".")
-                nap = qs.count()
-                sum_pf = qs.aggregate(Sum("fraction"))["fraction__sum"] or 0
                 journal = get_object_or_404(Journal, doi_label=journal_label)
+                publications_year_journal = self.get_publications(
+                    year=year, journal=journal
+                )
+                nap = publications_year_journal.count()
+                sum_pf = qs.aggregate(Sum("fraction"))["fraction__sum"] or 0
                 costperpaper = journal.cost_per_publication(year)
                 expenditures = int(costperpaper * sum_pf)
                 self_compensated = int(
