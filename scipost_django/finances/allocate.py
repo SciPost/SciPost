@@ -36,7 +36,7 @@ The algorithms are implemented in the following order,
 
 def allocate_to_any_aff(subsidy: Subsidy):
     """
-    Allocate the Subsidy to PubFracs with affiliation to Subsidy-giver.
+    Allocate to PubFracs with affiliation to Subsidy-giver.
     """
     max_year = subsidy.date_until.year if subsidy.date_until else subsidy.date_from.year
     uncompensated_pubfracs = PubFrac.objects.filter(
@@ -45,8 +45,30 @@ def allocate_to_any_aff(subsidy: Subsidy):
         publication__publication_date__year__lte=max_year,
         compensated_by__isnull=True,
     )
-    print(f"{uncompensated_pubfracs.count() = }")
     for pubfrac in uncompensated_pubfracs.all():
         if pubfrac.cf_value <= subsidy.remainder:
             pubfrac.compensated_by = subsidy
             pubfrac.save()
+
+
+def allocate_to_all_aff(subsidy: Subsidy):
+    """
+    Allocate to all PubFracs of Publications with at least one aff to Subsidy-giver.
+    """
+    max_year = subsidy.date_until.year if subsidy.date_until else subsidy.date_from.year
+    uncompensated_pubfracs = PubFrac.objects.filter(
+        organization=subsidy.organization,
+        publication__publication_date__year__gte=subsidy.date_from.year,
+        publication__publication_date__year__lte=max_year,
+    )
+    for pubfrac in uncompensated_pubfracs.all():
+        # retrieve all uncompensated PubFracs for the relevant Publication
+        pubfracs_for_pub = PubFrac.objects.filter(
+            publication__doi_label=pubfrac.publication.doi_label,
+            compensated_by__isnull=True,
+        )
+        print(f"{pubfracs_for_pub.all() = }")
+        for pf in pubfracs_for_pub.all():
+            if pf.cf_value <= subsidy.remainder:
+                pf.compensated_by = subsidy
+                pf.save()

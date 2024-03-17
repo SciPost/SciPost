@@ -324,6 +324,7 @@ class Publication(models.Model):
     def get_affiliations(self):
         """Returns the Organizations mentioned in author affiliations."""
         from organizations.models import Organization
+
         return Organization.objects.filter(
             publicationauthorstable__publication=self
         ).distinct()
@@ -421,9 +422,11 @@ class Publication(models.Model):
 
     def recalculate_pubfracs(self):
         """Recalculates PubFracs using the balanced affiliations algorithm."""
-        # First, rmove non-affiliation-related PubFracs
+        # First, remove non-affiliation-related PubFracs
         aff_ids = [aff.id for aff in self.get_affiliations()]
-        PubFrac.objects.filter(publication=self).exclude(pk__in=aff_ids).delete()
+        PubFrac.objects.filter(publication=self).exclude(
+            organization__pk__in=aff_ids
+        ).delete()
         # Now recreate according to the balanced affiliations algorithm
         nr_authors = self.authors.all().count()
         affiliations = self.get_affiliations()
@@ -444,10 +447,17 @@ class Publication(models.Model):
                 publication=self,
                 organization=org,
             ).update(
-                fraction=Decimal(fraction[org.id]),
+                fraction=fraction[org.id],
                 cf_value=value,
             )
+        self.ensure_pubfracs_sum_to_1()
 
+    def ensure_pubfracs_sum_to_1(self):
+        """Ensure sum is 1 by putting any difference in the largest PubFrac."""
+        pubfrac_max = self.pubfracs.order_by("-fraction").first()
+        sum_pubfracs = self.pubfracs.aggregate(Sum("fraction"))["fraction__sum"]
+        pubfrac_max.fraction += 1 - sum_pubfracs
+        pubfrac_max.save()
 
     @property
     def pubfracs_sum_to_1(self):
@@ -458,7 +468,12 @@ class Publication(models.Model):
     def compensated_expenditures(self):
         """Compensated part of expenditures for this Publication."""
         qs = self.pubfracs.filter(compensated_by__isnull=False)
-        return qs.aggregate(Sum("cf_value"))["cf_value__sum"] if qs.exists() else 0
+        # Use the fraction to obtain an accurate result
+        return int(
+            qs.aggregate(Sum("fraction"))["fraction__sum"] * self.expenditures
+            if qs.exists()
+            else 0
+        )
 
     @property
     def uncompensated_expenditures(self):

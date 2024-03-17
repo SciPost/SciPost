@@ -193,13 +193,15 @@
 	    {% if pubfrac.compensated %}
 	      <td class="bg-success bg-opacity-25">
 		by <a href="{% url 'organizations:organization_detail' pk=pubfrac.compensated_by.organization.id %}">{{ pubfrac.compensated_by.organization }}</a>
-		(<a href="{% url 'finances:subsidy_details' pk=pubfrac.compensated_by.id %}">
+		&emsp;(<a href="{% url 'finances:subsidy_details' pk=pubfrac.compensated_by.id %}">
 		see Subsidy details
 		</a>)
 	      </td>
 	      <td class="bg-success bg-opacity-25">&euro;0</td>
 	    {% else %}
-	      <td><span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span></td>
+	      <td class="bg-danger bg-opacity-25">
+		<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+	      </td>
 	      <td class="bg-danger bg-opacity-25">&euro;{{ pubfrac.cf_value }}</td>
 	    {% endif %}
 	  </tr>
@@ -208,9 +210,9 @@
 	  <tr>
 	    <th>Totals</th>
 	    <td>1</td>
-	    <td>{{ publication.expenditures }}</td>
-	    <td class="{% if uncompensated == 0 %}bg-success{% else %}bg-danger{% endif %} bg-opacity-25">{{ publication.compensated_expenditures }}</td>
-	    <td class="{% if uncompensated == 0 %}bg-success{% else %}bg-danger{% endif %} bg-opacity-25">{{ publication.uncompensated_expenditures }}</td>
+	    <td>&euro;{{ publication.expenditures }}</td>
+	    <td class="{% if uncompensated == 0 %}bg-success{% else %}bg-danger{% endif %} bg-opacity-25">&euro;{{ publication.compensated_expenditures }}</td>
+	    <td class="{% if uncompensated == 0 %}bg-success{% else %}bg-danger{% endif %} bg-opacity-25">&euro;{{ publication.uncompensated_expenditures }}</td>
 	  </tr>
 	{% endwith %}
       </tbody>

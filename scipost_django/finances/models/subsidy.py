@@ -183,10 +183,12 @@ class Subsidy(models.Model):
         """
         Allocate the funds according to the algorithm specific by the instance.
         """
-        from finances.allocate import allocate_to_any_aff
+        from finances.allocate import allocate_to_any_aff, allocate_to_all_aff
 
         if self.algorithm == self.ALGORITHM_ANY_AFF:
             allocate_to_any_aff(self)
+        elif self.algorithm == self.ALGORITHM_ALL_AFF:
+            allocate_to_all_aff(self)
 
     @property
     def total_compensations(self):
