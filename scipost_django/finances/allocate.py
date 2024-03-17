@@ -67,7 +67,6 @@ def allocate_to_all_aff(subsidy: Subsidy):
             publication__doi_label=pubfrac.publication.doi_label,
             compensated_by__isnull=True,
         )
-        print(f"{pubfracs_for_pub.all() = }")
         for pf in pubfracs_for_pub.all():
             if pf.cf_value <= subsidy.remainder:
                 pf.compensated_by = subsidy

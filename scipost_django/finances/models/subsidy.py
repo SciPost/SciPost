@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from collections import OrderedDict
 import datetime
 
 from django.db import models
@@ -207,3 +208,16 @@ class Subsidy(models.Model):
         Part of the Subsidy amount which hasn't been allocated.
         """
         return self.amount - self.total_compensations
+
+    @property
+    def compensated_pubfracs_dict(self):
+        """A dict containing digested info on compensated PubFracs."""
+        compensated = OrderedDict.fromkeys(
+            [pf.publication.doi_label for pf in self.compensated_pubfracs.all()]
+        )
+        for pubfrac in self.compensated_pubfracs.all():
+            compensated[pubfrac.publication.doi_label] = {"fraction": 0, "value": 0}
+        for pubfrac in self.compensated_pubfracs.all():
+            compensated[pubfrac.publication.doi_label]["fraction"] += pubfrac.fraction
+            compensated[pubfrac.publication.doi_label]["value"] += pubfrac.cf_value
+        return compensated

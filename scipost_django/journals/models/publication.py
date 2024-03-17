@@ -442,14 +442,13 @@ class Publication(models.Model):
             for aff in author.affiliations.all():
                 fraction[aff.id] += 1.0 / (nr_authors * nr_affiliations)
         for org in affiliations.all():
-            value = int(fraction[org.id] * self.expenditures)
-            PubFrac.objects.filter(
+            pubfrac, created = PubFrac.objects.get_or_create(
                 publication=self,
                 organization=org,
-            ).update(
-                fraction=fraction[org.id],
-                cf_value=value,
             )
+            # ensure 3 digit accuracy for all fractions through integer cast
+            pubfrac.fraction = 0.001 * int(1000 * fraction[org.id])
+            pubfrac.save()
         self.ensure_pubfracs_sum_to_1()
 
     def ensure_pubfracs_sum_to_1(self):
@@ -469,7 +468,7 @@ class Publication(models.Model):
         """Compensated part of expenditures for this Publication."""
         qs = self.pubfracs.filter(compensated_by__isnull=False)
         # Use the fraction to obtain an accurate result
-        return int(
+        return (
             qs.aggregate(Sum("fraction"))["fraction__sum"] * self.expenditures
             if qs.exists()
             else 0

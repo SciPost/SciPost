@@ -12,10 +12,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         for pf in PubFrac.objects.all():
-            pf.cf_value = int(
-                pf.fraction
-                * pf.publication.get_journal().cost_per_publication(
-                    pf.publication.publication_date.year
-                )
-            )
+            pf.cf_value = 0 # just trigger recomputation via the save method
             pf.save()

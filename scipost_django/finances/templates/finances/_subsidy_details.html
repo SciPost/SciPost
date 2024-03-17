@@ -123,29 +123,32 @@
     <div class="row">
       <div class="col-lg-6">
 	<table class="table mt-2 caption-top">
-	  <caption>PubFrac Compensations</caption>
+	  <caption>PubFrac compensations</caption>
 	  <thead class="table-light">
 	    <tr>
 	      <th>Publication</th>
-	      <th>PubFrac value</th>
+	      <th>PubFrac</th>
+	      <th>value</th>
 	    </tr>
 	  </thead>
 	  <tbody>
-	    {% for compensated_pubfrac in subsidy.compensated_pubfracs.all %}
+	    {% for doi_label, pf in subsidy.compensated_pubfracs_dict.items %}
 	      <tr>
 		<td>
-		  <a href="{% url 'scipost:publication_detail' doi_label=compensated_pubfrac.publication.doi_label %}">{{ compensated_pubfrac.publication.doi_label }}</a>
+		  <a href="{% url 'scipost:publication_detail' doi_label=doi_label %}">{{ doi_label }}</a>
 		</td>
-		<td>&euro;{{ compensated_pubfrac.cf_value }}</td>
+		<td>{{ pf.fraction }}</td>
+		<td>&euro;{{ pf.value|floatformat:0 }}</td>
 	      </tr>
 	    {% empty %}
 	      <tr>
-		<td>No Compensation defined</td>
+		<td>No compensation found</td>
 	      </tr>
 	    {% endfor %}
 	    <tr class="bg-secondary bg-opacity-10">
 	      <th>Total compensations from this Subsidy</th>
-	      <td>&euro;{{ subsidy.total_compensations }}</td>
+	      <td></td>
+	      <td>&euro;{{ subsidy.total_compensations|floatformat:0 }}</td>
 	    </tr>
 	  </tbody>
 	</table>
@@ -160,11 +163,11 @@
 	    </tr>
 	    <tr>
 	      <th>PubFrac Compensations</th>
-	      <td>&euro;{{ subsidy.total_compensations }}</td>
+	      <td>&euro;{{ subsidy.total_compensations|floatformat:0 }}</td>
 	    </tr>
 	    <tr class="bg-secondary bg-opacity-10">
-	      <th>Remainder (allocated to reserve fund)</th>
-	      <td>&euro;{{ subsidy.remainder }}</td>
+	      <th>Remainder (allocated to our reserve fund)</th>
+	      <td>&euro;{{ subsidy.remainder|floatformat:0 }}</td>
 	    </tr>
 	  </tbody>
 	</table>

@@ -5,13 +5,11 @@ __license__ = "AGPL v3"
 from decimal import Decimal
 
 from django.db import models
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 
 
 class PubFrac(models.Model):
     """
-    A fraction of a given Publication related to an Organization, for expenditure redistribution.
+    A fraction of a given Publication related to an Organization.
 
     Fractions for a given Publication should sum up to one.
 
@@ -41,7 +39,9 @@ class PubFrac(models.Model):
     )
 
     # Calculated field
-    cf_value = models.PositiveIntegerField(blank=True, null=True)
+    cf_value = models.DecimalField(
+        max_digits=16, decimal_places=3, blank=True, null=True
+    )
 
     class Meta:
         unique_together = (("organization", "publication"),)
@@ -50,21 +50,14 @@ class PubFrac(models.Model):
 
     def __str__(self):
         return (
-            f"{str(self.fraction)} (€{self.cf_value}) "
+            f"{str(self.fraction)} (€{int(self.cf_value)}) "
             f"for {self.publication.doi_label} from {self.organization}"
         )
+
+    def save(self, *args, **kwargs):
+        self.cf_value = self.fraction * self.publication.expenditures
+        return super().save(*args, **kwargs)
 
     @property
     def compensated(self):
         return self.compensated_by is not None
-
-
-@receiver(pre_save, sender=PubFrac)
-def calculate_cf_value(sender, instance: PubFrac, **kwargs):
-    """Calculate the cf_value field before saving."""
-    instance.cf_value = int(
-        instance.fraction
-        * instance.publication.get_journal().cost_per_publication(
-            instance.publication.publication_date.year
-        )
-    )
