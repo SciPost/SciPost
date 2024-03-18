@@ -471,6 +471,13 @@ class Command(BaseCommand):
             content_type=content_type,
         )
 
+        # Pins and Notes
+        can_add_notes, created = Permission.objects.get_or_create(
+            code_name="can_add_notes",
+            name="Can add notes",
+            content_type=content_type,
+        )
+
         # Assign permissions to groups
         SciPostAdmin.permissions.set(
             [
@@ -515,6 +522,7 @@ class Command(BaseCommand):
                 can_preview_new_features,
                 can_view_all_nomination_voting_rounds,
                 can_view_fellowships_monitor,
+                can_add_notes,
             ]
         )
 
@@ -523,6 +531,7 @@ class Command(BaseCommand):
                 can_manage_organizations,
                 can_manage_subsidies,
                 can_view_timesheets,
+                can_add_notes,
             ]
         )
 
@@ -585,6 +594,7 @@ class Command(BaseCommand):
                 can_preview_new_features,
                 can_view_all_nomination_voting_rounds,
                 can_view_fellowships_monitor,
+                can_add_notes,
             ]
         )
 

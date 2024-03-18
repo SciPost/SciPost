@@ -1,25 +1,35 @@
 {% load scipost_extras %}
 
+<!-- Loader / Update Wrapper -->
 <div class="row" 
-     hx-get="{% url "pins:_hx_notes_list" object|content_type_id object.id %}" 
-     hx-trigger="notes-updated from:body target:form delay:2s, {% if notes is None %}load{% endif %}" 
-     hx-swap="outerHTML">
-  <div class="col-12">
-    <h3>Notes</h3>
+    hx-get="{% url "pins:_hx_notes_list" object|content_type_id object.id %}" 
+    hx-trigger="notes-updated from:body target:form delay:1s, {% if notes is None %}load{% endif %}" 
+    hx-swap="outerHTML">
+<!-- Loader / Update Wrapper -->  
 
-    <div>
-      <button class="btn btn-light btn-sm"
-              hx-get="{% url "pins:_hx_note_create_form" object|content_type_id object.id %}"
-              hx-target="closest div">Add note</button>
+  {% if can_create_notes or notes %}
+    <div class="col-12">
+      <h3>Notes</h3>
+
+      {% if can_create_notes %}
+        <div>
+          <button class="btn btn-light btn-sm"
+          hx-get="{% url "pins:_hx_note_create_form" object|content_type_id object.id %}"
+          hx-target="closest div">Add note</button>
+        </div>
+      {% endif %}
+
+      <ul>
+
+        {% for note in notes %}
+          <li>{% include "pins/_hx_note_item.html" %}</li>
+        {% empty %}
+          <li>No notes exist for this {{ object|object_name }}</li>
+        {% endfor %}
+
+      </ul>
+
     </div>
+  {% endif %}
 
-    <ul>
-      
-      {% for note in notes %}
-        <li>{% include "pins/_hx_note_item.html" %}</li>
-      {% endfor %}
-
-    </ul>
-
-  </div>
 </div>
