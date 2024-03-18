@@ -116,8 +116,10 @@
 
     <h3 class="highlight">Expenditures compensated by this Subsidy</h3>
 
-    {% if 'edadmin' in user_roles %}
-      <a class="btn btn-primary" href="{% url 'finances:allocate_subsidy' subsidy_id=subsidy.id %}">Allocate this Subsidy</a>
+    {% if 'finadmin' in user_roles %}
+      {% if subsidy.allocatable %}
+	<a class="btn btn-primary" href="{% url 'finances:allocate_subsidy' subsidy_id=subsidy.id %}">Allocate this Subsidy</a>
+      {% endif %}
     {% endif %}
 
     <div class="row">

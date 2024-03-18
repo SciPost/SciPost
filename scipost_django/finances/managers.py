@@ -32,3 +32,11 @@ class SubsidyAttachmentQuerySet(models.QuerySet):
 
     def orphaned(self):
         return self.filter(subsidy__isnull=True)
+
+
+class PubFracQuerySet(models.QuerySet):
+    def uncompensated(self):
+        return self.filter(compensated_by__isnull=True)
+
+    def compensated(self):
+        return self.exclude(compensated_by__isnull=True)

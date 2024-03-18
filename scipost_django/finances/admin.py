@@ -29,6 +29,18 @@ class SubsidyAttachmentInline(admin.TabularInline):
 
 @admin.register(Subsidy)
 class SubsidyAdmin(admin.ModelAdmin):
+    list_display = [
+        "organization_name_short",
+        "orgtype_display",
+        "amount",
+        "status",
+        "date_from",
+        "date_until",
+        "total_compensations",
+    ]
+    list_filter = [
+        "organization__orgtype",
+    ]
     inlines = [
         SubsidyPaymentInline,
         SubsidyAttachmentInline,
@@ -42,6 +54,14 @@ class SubsidyAdmin(admin.ModelAdmin):
         "organization__name_original",
         "organization__acronym",
     ]
+
+    @admin.display(description="org name short")
+    def organization_name_short(self, obj):
+        return obj.organization.name[:40]
+
+    @admin.display(description='org type')
+    def orgtype_display(self, obj):
+        return obj.organization.get_orgtype_display()
 
 
 @admin.register(SubsidyAttachment)

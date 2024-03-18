@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from .models import Subsidy, PubFrac
+from .managers import PubFracQuerySet
 
 
 """
@@ -34,21 +35,26 @@ The algorithms are implemented in the following order,
 """
 
 
+def compensate(subsidy: Subsidy, pubfracs: PubFracQuerySet):
+    """
+    Allocate subsidy to unallocated pubfracs in queryset, up to depletion.
+    """
+    for pubfrac in pubfracs.uncompensated():
+        if pubfrac.cf_value <= subsidy.remainder:
+            pubfrac.compensated_by = subsidy
+            pubfrac.save()
+
+
 def allocate_to_any_aff(subsidy: Subsidy):
     """
     Allocate to PubFracs with affiliation to Subsidy-giver.
     """
     max_year = subsidy.date_until.year if subsidy.date_until else subsidy.date_from.year
-    uncompensated_pubfracs = PubFrac.objects.filter(
-        organization=subsidy.organization,
+    pubfracs = subsidy.organization.pubfracs.filter(
         publication__publication_date__year__gte=subsidy.date_from.year,
         publication__publication_date__year__lte=max_year,
-        compensated_by__isnull=True,
     )
-    for pubfrac in uncompensated_pubfracs.all():
-        if pubfrac.cf_value <= subsidy.remainder:
-            pubfrac.compensated_by = subsidy
-            pubfrac.save()
+    compensate(subsidy, pubfracs)
 
 
 def allocate_to_all_aff(subsidy: Subsidy):
@@ -56,18 +62,13 @@ def allocate_to_all_aff(subsidy: Subsidy):
     Allocate to all PubFracs of Publications with at least one aff to Subsidy-giver.
     """
     max_year = subsidy.date_until.year if subsidy.date_until else subsidy.date_from.year
-    uncompensated_pubfracs = PubFrac.objects.filter(
-        organization=subsidy.organization,
+    pubfracs = subsidy.organization.pubfracs.filter(
         publication__publication_date__year__gte=subsidy.date_from.year,
         publication__publication_date__year__lte=max_year,
     )
-    for pubfrac in uncompensated_pubfracs.all():
+    for pubfrac in pubfracs.all():
         # retrieve all uncompensated PubFracs for the relevant Publication
         pubfracs_for_pub = PubFrac.objects.filter(
             publication__doi_label=pubfrac.publication.doi_label,
-            compensated_by__isnull=True,
         )
-        for pf in pubfracs_for_pub.all():
-            if pf.cf_value <= subsidy.remainder:
-                pf.compensated_by = subsidy
-                pf.save()
+        compensate(subsidy, pubfracs_for_pub)

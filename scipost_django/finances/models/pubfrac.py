@@ -6,6 +6,8 @@ from decimal import Decimal
 
 from django.db import models
 
+from ..managers import PubFracQuerySet
+
 
 class PubFrac(models.Model):
     """
@@ -42,6 +44,8 @@ class PubFrac(models.Model):
     cf_value = models.DecimalField(
         max_digits=16, decimal_places=3, blank=True, null=True
     )
+
+    objects = PubFracQuerySet.as_manager()
 
     class Meta:
         unique_together = (("organization", "publication"),)

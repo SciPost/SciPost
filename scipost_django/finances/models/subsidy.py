@@ -10,8 +10,13 @@ from django.db.models import Sum
 from django.urls import reverse
 from django.utils.html import format_html
 
-from ..constants import SUBSIDY_TYPES, SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_STATUS
-from ..managers import SubsidyQuerySet
+from ..constants import (
+    SUBSIDY_TYPES,
+    SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
+    SUBSIDY_STATUS,
+    SUBSIDY_WITHDRAWN,
+)
+from ..managers import SubsidyQuerySet, PubFracQuerySet
 
 
 class Subsidy(models.Model):
@@ -179,6 +184,18 @@ class Subsidy(models.Model):
         Verify that there exist SubsidyPayment objects covering full amount.
         """
         return self.amount == self.payments.aggregate(Sum("amount"))["amount__sum"]
+
+    @property
+    def allocatable(self):
+        """
+        Determine whether this Subsidy can be allocated.
+        """
+        implemented_algorithms = [self.ALGORITHM_ANY_AFF, self.ALGORITHM_ALL_AFF]
+        return (
+            self.status != SUBSIDY_WITHDRAWN
+            and self.algorithm != self.ALGORITHM_RESERVES
+            and self.algorithm in implemented_algorithms
+        )
 
     def allocate(self):
         """
