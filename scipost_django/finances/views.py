@@ -379,7 +379,7 @@ class OrganizationSponsorshipSubsidyCreateView(PermissionsMixin, CreateView):
         organization = get_object_or_404(
             Organization, pk=self.kwargs.get("organization_id")
         )
-        last_subsidy = Subsidy.objects.filter(organization=organization).last()
+        last_subsidy = Subsidy.objects.filter(organization=organization).first()
         current_year = timezone.now().year
         return {
             "organization": organization,

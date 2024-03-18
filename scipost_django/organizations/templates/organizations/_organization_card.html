@@ -208,7 +208,7 @@
 	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
 	  <h3 class="highlight">Support history</h3>
 	  {% if 'finadmin' in user_roles %}
-	    <a href="{% url "finances:subsidy_sponsorship_create" organization_id=org.id %}">Create a new sponsorship agreement</a>
+	    <a href="{% url "finances:subsidy_sponsorship_create" organization_id=org.id %}">Create a new subsidy from this Organization</a>
 	  {% endif %}
 	  {% if org.subsidy_set.obtained|length > 0 or org.children.all|length > 0 %}
 	    {% if org.subsidy_set.obtained|length > 0 %}
