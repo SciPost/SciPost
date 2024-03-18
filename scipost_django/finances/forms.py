@@ -404,29 +404,29 @@ class SubsidyAttachmentForm(forms.ModelForm):
         required=False,
     )
 
-    def clean(self):
-        orphaned = self.cleaned_data["subsidy"] is None
-        attachment_filename = self.cleaned_data["attachment"].name.split("/")[-1]
+    # def clean(self):
+    #     orphaned = self.cleaned_data["subsidy"] is None
+    #     attachment_filename = self.cleaned_data["attachment"].name.split("/")[-1]
 
-        # Allow misnamed orphans
-        if orphaned:
-            return
+    #     # Allow misnamed orphans
+    #     if orphaned:
+    #         return
 
-        filename_regex = (
-            "^SciPost_"
-            "[0-9]{4,}(-[0-9]{4,})?_[A-Z]{2,}_[\w]+_"
-            "(Agreement|Invoice|ProofOfPayment|Other)"
-            "(-[0-9]{2,})?(_[\w]+)?\.(pdf|docx|png)$"
-        )
-        pattern = re.compile(filename_regex)
+    #     filename_regex = (
+    #         "^SciPost_"
+    #         "[0-9]{4,}(-[0-9]{4,})?_[A-Z]{2,}_[\w]+_"
+    #         "(Agreement|Invoice|ProofOfPayment|Other)"
+    #         "(-[0-9]{2,})?(_[\w]+)?\.(pdf|docx|png)$"
+    #     )
+    #     pattern = re.compile(filename_regex)
 
-        #
-        if not pattern.match(attachment_filename):
-            self.add_error(
-                "attachment",
-                "The filename does not match the required regex pattern "
-                f"'{filename_regex}'",
-            )
+    #     #
+    #     if not pattern.match(attachment_filename):
+    #         self.add_error(
+    #             "attachment",
+    #             "The filename does not match the required regex pattern "
+    #             f"'{filename_regex}'",
+    #         )
 
 
 #############
