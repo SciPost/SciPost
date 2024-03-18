@@ -1,1 +1,11 @@
-{{ note.title }}
+<div class="my-1">
+  <div class="d-flex justify-content-between">
+    <span class="fw-bold text-truncate overflow-hidden">{{ note.title }}</span>
+    <span class="d-flex text-nowrap gap-2">
+      <span class="badge text-bg-secondary">{{ note.get_visibility_display }}</span>
+      <span class="fw-bold">{{ note.author.profile.full_name }}</span>
+      <span>{{ note.created }}</span>
+    </span>
+  </div>
+  <div>{{ note.description }}</div>
+</div>
