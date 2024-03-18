@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 
+from .managers import NotesQuerySet
+
 
 class Note(models.Model):
     """
@@ -45,6 +47,8 @@ class Note(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    objects = NotesQuerySet.as_manager()
 
     def __str__(self):
         return self.title
