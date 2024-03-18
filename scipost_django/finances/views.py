@@ -7,7 +7,10 @@ from itertools import accumulate
 import mimetypes
 from dal import autocomplete
 
-from django.db.models import Q
+from django.contrib.contenttypes.models import ContentType
+from django.db import models
+from django.db.models import Q, Count, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 from django.template.response import TemplateResponse
 from django.utils.html import format_html
 import matplotlib
@@ -49,6 +52,7 @@ from journals.models import Journal, Publication
 from organizations.models import Organization
 from scipost.mixins import PermissionsMixin
 from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
+from pins.models import Note
 
 
 def publishing_years():
@@ -406,6 +410,21 @@ def _hx_subsidy_list(request):
         subsidies = form.search_results(request.user)
     else:
         subsidies = Subsidy.objects.all()
+
+    content_type = ContentType.objects.get_for_model(Subsidy)
+    subsidies = subsidies.annotate(
+        nr_visible_notes=Coalesce(
+            Subquery(
+                Note.objects.visible_for(request.user, content_type.id, OuterRef("id"))
+                .values("regarding_object_id")
+                .annotate(nr=Count("id"))
+                .values("nr"),
+                output_field=models.IntegerField(),
+            ),
+            0,
+        )
+    )
+
     paginator = Paginator(subsidies, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
@@ -421,7 +440,7 @@ def _hx_subsidy_list(request):
 
 
 @permission_required("scipost.can_manage_subsidies", raise_exception=True)
-def allocate_subsidy(request, subsidy_id:int):
+def allocate_subsidy(request, subsidy_id: int):
     subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
     subsidy.allocate()
     return redirect(reverse("finances:subsidy_details", kwargs={"pk": subsidy.id}))

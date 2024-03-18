@@ -6,6 +6,9 @@
       </a>
     </td>
     <td>
+      {% if subsidy.nr_visible_notes %}
+      <span class="text-primary me-1" data-bs-placement='bottom' data-bs-toggle="tooltip" data-bs-html="true" title="There exist {{ subsidy.nr_visible_notes }} notes related to this Subsidy.">{% include 'bi/info-circle-fill.html' %}</span>
+      {% endif %}
       <a href="{{ subsidy.get_absolute_url }}">
 	{{ subsidy.get_subsidy_type_display }}
       </a>

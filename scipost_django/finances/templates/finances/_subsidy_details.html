@@ -110,6 +110,9 @@
   </div>
 </div>
 
+<!-- Notes -->
+{% include "pins/_hx_notes_list.html" with object=subsidy %}
+
 
 {% if 'edadmin' in user_roles %}
   {% if subsidy.amount_publicly_shown %}
