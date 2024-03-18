@@ -440,13 +440,24 @@ class Organization(models.Model):
             total += subsidy.value_in_year(year)
         return total
 
-    def get_total_subsidies_obtained(self, n_years_past=None):
+    def get_total_subsidies_obtained(self):
         """
         Computes the total amount received by SciPost, in the form
         of subsidies from this Organization.
         """
         return (
             self.subsidy_set.obtained()
+            .aggregate(models.Sum("amount"))
+            .get("amount__sum", 0)
+        )
+
+    def get_total_subsidies_publicly_shown(self):
+        """
+        Computes the total amount of publicly visible Subsidies.
+        """
+        return (
+            self.subsidy_set.obtained()
+            .filter(amount_publicly_shown=True)
             .aggregate(models.Sum("amount"))
             .get("amount__sum", 0)
         )
