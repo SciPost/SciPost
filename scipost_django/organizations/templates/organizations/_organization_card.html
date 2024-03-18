@@ -269,7 +269,7 @@
 	  {% if not organization.has_pubfracs %}
 	    <p>PubFracs are not defined for this Organization, since it does not appear as author affiliation in any Publication.</p>
 	  {% else %}
-	    <table class="table caption-top">
+	    <table class="table caption-top mt-4">
 	      <caption>Based on PubFracs for {{ organization }}</caption>
 	      <thead class="table-light">
 		<tr>
@@ -377,11 +377,18 @@
 		{% endfor %}
 	      </tbody>
 	    </table>
+	    <details class="ms-2 mb-2">
+	      <summary>
+		Info on this table
+	      </summary>
+	      <p class="mt-1">This <strong>Expenditures (Organization-level)</strong> table compiles the expenditures by SciPost to publish all papers which are associated to this Organization, weighed by this Organization's PubFracs for these individual papers. The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.</p>
+	    </details>
+
 	  {% endif %}
 
 
 
-	  <table class="table caption-top">
+	  <table class="table caption-top mt-4">
 	    <caption>Undivided: totals for all this Organization's associated publications</caption>
 	    <thead class="table-light">
 	      <tr>
@@ -487,6 +494,12 @@
 	      {% endfor %}
 	    </tbody>
 	  </table>
+	  <details class="ms-2 mb-2">
+	    <summary>
+	      Info on this table
+	    </summary>
+	    <p class="mt-1">This <strong>Expenditures (Organization-level)</strong> table compiles the (total) expenditures by SciPost to publish all papers which are associated to this Organization. Compensations received from any Organization for these papers is summed up. This sum would equal the expenditures if all Organizations sponsored us according to their PubFrac share. Any uncompensated balance hits SciPost's reserve budget.</p>
+	  </details>
 	</div>
 
 
