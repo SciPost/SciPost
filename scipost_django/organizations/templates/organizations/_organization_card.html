@@ -261,157 +261,71 @@
 	    </ul>
 	  {% endif %}
 
+
 	  <h3 class="highlight mt-4">Balance of SciPost expenditures versus support received</h3>
-
-
-
-
-	  {% if not organization.has_pubfracs %}
-	    <p>PubFracs are not defined for this Organization, since it does not appear as author affiliation in any Publication.</p>
-	  {% else %}
-	    <table class="table caption-top mt-4">
-	      <caption>Based on PubFracs for {{ organization }}</caption>
-	      <thead class="table-light">
-		<tr>
-		  <th>Year (click to toggle details)</th>
-		  <th class="text-end">NAP</th>
-		  <th class="text-end">PubFrac<br>expenditures</th>
-		  <th class="text-end">Subsidy<br>support</th>
-		  <th class="text-end">Compensations (self)</th>
-		  <th class="text-end">Reserved</th>
-		  <th class="text-end">Compensations (Allies)</th>
-		  <th class="text-end">Balance</th>
-		</tr>
-	      </thead>
-	      <tbody>
-		<tr class="table-light">
-		  <td>Cumulative</td>
-		  <td class="text-end">{{ balance.cumulative.nap }}</td>
-		  <td class="text-end">&euro;{{ balance.cumulative.expenditures }}</td>
-		  <td class="text-end">&euro;{{ balance.cumulative.subsidy_income }}</td>
-		  <td class="text-end">&euro;{{ balance.cumulative.self_compensated }}</td>
-		  <td class="text-end">&euro;{{ balance.cumulative.reserved }}</td>
-		  <td class="text-end">&euro;{{ balance.cumulative.ally_compensated }}</td>
-		  <td class="text-end bg-{% if balance.cumulative.balance < 0 %}danger{% else %}success{% endif %} bg-opacity-25">
-		    &euro;{{ balance.cumulative.balance }}
-		  </td>
-		</tr>
-		{% now "Y" as current_year %}
-		{% for year in pubyears %}
-		  {% for key, val in balance.items %}
-		    {% if year == key|add:"0" %}
-		      <tr>
-			<td>
-			  <a class="mx-1 my-0 p-0" data-bs-toggle="collapse" href="#details-{{ year }}" role="button" aria-expanded="false" aria-controls="details-{{ year }}">{{ key }}{% if key == current_year %}&emsp;(ongoing){% endif %}</a>
-			</td>
-			<td class="text-end">{{ val.expenditures.total.nap }}</td>
-			<td class="text-end">
-			  &euro;{{ val.expenditures.total.expenditures }}
-			</td>
-			<td class="text-end">&euro;{{ val.subsidy_income }}</td>
-			<td class="text-end">
-			  &euro;{{ val.expenditures.total.self_compensated }}
-			</td>
-			<td class="text-end">&euro;{{ val.reserved }}</td>
-			<td class="text-end">
-			  &euro;{{ val.expenditures.total.ally_compensated }}
-			</td>
-			<td class="text-end bg-{% if val.balance < 0 %}danger{% else %}success{% endif %} bg-opacity-25">
-			  &euro;{{ val.balance }}
-			</td>
-		      </tr>
-		      <tr class="collapse" id="details-{{ year }}">
-			<td class="pe-0" colspan="8">
-			  <div class="ms-4 me-0 p-2 border border-secondary">
-
-			    <p>The following table give an overview of expenditures and their compensation, compiled for all Publications which are associated to {{ organization }} for {{ year }}.</p>
-
-			    <p>You can see the list of associated publications and their PubFracs under the <em>Publications & PubFracs</em> tab.</p>
-			    <p>The data presented here uses PubFracs directly associated to {{ organization }}.</p>
-
-			    <table class="table table-bordered caption-top mb-0">
-			      <caption>Expenditures ({{ organization }})</caption>
-			      <thead class="table-secondary">
-				<tr>
-				  <th>Journal</th>
-				  <th class="text-end">APEX</th>
-				  <th class="text-end">NAP</th>
-				  <th class="text-end">PubFracs</th>
-				  <th class="text-end">Expenditures share</th>
-				  <th class="text-end">Compensations<br>(Organization)</th>
-				  <th class="text-end">Compensations<br>(Allies)</th>
-				  <th class="text-end">Balance<br>(uncompensated)</th>
-				</tr>
-			      </thead>
-			      <tbody>
-				{% for journal, journaldata in val.expenditures.per_journal.items %}
-				  <tr>
-				    <td>{{ journal }}</td>
-				    <td class="text-end">&euro;{{ journaldata.costperpaper }}</td>
-				    <td class="text-end">{{ journaldata.nap }}</td>
-				    <td class="text-end">{{ journaldata.pubfracs }}</td>
-				    <td class="text-end">&euro;{{ journaldata.expenditures }}</td>
-				    <td class="text-end">&euro;{{ journaldata.self_compensated }}</td>
-				    <td class="text-end">&euro;{{ journaldata.ally_compensated }}</td>
-				    {% if journaldata.uncompensated > 0 %}
-				      <td class="bg-danger bg-opacity-25 text-end">-&euro;{{ journaldata.uncompensated }}</td>
-				    {% else %}
-				      <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
-				    {% endif %}
-				  </tr>
-				{% endfor %}
-			      </tbody>
-			    </table>
-			    <details class="ms-2 mb-2">
-			      <summary>
-				Info on this table
-			      </summary>
-			      <p class="mt-1">This <strong>Expenditures (Organization-level)</strong> table compiles the expenditures by SciPost to publish all papers which are associated to this Organization for {{ year }}, weighed by this Organization's PubFracs for these individual papers. The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.</p>
-			    </details>
-
-			  </div>
-			</td>
-		      </tr>
-		    {% endif %}
-		  {% endfor %}
-		{% endfor %}
-	      </tbody>
-	    </table>
-	    <details class="ms-2 mb-2">
-	      <summary>
-		Info on this table
-	      </summary>
-	      <p class="mt-1">This <strong>Expenditures (Organization-level)</strong> table compiles the expenditures by SciPost to publish all papers which are associated to this Organization, weighed by this Organization's PubFracs for these individual papers. The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.</p>
-	    </details>
-
-	  {% endif %}
-
-
-
-	  <table class="table caption-top mt-4">
-	    <caption>Undivided: totals for all this Organization's associated publications</caption>
+	  <table class="table mt-4">
 	    <thead class="table-light">
+	      {% if 'finadmin' in user_roles %}
+		<tr>
+		  <td colspan="3"></td>
+		  <td colspan="2" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
+		  <td colspan="2"></td>
+		  {% if organization.has_pubfracs %}
+		    <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
+		  {% endif %}
+		</tr>
+	      {% endif %}
 	      <tr>
 		<th>Year (click to toggle details)</th>
 		<th class="text-end">NAP</th>
 		<th class="text-end">Undivided<br>expenditures</th>
-		<th class="text-end">Compensations</th>
-		<th class="text-end">Uncompensated</th>
+		{% if 'finadmin' in user_roles %}
+		  <th class="text-end">Undivided<br>compensations</th>
+		  <th class="text-end">Undivided<br>uncompensated</th>
+		{% endif %}
+		{% if organization.has_pubfracs %}
+		  <th class="text-end">PubFrac<br>share</th>
+		{% endif %}
+		<th class="text-end">Subsidy<br>support</th>
+		{% if organization.has_pubfracs %}
+		  {% if 'finadmin' in user_roles %}
+		    <th class="text-end">Compensations<br>(self)</th>
+		    <th class="text-end">Reserved</th>
+		    <th class="text-end">Compensations<br>(Allies)</th>
+		  {% endif %}
+		  <th class="text-end">Balance</th>
+		{% endif %}
 	      </tr>
 	    </thead>
 	    <tbody>
-	      <tr class="table-light">
+	      <tr class="table-light border border-2" style="font-weight: bold;">
 		<td>Cumulative</td>
 		<td class="text-end">{{ balance.cumulative.nap }}</td>
 		<td class="text-end">&euro;{{ balance.cumulative.undivided_expenditures }}</td>
-		<td class="text-end">&euro;{{ balance.cumulative.undivided_compensated }}</td>
-		{% if balance.cumulative.undivided_uncompensated > 0 %}
-		  <td class="text-end bg-danger bg-opacity-25">
-		    -&euro;{{ balance.cumulative.undivided_uncompensated }}
-		  </td>
-		{% else %}
-		  <td class="text-end bg-success bg-opacity-25">
-		    &euro;{{ balance.cumulative.undivided_uncompensated }}
+		{% if 'finadmin' in user_roles %}
+		  <td class="text-end">&euro;{{ balance.cumulative.undivided_compensated }}</td>
+		  {% if balance.cumulative.undivided_uncompensated > 0 %}
+		    <td class="text-end bg-danger bg-opacity-25">
+		      &euro;{{ balance.cumulative.undivided_uncompensated }}
+		    </td>
+		  {% else %}
+		    <td class="text-end bg-success bg-opacity-25">
+		      &euro;{{ balance.cumulative.undivided_uncompensated }}
+		    </td>
+		  {% endif %}
+		{% endif %}
+		{% if organization.has_pubfracs %}
+		  <td class="text-end">&euro;{{ balance.cumulative.expenditures }}</td>
+		{% endif %}
+		<td class="text-end">&euro;{{ balance.cumulative.subsidy_income }}</td>
+		{% if organization.has_pubfracs %}
+		  {% if 'finadmin' in user_roles %}
+		    <td class="text-end">&euro;{{ balance.cumulative.self_compensated }}</td>
+		    <td class="text-end">&euro;{{ balance.cumulative.reserved }}</td>
+		    <td class="text-end">&euro;{{ balance.cumulative.ally_compensated }}</td>
+		  {% endif %}
+		  <td class="text-end bg-{% if balance.cumulative.balance < 0 %}danger{% else %}success{% endif %} bg-opacity-25">
+		    &euro;{{ balance.cumulative.balance }}
 		  </td>
 		{% endif %}
 	      </tr>
@@ -421,70 +335,126 @@
 		  {% if year == key|add:"0" %}
 		    <tr>
 		      <td>
-			<a class="mx-1 my-0 p-0" data-bs-toggle="collapse" href="#details-undivided-{{ year }}" role="button" aria-expanded="false" aria-controls="details-undivided-{{ year }}">{{ key }}{% if key == current_year %}&emsp;(ongoing){% endif %}</a>
+			<a class="mx-1 my-0 p-0" data-bs-toggle="collapse" href="#details-{{ year }}" role="button" aria-expanded="false" aria-controls="details-{{ year }}">{{ key }}{% if key == current_year %}&emsp;(ongoing){% endif %}</a>
 		      </td>
 		      <td class="text-end">{{ val.expenditures.total.nap }}</td>
-		      <td class="text-end">&euro;{{ val.expenditures.total.undivided_expenditures }}</td>
 		      <td class="text-end">
-			&euro;{{ val.expenditures.total.undivided_compensated }}
+			&euro;{{ val.expenditures.total.undivided_expenditures }}
 		      </td>
-		      {% if val.expenditures.total.undivided_uncompensated > 0 %}
-			<td class="text-end bg-danger bg-opacity-25">
-			  -&euro;{{ val.expenditures.total.undivided_uncompensated }}
+		      {% if 'finadmin' in user_roles %}
+			<td class="text-end">
+			  &euro;{{ val.expenditures.total.undivided_compensated }}
 			</td>
-		      {% else %}
-			<td class="text-end bg-success bg-opacity-25">
-			  &euro;{{ val.expenditures.total.undivided_uncompensated }}
+			{% if val.expenditures.total.undivided_uncompensated > 0 %}
+			  <td class="text-end bg-danger bg-opacity-25">
+			    &euro;{{ val.expenditures.total.undivided_uncompensated }}
+			  </td>
+			{% else %}
+			  <td class="text-end bg-success bg-opacity-25">
+			    &euro;{{ val.expenditures.total.undivided_uncompensated }}
+			  </td>
+			{% endif %}
+		      {% endif %}
+		      {% if organization.has_pubfracs %}
+			<td class="text-end">
+			  &euro;{{ val.expenditures.total.expenditures }}
+			</td>
+		      {% endif %}
+		      <td class="text-end">&euro;{{ val.subsidy_income }}</td>
+		      {% if organization.has_pubfracs %}
+			{% if 'finadmin' in user_roles %}
+			  <td class="text-end">
+			    &euro;{{ val.expenditures.total.self_compensated }}
+			  </td>
+			  <td class="text-end">&euro;{{ val.reserved }}</td>
+			  <td class="text-end">
+			    &euro;{{ val.expenditures.total.ally_compensated }}
+			  </td>
+			{% endif %}
+			<td class="text-end bg-{% if val.balance < 0 %}danger{% else %}success{% endif %} bg-opacity-25">
+			  &euro;{{ val.balance }}
 			</td>
 		      {% endif %}
 		    </tr>
-		    <tr class="collapse" id="details-undivided-{{ year }}">
-		      <td class="pe-0" colspan="8">
-			<div class="ms-4 me-0 p-2 border border-secondary">
+		    <tr class="collapse" id="details-{{ year }}">
+		      <td class="pe-0" colspan="{% if 'finadmin' in user_roles %}11{% else %}6{% endif %}">
+			<div class="my-2 ms-4 me-0 p-2 border border-secondary">
 
-			  <p>The following table give an overview of expenditures and their compensation, compiled for all Publications which are associated to {{ organization }} for {{ year }}.</p>
+			  <p>The following table give an overview of expenditures{% if 'finadmin' in user_roles %} and their compensation{% endif %}, compiled for all Publications which are associated to {{ organization }} for {{ year }}.</p>
 
 			  <p>You can see the list of associated publications and their PubFracs under the <em>Publications & PubFracs</em> tab.</p>
-			  <p>The data presented here uses data on <strong>all</strong> Publications which are directly associated to {{ organization }}.</p>
 
-			  <table class="table table-bordered caption-top mb-0">
-			    <caption>Expenditures (SciPost)</caption>
+			  <table class="table caption-top mb-0">
+			    <caption>Expenditures ({{ organization }})</caption>
 			    <thead class="table-secondary">
+			      {% if 'finadmin' in user_roles %}
+				<tr class="border-0">
+				  <td colspan="4" class="bg-white"></td>
+				  <td colspan="2" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
+				  {% if organization.has_pubfracs %}
+				    <td colspan="2" class="bg-white"></td>
+				    <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
+				  {% endif %}
+				</tr>
+			      {% endif %}
 			      <tr>
 				<th>Journal</th>
 				<th class="text-end">APEX</th>
-				<th class="text-end">Org<br>NAP</th>
-				<th class="text-end">
-				  Undivided expenditures<br>for these Publications
-				</th>
-				<th class="text-end">Compensations<br>received</th>
-				<th class="text-end">Balance<br>(uncompensated)</th>
+				<th class="text-end">NAP</th>
+				<th class="text-end">Undivided<br>expenditures</th>
+				{% if 'finadmin' in user_roles %}
+				  <th class="text-end">Undivided<br>compensations</th>
+				  <th class="text-end">Undivided<br>uncompensated</th>
+				{% endif %}
+				{% if organization.has_pubfracs %}
+				  <th class="text-end">PubFracs</th>
+				  <th class="text-end">PubFracs<br>expenditures share</th>
+				  {% if 'finadmin' in user_roles %}
+				    <th class="text-end">Compensations<br>(Organization)</th>
+				    <th class="text-end">Compensations<br>(Allies)</th>
+				    <th class="text-end">Balance<br>(uncompensated)</th>
+				  {% endif %}
+				{% endif %}
 			      </tr>
 			    </thead>
 			    <tbody>
-			    {% for journal, journaldata in val.expenditures.per_journal.items %}
-			      <tr>
-				<td>{{ journal }}</td>
-				<td class="text-end">&euro;{{ journaldata.costperpaper }}</td>
-				<td class="text-end">{{ journaldata.nap }}</td>
-				<td class="text-end">&euro;{{ journaldata.undivided_expenditures }}</td>
-				<td class="text-end">&euro;{{ journaldata.undivided_compensated }}</td>
-				{% if journaldata.undivided_uncompensated > 0 %}
-				  <td class="bg-danger bg-opacity-25 text-end">-&euro;{{ journaldata.undivided_uncompensated }}</td>
-				{% else %}
-				  <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.undivided_uncompensated }}</td>
-				{% endif %}
-			      </tr>
-			    {% endfor %}
+			      {% for journal, journaldata in val.expenditures.per_journal.items %}
+				<tr>
+				  <td>{{ journal }}</td>
+				  <td class="text-end">&euro;{{ journaldata.costperpaper }}</td>
+				  <td class="text-end">{{ journaldata.nap }}</td>
+				  <td class="text-end">&euro;{{ journaldata.undivided_expenditures }}</td>
+				  {% if 'finadmin' in user_roles %}
+				    <td class="text-end">&euro;{{ journaldata.undivided_compensated }}</td>
+				    {% if journaldata.undivided_uncompensated > 0 %}
+				      <td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.undivided_uncompensated }}</td>
+				    {% else %}
+				      <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.undivided_uncompensated }}</td>
+				    {% endif %}
+				  {% endif %}
+				  {% if organization.has_pubfracs %}
+				    <td class="text-end">{{ journaldata.pubfracs }}</td>
+				    <td class="text-end">&euro;{{ journaldata.expenditures }}</td>
+				    {% if 'finadmin' in user_roles %}
+				      <td class="text-end">&euro;{{ journaldata.self_compensated }}</td>
+				      <td class="text-end">&euro;{{ journaldata.ally_compensated }}</td>
+				      {% if journaldata.uncompensated > 0 %}
+					<td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
+				      {% else %}
+					<td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
+				      {% endif %}
+				    {% endif %}
+				  {% endif %}
+				</tr>
+			      {% endfor %}
 			    </tbody>
 			  </table>
 			  <details class="ms-2 mb-2">
 			    <summary>
 			      Info on this table
 			    </summary>
-			    <p class="mt-1">This <strong>Expenditures (SciPost-level)</strong> table compiles the (total) expenditures by SciPost to publish all papers which are associated to this Organization for {{ year }}. Compensations received from any Organization for these papers is summed up. This sum would equal the expenditures if all Organizations sponsored us according to their PubFrac share. Any uncompensated balance hits SciPost's reserve budget.</p>
+			    <p class="mt-1">This <strong>Expenditures (Organization-level)</strong> table compiles the expenditures by SciPost to publish all papers (on a per-Journal basis) which are associated to this Organization for {{ year }}, and weighed by this Organization's PubFracs.{% if 'finadmin' in user_roles %} The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.{% endif %}</p>
 			  </details>
-
 
 			</div>
 		      </td>
@@ -498,11 +468,8 @@
 	    <summary>
 	      Info on this table
 	    </summary>
-	    <p class="mt-1">This <strong>Expenditures (Organization-level)</strong> table compiles the (total) expenditures by SciPost to publish all papers which are associated to this Organization. Compensations received from any Organization for these papers is summed up. This sum would equal the expenditures if all Organizations sponsored us according to their PubFrac share. Any uncompensated balance hits SciPost's reserve budget.</p>
+	    <p class="mt-1">This <strong>Expenditures (Organization-level)</strong> table compiles the expenditures by SciPost to publish all papers which are associated to this Organization, and weighed by this Organization's PubFracs.{% if 'finadmin' in user_roles %} The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.{% endif %}</p>
 	  </details>
-	</div>
-
-
 
 
 
