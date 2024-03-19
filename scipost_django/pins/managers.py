@@ -18,7 +18,7 @@ class NotesQuerySet(models.QuerySet):
         Filter out notes which are not visible to the given user.
         """
 
-        if user is None:
+        if user is None or not user.is_authenticated:
             # Without specifying a user, only public notes are visible
             return self.filter(visibility=self.model.VISIBILITY_PUBLIC)
         else:
