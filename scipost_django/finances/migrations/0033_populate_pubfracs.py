@@ -4,23 +4,26 @@ from django.db import migrations
 
 
 def populate_pubfracs(apps, schema_editor):
-    OrgPubFraction = apps.get_model("journals.OrgPubFraction")
-    PubFrac = apps.get_model("finances.PubFrac")
+    try:
+        OrgPubFraction = apps.get_model("journals.OrgPubFraction")
+        PubFrac = apps.get_model("finances.PubFrac")
 
-    # Copy all data from OrgPubFraction to the new PubFrac
-    for opf in OrgPubFraction.objects.all():
-        pubfrac = PubFrac(
-            organization=opf.organization,
-            publication=opf.publication,
-            fraction=opf.fraction
-        )
-        pubfrac.save()
+        # Copy all data from OrgPubFraction to the new PubFrac
+        for opf in OrgPubFraction.objects.all():
+            pubfrac = PubFrac(
+                organization=opf.organization,
+                publication=opf.publication,
+                fraction=opf.fraction,
+            )
+            pubfrac.save()
+    except Exception as e:
+        print("Error populating PubFrac:", e)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0032_pubfrac'),
+        ("finances", "0032_pubfrac"),
     ]
 
     operations = [
