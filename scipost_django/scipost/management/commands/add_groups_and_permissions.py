@@ -473,7 +473,7 @@ class Command(BaseCommand):
 
         # Pins and Notes
         can_add_notes, created = Permission.objects.get_or_create(
-            code_name="can_add_notes",
+            codename="can_add_notes",
             name="Can add notes",
             content_type=content_type,
         )
