@@ -5,6 +5,8 @@ __license__ = "AGPL v3"
 import subprocess
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.functional import cached_property
 
@@ -169,12 +171,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
                 new_report_nr = 1
             self.report_nr = new_report_nr
 
-        super_save = super().save(*args, **kwargs)
-
-        if self.pdf_report and self.anonymous:
-            clean_pdf(self.pdf_report.path)
-
-        return super_save
+        return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         """Return url of the Report on the Submission detail page."""
@@ -323,3 +320,9 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             .order_by("submission__submission_date")
             .last()
         )
+
+
+@receiver(post_save, sender=Report)
+def clean_anonymous_report_pdf(sender, instance, created, **kwargs):
+    if instance.pdf_report and instance.anonymous:
+        clean_pdf(instance.pdf_report.path)
