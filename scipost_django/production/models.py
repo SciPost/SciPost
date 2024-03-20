@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from typing import List
+from typing import TYPE_CHECKING
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 from django.urls import reverse
@@ -43,6 +43,9 @@ from .utils import proofs_id_to_slug
 from finances.models import WorkLog
 from scipost.storage import SecureFileStorage
 
+if TYPE_CHECKING:
+    from submissions.models import Submission
+
 
 class ProductionUser(models.Model):
     """
@@ -68,7 +71,7 @@ class ProductionUser(models.Model):
 
 
 class ProductionStream(models.Model):
-    submission = models.OneToOneField(
+    submission = models.OneToOneField["Submission"](
         "submissions.Submission",
         on_delete=models.CASCADE,
         related_name="production_stream",
@@ -297,7 +300,7 @@ class ProofsRepository(models.Model):
         (PROOFS_REPO_PRODUCTION_READY, "The repository is ready for production"),
     )
 
-    stream = models.OneToOneField(
+    stream = models.OneToOneField["ProductionStream"](
         ProductionStream,
         on_delete=models.CASCADE,
         related_name="proofs_repository",
@@ -348,7 +351,11 @@ class ProofsRepository(models.Model):
         a Selections paper, it is the flagship journal of the college.
         """
 
-        decision_journal = self.stream.submission.editorial_decision.for_journal
+        # Guard against null editorial decision
+        if not (decision := self.stream.submission.editorial_decision):
+            raise ValueError("No (non-deprecated) editorial decision exists")
+
+        decision_journal = decision.for_journal
 
         if "Selections" in decision_journal.name:
             paper_field = self.stream.submission.acad_field
@@ -410,7 +417,7 @@ class ProofsRepository(models.Model):
         )
 
     @cached_property
-    def template_paths(self) -> List[str]:
+    def template_paths(self) -> list[str]:
         """
         Return the list of paths to the various templates used for the proofs.
         """
