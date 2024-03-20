@@ -2,9 +2,18 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import include, path
+from django.urls import include, path, register_converter
+
 
 from .. import views
+from ..converters import CollegeSlugConverter
+from ontology.converters import AcademicFieldSlugConverter, SpecialtySlugConverter
+from submissions.converters import IdentifierConverter
+
+register_converter(IdentifierConverter, "identifier")
+register_converter(CollegeSlugConverter, "college")
+register_converter(AcademicFieldSlugConverter, "acad_field")
+register_converter(SpecialtySlugConverter, "specialty")
 
 
 app_name = "colleges"
