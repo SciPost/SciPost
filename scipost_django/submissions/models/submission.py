@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
-from typing import List
+from typing import TYPE_CHECKING
 import feedparser
 import uuid
 
@@ -42,6 +42,9 @@ from ..constants import (
 from ..exceptions import StageNotDefinedError
 from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
 from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
+
+if TYPE_CHECKING:
+    from submissions.models import EditorialDecision
 
 
 class SubmissionAuthorProfile(models.Model):
@@ -942,7 +945,7 @@ class Submission(models.Model):
         return list(set(fellows))
 
     @property
-    def editorial_decision(self):
+    def editorial_decision(self) -> "EditorialDecision | None":
         """Returns the latest EditorialDecision (if it exists)."""
         if self.editorialdecision_set.nondeprecated().exists():
             return self.editorialdecision_set.nondeprecated().latest_version()
