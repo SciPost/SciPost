@@ -2,9 +2,15 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import include, path
+from django.urls import include, path, register_converter
+
+from colleges.converters import CollegeSlugConverter
+from submissions.converters import IdentifierConverter
 
 app_name = "edadmin"
+
+register_converter(IdentifierConverter, "identifier")
+register_converter(CollegeSlugConverter, "college")
 
 
 urlpatterns = [
