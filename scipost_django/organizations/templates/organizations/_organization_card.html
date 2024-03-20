@@ -268,7 +268,7 @@
 	      {% if 'finadmin' in user_roles %}
 		<tr>
 		  <td colspan="3"></td>
-		  <td colspan="2" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
+		  <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
 		  <td colspan="2"></td>
 		  {% if organization.has_pubfracs %}
 		    <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
@@ -282,6 +282,7 @@
 		{% if 'finadmin' in user_roles %}
 		  <th class="text-end">Undivided<br>compensations</th>
 		  <th class="text-end">Undivided<br>uncompensated</th>
+		  <th class="text-end">Freeriding<br>percentage</th>
 		{% endif %}
 		{% if organization.has_pubfracs %}
 		  <th class="text-end">PubFrac<br>share</th>
@@ -313,6 +314,7 @@
 		      &euro;{{ balance.cumulative.undivided_uncompensated }}
 		    </td>
 		  {% endif %}
+		  <td class="text-end">{{ balance.cumulative.freeriding_percentage }}</td>
 		{% endif %}
 		{% if organization.has_pubfracs %}
 		  <td class="text-end">&euro;{{ balance.cumulative.expenditures }}</td>
@@ -354,6 +356,9 @@
 			    &euro;{{ val.expenditures.total.undivided_uncompensated }}
 			  </td>
 			{% endif %}
+			<td class="text-end">
+			  {{ val.expenditures.total.freeriding_percentage }}
+			</td>
 		      {% endif %}
 		      {% if organization.has_pubfracs %}
 			<td class="text-end">
@@ -377,7 +382,7 @@
 		      {% endif %}
 		    </tr>
 		    <tr class="collapse" id="details-{{ year }}">
-		      <td class="pe-0" colspan="{% if 'finadmin' in user_roles %}11{% else %}6{% endif %}">
+		      <td class="pe-0" colspan="{% if 'finadmin' in user_roles %}12{% else %}6{% endif %}">
 			<div class="my-2 ms-4 me-0 p-2 border border-secondary">
 
 			  <p>The following table give an overview of expenditures{% if 'finadmin' in user_roles %} and their compensation{% endif %}, compiled for all Publications which are associated to {{ organization }} for {{ year }}.</p>
@@ -390,7 +395,7 @@
 			      {% if 'finadmin' in user_roles %}
 				<tr class="border-0">
 				  <td colspan="4" class="bg-white"></td>
-				  <td colspan="2" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
+				  <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
 				  {% if organization.has_pubfracs %}
 				    <td colspan="2" class="bg-white"></td>
 				    <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
@@ -405,6 +410,7 @@
 				{% if 'finadmin' in user_roles %}
 				  <th class="text-end">Undivided<br>compensations</th>
 				  <th class="text-end">Undivided<br>uncompensated</th>
+				  <th class="text-end">Freeriding<br>percentage</th>
 				{% endif %}
 				{% if organization.has_pubfracs %}
 				  <th class="text-end">PubFracs</th>
@@ -431,6 +437,7 @@
 				    {% else %}
 				      <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.undivided_uncompensated }}</td>
 				    {% endif %}
+				    <td class="text-end">{{ journaldata.freeriding_percentage }}</td>
 				  {% endif %}
 				  {% if organization.has_pubfracs %}
 				    <td class="text-end">{{ journaldata.pubfracs }}</td>
