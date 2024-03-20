@@ -13,8 +13,8 @@ from production.factories import ProofsRepositoryFactory
 from production.models import ProofsRepository
 from profiles.factories import ProfileFactory
 from submissions.constants import EIC_REC_PUBLISH
+from submissions.factories.decision import EditorialDecisionFactory
 from submissions.factories.submission import SubmissionFactory
-from submissions.models.factories import EditorialDecisionFactory
 
 
 class TestProofRepository(TestCase):
@@ -74,31 +74,26 @@ class TestProofRepository(TestCase):
         )
 
     def test_repo_name_accented_authors(self):
+        ProfileFactory(first_name="Ella", last_name="Vérsøüsær")
         proofs_repo = ProofsRepositoryFactory(
-            stream__submission__preprint__identifier_w_vn_nr="5212.24912v4"
+            stream__submission__preprint__identifier_w_vn_nr="5212.24912v4",
+            stream__submission__author_list="Ella Vérsøüsær",
         )
-        ProfileFactory(first_name="Ella", last_name="Vérsøüsær (陈)")
-
-        proofs_repo.stream.submission.author_list = "Ella Vérsøüsær (陈)"
-        proofs_repo.stream.submission.save()
 
         self.assertEqual(
             ProofsRepository._get_repo_name(proofs_repo.stream),
             "5212.24912v4_Versousaer",
         )
 
-    # Warning: Flaky test, sometimes the editorial decision cannot
-    # be found through the related name.
     def test_repo_paths_scipostphys(self):
         settings.GITLAB_ROOT = "ProjectRoot"
 
         ProfileFactory(first_name="Ryan", last_name="MacVigor")
 
         submission = SubmissionFactory(
-            preprint__identifier_w_vn_nr="scipost_199402_00223v3"
+            preprint__identifier_w_vn_nr="scipost_199402_00223v3",
+            author_list="Ryan MacVigor",
         )
-        submission.author_list = "Ryan MacVigor"
-        submission.save()
 
         EditorialDecisionFactory(
             submission=submission,
@@ -122,8 +117,6 @@ class TestProofRepository(TestCase):
             proofs_repo.template_paths,
         )
 
-    # Warning: Flaky test, sometimes the editorial decision cannot
-    # be found through the related name.
     def test_repo_paths_scipostphysproc(self):
         settings.GITLAB_ROOT = "ProjectRoot"
 
@@ -139,10 +132,9 @@ class TestProofRepository(TestCase):
 
         submission = SubmissionFactory(
             preprint__identifier_w_vn_nr="scipost_200101_00323v2",
+            author_list="Tylla Maria Jones",
             proceedings=topology_conf,
         )
-        submission.author_list = "Tylla Maria Jones"
-        submission.save()
 
         EditorialDecisionFactory(
             submission=submission,
