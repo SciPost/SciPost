@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.db.models.signals import post_save
 import factory
 
 from common.faker import LazyRandEnum, fake
@@ -22,6 +23,7 @@ from submissions.constants import (
 from submissions.models import Report
 
 
+@factory.django.mute_signals(post_save)
 class ReportFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Report
