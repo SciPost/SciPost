@@ -278,10 +278,10 @@
 	      <tr>
 		<th>Year (click to toggle details)</th>
 		<th class="text-end">NAP</th>
-		<th class="text-end">Undivided<br>expenditures</th>
+		<th class="text-end">Total associated<br>expenditures</th>
 		{% if 'finadmin' in user_roles %}
-		  <th class="text-end">Undivided<br>compensations</th>
-		  <th class="text-end">Undivided<br>uncompensated</th>
+		  <th class="text-end">Total associated<br>compensations</th>
+		  <th class="text-end">Total associated<br>uncompensated</th>
 		  <th class="text-end">Freeriding<br>percentage</th>
 		{% endif %}
 		{% if organization.has_pubfracs %}
@@ -302,16 +302,16 @@
 	      <tr class="table-light border border-2" style="font-weight: bold;">
 		<td>Cumulative</td>
 		<td class="text-end">{{ balance.cumulative.nap }}</td>
-		<td class="text-end">&euro;{{ balance.cumulative.undivided_expenditures }}</td>
+		<td class="text-end">&euro;{{ balance.cumulative.associated_expenditures }}</td>
 		{% if 'finadmin' in user_roles %}
-		  <td class="text-end">&euro;{{ balance.cumulative.undivided_compensated }}</td>
-		  {% if balance.cumulative.undivided_uncompensated > 0 %}
+		  <td class="text-end">&euro;{{ balance.cumulative.associated_compensated }}</td>
+		  {% if balance.cumulative.associated_uncompensated > 0 %}
 		    <td class="text-end bg-danger bg-opacity-25">
-		      &euro;{{ balance.cumulative.undivided_uncompensated }}
+		      &euro;{{ balance.cumulative.associated_uncompensated }}
 		    </td>
 		  {% else %}
 		    <td class="text-end bg-success bg-opacity-25">
-		      &euro;{{ balance.cumulative.undivided_uncompensated }}
+		      &euro;{{ balance.cumulative.associated_uncompensated }}
 		    </td>
 		  {% endif %}
 		  <td class="text-end">{{ balance.cumulative.freeriding_percentage }}</td>
@@ -341,19 +341,19 @@
 		      </td>
 		      <td class="text-end">{{ val.expenditures.total.nap }}</td>
 		      <td class="text-end">
-			&euro;{{ val.expenditures.total.undivided_expenditures }}
+			&euro;{{ val.expenditures.total.associated_expenditures }}
 		      </td>
 		      {% if 'finadmin' in user_roles %}
 			<td class="text-end">
-			  &euro;{{ val.expenditures.total.undivided_compensated }}
+			  &euro;{{ val.expenditures.total.associated_compensated }}
 			</td>
-			{% if val.expenditures.total.undivided_uncompensated > 0 %}
+			{% if val.expenditures.total.associated_uncompensated > 0 %}
 			  <td class="text-end bg-danger bg-opacity-25">
-			    &euro;{{ val.expenditures.total.undivided_uncompensated }}
+			    &euro;{{ val.expenditures.total.associated_uncompensated }}
 			  </td>
 			{% else %}
 			  <td class="text-end bg-success bg-opacity-25">
-			    &euro;{{ val.expenditures.total.undivided_uncompensated }}
+			    &euro;{{ val.expenditures.total.associated_uncompensated }}
 			  </td>
 			{% endif %}
 			<td class="text-end">
@@ -406,10 +406,10 @@
 				<th>Journal</th>
 				<th class="text-end">APEX</th>
 				<th class="text-end">NAP</th>
-				<th class="text-end">Undivided<br>expenditures</th>
+				<th class="text-end">Total associated<br>expenditures</th>
 				{% if 'finadmin' in user_roles %}
-				  <th class="text-end">Undivided<br>compensations</th>
-				  <th class="text-end">Undivided<br>uncompensated</th>
+				  <th class="text-end">Total associated<br>compensations</th>
+				  <th class="text-end">Total associated<br>uncompensated</th>
 				  <th class="text-end">Freeriding<br>percentage</th>
 				{% endif %}
 				{% if organization.has_pubfracs %}
@@ -429,13 +429,13 @@
 				  <td>{{ journal }}</td>
 				  <td class="text-end">&euro;{{ journaldata.costperpaper }}</td>
 				  <td class="text-end">{{ journaldata.nap }}</td>
-				  <td class="text-end">&euro;{{ journaldata.undivided_expenditures }}</td>
+				  <td class="text-end">&euro;{{ journaldata.associated_expenditures }}</td>
 				  {% if 'finadmin' in user_roles %}
-				    <td class="text-end">&euro;{{ journaldata.undivided_compensated }}</td>
-				    {% if journaldata.undivided_uncompensated > 0 %}
-				      <td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.undivided_uncompensated }}</td>
+				    <td class="text-end">&euro;{{ journaldata.associated_compensated }}</td>
+				    {% if journaldata.associated_uncompensated > 0 %}
+				      <td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
 				    {% else %}
-				      <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.undivided_uncompensated }}</td>
+				      <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
 				    {% endif %}
 				    <td class="text-end">{{ journaldata.freeriding_percentage }}</td>
 				  {% endif %}

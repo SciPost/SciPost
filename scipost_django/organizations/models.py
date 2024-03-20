@@ -474,9 +474,9 @@ class Organization(models.Model):
         cumulative_self_compensated = 0
         cumulative_ally_compensated = 0
         cumulative_uncompensated = 0
-        cumulative_undivided_expenditures = 0
-        cumulative_undivided_compensated = 0
-        cumulative_undivided_uncompensated = 0
+        cumulative_associated_expenditures = 0
+        cumulative_associated_compensated = 0
+        cumulative_associated_uncompensated = 0
         cumulative_subsidy_income = 0
         cumulative_reserved = 0
         cumulative_balance = 0
@@ -487,14 +487,14 @@ class Organization(models.Model):
             subsidy_income = self.total_subsidies_in_year(year)
             rep[str(year)]["subsidy_income"] = subsidy_income
             year_nap = 0
-            year_undivided_expenditures = 0
+            year_associated_expenditures = 0
             year_pubfracs = 0
             year_expenditures = 0
             year_self_compensated = 0
             year_ally_compensated = 0
             year_uncompensated = 0
-            year_undivided_compensated = 0
-            year_undivided_uncompensated = 0
+            year_associated_compensated = 0
+            year_associated_uncompensated = 0
             year_reserved = 0
             rep[str(year)]["expenditures"] = {
                 "per_journal": {},
@@ -549,14 +549,14 @@ class Organization(models.Model):
                     or 0
                 )
                 uncompensated = expenditures - self_compensated - ally_compensated
-                undivided_compensated = int(
+                associated_compensated = int(
                     sum(
                         p.compensated_expenditures
                         for p in self.get_publications(year=year, journal=journal)
                     )
                 )
-                undivided_uncompensated = nap * costperpaper - undivided_compensated
-                if sum_pf > 0 or undivided_uncompensated > 0:
+                associated_uncompensated = nap * costperpaper - associated_compensated
+                if sum_pf > 0 or associated_uncompensated > 0:
                     rep[str(year)]["expenditures"]["per_journal"][journal_label] = {
                         "costperpaper": costperpaper,
                         "nap": nap,
@@ -565,19 +565,24 @@ class Organization(models.Model):
                         "self_compensated": self_compensated,
                         "ally_compensated": ally_compensated,
                         "uncompensated": uncompensated,
-                        "undivided_expenditures": nap * costperpaper,
-                        "undivided_compensated": undivided_compensated,
-                        "undivided_uncompensated": undivided_uncompensated,
+                        "associated_expenditures": nap * costperpaper,
+                        "associated_compensated": associated_compensated,
+                        "associated_uncompensated": associated_uncompensated,
+                        "freeriding_percentage": (
+                            int(100 * associated_uncompensated / (nap * costperpaper))
+                            if nap * costperpaper > 0
+                            else "N/A"
+                        ),
                     }
                 year_nap += nap
-                year_undivided_expenditures += nap * costperpaper
                 year_pubfracs += float(sum_pf)
                 year_expenditures += expenditures
                 year_self_compensated += self_compensated
                 year_ally_compensated += ally_compensated
                 year_uncompensated += uncompensated
-                year_undivided_compensated += undivided_compensated
-                year_undivided_uncompensated += undivided_uncompensated
+                year_associated_expenditures += nap * costperpaper
+                year_associated_compensated += associated_compensated
+                year_associated_uncompensated += associated_uncompensated
             rep[str(year)]["expenditures"]["total"] = {
                 "nap": year_nap,
                 "pubfracs": year_pubfracs,
@@ -585,34 +590,52 @@ class Organization(models.Model):
                 "self_compensated": year_self_compensated,
                 "ally_compensated": year_ally_compensated,
                 "uncompensated": year_uncompensated,
-                "undivided_expenditures": year_undivided_expenditures,
-                "undivided_compensated": year_undivided_compensated,
-                "undivided_uncompensated": year_undivided_uncompensated,
+                "associated_expenditures": year_associated_expenditures,
+                "associated_compensated": year_associated_compensated,
+                "associated_uncompensated": year_associated_uncompensated,
+                "freeriding_percentage": (
+                    int(
+                        100
+                        * year_associated_uncompensated
+                        / year_associated_expenditures
+                    )
+                    if year_associated_expenditures > 0
+                    else "N/A"
+                ),
             }
             rep[str(year)]["reserved"] = subsidy_income - year_self_compensated
             rep[str(year)]["balance"] = subsidy_income - year_expenditures
             cumulative_nap += year_nap
-            cumulative_undivided_expenditures += year_undivided_expenditures
             cumulative_pubfracs += year_pubfracs
             cumulative_expenditures += year_expenditures
             cumulative_self_compensated += year_self_compensated
             cumulative_ally_compensated += year_ally_compensated
             cumulative_uncompensated += year_uncompensated
-            cumulative_undivided_compensated += year_undivided_compensated
-            cumulative_undivided_uncompensated += year_undivided_uncompensated
+            cumulative_associated_expenditures += year_associated_expenditures
+            cumulative_associated_compensated += year_associated_compensated
+            cumulative_associated_uncompensated += year_associated_uncompensated
             cumulative_subsidy_income += subsidy_income
             cumulative_balance += subsidy_income - year_expenditures
             cumulative_reserved += subsidy_income - year_self_compensated
         rep["cumulative"] = {
             "nap": cumulative_nap,
-            "undivided_expenditures": cumulative_undivided_expenditures,
             "pubfracs": cumulative_pubfracs,
             "expenditures": cumulative_expenditures,
             "self_compensated": cumulative_self_compensated,
             "ally_compensated": cumulative_ally_compensated,
             "uncompensated": cumulative_uncompensated,
-            "undivided_compensated": cumulative_undivided_compensated,
-            "undivided_uncompensated": cumulative_undivided_uncompensated,
+            "associated_expenditures": cumulative_associated_expenditures,
+            "associated_compensated": cumulative_associated_compensated,
+            "associated_uncompensated": cumulative_associated_uncompensated,
+            "freeriding_percentage": (
+                int(
+                    100
+                    * cumulative_associated_uncompensated
+                    / cumulative_associated_expenditures
+                )
+                if cumulative_associated_expenditures > 0
+                else "N/A"
+            ),
             "subsidy_income": cumulative_subsidy_income,
             "reserved": cumulative_reserved,
             "balance": cumulative_balance,
