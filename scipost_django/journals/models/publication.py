@@ -308,6 +308,8 @@ class Publication(models.Model):
         for entry in indexed_author_list:
             padded_entry = entry + [None] * (max_length - len(entry))
             padded_list.append(padded_entry)
+        else:
+            padded_list = []
         # Save into the calculated field for future purposes.
         Publication.objects.filter(id=self.id).update(
             cf_author_affiliation_indices_list=padded_list
