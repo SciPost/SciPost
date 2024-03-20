@@ -2006,6 +2006,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         # Editor to {Author, Referee, Editorial Administration}
         submissions_qs = Submission.objects.in_pool_filter_for_eic(
             request.user,
+            latest=False,
             historical=True,
         )
     elif comtype == "AtoE":

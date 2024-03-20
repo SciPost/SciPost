@@ -215,12 +215,12 @@ class SubmissionQuerySet(models.QuerySet):
         )
         return qs.remove_COI(user)
 
-    def in_pool_filter_for_eic(self, user, historical: bool = False):
+    def in_pool_filter_for_eic(self, user, latest: bool = True, historical: bool = False):
         """Return the set of Submissions the user is Editor-in-charge for.
 
         If user is an Editorial Administrator: keep any EiC.
         """
-        qs = self.in_pool(user, historical)
+        qs = self.in_pool(user, latest=latest, historical=historical)
         if user.is_authenticated and not user.contributor.is_ed_admin:
             qs = qs.filter(editor_in_charge__user=user)
         return qs
