@@ -58,7 +58,6 @@ class SubsidyForm(forms.ModelForm):
     class Meta:
         model = Subsidy
         fields = [
-            "algorithm",
             "organization",
             "subsidy_type",
             "description",

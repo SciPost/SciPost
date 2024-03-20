@@ -39,64 +39,6 @@ class Subsidy(models.Model):
     after which the object of the Subsidy is officially terminated.
     """
 
-    ALGORITHM_ANY_AFF = "any_aff"
-    ALGORITHM_ANY_CTRY = "any_ctry"
-    ALGORITHM_ANY_ORGS = "any_orgs"
-    ALGORITHM_ANY_SPEC = "any_spec"
-    ALGORITHM_ALL_AFF = "all_aff"
-    ALGORITHM_ALL_CTRY = "all_ctry"
-    ALGORITHM_ALL_ORGS = "all_orgs"
-    ALGORITHM_ALL_SPEC = "all_spec"
-    ALGORITHM_ALL_FUND = "all_fund"
-    ALGORITHM_RESERVES = "reserves"
-    ALGORITHM_CHOICES = (
-        (ALGORITHM_ANY_AFF, "Any PubFrac with affiliation to org"),
-        (
-            ALGORITHM_ANY_CTRY,
-            "Any PubFrac with an affiliation in given list of countries",
-        ),
-        (ALGORITHM_ANY_ORGS, "Any PubFrac with an affiliation in given list of orgs"),
-        (
-            ALGORITHM_ANY_SPEC,
-            "Any PubFrac of publication in given list of specialties",
-        ),
-        (
-            ALGORITHM_ALL_AFF,
-            (
-                "All PubFracs of publication with at least one author "
-                "with affiliation to org"
-            ),
-        ),
-        (
-            ALGORITHM_ALL_CTRY,
-            (
-                "All PubFracs of publications having at least one affiliation "
-                "in given list of countries"
-            ),
-        ),
-        (
-            ALGORITHM_ALL_ORGS,
-            (
-                "All PubFracs of publications having at least "
-                "one affiliation in given list of orgs"
-            ),
-        ),
-        (
-            ALGORITHM_ALL_SPEC,
-            "All PubFracs of publication in given list of specialties",
-        ),
-        (
-            ALGORITHM_ALL_FUND,
-            "All PubFracs of publication acknowledging org in Funders",
-        ),
-        (ALGORITHM_RESERVES, "Allocate to reserves fund"),
-    )
-    algorithm = models.CharField(
-        max_length=32,
-        choices=ALGORITHM_CHOICES,
-        default=ALGORITHM_RESERVES,
-    )
-    algorithm_data = models.JSONField(default=dict)
     organization = models.ForeignKey["Organization"](
         "organizations.Organization", on_delete=models.CASCADE
     )
@@ -185,28 +127,37 @@ class Subsidy(models.Model):
         """
         return self.amount == self.payments.aggregate(Sum("amount"))["amount__sum"]
 
-    @property
-    def allocatable(self):
+    def compensate(self, pubfracs: PubFracQuerySet):
         """
-        Determine whether this Subsidy can be allocated.
+        Allocate subsidy to uncompensated pubfracs in queryset, up to depletion.
         """
-        implemented_algorithms = [self.ALGORITHM_ANY_AFF, self.ALGORITHM_ALL_AFF]
-        return (
-            self.status != SUBSIDY_WITHDRAWN
-            and self.algorithm != self.ALGORITHM_RESERVES
-            and self.algorithm in implemented_algorithms
+        for pubfrac in pubfracs.uncompensated():
+            if pubfrac.cf_value <= self.remainder:
+                pubfrac.compensated_by = self
+                pubfrac.save()
+
+    def compensate_own_pubfracs(self):
+        """
+        Compensate PubFracs with direct affiliation to Subsidy-giver.
+        """
+        max_year = self.date_until.year if self.date_until else self.date_from.year
+        pubfracs = self.organization.pubfracs.filter(
+            publication__publication_date__year__gte=self.date_from.year,
+            publication__publication_date__year__lte=max_year,
         )
+        self.compensate(pubfracs)
 
-    def allocate(self):
+    def compensate_children_pubfracs(self):
         """
-        Allocate the funds according to the algorithm specific by the instance.
+        Compensate PubFracs with direct affiliation to Subsidy-giver's children Organizations.
         """
-        from finances.allocate import allocate_to_any_aff, allocate_to_all_aff
-
-        if self.algorithm == self.ALGORITHM_ANY_AFF:
-            allocate_to_any_aff(self)
-        elif self.algorithm == self.ALGORITHM_ALL_AFF:
-            allocate_to_all_aff(self)
+        max_year = self.date_until.year if self.date_until else self.date_from.year
+        for child in self.organization.children.all():
+            pubfracs = child.pubfracs.filter(
+                publication__publication_date__year__gte=self.date_from.year,
+                publication__publication_date__year__lte=max_year,
+            )
+            self.compensate(pubfracs)
 
     @property
     def total_compensations(self):

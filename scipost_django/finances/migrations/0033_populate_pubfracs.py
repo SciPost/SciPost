@@ -4,18 +4,18 @@ from django.db import migrations
 
 
 def populate_pubfracs(apps, schema_editor):
-    OrgPubFraction = apps.get_model("journals.OrgPubFraction")
-    PubFrac = apps.get_model("finances.PubFrac")
+    # OrgPubFraction = apps.get_model("journals.OrgPubFraction")
+    # PubFrac = apps.get_model("finances.PubFrac")
 
-    # Copy all data from OrgPubFraction to the new PubFrac
-    for opf in OrgPubFraction.objects.all():
-        pubfrac = PubFrac(
-            organization=opf.organization,
-            publication=opf.publication,
-            fraction=opf.fraction
-        )
-        pubfrac.save()
-
+    # # Copy all data from OrgPubFraction to the new PubFrac
+    # for opf in OrgPubFraction.objects.all():
+    #     pubfrac = PubFrac(
+    #         organization=opf.organization,
+    #         publication=opf.publication,
+    #         fraction=opf.fraction
+    #     )
+    #     pubfrac.save()
+    pass # 2024-03-20 not needed anymore: PubFracs are algorithmically calculated
 
 class Migration(migrations.Migration):
 

@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 import datetime
 import hashlib
-import pytz
 import random
 import string
 
@@ -17,6 +16,15 @@ from django.urls import reverse
 
 from django_countries.fields import CountryField
 
+from scipost.constants import TITLE_CHOICES
+from scipost.fields import ChoiceArrayField
+from scipost.models import Contributor
+from affiliates.models import AffiliatePublication
+from colleges.models import Fellowship
+from finances.models import PubFrac
+from journals.models import Journal, Publication
+from profiles.models import Profile
+
 from .constants import (
     ORGANIZATION_TYPES,
     ORGTYPE_PRIVATE_BENEFACTOR,
@@ -26,15 +34,6 @@ from .constants import (
     ROLE_KINDS,
 )
 from .managers import OrganizationQuerySet
-
-from scipost.constants import TITLE_CHOICES
-from scipost.fields import ChoiceArrayField
-from scipost.models import Contributor
-from affiliates.models import AffiliatePublication
-from colleges.models import Fellowship
-from finances.models import PubFrac
-from journals.models import Journal, Publication
-from profiles.models import Profile
 
 
 class OrganizationLogo(models.Model):
