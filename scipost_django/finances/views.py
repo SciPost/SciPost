@@ -231,27 +231,27 @@ def _hx_country_level_data(request, country):
     context = {
         "country": country,
         "organizations": organizations,
-        "cumulative": {"contribution": 0, "expenditures": 0, "balance": 0},
+        "cumulative": {"subsidy_income": 0, "expenditures": 0, "balance": 0},
         "per_year": {},
     }
     for year in pubyears:
         context["per_year"][year] = {
-            "contribution": 0,
+            "subsidy_income": 0,
             "expenditures": 0,
             "balance": 0,
         }
     for organization in organizations.all():
-        for key in ("contribution", "expenditures", "balance"):
+        for key in ("subsidy_income", "expenditures", "balance"):
             context["cumulative"][key] += organization.cf_balance_info["cumulative"][
                 key
             ]
         for year in pubyears:
-            context["per_year"][year]["contribution"] += organization.cf_balance_info[
+            context["per_year"][year]["subsidy_income"] += organization.cf_balance_info[
                 year
-            ]["contribution"]
+            ]["subsidy_income"]
             context["per_year"][year]["expenditures"] += organization.cf_balance_info[
                 year
-            ]["expenditures"]["total"]
+            ]["expenditures"]["total"]["expenditures"]
             context["per_year"][year]["balance"] += organization.cf_balance_info[year][
                 "balance"
             ]

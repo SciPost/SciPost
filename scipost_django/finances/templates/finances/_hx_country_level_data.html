@@ -7,7 +7,7 @@
   <thead>
     <tr>
       <th></th>
-      <th style="text-align: right;">Contribution</th>
+      <th style="text-align: right;">Subsidy income</th>
       <th style="text-align: right;">Expenditures</th>
       <th style="text-align: right;">Balance</th>
     </tr>
@@ -15,14 +15,14 @@
   <tbody>
     <tr class="bg-light">
       <td>Cumulative</td>
-      <td style="text-align: right;">{{ cumulative.contribution }}</td>
+      <td style="text-align: right;">{{ cumulative.subsidy_income }}</td>
       <td style="text-align: right;">{{ cumulative.expenditures }}</td>
       <td style="text-align: right;">{{ cumulative.balance }}</td>
     </tr>
     {% for year, val in per_year.items %}
       <tr>
 	<td>{{ year }}</td>
-	<td style="text-align: right;">{{ val.contribution }}</td>
+	<td style="text-align: right;">{{ val.subsidy_income }}</td>
 	<td style="text-align: right;">{{ val.expenditures }}</td>
 	<td style="text-align: right;">{{ val.balance }}</td>
       </tr>
@@ -30,37 +30,43 @@
   </tbody>
 </table>
 
+{% if 'finadmin' in user_roles %}
 
-<h2 class="highlight mt-5">Cumulative, per Organization</h2>
+  <div class="border border-danger p-2">
+    <p><strong>[FinAdmin]</strong></p>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th></th>
-      <th></th>
-      <th style="text-align: right;">Contribution</th>
-      <th style="text-align: right;">Expenditures</th>
-      <th style="text-align: right;">Balance</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr class="bg-light">
-      <td>Total</td>
-      <td></td>
-      <td style="text-align: right;">{{ cumulative.contribution }}</td>
-      <td style="text-align: right;">{{ cumulative.expenditures }}</td>
-      <td style="text-align: right;">{{ cumulative.balance }}</td>
-    </tr>
-    {% for organization in organizations %}
-      {% if organization.cf_balance_info.cumulative.contribution > 0 or organization.cf_balance_info.cumulative.expenditures > 0 %}
+    <h2 class="highlight mt-5">Cumulative, per Organization</h2>
+
+    <table class="table">
+      <thead>
 	<tr>
-	  <td><a href="https://{{ request.get_host }}{{ organization.get_absolute_url }}">{{ organization }}</a></td>
-	  <td>{{ organization.get_orgtype_display }}</td>
-	  <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.contribution }}</td>
-	  <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.expenditures }}</td>
-	  <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.balance }}</td>
+	  <th></th>
+	  <th></th>
+	  <th style="text-align: right;">Subsidy Income</th>
+	  <th style="text-align: right;">Expenditures</th>
+	  <th style="text-align: right;">Balance</th>
 	</tr>
-      {% endif %}
-    {% endfor %}
-  </tbody>
-</table>
+      </thead>
+      <tbody>
+	<tr class="bg-light">
+	  <td>Total</td>
+	  <td></td>
+	  <td style="text-align: right;">{{ cumulative.subsidy_income }}</td>
+	  <td style="text-align: right;">{{ cumulative.expenditures }}</td>
+	  <td style="text-align: right;">{{ cumulative.balance }}</td>
+	</tr>
+	{% for organization in organizations %}
+	  {% if organization.cf_balance_info.cumulative.subsidy_income > 0 or organization.cf_balance_info.cumulative.expenditures > 0 %}
+	    <tr>
+	      <td><a href="https://{{ request.get_host }}{{ organization.get_absolute_url }}">{{ organization }}</a></td>
+	      <td>{{ organization.get_orgtype_display }}</td>
+	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.subsidy_income }}</td>
+	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.expenditures }}</td>
+	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.balance }}</td>
+	    </tr>
+	  {% endif %}
+	{% endfor %}
+      </tbody>
+    </table>
+
+{% endif %}
