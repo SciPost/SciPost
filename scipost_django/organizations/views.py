@@ -143,7 +143,6 @@ class OrganizationListView(PaginationMixin, ListView):
             context["nr_funders_wo_organization"] = Funder.objects.filter(
                 organization=None
             ).count()
-        context["pubyears"] = range(int(timezone.now().strftime("%Y")), 2015, -1)
         context["countrycodes"] = [
             code["country"]
             for code in list(
@@ -187,7 +186,6 @@ class OrganizationDetailView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context["pubyears"] = range(int(timezone.now().strftime("%Y")), 2015, -1)
         context["balance"] = self.object.cf_balance_info
         return context
 

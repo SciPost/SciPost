@@ -240,7 +240,6 @@ def _hx_country_level_data(request, country):
             "expenditures": 0,
             "balance": 0,
         }
-    cumulative_expenditures = 0
     for organization in organizations.all():
         for key in ("contribution", "expenditures", "balance"):
             context["cumulative"][key] += organization.cf_balance_info["cumulative"][

@@ -76,7 +76,7 @@
 	  <h3>Publications associated to this Organization
 	    {% if perms.scipost.can_manage_organizations %}
 	      <span class="text-muted small">(with PubFracs <span data-bs-toggle="tooltip" data-bs-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>{% endif %}:</h3>
-	  {% for pubyear in pubyears %}
+	  {% for pubyear in publishing_years %}
 	    <h4>{{ pubyear }}{% if perms.scipost.can_manage_organizations %} <span class="text-muted small">(PubFracs {{ org|pubfracs_in_year:pubyear }})</span>{% endif %}</h4>
 	    <ul>
 	      {% for publication in org.get_publications %}
@@ -332,7 +332,7 @@
 		{% endif %}
 	      </tr>
 	      {% now "Y" as current_year %}
-	      {% for year in pubyears %}
+	      {% for year in publishing_years %}
 		{% for key, val in balance.items %}
 		  {% if year == key|add:"0" %}
 		    <tr>
