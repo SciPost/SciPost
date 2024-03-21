@@ -15,29 +15,63 @@
     <div class="col-12">
       <h2>Country-Level Financial Data</h2>
 
-      <div class="row mt-4">
-	<div class="col-lg-3">
-	  <h3>Click on flag to view that country's data</h3>
-	</div>
-	<div class="col-lg-8">
-	  <ul>
-	    {% for code in countrycodes %}
-	      {% get_country code as country_obj %}
-	      <li style="display: inline-block;" class="m-1">
-		<a hx-get="{% url 'finances:_hx_country_level_data' country=code %}"
-		   hx-target="#country_data"
-		>
-		  <i class="{{ country_obj.flag_css }}"
-		     data-bs-toggle="tooltip"
-		     title="{{ country_obj.name }}"></i>
-		</a>
-	      </li>
-	    {% endfor %}
-	  </ul>
-	</div>
-      </div>
 
-      <div id="country_data" class="mt-4"></div>
+      <div id="cumulative_all_countries" class="mt-4">
+
+	<p>This table presents our cumulative financial balance information, broken down per country. Top of the list are our champions; those at the bottom of the list threaten our sustainability.</p>
+
+	<p>Click on flag to view that country's data</p>
+
+	<table class="table">
+	  <thead>
+	    <tr>
+	      <th colspan="2">Country</th>
+	      <th style="text-align: right;">Subsidy income</th>
+	      <th style="text-align: right;">Expenditures</th>
+	      <th style="text-align: right;">Balance</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for item in countrydata|dictsortreversed:"balance" %}
+	      {% if item.balance != 0 %}
+		{% get_country item.country as country_obj %}
+		<tr class="bg-light">
+		  <td>
+		    <a hx-get="{% url 'finances:_hx_country_level_data' country=item.country %}"
+		       hx-target="#country_data-{{ item.country }}"
+		    >
+		      <i class="{{ country_obj.flag_css }}"></i>
+		    </a>
+		  </td>
+		  <td>{{ country_obj.name }}</td>
+		  <td style="text-align: right;">{{ item.subsidy_income }}</td>
+		  <td style="text-align: right;">{{ item.expenditures }}</td>
+		  <td style="text-align: right;">{{ item.balance }}</td>
+		</tr>
+		<tr>
+		  <td colspan="5">
+		    <details id="country_data-{{ item.country }}-details"
+			     class="ms-4 mb-4">
+		      <summary>Toggle details</summary>
+		      <div id="country_data-{{ item.country }}-details-contents"
+			   class="mt-4 p-2 ps-4"
+			   hx-get="{% url 'finances:_hx_country_level_data' country=item.country %}"
+			   hx-trigger="toggle once from:#country_data-{{ item.country }}-details"
+		      >
+			<button class="htmx-indicator btn btn-sm btn-warning p-2" type="button" disabled>
+			  <small><strong>Loading...</strong></small>
+			  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+			</button>
+		      </div>
+		    </details>
+		  </td>
+		</tr>
+	      {% endif %}
+	    {% endfor %}
+	  </tbody>
+	</table>
+
+      </div>
 
     </div>
   </div>

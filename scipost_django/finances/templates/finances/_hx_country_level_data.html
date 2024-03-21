@@ -1,7 +1,7 @@
 {% load countries %}
 {% get_country country as country_obj %}
 
-<h2 class="highlight">Summed over all Organizations in {{ country_obj.name }}&emsp;<i class="{{ country_obj.flag_css }}"></i></h2>
+<p>The data in this table is compiled by summing over all Organizations in {{ country_obj.name }}&emsp;<i class="{{ country_obj.flag_css }}"></i></p>
 
 <table class="table">
   <thead>
@@ -35,7 +35,7 @@
   <div class="border border-danger p-2">
     <p><strong>[FinAdmin]</strong></p>
 
-    <h2 class="highlight mt-5">Cumulative, per Organization</h2>
+    <h2 class="mt-5">Cumulative, per Organization</h2>
 
     <table class="table">
       <thead>
@@ -55,7 +55,7 @@
 	  <td style="text-align: right;">{{ cumulative.expenditures }}</td>
 	  <td style="text-align: right;">{{ cumulative.balance }}</td>
 	</tr>
-	{% for organization in organizations %}
+	{% for organization in organizations|dictsortreversed:"cf_balance_info.cumulative.balance" %}
 	  {% if organization.cf_balance_info.cumulative.subsidy_income > 0 or organization.cf_balance_info.cumulative.expenditures > 0 %}
 	    <tr>
 	      <td><a href="https://{{ request.get_host }}{{ organization.get_absolute_url }}">{{ organization }}</a></td>
@@ -68,5 +68,7 @@
 	{% endfor %}
       </tbody>
     </table>
+
+  </div>
 
 {% endif %}

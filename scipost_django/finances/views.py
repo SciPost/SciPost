@@ -216,12 +216,23 @@ def apex(request):
 
 def country_level_data(request):
     context = {}
-    context["countrycodes"] = [
+    countrycodes = [
         code["country"]
         for code in list(
             Organization.objects.all().distinct("country").values("country")
         )
     ]
+    context = {
+        "countrycodes": countrycodes,
+        "countrydata": [],
+    }
+    for country in countrycodes:
+        country_organizations = Organization.objects.filter(country=country)
+        countrydata = {"country": country, "subsidy_income": 0, "expenditures": 0, "balance": 0}
+        for organization in country_organizations:
+            for key in ("subsidy_income", "expenditures", "balance"):
+                countrydata[key] += organization.cf_balance_info["cumulative"][key]
+        context["countrydata"] += [countrydata,]
     return render(request, "finances/country_level_data.html", context)
 
 
