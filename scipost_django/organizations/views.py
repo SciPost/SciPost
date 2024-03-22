@@ -108,7 +108,6 @@ class OrganizationCreateView(PermissionsMixin, CreateView):
     permission_required = "scipost.can_manage_organizations"
     form_class = OrganizationForm
     template_name = "organizations/organization_create.html"
-    success_url = reverse_lazy("organizations:organizations")
 
 
 class OrganizationUpdateView(PermissionsMixin, UpdateView):
