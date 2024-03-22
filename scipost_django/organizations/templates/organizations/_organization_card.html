@@ -3,9 +3,7 @@
 {% load user_groups %}
 {% load organizations_extras %}
 
-
 {% is_scipost_admin request.user as is_scipost_admin %}
-
 {% get_obj_perms request.user for org as "user_org_perms" %}
 
 <div class="card-body">
@@ -13,566 +11,805 @@
   <div class="row">
     <div class="col-12">
       <ul class="nav nav-tabs" role="tablist">
-	<li class="nav-item">
-	  <a class="nav-link" id="details-{{ org.id }}-tab" data-bs-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
-	</li>
-	<li class="nav-item">
-	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-bs-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if perms.scipost.can_manage_organizations %} & PubFracs{% endif %}</a>
-	</li>
-	<li class="nav-item">
-	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-bs-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
-	</li>
-	<li class="nav-item">
-	  <a class="nav-link" id="fellows-{{ org.id }}-tab" data-bs-toggle="tab" href="#fellows-{{ org.id }}" role="tab" aria-controls="fellows-{{ org.id }}" aria-selected="true">Associated Fellows</a>
-	</li>
-	<li class="nav-item">
-	  <a class="nav-link" id="support-{{ org.id }}-tab" data-bs-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
-	</li>
-	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
-	  <li class="nav-item">
-	    <a class="nav-link" id="contacts-{{ org.id }}-tab" data-bs-toggle="tab" href="#contacts-{{ org.id }}" role="tab" aria-controls="contacts-{{ org.id }}" aria-selected="true">Contacts</a>
-	  </li>
-	{% endif %}
-	{% if perms.scipost.can_manage_organizations %}
-	  <li class="nav-item">
-	    <a class="nav-link" id="events-{{ org.id }}-tab" data-bs-toggle="tab" href="#events-{{ org.id }}" role="tab" aria-controls="events-{{ org.id }}" aria-selected="true">Events</a>
-	  </li>
-	{% endif %}
+        <li class="nav-item">
+          <a class="nav-link"
+             id="details-{{ org.id }}-tab"
+             data-bs-toggle="tab"
+             href="#details-{{ org.id }}"
+             role="tab"
+             aria-controls="details-{{ org.id }}"
+             aria-selected="true">Details</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active"
+             id="publications-{{ org.id }}-tab"
+             data-bs-toggle="tab"
+             href="#publications-{{ org.id }}"
+             role="tab"
+             aria-controls="publications-{{ org.id }}"
+             aria-selected="true">Publications
+
+            {% if perms.scipost.can_manage_organizations %}& PubFracs{% endif %}
+
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link"
+             id="authors-{{ org.id }}-tab"
+             data-bs-toggle="tab"
+             href="#authors-{{ org.id }}"
+             role="tab"
+             aria-controls="authors-{{ org.id }}"
+             aria-selected="true">Associated Authors</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link"
+             id="fellows-{{ org.id }}-tab"
+             data-bs-toggle="tab"
+             href="#fellows-{{ org.id }}"
+             role="tab"
+             aria-controls="fellows-{{ org.id }}"
+             aria-selected="true">Associated Fellows</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link"
+             id="support-{{ org.id }}-tab"
+             data-bs-toggle="tab"
+             href="#support-{{ org.id }}"
+             role="tab"
+             aria-controls="support-{{ org.id }}"
+             aria-selected="true">Support history</a>
+        </li>
+
+        {% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
+          <li class="nav-item">
+            <a class="nav-link"
+               id="contacts-{{ org.id }}-tab"
+               data-bs-toggle="tab"
+               href="#contacts-{{ org.id }}"
+               role="tab"
+               aria-controls="contacts-{{ org.id }}"
+               aria-selected="true">Contacts</a>
+          </li>
+        {% endif %}
+
+        {% if perms.scipost.can_manage_organizations %}
+          <li class="nav-item">
+            <a class="nav-link"
+               id="events-{{ org.id }}-tab"
+               data-bs-toggle="tab"
+               href="#events-{{ org.id }}"
+               role="tab"
+               aria-controls="events-{{ org.id }}"
+               aria-selected="true">Events</a>
+          </li>
+        {% endif %}
+
       </ul>
 
       <div class="tab-content">
 
-	<div class="tab-pane pt-4" id="details-{{ org.id }}" role="tabpanel" aria-labelledby="details-{{ org.id }}-tab">
-	  {% if perms.scipost.can_manage_organizations %}
-	    <h3>Manage this organization:</h3>
-	    <ul>
-	      <li><a href="{% url 'organizations:organization_update' pk=org.id %}">Update</a></li>
-	      <li><a href="{% url 'organizations:organization_delete' pk=org.id %}">Delete</a></li>
-	    </ul>
-	    <hr/>
-	  {% endif %}
+        <div class="tab-pane pt-4"
+             id="details-{{ org.id }}"
+             role="tabpanel"
+             aria-labelledby="details-{{ org.id }}-tab">
 
-    {% include "organizations/_hx_organization_info.html" %}
+          {% if perms.scipost.can_manage_organizations %}
+            <h3>Manage this organization:</h3>
+            <ul>
+              <li><a href="{% url 'organizations:organization_update' pk=org.id %}">Update</a></li>
+              <li><a href="{% url 'organizations:organization_delete' pk=org.id %}">Delete</a></li>
+            </ul>
+            <hr />
+          {% endif %}
 
-	  <h3>Funder Registry instances associated to this Organization:</h3>
-	  <ul>
-	    {% for funder in org.funder_set.all %}
-	      <li>{{ funder }}</li>
-	    {% empty %}
-	      <li>No Funder Registry instance found<br/><br/>
-		<strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
-		<p>Are you a representative of this Organization? We advise you to:</p>
-		<ul>
-		  <li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank" rel="noopener">Crossref's Funder Registry</a>;</li>
-		  <li>After inclusion, <a href="mailto:admin@{{ request.get_host }}?subject=Inclusion&nbsp;of&nbsp;{{ organization|urlencode }}&nbsp;{% if organization.acronym %}({{ organization.acronym|urlencode }}){% endif %}&nbsp;in&nbsp;the&nbsp;Funder&nbsp;Registry">contact our administration</a> with this information so that we can update our records.</li>
-		</ul>
-	      </li>
-	    {% endfor %}
-	  </ul>
+          {% include "organizations/_hx_organization_info.html" %}
 
-	</div>
+          <h3>Funder Registry instances associated to this Organization:</h3>
+          <ul>
+            {% for funder in org.funder_set.all %}
+              <li>{{ funder }}</li>
+            {% empty %}
+              <li>
+                No Funder Registry instance found
+                <br />
+                <br />
+                <strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
+                <p>Are you a representative of this Organization? We advise you to:</p>
+                <ul>
+                  <li>
+                    Make sure your Organization gets included in 
+                    <a href="https://www.crossref.org/services/funder-registry/" target="_blank" rel="noopener">Crossref's Funder Registry</a>;
+                  </li>
+                  <li>
+                    After inclusion, <a href="mailto:admin@{{ request.get_host }}?subject=Inclusion&nbsp;of&nbsp;{{ organization|urlencode }}&nbsp;
+                    {% if organization.acronym %}({{ organization.acronym|urlencode }}){% endif %}
+                    &nbsp;in&nbsp;the&nbsp;Funder&nbsp;Registry">contact our administration</a> with this information so that we can update our records.
+                  </li>
+                </ul>
+              </li>
+            {% endfor %}
+          </ul>
 
-	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
-	  <h3>Publications associated to this Organization
-	    {% if perms.scipost.can_manage_organizations %}
-	      <span class="text-muted small">(with PubFracs <span data-bs-toggle="tooltip" data-bs-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>{% endif %}:</h3>
-	  {% for pubyear in publishing_years %}
-	    <h4>{{ pubyear }}{% if perms.scipost.can_manage_organizations %} <span class="text-muted small">(PubFracs {{ org|pubfracs_in_year:pubyear }})</span>{% endif %}</h4>
-	    <ul>
-	      {% for publication in org.get_publications %}
-		{% if publication.publication_date|date:'Y'|add:"0" == pubyear %}
-		  <li>
-		    <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a>
-		    <br>by {{ publication.author_list }},
-		    <br>{{ publication.citation }}
-		    {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-		      <br><span class="text-muted small">Expenditure: &euro;{{ org|expenditure_for_publication:publication }}</span>
-		    {% endif %}
-		  </li>
-		{% endif %}
-	      {% endfor %}
-	    </ul>
-	  {% endfor %}
-	</div>
+        </div>
 
-	<div class="tab-pane pt-4" id="authors-{{ org.id }}" role="tabpanel" aria-labelledby="authors-{{ org.id }}-tab">
-	  <div class="row">
-	    <div class="col-lg-6">
-	      <h3>Associated Authors:</h3>
-	      <ul>
-		{% for profile in org.get_author_profiles %}
-		  {% if profile.contributor %}
-		    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
-		  {% else %}
-		    <li>{{ profile }}</li>
-		  {% endif %}
-		{% empty %}
-		  <li>No Profile found</li>
-		{% endfor %}
-	      </ul>
-	    </div>
-	    {% if org.children.all|length > 0 %}
-	      <div class="col-lg-6">
-		<h3>Associated authors from sub-organizations:</h3>
-		<ul>
-		  {% for child in org.children.all %}
-		    <li>{{ child }}:
-		      <ul>
-			{% for profile in child.get_author_profiles %}
-			  {% if profile.contributor %}
-			    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
-			  {% else %}
-			    <li>{{ profile }}</li>
-			  {% endif %}
-			{% empty %}
-			  <li>No Profile found</li>
-			{% endfor %}
-		      </ul>
-		    </li>
-		  {% endfor %}
-		</ul>
-	      </div>
-	    {% endif %}
-	  </div>
-	</div>
+        <div class="tab-pane show active pt-4"
+             id="publications-{{ org.id }}"
+             role="tabpanel"
+             aria-labelledby="publications-{{ org.id }}-tab">
+          <h3>
+            Publications associated to this Organization
 
-	<div class="tab-pane pt-4" id="fellows-{{ org.id }}" role="tabpanel" aria-labelledby="fellows-{{ org.id }}-tab">
-	  <h3 class="highlight">Fellows affiliated to this Organization</h3>
-	  <div class="row">
-	    <div class="col-lg-6">
-	      <h4>Currently active</h4>
-	      <ul>
-		{% for fellow in org.fellowships.active %}
-		  <li>{{ fellow }}</li>
-		{% empty %}
-		  <li>No fellowship found</li>
-		{% endfor %}
-	      </ul>
-	    </div>
-	    <div class="col-lg-6">
-	      <h4>Former</h4>
-	      <ul>
-		{% for fellow in org.fellowships.former %}
-		  <li>{{ fellow }}</li>
-		{% empty %}
-		  <li>No fellowship found</li>
-		{% endfor %}
-	      </ul>
-	    </div>
-	  </div>
-	  {% with children=org.children.all %}
-	    {% if children|length > 0 %}
-	      <h4 class="highlight p-2">Fellows associated to sub-organizations</h4>
-	      {% for child in children %}
-		{% with active=child.fellowships.active former=childfellowships.former %}
-		  {% if active|length > 0 or former|length > 0 %}
-		    <table class="table">
-		      <thead>
-			<tr>
-			  <th>Organization</th>
-			  <th>Current</th>
-			  <th>Former</th>
-			</tr>
-		      </thead>
-		      <tbody>
-			<tr>
-			  <td><a href="{{ child.get_absolute_url }}">{{ child }}</a></td>
-			  <td>
-			    <ul class="list list-unstyled">
-			      {% for fellow in active %}
-				<li>{{ fellow }}</li>
-			      {% empty %}
-				<li>No fellowship found</li>
-			      {% endfor %}
-			    </ul>
-			  </td>
-			  <td>
-			    <ul class="list list-unstyled">
-			      {% for fellow in former %}
-				<li>{{ fellow }}</li>
-			      {% empty %}
-				<li>No fellowship found</li>
-			      {% endfor %}
-			    </ul>
-			  </td>
-			</tr>
-		      </tbody>
-		    </table>
-		  {% endif %}
-		{% endwith %}
-	      {% endfor %}
-	    {% endif %}
-	  {% endwith %}
-	</div>
+            {% if perms.scipost.can_manage_organizations %}
+              <span class="text-muted small">(with PubFracs <span data-bs-toggle="tooltip" data-bs-html="true" title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>
+            {% endif %}:
+          </h3>
 
-	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
-	  <h3 class="highlight">Support history</h3>
-	  {% if 'finadmin' in user_roles %}
-	    <a href="{% url "finances:subsidy_sponsorship_create" organization_id=org.id %}">Create a new subsidy from this Organization</a>
-	  {% endif %}
-	  {% if org.subsidy_set.obtained|length > 0 or org.children.all|length > 0 %}
-	    {% if org.subsidy_set.obtained|length > 0 %}
-	      <table class="table table-hover mb-5 caption-top">
-		<caption>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</caption>
-		<thead class="table-light">
-		  <tr>
-		    <th>Type</th>
-		    <th>Amount</th>
-		    <th>Date</th>
-		  </tr>
-		</thead>
-		<tbody>
-		  {% for subsidy in org.subsidy_set.obtained %}
-		    <tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
-		      <td>{{ subsidy.get_subsidy_type_display }}</td>
-		      <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
-		      <td>{{ subsidy.date_from }}{% if subsidy.date_until %} until {{ subsidy.date_until }}{% endif %}</td>
-		    </tr>
-		  {% endfor %}
-		  <tr style="border-top: 2px solid black">
-		    <td>Total support obtained:</td>
-		    <td>
-		      {% with org.get_total_subsidies_publicly_shown as total_subsidies %}
-			{% if total_subsidies %}
-			  &euro;{{ total_subsidies }}
-			{% else %}-{% endif %}
-		      {% endwith %}
-		    </td>
-		    <td></td>
-		  </tr>
-		</tbody>
-	      </table>
-	    {% endif %}
-	    {% if org.children.all|length > 0 %}
-	      <h4>See also the subsidies obtained from these sub-organizations:</h4>
-	      <ul>
-		{% for child in org.children.all %}
-		  <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
-		{% endfor %}
-	      </ul>
-	    {% endif %}
-	  {% else %}
-	    <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
-	  {% endif %}
-	  {% if org.parent %}
-	    <h4>See also the subsidies from this parent organization:</h4>
-	    <ul>
-	      <li><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></li>
-	    </ul>
-	  {% endif %}
+          {% for pubyear in publishing_years %}
+            <h4>
+              {{ pubyear }}
 
+              {% if perms.scipost.can_manage_organizations %}
+                <span class="text-muted small">(PubFracs {{ org|pubfracs_in_year:pubyear }})</span>
+              {% endif %}
 
-	  <h3 class="highlight mt-4">Balance of SciPost expenditures versus support received</h3>
+            </h4>
+            <ul>
 
-	  <p class="mt-1">The following <strong>Expenditures ({{ organization }})</strong> table compiles the expenditures by SciPost to publish all papers which are associated to {{ organization }}{% if organization.has_pubfracs %}, and weighed by this Organization's PubFracs{% endif %}.</p>
-	  {% if 'finadmin' in user_roles %}<p class="bg-danger bg-opacity-10"><strong class="text-danger">[FinAdmin]</strong><br>The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.</p>{% endif %}
+              {% for publication in org.get_publications %}
 
-	  {% include 'finances/_definitions_details.html' %}
+                {% if publication.publication_date|date:'Y'|add:"0" == pubyear %}
+                  <li>
+                    <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a><br />
+                    by {{ publication.author_list }},<br />
+                    {{ publication.citation }}
 
-	  <table class="table mt-4">
-	    <thead class="table-light">
-	      {% if 'finadmin' in user_roles %}
-		<tr>
-		  <td colspan="3"></td>
-		  <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
-		  <td colspan="2"></td>
-		  {% if organization.has_pubfracs %}
-		    <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
-		  {% endif %}
-		</tr>
-	      {% endif %}
-	      <tr>
-		<th>Year (click to toggle details)</th>
-		<th class="text-end">NAP<span class="ms-1" data-bs-toggle="tooltip" data-bs-html="true" title="Number of Associated Publications<br>number of papers in which the Organization is mentioned in author affiliations<br>or in the acknowledgements (as funder or other).">{% include 'bi/info-circle-fill.html' %}</span></th>
-		<th class="text-end">Total associated<br>expenditures</th>
-		{% if 'finadmin' in user_roles %}
-		  <th class="text-end">Total associated<br>compensations</th>
-		  <th class="text-end">Total associated<br>uncompensated</th>
-		  <th class="text-end">Bystander<br>percentage</th>
-		{% endif %}
-		{% if organization.has_pubfracs %}
-		  <th class="text-end">PubFrac<br>share</th>
-		{% endif %}
-		<th class="text-end">Subsidy<br>support</th>
-		{% if organization.has_pubfracs %}
-		  {% if 'finadmin' in user_roles %}
-		    <th class="text-end">Compensations<br>(self)</th>
-		    <th class="text-end">Reserved</th>
-		    <th class="text-end">Compensations<br>(Allies)</th>
-		  {% endif %}
-		  <th class="text-end">Balance</th>
-		{% endif %}
-	      </tr>
-	    </thead>
-	    <tbody>
-	      <tr class="table-light border border-2" style="font-weight: bold;">
-		<td>Cumulative</td>
-		<td class="text-end">{{ balance.cumulative.nap }}</td>
-		<td class="text-end">&euro;{{ balance.cumulative.associated_expenditures }}</td>
-		{% if 'finadmin' in user_roles %}
-		  <td class="text-end">&euro;{{ balance.cumulative.associated_compensated }}</td>
-		  {% if balance.cumulative.associated_uncompensated > 0 %}
-		    <td class="text-end bg-danger bg-opacity-25">
-		      &euro;{{ balance.cumulative.associated_uncompensated }}
-		    </td>
-		  {% else %}
-		    <td class="text-end bg-success bg-opacity-25">
-		      &euro;{{ balance.cumulative.associated_uncompensated }}
-		    </td>
-		  {% endif %}
-		  <td class="text-end">{{ balance.cumulative.bystander_percentage }}</td>
-		{% endif %}
-		{% if organization.has_pubfracs %}
-		  <td class="text-end">&euro;{{ balance.cumulative.expenditures }}</td>
-		{% endif %}
-		<td class="text-end">&euro;{{ balance.cumulative.subsidy_income }}</td>
-		{% if organization.has_pubfracs %}
-		  {% if 'finadmin' in user_roles %}
-		    <td class="text-end">&euro;{{ balance.cumulative.self_compensated }}</td>
-		    <td class="text-end">&euro;{{ balance.cumulative.reserved }}</td>
-		    <td class="text-end">&euro;{{ balance.cumulative.ally_compensated }}</td>
-		  {% endif %}
-		  <td class="text-end bg-{% if balance.cumulative.balance < 0 %}danger{% else %}success{% endif %} bg-opacity-25">
-		    &euro;{{ balance.cumulative.balance }}
-		  </td>
-		{% endif %}
-	      </tr>
-	      {% now "Y" as current_year %}
-	      {% for year in publishing_years %}
-		{% for key, val in balance.items %}
-		  {% if year == key|add:"0" %}
-		    <tr>
-		      <td>
-			<a class="mx-1 my-0 p-0" data-bs-toggle="collapse" href="#details-{{ year }}" role="button" aria-expanded="false" aria-controls="details-{{ year }}">{{ key }}{% if key == current_year %}&emsp;(ongoing){% endif %}</a>
-		      </td>
-		      <td class="text-end">{{ val.expenditures.total.nap }}</td>
-		      <td class="text-end">
-			&euro;{{ val.expenditures.total.associated_expenditures }}
-		      </td>
-		      {% if 'finadmin' in user_roles %}
-			<td class="text-end">
-			  &euro;{{ val.expenditures.total.associated_compensated }}
-			</td>
-			{% if val.expenditures.total.associated_uncompensated > 0 %}
-			  <td class="text-end bg-danger bg-opacity-25">
-			    &euro;{{ val.expenditures.total.associated_uncompensated }}
-			  </td>
-			{% else %}
-			  <td class="text-end bg-success bg-opacity-25">
-			    &euro;{{ val.expenditures.total.associated_uncompensated }}
-			  </td>
-			{% endif %}
-			<td class="text-end">
-			  {{ val.expenditures.total.bystander_percentage }}
-			</td>
-		      {% endif %}
-		      {% if organization.has_pubfracs %}
-			<td class="text-end">
-			  &euro;{{ val.expenditures.total.expenditures }}
-			</td>
-		      {% endif %}
-		      <td class="text-end">&euro;{{ val.subsidy_income }}</td>
-		      {% if organization.has_pubfracs %}
-			{% if 'finadmin' in user_roles %}
-			  <td class="text-end">
-			    &euro;{{ val.expenditures.total.self_compensated }}
-			  </td>
-			  <td class="text-end">&euro;{{ val.reserved }}</td>
-			  <td class="text-end">
-			    &euro;{{ val.expenditures.total.ally_compensated }}
-			  </td>
-			{% endif %}
-			<td class="text-end bg-{% if val.balance < 0 %}danger{% else %}success{% endif %} bg-opacity-25">
-			  &euro;{{ val.balance }}
-			</td>
-		      {% endif %}
-		    </tr>
-		    <tr class="collapse" id="details-{{ year }}">
-		      <td class="pe-0" colspan="{% if 'finadmin' in user_roles %}12{% else %}6{% endif %}">
-			<div class="my-2 ms-4 me-0 p-2 border border-secondary">
+                    {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+                      <br />
+                      <span class="text-muted small">Expenditure: &euro;{{ org|expenditure_for_publication:publication }}</span>
+                    {% endif %}
 
-			  <p>The following table give an overview of expenditures{% if 'finadmin' in user_roles %} and their compensation{% endif %}, compiled for all Publications which are associated to {{ organization }} for {{ year }}.</p>
+                  </li>
+                {% endif %}
 
-			  <p>You can see the list of associated publications and their PubFracs under the <em>Publications & PubFracs</em> tab.</p>
+              {% endfor %}
 
-			  <table class="table caption-top mb-0">
-			    <caption>Expenditures ({{ organization }})</caption>
-			    <thead class="table-secondary">
-			      {% if 'finadmin' in user_roles %}
-				<tr class="border-0">
-				  <td colspan="4" class="bg-white"></td>
-				  <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
-				  {% if organization.has_pubfracs %}
-				    <td colspan="2" class="bg-white"></td>
-				    <td colspan="3" class="bg-danger bg-opacity-10 text-center"><strong>FinAdmin</strong></td>
-				  {% endif %}
-				</tr>
-			      {% endif %}
-			      <tr>
-				<th>Journal</th>
-				<th class="text-end">APEX</th>
-				<th class="text-end">NAP</th>
-				<th class="text-end">Total associated<br>expenditures</th>
-				{% if 'finadmin' in user_roles %}
-				  <th class="text-end">Total associated<br>compensations</th>
-				  <th class="text-end">Total associated<br>uncompensated</th>
-				  <th class="text-end">Bystander<br>percentage</th>
-				{% endif %}
-				{% if organization.has_pubfracs %}
-				  <th class="text-end">PubFracs</th>
-				  <th class="text-end">PubFracs<br>expenditures share</th>
-				  {% if 'finadmin' in user_roles %}
-				    <th class="text-end">Compensations<br>(Organization)</th>
-				    <th class="text-end">Compensations<br>(Allies)</th>
-				    <th class="text-end">Balance<br>(uncompensated)</th>
-				  {% endif %}
-				{% endif %}
-			      </tr>
-			    </thead>
-			    <tbody>
-			      {% for journal, journaldata in val.expenditures.per_journal.items %}
-				<tr>
-				  <td>{{ journal }}</td>
-				  <td class="text-end">&euro;{{ journaldata.costperpaper }}</td>
-				  <td class="text-end">{{ journaldata.nap }}</td>
-				  <td class="text-end">&euro;{{ journaldata.associated_expenditures }}</td>
-				  {% if 'finadmin' in user_roles %}
-				    <td class="text-end">&euro;{{ journaldata.associated_compensated }}</td>
-				    {% if journaldata.associated_uncompensated > 0 %}
-				      <td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
-				    {% else %}
-				      <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
-				    {% endif %}
-				    <td class="text-end">{{ journaldata.bystander_percentage }}</td>
-				  {% endif %}
-				  {% if organization.has_pubfracs %}
-				    <td class="text-end">{{ journaldata.pubfracs }}</td>
-				    <td class="text-end">&euro;{{ journaldata.expenditures }}</td>
-				    {% if 'finadmin' in user_roles %}
-				      <td class="text-end">&euro;{{ journaldata.self_compensated }}</td>
-				      <td class="text-end">&euro;{{ journaldata.ally_compensated }}</td>
-				      {% if journaldata.uncompensated > 0 %}
-					<td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
-				      {% else %}
-					<td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
-				      {% endif %}
-				    {% endif %}
-				  {% endif %}
-				</tr>
-			      {% endfor %}
-			    </tbody>
-			  </table>
+            </ul>
+          {% endfor %}
 
-			</div>
-		      </td>
-		    </tr>
-		  {% endif %}
-		{% endfor %}
-	      {% endfor %}
-	    </tbody>
-	  </table>
+        </div>
 
+        <div class="tab-pane pt-4"
+             id="authors-{{ org.id }}"
+             role="tabpanel"
+             aria-labelledby="authors-{{ org.id }}-tab">
+          <div class="row">
+            <div class="col-lg-6">
+              <h3>Associated Authors:</h3>
+              <ul>
 
+                {% for profile in org.get_author_profiles %}
 
+                  {% if profile.contributor %}
+                    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
+                  {% else %}
+                    <li>{{ profile }}</li>
+                  {% endif %}
 
-	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson or "can_view_org_contacts" in user_org_perms %}
-	  <div class="tab-pane pt-4" id="contacts-{{ org.id }}" role="tabpanel" aria-labelledby="contacts-{{ org.id }}-tab">
-	    <h3>Contacts (with explicit role)</h3>
-	    {% if perms.scipost.can_manage_organizations %}
-	      <ul>
-		<li><a href="{% url 'organizations:add_contact' organization_id=org.id %}">Add a new Contact</a></li>
-	      </ul>
-	    {% endif %}
-	    <table class="table">
-	      <tr>
-		<th>Name</th>
-		<th>Email</th>
-		<th>Kind</th>
-		<th>Date from</th>
-		<th>Date until</th>
-		{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-		  <th>Account<br/>active?</th>
-		  <th>Actions</th>
-		{% endif %}
-	      </tr>
-	      {% for contactrole in org.contactrole_set.all %}
-		<tr>
-		  <td>{{ contactrole.contact }}</td>
-		  <td>{{ contactrole.contact.user.email }}</td>
-		  <td>{{ contactrole.get_kind_display }}</td>
-		  <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
-		  <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
-		  {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-		    <td>{% if contactrole.contact.user.is_active %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
-		    <td>
-		      <ul class="list-unstyled">
-			{% if perms.scipost.can_manage_organizations %}
-			  <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id %}">Email (generic)</a></li>
-			  <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id mail='renewal' %}">Email (subsidy renewal)</a></li>
-			{% endif %}
-			{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-			  <li><a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a></li>
-			{% endif %}
-			{% if perms.scipost.can_manage_organizations %}
-			  <li><a href="{% url 'organizations:contactrole_delete' pk=contactrole.id %}"><span class="text-danger">Delete</span></a></li>
-			{% endif %}
-		      </ul>
-		    </td>
-		  {% endif %}
-		</tr>
-	      {% endfor %}
-	    </table>
+                {% empty %}
+                  <li>No Profile found</li>
+                {% endfor %}
 
-	    <h3>Contact persons</h3>
-	    {% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
-	      <ul>
-		<li><a href="{% url 'organizations:contactperson_create' organization_id=org.id %}">Add/suggest a contact person for this Organization</a></li>
-	      </ul>
-	    {% endif %}
-	    <table class="table">
-	      {% for contactperson in org.contactperson_set.all %}
-		<tr>
-		  <td>{{ contactperson }}</td>
-		  <td>{{ contactperson.email }}</td>
-		  <td>{{ contactperson.role }}</td>
-		  {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-		    <td>
-		      <ul class="list-unstyled">
-			{% if perms.scipost.can_manage_organizations %}
-			  <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id %}">Email (initial)</a></li>
-			  <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id mail='followup' %}">Email (followup)</a></li>
-			  <li><a href="{% url 'organizations:add_contact' organization_id=org.id contactperson_id=contactperson.id %}"><span class="text-success">Upgrade to Contact</span></a></li>
-			{% endif %}
-			<li><a href="{% url 'organizations:contactperson_update' pk=contactperson.id %}"><span class="text-warning">Update</span></a></li>
-			<li><a href="{% url 'organizations:contactperson_delete' pk=contactperson.id %}"><span class="text-danger">Delete</span></a></li>
-		      </ul>
-		    </td>
-		  {% endif %}
-		</tr>
-	      {% empty %}
-		<tr>
-		  <td>No contact person defined</td>
-		</tr>
-	      {% endfor %}
-	    </table>
-	  </div>
-	{% endif %}
+              </ul>
+            </div>
 
-	{% if perms.scipost.can_manage_organizations %}
-	  <div class="tab-pane pt-4" id="events-{{ org.id }}" role="tabpanel" aria-labelledby="events-{{ org.id }}-tab">
-	    <h3>Events</h3>
-	    <ul>
-	      <li><a href="{% url 'organizations:organizationevent_create' pk=org.id %}">Add an event</a></li>
-	    </ul>
-	    <ul>
-	      {% for event in org.organizationevent_set.all %}
-		{% include 'organizations/_organization_event_li.html' with event=event %}
-	      {% empty %}
-		<li>No event found</li>
-	      {% endfor %}
-	    </ul>
-	  </div>
-	{% endif %}
+            {% if org.children.all|length > 0 %}
+              <div class="col-lg-6">
+                <h3>Associated authors from sub-organizations:</h3>
+                <ul>
+
+                  {% for child in org.children.all %}
+                    <li>
+                      {{ child }}:
+                      <ul>
+
+                        {% for profile in child.get_author_profiles %}
+
+                          {% if profile.contributor %}
+                            <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
+                          {% else %}
+                            <li>{{ profile }}</li>
+                          {% endif %}
+
+                        {% empty %}
+                          <li>No Profile found</li>
+                        {% endfor %}
+
+                      </ul>
+                    </li>
+                  {% endfor %}
+
+                </ul>
+              </div>
+            {% endif %}
+
+          </div>
+        </div>
+
+        <div class="tab-pane pt-4"
+             id="fellows-{{ org.id }}"
+             role="tabpanel"
+             aria-labelledby="fellows-{{ org.id }}-tab">
+          <h3 class="highlight">Fellows affiliated to this Organization</h3>
+          <div class="row">
+            <div class="col-lg-6">
+              <h4>Currently active</h4>
+              <ul>
+
+                {% for fellow in org.fellowships.active %}
+                  <li>{{ fellow }}</li>
+                {% empty %}
+                  <li>No fellowship found</li>
+                {% endfor %}
+
+              </ul>
+            </div>
+            <div class="col-lg-6">
+              <h4>Former</h4>
+              <ul>
+
+                {% for fellow in org.fellowships.former %}
+                  <li>{{ fellow }}</li>
+                {% empty %}
+                  <li>No fellowship found</li>
+                {% endfor %}
+
+              </ul>
+            </div>
+          </div>
+          {% with children=org.children.all %}
+
+            {% if children|length > 0 %}
+              <h4 class="highlight p-2">Fellows associated to sub-organizations</h4>
+
+              {% for child in children %}
+                {% with active=child.fellowships.active former=childfellowships.former %}
+
+                  {% if active|length > 0 or former|length > 0 %}
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Organization</th>
+                          <th>Current</th>
+                          <th>Former</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <a href="{{ child.get_absolute_url }}">{{ child }}</a>
+                          </td>
+                          <td>
+                            <ul class="list list-unstyled">
+
+                              {% for fellow in active %}
+                                <li>{{ fellow }}</li>
+                              {% empty %}
+                                <li>No fellowship found</li>
+                              {% endfor %}
+                            </ul>
+                          </td>
+                          <td>
+                            <ul class="list list-unstyled">
+
+                              {% for fellow in former %}
+                                <li>{{ fellow }}</li>
+                              {% empty %}
+                                <li>No fellowship found</li>
+                              {% endfor %}
+                            </ul>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  {% endif %}
+
+                {% endwith %}
+              {% endfor %}
+
+            {% endif %}
+
+          {% endwith %}
+        </div>
+
+        <div class="tab-pane pt-4"
+             id="support-{{ org.id }}"
+             role="tabpanel"
+             aria-labelledby="support-{{ org.id }}-tab">
+          <h3 class="highlight">Support history</h3>
+
+          {% if 'finadmin' in user_roles %}
+            <a href="{% url "finances:subsidy_sponsorship_create" organization_id=org.id %}">Create a new subsidy from this Organization</a>
+          {% endif %}
+
+          {% if org.subsidy_set.obtained|length > 0 or org.children.all|length > 0 %}
+
+            {% if org.subsidy_set.obtained|length > 0 %}
+              <table class="table table-hover mb-5 caption-top">
+                <caption>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</caption>
+                <thead class="table-light">
+                  <tr>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  {% for subsidy in org.subsidy_set.obtained %}
+                    <tr class="table-row"
+                        data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}"
+                        style="cursor: pointer">
+                      <td>{{ subsidy.get_subsidy_type_display }}</td>
+                      <td>
+
+                        {% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}
+                          &euro;{{ subsidy.amount }}
+                        {% else %}
+                          -
+                        {% endif %}
+
+                      </td>
+                      <td>
+                        {{ subsidy.date_from }}
+
+                        {% if subsidy.date_until %}until {{ subsidy.date_until }}{% endif %}
+
+                      </td>
+                    </tr>
+                  {% endfor %}
+
+                  <tr style="border-top: 2px solid black">
+                    <td>Total support obtained:</td>
+                    <td>
+                      {% with org.get_total_subsidies_publicly_shown as total_subsidies %}
+
+                        {% if total_subsidies %}
+                          &euro;{{ total_subsidies }}
+                        {% else %}
+                          -
+                        {% endif %}
+
+                      {% endwith %}
+                    </td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            {% endif %}
+
+            {% if org.children.all|length > 0 %}
+              <h4>See also the subsidies obtained from these sub-organizations:</h4>
+              <ul>
+
+                {% for child in org.children.all %}
+                  <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
+                {% endfor %}
+
+              </ul>
+            {% endif %}
+
+          {% else %}
+            <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
+          {% endif %}
+
+          {% if org.parent %}
+            <h4>See also the subsidies from this parent organization:</h4>
+            <ul><li><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></li></ul>
+          {% endif %}
+
+          <h3 class="highlight mt-4">Balance of SciPost expenditures versus support received</h3>
+
+          <p class="mt-1">
+            The following <strong>Expenditures ({{ organization }})</strong> table compiles the expenditures by SciPost to publish all papers which are associated to {{ organization }}
+            {% if organization.has_pubfracs %}, and weighed by this Organization's PubFracs{% endif %}.
+          </p>
+
+          {% if 'finadmin' in user_roles %}
+            <p class="bg-danger bg-opacity-10">
+              <strong class="text-danger">[FinAdmin]</strong>
+              <br />
+              The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.
+            </p>
+          {% endif %}
+
+          {% include 'finances/_definitions_details.html' %}
+
+          <table class="table mt-4">
+            <thead class="table-light">
+
+              {% if 'finadmin' in user_roles %}
+                <tr>
+                  <td colspan="3"></td>
+                  <td colspan="3" class="bg-danger bg-opacity-10 text-center">
+                    <strong>FinAdmin</strong>
+                  </td>
+                  <td colspan="2"></td>
+
+                  {% if organization.has_pubfracs %}
+                    <td colspan="3" class="bg-danger bg-opacity-10 text-center">
+                      <strong>FinAdmin</strong>
+                    </td>
+                  {% endif %}
+
+                </tr>
+              {% endif %}
+
+              <tr>
+                <th>Year (click to toggle details)</th>
+                <th class="text-end">
+                  NAP<span class="ms-1" data-bs-toggle="tooltip" data-bs-html="true" title="Number of Associated Publications
+                  <br>
+                  number of papers in which the Organization is mentioned in author affiliations
+                  <br>
+                  or in the acknowledgements (as funder or other).">{% include 'bi/info-circle-fill.html' %}</span>
+              </th>
+              <th class="text-end text-wrap">Total associated expenditures</th>
+
+              {% if 'finadmin' in user_roles %}
+                <th class="text-end text-wrap">Total associated compensations</th>
+                <th class="text-end text-wrap">Total associated uncompensated</th>
+                <th class="text-end text-wrap">Bystander percentage</th>
+              {% endif %}
+
+              {% if organization.has_pubfracs %}
+                <th class="text-end text-wrap">PubFrac share</th>
+              {% endif %}
+
+              <th class="text-end text-wrap">Subsidy support</th>
+
+              {% if organization.has_pubfracs %}
+                {% if 'finadmin' in user_roles %}
+                  <th class="text-end text-wrap">Compensations (self)</th>
+                  <th class="text-end text-wrap">Reserved</th>
+                  <th class="text-end text-wrap">Compensations (Allies)</th>
+                {% endif %}
+
+                <th class="text-end text-wrap">Balance</th>
+              {% endif %}
+
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="table-light border border-2" style="font-weight: bold;">
+              <td>Cumulative</td>
+              <td class="text-end">{{ balance.cumulative.nap }}</td>
+              <td class="text-end">&euro;{{ balance.cumulative.associated_expenditures }}</td>
+
+              {% if 'finadmin' in user_roles %}
+                <td class="text-end">&euro;{{ balance.cumulative.associated_compensated }}</td>
+
+                {% if balance.cumulative.associated_uncompensated > 0 %}
+                  <td class="text-end bg-danger bg-opacity-25">&euro;{{ balance.cumulative.associated_uncompensated }}</td>
+                {% else %}
+                  <td class="text-end bg-success bg-opacity-25">&euro;{{ balance.cumulative.associated_uncompensated }}</td>
+                {% endif %}
+
+                <td class="text-end">{{ balance.cumulative.bystander_percentage }}</td>
+              {% endif %}
+
+              {% if organization.has_pubfracs %}<td class="text-end">&euro;{{ balance.cumulative.expenditures }}</td>{% endif %}
+
+              <td class="text-end">&euro;{{ balance.cumulative.subsidy_income }}</td>
+
+              {% if organization.has_pubfracs %}
+                {% if 'finadmin' in user_roles %}
+                  <td class="text-end">&euro;{{ balance.cumulative.self_compensated }}</td>
+                  <td class="text-end">&euro;{{ balance.cumulative.reserved }}</td>
+                  <td class="text-end">&euro;{{ balance.cumulative.ally_compensated }}</td>
+                {% endif %}
+
+                <td class="text-end bg-
+                  {% if balance.cumulative.balance < 0 %}danger{% else %}success{% endif %}
+                   bg-opacity-25">&euro;{{ balance.cumulative.balance }}</td>
+              {% endif %}
+
+            </tr>
+            {% now "Y" as current_year %}
+
+            {% for year in publishing_years %}
+              {% for key, val in balance.items %}
+
+                {% if year == key|add:"0" %}
+                  <tr>
+                    <td>
+                      <a class="mx-1 my-0 p-0"
+                         data-bs-toggle="collapse"
+                         href="#details-{{ year }}"
+                         role="button"
+                         aria-expanded="false"
+                         aria-controls="details-{{ year }}">{{ key }}
+
+                        {% if key == current_year %}&emsp;(ongoing){% endif %}
+
+                      </a>
+                    </td>
+                    <td class="text-end">{{ val.expenditures.total.nap }}</td>
+                    <td class="text-end">&euro;{{ val.expenditures.total.associated_expenditures }}</td>
+
+                    {% if 'finadmin' in user_roles %}
+                      <td class="text-end">&euro;{{ val.expenditures.total.associated_compensated }}</td>
+
+                      {% if val.expenditures.total.associated_uncompensated > 0 %}
+                        <td class="text-end bg-danger bg-opacity-25">&euro;{{ val.expenditures.total.associated_uncompensated }}</td>
+                      {% else %}
+                        <td class="text-end bg-success bg-opacity-25">&euro;{{ val.expenditures.total.associated_uncompensated }}</td>
+                      {% endif %}
+
+                      <td class="text-end">{{ val.expenditures.total.bystander_percentage }}</td>
+                    {% endif %}
+
+                    {% if organization.has_pubfracs %}<td class="text-end">&euro;{{ val.expenditures.total.expenditures }}</td>{% endif %}
+
+                    <td class="text-end">&euro;{{ val.subsidy_income }}</td>
+
+                    {% if organization.has_pubfracs %}
+                      {% if 'finadmin' in user_roles %}
+                        <td class="text-end">&euro;{{ val.expenditures.total.self_compensated }}</td>
+                        <td class="text-end">&euro;{{ val.reserved }}</td>
+                        <td class="text-end">&euro;{{ val.expenditures.total.ally_compensated }}</td>
+                      {% endif %}
+
+                      <td class="text-end bg-
+                        {% if val.balance < 0 %}danger{% else %}success{% endif %}
+                         bg-opacity-25">&euro;{{ val.balance }}</td>
+                    {% endif %}
+
+                  </tr>
+                  <tr class="collapse" id="details-{{ year }}">
+                    <td class="pe-0" colspan="
+                      {% if 'finadmin' in user_roles %}12{% else %}6{% endif %}
+                      ">
+                      <div class="my-2 ms-4 me-0 p-2 border border-secondary">
+
+                        <p>
+                          The following table give an overview of expenditures
+
+                          {% if 'finadmin' in user_roles %}and their compensation{% endif %}
+
+                          , compiled for all Publications which are associated to {{ organization }} for {{ year }}.
+                        </p>
+
+                        <p>
+                          You can see the list of associated publications and their PubFracs under the <em>Publications & PubFracs</em> tab.
+                        </p>
+
+                        <table class="table caption-top mb-0">
+                          <caption>Expenditures ({{ organization }})</caption>
+                          <thead class="table-secondary">
+
+                            {% if 'finadmin' in user_roles %}
+                              <tr class="border-0">
+                                <td colspan="4" class="bg-white"></td>
+                                <td colspan="3" class="bg-danger bg-opacity-10 text-center">
+                                  <strong>FinAdmin</strong>
+                                </td>
+
+                                {% if organization.has_pubfracs %}
+                                  <td colspan="2" class="bg-white"></td>
+                                  <td colspan="3" class="bg-danger bg-opacity-10 text-center">
+                                    <strong>FinAdmin</strong>
+                                  </td>
+                                {% endif %}
+
+                              </tr>
+                            {% endif %}
+
+                            <tr>
+                              <th>Journal</th>
+                              <th class="text-end">APEX</th>
+                              <th class="text-end">NAP</th>
+                              <th class="text-end text-wrap">Total associated expenditures</th>
+
+                              {% if 'finadmin' in user_roles %}
+                                <th class="text-end text-wrap">Total associated compensations</th>
+                                <th class="text-end text-wrap">Total associated uncompensated</th>
+                                <th class="text-end text-wrap">Bystander percentage</th>
+                              {% endif %}
+
+                              {% if organization.has_pubfracs %}
+                                <th class="text-end">PubFracs</th>
+                                <th class="text-end text-wrap">PubFracs expenditures share</th>
+
+                                {% if 'finadmin' in user_roles %}
+                                  <th class="text-end text-wrap">Compensations (Organization)</th>
+                                  <th class="text-end text-wrap">Compensations (Allies)</th>
+                                  <th class="text-end text-wrap">Balance (uncompensated)</th>
+                                {% endif %}
+                              {% endif %}
+
+                            </tr>
+                          </thead>
+                          <tbody>
+
+                            {% for journal, journaldata in val.expenditures.per_journal.items %}
+                              <tr>
+                                <td>{{ journal }}</td>
+                                <td class="text-end">&euro;{{ journaldata.costperpaper }}</td>
+                                <td class="text-end">{{ journaldata.nap }}</td>
+                                <td class="text-end">&euro;{{ journaldata.associated_expenditures }}</td>
+
+                                {% if 'finadmin' in user_roles %}
+                                  <td class="text-end">&euro;{{ journaldata.associated_compensated }}</td>
+
+                                  {% if journaldata.associated_uncompensated > 0 %}
+                                    <td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
+                                  {% else %}
+                                    <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
+                                  {% endif %}
+
+                                  <td class="text-end">{{ journaldata.bystander_percentage }}</td>
+                                {% endif %}
+
+                                {% if organization.has_pubfracs %}
+                                  <td class="text-end">{{ journaldata.pubfracs }}</td>
+                                  <td class="text-end">&euro;{{ journaldata.expenditures }}</td>
+
+                                  {% if 'finadmin' in user_roles %}
+                                    <td class="text-end">&euro;{{ journaldata.self_compensated }}</td>
+                                    <td class="text-end">&euro;{{ journaldata.ally_compensated }}</td>
+
+                                    {% if journaldata.uncompensated > 0 %}
+                                      <td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
+                                    {% else %}
+                                      <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
+                                    {% endif %}
+                                  {% endif %}
+                                {% endif %}
+
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+
+                      </div>
+                    </td>
+                  </tr>
+                {% endif %}
+
+              {% endfor %}
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+
+      {% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson or "can_view_org_contacts" in user_org_perms %}
+        <div class="tab-pane pt-4"
+              id="contacts-{{ org.id }}"
+              role="tabpanel"
+              aria-labelledby="contacts-{{ org.id }}-tab">
+          <h3>Contacts (with explicit role)</h3>
+
+          {% if perms.scipost.can_manage_organizations %}
+            <ul><li><a href="{% url 'organizations:add_contact' organization_id=org.id %}">Add a new Contact</a></li></ul>
+          {% endif %}
+
+          <table class="table">
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Kind</th>
+              <th>Date from</th>
+              <th>Date until</th>
+
+              {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+                <th class="text-wrap">Account active?</th>
+                <th>Actions</th>
+              {% endif %}
+
+            </tr>
+
+            {% for contactrole in org.contactrole_set.all %}
+              <tr>
+                <td>{{ contactrole.contact }}</td>
+                <td>{{ contactrole.contact.user.email }}</td>
+                <td>{{ contactrole.get_kind_display }}</td>
+                <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
+                <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
+
+                {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+                  <td>
+
+                    {% if contactrole.contact.user.is_active %}
+                      <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+                    {% else %}
+                      <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+                    {% endif %}
+
+                  </td>
+                  <td>
+                    <ul class="list-unstyled">
+
+                      {% if perms.scipost.can_manage_organizations %}
+                        <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id %}">Email (generic)</a></li>
+                        <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id mail='renewal' %}">Email (subsidy renewal)</a></li>
+                      {% endif %}
+
+                      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+                        <li><a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a></li>
+                      {% endif %}
+
+                      {% if perms.scipost.can_manage_organizations %}
+                        <li><a href="{% url 'organizations:contactrole_delete' pk=contactrole.id %}"><span class="text-danger">Delete</span></a></li>
+                      {% endif %}
+
+                    </ul>
+                  </td>
+                {% endif %}
+
+              </tr>
+            {% endfor %}
+
+          </table>
+
+          <h3>Contact persons</h3>
+
+          {% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
+            <ul><li><a href="{% url 'organizations:contactperson_create' organization_id=org.id %}">Add/suggest a contact person for this Organization</a></li></ul>
+          {% endif %}
+
+          <table class="table">
+
+            {% for contactperson in org.contactperson_set.all %}
+              <tr>
+                <td>{{ contactperson }}</td>
+                <td>{{ contactperson.email }}</td>
+                <td>{{ contactperson.role }}</td>
+
+                {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+                  <td>
+                    <ul class="list-unstyled">
+
+                      {% if perms.scipost.can_manage_organizations %}
+                        <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id %}">Email (initial)</a></li>
+                        <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id mail='followup' %}">Email (followup)</a></li>
+                        <li><a href="{% url 'organizations:add_contact' organization_id=org.id contactperson_id=contactperson.id %}"><span class="text-success">Upgrade to Contact</span></a></li>
+                      {% endif %}
+
+                      <li><a href="{% url 'organizations:contactperson_update' pk=contactperson.id %}"><span class="text-warning">Update</span></a></li>
+                      <li><a href="{% url 'organizations:contactperson_delete' pk=contactperson.id %}"><span class="text-danger">Delete</span></a></li>
+                    </ul>
+                  </td>
+                {% endif %}
+
+              </tr>
+            {% empty %}
+              <tr><td>No contact person defined</td></tr>
+            {% endfor %}
+
+          </table>
+        </div>
+      {% endif %}
+
+      {% if perms.scipost.can_manage_organizations %}
+        <div class="tab-pane pt-4"
+              id="events-{{ org.id }}"
+              role="tabpanel"
+              aria-labelledby="events-{{ org.id }}-tab">
+          <h3>Events</h3>
+          <ul><li><a href="{% url 'organizations:organizationevent_create' pk=org.id %}">Add an event</a></li></ul>
+          
+          <ul>
+            {% for event in org.organizationevent_set.all %}
+              {% include 'organizations/_organization_event_li.html' with event=event %}
+            {% empty %}
+              <li>No event found</li>
+            {% endfor %}
+          </ul>
+
+        </div>
+      {% endif %}
 
       </div>
     </div>
