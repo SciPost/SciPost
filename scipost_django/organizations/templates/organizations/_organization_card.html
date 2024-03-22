@@ -27,11 +27,7 @@
              href="#publications-{{ org.id }}"
              role="tab"
              aria-controls="publications-{{ org.id }}"
-             aria-selected="true">Publications
-
-            {% if perms.scipost.can_manage_organizations %}& PubFracs{% endif %}
-
-          </a>
+             aria-selected="true">Publications{% if perms.scipost.can_manage_organizations %} & PubFracs{% endif %}</a>
         </li>
         <li class="nav-item">
           <a class="nav-link"
@@ -580,7 +576,7 @@
                         </p>
 
                         <p>
-                          You can see the list of associated publications and their PubFracs under the <em>Publications & PubFracs</em> tab.
+                          You can see the list of associated publications {% if 'finadmin' in user_roles %}and their PubFracs{% endif %} under the <em>Publications</em> tab.
                         </p>
 
                         <table class="table caption-top mb-0">
