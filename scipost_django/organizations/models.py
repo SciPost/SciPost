@@ -478,7 +478,7 @@ class Organization(models.Model):
         cumulative_associated_uncompensated = 0
         cumulative_subsidy_income = 0
         cumulative_reserved = 0
-        cumulative_balance = 0
+        cumulative_impact_on_reserves = 0
         pf = self.pubfracs.all()
         publications_all = self.get_publications()
         for year in pubyears:
@@ -603,7 +603,7 @@ class Organization(models.Model):
                 ),
             }
             rep[str(year)]["reserved"] = subsidy_income - year_self_compensated
-            rep[str(year)]["balance"] = subsidy_income - year_expenditures
+            rep[str(year)]["impact_on_reserves"] = subsidy_income - year_expenditures
             cumulative_nap += year_nap
             cumulative_pubfracs += year_pubfracs
             cumulative_expenditures += year_expenditures
@@ -614,7 +614,7 @@ class Organization(models.Model):
             cumulative_associated_compensated += year_associated_compensated
             cumulative_associated_uncompensated += year_associated_uncompensated
             cumulative_subsidy_income += subsidy_income
-            cumulative_balance += subsidy_income - year_expenditures
+            cumulative_impact_on_reserves += subsidy_income - year_expenditures
             cumulative_reserved += subsidy_income - year_self_compensated
         rep["cumulative"] = {
             "nap": cumulative_nap,
@@ -637,7 +637,7 @@ class Organization(models.Model):
             ),
             "subsidy_income": cumulative_subsidy_income,
             "reserved": cumulative_reserved,
-            "balance": cumulative_balance,
+            "impact_on_reserves": cumulative_impact_on_reserves,
         }
         return rep
 

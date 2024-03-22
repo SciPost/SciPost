@@ -21,8 +21,8 @@
 	  <td>Number of Associated Publications, compiled (depending on context) for a given year or over many years, for a specific Journal or for many, etc.</td>
       </tr>
       <tr>
+	<th>Publication Fraction</th>
 	<th>PubFrac</th>
-	<th></th>
 	<td>A fraction of a unit representing an Organization's "weight" for a given Publication.<br>The weight is given by the following simple algorithm:
 	  <ul>
 	    <li>First, the unit is split equally among each of the authors.</li>
@@ -58,16 +58,17 @@
 	<td>Sum of the values of all Subsidies relevant to a given context (for example: from a given Organization in a given year).</td>
       </tr>
       <tr>
-	<th>Balance</th>
+	<th>Impact on reserves</th>
 	<th></th>
-	<td>Difference between incoming and outgoing financial resources (again defined depending on context).<br>A positive balance means that our initiative is sustainable (and perhaps even able to grow).<br>A negative balance means that these activities are depleting our financial reserves.</td>
+	<td>Difference between incoming and outgoing financial resources for the activities under consideration (again defined depending on context).<br>A positive impact on reserves means that our initiative is sustainable (and perhaps even able to grow).<br>A negative impact on reserves means that these activities are effectively depleting our available resources and threatening our sustainability.</td>
       </tr>
     </tbody>
   </table>
 
   {% if 'finadmin' in user_roles %}
-    <table class="table table-danger bg-opacity-10 m-4 p-4 caption-top">
-      <caption class="text-danger bg-danger bg-opacity-25 p-2">[FinAdmin]</caption>
+    <div class="border border-danger bg-danger bg-opacity-10 m-4">
+      <p><strong class="text-danger">[FinAdmin]</strong></p>
+      <table class="table m-4 p-4">
       <tbody>
 	<tr>
 	  <th>Compensations</th>
@@ -114,6 +115,7 @@
 	</tr>
       </tbody>
     </table>
+    </div>
   {% endif %}
 
 </details>

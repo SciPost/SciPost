@@ -124,7 +124,7 @@
 	    </th>
 	    <th>SciPost sponsor?</th>
 	    {% if 'finadmin' in user_roles %}
-	      <th class="bg-danger bg-opacity-10"><span class="text-danger">FinAdmin</span><br>Support balance</th>
+	      <th class="border border-danger bg-danger bg-opacity-10"><span class="text-danger">FinAdmin</span><br>Support balance<br></th>
 	    {% endif %}
 	  </tr>
 	</thead>
@@ -160,24 +160,7 @@
 		<td class="bg-warning">Not yet</td>
 	      {% endif %}
 	      {% if 'finadmin' in user_roles %}
-		<td>
-		  <table>
-		    <tr>
-		      <td class="py-0">cumul.:</td>
-		      <td class="py-0 text-end">&euro;{{ org.cf_balance_info.cumulative.balance }}</td>
-		    </tr>
-		    {% for year in publishing_years|slice:"0:5" %}
-		      {% for key, val in org.cf_balance_info.items %}
-			{% if year == key|add:"0" %}
-			  <tr>
-			    <td class="py-0">{{ year }}:</td>
-			    <td class="py-0 text-end">&euro;{{ val.balance }}</td>
-			  </tr>
-			{% endif %}
-		      {% endfor %}
-		    {% endfor %}
-		  </table>
-		</td>
+		<td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ org.cf_balance_info.cumulative.balance }}</td>
 	      {% endif %}
 	    </tr>
 	  {% empty %}

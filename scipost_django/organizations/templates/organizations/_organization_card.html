@@ -118,7 +118,7 @@
                 <p>Are you a representative of this Organization? We advise you to:</p>
                 <ul>
                   <li>
-                    Make sure your Organization gets included in 
+                    Make sure your Organization gets included in
                     <a href="https://www.crossref.org/services/funder-registry/" target="_blank" rel="noopener">Crossref's Funder Registry</a>;
                   </li>
                   <li>
@@ -416,7 +416,7 @@
           </p>
 
           {% if 'finadmin' in user_roles %}
-            <p class="bg-danger bg-opacity-10">
+            <p class="border border-danger bg-danger bg-opacity-10 p-1">
               <strong class="text-danger">[FinAdmin]</strong>
               <br />
               The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.
@@ -431,13 +431,13 @@
               {% if 'finadmin' in user_roles %}
                 <tr>
                   <td colspan="3"></td>
-                  <td colspan="3" class="bg-danger bg-opacity-10 text-center">
+                  <td colspan="3" class="border border-danger bg-danger bg-opacity-10 text-center">
                     <strong>FinAdmin</strong>
                   </td>
                   <td colspan="2"></td>
 
                   {% if organization.has_pubfracs %}
-                    <td colspan="3" class="bg-danger bg-opacity-10 text-center">
+                    <td colspan="3" class="border border-danger bg-danger bg-opacity-10 text-center">
                       <strong>FinAdmin</strong>
                     </td>
                   {% endif %}
@@ -457,25 +457,25 @@
               <th class="text-end text-wrap">Total associated expenditures</th>
 
               {% if 'finadmin' in user_roles %}
-                <th class="text-end text-wrap">Total associated compensations</th>
-                <th class="text-end text-wrap">Total associated uncompensated</th>
-                <th class="text-end text-wrap">Bystander percentage</th>
+                <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Total associated compensations</th>
+                <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Total associated uncompensated</th>
+                <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Bystander percentage</th>
               {% endif %}
 
               {% if organization.has_pubfracs %}
-                <th class="text-end text-wrap">PubFrac share</th>
+                <th class="text-end text-wrap">PubFrac<br>share</th>
               {% endif %}
 
-              <th class="text-end text-wrap">Subsidy support</th>
+              <th class="text-end text-wrap">Subsidy<br>support</th>
 
               {% if organization.has_pubfracs %}
                 {% if 'finadmin' in user_roles %}
-                  <th class="text-end text-wrap">Compensations (self)</th>
-                  <th class="text-end text-wrap">Reserved</th>
-                  <th class="text-end text-wrap">Compensations (Allies)</th>
+                  <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Compensations (self)</th>
+                  <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Reserved</th>
+                  <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Compensations (Allies)</th>
                 {% endif %}
 
-                <th class="text-end text-wrap">Balance</th>
+                <th class="text-end text-wrap">Impact on<br>reserves</th>
               {% endif %}
 
             </tr>
@@ -487,15 +487,15 @@
               <td class="text-end">&euro;{{ balance.cumulative.associated_expenditures }}</td>
 
               {% if 'finadmin' in user_roles %}
-                <td class="text-end">&euro;{{ balance.cumulative.associated_compensated }}</td>
+                <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ balance.cumulative.associated_compensated }}</td>
 
                 {% if balance.cumulative.associated_uncompensated > 0 %}
-                  <td class="text-end bg-danger bg-opacity-25">&euro;{{ balance.cumulative.associated_uncompensated }}</td>
+                  <td class="border border-danger text-end bg-danger bg-opacity-25">&euro;{{ balance.cumulative.associated_uncompensated }}</td>
                 {% else %}
-                  <td class="text-end bg-success bg-opacity-25">&euro;{{ balance.cumulative.associated_uncompensated }}</td>
+                  <td class="border border-danger text-end bg-success bg-opacity-25">&euro;{{ balance.cumulative.associated_uncompensated }}</td>
                 {% endif %}
 
-                <td class="text-end">{{ balance.cumulative.bystander_percentage }}</td>
+                <td class="border border-danger bg-danger bg-opacity-10 text-end">{{ balance.cumulative.bystander_percentage }}</td>
               {% endif %}
 
               {% if organization.has_pubfracs %}<td class="text-end">&euro;{{ balance.cumulative.expenditures }}</td>{% endif %}
@@ -504,17 +504,18 @@
 
               {% if organization.has_pubfracs %}
                 {% if 'finadmin' in user_roles %}
-                  <td class="text-end">&euro;{{ balance.cumulative.self_compensated }}</td>
-                  <td class="text-end">&euro;{{ balance.cumulative.reserved }}</td>
-                  <td class="text-end">&euro;{{ balance.cumulative.ally_compensated }}</td>
+                  <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ balance.cumulative.self_compensated }}</td>
+                  <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ balance.cumulative.reserved }}</td>
+                  <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ balance.cumulative.ally_compensated }}</td>
                 {% endif %}
 
-                <td class="text-end bg-
-                  {% if balance.cumulative.balance < 0 %}danger{% else %}success{% endif %}
-                   bg-opacity-25">&euro;{{ balance.cumulative.balance }}</td>
+                <td class="text-end">&euro;{{ balance.cumulative.impact_on_reserves }}</td>
               {% endif %}
 
             </tr>
+	    <tr>
+	      <td>Per year:</td>
+	    </tr>
             {% now "Y" as current_year %}
 
             {% for year in publishing_years %}
@@ -538,15 +539,15 @@
                     <td class="text-end">&euro;{{ val.expenditures.total.associated_expenditures }}</td>
 
                     {% if 'finadmin' in user_roles %}
-                      <td class="text-end">&euro;{{ val.expenditures.total.associated_compensated }}</td>
+                      <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ val.expenditures.total.associated_compensated }}</td>
 
                       {% if val.expenditures.total.associated_uncompensated > 0 %}
-                        <td class="text-end bg-danger bg-opacity-25">&euro;{{ val.expenditures.total.associated_uncompensated }}</td>
+                        <td class="border border-danger text-end bg-danger bg-opacity-25">&euro;{{ val.expenditures.total.associated_uncompensated }}</td>
                       {% else %}
-                        <td class="text-end bg-success bg-opacity-25">&euro;{{ val.expenditures.total.associated_uncompensated }}</td>
+                        <td class="border border-danger text-end bg-success bg-opacity-25">&euro;{{ val.expenditures.total.associated_uncompensated }}</td>
                       {% endif %}
 
-                      <td class="text-end">{{ val.expenditures.total.bystander_percentage }}</td>
+                      <td class="border border-danger bg-danger bg-opacity-10 text-end">{{ val.expenditures.total.bystander_percentage }}</td>
                     {% endif %}
 
                     {% if organization.has_pubfracs %}<td class="text-end">&euro;{{ val.expenditures.total.expenditures }}</td>{% endif %}
@@ -555,14 +556,12 @@
 
                     {% if organization.has_pubfracs %}
                       {% if 'finadmin' in user_roles %}
-                        <td class="text-end">&euro;{{ val.expenditures.total.self_compensated }}</td>
-                        <td class="text-end">&euro;{{ val.reserved }}</td>
-                        <td class="text-end">&euro;{{ val.expenditures.total.ally_compensated }}</td>
+                        <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ val.expenditures.total.self_compensated }}</td>
+                        <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ val.reserved }}</td>
+                        <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ val.expenditures.total.ally_compensated }}</td>
                       {% endif %}
 
-                      <td class="text-end bg-
-                        {% if val.balance < 0 %}danger{% else %}success{% endif %}
-                         bg-opacity-25">&euro;{{ val.balance }}</td>
+                      <td class="text-end bg-{% if val.impact_on_reserves < 0 %}danger{% else %}success{% endif %} bg-opacity-25">&euro;{{ val.impact_on_reserves }}</td>
                     {% endif %}
 
                   </tr>
@@ -570,7 +569,7 @@
                     <td class="pe-0" colspan="
                       {% if 'finadmin' in user_roles %}12{% else %}6{% endif %}
                       ">
-                      <div class="my-2 ms-4 me-0 p-2 border border-secondary">
+                      <div class="my-2 ms-4 me-2 p-2 border border-secondary">
 
                         <p>
                           The following table give an overview of expenditures
@@ -612,9 +611,9 @@
                               <th class="text-end text-wrap">Total associated expenditures</th>
 
                               {% if 'finadmin' in user_roles %}
-                                <th class="text-end text-wrap">Total associated compensations</th>
-                                <th class="text-end text-wrap">Total associated uncompensated</th>
-                                <th class="text-end text-wrap">Bystander percentage</th>
+                                <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Total associated compensations</th>
+                                <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Total associated uncompensated</th>
+                                <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Bystander percentage</th>
                               {% endif %}
 
                               {% if organization.has_pubfracs %}
@@ -622,9 +621,9 @@
                                 <th class="text-end text-wrap">PubFracs expenditures share</th>
 
                                 {% if 'finadmin' in user_roles %}
-                                  <th class="text-end text-wrap">Compensations (Organization)</th>
-                                  <th class="text-end text-wrap">Compensations (Allies)</th>
-                                  <th class="text-end text-wrap">Balance (uncompensated)</th>
+                                  <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Compensations (Organization)</th>
+                                  <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Compensations (Allies)</th>
+                                  <th class="border border-danger bg-danger bg-opacity-10 text-end text-wrap">Balance (uncompensated)</th>
                                 {% endif %}
                               {% endif %}
 
@@ -640,15 +639,15 @@
                                 <td class="text-end">&euro;{{ journaldata.associated_expenditures }}</td>
 
                                 {% if 'finadmin' in user_roles %}
-                                  <td class="text-end">&euro;{{ journaldata.associated_compensated }}</td>
+                                  <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ journaldata.associated_compensated }}</td>
 
                                   {% if journaldata.associated_uncompensated > 0 %}
-                                    <td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
+                                    <td class="border border-danger bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
                                   {% else %}
-                                    <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
+                                    <td class="border border-danger bg-success bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
                                   {% endif %}
 
-                                  <td class="text-end">{{ journaldata.bystander_percentage }}</td>
+                                  <td class="border border-danger bg-danger bg-opacity-10 text-end">{{ journaldata.bystander_percentage }}</td>
                                 {% endif %}
 
                                 {% if organization.has_pubfracs %}
@@ -656,13 +655,13 @@
                                   <td class="text-end">&euro;{{ journaldata.expenditures }}</td>
 
                                   {% if 'finadmin' in user_roles %}
-                                    <td class="text-end">&euro;{{ journaldata.self_compensated }}</td>
-                                    <td class="text-end">&euro;{{ journaldata.ally_compensated }}</td>
+                                    <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ journaldata.self_compensated }}</td>
+                                    <td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ journaldata.ally_compensated }}</td>
 
                                     {% if journaldata.uncompensated > 0 %}
-                                      <td class="bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
+                                      <td class="border border-danger bg-danger bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
                                     {% else %}
-                                      <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
+                                      <td class="border border-danger bg-success bg-opacity-25 text-end">&euro;{{ journaldata.uncompensated }}</td>
                                     {% endif %}
                                   {% endif %}
                                 {% endif %}
@@ -799,7 +798,7 @@
               aria-labelledby="events-{{ org.id }}-tab">
           <h3>Events</h3>
           <ul><li><a href="{% url 'organizations:organizationevent_create' pk=org.id %}">Add an event</a></li></ul>
-          
+
           <ul>
             {% for event in org.organizationevent_set.all %}
               {% include 'organizations/_organization_event_li.html' with event=event %}
