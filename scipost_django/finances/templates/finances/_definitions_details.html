@@ -1,0 +1,119 @@
+<details class="m-4">
+  <summary><strong class="p-2 border border-2">Help! What do these terms mean?</strong></summary>
+  <table class="table table-secondary m-4 p-4">
+    <thead class="table-dark">
+      <tr>
+	<th>Concept</th>
+	<th>Acronym</th>
+	<th>Definition</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+	<th>Associated Publications</th>
+	<th></th>
+	<td>An Organization's <em>Associated Publications</em> is the set of papers in which the Organization (or any of its children) is mentioned in author affiliations, or in the acknowledgements as grant-giver or funder.
+	</td>
+      </tr>
+      <tr>
+	<th>Number of Associated Publications</th>
+	<th>NAP</th>
+	  <td>Number of Associated Publications, compiled (depending on context) for a given year or over many years, for a specific Journal or for many, etc.</td>
+      </tr>
+      <tr>
+	<th>PubFrac</th>
+	<th></th>
+	<td>A fraction of a unit representing an Organization's "weight" for a given Publication.<br>The weight is given by the following simple algorithm:
+	  <ul>
+	    <li>First, the unit is split equally among each of the authors.</li>
+	    <li>Then, for each author, their part is split equally among their affiliations.</li>
+	    <li>The author parts are then binned per Organization.</li>
+	  </ul>
+	  By construction, any individual paper's PubFracs sum up to 1.
+	</td>
+      </tr>
+      <tr>
+	<th>Expenditures</th>
+	<th></th>
+	<td>We use the term <em>Expenditures</em> to represent the sum of all outflows of money required by our initiative to achieve a certain output (depending on context).</td>
+      </tr>
+      <tr>
+	<th>Average Publication Expenditures</th>
+	<th>APEX</th>
+	<td>For a given Journal for a given year, the average expenditures per Publication which our initiative has faced. All our APEX are listed on our <a href="{% url 'finances:apex' %}">APEX page</a>.</td>
+      </tr>
+      <tr>
+	<th>Total Associated Expenditures</th>
+	<th></th>
+	<td>Total expenditures ascribed to an Organization's Associated Publications (given for one or many years, Journals etc depending on context).</td>
+      </tr>
+      <tr>
+	<th>PubFrac share</th>
+	<th></th>
+	<td>The fraction of expenditures which can be associated to an Organization, based on PubFracs. This is defined as APEX times PubFrac, summed over the set of Publications defined by the context (<em>e.g.</em> all Associated Publications of a given Organization for a given Journal in a given year).</td>
+      </tr>
+      <tr>
+	<th>Subsidy support</th>
+	<th></th>
+	<td>Sum of the values of all Subsidies relevant to a given context (for example: from a given Organization in a given year).</td>
+      </tr>
+      <tr>
+	<th>Balance</th>
+	<th></th>
+	<td>Difference between incoming and outgoing financial resources (again defined depending on context).<br>A positive balance means that our initiative is sustainable (and perhaps even able to grow).<br>A negative balance means that these activities are depleting our financial reserves.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {% if 'finadmin' in user_roles %}
+    <table class="table table-danger bg-opacity-10 m-4 p-4 caption-top">
+      <caption class="text-danger bg-danger bg-opacity-25 p-2">[FinAdmin]</caption>
+      <tbody>
+	<tr>
+	  <th>Compensations</th>
+	  <th></th>
+	  <td>A <em>compensation</em> is a mapping from a given Subsidy to a given PubFrac, marking that this PubFrac's expenditures has been morally covered by this Subsidy.<br>
+	    Compensations are computed internally according to the following algorithm:
+	    <ul>
+	      <li>For each year of our activities (oldest first), the coverage of each Subsidy is computed (coverage is defined as the value of the Subsidy in a particular year).</li>
+	      <li>Looping over all Subsidies with nonzero coverage in a given year, their coverage is first used (up to Subsidy depletion) to compensate any PubFrac with direct affiliation to the Subsidy-giver in the given year. These are the <em>self-compensations</em>.</li>
+	      <li>The loop is run again, with any non-depleted Subsidy being used to compensated any PubFrac with affiliation to any child Organization of the Subsidy-giver. These are the <em>ally compensations</em>.</li>
+	      <li>This looping is run for each subsequent year (convergence is achieved immediately when the year is finished).</li>
+	    </ul>
+	  </td>
+	</tr>
+	<tr>
+	  <th>Self-compensations</th>
+	  <th></th>
+	  <td>Compensations where the Subsidy-giving Organization compensates PubFracs affiliated to itself.</td>
+	</tr>
+	<tr>
+	  <th>Ally compensations</th>
+	  <th></th>
+	  <td>Compensations where the Subsidy-giving Organization compensates PubFracs from another Organization.</td>
+	</tr>
+	<tr>
+	  <th>Total associated compensations</th>
+	  <th></th>
+	  <td>All compensations summed up over all Associated Publications. This thus includes compensations from all Subsidy-givers associated to those Publications.</td>
+	</tr>
+	<tr>
+	  <th>Total associated uncompensated</th>
+	  <th></th>
+	  <td>All uncompensated PubFracs summed over all Associated Publications. This is the Total associated expenditures minus the Total associated compensations.</td>
+	</tr>
+	<tr>
+	  <th>Bystander percentage</th>
+	  <th></th>
+	  <td>The bystander percentage is defined as the percentage of uncompensated with respect to expenditures.</td>
+	</tr>
+	<tr>
+	  <th>Reserved</th>
+	  <th></th>
+	  <td>Part of a Subsidy which remains after all its compensations have been allocated. This amount contributes to our initiative's reserve fund.</td>
+	</tr>
+      </tbody>
+    </table>
+  {% endif %}
+
+</details>

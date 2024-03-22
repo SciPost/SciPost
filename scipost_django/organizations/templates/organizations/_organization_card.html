@@ -263,6 +263,12 @@
 
 
 	  <h3 class="highlight mt-4">Balance of SciPost expenditures versus support received</h3>
+
+	  <p class="mt-1">The following <strong>Expenditures ({{ organization }})</strong> table compiles the expenditures by SciPost to publish all papers which are associated to {{ organization }}{% if organization.has_pubfracs %}, and weighed by this Organization's PubFracs{% endif %}.</p>
+	  {% if 'finadmin' in user_roles %}<p class="bg-danger bg-opacity-10"><strong class="text-danger">[FinAdmin]</strong><br>The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.</p>{% endif %}
+
+	  {% include 'finances/_definitions_details.html' %}
+
 	  <table class="table mt-4">
 	    <thead class="table-light">
 	      {% if 'finadmin' in user_roles %}
@@ -277,12 +283,12 @@
 	      {% endif %}
 	      <tr>
 		<th>Year (click to toggle details)</th>
-		<th class="text-end">NAP</th>
+		<th class="text-end">NAP<span class="ms-1" data-bs-toggle="tooltip" data-bs-html="true" title="Number of Associated Publications<br>number of papers in which the Organization is mentioned in author affiliations<br>or in the acknowledgements (as funder or other).">{% include 'bi/info-circle-fill.html' %}</span></th>
 		<th class="text-end">Total associated<br>expenditures</th>
 		{% if 'finadmin' in user_roles %}
 		  <th class="text-end">Total associated<br>compensations</th>
 		  <th class="text-end">Total associated<br>uncompensated</th>
-		  <th class="text-end">Freeriding<br>percentage</th>
+		  <th class="text-end">Bystander<br>percentage</th>
 		{% endif %}
 		{% if organization.has_pubfracs %}
 		  <th class="text-end">PubFrac<br>share</th>
@@ -314,7 +320,7 @@
 		      &euro;{{ balance.cumulative.associated_uncompensated }}
 		    </td>
 		  {% endif %}
-		  <td class="text-end">{{ balance.cumulative.freeriding_percentage }}</td>
+		  <td class="text-end">{{ balance.cumulative.bystander_percentage }}</td>
 		{% endif %}
 		{% if organization.has_pubfracs %}
 		  <td class="text-end">&euro;{{ balance.cumulative.expenditures }}</td>
@@ -357,7 +363,7 @@
 			  </td>
 			{% endif %}
 			<td class="text-end">
-			  {{ val.expenditures.total.freeriding_percentage }}
+			  {{ val.expenditures.total.bystander_percentage }}
 			</td>
 		      {% endif %}
 		      {% if organization.has_pubfracs %}
@@ -410,7 +416,7 @@
 				{% if 'finadmin' in user_roles %}
 				  <th class="text-end">Total associated<br>compensations</th>
 				  <th class="text-end">Total associated<br>uncompensated</th>
-				  <th class="text-end">Freeriding<br>percentage</th>
+				  <th class="text-end">Bystander<br>percentage</th>
 				{% endif %}
 				{% if organization.has_pubfracs %}
 				  <th class="text-end">PubFracs</th>
@@ -437,7 +443,7 @@
 				    {% else %}
 				      <td class="bg-success bg-opacity-25 text-end">&euro;{{ journaldata.associated_uncompensated }}</td>
 				    {% endif %}
-				    <td class="text-end">{{ journaldata.freeriding_percentage }}</td>
+				    <td class="text-end">{{ journaldata.bystander_percentage }}</td>
 				  {% endif %}
 				  {% if organization.has_pubfracs %}
 				    <td class="text-end">{{ journaldata.pubfracs }}</td>
@@ -456,12 +462,6 @@
 			      {% endfor %}
 			    </tbody>
 			  </table>
-			  <details class="ms-2 mb-2">
-			    <summary>
-			      Info on this table
-			    </summary>
-			    <p class="mt-1">This <strong>Expenditures (Organization-level)</strong> table compiles the expenditures by SciPost to publish all papers (on a per-Journal basis) which are associated to this Organization for {{ year }}, and weighed by this Organization's PubFracs.{% if 'finadmin' in user_roles %} The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.{% endif %}</p>
-			  </details>
 
 			</div>
 		      </td>
@@ -471,12 +471,6 @@
 	      {% endfor %}
 	    </tbody>
 	  </table>
-	  <details class="ms-2 mb-2">
-	    <summary>
-	      Info on this table
-	    </summary>
-	    <p class="mt-1">This <strong>Expenditures (Organization-level)</strong> table compiles the expenditures by SciPost to publish all papers which are associated to this Organization, and weighed by this Organization's PubFracs.{% if 'finadmin' in user_roles %} The next columns detail the compensations (through Subsidies) obtained from this Organization, or from other (ally) Organizations on its behalf. Any negative balance hits SciPost's reserve budget.{% endif %}</p>
-	  </details>
 
 
 

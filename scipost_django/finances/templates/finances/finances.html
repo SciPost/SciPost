@@ -15,18 +15,41 @@
     <div class="col-12">
       <h2>Finances</h2>
 
-      <h3 class="highlight">Business Model</h3>
-      <ul>
-	<li>Visit our <a href="{% url 'finances:business_model' %}">business model page</a>
-	  to get a quick run-down on how we make our operations sustainable.</li>
-      </ul>
-
-      <h3 class="highlight">Sponsors & Subsidies</h3>
-      <ul>
-	<li>Visit our <a href="{% url 'sponsors:sponsors' %}">Sponsors page</a>
-	  to view our list of sponsors and more information on our sponsorship scheme.</li>
-	<li><a href="{% url 'finances:subsidies' %}">View {% if perms.scipost.can_manage_subsidies %}(and manage) {% endif %}info on Subsidies obtained by SciPost</a></li>
-      </ul>
+      <h3 class="highlight" id="reports">General information</h3>
+      <div class="card-group">
+	<div class="card">
+	  <div class="card-header">Our business model</div>
+	  <div class="card-body">
+	    <ul>
+	      <li>Visit our <a href="{% url 'finances:business_model' %}">business model page</a>
+		to get a quick run-down on what our "antidote to APCs" model is</li>
+	      <li>... and how you can help us make our operations sustainable.</li>
+	    </ul>
+	  </div>
+	</div>
+	<div class="card">
+	  <div class="card-header">Sponsors & Subsidies</div>
+	  <div class="card-body">
+	    <ul>
+	      <li>Visit our <a href="{% url 'sponsors:sponsors' %}">Sponsors page</a>
+		to view our list of sponsors and more information on our sponsorship scheme.</li>
+	      <li><a href="{% url 'finances:subsidies' %}">View {% if perms.scipost.can_manage_subsidies %}(and manage) {% endif %}info on Subsidies obtained by SciPost</a></li>
+	      <li>Visit our <a href="{% url 'finances:country_level_data' %}">country-level financial data</a> page to see how our expenditures and support are geographically distributed.</li>
+	    </ul>
+	  </div>
+	</div>
+	<div class="card">
+	  <div class="card-header">Average Publication Expenditures</div>
+	  <div class="card-body">
+	    <ul>
+	      <li>Visit our <a href="{% url 'finances:apex' %}">APEX</a>
+		(Average Publication Expenditures) page
+		to see how our publishing expenditures add up from year to year,
+		including a per-Journal breakdown.</li>
+	    </ul>
+	  </div>
+	</div>
+      </div>
 
       <h3 class="highlight">Financial Balance</h3>
       <p>The graph below gives a summarized representation of our financial health and
@@ -67,14 +90,6 @@
 	  </tbody>
 	</table>
       </div>
-
-      <h3 class="highlight">Average Publication Expenditures</h3>
-      <ul>
-	<li>Visit our <a href="{% url 'finances:apex' %}">APEX</a>
-	  (Average Publication Expenditures) page
-	  to see how our publishing expenditures add up from year to year,
-	  including a per-Journal breakdown.</li>
-      </ul>
 
       <h3 class="highlight" id="reports">Periodic Reports</h3>
       <ul>

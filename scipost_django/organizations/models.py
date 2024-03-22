@@ -567,7 +567,7 @@ class Organization(models.Model):
                         "associated_expenditures": nap * costperpaper,
                         "associated_compensated": associated_compensated,
                         "associated_uncompensated": associated_uncompensated,
-                        "freeriding_percentage": (
+                        "bystander_percentage": (
                             int(100 * associated_uncompensated / (nap * costperpaper))
                             if nap * costperpaper > 0
                             else "N/A"
@@ -592,7 +592,7 @@ class Organization(models.Model):
                 "associated_expenditures": year_associated_expenditures,
                 "associated_compensated": year_associated_compensated,
                 "associated_uncompensated": year_associated_uncompensated,
-                "freeriding_percentage": (
+                "bystander_percentage": (
                     int(
                         100
                         * year_associated_uncompensated
@@ -626,7 +626,7 @@ class Organization(models.Model):
             "associated_expenditures": cumulative_associated_expenditures,
             "associated_compensated": cumulative_associated_compensated,
             "associated_uncompensated": cumulative_associated_uncompensated,
-            "freeriding_percentage": (
+            "bystander_percentage": (
                 int(
                     100
                     * cumulative_associated_uncompensated
