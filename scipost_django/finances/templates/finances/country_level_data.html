@@ -32,8 +32,8 @@
 	    <tr>
 	      <th colspan="2">Country</th>
 	      <th style="text-align: right;">Expenditures&emsp;[rank]<br>
-		<a href="{% url 'finances:country_level_data' %}?ordering=expenditures">{% include 'bi/sort-up.html' %}</a>
-		<a href="{% url 'finances:country_level_data' %}?ordering=expenditures&reverse=true">{% include 'bi/sort-down.html' %}</a>
+		<a href="{% url 'finances:country_level_data' %}?ordering=expenditures&reverse=true">{% include 'bi/sort-up.html' %}</a>
+		<a href="{% url 'finances:country_level_data' %}?ordering=expenditures">{% include 'bi/sort-down.html' %}</a>
 	      </th>
 	      <th style="text-align: right;">Subsidy income&emsp;[rank]<br>
 		<a href="{% url 'finances:country_level_data' %}?ordering=subsidy_income&reverse=true">{% include 'bi/sort-up.html' %}</a>
