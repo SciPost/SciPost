@@ -400,66 +400,95 @@
       </div>
 
 
-      <h3 class="highlight" id="sponsorshipLevels">Sponsorship levels</h3>
-      <div class="m-2">
-	<p>
-	  It is very important to understand that although we compile data on which Organizations
-	  benefit from our activities, <strong>we do not bill these Organizations
-	  for the services we provide</strong>. Our philosophy is to pool all the support we
-	  receive, and use these resources to provide services for the community at large.
-	</p>
-	<p>
-	  This opens up some frequently-asked questions:
-	  <ul>
-	    <li>why would any Organization donate anything?</li>
-	    <li>isn't this simply letting "free-riding" Organizations get substantial value
-	      on the back of those that <em>do</em> contribute?</li>
-	  </ul>
-	  The reason why we trust that Organizations will support us is quite simple:
-	  each paper we publish which is linked to them, represents a direct economy of publishing
-	  costs which would have otherwise been incurred had the authors published elsewhere.
-	  Libraries can thus independently establish what the approximate impact of our
-	  activities is on their own budget. We trust that simple algebra will then
-	  prove our case.
-	</p>
-	<p>
-	  On the question of <strong>free-riding</strong>, there will of course always
-	  be Organizations which are better than others at taking responsibility for themselves,
-	  and for the broader community.
-	  Though we do not ban free-riding, it does make our model more challenging to
-	  sustain. However, since our integrated costs are dramatically lower
-	  than those of other publishers,
-	  our infrastructure remains cheaper for our sponsors
-	  to fund <strong>even if</strong> some level of
-	  free-riding is present. And besides, since we make all data public, who
-	  deserves credit for supporting us will be
-	  clear and transparent for everybody to see.
-	</p>
-	{% if perms.scipost.can_attend_VGMs %}
-	  <div class="container border border-danger">
-	    <span class="text-danger">(ADMIN VIEW ONLY)</span>
+      <h2 class="highlight" id="sponsorshipLevels">Sponsorship</h2>
+      <div class="row m-2">
+	<div class="col-lg-6">
+	  <h3 class="highlight">Why?</h3>
+	  <p>
+	    It is very important to understand that although we compile data on which Organizations
+	    benefit from our activities, <strong>we do not bill these Organizations
+	    for the services we provide</strong>. We are a charity whose mission is to serve
+	    the global academic community, and our editorial services are neither for sale
+	    nor delivered against payment.
+	  </p>
+	  <p>
+	    This opens up some frequently-asked questions:
 	    <ul>
-	      <li>
-		<strong>Bronze</strong>: sponsorship level $\gt 0$;
-	      </li>
-	      <li>
-		<strong>Silver</strong>: sponsorship level $\geq$ (own PubFracs)
-		$\times$ average cost per publication;
-	      </li>
-	      <li>
-		<strong>Gold</strong>: sponsorship level $\geq$ (own PubFracs) $\times$
-		average cost per publication $/$ (1 - free-riding fraction);
-	      </li>
-	      <li>
-		<strong>Platinum</strong>: sponsorship level $\gt 2 \times$ Gold.
-	      </li>
+	      <li>why would any Organization donate anything?</li>
+	      <li>isn't this simply letting "free-riding" Organizations get substantial value
+		on the back of those that <em>-do-</em> contribute?</li>
 	    </ul>
-	  </div>
-	{% endif %}
+	    The reason why Organizations should support us is quite simple:
+	    our existence and continued operations saves them money.
+	    In fact, it saves them <strong>a lot</strong> of costs
+	    which would have otherwise been incurred had their authors published elsewhere.
+	  </p>
+	  <p>
+	    Our operations would be immediately sustainable if Organizations benefitting from our activities generally supported us at a level commensurate with their PubFrac share.
+	  </p>
+	  <p>
+	    The inevitable reality is that some Organizations will remain bystanders, while others do support us more than others. In practice, sustainability thus means equilibrium between
+	  </p>
+	  <ul>
+	    <li>the positive impact of the generosity of Organizations supporting us above their PubFrac share</li>
+	    <li>the negative impact on our reserves from Organizations which act as mere bystanders</li>
+	  </ul>
+	  <p>
+	    In fact, a large number of Organizations are associated to our Publications, but have not yet supported us. We call the "unsupported" part of our PubFractions the <em>bystander fraction</em>.
+	  </p>
+	</div>
+
+	<div class="col-lg-6">
+	  <h3 class="highlight">Levels of support</h3>
+	  <p>
+	    Organizations fall somewhere in the spectrum between those that generously support our activities and fuel our growth, all the way to those that remain bystanders. In fact, we like to categorize them as follows:
+	  </p>
+	  <table class="table w-auto">
+	    <thead>
+	      <tr>
+		<th>Category</th>
+		<th>Support<br>(vs PubFrac share)</th>
+		<th>Impact on<br>our reserves</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      <tr>
+		<th class="bg-success bg-opacity-50">{% include 'bi/trophy-fill.html' %}&nbsp;Champion</th>
+		<td>4x or more</td>
+		<td>strongly positive</td>
+	      </tr>
+	      <tr>
+		<th class="bg-success bg-opacity-25">{% include 'bi/battery-charging.html' %}&nbsp;Promoter</th>
+		<td>Twice or more</td>
+		<td>positive</td>
+	      </tr>
+	      <tr>
+		<th class="bg-success bg-opacity-10">{% include 'bi/battery-full.html' %}&nbsp;Supporter</th>
+		<td>On par</td>
+		<td>neutral</td>
+	      </tr>
+	      <tr>
+		<th class="bg-warning bg-opacity-10">{% include 'bi/battery-half.html' %}&nbsp;Sympathizer</th>
+		<td>Below</td>
+		<td>negative</td>
+	      </tr>
+	      <tr>
+		<th class="bg-danger bg-opacity-25">{% include 'bi/battery.html' %}&nbsp;Bystander</th>
+		<td>None</td>
+		<td>strongly negative</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	  <p>
+	    If we could have all Organizations which benefit from our activities land in the Supporter category, we'd be robustly sustainable. Any Pormoter or Champions would then propel our growth. In the meantime, they allow us to survive.
+	  </p>
+	</div>
+      </div>
+
       </div>
 
 
-      <h3 class="highlight" id="inKind">In-kind support</h3>
+      <h2 class="highlight" id="inKind">In-kind support</h2>
 
       <div class="m-2">
 	<p>
@@ -556,7 +585,20 @@
 	<p>
 	  As far as our operations are concerned, we run them in the most efficient way possible,
 	  with complete transparency, for the benefit not only of scientists worldwide,
-	  but also of their supporting organizations (and anybody else interested in science).
+	  but also of their supporting Organizations (and anybody else interested in science).
+	</p>
+	<p>
+	  On the question of free-riding, there will of course always
+	  be Organizations which are better than others at taking responsibility for themselves,
+	  and for the broader community.
+	  Though we do not ban free-riding, it does make our model more challenging to
+	  sustain. However, since our integrated costs are dramatically lower
+	  than those of other publishers,
+	  our infrastructure remains cheaper for our sponsors
+	  to fund <strong>even if</strong> some level of
+	  free-riding is present. And besides, since we make all data public, who
+	  deserves credit for supporting us will be
+	  clear and transparent for everybody to see.
 	</p>
 	<p>
 	  As far as our sustainability is concerned,
