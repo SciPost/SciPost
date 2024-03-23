@@ -15,6 +15,11 @@
     <div class="col-12">
       <h2>Country-Level Financial Data</h2>
 
+      <details class="m-4">
+	<summary><strong class="p-2 border border-2">Help! What do these terms mean?</strong></summary>
+        {% include 'finances/_definitions_table.html' %}
+      </details>
+
 
       <div id="cumulative_all_countries" class="mt-4">
 
@@ -28,12 +33,12 @@
 	      <th colspan="2">Country</th>
 	      <th style="text-align: right;">Subsidy income</th>
 	      <th style="text-align: right;">Expenditures</th>
-	      <th style="text-align: right;">Balance</th>
+	      <th style="text-align: right;">Impact on reserves</th>
 	    </tr>
 	  </thead>
 	  <tbody>
-	    {% for item in countrydata|dictsortreversed:"balance" %}
-	      {% if item.balance != 0 %}
+	    {% for item in countrydata|dictsortreversed:"impact_on_reserves" %}
+	      {% if item.impact_on_reserves != 0 %}
 		{% get_country item.country as country_obj %}
 		<tr class="bg-light">
 		  <td>
@@ -46,9 +51,9 @@
 		  <td>{{ country_obj.name }}</td>
 		  <td style="text-align: right;">{{ item.subsidy_income }}</td>
 		  <td style="text-align: right;">{{ item.expenditures }}</td>
-		  <td style="text-align: right;">{{ item.balance }}</td>
+		  <td style="text-align: right;">{{ item.impact_on_reserves }}</td>
 		</tr>
-		<tr>
+		<tr class="bg-light">
 		  <td colspan="5">
 		    <details id="country_data-{{ item.country }}-details"
 			     class="ms-4 mb-4">
@@ -66,6 +71,7 @@
 		    </details>
 		  </td>
 		</tr>
+		<tr><td></td></tr>
 	      {% endif %}
 	    {% endfor %}
 	  </tbody>

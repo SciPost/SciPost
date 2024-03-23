@@ -419,7 +419,10 @@
             </p>
           {% endif %}
 
-          {% include 'finances/_definitions_details.html' %}
+	  <details class="m-4">
+	    <summary><strong class="p-2 border border-2">Help! What do these terms mean?</strong></summary>
+            {% include 'finances/_definitions_table.html' %}
+	  </details>
 
           <table class="table mt-4">
             <thead class="table-light">

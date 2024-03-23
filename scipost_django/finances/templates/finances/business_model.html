@@ -13,210 +13,394 @@
 
 {% block content %}
 
+  <h1 class="highlight fs-2">SciPost's Business Model</h1>
+
+  <div class="row pt-4">
+    <div class="col-md-6 ps-4">
+      <h2>Our mission:</h2>
+      <h1 class="position-relative"><span class="text-primary me-2" width="32" height="32">{% include 'bi/journal-text-32.html' %}</span>
+	<strong><em>Genuine</strong> Open Access</em>
+	<a href="{% url 'scipost:about' %}#GOA" class="position-absolute top-0 fs-6 text-primary ms-2">{% include 'bi/question-square.html' %}
+	</a>
+      </h1>
+      <br>
+      <h2>Your role:</h2>
+      <h1><span class="text-primary me-2">{% include 'bi/bank-32.html' %}</span>Make us sustainable</h1>
+    </div>
+    <div class="col-md-6">
+      <div class="">
+	<img src="{% static 'scipost/scipost_sos_2024.webp' %}"
+	     alt="SciPost Sustain Our Services 2024 Campaign logo"
+	     class="float-end" style="max-width: 40rem;" width="100%" />
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col">
+      <div class="card m-2 h-100">
+	<div class="card-header fs-5">Principles</div>
+	<div class="card-body">
+	  <ul>
+	    <li>Authors don't pay to publish</li>
+	    <li>Readers don't pay to read</li>
+	    <li>Publishing decisions are about science, not money</li>
+	    <li>We don't make any profit</li>
+	    <li>We survive only thanks to the charity of those who benefit from our activities</li>
+	  </ul>
+	</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card m-2 h-100">
+	<div class="card-header fs-5">Actions</div>
+	<div class="card-body">
+	  <ol>
+	    <li><strong>Publishing</strong><br>We run our publishing activities thinking only about the science.</li>
+	    <li><strong>Informing</strong><br>Post-publishing, we interlink the Publications and the academic Organizations which are associated to that paper, and make all this information publicly available.</li>
+	    <li><strong>Sustaining</strong><br>We rely on charitable support from these Organizations to give us resources to keep doing what we do best, namely point 1.</li>
+	  </ol>
+	</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card m-2 h-100">
+	<div class="card-header fs-5">Qualities</div>
+	<div class="card-body">
+	  <ul>
+	    <li><strong>Economical</strong><br>Costs are a fraction of traditional APCs (averaged out estimate: &euro;500 per paper).</li>
+	    <li><strong>Transparent</strong><br>Everybody can see who provides our resources, and who benefits from what we do with them.</li>
+	    <li><strong>Respectful</strong><br>Our academic contributors are freed from threatening invoices, bounty hunters, scavenging of research budgets and swiping of credit cards.</li>
+	  </ul>
+	</div>
+      </div>
+    </div>
+  </div>
+
+
+
+
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">SciPost's Business Model</h1>
-      <div class="m-2">
-	<p>
-	  SciPost strives to reform the business of academic publishing
-	  by providing a top-quality infrastructure covering all aspects
-	  of the publishing process while:
-	  <ul>
-	    <li>being entirely not-for-profit</li>
-	    <li>not charging any subscription fees to its readers</li>
-	    <li>not charging any publication fees/APCs (article processing charges)
-	      to its authors.</li>
-	  </ul>
-	</p>
-	<p>
-	  The real drivers of the publishing business are the academics who write,
-	  review and edit manuscripts.
-	  We view publishing merely as a service making the workflow possible,
-	  and empowering scientists to perform these duties in the most efficient
-	  way possible.
-	</p>
-	<p>SciPost's mission is to provide such a service, make it entirely not-for-profit,
-	  put its control in the hands of the academic community, and keep it
-	  completely free of non-academic competing interests.
-	</p>
-	<p>
-	  If this seems impossibly idealistic to you, <strong>please read on!</strong>
-	  We hope that you will find our no-nonsense approach refreshing and convincing.
-	</p>
-	<p><strong>Quick links</strong>:
-	  <ul>
-	    <li><a href="#bullets">Bullet Points Summary</a></li>
-	    <li><a href="#details">The Details</a>
-	      <ul>
-		<li><a href="#finances">The Finances Pages</a></li>
-		<li><a href="#organizations">The Organizations Pages</a></li>
-		<li><a href="#pubFracs">The PubFracs System</a></li>
-		<li><a href="#sponsorshipLevels">Sponsorship Levels</a></li>
-		<li><a href="#inKind">In-kind Support</a></li>
-	      </ul>
-	    </li>
-	    <li><a href="#why">Why do we push for this Business Model?</a></li>
-	  </ul>
-	</p>
-      </div>
-
-      <h2 class="highlight" id="bullets">Bullet Points Summary</h2>
 
       <div class="m-2">
 	<div class="row">
-	  <div class="col-lg-4">
-	    <p>Our business model can be summarized in one phrase:</p>
+	  <div class="col-lg-5">
+	    <h2 class="highlight" id="why">Why?</h2>
+	    <p>
+	      Today's Open Access publishing landscape is very polluted and unhealthy:
+	      <ul>
+		<li>APCs (Article Processing Charges) dominate</li>
+		<li>predatory profit-making thrives</li>
+		<li>in financial dealings, academic institutions are manifestly
+		  being outplayed by private corporations.</li>.
+	      </ul>
+	    </p>
+	    <p>
+	      The consequences include
+	      large-scale damage to library budgets, depleted research budgets,
+	      and curtailed careers of researchers.
+	    </p>
+	    <p>
+	      We would like to re-empower the academic side in this battle for Open Access,
+	      by offering an alternative designed by and optimized purely for academic interests.
+	    </p>
+	    <p>Our business model can be summarized by the following:</p>
 	    <p class="m-2">
 	      <em>
 		We don't charge authors, we don't charge readers,
 		we don't send bills to anybody for our services,
 		and we certainly don't make any profit;
 		we are an academic community service surviving
-		on donations coming primarily from Organizations which benefit from
+		on support from Organizations which benefit from
 		our activities.
 	      </em>
 	    </p>
+	    <p>Said otherwise, our system is academia's <strong>antidote to APCs</strong>.</p>
 	    <p>
 	      The bullet points here give you the outline; you'll find
 	      more detailed explanations below.
 	    </p>
 	  </div>
-	  <div class="col-lg-8">
+	  <div class="col-lg-7">
+	    <h2 class="highlight" id="bullets">How? Bullet points summary</h2>
 	    <ul>
-	      <li>
-		<strong>Linking Publications and Organizations</strong><br>
-		As part of our production workflow,
+	      <li class="m-2">
+		<strong>Publishing and interlinking</strong><br>
+		We focus on what we do best: publishing.
+		As part of our production workflow for metadata,
 		Organizations (author affiliations, funding agencies, ...)
-		listed in our database are linked to each publication.
-		This data is publicly displayed on our
-		<a href="{% url 'organizations:organizations' %}" target="_blank">Organizations pages</a> in the form of each Organization's NAP (Number of Associated Publications).
+		are interlinked with each Publication to which they are associated.
 	      </li>
-	      <li>
+	      <li class="m-2">
 		<strong>Determining PubFracs</strong><br>
-		After publication, PubFracs are specified
-		(a publication's set of PubFracs answers the question "what was each supporting Organization's share of the support for the research leading to this publication?";
-		see the <a href="#pubFracs">PubFracs system description</a> below).
+		Upon publication, we compute our PubFracs (a fraction of a unit representing an Organization's "weight" for a given Publication; see the <a href="#pubfracs">PubFracs system description</a> below).
 	      </li>
-	      <li>
-		<strong>Determination of operational costs</strong><br>
-		On a yearly basis, SciPost determines and makes publicly known:
+	      <li class="m-2">
+		<strong>Compiling operational costs</strong><br>
+		On a yearly basis, we determine and makes publicly known:
 		<ul>
-		  <li>its total expenditures (with a detailed breakdown, see our yearly reports
+		  <li>our total expenditures (with a detailed breakdown, see our yearly reports
 		    on the <a href="{% url 'finances:finances' %}">finances page</a>)</li>
-		  <li>an average cost per publication (for 2023: &euro;495 per paper)</li>
-		  <li>the free-riding fraction (proportion of our activities which are
-		    benefitting Organizations which for one reason or another are
-		    <em>not yet</em> sponsoring SciPost's activities)</li>
+		  <li>an average expenditure per publication (<a href="{% url 'finances:apex' %}">APEX</a>)</li>
 		</ul>
 	      </li>
-	      <li>
-		<strong>Sponsorship</strong><br>
-		Organizations can inspect all the data (in particular their NAPs and summed-up
-		PubFracs, together with the free-riding fraction)
-		and hereby determine to which level
-		they choose to support SciPost (through a sponsorship agreement).
-		Sponsors can fall into different
-		<a href="#sponsorshipLevels">recognition levels</a>
-		depending on their level of support.
+	      <li class="m-2">
+		<strong>Information display</strong><br>
+		We publicly display relevant information on expenditures and support received:
+		<ul>
+		  <li><a href="{% url 'finances:subsidies' %}">subsidies we have received</a></li>
+		  <li><a href="{% url 'organizations:organizations' %}">organizations</a> listing (with one click to organization-level data, where you can find data on each Organization's associated Publications)).</li>
+		  <li><a href="{% url 'finances:country_level_data' %}">country-level</a> summaries</li>
+		  <li>an assessment of our <a href="{% url 'finances:finances' %}#current">current state of viability</a></li>
+		</ul>
+	      <li class="m-2">
+		<strong>Sustaining</strong><br>
+		We liaise with Organizations benefitting from our activities, who can inspect all the data and independently determine to which level they choose to support our activities. Generosity is appreciated, bearing in mind the proportion of non-supporting bystanders. We scale up, maintain or wind down our operations depending on how much support we can gather.
 	      </li>
 	    </ul>
 	  </div>
 	</div>
       </div>
 
-      <h2 class="highlight" id="details">The Details</h2>
+      <h1 class="highlight mt-5" id="details">The details</h1>
 
-      <h3 class="highlight" id="finances">The Finances pages</h3>
-      <div class="m-2">
-	<div class="row">
-	  <div class="col-lg-6"
-	    <p>
-	      The first thing to mention is that we make all our financial data
-	      openly available. This includes all revenues and expenditures for
-	      all our activities. By going to our <a href="{% url 'finances:finances' %}">Finances page</a> you will find further links to our list of sponsors, the explicit list of
-	      <a href="{% url 'finances:subsidies' %}">Subsidies</a> we have obtained,
-	      and all our annual financial reports.
-	    </p>
-	    <p>
-	      We strongly believe that such open accounting is
-	      necessary for establishing trust and facilitating verifiability.
-	      We see this as minimal standard practice for any Open Access
-	      publishing infrastructure.
-	    </p>
+      <div class="row m-2">
+	<div class="col-lg-6">
+	  <h2 class="highlight" id="quicklinks">Quick links</h2>
+	  <ul>
+	    <li><a href="#finances">Our financial pages</a></li>
+	    <li><a href="#concepts">Key concepts</a>
+	      <ul>
+		<li><a href="#NAP">NAP</a></li>
+		<li><a href="#PubFrac">PubFrac</a></li>
+		<li><a href="#APEX">APEX</a></li>
+	      </ul>
+	    </li>
+	    <li><a href="#pubfracs">The PubFracs system</a></li>
+	    <li><a href="#sponsorshipLevels">Sponsorship levels</a></li>
+	    <li><a href="#inKind">In-kind support</a></li>
+	    <li><a href="#why">Why do we push for this business model?</a></li>
+	  </ul>
+	</div>
+	<div class="col-lg-6">
+	  <h2 class="highlight" id="finances">Financial pages</h2>
+	  <p>
+	    First things first: we make all our financial data
+	    openly available. This includes all revenues and expenditures for
+	    all our activities, aggregated to various levels.
+	    The relevant pages are:
+	  </p>
+	  <ul>
+	    <li>
+	      Our <a href="{% url 'finances:finances' %}">Finances page</a> is a good starting point, with many further links and an assessment of our <a href="{% url 'finances:finances' %}#current">current sustainability status</a></li>
+	    <li>Our <a href="{% url 'sponsors:sponsors' %}">list of sponsors</a></li>
+	    <li>The list of <a href="{% url 'finances:subsidies' %}">Subsidies</a> we have obtained</li>
+	    <li>All our <a href="{% url 'finances:finances' %}#reports">annual financial reports</a></li>
+	    <li>Our <a href="{% url 'finances:apex' %}">Average Publication Expenditures (APEX)</a> page providing averaged outgoings per Publication per Journal per year</li>
+	    <li>Our <a href="{% url 'organizations:organizations' %}">Organizations</a> page, where all instances which have benefitted from our activities are listed; clicking on one will lead you to that instance's detail page.</li>
+	  </ul>
+	  <p>
+	    We strongly believe that such open accounting is
+	    necessary for establishing trust and facilitating verifiability.
+	  </p>
+	</div>
+      </div>
+
+
+
+      <h2 class="highlight" id="concepts">To start: 3 key concepts</h2>
+
+      <div class="row m-2">
+	<div class="col-lg-4">
+	  <div class="card m-2 h-100">
+	    <div class="card-header fs-5" id="NAP">NAP</div>
+	    <div class="card-body">
+	      <p><strong>N</strong>umber of <strong>A</strong>ssociated <strong>P</strong>ublications</p>
+	      <p>An Organization's <em>Associated Publications</em> is the set of papers in which the Organization (or any of its children) is mentioned in author affiliations, or in the acknowledgements as grant-giver or funder.</p>
+	      <p>The Number of Associated Publications is always given for a particular context (for example for a given year and/or Journal, or for all years and Journals combined).</p>
+	    </div>
 	  </div>
-	  <div class="col-lg-6">
-	    <img style="width: 90%;" class="m-2" src="{% static 'scipost/images/Finances_Page.png' %}">
+	</div>
+	<div class="col-lg-4">
+	  <div class="card m-2 h-100">
+	    <div class="card-header fs-5" id="PubFrac">PubFrac</div>
+	    <div class="card-body">
+	      <p>A fraction of a unit representing an Organization's "weight" for a given Publication.<br>The weight is given by the following simple algorithm:</p>
+	      <ul>
+		<li>First, the unit is split equally among each of the authors.</li>
+		<li>Then, for each author, their part is split equally among their affiliations.</li>
+		<li>The author parts are then binned per Organization.</li>
+	      </ul>
+	      <p>By construction, any individual paper's PubFracs sum up to 1.</p>
+	    </div>
+	  </div>
+	</div>
+	<div class="col-lg-4">
+	  <div class="card m-2 h-100">
+	    <div class="card-header fs-5" id="APEX">APEX</div>
+	    <div class="card-body">
+	      <p>For a given Journal for a given year, the average expenditures (namely: all our outgoings, in salary and others, faced by our initiative) per Publication which our initiative has published.</p>
+	      <p>All our APEX are listed on our <a href="{% url 'finances:apex' %}">APEX page</a>.</p>
+	    </div>
 	  </div>
 	</div>
       </div>
 
-      <h3 class="highlight" id="organizations">The Organizations Pages</h3>
-      <div class="m-2">
-	<p>
-	  At SciPost, we curate a database of Organizations which benefit from our
-	  publishing activities (think for example of
-	  academic institutions which are mentioned in author affiliations
-	  and funding agencies listed in funding acknowledgements).
-	</p>
-	<div class="row">
-	  <div class="col-lg-6">
-	    <p class="m-2">
-	      The data we collect is presented on our
-	      <a href="{% url 'organizations:organizations' %}">Organizations</a> page,
-	      where you will find digested information including
-	      the NAPs (Number of Associated Publications) pertaining to any given
-	      instance.
-	    </p>
-	    <img style="width: 90%;" class="m-2" src="{% static 'scipost/images/Organizations.png' %}">
-	  </div>
-	  <div class="col-lg-6">
-	    <p class="m-2">
-	      Each Organization also has a detail page, where further information
-	      can be found (<em>e.g.</em> associated publications, authors,
-	      support history).
-	    </p>
-	    <img style="width: 90%;" class="m-2" src="{% static 'scipost/images/Organization_detail_FWF.png' %}">
-	  </div>
+
+
+      <div class="row"
+	<div class="col">
+	  <details class="m-2 mt-4">
+	    <summary>
+	      <span class="p-2 fs-5 bg-primary bg-opacity-10 border border-2">
+		<em class="text-primary me-3">Lost in terminology?</em>
+		All important concepts and their definition
+		<em class="ms-2 fs-6">(click to toggle)</em>
+	      </span>
+	    </summary>
+            {% include 'finances/_definitions_table.html' %}
+	  </details>
 	</div>
       </div>
 
-      <h3 class="highlight" id="pubFracs">The PubFracs System</h3>
-      <div class="m-2">
-	<div class="row">
-	  <div class="col-lg-6">
-	    <p>
-	      The NAPs do not offer a very fine-grained resolution of each paper's
-	      level of support obtained from particular Organizations. A paper is
-	      typically associated to many Organizations (multiple authors with their
-	      individual affiliations; multiple granting agencies etc), so NAPs for
-	      a given paper can sum up to an abritrarily high value.
-	    </p>
-	    <p>
-	      In order to resolve things more finely, we run an internal system
-	      based on the idea of <strong>PubFracs</strong>, in which
-	      each paper has one unit of support recognition to be distributed among
-	      the Organizations having supported the research detailed in that paper.
-	      This is not meant to be <em>extremely</em> accurate, but should still
-	      somehow honestly reflect the support circumstances.
-	    </p>
-	    <p>
-	      The weight is given by the following simple algorithm: first, the unit
-	      is split equally among each of the authors. Then, for each author,
-	      their share is split equally among their affiliations.
-	      Any given paper's PubFracs sum up to $1$.
-	      This information is filled by our editorial administration
-	      at the moment of publication.
-	      These PubFracs are then automatically compiled and linked to the relevant
-	      Organizations. This data is displayed on our Organization detail pages.
-	    </p>
-	  </div>
-	  <div class="col-lg-6">
-	    <img style="width: 90%;" class="m-2" src="{% static 'scipost/images/PubFractionsExample.png' %}">
-	  </div>
+
+      <div class="row m-2">
+	<h2 class="highlight" id="pubfracs">The PubFracs system&emsp;<small><em>a perfect antidote to APCs</em></small></h2>
+	<div class="col-lg-6">
+	  <p>
+	    One of the many failures of APCs (Article Processing Charges) is to
+	    not offer a sufficiently fine-grained resolution of each paper's
+	    relations to particular Organizations. A paper is
+	    usually associated to many Organizations (multiple authors with their
+	    individual affiliations; multiple granting agencies etc). APCs are great
+	    if you are the business sending the invoice. APCs are a nightmare for academic
+	    Organizations caring about equitable cost distribution.
+	  </p>
+	  <p>
+	    In order to resolve things more finely, and in the belief that
+	    <strong><em>equitable is computable</em></strong>, we built our systems
+	    based on the idea of <strong>PubFracs</strong>, in which
+	    each paper has one unit to be distributed among
+	    the Organizations associated to that paper.
+	  </p>
+	</div>
+	<div class="col-lg-6">
+	  <p>
+	    The PubFrac weight is given by the following simple algorithm: first, the unit
+	    is split equally among each of the authors. Then, for each author,
+	    their share is split equally among their affiliations. The results are then
+	    binned per Organization. By construction, any given paper's PubFracs sum up to $1$.
+	  </p>
+	  <p>
+	    This information is filled by our editorial administration
+	    at the moment of publication.
+	    These PubFracs are then automatically compiled and linked to the relevant
+	    Organizations. This data is displayed on our Organization detail pages,
+	    where further relevant information can also be found
+	    (<em>e.g.</em> associated publications, authors,
+	    support history).
+	  </p>
 	</div>
       </div>
 
-      <h3 class="highlight" id="sponsorshipLevels">Sponsorship Levels</h3>
+      <div class="row m-2">
+	<h2 class="highlight">Display of information</h2>
+      </div>
+
+      <div class="row m-2">
+	<div class="col-lg-4">
+	  <h3 class="highlight">The APEX page</h3>
+	  <p>You will find a detailed listing of our Average Publication Expenditures at our <a href="{% url 'finances:apex' %}">APEX page</a>.</p>
+	  <p>This displays a year-by-year, Journal-by-Journal overview of the expenditures we have ascribed to our publishing activities.</p>
+	  <p>These numbers are computed according to the following algorithm:</p>
+	  <ul>
+	    <li>Each Journal is given a relative weight, to represent the typical amount of resources it takes on our side in order to guide it through refereeing, decision, proofing and publication. Our flaship Journals are given weight 1. Heavier units like Lecture Notes are given 1.5, whereas simpler units like Proceedings are given 0.5.</li>
+	    <li>Our financial statements are compiled, giving the total outgoings in a given year.</li>
+	    <li>The total outgoings are divided by the sum of (weight for Journal) times (number of papers in that Journal in a given year), giving the APEX for weight-1 Journals. The APEX for other Journals are then obtained by scaling this according to the Journal's weight.</li>
+	  </ul>
+	  <p>
+	    The APEX of our Journals fluctuates from year to year, since it depends on our levels of activity (variations in submission and acceptance rates) and our operations (team size, etc.). As a rule of thumb, our APEX is about a factor of 5-7 lower than typical APCs from corporate publishers.</p>
+	</div>
+	<div class="col-lg-8">
+	  <figure class="figure">
+	    <img style="width: 90%;" class="m-2" src="{% static 'finances/SciPost_APEX_2023.png' %}">
+	    <figcaption class="figure-caption">The APEX (Average Publication Expenditures) page.</figcaption>
+	  </figure>
+	</div>
+      </div>
+
+      <div class="row m-2">
+	<div class="col-lg-4">
+	  <h3 class="highlight">Country-level data</h3>
+	  <p>At the <a href="{% url 'finances:country_level_data' %}">country-level financial data</a> page, you will find a list of countries with associated expenditures, subsidies and how this impacts our financial reserves.</p>
+	  <p>In an ideal world where each Organization equilibrated their support to what we deliver for them, all these numbers would tend to zero. In the meantime, we survive with the generosity of some to compensate for bystanders.</p>
+	</div>
+	<div class="col-lg-8">
+	  <figure class="figure">
+	    <img style="width: 90%;" class="m-2" src="{% static 'finances/SciPost_Country_Level_Data.png' %}">
+	    <figcaption class="figure-caption">Country-level data on the impact of our activities on our financial reserves.</figcaption>
+	  </figure>
+	</div>
+      </div>
+
+      <div class="row m-2">
+	<div class="col-lg-4">
+	  <h3 class="highlight">The Organization list page</h3>
+	  <p>At the <a href="{% url 'organizations:organizations' %}">Organization list page</a>, you will find a list of institutions related to our publishing activities.</p>
+	  <p>The list can be filtered by country, or by searching for a particular Organization through its name or acronym.</p>
+	  <p>Each Organization's NAP (summed over all our activities) is displayed, together with an indication of whether they have supported our activities or not (yet).</p>
+	  <p>Clicking on a particular instance leads to that instance's detail page.</p>
+	</div>
+	<div class="col-lg-8"
+	  <figure class="figure">
+	    <img style="width: 90%;" class="m-2" src="{% static 'finances/SciPost_Organization_List_Page.png' %}">
+	    <figcaption class="figure-caption">The Organization list page, with filters.</figcaption>
+	  </figure>
+	</div>
+      </div>
+
+      <div class="row m-2">
+	<div class="col-lg-4">
+	  <h3 class="highlight">An example Organization detail page<br>(Support history tab)</h3>
+	  <p>
+	    In an Organization detail page, under the Support history tab,
+	    you will find:
+	  </p>
+	  <ul>
+	    <li>a list of Subsidies we have received from this Organization</li>
+	    <li>a table containing a compilation, per year, of PubFracs-related information, including how these activities impacted our financial reserves</li>
+	    <li>as a collapsible for each year, a table giving PubFrac information down to the per-Journal-per-year level</li>
+	  </ul>
+	</div>
+	<div class="col-lg-8">
+	  <figure class="figure">
+	    <img style="width: 90%;" class="m-2" src="{% static 'finances/SciPost_Organization_Detail_Page_Example.png' %}">
+	    <figcaption class="figure-caption">An example of an Organization's detail page (Support history tab) with the Subsidies list.</figcaption>
+	  </figure>
+	</div>
+      </div>
+
+      <div class="row m-2">
+	<div class="col-lg-7">
+	  <p>Below the Subsidies list, you will find the per-year data on how these activities impact our financial reserves.</p>
+	  <figure class="figure">
+	    <img style="width: 90%;" class="m-2" src="{% static 'finances/SciPost_Organization_Detail_Page_Expenditures_vs_Support.png' %}">
+	    <figcaption class="figure-caption">An example of an Organization's detail page (Support history tab) with impact on reserves.</figcaption>
+	  </figure>
+	</div>
+	<div class="col-lg-5">
+	  <p>Expanding one of the per-year collapsibles reveals a table with a breakdown of PubFracs at the individual Journal level for that year.</p>
+	  <figure class="figure">
+	    <img style="width: 90%;" class="m-2" src="{% static 'finances/SciPost_Organization_PubFracs_Example.png' %}">
+	    <figcaption class="figure-caption">An example of an Organization's detail page (Support history tab) with per-Journal PubFracs.</figcaption>
+	  </figure>
+	</div>
+      </div>
+
+
+      <h3 class="highlight" id="sponsorshipLevels">Sponsorship levels</h3>
       <div class="m-2">
 	<p>
 	  It is very important to understand that although we compile data on which Organizations
@@ -275,7 +459,7 @@
       </div>
 
 
-      <h3 class="highlight" id="inKind">In-kind Support</h3>
+      <h3 class="highlight" id="inKind">In-kind support</h3>
 
       <div class="m-2">
 	<p>

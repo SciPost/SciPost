@@ -9,7 +9,7 @@
       <th></th>
       <th style="text-align: right;">Subsidy income</th>
       <th style="text-align: right;">Expenditures</th>
-      <th style="text-align: right;">Balance</th>
+      <th style="text-align: right;">Impact on reserves</th>
     </tr>
   </thead>
   <tbody>
@@ -17,14 +17,14 @@
       <td>Cumulative</td>
       <td style="text-align: right;">{{ cumulative.subsidy_income }}</td>
       <td style="text-align: right;">{{ cumulative.expenditures }}</td>
-      <td style="text-align: right;">{{ cumulative.balance }}</td>
+      <td style="text-align: right;">{{ cumulative.impact_on_reserves }}</td>
     </tr>
     {% for year, val in per_year.items %}
       <tr>
 	<td>{{ year }}</td>
 	<td style="text-align: right;">{{ val.subsidy_income }}</td>
 	<td style="text-align: right;">{{ val.expenditures }}</td>
-	<td style="text-align: right;">{{ val.balance }}</td>
+	<td style="text-align: right;">{{ val.impact_on_reserves }}</td>
       </tr>
     {% endfor %}
   </tbody>
@@ -44,7 +44,7 @@
 	  <th></th>
 	  <th style="text-align: right;">Subsidy Income</th>
 	  <th style="text-align: right;">Expenditures</th>
-	  <th style="text-align: right;">Balance</th>
+	  <th style="text-align: right;">Impact on reserves</th>
 	</tr>
       </thead>
       <tbody>
@@ -53,16 +53,16 @@
 	  <td></td>
 	  <td style="text-align: right;">{{ cumulative.subsidy_income }}</td>
 	  <td style="text-align: right;">{{ cumulative.expenditures }}</td>
-	  <td style="text-align: right;">{{ cumulative.balance }}</td>
+	  <td style="text-align: right;">{{ cumulative.impact_on_reserves }}</td>
 	</tr>
-	{% for organization in organizations|dictsortreversed:"cf_balance_info.cumulative.balance" %}
+	{% for organization in organizations|dictsortreversed:"cf_balance_info.cumulative.impact_on_reserves" %}
 	  {% if organization.cf_balance_info.cumulative.subsidy_income > 0 or organization.cf_balance_info.cumulative.expenditures > 0 %}
 	    <tr>
 	      <td><a href="https://{{ request.get_host }}{{ organization.get_absolute_url }}">{{ organization }}</a></td>
 	      <td>{{ organization.get_orgtype_display }}</td>
 	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.subsidy_income }}</td>
 	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.expenditures }}</td>
-	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.balance }}</td>
+	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.impact_on_reserves }}</td>
 	    </tr>
 	  {% endif %}
 	{% endfor %}
