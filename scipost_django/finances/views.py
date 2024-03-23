@@ -266,9 +266,6 @@ def country_level_data(request):
         countrydatalist.sort(key=lambda country: country["impact_on_reserves"])
     if reverse_ordering == "true":
         countrydatalist.reverse()
-    print(
-        f"{reverse_ordering = } {type(reverse_ordering) = } {reverse_ordering == True}"
-    )
     context["countrydata"] = countrydatalist
     return render(request, "finances/country_level_data.html", context)
 
