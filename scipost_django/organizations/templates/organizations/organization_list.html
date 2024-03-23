@@ -124,7 +124,7 @@
 	    </th>
 	    <th>SciPost sponsor?</th>
 	    {% if 'finadmin' in user_roles %}
-	      <th class="border border-danger bg-danger bg-opacity-10"><span class="text-danger">FinAdmin</span><br>Support balance<br></th>
+	      <th class="border border-danger bg-danger bg-opacity-10"><span class="text-danger">FinAdmin</span><br>Impact&nbsp;on<br>reserves</th>
 	    {% endif %}
 	  </tr>
 	</thead>
@@ -160,7 +160,7 @@
 		<td class="bg-warning">Not yet</td>
 	      {% endif %}
 	      {% if 'finadmin' in user_roles %}
-		<td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ org.cf_balance_info.cumulative.balance }}</td>
+		<td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ org.cf_balance_info.cumulative.impact_on_reserves }}</td>
 	      {% endif %}
 	    </tr>
 	  {% empty %}
