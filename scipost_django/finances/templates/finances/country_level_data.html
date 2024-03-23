@@ -31,49 +31,60 @@
 	  <thead>
 	    <tr>
 	      <th colspan="2">Country</th>
-	      <th style="text-align: right;">Expenditures</th>
-	      <th style="text-align: right;">Subsidy income</th>
-	      <th style="text-align: right;">Impact on reserves</th>
+	      <th style="text-align: right;">Expenditures&emsp;[rank]<br>
+		<a href="{% url 'finances:country_level_data' %}?ordering=expenditures">{% include 'bi/sort-up.html' %}</a>
+		<a href="{% url 'finances:country_level_data' %}?ordering=expenditures&reverse=true">{% include 'bi/sort-down.html' %}</a>
+	      </th>
+	      <th style="text-align: right;">Subsidy income&emsp;[rank]<br>
+		<a href="{% url 'finances:country_level_data' %}?ordering=subsidy_income&reverse=true">{% include 'bi/sort-up.html' %}</a>
+		<a href="{% url 'finances:country_level_data' %}?ordering=subsidy_income">{% include 'bi/sort-down.html' %}</a>
+	      </th>
+	      <th style="text-align: right;">Impact on reserves&emsp;[rank]<br>
+		<a href="{% url 'finances:country_level_data' %}?ordering=impact&reverse=true">{% include 'bi/sort-up.html' %}</a>
+		<a href="{% url 'finances:country_level_data' %}?ordering=impact">{% include 'bi/sort-down.html' %}</a>
+	      </th>
 	    </tr>
 	  </thead>
 	  <tbody>
-	    {% for item in countrydata|dictsortreversed:"impact_on_reserves" %}
-	      {% if item.impact_on_reserves != 0 %}
-		{% get_country item.country as country_obj %}
-		<tr class="bg-light">
-		  <td>
-		    <a hx-get="{% url 'finances:_hx_country_level_data' country=item.country %}"
-		       hx-target="#country_data-{{ item.country }}"
-		    >
-		      <i class="{{ country_obj.flag_css }}"></i>
-		    </a>
-		  </td>
-		  <td>{{ country_obj.name }}</td>
-		  <td style="text-align: right;">{{ item.expenditures }}</td>
-		  <td style="text-align: right;">{{ item.subsidy_income }}</td>
-		  <td style="text-align: right;">{{ item.impact_on_reserves }}</td>
-		</tr>
-		<tr class="bg-light">
-		  <td colspan="5">
-		    <details id="country_data-{{ item.country }}-details"
-			     class="ms-4 mb-4">
-		      <summary>Toggle details</summary>
-		      <div id="country_data-{{ item.country }}-details-contents"
-			   class="mt-4 p-2 ps-4"
-			   hx-get="{% url 'finances:_hx_country_level_data' country=item.country %}"
-			   hx-trigger="toggle once from:#country_data-{{ item.country }}-details"
+	    {% with nr=countrydata|length %}
+	      {% for item in countrydata %}
+		{% if item.impact_on_reserves != 0 %}
+		  {% get_country item.country as country_obj %}
+		  <tr class="bg-light">
+		    <td>
+		      <a hx-get="{% url 'finances:_hx_country_level_data' country=item.country %}"
+			 hx-target="#country_data-{{ item.country }}"
 		      >
-			<button class="htmx-indicator btn btn-sm btn-warning p-2" type="button" disabled>
-			  <small><strong>Loading...</strong></small>
-			  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-			</button>
-		      </div>
-		    </details>
-		  </td>
-		</tr>
-		<tr><td></td></tr>
-	      {% endif %}
-	    {% endfor %}
+			<i class="{{ country_obj.flag_css }}"></i>
+		      </a>
+		    </td>
+		    <td>{{ country_obj.name }}</td>
+		    <td style="text-align: right;">&euro;{{ item.expenditures }}&emsp;[{{ item.expenditures_rank }}/{{ nr }}]</td>
+		    <td style="text-align: right;">&euro;{{ item.subsidy_income }}&emsp;[{{ item.subsidy_income_rank }}/{{ nr }}]</td>
+		    <td style="text-align: right;">&euro;{{ item.impact_on_reserves }}&emsp;[{{ item.impact_on_reserves_rank }}/{{ nr }}]</td>
+		  </tr>
+		  <tr class="bg-light">
+		    <td colspan="5">
+		      <details id="country_data-{{ item.country }}-details"
+			       class="ms-4 mb-4">
+			<summary>Toggle details</summary>
+			<div id="country_data-{{ item.country }}-details-contents"
+			     class="mt-4 p-2 ps-4"
+			     hx-get="{% url 'finances:_hx_country_level_data' country=item.country %}"
+			     hx-trigger="toggle once from:#country_data-{{ item.country }}-details"
+			>
+			  <button class="htmx-indicator btn btn-sm btn-warning p-2" type="button" disabled>
+			    <small><strong>Loading...</strong></small>
+			    <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+			  </button>
+			</div>
+		      </details>
+		    </td>
+		  </tr>
+		  <tr><td></td></tr>
+		{% endif %}
+	      {% endfor %}
+	    {% endwith %}
 	  </tbody>
 	</table>
 

@@ -15,16 +15,16 @@
   <tbody>
     <tr class="bg-light">
       <td>Cumulative</td>
-      <td style="text-align: right;">{{ cumulative.expenditures }}</td>
-      <td style="text-align: right;">{{ cumulative.subsidy_income }}</td>
-      <td style="text-align: right;">{{ cumulative.impact_on_reserves }}</td>
+      <td style="text-align: right;">&euro;{{ cumulative.expenditures }}</td>
+      <td style="text-align: right;">&euro;{{ cumulative.subsidy_income }}</td>
+      <td style="text-align: right;">&euro;{{ cumulative.impact_on_reserves }}</td>
     </tr>
     {% for year, val in per_year.items %}
       <tr>
 	<td>{{ year }}</td>
-	<td style="text-align: right;">{{ val.expenditures }}</td>
-	<td style="text-align: right;">{{ val.subsidy_income }}</td>
-	<td style="text-align: right;">{{ val.impact_on_reserves }}</td>
+	<td style="text-align: right;">&euro;{{ val.expenditures }}</td>
+	<td style="text-align: right;">&euro;{{ val.subsidy_income }}</td>
+	<td style="text-align: right;">&euro;{{ val.impact_on_reserves }}</td>
       </tr>
     {% endfor %}
   </tbody>

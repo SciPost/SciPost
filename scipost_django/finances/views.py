@@ -224,15 +224,52 @@ def country_level_data(request):
     ]
     context = {
         "countrycodes": countrycodes,
-        "countrydata": [],
     }
+    countrydatalist = []
     for country in countrycodes:
         country_organizations = Organization.objects.filter(country=country)
-        countrydata = {"country": country, "subsidy_income": 0, "expenditures": 0, "impact_on_reserves": 0}
+        countrydata = {
+            "country": country,
+            "expenditures": 0,
+            "expenditures_rank": None,
+            "subsidy_income": 0,
+            "subsidy_income_rank": None,
+            "impact_on_reserves": 0,
+            "impact_on_reserves_rank": None,
+        }
         for organization in country_organizations:
             for key in ("subsidy_income", "expenditures", "impact_on_reserves"):
                 countrydata[key] += organization.cf_balance_info["cumulative"][key]
-        context["countrydata"] += [countrydata,]
+        countrydatalist += [
+            countrydata,
+        ]
+    # Determine the ranks
+    countrydatalist.sort(key=lambda country: country["expenditures"], reverse=True)
+    for idx, c in enumerate(countrydatalist):
+        c["expenditures_rank"] = idx + 1
+    countrydatalist.sort(key=lambda country: country["subsidy_income"], reverse=True)
+    for idx, c in enumerate(countrydatalist):
+        c["subsidy_income_rank"] = idx + 1
+    countrydatalist.sort(
+        key=lambda country: country["impact_on_reserves"], reverse=True
+    )
+    for idx, c in enumerate(countrydatalist):
+        c["impact_on_reserves_rank"] = idx + 1
+
+    ordering = request.GET.get("ordering", None)
+    reverse_ordering = request.GET.get("reverse", None)
+    if ordering == "expenditures":
+        countrydatalist.sort(key=lambda country: country["expenditures"])
+    elif ordering == "subsidy_income":
+        countrydatalist.sort(key=lambda country: country["subsidy_income"])
+    elif ordering == "impact":
+        countrydatalist.sort(key=lambda country: country["impact_on_reserves"])
+    if reverse_ordering == "true":
+        countrydatalist.reverse()
+    print(
+        f"{reverse_ordering = } {type(reverse_ordering) = } {reverse_ordering == True}"
+    )
+    context["countrydata"] = countrydatalist
     return render(request, "finances/country_level_data.html", context)
 
 
@@ -263,9 +300,9 @@ def _hx_country_level_data(request, country):
             context["per_year"][year]["expenditures"] += organization.cf_balance_info[
                 year
             ]["expenditures"]["total"]["expenditures"]
-            context["per_year"][year]["impact_on_reserves"] += organization.cf_balance_info[year][
+            context["per_year"][year][
                 "impact_on_reserves"
-            ]
+            ] += organization.cf_balance_info[year]["impact_on_reserves"]
     return render(request, "finances/_hx_country_level_data.html", context)
 
 
