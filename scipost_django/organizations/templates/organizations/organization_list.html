@@ -110,7 +110,7 @@
 	  <tr>
 	    <th><a href="{% add_get_parameters order_by='country' %}">Country</a></th>
 	    <th><a href="{% add_get_parameters order_by='name' %}">Name</a>&nbsp;&nbsp;<small>[acronym]</small></th>
-	    <th>NAP <span data-bs-toggle="tooltip" data-bs-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab">{% include 'bi/info-circle-fill.html' %}</span>
+	    <th>NAP <span data-bs-toggle="tooltip" data-bs-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab">{% include 'bi/info-circle-fill.html' %}</span><br>
 	      {% if request.GET.ordering != 'asc' %}
 		<a href="{% add_get_parameters order_by='nap' ordering='asc' %}">{% include 'bi/sort-up.html' %}</a>
 	      {% else %}
@@ -124,7 +124,18 @@
 	    </th>
 	    <th>SciPost sponsor?</th>
 	    {% if 'finadmin' in user_roles %}
-	      <th class="border border-danger bg-danger bg-opacity-10"><span class="text-danger">FinAdmin</span><br>Impact&nbsp;on<br>reserves</th>
+	      <th class="border border-danger bg-danger bg-opacity-10"><span class="text-danger">FinAdmin</span><br>Impact&nbsp;on<br>reserves<br>
+		{% if request.GET.ordering != 'asc' %}
+		  <a href="{% add_get_parameters order_by='impact' ordering='asc' %}">{% include 'bi/sort-up.html' %}</a>
+		{% else %}
+		  <a href="{% url 'organizations:organizations' %}">{% include 'bi/sort-up.html' %}</a>
+		{% endif %}
+		{% if request.GET.ordering != 'desc' %}
+		  <a href="{% add_get_parameters order_by='impact' ordering='desc' %}">{% include 'bi/sort-down.html' %}</a>
+		{% else %}
+		  <a href="{% url 'organizations:organizations' %}">{% include 'bi/sort-down.html' %}</a>
+		{% endif %}
+	      </th>
 	    {% endif %}
 	  </tr>
 	</thead>

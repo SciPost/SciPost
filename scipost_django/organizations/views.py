@@ -166,6 +166,8 @@ class OrganizationListView(PaginationMixin, ListView):
             qs = qs.exclude(cf_nr_associated_publications__isnull=True).order_by(
                 "cf_nr_associated_publications"
             )
+        elif order_by == "impact":
+            qs = qs.order_by("cf_balance_info__cumulative__impact_on_reserves")
         if ordering == "desc":
             qs = qs.reverse()
         return qs.prefetch_related("logos")
