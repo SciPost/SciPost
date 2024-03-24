@@ -424,7 +424,7 @@
             {% include 'finances/_definitions_table.html' %}
 	  </details>
 
-          <table class="table mt-4">
+          <table class="table mt-4 w-auto">
             <thead class="table-light">
 
               {% if 'finadmin' in user_roles %}
@@ -582,7 +582,7 @@
                           You can see the list of associated publications {% if 'finadmin' in user_roles %}and their PubFracs{% endif %} under the <em>Publications</em> tab.
                         </p>
 
-                        <table class="table caption-top mb-0">
+                        <table class="table caption-top mb-0 w-auto">
                           <caption>Expenditures ({{ organization }})</caption>
                           <thead class="table-secondary">
 
