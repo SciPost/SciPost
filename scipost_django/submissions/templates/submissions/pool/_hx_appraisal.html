@@ -1,7 +1,0 @@
-{% load submissions_pool %}
-{% load ethics_extras %}
-
-<div hx-get="{% url "submissions:pool:_hx_radio_appraisal_form" submission.preprint.identifier_w_vn_nr %}"
-     hx-trigger="intersect once"></div>
-
-{% comment %} <div id="submission-{{ submission.pk }}-ethics" class="col-7" hx-get="{% url 'ethics:_hx_submission_ethics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" hx-trigger="revealed"></div> {% endcomment %}

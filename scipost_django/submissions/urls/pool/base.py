@@ -30,21 +30,6 @@ urlpatterns = [  # building on /submissions/pool/
                     include(
                         [
                             path(
-                                "",
-                                views_appraisal._hx_appraisal,
-                                name="_hx_appraisal",
-                            ),
-                            path(
-                                "qualification_form",
-                                views_appraisal._hx_qualification_form,
-                                name="_hx_qualification_form",
-                            ),
-                            path(
-                                "readiness_form",
-                                views_appraisal._hx_readiness_form,
-                                name="_hx_readiness_form",
-                            ),
-                            path(
                                 "radio_form",
                                 views_appraisal._hx_radio_appraisal_form,
                                 name="_hx_radio_appraisal_form",
