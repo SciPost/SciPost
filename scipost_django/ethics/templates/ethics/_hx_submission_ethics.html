@@ -22,7 +22,7 @@
             Do you have any competing interests?
             <ul>
               <li>No coauthorship with any author in the past 5 years</li>
-              <li>No personal/professional relationship with any author</li>
+              <li>No personal/hierarchical relationship with any author</li>
             </ul>
           </div>
           <div class="text-muted">
@@ -35,13 +35,13 @@
             <div class="col">
               <a class="btn btn-sm btn-primary text-white my-1 w-100"
                  hx-get="{% url 'ethics:_hx_submission_clearance_assert' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-                 hx-target="#submission-{{ submission.pk }}-appraisal"
+                 hx-target="closest .row"
                  hx-confirm="Are you sure that you have carefully read the by-laws (3.5), that you know what consists a competing interest, and that you don't have any with regards to this Submission?">No competing interests</a>
  
               <div class="col">
                 <a class="btn btn-sm btn-secondary my-1 w-100"
                    hx-get="{% url 'ethics:_hx_submission_competing_interest_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-                   hx-target="#submission-{{ submission.pk }}-ethics">Declare competing interest</a>
+                   hx-target="#submission-{{ submission.pk }}-competing-interest-form">Declare competing interest</a>
               </div>
             </div>
           </div>
@@ -50,9 +50,10 @@
         </div>
       </div>
     {% endif %}
-
+  
   </div>
+  
+  <div id="submission-{{ submission.pk }}-competing-interest-form"
+   class="col-12"></div>
 </div>
 
-<div id="submission-{{ submission.pk }}-competing-interest-form"
-     class="col-lg-12"></div>

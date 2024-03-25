@@ -19,13 +19,13 @@ class Readiness(models.Model):
     STATUS_NOT_INTERESTED = "not_interested"
     STATUS_DESK_REJECT = "desk_reject"
     STATUS_CHOICES = (
-        (STATUS_PERHAPS_LATER, "Perhaps later (if nobody else does)"),
+        (STATUS_PERHAPS_LATER, "Perhaps later"),
         (
             STATUS_COULD_IF_TRANSFERRED,
-            "I could (but only if transferred to lower journal)",
+            "I could, if transferred to lower journal",
         ),
-        (STATUS_TOO_BUSY, "Interesting, but I'm currently too busy"),
-        (STATUS_NOT_INTERESTED, "I won't: I'm not interested enough"),
+        (STATUS_TOO_BUSY, "I would, but I'm currently too busy"),
+        (STATUS_NOT_INTERESTED, "I won't, I'm not interested enough"),
         (STATUS_DESK_REJECT, "I won't, and vote for desk rejection"),
     )
 

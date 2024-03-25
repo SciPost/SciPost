@@ -135,7 +135,8 @@
 
   {% if session_fellowship %}
     <section id="submission-{{ submission.id }}-appraisal" class="row mb-0 border-top border-2 pt-2">
-      {% include "submissions/pool/_hx_appraisal.html" with submission=submission %}
+      <div hx-get="{% url "submissions:pool:_hx_radio_appraisal_form" submission.preprint.identifier_w_vn_nr %}"
+           hx-trigger="intersect once"></div>
     </section>
   {% endif %}
 

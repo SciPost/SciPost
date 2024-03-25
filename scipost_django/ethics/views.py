@@ -52,11 +52,9 @@ def _hx_submission_clearance_assert(request, identifier_w_vn_nr):
         submission=submission,
         asserted_by=request.user.contributor,
     )
-    return render(
-        request,
-        "submissions/pool/_hx_appraisal.html",
-        context={"submission": submission},
-    )
+    response = HttpResponse()
+    response["HX-Trigger"] = "CI-clearance-asserted"
+    return response
 
 
 @login_required
@@ -70,10 +68,11 @@ def _hx_submission_clearance_revoke(request, identifier_w_vn_nr):
         submission=submission,
         asserted_by=request.user.contributor,  # can only revoke own clearances
     ).delete()
-    return render(
-        request,
-        "submissions/pool/_hx_appraisal.html",
-        context={"submission": submission},
+    return redirect(
+        reverse(
+            "submissions:pool:_hx_radio_appraisal_form",
+            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+        )
     )
 
 

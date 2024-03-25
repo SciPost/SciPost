@@ -115,11 +115,11 @@ class RadioAppraisalForm(forms.Form):
             Div(
                 Div(
                     Field("readiness", id=f"{self.submission.id}-readiness"),
-                    css_class="col",
+                    css_class="col-12 col-sm-6 col-md",
                 ),
                 Div(
                     Field("expertise_level", id=f"{self.submission.id}-expertise"),
-                    css_class="col",
+                    css_class="col-12 col-sm-6 col-md",
                 ),
                 css_class="row mb-0",
             )
@@ -128,12 +128,6 @@ class RadioAppraisalForm(forms.Form):
     def clean(self):
         readiness = self.cleaned_data["readiness"]
         expertise_level = self.cleaned_data["expertise_level"]
-
-        if readiness == "assign_now" and not self.has_clearance:
-            self.add_error(
-                "readiness",
-                "You must declare no competing interests to take charge of this submission.",
-            )
 
         action = reason = None
         if not expertise_level:
@@ -146,8 +140,13 @@ class RadioAppraisalForm(forms.Form):
         elif readiness == "desk_reject":
             action = "suggest a desk rejection"
 
-        if action and reason:
-            self.add_error("expertise_level", f"{reason} to {action}.")
+        if action:  # If readiness is set to assign_now or desk_reject
+            if reason:  # Both readiness and expertise_level are required
+                self.add_error("expertise_level", f"{reason} to {action}.")
+            if not self.has_clearance:  # If the fellow has no clearance
+                self.add_error(
+                    "readiness", f"You must declare no competing interests to {action}."
+                )
 
     def save(self):
         """

@@ -1,8 +1,29 @@
 {% load crispy_forms_tags %}
+{% load ethics_extras %}
 
-<form id="radio-appraisal-form-{{ submission.id }}"
-      hx-post="{{ request.path }}"
-      hx-swap="outerHTML"
-      hx-trigger="change delay 1s">
-  {% crispy form %}
-</form>
+{% get_profile_clearance submission.clearances request.user.contributor.profile as clearance %}
+{% firstof form.data.readiness form.initial.readiness as readiness %}
+
+<div class="row mb-0">
+
+  <form id="radio-appraisal-form-{{ submission.id }}"
+        class="col col-lg-5"
+        hx-post="{{ request.path }}"
+        hx-swap="outerHTML"
+        hx-target="closest div"
+        hx-trigger="change delay:1s, CI-clearance-asserted from:closest div">
+    {% crispy form %}
+  </form>
+
+  <div class="col-12 col-lg">{% include "ethics/_hx_submission_ethics.html" %}</div>
+
+  {% if not clearance and readiness and readiness != "perhaps_later" %}
+    <div id="submission-{{ submission.id }}-crossref-CI-audit"
+         class="col-12"
+         hx-get="{% url 'ethics:_hx_submission_competing_interest_crossref_audit' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+         hx-trigger="revealed once">
+      <div class="btn btn-secondary htmx-indicator">Searching CrossRef for common works ...</div>
+    </div>
+  {% endif %}
+
+</div>

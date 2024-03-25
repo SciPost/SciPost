@@ -1,22 +1,7 @@
 {% load submissions_pool %}
 {% load ethics_extras %}
 
-{% get_fellow_qualification submission session_fellowship as qualification %}
-{% get_profile_clearance submission.clearances request.user.contributor.profile as clearance %}
+<div hx-get="{% url "submissions:pool:_hx_radio_appraisal_form" submission.preprint.identifier_w_vn_nr %}"
+     hx-trigger="intersect once"></div>
 
-<div class="col" hx-get="{% url "submissions:pool:_hx_radio_appraisal_form" submission.preprint.identifier_w_vn_nr %}" hx-trigger="intersect once"></div>
-
-<div id="submission-{{ submission.pk }}-ethics"
-    class="col-7"
-    hx-get="{% url 'ethics:_hx_submission_ethics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-    hx-trigger="revealed"></div>
-
-{% if not clearance %}
-    <div id="submission-{{ submission.id }}-crossref-CI-audit"
-    hx-get="{% url 'ethics:_hx_submission_competing_interest_crossref_audit' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-    hx-trigger="revealed">
-    <div class="btn btn-secondary htmx-indicator">
-      Searching CrossRef for common works ... 
-    </div>
-  </div>
-{% endif %}
+{% comment %} <div id="submission-{{ submission.pk }}-ethics" class="col-7" hx-get="{% url 'ethics:_hx_submission_ethics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" hx-trigger="revealed"></div> {% endcomment %}

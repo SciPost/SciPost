@@ -17,11 +17,12 @@
       <span class="label label-secondary">{{ submission.get_status_display }}</span>
     </div>
 
-    {% if is_submission_fellow and submission.status == "seeking_assignment"%}
+    {% if is_submission_fellow and submission.status == "seeking_assignment" %}
       <section class="p-2 bg-primary bg-opacity-10">
         <p>This paper is still seeking assignment. Appraise this paper?</p>
         <div id="submission-{{ submission.id }}-appraisal" class="mb-0">
-          {% include "submissions/pool/_hx_appraisal.html" with submission=submission %}
+          <div hx-get="{% url "submissions:pool:_hx_radio_appraisal_form" submission.preprint.identifier_w_vn_nr %}"
+               hx-trigger="intersect once"></div>
         </div>
       </section>
     {% endif %}
