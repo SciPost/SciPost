@@ -5,6 +5,10 @@
       <span class="badge text-bg-secondary">{{ note.get_visibility_display }}</span>
       <span class="fw-bold">{{ note.author.profile.full_name }}</span>
       <span>{{ note.created }}</span>
+      <span role="button"
+            class="text-danger"
+            hx-target="closest li"
+            hx-delete="{% url "pins:_hx_note_delete" note.id %}">{% include "bi/trash-fill.html" %}</span>
     </span>
   </div>
   <div>{{ note.description }}</div>

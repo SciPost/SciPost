@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.shortcuts import HttpResponse
 from django.template.response import TemplateResponse
 
 from scipost.permissions import HTMXResponse
@@ -30,6 +31,31 @@ def _hx_note_create_form(request, regarding_content_type, regarding_object_id):
     context = {"form": form}
 
     return TemplateResponse(request, "pins/_hx_note_create_form.html", context)
+
+
+def _hx_note_delete(request, pk):
+    if request.method != "DELETE":
+        return HTMXResponse("Invalid request method", tag="danger")
+
+    note = Note.objects.filter(pk=pk).first()
+    if note is None:
+        return HTMXResponse("Note not found", tag="danger")
+
+    if note.visibility == Note.VISIBILITY_PRIVATE:
+        if note.author == request.user.contributor:
+            note.delete()
+            return HttpResponse()
+        else:
+            response = HTMXResponse(
+                "You are not the author of this note.", tag="danger"
+            )
+    else:
+        response = HTMXResponse(
+            "Deletion of non-private notes is disabled.", tag="danger"
+        )
+
+    response["HX-Trigger"] = "notes-updated"
+    return response
 
 
 def _hx_notes_list(request, regarding_content_type, regarding_object_id):

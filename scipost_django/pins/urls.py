@@ -9,20 +9,32 @@ from . import views
 
 urlpatterns = [
     path(
-        "<int:regarding_content_type>/<int:regarding_object_id>",
+        "notes/",
         include(
             [
                 path(
-                    "_hx_create",
-                    views._hx_note_create_form,
-                    name="_hx_note_create_form",
+                    "<int:pk>/_hx_delete",
+                    views._hx_note_delete,
+                    name="_hx_note_delete",
                 ),
                 path(
-                    "_hx_list",
-                    views._hx_notes_list,
-                    name="_hx_notes_list",
+                    "<int:regarding_content_type>/<int:regarding_object_id>",
+                    include(
+                        [
+                            path(
+                                "_hx_create",
+                                views._hx_note_create_form,
+                                name="_hx_note_create_form",
+                            ),
+                            path(
+                                "_hx_list",
+                                views._hx_notes_list,
+                                name="_hx_notes_list",
+                            ),
+                        ]
+                    ),
                 ),
             ]
         ),
-    ),
+    )
 ]

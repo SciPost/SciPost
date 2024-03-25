@@ -3,7 +3,7 @@
 <!-- Loader / Update Wrapper -->
 <div class="row" 
     hx-get="{% url "pins:_hx_notes_list" object|content_type_id object.id %}" 
-    hx-trigger="notes-updated from:body target:form delay:1s, {% if notes is None %}load{% endif %}" 
+    hx-trigger="notes-updated from:closest div delay:1s{% if notes is None %}, load{% endif %}" 
     hx-swap="outerHTML">
 <!-- Loader / Update Wrapper -->  
 
