@@ -2,6 +2,7 @@
 {% load ethics_extras %}
 
 {% get_fellow_readiness submission fellowship as readiness %}
+{% get_fellow_qualification_expertise_level_display submission fellowship as expertise_level %}
 
 <tr>
   <td>
@@ -24,7 +25,8 @@
     </td>
   {% endif %}
 
-  <td>{% get_fellow_qualification_expertise_level_display submission fellowship %}</td>
+  <td>{{ expertise_level }}</td>
+  <td>{{ readiness.get_status_display }}</td>
 
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
     <td>
@@ -103,6 +105,4 @@
       </td>
     {% endif %}
   {% endif %}
-
-  <td>{{ readiness.get_status_display }}</td>
 </tr>
