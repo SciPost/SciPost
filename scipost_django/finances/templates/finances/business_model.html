@@ -15,24 +15,67 @@
 
   <h1 class="highlight fs-2">SciPost's Business Model</h1>
 
-  <div class="row pt-4">
-    <div class="col-md-6 ps-4">
-      <h2>Our mission:</h2>
-      <h1 class="position-relative"><span class="text-primary me-2" width="32" height="32">{% include 'bi/journal-text-32.html' %}</span>
-	<strong><em>Genuine</strong> Open Access</em>
-	<a href="{% url 'scipost:about' %}#GOA" class="position-absolute top-0 fs-6 text-primary ms-2">{% include 'bi/question-square.html' %}
-	</a>
-      </h1>
-      <br>
-      <h2>Your role:</h2>
-      <h1><span class="text-primary me-2">{% include 'bi/bank-32.html' %}</span>Make us sustainable</h1>
-    </div>
-    <div class="col-md-6">
-      <div class="">
-	<img src="{% static 'scipost/scipost_sos_2024.webp' %}"
-	     alt="SciPost Sustain Our Services 2024 Campaign logo"
-	     class="float-end" style="max-width: 40rem;" width="100%" />
+  <div class="row pt-3 pb-2 justify-content-evenly">
+    <div class="col-md-4">
+      <div class="ms-4 mt-4">
+	<h2>Our mission:</h2>
+	<h1 class="position-relative"><span class="text-primary me-2" width="32" height="32">{% include 'bi/journal-text-32.html' %}</span>
+	  <strong><em>Genuine</strong> Open Access</em>
+	  <a href="{% url 'scipost:about' %}#GOA" class="position-absolute top-0 fs-6 text-primary ms-2">{% include 'bi/question-square.html' %}
+	  </a>
+	</h1>
+	<br>
+	<h2>Your role:</h2>
+	<h1><span class="text-primary me-2">{% include 'bi/bank-32.html' %}</span>Make us sustainable</h1>
       </div>
+    </div>
+    <div class="col-md-4">
+      <img src="{% static 'finances/SciPost_Business_Model_Sketch.jpg' %}"
+	   alt="SciPost business model sketch"
+	   style="max-width: 24rem;" width="100%" />
+    </div>
+  </div>
+
+  <div class="highlight">&emsp;</div>
+
+  <div class="row m-2">
+    <div class="col-lg-6">
+      <p>
+	Today's Open Access publishing landscape is very polluted and unhealthy:
+	<ul>
+	  <li>APCs (Article Processing Charges) dominate</li>
+	  <li>predatory profit-making thrives</li>
+	  <li>in financial dealings, academic institutions are manifestly
+	    being outplayed by private corporations.</li>
+	</ul>
+      </p>
+      <p>
+	The consequences include
+	large-scale damage to library budgets, depleted research budgets,
+	and curtailed careers of researchers.
+      </p>
+      <p>
+	We would like to re-empower the academic side in this battle for Open Access,
+	by offering an alternative designed by and optimized purely for academic interests.
+      </p>
+    </div>
+    <div class="col-lg-6">
+      <p>Our business model can be summarized by the following:</p>
+      <p class="m-2">
+	<em>
+	  We don't charge authors, we don't charge readers,
+	  we don't send bills to anybody for our services,
+	  and we certainly don't make any profit;
+	  we are an academic community service surviving
+	  on support from Organizations which benefit from
+	  our activities.
+	</em>
+      </p>
+      <p>Said otherwise, our system is academia's <strong>antidote to APCs</strong>.</p>
+      <p>
+	The bullet points here give you the outline; you'll find
+	more detailed explanations below.
+      </p>
     </div>
   </div>
 
@@ -57,9 +100,9 @@
 	<div class="card-header fs-5">Actions</div>
 	<div class="card-body">
 	  <ol>
-	    <li><strong>Publishing</strong><br>We run our publishing activities thinking only about the science.</li>
-	    <li><strong>Briefing</strong><br>We interlink each Publication to its associated Organizations; separately, we compile our expenditures for running our services. We make all this information publicly available.</li>
-	    <li><strong>Sustaining</strong><br>We rely on charitable support from Organizations to give us resources to keep doing what we do best, namely point 1.</li>
+	    <li><strong>Publish</strong><br>We run our publishing activities thinking only about the science.</li>
+	    <li><strong>Report</strong><br>We interlink each Publication to its associated Organizations; separately, we compile our expenditures for running our services. We make all this information publicly available.</li>
+	    <li><strong>Sustain</strong><br>We rely on charitable support from Organizations to give us resources to keep doing what we do best, namely point 1.</li>
 	  </ol>
 	</div>
       </div>
@@ -79,92 +122,55 @@
   </div>
 
 
-
-
   <div class="row">
     <div class="col-12">
+      <h2 class="highlight" id="bullets">How? Bullet points summary</h2>
+    </div>
+    <div class="col-lg-6">
+      <ul>
+	<li class="m-2">
+	  <strong>Publishing and interlinking</strong><br>
+	  We focus on what we do best: publishing.
+	  As part of our production workflow for metadata,
+	  Organizations (author affiliations, funding agencies, ...)
+	  are interlinked with each Publication to which they are associated.
+	</li>
+	<li class="m-2">
+	  <strong>Determining PubFracs</strong><br>
+	  Upon publication, we compute our PubFracs (a fraction of a unit representing an Organization's "weight" for a given Publication; see the <a href="#pubfracs">PubFracs system description</a> below).
+	</li>
+	<li class="m-2">
+	  <strong>Compiling operational costs</strong><br>
+	  On a yearly basis, we determine and make publicly known:
+	  <ul>
+	    <li>our total expenditures (with a detailed breakdown, see our yearly reports
+	      on the <a href="{% url 'finances:finances' %}">finances page</a>)</li>
+	    <li>an average expenditure per publication (<a href="{% url 'finances:apex' %}">APEX</a>)</li>
+	  </ul>
+	</li>
+      </ul>
+    </div>
+    <div class="col-lg-6">
+      <ul>
+	<li class="m-2">
+	  <strong>Information display</strong><br>
+	  We publicly display relevant information on expenditures and support received:
+	  <ul>
+	    <li><a href="{% url 'finances:subsidies' %}">subsidies we have received</a></li>
+	    <li><a href="{% url 'organizations:organizations' %}">organizations</a> listing (with one click to organization-level data, where you can find data on each Organization's associated Publications)</li>
+	    <li><a href="{% url 'finances:country_level_data' %}">country-level</a> summaries</li>
+	    <li>an assessment of our <a href="{% url 'finances:finances' %}#current">current state of viability</a></li>
+	  </ul>
+	  <li class="m-2">
+	    <strong>Sustaining</strong><br>
+	    We liaise with Organizations benefitting from our activities, who can inspect all the data and independently determine to which level they choose to support our activities. Generosity is appreciated, bearing in mind the proportion of non-supporting bystanders. We scale up, maintain or wind down our operations depending on how much support we can gather.
+	  </li>
+      </ul>
+    </div>
+  </div>
 
-      <div class="m-2">
-	<div class="row">
-	  <div class="col-lg-5">
-	    <h2 class="highlight" id="why">Why?</h2>
-	    <p>
-	      Today's Open Access publishing landscape is very polluted and unhealthy:
-	      <ul>
-		<li>APCs (Article Processing Charges) dominate</li>
-		<li>predatory profit-making thrives</li>
-		<li>in financial dealings, academic institutions are manifestly
-		  being outplayed by private corporations.</li>
-	      </ul>
-	    </p>
-	    <p>
-	      The consequences include
-	      large-scale damage to library budgets, depleted research budgets,
-	      and curtailed careers of researchers.
-	    </p>
-	    <p>
-	      We would like to re-empower the academic side in this battle for Open Access,
-	      by offering an alternative designed by and optimized purely for academic interests.
-	    </p>
-	    <p>Our business model can be summarized by the following:</p>
-	    <p class="m-2">
-	      <em>
-		We don't charge authors, we don't charge readers,
-		we don't send bills to anybody for our services,
-		and we certainly don't make any profit;
-		we are an academic community service surviving
-		on support from Organizations which benefit from
-		our activities.
-	      </em>
-	    </p>
-	    <p>Said otherwise, our system is academia's <strong>antidote to APCs</strong>.</p>
-	    <p>
-	      The bullet points here give you the outline; you'll find
-	      more detailed explanations below.
-	    </p>
-	  </div>
-	  <div class="col-lg-7">
-	    <h2 class="highlight" id="bullets">How? Bullet points summary</h2>
-	    <ul>
-	      <li class="m-2">
-		<strong>Publishing and interlinking</strong><br>
-		We focus on what we do best: publishing.
-		As part of our production workflow for metadata,
-		Organizations (author affiliations, funding agencies, ...)
-		are interlinked with each Publication to which they are associated.
-	      </li>
-	      <li class="m-2">
-		<strong>Determining PubFracs</strong><br>
-		Upon publication, we compute our PubFracs (a fraction of a unit representing an Organization's "weight" for a given Publication; see the <a href="#pubfracs">PubFracs system description</a> below).
-	      </li>
-	      <li class="m-2">
-		<strong>Compiling operational costs</strong><br>
-		On a yearly basis, we determine and make publicly known:
-		<ul>
-		  <li>our total expenditures (with a detailed breakdown, see our yearly reports
-		    on the <a href="{% url 'finances:finances' %}">finances page</a>)</li>
-		  <li>an average expenditure per publication (<a href="{% url 'finances:apex' %}">APEX</a>)</li>
-		</ul>
-	      </li>
-	      <li class="m-2">
-		<strong>Information display</strong><br>
-		We publicly display relevant information on expenditures and support received:
-		<ul>
-		  <li><a href="{% url 'finances:subsidies' %}">subsidies we have received</a></li>
-		  <li><a href="{% url 'organizations:organizations' %}">organizations</a> listing (with one click to organization-level data, where you can find data on each Organization's associated Publications)</li>
-		  <li><a href="{% url 'finances:country_level_data' %}">country-level</a> summaries</li>
-		  <li>an assessment of our <a href="{% url 'finances:finances' %}#current">current state of viability</a></li>
-		</ul>
-	      <li class="m-2">
-		<strong>Sustaining</strong><br>
-		We liaise with Organizations benefitting from our activities, who can inspect all the data and independently determine to which level they choose to support our activities. Generosity is appreciated, bearing in mind the proportion of non-supporting bystanders. We scale up, maintain or wind down our operations depending on how much support we can gather.
-	      </li>
-	    </ul>
-	  </div>
-	</div>
-      </div>
-
-      <h1 class="highlight mt-5" id="details">The details</h1>
+  <div>
+    <h1 class="highlight mt-5" id="details">The details</h1>
 
       <div class="row m-2">
 	<div class="col-lg-6">
@@ -301,7 +307,7 @@
       </div>
 
       <div class="row m-2">
-	<h2 class="highlight">Briefing all stakeholders: how and where we display information</h2>
+	<h2 class="highlight">Reporting to all stakeholders: how and where we display information</h2>
       </div>
 
       <div class="row m-2">
