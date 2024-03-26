@@ -22,6 +22,7 @@ class ModelEmailBackendTests(TestCase):
                 "tests/test_mail_code_1",
                 subject="Test Subject Unique For Testing 93872",
                 recipient_list=["test1@scipost.org"],
+                cc=["testcc@scipost.org"],
                 bcc=["test2@scipost.org"],
                 from_email="test3@scipost.org",
                 from_name="Test Name",
@@ -39,6 +40,7 @@ class ModelEmailBackendTests(TestCase):
         self.assertEqual(mail_log.body, "")
         self.assertEqual(mail_log.body_html, "")
         self.assertIn("test1@scipost.org", mail_log.to_recipients)
+        self.assertIn("testcc@scipost.org", mail_log.cc_recipients)
         self.assertIn("test2@scipost.org", mail_log.bcc_recipients)
         self.assertEqual("Test Name <test3@scipost.org>", mail_log.from_email)
 

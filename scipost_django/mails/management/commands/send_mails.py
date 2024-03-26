@@ -55,6 +55,7 @@ class Command(BaseCommand):
                 db_mail.body,
                 db_mail.from_email,
                 db_mail.to_recipients,
+                cc=db_mail.cc_recipients,
                 bcc=db_mail.bcc_recipients,
                 reply_to=(db_mail.from_email,),
                 connection=connection,

@@ -19,7 +19,10 @@ class EmailForm(forms.Form):
 
     subject = forms.CharField(max_length=255, label="Subject*")
     text = forms.CharField(widget=SummernoteEditor, label="Text*")
-    mail_field = MultiEmailField(label="Optional: bcc this email to", required=False)
+    cc_mail_field = MultiEmailField(label="Optional: cc this email to", required=False)
+    bcc_mail_field = MultiEmailField(
+        label="Optional: bcc this email to", required=False
+    )
     prefix = "mail_form"
     extra_config = {}
 
@@ -46,7 +49,10 @@ class EmailForm(forms.Form):
             data = {
                 "%s-subject" % self.prefix: data.get("%s-subject" % self.prefix),
                 "%s-text" % self.prefix: data.get("%s-text" % self.prefix),
-                "%s-mail_field" % self.prefix: data.get("%s-mail_field" % self.prefix),
+                "%s-cc_mail_field"
+                % self.prefix: data.get("%s-cc_mail_field" % self.prefix),
+                "%s-bcc_mail_field"
+                % self.prefix: data.get("%s-bcc_mail_field" % self.prefix),
             }
         else:
             # Reset to prevent having a false-bound form.
@@ -75,7 +81,9 @@ class EmailForm(forms.Form):
     def save(self):
         self.engine.render_template(self.cleaned_data["text"])
         self.engine.mail_data["subject"] = self.cleaned_data["subject"]
-        if bcc_mail_str := self.cleaned_data["mail_field"]:
+        if cc_mail_str := self.cleaned_data["cc_mail_field"]:
+            self.engine.mail_data["cc"] += [m.strip() for m in cc_mail_str.split(",")]
+        if bcc_mail_str := self.cleaned_data["bcc_mail_field"]:
             self.engine.mail_data["bcc"] += [m.strip() for m in bcc_mail_str.split(",")]
         self.engine.send_mail()
         return self.engine.template_variables["object"]

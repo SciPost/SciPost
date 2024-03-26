@@ -37,6 +37,7 @@ class MailLog(models.Model):
     body_html = models.TextField(blank=True)
 
     to_recipients = ArrayField(models.EmailField(), blank=True, null=True)
+    cc_recipients = ArrayField(models.EmailField(), blank=True, null=True)
     bcc_recipients = ArrayField(models.EmailField(), blank=True, null=True)
 
     from_email = models.CharField(max_length=254, blank=True)
@@ -51,7 +52,11 @@ class MailLog(models.Model):
         return "{id}. {subject} ({count} recipients)".format(
             id=self.id,
             subject=self.subject[:30],
-            count=len(self.to_recipients) + len(self.bcc_recipients),
+            count=(
+                len(self.to_recipients)
+                + len(self.bcc_recipients)
+                + (len(self.cc_recipients) if self.cc_recipients else 0)
+            ),
         )
 
     def get_full_context(self):

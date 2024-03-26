@@ -8,8 +8,10 @@ from ..models import MailLog, MailLogRelation
 
 class EmailBackend(FileBackend):
     def write_message(self, message):
+        cc_str = ", ".join(message.cc).encode()
         bcc_str = ", ".join(message.bcc).encode()
         self.stream.write(b"Extended Mail FileBasedBackend\n\n")
+        self.stream.write(b"Cc: " + cc_str + b"\n")
         self.stream.write(b"Bcc: " + bcc_str + b"\n")
         super().write_message(message)
 
@@ -41,6 +43,9 @@ class ModelEmailBackend(FileBackend):
         to_recipients = [
             sanitize_address(addr, encoding) for addr in email_message.to if addr
         ]
+        cc_recipients = [
+            sanitize_address(addr, encoding) for addr in email_message.cc if addr
+        ]
         bcc_recipients = [
             sanitize_address(addr, encoding) for addr in email_message.bcc if addr
         ]
@@ -68,6 +73,7 @@ class ModelEmailBackend(FileBackend):
             subject=subject,
             body_html=body_html,
             to_recipients=to_recipients,
+            cc_recipients=cc_recipients,
             bcc_recipients=bcc_recipients,
             from_email=from_email,
             status=status,

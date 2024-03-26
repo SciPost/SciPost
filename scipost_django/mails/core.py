@@ -28,9 +28,10 @@ class MailEngine:
         "subject",
         "from_email",
         "from_name",
+        "cc",
         "bcc",
     ]
-    _email_fields = ["recipient_list", "from_email", "bcc"]
+    _email_fields = ["recipient_list", "from_email", "cc", "bcc"]
     _processed_template = False
     _mail_sent = False
 
@@ -39,6 +40,7 @@ class MailEngine:
         mail_code,
         subject="",
         recipient_list=[],
+        cc=[],
         bcc=[],
         from_email="",
         from_name="",
@@ -55,12 +57,14 @@ class MailEngine:
         The following arguments overwrite the default values, set in the configuration files:
         -- subject (str, optional)
         -- recipient_list (str, optional): List of email addresses or db-relations.
+        -- cc (str, optional): List of email addresses or db-relations.
         -- bcc (str, optional): List of email addresses or db-relations.
         -- from_email (str, optional): Plain email address.
         -- from_name (str, optional): Display name for from address.
         """
         self.mail_code = mail_code
         self.extra_config = {
+            "cc": cc,
             "bcc": bcc,
             "subject": subject,
             "from_name": from_name,
@@ -133,6 +137,7 @@ class MailEngine:
                 self.mail_data.get("from_email", "noreply@%s" % get_current_domain()),
             ),
             self.mail_data["recipient_list"],
+            cc=self.mail_data["cc"],
             bcc=self.mail_data["bcc"],
             reply_to=[
                 self.mail_data.get("from_email", "noreply@%s" % get_current_domain())
@@ -244,7 +249,7 @@ class MailEngine:
                             "key": email_key,
                         }
                     )
-        for email_key in ["recipient_list", "bcc"]:
+        for email_key in ["recipient_list", "cc", "bcc"]:
             if email_key in self.mail_data and self.mail_data[email_key]:
                 if not isinstance(self.mail_data[email_key], list):
                     raise ConfigurationError(

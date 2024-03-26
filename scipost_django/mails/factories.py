@@ -22,6 +22,7 @@ class MailLogFactory(factory.django.DjangoModelFactory):
     mail_code = factory.Faker("slug")
     subject = factory.Faker("word")
     to_recipients = factory.List([factory.Faker("ascii_safe_email") for _ in range(2)])
+    cc_recipients = factory.List([factory.Faker("ascii_safe_email") for _ in range(2)])
     bcc_recipients = factory.List([factory.Faker("ascii_safe_email") for _ in range(2)])
 
     class Meta:
