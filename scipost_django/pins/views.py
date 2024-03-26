@@ -69,10 +69,8 @@ def _hx_notes_list(request, regarding_content_type, regarding_object_id):
     # Handle permission checks for viewing and creating notes
     can_create_notes = request.user.has_perm("pins.can_add_notes")
 
-    # Filter non-author users from viewing private notes
-    notes = notes.exclude(
-        Q(visibility=Note.VISIBILITY_PRIVATE) & ~Q(author=request.user.contributor)
-    )
+    # Filter according to the visibility of the notes
+    notes = notes.visible_to(request.user, object)
 
     # Filter out internal notes unless the user has the default "manager"
     # permission for the given object, e.g. "can_manage_subsidies"
