@@ -1,3 +1,5 @@
+{% load automarkup %}
+ 
 <div class="my-1">
   <div class="d-flex justify-content-between">
     <span class="fw-bold text-truncate overflow-hidden">{{ note.title }}</span>
@@ -11,5 +13,5 @@
             hx-delete="{% url "pins:_hx_note_delete" note.id %}">{% include "bi/trash-fill.html" %}</span>
     </span>
   </div>
-  <div>{{ note.description }}</div>
+  <div>{% automarkup note.description %}</div>
 </div>
