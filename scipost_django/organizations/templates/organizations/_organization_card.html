@@ -404,6 +404,8 @@
             <ul><li><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></li></ul>
           {% endif %}
 
+	  {% include "pins/_hx_notes_list.html" with object=org %}
+
           <h3 class="highlight mt-4">Balance of SciPost expenditures versus support received</h3>
 
           <p class="mt-1">
