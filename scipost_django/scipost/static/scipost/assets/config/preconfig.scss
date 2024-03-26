@@ -100,6 +100,11 @@ $input-border-radius: $border-radius-base;
 $input-border-radius-lg: $border-radius-base;
 $enable-rounded: true !important;
 
+label.required-asterisk::after {
+    content: "*";
+    font-size: 0.8rem;
+}
+
 $input-height: calc(1.5rem + 2px);
 $input-height-lg: calc(2.0rem + 2px);
 

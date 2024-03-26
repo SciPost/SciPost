@@ -1237,6 +1237,8 @@ class SubmissionForm(forms.ModelForm):
     Form to submit a new (re)Submission.
     """
 
+    required_css_class = "required-asterisk"
+
     collection = forms.ChoiceField(
         choices=[(None, "None")]
         + list(
@@ -1279,7 +1281,8 @@ class SubmissionForm(forms.ModelForm):
             },
         ),
         required=False,
-        help_text="<strong>Does this Submission follow up on some of your earlier publications?<br>(for example: this Submission is a new codebase release for a previous Codebases publication)<br>If so, select them here.</strong><br><strong>This is NOT FOR SPECIFYING A RESUBMISSION: to resubmit a manuscript, choose the resubmission route after clicking the Submit button in the navbar.",
+        help_text="If this Submission follows up on some of your earlier publications, e.g. this Submission is a new release for a previous Codebases publication, select it here.<br>"
+        "<strong>This is NOT FOR SPECIFYING A RESUBMISSION</strong>: to resubmit a manuscript, choose the resubmission route after clicking the Submit button in the navbar.",
     )
     preprint_server = forms.ModelChoiceField(
         queryset=PreprintServer.objects.all(), widget=forms.HiddenInput()
@@ -1328,6 +1331,7 @@ class SubmissionForm(forms.ModelForm):
             "thread_hash",
             "submitted_to",
             "proceedings",
+            "collection",
             "acad_field",
             "specialties",
             "topics",
@@ -1336,18 +1340,17 @@ class SubmissionForm(forms.ModelForm):
             "author_list",
             "abstract",
             "followup_of",
-            "data_repository_url",
-            "code_repository_url",
-            "code_name",
-            "code_version",
-            "code_license",
             "author_comments",
             "list_of_changes",
             "remarks_for_editors",
             "referees_suggested",
             "referees_flagged",
             "preprint_file",
-            "collection",
+            "data_repository_url",
+            "code_repository_url",
+            "code_name",
+            "code_version",
+            "code_license",
             "agree_to_terms",
         ]
         widgets = {
@@ -1438,17 +1441,45 @@ class SubmissionForm(forms.ModelForm):
                 + str(kwargs["initial"].get("acad_field").id)
             )
 
-        # Codebases-only fields
-        if "Codeb" not in self.submitted_to_journal.doi_label:
+        object_types = self.submitted_to_journal.submission_object_types["options"]
+
+        def require_type(str):
+            """Check if a publishable object type is required for this journal."""
+            return map(lambda x: str in x, object_types)
+
+        # Define field option flags
+        code_allowed = any(require_type(PUBLISHABLE_OBJECT_TYPE_CODEBASE))
+        code_required = all(require_type(PUBLISHABLE_OBJECT_TYPE_CODEBASE))
+        data_allowed = any(require_type(PUBLISHABLE_OBJECT_TYPE_DATASET))
+        data_required = all(require_type(PUBLISHABLE_OBJECT_TYPE_DATASET))
+        proceedings_allowed = "Proc" in self.submitted_to_journal.doi_label
+        proceedings_required = proceedings_allowed
+        collection_allowed = "LectNotes" in self.submitted_to_journal.doi_label
+        collection_required = False
+
+        # Mandate special submission fields if required by the journal
+        if code_required:
+            self.fields["code_repository_url"].required = True
+        else:
             del self.fields["code_name"]
             del self.fields["code_version"]
             del self.fields["code_license"]
 
-        # Proceedings & Collection submission fields
-        if "LectNotes" not in self.submitted_to_journal.doi_label:
+        self.fields["data_repository_url"].required = data_required
+        self.fields["collection"].required = collection_required
+        self.fields["proceedings"].required = proceedings_required
+
+        # Delete special submission fields if not allowed by the journal
+        if not code_allowed:
+            del self.fields["code_repository_url"]
+
+        if not data_allowed:
+            del self.fields["data_repository_url"]
+
+        if not collection_allowed:
             del self.fields["collection"]
 
-        if "Proc" not in self.submitted_to_journal.doi_label:
+        if not proceedings_allowed:
             del self.fields["proceedings"]
         else:
             # Filter the list of proceedings to those open for submission
@@ -1458,10 +1489,8 @@ class SubmissionForm(forms.ModelForm):
             if self.is_resubmission():
                 resubmission = Submission.objects.get(id=self.is_resubmission_of)
                 qs = qs | Proceedings.objects.filter(id=resubmission.proceedings.id)
-            if not qs.exists():
-                del self.fields["proceedings"]
-            else:
-                self.fields["proceedings"].queryset = qs
+
+            self.fields["proceedings"].queryset = qs
 
     def is_resubmission(self):
         return self.is_resubmission_of is not None
@@ -1699,7 +1728,6 @@ class SubmissionForm(forms.ModelForm):
         # Save metadata directly from preprint server call without possible user interception
         submission.metadata = self.metadata
         submission.preprint = preprint
-
 
         # Codebases-only fields
         if "Codeb" in submission.submitted_to.doi_label:
