@@ -334,6 +334,9 @@ def email_contactperson(request, contactperson_id, mail=None):
     if mail == "followup":
         mail_code = "org_contacts/contactperson_followup_mail"
         suffix = " (followup)"
+    elif mail == "sos2024":
+        mail_code = "org_contacts/contactperson_sos2024"
+        suffix = " (sos2024)"
     else:
         mail_code = "org_contacts/contactperson_initial_mail"
         suffix = " (initial)"

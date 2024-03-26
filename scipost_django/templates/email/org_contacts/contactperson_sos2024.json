@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: Sustain Our Services",
+    "recipient_list": [
+        "email"
+    ],
+    "bcc": [
+        "sponsors@"
+    ],
+    "from_name": "SciPost Sponsors",
+    "from_email": "sponsors@"
+}
