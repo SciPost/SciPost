@@ -1471,9 +1471,20 @@ class SubmissionForm(forms.ModelForm):
         Check that the submitted material fits one of the Journal's options.
         """
         submitted_types = []
-        if self.cleaned_data.get("preprint_file", None) or self.cleaned_data.get(
-            "preprint_link", None
-        ):
+        if preprint_file := self.cleaned_data.get("preprint_file"):
+            submitted_types.append(PUBLISHABLE_OBJECT_TYPE_ARTICLE)
+
+            # Check the file extension
+            source_file_extensions = ["tex", "zip", "tar", "doc", "docx", "odf"]
+            extension = preprint_file.name.split(".")[-1].lower()
+            if extension != "pdf":
+                error_message = "Please submit a .pdf file. "
+                if extension in source_file_extensions:
+                    error_message += "We ask for your source files upon acceptance."
+
+                self.add_error("preprint_file", error_message)
+
+        elif self.cleaned_data.get("preprint_link"):
             submitted_types.append(PUBLISHABLE_OBJECT_TYPE_ARTICLE)
         if self.cleaned_data.get("code_repository_url", None):
             submitted_types.append(PUBLISHABLE_OBJECT_TYPE_CODEBASE)
