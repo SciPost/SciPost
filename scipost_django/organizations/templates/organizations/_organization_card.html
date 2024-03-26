@@ -774,7 +774,7 @@
                       {% if perms.scipost.can_manage_organizations %}
                         <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id %}">Email (initial)</a></li>
                         <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id mail='followup' %}">Email (followup)</a></li>
-                        <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id mail='sos2024' %}">Email (SOS 2024)</a></li>
+                        <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id mail='sos2024' %}">Email (SOS 2024, for non-sponsoring org)</a></li>
                         <li><a href="{% url 'organizations:add_contact' organization_id=org.id contactperson_id=contactperson.id %}"><span class="text-success">Upgrade to Contact</span></a></li>
                       {% endif %}
 
