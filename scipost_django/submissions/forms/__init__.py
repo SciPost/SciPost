@@ -1302,6 +1302,24 @@ class SubmissionForm(forms.ModelForm):
         "".format(url="https://scipost.org/journals/journals_terms_and_conditions"),
         # FIX  reversing on journals:journals_terms_and_conditions errors with circular import
     )
+    code_name = forms.CharField(
+        label="Software name",
+        help_text="Please provide the name of the software referenced in this submission.",
+        required=True,
+    )
+    code_version = forms.CharField(
+        label="Software version",
+        help_text="Provide the software version referenced in this submission (e.g. v1.2.3).",
+        required=True,
+    )
+    code_license = forms.CharField(
+        label="Software license",
+        help_text=(
+            'Type the name of an acceptable license (one approved by <a href="https://opensource.org/licenses">OSI</a>). '
+            + 'Please consult <a href="https://scipost.org/SciPostPhysCodeb/about#licensing">the about page</a> for more information.'
+        ),
+        required=True,
+    )
 
     class Meta:
         model = Submission
@@ -1318,8 +1336,11 @@ class SubmissionForm(forms.ModelForm):
             "author_list",
             "abstract",
             "followup_of",
-            "code_repository_url",
             "data_repository_url",
+            "code_repository_url",
+            "code_name",
+            "code_version",
+            "code_license",
             "author_comments",
             "list_of_changes",
             "remarks_for_editors",
@@ -1416,6 +1437,12 @@ class SubmissionForm(forms.ModelForm):
                 + "?acad_field_id="
                 + str(kwargs["initial"].get("acad_field").id)
             )
+
+        # Codebases-only fields
+        if "Codeb" not in self.submitted_to_journal.doi_label:
+            del self.fields["code_name"]
+            del self.fields["code_version"]
+            del self.fields["code_license"]
 
         # Proceedings & Collection submission fields
         if "LectNotes" not in self.submitted_to_journal.doi_label:
@@ -1672,6 +1699,15 @@ class SubmissionForm(forms.ModelForm):
         # Save metadata directly from preprint server call without possible user interception
         submission.metadata = self.metadata
         submission.preprint = preprint
+
+
+        # Codebases-only fields
+        if "Codeb" in submission.submitted_to.doi_label:
+            submission.code_metadata = {
+                "code_name": self.cleaned_data["code_name"],
+                "code_version": self.cleaned_data["code_version"],
+                "code_license": self.cleaned_data["code_license"],
+            }
 
         submission.save()
 

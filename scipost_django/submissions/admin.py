@@ -210,6 +210,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                     "specialties",
                     "approaches",
                     "proceedings",
+                    "code_metadata"
                 ),
             },
         ),

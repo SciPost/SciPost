@@ -352,11 +352,16 @@ class Submission(models.Model):
     abstract = models.TextField()
 
     # Links to associated code and data
+    data_repository_url = models.URLField(
+        blank=True, help_text="Link to a data repository pertaining to your manuscript"
+    )
     code_repository_url = models.URLField(
         blank=True, help_text="Link to a code repository pertaining to your manuscript"
     )
-    data_repository_url = models.URLField(
-        blank=True, help_text="Link to a data repository pertaining to your manuscript"
+    code_metadata = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Information about the software referenced in the codebases publication",
     )
 
     # Comments can be added to a Submission
