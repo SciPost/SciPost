@@ -109,7 +109,33 @@ class RadioAppraisalForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.submission = kwargs.pop("submission")
         self.fellow = kwargs.pop("fellow")
+
         super().__init__(*args, **kwargs)
+
+        # Add any pre-existing choices to the form
+        qualification = Qualification.objects.filter(
+            submission=self.submission, fellow=self.fellow
+        ).first()
+        if qualification and qualification.expertise_level not in dict(
+            self.fields["expertise_level"].choices
+        ):
+            self.fields["expertise_level"].choices += (
+                (
+                    qualification.expertise_level,
+                    qualification.get_expertise_level_display(),
+                ),
+            )
+            self.initial["expertise_level"] = qualification.expertise_level
+
+        readiness = Readiness.objects.filter(
+            submission=self.submission, fellow=self.fellow
+        ).first()
+        if readiness and readiness.status not in dict(self.fields["readiness"].choices):
+            self.fields["readiness"].choices += (
+                (readiness.status, readiness.get_status_display()),
+            )
+            self.initial["readiness"] = readiness.status
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
