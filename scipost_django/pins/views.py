@@ -72,12 +72,6 @@ def _hx_notes_list(request, regarding_content_type, regarding_object_id):
     # Filter according to the visibility of the notes
     notes = notes.visible_to(request.user, object)
 
-    # Filter out internal notes unless the user has the default "manager"
-    # permission for the given object, e.g. "can_manage_subsidies"
-    model_plural = (object._meta.verbose_name_plural or "").lower()
-    if not request.user.has_perm(f"pins.can_manage_{model_plural}"):
-        notes = notes.exclude(visibility=Note.VISIBILITY_INTERNAL)
-
     context = {
         "object": object,
         "can_create_notes": can_create_notes,

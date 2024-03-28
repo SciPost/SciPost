@@ -477,6 +477,18 @@ class Command(BaseCommand):
             name="Can add notes",
             content_type=content_type,
         )
+        can_view_internal_subsidy_notes, created = Permission.objects.get_or_create(
+            codename="can_view_internal_subsidy_notes",
+            name="Can view internal subsidy notes",
+            content_type=content_type,
+        )
+        can_view_internal_organization_notes, created = (
+            Permission.objects.get_or_create(
+                codename="can_view_internal_organization_notes",
+                name="Can view internal organization notes",
+                content_type=content_type,
+            )
+        )
 
         # Assign permissions to groups
         SciPostAdmin.permissions.set(
@@ -523,6 +535,8 @@ class Command(BaseCommand):
                 can_view_all_nomination_voting_rounds,
                 can_view_fellowships_monitor,
                 can_add_notes,
+                can_view_internal_subsidy_notes,
+                can_view_internal_organization_notes,
             ]
         )
 
@@ -532,6 +546,8 @@ class Command(BaseCommand):
                 can_manage_subsidies,
                 can_view_timesheets,
                 can_add_notes,
+                can_view_internal_subsidy_notes,
+                can_view_internal_organization_notes,
             ]
         )
 

@@ -1,7 +1,6 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-from typing import Optional
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -11,8 +10,8 @@ class NotesQuerySet(models.QuerySet):
 
     def visible_to(
         self,
-        user: Optional[User] = None,
-        model: Optional[models.Model] = None,
+        user: User | None = None,
+        model: type[models.Model] | None = None,
     ):
         """
         Filter out notes which are not visible to the given user.
@@ -31,8 +30,10 @@ class NotesQuerySet(models.QuerySet):
         # Filter out internal notes unless the user has the default "manager"
         # permission for the given object, e.g. "can_manage_subsidies"
         # If no model is given, just filter out all of them
-        model_plural = str(model._meta.verbose_name_plural).lower() if model else ""
-        if model is None or not user.has_perm(f"pins.can_manage_{model_plural}"):
+        model_name = str(model._meta.verbose_name).lower() if model else ""
+        can_view_internal_notes = f"scipost.can_view_internal_{model_name}_notes"
+
+        if not (model and user.has_perm(can_view_internal_notes)):
             self = self.exclude(visibility=self.model.VISIBILITY_INTERNAL)
 
         return self
@@ -50,5 +51,5 @@ class NotesQuerySet(models.QuerySet):
         """
         Filter notes for a given object, accessible to the given user.
         """
-        model = ContentType.objects.get_for_id(content_type)
+        model = ContentType.objects.get_for_id(content_type).model_class()
         return self.for_object(content_type, object_id).visible_to(user, model)
