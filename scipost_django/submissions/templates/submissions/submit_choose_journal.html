@@ -9,7 +9,9 @@
   <style>{% for journal in journals %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
 {% endblock headsup %}
 
-{% block pagetitle %}: submit manuscript{% endblock pagetitle %}
+{% block pagetitle %}
+  : submit manuscript
+{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -19,7 +21,12 @@
 {% block content %}
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">{% if thread_hash %}Resubmit a{% else %}Submit a new{% endif %} manuscript {% if acad_field %}in {{ acad_field }} {% endif %}</h1>
+      <h1 class="highlight">
+
+        {% if thread_hash %}Resubmit a{% else %}Submit a new{% endif %} manuscript
+        {% if acad_field %} in {{ acad_field }}{% endif %}
+
+      </h1>
     </div>
   </div>
 
@@ -27,38 +34,58 @@
 
     <div class="row">
       <div class="col-md-6">
-	<h2 class=highlight>Step 2</h2>
-	<h3>Which Journal do you want to {% if thread_hash %}send your resubmission{% else %}submit{% endif %} to?</h3>
+        <h2 class=highlight>Step 2</h2>
+        <h3>
+          Which Journal do you want to {% if thread_hash %}send your resubmission{% else %}submit{% endif %} to?
+        </h3>
       </div>
-      <div class="col-md-6">
-	{% include 'submissions/submit_steps.html' with step=2 thread_hash=thread_hash %}
-      </div>
+      <div class="col-md-6">{% include 'submissions/submit_steps.html' with step=2 thread_hash=thread_hash %}</div>
     </div>
 
     <div class="container mt-4">
       <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3">
-	{% for journal in journals %}
-	  <div class="col col-sm-12 col-md-6 col-lg-4 mb-2">
-	    <div class="card">
-	      <div class="card-header {{ journal.doi_label }}">
-		<h3 class="m-2"><a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
-		  {% if journal.has_DOAJ_Seal %}
-		    <a href="https://doaj.org" class="float-end" data-bs-toggle="tooltip" title="{{ journal.name }} has received the Directory of Open Access Journals Seal"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
-		  {% endif %}
-		</h3>
-	      </div>
-	      <div class="card-body text-center">
-		<p>{% automarkup journal.oneliner %}</p>
-		<a class="btn btn-outline-primary m-2" role="button" href="{{ journal.get_absolute_url }}/about" target="_blank"><em>View Description, Scope, Content and Acceptance Criteria</em></a>
-		<a class="btn btn-primary m-2" role="button" href="{% url 'submissions:submit_choose_preprint_server' journal_doi_label=journal.doi_label %}{% if thread_hash %}?thread_hash={{ thread_hash }}{% endif %}">{% include 'bi/arrow-right.html' %}&emsp;Submit to {{ journal.name }}</a>
-	      </div>
-	    </div>
-	  </div>
-	{% endfor %}
+
+        {% for journal in journals %}
+          <div class="col col-sm-12 col-md-6 col-lg-4 mb-2">
+            <div class="card">
+              <div class="card-header {{ journal.doi_label }}">
+                <h3 class="m-2">
+                  <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+
+                  {% if journal.has_DOAJ_Seal %}
+                    <a href="https://doaj.org"
+                       class="float-end"
+                       data-bs-toggle="tooltip"
+                       title="{{ journal.name }} has received the Directory of Open Access Journals Seal">
+                      <img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}"
+                           alt="DOAJ Seal"
+                           width="20em" />
+                    </a>
+                  {% endif %}
+
+                </h3>
+              </div>
+              <div class="card-body text-center">
+                <p>{% automarkup journal.oneliner %}</p>
+                <details class="text-start bg-primary bg-opacity-10 p-1">
+                  <summary class="list-triangle mb-1">Acceptance Criteria</summary>
+                  <div class="overflow-scroll" style="max-height: 33vh;">{% automarkup journal.acceptance_criteria %}</div>
+                </details>
+                <nav class="d-flex flex-row justify-content-between align-items-end mt-2">
+                  <a href="{{ journal.get_absolute_url }}/about" target="_blank"><em>View details</em></a>
+                  <a class="btn btn-primary" role="button" href="{% url 'submissions:submit_choose_preprint_server' journal_doi_label=journal.doi_label %}{% if thread_hash %}?thread_hash={{ thread_hash }}{% endif %}">
+                    {% include 'bi/arrow-right.html' %} <span class="ms-1">Submit</span> </a>
+                </nav>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
       </div>
     </div>
 
   {% else %}
-      <h3>You are currently not allowed to submit a manuscript.</h3>
+    <h3>You are currently not allowed to submit a manuscript.</h3>
   {% endif %}
+
 {% endblock content %}
