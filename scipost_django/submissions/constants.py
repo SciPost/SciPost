@@ -140,6 +140,12 @@ EIC_REC_CHOICES = (
     (EIC_REC_MAJOR_REVISION, "Ask for major revision"),
     (EIC_REC_REJECT, "Reject"),
 )
+EIC_REC_CHOICES_SHORT = (
+    (EIC_REC_PUBLISH, "Publish"),
+    (EIC_REC_MINOR_REVISION, "Minor revision"),
+    (EIC_REC_MAJOR_REVISION, "Major revision"),
+    (EIC_REC_REJECT, "Reject"),
+)
 
 
 # Alternative recommendations
@@ -184,6 +190,13 @@ EIC_REC_STATUSES = (
     (VOTE_COMPLETED, "Editorial College voting rounded up"),  # Seemlingly dead?
     (DECISION_FIXED, "Editorial Recommendation fixed"),
     (DEPRECATED, "Editorial Recommendation deprecated"),
+)
+EIC_REC_STATUSES_SHORT = (
+    (VOTING_IN_PREP, "In preparation"),
+    (PUT_TO_VOTING, "In voting"),
+    (VOTE_COMPLETED, "Voting completed"),
+    (DECISION_FIXED, "Rec. fixed"),
+    (DEPRECATED, "Rec. deprecated"),
 )
 
 

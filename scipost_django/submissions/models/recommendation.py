@@ -9,9 +9,11 @@ from django.utils import timezone
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
     EIC_REC_CHOICES,
+    EIC_REC_CHOICES_SHORT,
     EIC_REC_STATUSES,
     DECISION_FIXED,
     DEPRECATED,
+    EIC_REC_STATUSES_SHORT,
     VOTING_IN_PREP,
     PUT_TO_VOTING,
     ALT_REC_CHOICES,
@@ -150,6 +152,13 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
             self.get_recommendation_display(),
             self.get_status_display(),
         )
+
+    def get_full_status_short_display(self):
+        """Return `recommendation` and `status` field display in short form."""
+        eicrec_short = dict(EIC_REC_CHOICES_SHORT).get(self.recommendation)
+        journal_name = self.for_journal.name_abbrev or ""
+        status_short = dict(EIC_REC_STATUSES_SHORT).get(self.status)
+        return f"{eicrec_short} - {journal_name} ({status_short})"
 
 
 class AlternativeRecommendation(models.Model):

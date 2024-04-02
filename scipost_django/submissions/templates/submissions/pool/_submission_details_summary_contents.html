@@ -53,7 +53,7 @@
 	    <br>
 	    <small class="text-muted">EIC Recommendation &amp; Status</small>
 	    <br>
-	    {{ recommendation.get_full_status_display }}
+	    {{ recommendation.get_full_status_short_display }}
 	    <br>
 	    <small class="text-muted">{{ recommendation.eligible_to_vote.count }} voting: {{ recommendation.voted_for.count }} agreed, {{ recommendation.voted_against.count }} disagreed, {{ recommendation.voted_abstain.count }} abstained</small>
 	  {% endif %}
