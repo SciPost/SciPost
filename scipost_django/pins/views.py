@@ -70,7 +70,7 @@ def _hx_notes_list(request, regarding_content_type, regarding_object_id):
     can_create_notes = request.user.has_perm("pins.can_add_notes")
 
     # Filter according to the visibility of the notes
-    notes = notes.visible_to(request.user, object)
+    notes = notes.visible_to(request.user, object.__class__)
 
     context = {
         "object": object,
