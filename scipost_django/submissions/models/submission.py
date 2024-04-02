@@ -939,6 +939,20 @@ class Submission(models.Model):
             return self.editorialdecision_set.nondeprecated().latest_version()
         return None
 
+    def edadmin_notes(self):
+        """Notes to be displayed to edadmin."""
+        notes: list[tuple[str, str]] = []
+
+        if nr_remarks := self.remarks.count():
+            notes.append(
+                (
+                    "info",
+                    f"There are {nr_remarks} remarks for this submission.",
+                )
+            )
+
+        return notes
+
 
 # The next two models are for optimization of django guardian object-level permissions
 # using direct foreign keys instead of generic ones

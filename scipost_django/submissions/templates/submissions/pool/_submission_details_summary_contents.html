@@ -1,7 +1,14 @@
 {% load submissions_pool %}
 {% load ethics_extras %}
-
+{% load user_groups %}
+{% is_ed_admin request.user as is_ed_admin %}
 {% get_profile_clearance submission.clearances request.user.contributor.profile as clearance %}
+
+{% if is_ed_admin %}
+    <div class="fs-5 float-start position-absolute top-0 start-0 translate-middle">
+      {% include "error_hover_explainer.html" with notes=submission.edadmin_notes %}
+    </div>
+{% endif %}
 
 <div class="row mb-0">
   <div class="col col-md-9">
