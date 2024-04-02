@@ -7,13 +7,18 @@ from .models import Journal, Publication
 
 def publishing_years_processor(request):
     """List of years where publishing activity took place, going backwards in time."""
-    return {
-        "publishing_years": range(
-            Publication.objects.published().first().publication_date.year,
-            Publication.objects.published().last().publication_date.year,
-            -1,
-        )
-    }
+    try:
+        context = {
+            "publishing_years": range(
+                Publication.objects.published().first().publication_date.year,
+                Publication.objects.published().last().publication_date.year,
+                -1,
+            )
+        }
+    except:
+        context = {"publishing_years": []}
+
+    return context
 
 
 def journals_processor(request):
