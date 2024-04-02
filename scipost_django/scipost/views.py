@@ -486,12 +486,8 @@ def _hx_news(request):
 
 
 def _hx_sponsors(request):
-    if Organization.objects.current_sponsors().exists():
-        current_sponsors = Organization.objects.current_sponsors().order_by("?")[:1]
-    else:
-        current_sponsors = Organization.objects.none()
-    context = {"current_sponsors": current_sponsors}
-    return render(request, "scipost/_hx_sponsors.html", context)
+    sponsor = Organization.objects.current_sponsors().order_by("?").first()
+    return render(request, "scipost/_hx_sponsors.html", {"sponsor": sponsor})
 
 
 def protected_serve(request, path, show_indexes=False):

@@ -1,30 +1,33 @@
 {% load static %}
 {% load scipost_extras %}
 
-<div id="sponsor-logos" class="sp-swap"
+<div id="sponsor-logos"
+     class="d-flex sp-swap"
      hx-get="{% url 'scipost:_hx_sponsors' %}?dt={{ request.GET.dt|increment_dt }}"
      hx-push-url="false"
      hx-trigger="every {{ request.GET.dt|increment_dt }}s"
-     hx-swap="outerHTML swap:1s"
->
-  <ul class="list list-unstyled">
-    {% for sponsor in current_sponsors %}
-      {% if sponsor.logos and sponsor.logo %}
-	<li class="p-2">
-	  <picture>
-	    {% for source in sponsor.logos.all %}
-	      <source type="{{ source.mimetype }}" srcset="{{ source.image.url }} {{ source.width }}w">
-	    {% endfor %}
-	    <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
-		 src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo">
-	  </picture>
-	</li>
-      {% elif sponsor.logo %}
-	<li class="p-2">
-	  <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
-	       src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo">
-	</li>
-      {% endif %}
-    {% endfor %}
-  </ul>
+     hx-swap="outerHTML swap:1s">
+
+  {% for source in sponsor.logos.all %}
+    <picture class="mx-auto d-flex flex-column">
+      <source type="{{ source.mimetype }}"
+              srcset="{{ source.image.url }} {{ source.width }}" />
+
+      <img class="rounded"
+           style="max-height: 100%;
+                  max-width: 100%;
+                  object-fit: contain"
+           src="{{ sponsor.logo.url }}"
+           alt="{{ sponsor.name }} logo" />
+
+      <caption>
+        <a href="{{ sponsor.get_absolute_url }}" target="_blank">{{ sponsor.name }}</a>
+      </caption>
+    </picture>
+  {% empty %}
+    <h2 class="mt-2">
+      <a href="{{ sponsor.get_absolute_url }}" target="_blank">{{ sponsor.name }}</a>
+    </h2>
+  {% endfor %}
+
 </div>
