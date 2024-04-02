@@ -215,7 +215,12 @@ class SubmissionQuerySet(models.QuerySet):
         )
         return qs.remove_COI(user)
 
-    def in_pool_filter_for_eic(self, user, latest: bool = True, historical: bool = False):
+    def in_pool_filter_for_eic(
+        self,
+        user,
+        latest: bool = True,
+        historical: bool = False,
+    ):
         """Return the set of Submissions the user is Editor-in-charge for.
 
         If user is an Editorial Administrator: keep any EiC.
@@ -336,6 +341,48 @@ class SubmissionQuerySet(models.QuerySet):
             for r in EICRecommendation.objects.put_to_voting(longer_than_days)
         ]
         return self.filter(id__in=ids_list)
+
+    def annot_qualified_by(self, fellow):
+        """
+        Annotate Submissions with a boolean indicating if the fellow has provided a Qualification.
+        """
+        return self.annotate(
+            has_qualification=models.Exists(
+                fellow.qualification_set.filter(submission=models.OuterRef("pk"))
+            )
+        )
+
+    def annot_readiness_by(self, fellow):
+        """
+        Annotate Submissions with a boolean indicating if the fellow has provided a Readiness.
+        """
+        return self.annotate(
+            has_readiness=models.Exists(
+                fellow.readiness_set.filter(submission=models.OuterRef("pk"))
+            )
+        )
+
+    def annot_clearance_by(self, profile):
+        """
+        Annotate Submissions with a boolean indicating if the profile has provided a Clearance.
+        """
+        return self.annotate(
+            has_clearance=models.Exists(
+                profile.submission_clearances.filter(submission=models.OuterRef("pk"))
+            )
+        )
+
+    def not_fully_appraised_by(self, fellow):
+        """
+        Return Submissions that are not fully appraised yet by the fellow,
+        i.e. missing Qualification, Readiness or Clearance.
+        """
+        return (
+            self.annot_qualified_by(fellow)
+            .annot_readiness_by(fellow)
+            .annot_clearance_by(fellow.contributor.profile)
+            .exclude(has_qualification=True, has_readiness=True, has_clearance=True)
+        )
 
 
 class SubmissionEventQuerySet(models.QuerySet):

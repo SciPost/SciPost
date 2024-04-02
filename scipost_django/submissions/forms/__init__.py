@@ -213,6 +213,30 @@ class SubmissionPoolSearchForm(forms.Form):
         queryset=Fellowship.objects.active().select_related("contributor__user"),
         required=False,
     )
+
+    hide_fully_appraised = forms.BooleanField(
+        label="Hide fully appraised",
+        required=False,
+        initial=False,
+    )
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(
+            ("submission_date", "Submission date"),
+            ("latest_activity", "Latest activity"),
+        ),
+        required=False,
+    )
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=(
+            ("+", "Ascending"),
+            ("-", "Descending"),
+        ),
+        required=False,
+        initial="-",
+    )
+
     versions = forms.ChoiceField(
         widget=forms.RadioSelect,
         choices=(
@@ -233,26 +257,6 @@ class SubmissionPoolSearchForm(forms.Form):
         ),
         initial="current",
     )
-    ordering = forms.ChoiceField(
-        widget=forms.RadioSelect,
-        choices=(
-            (
-                "Submission date ",
-                (
-                    ("submission_recent", "most recent first"),
-                    ("submission_oldest", "oldest first"),
-                ),
-            ),
-            (
-                "Activity ",
-                (
-                    ("activity_recent", "most recent first"),
-                    ("activity_oldest", "oldest first"),
-                ),
-            ),
-        ),
-        initial="submission_recent",
-    )
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop("request")
@@ -268,6 +272,20 @@ class SubmissionPoolSearchForm(forms.Form):
                 college__in=college_id_list
             )
         self.helper = FormHelper()
+
+        div_block_checkbox = Div(
+            Div(
+                Field("hide_fully_appraised"),
+                css_class="col-auto col-lg-12 col-xl-auto",
+            ),
+            css_class="row mb-0",
+        )
+
+        div_block_ordering = Div(
+            Div(FloatingField("orderby"), css_class="col-6 col-md-12 col-xl-6"),
+            Div(FloatingField("ordering"), css_class="col-6 col-md-12 col-xl-6"),
+            css_class="row mb-0",
+        )
         self.helper.layout = Layout(
             Div(
                 Div(FloatingField("submitted_to"), css_class="col-lg-6"),
@@ -296,9 +314,9 @@ class SubmissionPoolSearchForm(forms.Form):
                 css_class="row mb-0",
             ),
             Div(
-                Div(Field("versions"), css_class="col border"),
-                Div(Field("search_set"), css_class="col border"),
-                Div(Field("ordering"), css_class="col border"),
+                Div(Field("versions"), css_class="col"),
+                Div(Field("search_set"), css_class="col"),
+                Div(div_block_ordering, div_block_checkbox, css_class="col"),
                 css_class="row mb-0",
             ),
         )
@@ -437,6 +455,7 @@ class SubmissionPoolSearchForm(forms.Form):
         """
         Return all Submission objects fitting search criteria.
         """
+
         latest = self.cleaned_data.get("versions") == "latest"
         search_set = self.cleaned_data.get("search_set")
         historical = search_set == "historical"
@@ -445,6 +464,12 @@ class SubmissionPoolSearchForm(forms.Form):
             latest=latest,
             historical=historical,
         )
+
+        # Warning: this will only work for one fellowship per user
+        fellowship = user.contributor.fellowships.active().first()
+        if fellowship and self.cleaned_data.get("hide_fully_appraised"):
+            submissions = submissions.not_fully_appraised_by(fellowship)
+
         if not user.contributor.is_ed_admin:
             submissions = submissions.stage_incoming_completed()
         #     if not user.contributor.is_active_senior_fellow:
@@ -596,12 +621,22 @@ class SubmissionPoolSearchForm(forms.Form):
                 editor_in_charge=self.cleaned_data.get("editor_in_charge").contributor
             )
 
-        if self.cleaned_data.get("ordering") == "submission_oldest":
-            submissions = submissions.order_by("submission_date")
-        elif self.cleaned_data.get("ordering") == "activity_recent":
-            submissions = submissions.order_by("-latest_activity")
-        elif self.cleaned_data.get("ordering") == "activity_oldest":
-            submissions = submissions.order_by("latest_activity")
+        # Ordering of submissions
+        # Only order if both fields are set
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            submissions = submissions.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
+                ]
+            )
 
         return submissions
 
