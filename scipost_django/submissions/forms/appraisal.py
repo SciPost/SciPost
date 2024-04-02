@@ -116,24 +116,28 @@ class RadioAppraisalForm(forms.Form):
         qualification = Qualification.objects.filter(
             submission=self.submission, fellow=self.fellow
         ).first()
-        if qualification and qualification.expertise_level not in dict(
-            self.fields["expertise_level"].choices
-        ):
-            self.fields["expertise_level"].choices += (
-                (
-                    qualification.expertise_level,
-                    qualification.get_expertise_level_display(),
-                ),
-            )
+        if qualification:
+            if qualification.expertise_level not in dict(
+                self.fields["expertise_level"].choices
+            ):
+                self.fields["expertise_level"].choices += (
+                    (
+                        qualification.expertise_level,
+                        qualification.get_expertise_level_display(),
+                    ),
+                )
+
             self.initial["expertise_level"] = qualification.expertise_level
 
         readiness = Readiness.objects.filter(
             submission=self.submission, fellow=self.fellow
         ).first()
-        if readiness and readiness.status not in dict(self.fields["readiness"].choices):
-            self.fields["readiness"].choices += (
-                (readiness.status, readiness.get_status_display()),
-            )
+        if readiness:
+            if readiness.status not in dict(self.fields["readiness"].choices):
+                self.fields["readiness"].choices += (
+                    (readiness.status, readiness.get_status_display()),
+                )
+
             self.initial["readiness"] = readiness.status
 
         self.helper = FormHelper()
@@ -182,8 +186,10 @@ class RadioAppraisalForm(forms.Form):
             qualification, _ = Qualification.objects.get_or_create(
                 submission=self.submission, fellow=self.fellow
             )
+            print(expertise_level)
             qualification.expertise_level = expertise_level
             qualification.save()
+            print(qualification)
 
         if (
             readiness_status := self.cleaned_data["readiness"]
@@ -191,9 +197,10 @@ class RadioAppraisalForm(forms.Form):
             readiness, _ = Readiness.objects.get_or_create(
                 submission=self.submission, fellow=self.fellow
             )
-
+            print(readiness_status)
             readiness.status = readiness_status
             readiness.save()
+            print(readiness)
 
     @property
     def is_qualified(self):
