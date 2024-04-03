@@ -93,23 +93,39 @@
 	{% endfor %}
       </div>
 
-      <h3 class="highlight">&euro;10k and above:</h3>
+      <h3 class="highlight mt-4">&euro;10k and above:</h3>
       <div class="d-grid gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
 	{% for sponsor in sponsors_10kplus %}
 	    {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
 	{% endfor %}
       </div>
 
-      <h3 class="highlight">&euro;5k and above:</h3>
+      <h3 class="highlight mt-4">&euro;5k and above:</h3>
       <div class="d-grid gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
 	{% for sponsor in sponsors_5kplus %}
 	    {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
 	{% endfor %}
       </div>
 
-      <h3 class="highlight">Our other current Sponsors:</h3>
+      <h3 class="highlight mt-4">Our other current Sponsors:</h3>
       <div class="d-grid gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
 	{% for sponsor in current_sponsors %}
+	    {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
+	{% endfor %}
+      </div>
+
+      <h1 class="highlight">Our recent-past Sponsors</h1>
+
+      <hgroup class="p-2 highlight d-flex align-items-center justify-content-between">
+        <h3 class="m-0"> 
+          Last year's Sponsors:
+        </h3> 
+        <span class="text-muted">
+          (excludes current sponsors)
+        </span>
+      </hgroup>
+      <div class="d-grid gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
+	{% for sponsor in last_year_sponsors %}
 	    {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
 	{% endfor %}
       </div>
