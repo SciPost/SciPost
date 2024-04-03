@@ -6,9 +6,9 @@
      hx-push-url="true"
      hx-target="body">
 
-  <div class="bg-white m-2 h-100 d-flex" style="min-height: 100px;">
+  <div class="bg-white m-2 h-100 d-flex">
 
-    <img class="m-auto p-4 {{ sponsor.css_class }}" style="max-height: 16rem; max-width: 100%; object-fit: contain" 
+    <img class="m-auto p-4 w-100 {{ sponsor.css_class }}" style="max-height: 200px; object-fit: contain" 
       {% if sponsor.logo %} src="{{ sponsor.logo.url }}" {% else %} src="{% static 'organizations/no_logo.jpg' %}" {% endif %}
        alt="{{ sponsor.name }} logo" />
     </div>

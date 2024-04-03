@@ -2,14 +2,17 @@
 
 {% load render_bundle from webpack_loader %}
 
-{% block meta_description %}{{ block.super }} Sponsors{% endblock meta_description %}
-{% block pagetitle %}: Sponsors{% endblock pagetitle %}
+{% block meta_description %}
+  {{ block.super }} Sponsors
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Sponsors
+{% endblock pagetitle %}
 
 {% load static %}
 
-{% block breadcrumb_items %}
-  {{ block.super }}
-{% endblock %}
+{% block breadcrumb_items %}{{ block.super }}{% endblock %}
 
 {% block content %}
 
@@ -22,16 +25,18 @@
   <div class="row">
     <div class="col-12">
       <h4>
-	<strong>We cordially invite organizations worldwide to join our Sponsorship scheme, and make <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a> a reality.</strong>
+        <strong>We cordially invite organizations worldwide to join our Sponsorship scheme, and make <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a> a reality.</strong>
       </h4>
-      <br/>
+      <br />
       <p>
-	Is your organization benefitting from SciPost's activities (check our <a href="{% url 'organizations:organizations' %}">organizations page</a>), and does it not appear in our list of Sponsors below? Then consider helping SciPost:
-	<br/>
-	<strong>Are you a scientist?</strong><br/>
-	Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.
-	<strong>Are you a librarian, funding agency representative or other potential supporter?</strong><br/>
-	Take a look at our <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement</a> template, and contact us at <a href="mailto:sponsors@{{ request.get_host }}?subject=Sponsors enquiry">sponsors@{{ request.get_host }}</a> to enquire about further details or initiate your sponsorship.
+        Is your organization benefitting from SciPost's activities (check our <a href="{% url 'organizations:organizations' %}">organizations page</a>), and does it not appear in our list of Sponsors below? Then consider helping SciPost:
+        <br />
+        <strong>Are you a scientist?</strong>
+        <br />
+        Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.
+        <strong>Are you a librarian, funding agency representative or other potential supporter?</strong>
+        <br />
+        Take a look at our <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement</a> template, and contact us at <a href="mailto:sponsors@{{ request.get_host }}?subject=Sponsors enquiry">sponsors@{{ request.get_host }}</a> to enquire about further details or initiate your sponsorship.
       </p>
     </div>
   </div>
@@ -39,99 +44,106 @@
   <div class="row">
     <div class="col-md-4">
       <div class="card">
-	<div class="card-header">
-	  <h3>Community service; no user fees</h3>
-	</div>
-	<div class="card-body">
-	  <p>SciPost does not charge any subscription fees or article processing charges (APCs): all our operations are performed as a community service, with no user-facing charges;</p>
-	  <p>Our initiative's scope is resolutely international: we do not impose any geographical or institutional restrictions on the delivery of our services;</p>
-	  <p>SciPost is dedicated to serving the academic community, with no further competing interests.</p>
-	</div>
+        <div class="card-header">
+          <h3>Community service; no user fees</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            SciPost does not charge any subscription fees or article processing charges (APCs): all our operations are performed as a community service, with no user-facing charges;
+          </p>
+          <p>
+            Our initiative's scope is resolutely international: we do not impose any geographical or institutional restrictions on the delivery of our services;
+          </p>
+          <p>SciPost is dedicated to serving the academic community, with no further competing interests.</p>
+        </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card">
-	<div class="card-header">
-	  <h3>Quality through Openness</h3>
-	</div>
-	<div class="card-body">
-	  <p>Our sharp focus on openness through our <a href="/FAQ#pwr">peer-witnessed refereeing</a> procedure equips us with arguably the most stringent editorial quality control system available;</p>
-	  <p>Our <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a> is composed of a broad selection of top academics;</p>
-	  <p>Our fully professional publishing services meet or surpass best practices in all respects. Our flagship journal SciPost Physics has been awarded the <a href="https://doaj.org">DOAJ</a> Seal.</p>
-	</div>
+        <div class="card-header">
+          <h3>Quality through Openness</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            Our sharp focus on openness through our <a href="/FAQ#pwr">peer-witnessed refereeing</a> procedure equips us with arguably the most stringent editorial quality control system available;
+          </p>
+          <p>
+            Our <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a> is composed of a broad selection of top academics;
+          </p>
+          <p>
+            Our fully professional publishing services meet or surpass best practices in all respects. Our flagship journal SciPost Physics has been awarded the <a href="https://doaj.org">DOAJ</a> Seal.
+          </p>
+        </div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="card">
-	<div class="card-header">
-	  <h3>Community funded</h3>
-	</div>
-	<div class="card-body">
-	  <p>Our operations are obviously not without cost, but our strictly not-for-profit setup, community-led workflow, streamlined infrastructure and no-frills administration mean that the average per-publication costs are much lower than those of competing services;</p>
-	  <p>Our financing model relies on sponsorship from the organizations which benefit from our activities (see our <a href="{% url 'organizations:organizations' %}">organizations page</a>);</p>
-	  <p>All sponsorship funds are pooled and exclusively used to run our infrastructure and services.</p>
-	</div>
+        <div class="card-header">
+          <h3>Community funded</h3>
+        </div>
+        <div class="card-body">
+          <p>
+            Our operations are obviously not without cost, but our strictly not-for-profit setup, community-led workflow, streamlined infrastructure and no-frills administration mean that the average per-publication costs are much lower than those of competing services;
+          </p>
+          <p>
+            Our financing model relies on sponsorship from the organizations which benefit from our activities (see our <a href="{% url 'organizations:organizations' %}">organizations page</a>);
+          </p>
+          <p>All sponsorship funds are pooled and exclusively used to run our infrastructure and services.</p>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="row">
     <div class="col-12">
-      <h3>We aim to establish a healthier <a href="{% url 'finances:business_model' %}" target="_blank">business model</a> for scientific publishing</h3>
-      <p>We are able to run a fully sustainable infrastructure at an estimated cost of under &euro;400 per publication, much below the current norm for APCs. The more scientists shift their publishing to SciPost, the fewer subscription/article processing charges you will have to pay as an organization. Your sponsorship will help us scale up and make our initiative sustainable.</p>
+      <h3>
+        We aim to establish a healthier <a href="{% url 'finances:business_model' %}" target="_blank">business model</a> for scientific publishing
+      </h3>
+      <p>
+        We are able to run a fully sustainable infrastructure at an estimated cost of under &euro;400 per publication, much below the current norm for APCs. The more scientists shift their publishing to SciPost, the fewer subscription/article processing charges you will have to pay as an organization. Your sponsorship will help us scale up and make our initiative sustainable.
+      </p>
     </div>
   </div>
 
   <div class="row" hx-boost="true">
     <div class="col-12">
-      <h1 class="highlight">Our current Sponsors</h1>
-
-      <h3 class="highlight">&euro;20k and above:</h3>
-      <div class="d-grid gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
-	{% for sponsor in sponsors_20kplus %}
-	    {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
-	{% endfor %}
-      </div>
-
-      <h3 class="highlight mt-4">&euro;10k and above:</h3>
-      <div class="d-grid gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
-	{% for sponsor in sponsors_10kplus %}
-	    {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
-	{% endfor %}
-      </div>
-
-      <h3 class="highlight mt-4">&euro;5k and above:</h3>
-      <div class="d-grid gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
-	{% for sponsor in sponsors_5kplus %}
-	    {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
-	{% endfor %}
-      </div>
-
-      <h3 class="highlight mt-4">Our other current Sponsors:</h3>
-      <div class="d-grid gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
-	{% for sponsor in current_sponsors %}
-	    {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
-	{% endfor %}
-      </div>
-
-      <h1 class="highlight">Our recent-past Sponsors</h1>
+      <h1 class="highlight">Our recent Sponsors</h1>
 
       <hgroup class="p-2 highlight d-flex align-items-center justify-content-between">
-        <h3 class="m-0"> 
-          Last year's Sponsors:
-        </h3> 
-        <span class="text-muted">
-          (excludes current sponsors)
-        </span>
+        <h3 class="m-0">Current Sponsors</h3>
       </hgroup>
-      <div class="d-grid gap-3" style="grid-template-columns: repeat(3, minmax(0, 1fr));">
-	{% for sponsor in last_year_sponsors %}
-	    {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
-	{% endfor %}
+      <div class="d-grid gap-3"
+           style="grid-template-columns: repeat(3, minmax(0, 1fr))">
+        {% for sponsor in current_sponsors %}
+          {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
+        {% endfor %}
       </div>
 
+      <hgroup class="p-3 mt-4 highlight d-flex align-items-center justify-content-between">
+        <h3 class="m-0">Last year's Sponsors:</h3>
+        <span class="text-muted">(excludes current sponsors)</span>
+      </hgroup>
+      <div class="d-grid gap-3"
+           style="grid-template-columns: repeat(3, minmax(0, 1fr))">
+        {% for sponsor in last_year_sponsors %}
+          {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
+        {% endfor %}
+      </div>
+
+      <details class="mt-4">
+        <summary class="highlight list-triangle p-3">
+          <h1 class="m-0">Our past Sponsors</h1>
+        </summary>
+
+        <div class="d-grid gap-3"
+             style="grid-template-columns: repeat(3, minmax(0, 1fr))">
+          {% for sponsor in past_sponsors %}
+            {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
+          {% endfor %}
+        </div>
+      </details>
+ 
     </div>
   </div>
-
 
 {% endblock content %}

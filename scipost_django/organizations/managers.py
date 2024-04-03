@@ -5,8 +5,10 @@ __license__ = "AGPL v3"
 import datetime
 
 from django.db import models
+from django.db.models import Q
 
 from finances.constants import SUBSIDY_PROMISED, SUBSIDY_INVOICED, SUBSIDY_RECEIVED
+from finances.models.subsidy import Subsidy
 
 
 class OrganizationQuerySet(models.QuerySet):
@@ -61,4 +63,49 @@ class OrganizationQuerySet(models.QuerySet):
             )
             .annotate(total=models.Sum("subsidy__amount"))
             .order_by("-total")
+        )
+
+    def order_by_yearly_coverage(self, year_start=None, year_end=None):
+        """
+        Order by average yearly coverage between year_start and year_end.
+        If either year_start or year_end is None, assume interminable coverage of that end.
+        """
+        subsidy_filter = Q(organization=models.OuterRef("pk"))
+
+        # If year_start and year_end are both None, no filtering is needed.
+        # If year_start is None, filter such that date_until <= year_end.
+        # If year_end is None, filter such that year_start <= date_from.
+        # If both are specified, filter such that
+        # date_from <= year_start <= year_end <= date_until.
+        match (year_start, year_end):
+            case (None, None):
+                pass
+            case (None, _):
+                subsidy_filter &= Q(date_until__year__lte=year_end)
+            case (_, None):
+                subsidy_filter &= Q(date_from__year__gte=year_start)
+            case (_, _):
+                subsidy_filter &= Q(date_from__year__lte=year_start)
+                subsidy_filter &= Q(date_until__year__gte=year_end)
+
+        return (
+            self.annotate(
+                total_yearly_coverage=models.Subquery(
+                    Subsidy.objects.obtained()
+                    .filter(subsidy_filter)
+                    .annotate(
+                        yearly_coverage=models.F("amount")
+                        / (
+                            1
+                            + models.F("date_until__year")
+                            - models.F("date_from__year")
+                        )
+                    )
+                    .values("organization")
+                    .annotate(total=models.Sum("yearly_coverage"))
+                    .values("total")
+                )
+            )
+            .order_by(models.F("total_yearly_coverage").desc(nulls_last=True))
+            .distinct()
         )
