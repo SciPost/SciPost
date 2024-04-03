@@ -1,28 +1,32 @@
-<div class="card bg-light text-center mb-2 d-flex flex-column justify-content-end">
+{% load static %}
 
-  {% if sponsor.logo %}
-    <img class="card-img-top bg-white p-2 my-auto {{ sponsor.css_class }}"
-         style="max-height: 16rem;
-                max-width: 100%;
-                object-fit: contain"
-         src="{{ sponsor.logo.url }}"
-         alt="{{ sponsor.name }} logo" />
-  {% endif %}
+<div class="border border-secondary bg-light text-center mb-2 d-flex flex-column justify-content-end"
+     role="button"
+     hx-get="{{ sponsor.get_absolute_url }}"
+     hx-push-url="true"
+     hx-target="body">
 
-  <div class="p-2 text-start d-flex flex-column">
+  <div class="bg-white m-2 h-100 d-flex" style="min-height: 100px;">
 
-    <h4>{% firstof sponsor.name_original sponsor.name %}</h4>
+    <img class="m-auto p-4 {{ sponsor.css_class }}" style="max-height: 16rem; max-width: 100%; object-fit: contain" 
+      {% if sponsor.logo %} src="{{ sponsor.logo.url }}" {% else %} src="{% static 'organizations/no_logo.jpg' %}" {% endif %}
+       alt="{{ sponsor.name }} logo" />
+    </div>
+ 
+    <div class="p-2 text-start d-flex flex-column">
 
-    {% if sponsor.name_original %}<p class="card-text">({{ sponsor.name }})</p>{% endif %}
+      <h4>{% firstof sponsor.name_original sponsor.name %}</h4>
 
-    <div class="d-flex w-100 align-items-center">
-      <img width="16"
-           height="11"
-           src="{{ sponsor.country.flag }}"
-           alt="{{ sponsor.country }} flag" />
-      &nbsp;<span class="text-muted"><small>[{{ sponsor.country }}]</small></span>&nbsp;&nbsp;{{ sponsor.get_country_display }}
-      &nbsp;&nbsp;<a class="ms-auto"
-   href="{% url 'finances:subsidies' %}?org={{ sponsor.id }}">See subsidies</a>
+      {% if sponsor.name_original %}<p>({{ sponsor.name }})</p>{% endif %}
+
+      <div class="d-flex w-100 align-items-center">
+        <img width="16"
+             height="11"
+             src="{{ sponsor.country.flag }}"
+             alt="{{ sponsor.country }} flag" />
+        <span class="text-muted"><small>[{{ sponsor.country }}]</small></span>{{ sponsor.get_country_display }}
+        <a class="ms-auto"
+           href="{% url 'finances:subsidies' %}?org={{ sponsor.id }}">See subsidies</a>
+      </div>
     </div>
   </div>
-</div>
