@@ -16,6 +16,12 @@
 	<td>Name:</td>
 	<td>{{ profile }}</td>
       </tr>
+      {% if profile.first_name_original or profile.last_name_original %}
+      <tr>
+        <td>Original Name:</td>
+        <td>{{ profile.full_name_original }}</td>
+            </tr>
+      {% endif %}
       <tr>
 	<td>Affiliations
 	  <ul>
