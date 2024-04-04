@@ -58,6 +58,21 @@ class Profile(models.Model):
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
 
+    first_name_original = models.CharField(
+        max_length=64,
+        blank=True,
+        default="",
+        verbose_name="First name (original)",
+        help_text="Name in original script (if not using the Latin alphabet)",
+    )
+    last_name_original = models.CharField(
+        max_length=64,
+        blank=True,
+        default="",
+        verbose_name="Last name (original)",
+        help_text="Name in original script (if not using the Latin alphabet)",
+    )
+
     orcid_id = models.CharField(
         max_length=20, verbose_name="ORCID id", blank=True, validators=[orcid_validator]
     )
@@ -102,6 +117,10 @@ class Profile(models.Model):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    @property
+    def full_name_original(self):
+        return f"{self.first_name_original} {self.last_name_original}"
 
     @property
     def roles(self):

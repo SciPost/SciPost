@@ -35,6 +35,8 @@ class ProfileForm(forms.ModelForm):
             "title",
             "first_name",
             "last_name",
+            "first_name_original",
+            "last_name_original",
             "orcid_id",
             "webpage",
             "acad_field",

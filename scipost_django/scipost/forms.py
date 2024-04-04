@@ -112,10 +112,24 @@ class RegistrationForm(forms.Form):
     are thus separately handled here.
     """
 
-    title = forms.ChoiceField(choices=TITLE_CHOICES, label="* Title")
-    first_name = forms.CharField(label="* First name", max_length=100)
-    last_name = forms.CharField(label="* Last name", max_length=100)
-    email = forms.EmailField(label="* Email address")
+    required_css_class = "required-asterisk"
+
+    title = forms.ChoiceField(choices=TITLE_CHOICES, label="Title")
+    email = forms.EmailField(label="Email address")
+    first_name = forms.CharField(label="First name", max_length=64)
+    last_name = forms.CharField(label="Last name", max_length=64)
+    first_name_original = forms.CharField(
+        label="First name (original script)",
+        max_length=64,
+        required=False,
+        help_text="Name in original script (if not using the Latin alphabet)",
+    )
+    last_name_original = forms.CharField(
+        label="Last name (original script)",
+        max_length=64,
+        required=False,
+        help_text="Name in original script (if not using the Latin alphabet)",
+    )
     invitation_key = forms.CharField(
         max_length=40, widget=forms.HiddenInput(), required=False
     )
@@ -149,7 +163,7 @@ class RegistrationForm(forms.Form):
         widget=autocomplete.ModelSelect2(
             url="/organizations/organization-autocomplete", attrs={"data-html": True}
         ),
-        label="* Current affiliation",
+        label="Current affiliation",
         help_text=(
             "Start typing, then select in the popup; "
             "if you do not find the organization you seek, "
@@ -173,19 +187,19 @@ class RegistrationForm(forms.Form):
         ),
     )
     username = forms.CharField(
-        label="* Username",
+        label="Username",
         max_length=100,
         validators=[
             UnicodeUsernameValidator,
         ],
     )
-    password = forms.CharField(label="* Password", widget=forms.PasswordInput())
+    password = forms.CharField(label="Password", widget=forms.PasswordInput())
     password_verif = forms.CharField(
-        label="* Verify password",
+        label="Verify password",
         widget=forms.PasswordInput(),
         help_text="Your password must contain at least 8 characters",
     )
-    captcha = ReCaptchaField(label="* Please verify to continue:")
+    captcha = ReCaptchaField(label="Please verify to continue:")
     subscribe = forms.BooleanField(
         required=False,
         initial=False,
@@ -271,6 +285,8 @@ class RegistrationForm(forms.Form):
                 title=self.cleaned_data["title"],
                 first_name=self.cleaned_data["first_name"],
                 last_name=self.cleaned_data["last_name"],
+                first_name_original=self.cleaned_data["first_name_original"],
+                last_name_original=self.cleaned_data["last_name_original"],
                 acad_field=self.cleaned_data["acad_field"],
                 orcid_id=self.cleaned_data["orcid_id"],
                 webpage=self.cleaned_data["webpage"],
