@@ -256,9 +256,16 @@ class RegistrationForm(forms.Form):
         return self.cleaned_data.get("password_verif", "")
 
     def clean_username(self):
-        if User.objects.filter(username=self.cleaned_data["username"]).exists():
+        # Username should not contain spaces or special characters
+        username = self.cleaned_data.get("username", "")
+        if re.search(r"[^a-zA-Z0-9._@\-+]", username):
+            raise forms.ValidationError(
+                "Your username may only contain letters, numbers, and any of the following: . _ @ - +"
+            )
+
+        if User.objects.filter(username=username).exists():
             self.add_error("username", "This username is already in use")
-        return self.cleaned_data.get("username", "")
+        return username
 
     def clean_email(self):
         if User.objects.filter(email=self.cleaned_data["email"]).exists():
