@@ -184,7 +184,6 @@ class FellowshipNomination(models.Model):
             FellowshipInvitation.RESPONSE_INVITED,
             FellowshipInvitation.RESPONSE_REINVITED,
             FellowshipInvitation.RESPONSE_MULTIPLY_REINVITED,
-            FellowshipInvitation.RESPONSE_UNRESPONSIVE,
         ]
         if (
             (self.invitation.response in need_reminder_responses)
@@ -557,6 +556,15 @@ class FellowshipInvitation(models.Model):
     @property
     def declined(self):
         return self.response == self.RESPONSE_DECLINED
+
+    @property
+    def in_final_state(self):
+        return self.response in [
+            self.RESPONSE_ACCEPTED,
+            self.RESPONSE_DECLINED,
+            self.RESPONSE_POSTPONED,
+            self.RESPONSE_UNRESPONSIVE,
+        ]
 
     @property
     def get_response_color(self):
