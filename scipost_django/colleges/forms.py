@@ -631,15 +631,15 @@ class FellowshipNominationSearchForm(forms.Form):
             ("latest_round_decision_outcome", "Decision"),
             ("profile__last_name", "Nominee"),
             ("nominated_on", "Nominated date"),
+            ("latest_event_on", "Last event date"),
         ),
         required=False,
     )
     ordering = forms.ChoiceField(
         label="Ordering",
         choices=(
-            # FIXME: Emperically, the ordering appers to be reversed for dates?
-            ("-", "Ascending"),
-            ("+", "Descending"),
+            ("+", "Ascending"),
+            ("-", "Descending"),
         ),
         required=False,
     )
@@ -734,6 +734,13 @@ class FellowshipNominationSearchForm(forms.Form):
                 .values(key)[:1]
             )
 
+        def latest_event_subquery(key):
+            return Subquery(
+                FellowshipNominationEvent.objects.filter(nomination=OuterRef("pk"))
+                .order_by("-on")
+                .values(key)[:1]
+            )
+
         nominations = (
             FellowshipNomination.objects.all()
             .annotate(
@@ -742,6 +749,8 @@ class FellowshipNominationSearchForm(forms.Form):
                 latest_round_decision_outcome=latest_round_subquery(
                     "decision__outcome"
                 ),
+                latest_event_on=latest_event_subquery("on"),
+                latest_event_description=latest_event_subquery("description"),
             )
             .distinct()
         )

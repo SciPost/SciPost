@@ -48,9 +48,9 @@
                 <div class="col text-truncate ">
                   <small class="text-muted">Last event</small>
                   <br />
-                  <time>{{ nomination.events.latest.on|date:'Y-m-d' }}</time>
+                  <time>{{ nomination.latest_event_on|date:'Y-m-d' }}</time>
                   -
-                  <span>{{ nomination.events.latest.description|truncatechars:40 }}</span>
+                  <span>{{ nomination.latest_event_description|truncatechars:40 }}</span>
                 </div>
               {% endif %}
 
