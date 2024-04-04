@@ -1,16 +1,12 @@
 {% load static %}
 
-<div class="border border-secondary bg-light text-center mb-2 d-flex flex-column justify-content-end"
-     role="button"
-     hx-get="{{ sponsor.get_absolute_url }}"
-     hx-push-url="true"
-     hx-target="body">
+<div class="border border-secondary bg-light text-center mb-2 d-flex flex-column justify-content-end">
 
   <div class="bg-white m-2 h-100 d-flex">
 
-    <img class="m-auto p-4 w-100 {{ sponsor.css_class }}" style="max-height: 200px; object-fit: contain" 
+    <img class="m-auto p-4 w-100 {{ sponsor.css_class }}" style="max-height: 200px; object-fit: contain; cursor: pointer;" 
       {% if sponsor.logo %} src="{{ sponsor.logo.url }}" {% else %} src="{% static 'organizations/no_logo.jpg' %}" {% endif %}
-       alt="{{ sponsor.name }} logo" />
+       hx-get="{{ sponsor.get_absolute_url }}" hx-push-url="true" hx-target="body" alt="{{ sponsor.name }} logo" />
     </div>
  
     <div class="p-2 text-start d-flex flex-column">
