@@ -240,15 +240,26 @@ class SubsidyPaymentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["subsidy"].initial = subsidy
         self.fields["subsidy"].widget = forms.HiddenInput()
-        print(subsidy.attachments.invoices())
-        self.fields["invoice"].choices = [
-            (att.id, f"{att.attachment.name.split('/')[-1]}")
-            for att in subsidy.attachments.invoices()
+
+        invoice_qs = subsidy.attachments.unattached().invoices()
+        if self.instance.invoice:
+            invoice_qs |= SubsidyAttachment.objects.filter(id=self.instance.invoice.id)
+            self.fields["invoice"].initial = self.instance.invoice.id
+
+        proofs_qs = subsidy.attachments.unattached().proofs_of_payment()
+        if self.instance.proof_of_payment:
+            proofs_qs |= SubsidyAttachment.objects.filter(
+                id=self.instance.proof_of_payment.id
+            )
+            self.fields["proof_of_payment"].initial = self.instance.proof_of_payment.id
+
+        self.fields["invoice"].choices = [(None, "---")] + [
+            (att.id, f"{att.attachment.name.split('/')[-1]}") for att in invoice_qs
         ]
-        self.fields["proof_of_payment"].choices = [
-            (att.id, f"{att.attachment.name.split('/')[-1]}")
-            for att in subsidy.attachments.proofs_of_payment()
+        self.fields["proof_of_payment"].choices = [(None, "---")] + [
+            (att.id, f"{att.attachment.name.split('/')[-1]}") for att in proofs_qs
         ]
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("subsidy"),
@@ -278,10 +289,8 @@ class SubsidyPaymentForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        if invoice := self.cleaned_data["invoice"]:
-            instance.invoice = invoice
-        if proof_of_payment := self.cleaned_data["proof_of_payment"]:
-            instance.proof_of_payment = proof_of_payment
+        instance.invoice = self.cleaned_data["invoice"] or None
+        instance.proof_of_payment = self.cleaned_data["proof_of_payment"] or None
         if commit:
             instance.save()
         return instance

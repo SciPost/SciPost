@@ -33,6 +33,12 @@ class SubsidyAttachmentQuerySet(models.QuerySet):
     def orphaned(self):
         return self.filter(subsidy__isnull=True)
 
+    def unattached(self):
+        return self.filter(
+            models.Q(proof_of_payment_for__isnull=True)
+            & models.Q(invoice_for__isnull=True)
+        )
+
 
 class PubFracQuerySet(models.QuerySet):
     def uncompensated(self):
