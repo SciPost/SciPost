@@ -1135,7 +1135,15 @@ class FellowshipInvitationEmailReminderView(PermissionsMixin, MailView):
             by=self.request.user.contributor,
         )
         self.object.invited_on = timezone.now()
-        self.object.response = FellowshipInvitation.RESPONSE_REINVITED
+
+        # Move the response to the next invitation status stage
+        invitation_stages = list(dict(FellowshipInvitation.RESPONSE_CHOICES[:4]).keys())
+        try:
+            if idx := invitation_stages.index(self.object.response):
+                self.object.response = invitation_stages[idx + 1]
+        except BaseException:
+            pass
+
         self.object.save()
 
         # run actions on successful invitation sent
