@@ -3439,6 +3439,7 @@ class RestartRefereeingForm(forms.Form):
                 status=Submission.REFEREEING_IN_PREPARATION,
                 refereeing_cycle=CYCLE_UNDETERMINED,
                 acceptance_date=None,
+                visible_public=True,
                 latest_activity=timezone.now(),
             )
             self.submission.editorial_assignments.filter(
