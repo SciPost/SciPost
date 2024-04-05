@@ -364,9 +364,9 @@ urlpatterns = [
         name="ref_invitation_reminder",
     ),
     path(
-        "cancel_ref_invitation/<identifier:identifier_w_vn_nr>/<int:invitation_id>",
-        views.cancel_ref_invitation,
-        name="cancel_ref_invitation",
+        "_hx_cancel_ref_invitation/<identifier:identifier_w_vn_nr>/<int:invitation_id>",
+        views._hx_cancel_ref_invitation,
+        name="_hx_cancel_ref_invitation",
     ),
     path(
         "extend_refereeing_deadline/<identifier:identifier_w_vn_nr>/<int:days>",

@@ -1828,7 +1828,7 @@ def decline_ref_invitation(request, invitation_key):
 
 
 @login_required
-def cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
+def _hx_cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     """Cancel a RefereeInvitation.
 
     This method is used by the Editor-in-charge from the editorial_page to remove a referee
@@ -1842,13 +1842,16 @@ def cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
             submission__in=submissions, pk=invitation_id
         )
     except RefereeInvitation.DoesNotExist:
-        raise Http404
+        return HTMXResponse("Invitation not found/accessible", tag="danger")
 
     invitation.cancelled = True
     invitation.save()
-    SubmissionUtils.load({"invitation": invitation})
-    if invitation.date_invited is not None:
-        SubmissionUtils.send_ref_cancellation_email()
+
+    notify_by_email = request.GET.get("notify_by_email", False)
+    if notify_by_email:
+        SubmissionUtils.load({"invitation": invitation})
+        if invitation.date_invited is not None:
+            SubmissionUtils.send_ref_cancellation_email()
 
     # Add SubmissionEvents
     invitation.submission.add_event_for_author(
@@ -1858,13 +1861,7 @@ def cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
         "Referee invitation for %s has been cancelled." % invitation.last_name
     )
 
-    messages.success(request, "Invitation cancelled")
-    return redirect(
-        reverse(
-            "submissions:editorial_page",
-            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
-        )
-    )
+    return HTMXResponse("Invitation cancelled", tag="success")
 
 
 @login_required

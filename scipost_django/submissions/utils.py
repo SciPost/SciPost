@@ -421,7 +421,7 @@ class SubmissionUtils(BaseMailUtil):
     def send_ref_cancellation_email(cls):
         """
         This method is used to inform a referee that his/her services are no longer required.
-        It is called from the cancel_ref_invitation method in submissions/views.py.
+        It is called from the _hx_cancel_ref_invitation method in submissions/views.py.
         """
         email_text = (
             "Dear "
