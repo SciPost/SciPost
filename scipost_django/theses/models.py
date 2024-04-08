@@ -40,7 +40,6 @@ class ThesisLink(models.Model):
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
         blank=True,
         null=True,
-        verbose_name="approach(es) [optional]",
     )
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300, verbose_name="title")

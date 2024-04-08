@@ -1329,7 +1329,7 @@ class SubmissionForm(forms.ModelForm):
             "Please submit the processed .pdf (not the source files; "
             "these will only be required at the post-acceptance proofs stage)"
         ),
-        required=False,
+        required=True,
     )
     agree_to_terms = forms.BooleanField(
         required=False,
@@ -1380,12 +1380,12 @@ class SubmissionForm(forms.ModelForm):
             "remarks_for_editors",
             "referees_suggested",
             "referees_flagged",
-            "preprint_file",
             "data_repository_url",
             "code_repository_url",
             "code_name",
             "code_version",
             "code_license",
+            "preprint_file",
             "agree_to_terms",
         ]
         widgets = {
@@ -1394,14 +1394,18 @@ class SubmissionForm(forms.ModelForm):
             "is_resubmission_of": forms.HiddenInput(),
             "thread_hash": forms.HiddenInput(),
             "code_repository_url": forms.TextInput(
-                attrs={"placeholder": "If applicable; please give the full URL"}
+                attrs={
+                    "placeholder": "Optional: the full URL to the code repository, if applicable"
+                }
             ),
             "data_repository_url": forms.TextInput(
-                attrs={"placeholder": "If applicable; please give the full URL"}
+                attrs={
+                    "placeholder": "Optional: the full URL to the data repository, if applicable"
+                }
             ),
             "remarks_for_editors": forms.Textarea(
                 attrs={
-                    "placeholder": "Any private remarks (for the editors only)",
+                    "placeholder": "Optional: any private remarks (for the editors only)",
                     "rows": 5,
                 }
             ),
