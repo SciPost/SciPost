@@ -1,0 +1,16 @@
+{% load automarkup %}
+
+<p>{% automarkup journal.acceptance_criteria.preamble %}</p>
+
+{% for section in journal.acceptance_criteria.sections %}
+  <div class="my-3">
+    <h6>{% automarkup section.title %}</h6>
+    <ol>
+
+      {% for criterion in section.criteria.values %}
+        <li>{% automarkup criterion %}</li>
+      {% endfor %}
+
+    </ol>
+  </div>
+{% endfor %}
