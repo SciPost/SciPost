@@ -1,0 +1,18 @@
+<ul class="ps-1">
+
+  {% for k,v in submission.submitted_to.expectations %}
+    <li class="d-flex">
+
+      {% if k in submission.fulfilled_expectations %}
+        <span class="me-2 text-success">{% include 'bi/check-square-fill.html' %}</span>
+      {% else %}
+        <span class="me-2 text-secondary">{% include 'bi/x-square-fill.html' %}</span>
+      {% endif %}
+
+      {{ v }}
+
+    </li>
+  {% endfor %}
+
+ 
+</ul>

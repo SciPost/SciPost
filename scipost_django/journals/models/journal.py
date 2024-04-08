@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from itertools import chain
 import json
 
 from django.db import models
@@ -187,6 +188,17 @@ class Journal(models.Model):
     @property
     def has_collections(self):
         return Collection.objects.filter(series__container_journals=self).exists()
+
+    @property
+    def expectations(self):
+        """Return a list of tuples with the acceptance expectations for this Journal."""
+        sections = self.acceptance_criteria.get("sections", [])
+        criteria = [
+            s.get("criteria", {}).items()
+            for s in sections
+            if s.get("type", "") == "expectations"
+        ]
+        return list(chain(*criteria))
 
     def get_issues(self):
         from journals.models import Issue

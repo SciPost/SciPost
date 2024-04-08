@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.contrib.sessions.backends.db import SessionStore
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from .appraisal import QualificationForm, ReadinessForm
 
 
@@ -1358,10 +1358,16 @@ class SubmissionForm(forms.ModelForm):
         ),
         required=True,
     )
+    fulfilled_expectations = forms.MultipleChoiceField(
+        choices=[],
+        label="Fulfilled expectations",
+        widget=forms.CheckboxSelectMultiple(),
+    )
 
     class Meta:
         model = Submission
         fields = [
+            "fulfilled_expectations",
             "is_resubmission_of",
             "thread_hash",
             "submitted_to",
@@ -1480,6 +1486,17 @@ class SubmissionForm(forms.ModelForm):
                 + str(kwargs["initial"].get("acad_field").id)
             )
 
+        self.fields["fulfilled_expectations"].help_text = (
+            """Please select which of the <a href='{expectations_url}'>journal expectations</a> are fulfilled by this submission. 
+            This information will be publicly visible and used during refereeing. <br>
+            Try a more accessible alternative? <a href='{core_url}'>Submit to SciPost Physics Core</a>.""".format(
+                expectations_url=reverse_lazy(
+                    "journal:about", args=[self.submitted_to_journal.doi_label]
+                )
+                + "#criteria",
+                core_url="https://scipost.org/submissions/submit/SciPostPhysCore",
+            )
+        )
         object_types = self.submitted_to_journal.submission_object_types["options"]
 
         def require_type(str):
@@ -1495,6 +1512,8 @@ class SubmissionForm(forms.ModelForm):
         proceedings_required = proceedings_allowed
         collection_allowed = "LectNotes" in self.submitted_to_journal.doi_label
         collection_required = False
+        expectations_allowed = self.submitted_to_journal.doi_label == "SciPostPhys"
+        expectations_required = expectations_allowed
 
         # Mandate special submission fields if required by the journal
         if code_required:
@@ -1530,6 +1549,13 @@ class SubmissionForm(forms.ModelForm):
                 qs = qs | Proceedings.objects.filter(id=resubmission.proceedings.id)
 
             self.fields["proceedings"].queryset = qs
+
+        if not expectations_allowed:
+            del self.fields["fulfilled_expectations"]
+        else:
+            self.fields["fulfilled_expectations"].choices = (
+                self.submitted_to_journal.expectations
+            )
 
     def is_resubmission(self):
         return self.is_resubmission_of is not None
@@ -1754,6 +1780,11 @@ class SubmissionForm(forms.ModelForm):
             timezone.now()
             + datetime.timedelta(days=8)
             + self.cleaned_data["submitted_to"].refereeing_period
+        )
+
+        # Save expectations
+        submission.fulfilled_expectations = ",".join(
+            self.cleaned_data["fulfilled_expectations"]
         )
 
         # Save identifiers

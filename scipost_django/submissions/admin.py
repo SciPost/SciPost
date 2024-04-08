@@ -203,6 +203,7 @@ class SubmissionAdmin(GuardedModelAdmin):
             {
                 "classes": ("collapse",),
                 "fields": (
+                    "fulfilled_expectations",
                     "code_repository_url",
                     "data_repository_url",
                     "author_comments",
