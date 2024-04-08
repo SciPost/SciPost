@@ -363,6 +363,8 @@ class Submission(models.Model):
         help_text="Information about the software referenced in the codebases publication",
     )
 
+    fulfilled_expectations = models.CharField(default=str, max_length=1000, blank=True)
+
     # Comments can be added to a Submission
     comments = GenericRelation("comments.Comment", related_query_name="submissions")
 
@@ -623,6 +625,14 @@ class Submission(models.Model):
         return reverse(
             "submissions:submission", args=(self.preprint.identifier_w_vn_nr,)
         )
+
+    def get_fulfilled_expectations_display(self) -> List[str]:
+        """Return a list of fulfilled expectation displays"""
+        return [
+            display
+            for key, display in self.submitted_to.expectations
+            if key in self.fulfilled_expectations.split(",")
+        ]
 
     @property
     def is_resubmission(self):

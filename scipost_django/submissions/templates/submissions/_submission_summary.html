@@ -122,3 +122,8 @@
     <h3 class="mt-4">Abstract</h3>
     <p>{{ submission.abstract }}</p>
 {% endif %}
+
+{% if submission.fulfilled_expectations %}
+  <h4>Author indications on fulfilling journal expectations</h4>
+  {% include "submissions/_submission_fulfilled_expectations_checklist.html" %}
+{% endif %}
