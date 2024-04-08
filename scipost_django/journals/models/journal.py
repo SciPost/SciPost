@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import json
 
 from django.db import models
 from django.db.models import Avg, F
@@ -108,9 +109,18 @@ class Journal(models.Model):
     description = models.TextField(default="[To be filled in; you can use markup]")
     scope = models.TextField(default="[To be filled in; you can use markup]")
     content = models.TextField(default="[To be filled in; you can use markup]")
-    acceptance_criteria = models.TextField(
-        default="[To be filled in; you can use markup]"
+    acceptance_criteria = models.JSONField(
+        default=json.loads(
+            """{"preamble": "Text before the list(s)", \
+                "sections": [\
+                    {"type":"expectations", "title": "First section", \
+                        "criteria": {"1": "First criterion", "2": "Second criterion"}},\
+                    {"type": "general_acceptance", "title": "Second section", \
+                        "criteria": {"1": "First criterion", "2": "Second criterion"}}\
+                ]}"""
+        )
     )
+
     submission_insert = models.TextField(
         blank=True, null=True, default="[Optional; you can use markup]"
     )

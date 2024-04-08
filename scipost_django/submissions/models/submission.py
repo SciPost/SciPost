@@ -269,7 +269,6 @@ class Submission(models.Model):
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
         blank=True,
         null=True,
-        verbose_name="approach(es) [optional]",
     )
     editor_in_charge = models.ForeignKey(
         "scipost.Contributor",
@@ -408,6 +407,8 @@ class Submission(models.Model):
     )
     latest_activity = models.DateTimeField(auto_now=True)
     update_search_index = models.BooleanField(default=True)
+
+    acceptance_elaboration = models.TextField(blank=True, default="")
 
     objects = SubmissionQuerySet.as_manager()
 
