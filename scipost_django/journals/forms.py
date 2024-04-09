@@ -191,7 +191,8 @@ class AbstractJATSForm(forms.ModelForm):
 
 class FundingInfoForm(forms.ModelForm):
     funding_statement = forms.CharField(
-        widget=forms.Textarea({"placeholder": "Paste the funding info statement here"})
+        required=False,
+        widget=forms.Textarea({"placeholder": "Paste the funding info statement here"}),
     )
 
     class Meta:

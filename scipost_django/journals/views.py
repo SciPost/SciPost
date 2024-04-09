@@ -960,6 +960,15 @@ class FundingInfoView(
     form_class = FundingInfoForm
     template_name = "journals/create_funding_info_metadata.html"
 
+    # Delete the funding statement if the form is submitted empty
+    def form_valid(self, form):
+        if form.cleaned_data.get("funding_statement", "") == "":
+            self.object.metadata["funding_statement"] = ""
+            self.object.save()
+            return redirect(self.get_success_url())
+
+        return super().form_valid(form)
+
 
 @permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
