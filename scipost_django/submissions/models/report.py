@@ -110,6 +110,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     )
 
     recommendation = models.SmallIntegerField(null=True, blank=True, choices=REPORT_REC)
+    recommendation_publicly_visible = models.BooleanField(default=True)
     remarks_for_editors = models.TextField(
         blank=True, verbose_name="optional remarks for the Editors only"
     )

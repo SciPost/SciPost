@@ -38,8 +38,22 @@
   <div class="row">
     <div class="col-12">
       <h3 class="highlight tight">Attachment</h3>
-      <div class="ps-md-4">{% include 'bi/download.html' %} <a href="{{ report.get_attachment_url }}">Download attachment</a></div>
-      <br>
+      <div class="ps-md-4">
+        {% include 'bi/download.html' %}
+        <a href="{{ report.get_attachment_url }}">Download attachment</a>
+      </div>
+      <br />
+    </div>
+  </div>
+{% endif %}
+
+{% if report.recommendation_publicly_visible %}
+  <div class="row">
+    <div class="col-12">
+      <h3 class="highlight tight">Recommendation</h3>
+      <div class="ps-md-4">
+        <p>{{ report.get_recommendation_display }}</p>
+      </div>
     </div>
   </div>
 {% endif %}
