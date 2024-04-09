@@ -444,7 +444,13 @@ class OrganizationSponsorshipSubsidyCreateView(PermissionsMixin, CreateView):
 
 
 def subsidy_list(request):
-    form = SubsidySearchForm()
+    initial = {}
+    org_id = request.GET.get("org")
+    if org_id:
+        org = Organization.objects.get(pk=org_id)
+        if org is not None:
+            initial["organization_query"] = org.name
+    form = SubsidySearchForm(initial=initial)
     context = {
         "form": form,
     }
