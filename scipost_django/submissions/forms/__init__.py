@@ -2889,6 +2889,11 @@ class ReportForm(forms.ModelForm):
             self.fields["report"].required = False
             self.fields["recommendation"].required = False
 
+        #! Temporary annotation this field was made public:
+        self.fields["recommendation"].help_text = (
+            "As of April 2024, report recommendations are also publicly visible."
+        )
+
         if self.submission.eicrecommendations.active().exists():
             # An active EICRecommendation is already formulated. This Report will be flagged.
             self.report_type = REPORT_POST_EDREC
