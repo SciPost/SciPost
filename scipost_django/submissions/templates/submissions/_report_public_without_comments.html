@@ -104,7 +104,15 @@
           <h3 class="highlight tight">Remarks for editors</h3>
           <div class="ps-md-4">{{ report.remarks_for_editors|default:'-' }}</div>
         </div>
+
+        {% if not report.recommendation_publicly_visible %}
+          <div class="m-2 p-2 border border-danger">
+            <h3 class="highlight tight">Recommendation</h3>
+            <div class="ps-md-4">{{ report.get_recommendation_display }}</div>
+          </div>
+        {% endif %}
       {% endif %}
+
 
       {% block single_report_footer %}{% endblock %}
     </div>
