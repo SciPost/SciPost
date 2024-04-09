@@ -2802,6 +2802,7 @@ class ReportPDFForm(forms.ModelForm):
 class ReportForm(forms.ModelForm):
     """Write Report form."""
 
+    required_css_class = "required-asterisk"
     report_type = REPORT_NORMAL
 
     class Meta:
@@ -2824,6 +2825,45 @@ class ReportForm(forms.ModelForm):
             "anonymous",
         ]
 
+        widgets = {
+            "strengths": forms.Textarea(
+                attrs={
+                    "placeholder": (
+                        "Give a point-by-point "
+                        "(numbered 1-, 2-, ...) list of the paper's strengths"
+                    ),
+                    "rows": 10,
+                    "cols": 100,
+                }
+            ),
+            "weaknesses": forms.Textarea(
+                attrs={
+                    "placeholder": (
+                        "Give a point-by-point "
+                        "(numbered 1-, 2-, ...) list of the paper's weaknesses"
+                    ),
+                    "rows": 10,
+                    "cols": 100,
+                }
+            ),
+            "report": forms.Textarea(
+                attrs={
+                    "placeholder": (
+                        "Your general remarks. Are this Journal's acceptance criteria met? "
+                        "Would you recommend publication in another Journal instead?"
+                    ),
+                    "rows": 10,
+                    "cols": 100,
+                }
+            ),
+            "requested_changes": forms.Textarea(
+                attrs={
+                    "placeholder": "Give a numbered (1-, 2-, ...) list of specifically requested changes",
+                    "cols": 100,
+                }
+            ),
+        }
+
     def __init__(self, *args, **kwargs):
         if kwargs.get("instance"):
             if kwargs["instance"].is_followup_report:
@@ -2841,57 +2881,13 @@ class ReportForm(forms.ModelForm):
         self.submission = kwargs.pop("submission")
 
         super().__init__(*args, **kwargs)
-        self.fields["strengths"].widget.attrs.update(
-            {
-                "placeholder": (
-                    "Give a point-by-point "
-                    "(numbered 1-, 2-, ...) list of the paper's strengths"
-                ),
-                "rows": 10,
-                "cols": 100,
-            }
-        )
-        self.fields["weaknesses"].widget.attrs.update(
-            {
-                "placeholder": (
-                    "Give a point-by-point "
-                    "(numbered 1-, 2-, ...) list of the paper's weaknesses"
-                ),
-                "rows": 10,
-                "cols": 100,
-            }
-        )
-        self.fields["report"].widget.attrs.update(
-            {
-                "placeholder": "Your general remarks. Are this Journal's acceptance criteria met? Would you recommend publication in another Journal instead?",
-                "rows": 10,
-                "cols": 100,
-            }
-        )
-        self.fields["requested_changes"].widget.attrs.update(
-            {
-                "placeholder": "Give a numbered (1-, 2-, ...) list of specifically requested changes",
-                "cols": 100,
-            }
-        )
-
-        self.fields["file_attachment"].label = (
-            "File attachment (2MB limit; for a figure or similar - please avoid annotated pdfs)"
-        )
 
         # Required fields on submission; optional on save as draft
-        if "save_submit" in self.data:
-            required_fields = ["report", "recommendation"]
-        else:
-            required_fields = []
-        required_fields_label = ["report", "recommendation"]
-
-        for field in required_fields:
-            self.fields[field].required = True
-
-        # Let user know the field is required!
-        for field in required_fields_label:
-            self.fields[field].label += " *"
+        self.fields["report"].required = True
+        self.fields["recommendation"].required = True
+        if "save_draft" in self.data:
+            self.fields["report"].required = False
+            self.fields["recommendation"].required = False
 
         if self.submission.eicrecommendations.active().exists():
             # An active EICRecommendation is already formulated. This Report will be flagged.

@@ -40,7 +40,7 @@ $(function () {
         })
         .trigger("keyup");
 
-    $('#id_validity, #id_originality, #id_significance, #id_clarity, #id_formatting, #id_grammar').on('change', function(){
+    $('#id_validity, #id_originality, #id_significance, #id_clarity, #id_formatting, #id_grammar, #id_recommendation').on('change', function(){
         set_preview_select(this);
     }).trigger('change');
 
