@@ -155,10 +155,18 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
 
     def get_full_status_short_display(self):
         """Return `recommendation` and `status` field display in short form."""
-        eicrec_short = dict(EIC_REC_CHOICES_SHORT).get(self.recommendation)
+        eicrec_short = self.get_recommendation_short_display()
         journal_name = self.for_journal.name_abbrev or ""
-        status_short = dict(EIC_REC_STATUSES_SHORT).get(self.status)
+        status_short = self.get_status_short_display()
         return f"{eicrec_short} - {journal_name} ({status_short})"
+
+    def get_status_short_display(self):
+        """Return `status` field display in short form."""
+        return dict(EIC_REC_STATUSES_SHORT).get(self.status)
+
+    def get_recommendation_short_display(self):
+        """Return `recommendation` field display in short form."""
+        return dict(EIC_REC_CHOICES_SHORT).get(self.recommendation)
 
 
 class AlternativeRecommendation(models.Model):
