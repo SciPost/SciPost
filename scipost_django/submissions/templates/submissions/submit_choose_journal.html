@@ -68,13 +68,13 @@
               <div class="card-body text-center">
                 <p>{% automarkup journal.oneliner %}</p>
                 <details class="text-start bg-primary bg-opacity-10 p-1">
-                  <summary class="list-triangle mb-1">Acceptance Criteria</summary>
-                  <div class="overflow-scroll" style="max-height: 33vh;">
+                  <summary class="list-triangle">Acceptance Criteria</summary>
+                  <div class="mt-2 overflow-scroll" style="max-height: 33vh;">
                     {% include 'journals/_acceptance_criteria.html' %}
                   </div>
                 </details>
                 <nav class="d-flex flex-row justify-content-between align-items-end mt-2">
-                  <a href="{{ journal.get_absolute_url }}/about" target="_blank"><em>View details</em></a>
+                  <a href="{{ journal.get_absolute_url }}/about" target="_blank"><em>View full details</em></a>
                   <a class="btn btn-primary" role="button" href="{% url 'submissions:submit_choose_preprint_server' journal_doi_label=journal.doi_label %}{% if thread_hash %}?thread_hash={{ thread_hash }}{% endif %}">
                     {% include 'bi/arrow-right.html' %} <span class="ms-1">Submit</span> </a>
                 </nav>

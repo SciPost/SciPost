@@ -1487,9 +1487,9 @@ class SubmissionForm(forms.ModelForm):
             )
 
         self.fields["fulfilled_expectations"].help_text = (
-            """Please select which of the <a href='{expectations_url}'>journal expectations</a> are fulfilled by this submission. 
-            This information will be publicly visible and used during refereeing. <br>
-            Try a more accessible alternative? <a href='{core_url}'>Submit to SciPost Physics Core</a>.""".format(
+            """<div class="mt-2">Please indicate which <a href='{expectations_url}'>journal expectations</a> you assert are being fulfilled by this Submission. 
+            This information will be publicly visible and scrutinized during the refereeing process. <br>
+            Looking for a more accessible alternative? Consider <a href='{core_url}'>submitting to SciPost Physics Core</a>.</div>""".format(
                 expectations_url=reverse_lazy(
                     "journal:about", args=[self.submitted_to_journal.doi_label]
                 )
