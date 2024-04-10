@@ -1,11 +1,11 @@
 {
     "subject": "SciPost: ticket followup",
     "recipient_list": [
-	"ticket.defined_by.email"
+        "ticket.defined_by.email"
     ],
     "bcc": [
-	"admin@",
-	"edadmin@",
+        "admin@",
+        "edadmin@"
     ],
     "from_name": "SciPost Helpdesk",
     "from_email": "helpdesk@"
