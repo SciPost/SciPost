@@ -242,6 +242,7 @@ details {
         
         // // List triangle for summary element (necessary with display: flex)
         &.list-triangle {
+            display: block;
             position: relative;
             padding-left: 2em !important;
 
