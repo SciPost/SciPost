@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 from datetime import datetime
 from functools import reduce
+from io import UnsupportedOperation
 from itertools import chain, cycle
 from typing import Any, Callable, Dict, List, Tuple
 from time import sleep
@@ -482,30 +483,43 @@ class Command(BaseCommand):
 
         # Create file creation actions for each file in the source tar
         actions = []
-        with tarfile.open(fileobj=source_stream.raw) as tar:
-            for member in tar:
-                if not member.isfile():
-                    continue
+        try:
+            with tarfile.open(fileobj=source_stream.raw) as tar:
+                for member in tar:
+                    if not member.isfile():
+                        continue
 
-                f = tar.extractfile(member)
-                try:
-                    bin_content = f.read()
-                    actions.append(
-                        {
-                            "action": "create",
-                            "file_path": member.name,
-                            "encoding": "base64",
-                            # Encode the binary content in base64, required by the API
-                            "content": b64encode(bin_content).decode("utf-8"),
-                        }
-                    )
-
-                except:
-                    self.stdout.write(
-                        self.style.ERROR(
-                            f"Could not read {member.name} from the arXiv source files, skipping..."
+                    f = tar.extractfile(member)
+                    try:
+                        bin_content = f.read()
+                        actions.append(
+                            {
+                                "action": "create",
+                                "file_path": member.name,
+                                "encoding": "base64",
+                                # Encode the binary content in base64, required by the API
+                                "content": b64encode(bin_content).decode("utf-8"),
+                            }
                         )
-                    )
+
+                    except:
+                        self.stdout.write(
+                            self.style.ERROR(
+                                f"Could not read {member.name} from the arXiv source files, skipping..."
+                            )
+                        )
+        except UnsupportedOperation:
+            # The file is not a tar, but a single file (e.g. a TeX file)
+            # Refetch the source since the previous one was consumed
+            source = requests.get(paper.pdf_url.replace("pdf", "src"))
+            actions.append(
+                {
+                    "action": "create",
+                    "file_path": f"main.tex",
+                    "encoding": "base64",
+                    "content": b64encode(source.content).decode("utf-8"),
+                }
+            )
 
         # Filter out the files that already exist in the repo to avoid conflicts
         project = self.GL.projects.get(repo.git_path)
