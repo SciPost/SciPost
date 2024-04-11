@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 from datetime import datetime
 from functools import reduce
+import gzip
 from io import UnsupportedOperation
 from itertools import chain, cycle
 from typing import Any, Callable, Dict, List, Tuple
@@ -509,15 +510,16 @@ class Command(BaseCommand):
                             )
                         )
         except UnsupportedOperation:
-            # The file is not a tar, but a single file (e.g. a TeX file)
-            # Refetch the source since the previous one was consumed
-            source = requests.get(paper.pdf_url.replace("pdf", "src"))
+            # The file is not a tar, but a single file (gzipped .tex)
+            # Refetch the source stream since the previous one was consumed
+            source_stream = requests.get(paper.pdf_url.replace("pdf", "src"))
+            tex_content = gzip.decompress(source_stream.content)
             actions.append(
                 {
                     "action": "create",
                     "file_path": f"main.tex",
                     "encoding": "base64",
-                    "content": b64encode(source.content).decode("utf-8"),
+                    "content": b64encode(tex_content).decode("utf-8"),
                 }
             )
 
