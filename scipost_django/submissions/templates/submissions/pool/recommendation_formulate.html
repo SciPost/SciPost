@@ -13,26 +13,6 @@
 
 {% block content %}
 
-  {% if form.errors %}
-    <div class="row">
-      <div class="col-12">
-	<h1 class="text-danger">There was an error in submitting the form:</h1>
-	{% for field in form %}
-	  {% for error in field.errors %}
-	    <div class="alert alert-danger">
-	      <strong>{{ field.name }} - {{ error|escape }}</strong>
-	    </div>
-	  {% endfor %}
-	{% endfor %}
-	{% for error in form.non_field_errors %}
-	  <div class="alert alert-danger">
-	    <strong>{{ error|escape }}</strong>
-	  </div>
-	{% endfor %}
-      </div>
-    </div>
-  {% endif %}
-
   <h1 class="highlight">Formulate Editorial Recommendation for Submission</h1>
 
   <br>

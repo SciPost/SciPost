@@ -3068,15 +3068,18 @@ class EICRecommendationForm(forms.ModelForm):
         self.reformulate = kwargs.pop("reformulate", False)
         self.load_earlier_recommendations()
 
+        super().__init__(*args, **kwargs)
+
+        self.fields["for_journal"].initial = self.submission.submitted_to
+
         if self.reformulate:
             latest_recommendation = self.earlier_recommendations.first()
             if latest_recommendation:
-                kwargs["initial"] = {
-                    "for_journal": latest_recommendation.for_journal,
-                    "recommendation": latest_recommendation.recommendation,
-                }
+                self.fields["for_journal"].initial = latest_recommendation.for_journal
+                self.fields["recommendation"].initial = (
+                    latest_recommendation.recommendation
+                )
 
-        super().__init__(*args, **kwargs)
         for_journal_qs = Journal.objects.active().filter(
             # The journals which can be recommended for are those falling under
             # the responsibility of the College of the journal submitted to
@@ -3087,6 +3090,7 @@ class EICRecommendationForm(forms.ModelForm):
             for_journal_qs = for_journal_qs | Journal.objects.filter(
                 name="SciPost Selections"
             )
+        self.fields["for_journal"].empty_label = "Any/All Journals"
         self.fields["for_journal"].queryset = for_journal_qs
         if self.submission.submitted_to.name.partition(" ")[0] == "SciPost":
             # Submitted to a SciPost journal, so Core and Selections are accessible
@@ -3097,7 +3101,7 @@ class EICRecommendationForm(forms.ModelForm):
                 "with extended abstract published separately in SciPost Selections. "
                 "Only choose this for "
                 "an <em>exceptionally</em> good submission to a flagship journal.</li>"
-                "<li>A submission to a flaghip which does not meet the latter's "
+                "<li>A submission to a flagship which does not meet the latter's "
                 "tough expectations and criteria can be recommended for publication "
                 "in the field's Core journal (if it exists).</li>"
                 "<li>Conversely, an extremely good submission to a field's Core journal can be "
@@ -3114,33 +3118,45 @@ class EICRecommendationForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        journal = cleaned_data.get("for_journal")
+
         if cleaned_data["recommendation"] == EIC_REC_PUBLISH:
-            if not cleaned_data["for_journal"]:
-                raise forms.ValidationError(
-                    "If you recommend Publish, please specify for which Journal."
-                )
             if cleaned_data["tier"] == "":
-                raise forms.ValidationError(
-                    "If you recommend Publish, please also provide a Tier."
+                self.add_error(
+                    "tier",
+                    "If you recommend publication, please also provide a Tier.",
                 )
-            if (
-                self.submission.nr_unique_thread_vetted_reports
-                < cleaned_data["for_journal"].minimal_nr_of_reports
-            ):
-                raise forms.ValidationError(
-                    "The number of latest vetted reports in this thread"
-                    " ({total_reports}) is too low for this journal"
-                    " ({min_reports}) to recommend publication.".format(
-                        total_reports=self.submission.nr_unique_thread_vetted_reports,
-                        min_reports=cleaned_data["for_journal"].minimal_nr_of_reports,
+            if journal is None:
+                self.add_error(
+                    "for_journal",
+                    "You must select a journal to recommend publication.",
+                )
+            else:
+                if (
+                    self.submission.nr_unique_thread_vetted_reports
+                    < journal.minimal_nr_of_reports
+                ):
+                    self.add_error(
+                        "recommendation",
+                        "The number of latest vetted reports in this thread"
+                        " ({total_reports}) is too low for this journal"
+                        " ({min_reports}) to recommend publication.".format(
+                            total_reports=self.submission.nr_unique_thread_vetted_reports,
+                            min_reports=journal.minimal_nr_of_reports,
+                        ),
                     )
-                )
         if (
             cleaned_data["recommendation"] in (EIC_REC_PUBLISH, EIC_REC_REJECT)
             and len(cleaned_data["remarks_for_editorial_college"]) < 10
         ):
-            raise forms.ValidationError(
-                "You must substantiate your recommendation to accept or reject the manuscript."
+            self.add_error(
+                "remarks_for_editorial_college",
+                "You must substantiate your recommendation to accept or reject the manuscript.",
+            )
+        if journal is None and cleaned_data["recommendation"] != EIC_REC_REJECT:
+            self.add_error(
+                "for_journal",
+                "A specific journal must be chosen for any recommendation other than rejection.",
             )
 
     def save(self):
