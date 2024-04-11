@@ -1536,6 +1536,8 @@ class SubmissionForm(forms.ModelForm):
         """
         cleaned_data = super().clean(*args, **kwargs)
 
+        self._clean_collection()
+
         # SciPost preprints are auto-generated here.
         if "identifier_w_vn_nr" not in cleaned_data:
             cleaned_data["identifier_w_vn_nr"] = get_new_scipost_identifier(
@@ -1612,15 +1614,13 @@ class SubmissionForm(forms.ModelForm):
             self.add_error("author_list", error_message)
         return author_list
 
-    def clean_collection(self):
+    def _clean_collection(self):
         """
         Check that the collection is part of a series in the target journal and that
         at least one of the authors in the list is an expected author of the collection.
         """
         # Check if no collection is selected or fetch the object
         collection_id = self.cleaned_data.get("collection", "")
-        if collection_id == "":
-            return collection_id
         collection = get_object_or_404(Collection, id=collection_id)
 
         # Check that the collection is part of a series in the target journal
@@ -1655,7 +1655,6 @@ class SubmissionForm(forms.ModelForm):
                 "None of the authors in the author list match any of the expected authors of this collection. "
                 "Please check that the author list and collection are correct before contacting techsupport.",
             )
-        return collection_id
 
     def clean_code_repository_url(self):
         """
