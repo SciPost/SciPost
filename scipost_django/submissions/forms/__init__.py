@@ -1620,7 +1620,10 @@ class SubmissionForm(forms.ModelForm):
         at least one of the authors in the list is an expected author of the collection.
         """
         # Check if no collection is selected or fetch the object
-        collection_id = self.cleaned_data.get("collection", "")
+        collection_id = self.cleaned_data.get("collection", None)
+        if collection_id is None:
+            return
+
         collection = get_object_or_404(Collection, id=collection_id)
 
         # Check that the collection is part of a series in the target journal
