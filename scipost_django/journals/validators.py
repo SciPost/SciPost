@@ -9,6 +9,7 @@ from .regexes import (
     VOLUME_DOI_LABEL_REGEX,
     ISSUE_DOI_LABEL_REGEX,
     PUBLICATION_DOI_LABEL_REGEX,
+    CROSSREF_DOI_REGEX,
 )
 
 doi_journal_validator = RegexValidator(
@@ -26,4 +27,8 @@ doi_issue_validator = RegexValidator(
 doi_publication_validator = RegexValidator(
     r"^{regex}$".format(regex=PUBLICATION_DOI_LABEL_REGEX),
     "Only expressions with regex %s are allowed." % PUBLICATION_DOI_LABEL_REGEX,
+)
+doi_validator = RegexValidator(
+    r"^{regex}$".format(regex=CROSSREF_DOI_REGEX),
+    "Only expressions with regex %s are allowed." % CROSSREF_DOI_REGEX,
 )

@@ -1,0 +1,18 @@
+<tr hx-post="{{ request.get_full_path }}"
+    hx-swap="outerHTML"
+    hx-trigger="click from:closest tr target:button[type='submit']"
+    hx-include="this">
+
+    <td>
+      ref{{ index|add:1 }}
+    </td>
+  {% for field in form %}<td>{{ field }}
+    {% for error in field.errors %}
+    <div class="text-danger">{{ error }}</div>
+    {% endfor %}
+  </td>{% endfor %}
+
+  <td>
+    <button class="btn btn-sm btn-primary" type="submit">Save</button>
+  </td>
+</tr>

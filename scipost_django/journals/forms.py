@@ -44,6 +44,7 @@ from .models import (
     PublicationAuthorsTable,
 )
 from .utils import JournalUtils
+from .validators import doi_validator
 
 
 from common.utils import get_current_domain, jatsify_tags
@@ -133,8 +134,57 @@ class PublicationSearchForm(forms.Form):
         return publications
 
 
+class CitationListItemForm(forms.ModelForm):
+    doi = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "DOI"}),
+        validators=[doi_validator],
+    )
+
+    class Meta:
+        model = Publication
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        self.index = kwargs.pop("index")
+        citation_list = kwargs["instance"].metadata["citation_list"]
+        if self.index < len(citation_list):
+            kwargs["initial"] = {"doi": citation_list[self.index]["doi"]}
+
+        super().__init__(*args, **kwargs)
+
+    def clean_doi(self):
+        doi = self.cleaned_data.get("doi")
+        dois_in_list = [cite["doi"] for cite in self.instance.metadata["citation_list"]]
+        if doi in dois_in_list and doi != self.initial.get("doi"):
+            self.add_error("doi", "This DOI is already in the citation list.")
+        return doi
+
+    def save(self, *args, **kwargs):
+        doi = self.cleaned_data.get("doi")
+        entry = {"key": "ref" + str(self.index + 1), "doi": doi}
+
+        if self.index < len(self.instance.metadata["citation_list"]):
+            self.instance.metadata["citation_list"][self.index] = entry
+        else:
+            self.instance.metadata["citation_list"].append(entry)
+
+        # Resort the citation list
+        sorted_list = sorted(
+            self.instance.metadata["citation_list"], key=lambda x: int(x["key"][3:])
+        )
+        self.instance.metadata["citation_list"] = [
+            {"key": "ref" + str(n + 1), "doi": cite["doi"]}
+            for n, cite in enumerate(sorted_list)
+        ]
+        return super().save(*args, **kwargs)
+
+
 class CitationListBibitemsForm(forms.ModelForm):
-    latex_bibitems = forms.CharField(widget=forms.Textarea())
+    latex_bibitems = forms.CharField(
+        widget=forms.Textarea(),
+        help_text="Once you submit, it will overwrite the current citation list, shown below.",
+    )
 
     class Meta:
         model = Publication
@@ -653,9 +703,9 @@ class DraftPublicationForm(forms.ModelForm):
                 s.id for s in self.submission.specialties.all()
             ]
             self.fields["approaches"].initial = self.submission.approaches
-            self.fields[
-                "submission_date"
-            ].initial = self.submission.original_submission_date
+            self.fields["submission_date"].initial = (
+                self.submission.original_submission_date
+            )
             self.fields["acceptance_date"].initial = self.submission.acceptance_date
             self.fields["publication_date"].initial = timezone.now()
 

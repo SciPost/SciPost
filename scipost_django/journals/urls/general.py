@@ -129,6 +129,26 @@ urlpatterns = [
         name="create_citation_list_metadata",
     ),
     path(
+        "admin/<publication_doi_label:doi_label>/_hx_citation_list_bibitems_form",
+        journals_views._hx_citation_list_bibitems_form,
+        name="_hx_citation_list_bibitems_form",
+    ),
+    path(
+        "admin/<publication_doi_label:doi_label>/_hx_citation_list_item_form",
+        journals_views._hx_citation_list_item_form,
+        name="_hx_citation_list_item_form",
+    ),
+    path(
+        "admin/<publication_doi_label:doi_label>/_hx_citation_list_item_form/<int:index>",
+        journals_views._hx_citation_list_item_form,
+        name="_hx_citation_list_item_form",
+    ),
+    path(
+        "admin/<publication_doi_label:doi_label>/_hx_citation_list_item_delete/<int:index>",
+        journals_views._hx_citation_list_item_delete,
+        name="_hx_citation_list_item_delete",
+    ),
+    path(
         "admin/<publication_doi_label:doi_label>/abstract_jats",
         journals_views.AbstractJATSUpdateView.as_view(),
         name="abstract_jats",

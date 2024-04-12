@@ -1,0 +1,20 @@
+<tr>
+  <td>{{ citation.key }}</td>
+  <td>{{ citation.doi }}</td>
+  <td>
+    <button class="btn btn-light btn-sm"
+            title="Edit"
+            hx-target="closest tr"
+            hx-swap="outerHTML"
+            hx-get="{% url "journals:_hx_citation_list_item_form" doi_label=publication.doi_label index=index %}">
+      <span>{% include "bi/pencil-square.html" %}</span>
+    </button>
+    <button class="btn btn-light btn-sm"
+            title="Delete"
+            hx-target="closest tr"
+            hx-swap="outerHTML"
+            hx-get="{% url "journals:_hx_citation_list_item_delete" doi_label=publication.doi_label index=index %}">
+      <span class="text-danger">{% include "bi/trash-fill.html" %}</span>
+    </button>
+  </td>
+</tr>

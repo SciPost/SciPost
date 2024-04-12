@@ -1,6 +1,8 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: Create citation list metadata{% endblock pagetitle %}
+{% block pagetitle %}
+  : Create citation list metadata
+{% endblock pagetitle %}
 
 {% block breadcrumb %}
   <div class="breadcrumb-container">
@@ -14,37 +16,39 @@
   </div>
 {% endblock %}
 
-{% load bootstrap %}
-
 {% block content %}
 
-  <div class="row">
-    <div class="col-12">
-      <h1 class="highlight">Create citation list metadata page for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
-      <p>
-        The following field is prefilled with the current citation list of the Publication object. Once you submit, it will overwrite the current citation list, shown below.
-      </p>
-      <br>
+  <h1 class="highlight d-flex justify-content-between align-items-center">
+    <span>Create citation list metadata page for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></span>
+    <a class="fs-6 btn-link" href="{% url 'journals:manage_metadata' %}">Back to Admin</a>
+  </h1>
 
-      <form action="{% url 'journals:create_citation_list_metadata' publication.doi_label %}" method="post">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <input type="submit" class="btn btn-primary" value="Submit">
-        <a href="{% url 'journals:manage_metadata' %}" class="ms-3 btn btn-link">Back to Admin</a>
-      </form>
+  <div id="paste-bibtex-form"
+       hx-get="{% url "journals:_hx_citation_list_bibitems_form" doi_label=publication.doi_label %}"
+       hx-trigger="load once"></div>
 
-      <hr class="divider">
+  <h3 class="mt-4">Current citation list metadata:</h3>
+ 
+  <table class="table table-sm align-middle">
 
-      <h3>Current citation list metadata:</h3>
-      <br>
-      <table class="table">
-        {% for citation in publication.metadata.citation_list %}
-          <tr>
-            <td>{{ citation.key }}</td><td>{{ citation.doi }}</td>
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
-  </div>
+    {% for citation in publication.metadata.citation_list %}
+      {% with index=forloop.counter|add:-1 %}
+        {% include "journals/_hx_citation_list_item.html" %}
+      {% endwith %}
+    {% endfor %}
+
+    <tr>
+      <td colspan="20" class="p-1 bg-opacity-10 bg-info text-center">
+        <button class="btn btn-link"
+                hx-target="closest tr"
+                hx-swap="beforebegin"
+                hx-get="{% url "journals:_hx_citation_list_item_form" doi_label=publication.doi_label %}">
+          <span class="me-1">{% include "bi/plus-square-fill.html" %}</span>
+          Add Item
+        </button>
+      </td>
+    </tr>
+
+  </table>
 
 {% endblock %}

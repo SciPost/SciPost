@@ -1,0 +1,8 @@
+{% load bootstrap %}
+
+<form action="{% url 'journals:create_citation_list_metadata' publication.doi_label %}"
+      method="post">
+  {% csrf_token %}
+  {{ form|bootstrap }}
+  <input type="submit" class="btn btn-primary" value="Submit" />
+</form>

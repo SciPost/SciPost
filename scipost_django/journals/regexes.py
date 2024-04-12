@@ -15,3 +15,5 @@ PUBLICATION_DOI_LABEL_REGEX += (
 
 DOI_DISPATCH_PATTERN = r"(?P<journal_tag>{})".format(JOURNAL_DOI_LABEL_REGEX)
 DOI_DISPATCH_PATTERN += r"(\.(?P<part_1>\w+)(\.(?P<part_2>[0-9]+)(\.(?P<part_3>[0-9]{3,}))?)?)?(-(?P<suffix>[0-9]+(\.[0-9]+)?))?"
+
+CROSSREF_DOI_REGEX = r"^10.\d{4,9}/[-._;()/:a-zA-Z0-9]+$"

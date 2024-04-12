@@ -14,6 +14,8 @@ import requests
 
 import matplotlib
 
+from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import io, base64
@@ -61,6 +63,7 @@ from .models import (
 )
 from .forms import (
     AbstractJATSForm,
+    CitationListItemForm,
     DraftPublicationUpdateForm,
     FundingInfoForm,
     HTMXInlinePublicationResourceForm,
@@ -938,6 +941,118 @@ class CitationUpdateView(
         )
 
 
+def _hx_citation_list_item_delete(request, doi_label, index: int):
+    """
+    Deletes a citation entry at the given index.
+    """
+    if not request.user.has_perm("scipost.can_draft_publication"):
+        return HTMXPermissionsDenied(
+            "You do not have permission to delete a citation in this Publication"
+        )
+
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if (
+        not request.user.has_perm("scipost.can_publish_accepted_submission")
+        and not publication.is_draft
+    ):
+        return HTMXPermissionsDenied(
+            "You do not have permission to delete a citation in this non-draft Publication"
+        )
+
+    publication.metadata["citation_list"].pop(index)
+    publication.save()
+
+    return HttpResponse("")
+
+
+def _hx_citation_list_item_form(request, doi_label, index: int | None = None):
+    """
+    Renders a form to create or edit a citation entry at the given index.
+    """
+    if not request.user.has_perm("scipost.can_draft_publication"):
+        return HTMXPermissionsDenied(
+            "You do not have permission to edit this Publication"
+        )
+
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if (
+        not request.user.has_perm("scipost.can_publish_accepted_submission")
+        and not publication.is_draft
+    ):
+        return HTMXPermissionsDenied(
+            "You do not have permission to edit this non-draft Publication"
+        )
+
+    if index is not None:
+        if index >= len(publication.metadata["citation_list"]):
+            return HTMXResponse("Index out of range", tag="danger")
+        else:
+            form = CitationListItemForm(
+                request.POST or None,
+                instance=publication,
+                index=index,
+            )
+    else:
+        index = len(publication.metadata["citation_list"])
+        form = CitationListItemForm(
+            request.POST or None, instance=publication, index=index,
+        )
+
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            doi = form.cleaned_data.get("doi")
+            return TemplateResponse(
+                request,
+                "journals/_hx_citation_list_item.html",
+                {
+                    "citation": {"key": "ref" + str(index + 1), "doi": doi},
+                    "publication": publication,
+                    "index": index,
+                },
+            )
+
+    return TemplateResponse(
+        request,
+        "journals/_hx_citation_list_item_form.html",
+        {
+            "form": form,
+            "publication": publication,
+            "index": index,
+        },
+    )
+
+
+def _hx_citation_list_bibitems_form(request, doi_label):
+    if not request.user.has_perm("scipost.can_draft_publication"):
+        return HTMXPermissionsDenied(
+            "You do not have permission to edit this Publication"
+        )
+
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if (
+        not request.user.has_perm("scipost.can_publish_accepted_submission")
+        and not publication.is_draft
+    ):
+        return HTMXPermissionsDenied(
+            "You do not have permission to edit this non-draft Publication"
+        )
+
+    form = CitationListBibitemsForm(request.POST or None, instance=publication)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Citation list updated")
+        return HttpResponse("")
+
+    context = {
+        "form": form,
+        "publication": publication,
+    }
+    return TemplateResponse(
+        request, "journals/_hx_citation_list_bibitems_form.html", context
+    )
+
+
 class AbstractJATSUpdateView(
     PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView
 ):
@@ -1406,9 +1521,7 @@ def adjust_pubfracs(request, doi_label):
         pubfrac, created = PubFrac.objects.get_or_create(
             publication=publication, organization=org
         )
-    formset = PubFracsFormSet(
-        request.POST or None, queryset=publication.pubfracs.all()
-    )
+    formset = PubFracsFormSet(request.POST or None, queryset=publication.pubfracs.all())
     if formset.is_valid():
         formset.save()
         messages.success(request, "Funding fractions successfully allocated.")
