@@ -115,9 +115,8 @@ class SubsidySearchForm(forms.Form):
     ordering = forms.ChoiceField(
         label="Ordering",
         choices=(
-            # FIXME: Emperically, the ordering appers to be reversed for dates?
-            ("-", "Ascending"),
-            ("+", "Descending"),
+            ("+", "Ascending"),
+            ("-", "Descending"),
         ),
         required=False,
     )
