@@ -1,11 +1,13 @@
 <h3>Re: refereeing invitation. First automatic reminder</h3>
+<p>Dear {{ invitation.get_title_display }} {{ invitation.last_name }},</p>
 <p>
-  Dear {{ invitation.get_title_display }} {{ invitation.last_name }},
-</p>
-<p>
-  Recently, on behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }}, we invited you to consider refereeing a Submission to {{ invitation.submission.submitted_to }}, namely<br><br>
-  {{ invitation.submission.title }}<br>
-  by {{ invitation.submission.author_list }}<br>
+  Recently, On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.first_name }} {{ invitation.submission.editor_in_charge.user.last_name }}, we invited you to consider refereeing a Submission to {{ invitation.submission.submitted_to }}, namely
+  <br />
+  <br />
+  {{ invitation.submission.title }}
+  <br />
+  by {{ invitation.submission.author_list }}
+  <br />
   (see https://{{ domain }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
@@ -14,7 +16,7 @@
   could you please let us know whether we can count on your expertise?
 </p>
 <p>
-  If you are <strong>not</strong> able to provide a Report, you can let us know by simply <a href="https://{{ domain }}/submissions/decline_ref_invitation/{{ invitation.invitation_key }}"> clicking here</a>.
+  If you are <strong>not</strong> able to provide a Report, you can let us know by simply <a href="https://{{ domain }}/submissions/decline_ref_invitation/{{ invitation.invitation_key }}">clicking here</a>.
 </p>
 <p>
   If you are able to provide a Report, you can confirm this after registering and logging in (you will automatically be prompted for a confirmation).
@@ -29,9 +31,10 @@
 </p>
 <p>
   We very much hope that we can count on your expertise,
-  <br>
+  <br />
   Many thanks in advance,
-  <br><br>
+  <br />
+  <br />
   The SciPost Team
 </p>
 

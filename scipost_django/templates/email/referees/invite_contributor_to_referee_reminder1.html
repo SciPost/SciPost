@@ -1,11 +1,13 @@
 <h3>Re: refereeing invitation. First automatic reminder</h3>
+<p>Dear {{ invitation.referee.profile.get_title_display }} {{ invitation.referee.user.last_name }},</p>
 <p>
-  Dear {{ invitation.referee.profile.get_title_display }} {{ invitation.referee.user.last_name }},
-</p>
-<p>
-  Recently, on behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }}, we invited you to consider refereeing a Submission to {{ invitation.submission.submitted_to }}, namely<br><br>
-  {{ invitation.submission.title }}<br>
-  by {{ invitation.submission.author_list }}<br>
+  Recently, On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.first_name }} {{ invitation.submission.editor_in_charge.user.last_name }}, we invited you to consider refereeing a Submission to {{ invitation.submission.submitted_to }}, namely
+  <br />
+  <br />
+  {{ invitation.submission.title }}
+  <br />
+  by {{ invitation.submission.author_list }}
+  <br />
   (see https://{{ domain }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
@@ -24,7 +26,8 @@
 </p>
 <p>
   We would be extremely grateful for your contribution, and thank you in advance for your consideration.
-  <br><br>
+  <br />
+  <br />
   The SciPost Team.
 </p>
 {% include 'email/_footer.html' %}

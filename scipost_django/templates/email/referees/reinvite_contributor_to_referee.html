@@ -2,19 +2,18 @@
 
 <p>
   The authors of submission
-  <br><br>
+  <br />
+  <br />
   {{ invitation.submission.title }}
-  <br>
+  <br />
   by {{ invitation.submission.author_list }}
-  <br>
+  <br />
   (<a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">see on SciPost.org</a>)
 </p>
 <p>
-  have resubmitted their manuscript to SciPost. On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }}, we would like to invite you to quickly review this new version.
+  have resubmitted their manuscript to SciPost. On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.first_name }} {{ invitation.submission.editor_in_charge.user.last_name }}, we would like to invite you to quickly review this new version.
 </p>
-<p>
-  Please accept or decline the invitation (login required) as soon as possible (ideally within the next 2 days).
-</p>
+<p>Please accept or decline the invitation (login required) as soon as possible (ideally within the next 2 days).</p>
 <p>
   If you accept, your report can be submitted by simply clicking on the "Contribute a Report" link on the Submission's Page before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'N j, Y' }}; your report will be automatically recognized as an invited report).
 </p>
@@ -23,7 +22,8 @@
 </p>
 <p>
   We would be extremely grateful for your contribution, and thank you in advance for your consideration.
-  <br><br>
+  <br />
+  <br />
   The SciPost Team.
 </p>
 

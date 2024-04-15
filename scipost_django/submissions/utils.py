@@ -202,6 +202,8 @@ class SubmissionUtils(BaseMailUtil):
             "On behalf of the Editor-in-charge "
             + cls.invitation.submission.editor_in_charge.profile.get_title_display()
             + " "
+            + cls.invitation.submission.editor_in_charge.user.first_name
+            + " "
             + cls.invitation.submission.editor_in_charge.user.last_name
             + ", we would like to cordially remind you of our recent request to referee\n\n"
             + cls.invitation.submission.title
@@ -211,7 +213,7 @@ class SubmissionUtils(BaseMailUtil):
         )
         email_text_html = (
             "<p>Dear {{ title }} {{ last_name }},</p>"
-            "<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_last_name }}, "
+            "<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_first_name }} {{ EIC_last_name }}, "
             "we would like to cordially remind you of our recent request to referee</p>"
             "<p>{{ sub_title }}</p>"
             "\n<p>by {{ author_list }}.</p>"
@@ -287,6 +289,7 @@ class SubmissionUtils(BaseMailUtil):
             "last_name": cls.invitation.last_name,
             "EIC_title": cls.invitation.submission.editor_in_charge.profile.get_title_display(),
             "EIC_last_name": cls.invitation.submission.editor_in_charge.user.last_name,
+            "EIC_first_name": cls.invitation.submission.editor_in_charge.user.first_name,
             "sub_title": cls.invitation.submission.title,
             "author_list": cls.invitation.submission.author_list,
             "identifier_w_vn_nr": cls.invitation.submission.preprint.identifier_w_vn_nr,
@@ -328,6 +331,8 @@ class SubmissionUtils(BaseMailUtil):
             "On behalf of the Editor-in-charge "
             + cls.invitation.submission.editor_in_charge.profile.get_title_display()
             + " "
+            + cls.invitation.submission.editor_in_charge.user.first_name
+            + " "
             + cls.invitation.submission.editor_in_charge.user.last_name
             + ", we would like to cordially remind you of our recent request to referee\n\n"
             + cls.invitation.submission.title
@@ -337,7 +342,7 @@ class SubmissionUtils(BaseMailUtil):
         )
         email_text_html = (
             "<p>Dear {{ title }} {{ last_name }},</p>"
-            "<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_last_name }}, "
+            "<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_first_name }} {{ EIC_last_name }}, "
             "we would like to cordially remind you of our recent request to referee</p>"
             "<p>{{ sub_title }}</p>"
             "\n<p>by {{ author_list }}.</p>"
@@ -392,6 +397,7 @@ class SubmissionUtils(BaseMailUtil):
             "last_name": cls.invitation.last_name,
             "EIC_title": cls.invitation.submission.editor_in_charge.profile.get_title_display(),
             "EIC_last_name": cls.invitation.submission.editor_in_charge.user.last_name,
+            "EIC_first_name": cls.invitation.submission.editor_in_charge.user.first_name,
             "sub_title": cls.invitation.submission.title,
             "author_list": cls.invitation.submission.author_list,
             "identifier_w_vn_nr": cls.invitation.submission.preprint.identifier_w_vn_nr,
@@ -432,6 +438,8 @@ class SubmissionUtils(BaseMailUtil):
             "On behalf of the Editor-in-charge "
             + cls.invitation.submission.editor_in_charge.profile.get_title_display()
             + " "
+            + cls.invitation.submission.editor_in_charge.user.first_name
+            + " "
             + cls.invitation.submission.editor_in_charge.user.last_name
             + ", we would like to inform you that your report on\n\n"
             + cls.invitation.submission.title
@@ -444,7 +452,7 @@ class SubmissionUtils(BaseMailUtil):
         )
         email_text_html = (
             "<p>Dear {{ title }} {{ last_name }},</p>"
-            "<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_last_name }}, "
+            "<p>On behalf of the Editor-in-charge {{ EIC_title }} {{ EIC_first_name }} {{ EIC_last_name }}, "
             "we would like to inform you that your report on</p>"
             "<p>{{ sub_title }}</p>"
             "\n<p>by {{ author_list }}</p>"
@@ -479,6 +487,7 @@ class SubmissionUtils(BaseMailUtil):
             "last_name": cls.invitation.last_name,
             "EIC_title": cls.invitation.submission.editor_in_charge.profile.get_title_display(),
             "EIC_last_name": cls.invitation.submission.editor_in_charge.user.last_name,
+            "EIC_first_name": cls.invitation.submission.editor_in_charge.user.first_name,
             "sub_title": cls.invitation.submission.title,
             "author_list": cls.invitation.submission.author_list,
             "invitation_key": cls.invitation.invitation_key,
