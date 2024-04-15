@@ -61,7 +61,7 @@
 	    <small class="text-muted">EIC Recommendation &amp; Status</small>
 	    <br>
 	    {{ recommendation.get_recommendation_short_display }}
-      - {{ recommendation.for_journal.name_abbrev }}
+      - {{ recommendation.get_for_journal_short_display }}
 	    <br>
 	    {{ recommendation.get_status_short_display }}
 	    <br>

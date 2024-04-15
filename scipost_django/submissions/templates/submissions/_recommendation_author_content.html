@@ -15,7 +15,7 @@
       </tr>
       <tr>
 	<td class="pe-2">For Journal:</td>
-	<td>{{ recommendation.for_journal }}</td>
+	<td>{{ recommendation.get_for_journal_display }}</td>
       </tr>
       <tr>
         <td class="pe-2">Recommendation:</td>
@@ -36,7 +36,7 @@
     {% block recommendation_remarks_for_editorial_college %}{% endblock %}
 
     <h3 class="pb-0">Recommendation</h3>
-    <p class="ps-md-3 mb-0">For Journal <em>{{ recommendation.for_journal }}:</em> <strong>{{ recommendation.get_recommendation_display }}</strong></p>
+    <p class="ps-md-3 mb-0">For Journal <em>{{ recommendation.get_for_journal_short_display }}:</em> <strong>{{ recommendation.get_recommendation_display }}</strong></p>
 
     {% block recommendation_reformulation %}
     {% endblock %}

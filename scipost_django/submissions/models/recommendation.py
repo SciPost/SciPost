@@ -156,7 +156,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def get_full_status_short_display(self):
         """Return `recommendation` and `status` field display in short form."""
         eicrec_short = self.get_recommendation_short_display()
-        journal_name = self.for_journal.name_abbrev or ""
+        journal_name = self.get_for_journal_short_display()
         status_short = self.get_status_short_display()
         return f"{eicrec_short} - {journal_name} ({status_short})"
 
@@ -167,6 +167,22 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def get_recommendation_short_display(self):
         """Return `recommendation` field display in short form."""
         return dict(EIC_REC_CHOICES_SHORT).get(self.recommendation)
+
+    def get_for_journal_display(self):
+        """Return `for_journal` field display."""
+        return (
+            str(self.for_journal)
+            if self.for_journal is not None
+            else "Any/all journals"
+        )
+    
+    def get_for_journal_short_display(self):
+        """Return `for_journal` field short display."""
+        return (
+            str(self.for_journal.name_abbrev)
+            if self.for_journal is not None
+            else "Any/all"
+        )
 
 
 class AlternativeRecommendation(models.Model):

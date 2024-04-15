@@ -3211,7 +3211,7 @@ class EICRecommendationForm(forms.ModelForm):
             # Add SubmissionEvents for both Author and EIC
             self.submission.add_general_event(
                 event_text.format(
-                    str(recommendation.for_journal),
+                    recommendation.get_for_journal_short_display(),
                     recommendation.get_recommendation_display(),
                 )
             )
@@ -3241,7 +3241,7 @@ class EICRecommendationForm(forms.ModelForm):
             # Add SubmissionEvent for EIC only
             self.submission.add_event_for_eic(
                 event_text.format(
-                    str(recommendation.for_journal),
+                    recommendation.get_for_journal_short_display(),
                     recommendation.get_recommendation_display(),
                 )
             )

@@ -1,7 +1,7 @@
 <details class="border border-2 my-2" {% if not recommendation.is_deprecated %}open{% endif %}>
   <summary class="bg-{% if recommendation.is_deprecated %}warning{% else %}primary{% endif %} bg-opacity-10 px-4 py-2">
     <span class="h3">
-      Recommendation (for Journal <strong>{{ recommendation.for_journal }}</strong>):
+      Recommendation (for Journal <strong>{{ recommendation.get_for_journal_short_display }}</strong>):
       <strong>{{ recommendation.get_recommendation_display }}</strong>
       {% if recommendation.is_deprecated %}
 	<strong class="text-danger ms-4 px-2 bg-white">
@@ -42,7 +42,7 @@
     {% endblock %}
 
     <h3 class="pb-0">Recommendation</h3>
-    <p class="ps-md-3 mb-0">For Journal <em>{{ recommendation.for_journal }}:</em> <strong>{{ recommendation.get_recommendation_display }}</strong></p>
+    <p class="ps-md-3 mb-0">For Journal <em>{{ recommendation.get_for_journal_short_display }}:</em> <strong>{{ recommendation.get_recommendation_display }}</strong></p>
 
 
     {% if recommendation.may_be_reformulated %}
