@@ -48,8 +48,6 @@ class SubsidyFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Subsidy
 
-    algorithm = Subsidy.ALGORITHM_RESERVES
-    algorithm_data = {}
     organization = factory.SubFactory("organizations.factories.OrganizationFactory")
     subsidy_type = LazyRandEnum(SUBSIDY_TYPES)
     description = factory.Faker("sentence")
