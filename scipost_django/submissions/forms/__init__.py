@@ -1650,8 +1650,8 @@ class SubmissionForm(forms.ModelForm):
         at least one of the authors in the list is an expected author of the collection.
         """
         # Check if no collection is selected or fetch the object
-        collection_id = self.cleaned_data.get("collection", None)
-        if collection_id is None:
+        collection_id = self.cleaned_data.get("collection", "")
+        if collection_id == "":
             return
 
         collection = get_object_or_404(Collection, id=collection_id)
@@ -1783,9 +1783,8 @@ class SubmissionForm(forms.ModelForm):
         )
 
         # Save expectations
-        submission.fulfilled_expectations = ",".join(
-            self.cleaned_data["fulfilled_expectations"]
-        )
+        if fulfilled_expectations := self.cleaned_data.get("fulfilled_expectations"):
+            submission.fulfilled_expectations = fulfilled_expectations
 
         # Save identifiers
         url = ""
