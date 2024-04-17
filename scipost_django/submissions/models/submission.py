@@ -410,8 +410,6 @@ class Submission(models.Model):
     latest_activity = models.DateTimeField(auto_now=True)
     update_search_index = models.BooleanField(default=True)
 
-    acceptance_elaboration = models.TextField(blank=True, default="")
-
     objects = SubmissionQuerySet.as_manager()
 
     # Temporary

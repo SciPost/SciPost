@@ -6,15 +6,10 @@ import scipost.fields
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("submissions", "0150_submission_code_metadata"),
+        ("submissions", "0151_report_publicly_visible"),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name="submission",
-            name="acceptance_elaboration",
-            field=models.TextField(blank=True, default=""),
-        ),
         migrations.AlterField(
             model_name="submission",
             name="approaches",

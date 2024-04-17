@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("submissions", "0151_submission_acceptance_elaboration_and_more"),
+        ("submissions", "0152_alter_approaches_name"),
     ]
 
     operations = [
