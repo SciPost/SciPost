@@ -2500,93 +2500,9 @@ def vote_on_rec(request, rec_id):
                 previous_vote = "abstain"
         except EICRecommendation.DoesNotExist:
             raise Http404
-    initial = {"vote": previous_vote}
-
-    if request.POST:
-        form = RecommendationVoteForm(request.POST)
-    else:
-        form = RecommendationVoteForm(initial=initial)
-    if form.is_valid():
-        # Delete previous tierings and alternative recs, irrespective of the vote
-        SubmissionTiering.objects.filter(
-            submission=recommendation.submission, fellow=request.user.contributor
-        ).delete()
-        AlternativeRecommendation.objects.filter(
-            eicrec=recommendation, fellow=request.user.contributor
-        ).delete()
-        if form.cleaned_data["vote"] == "agree":
-            try:
-                recommendation.voted_for.add(request.user.contributor)
-            except IntegrityError:
-                messages.warning(
-                    request, "You have already voted for this Recommendation."
-                )
-            recommendation.voted_against.remove(request.user.contributor)
-            recommendation.voted_abstain.remove(request.user.contributor)
-            # Add a tiering if form filled in:
-            if (
-                recommendation.recommendation == EIC_REC_PUBLISH
-                and form.cleaned_data["tier"] != ""
-            ):
-                tiering = SubmissionTiering(
-                    submission=recommendation.submission,
-                    fellow=request.user.contributor,
-                    for_journal=recommendation.for_journal,
-                    tier=form.cleaned_data["tier"],
-                )
-                tiering.save()
-        elif form.cleaned_data["vote"] == "disagree":
-            recommendation.voted_for.remove(request.user.contributor)
-            try:
-                recommendation.voted_against.add(request.user.contributor)
-            except IntegrityError:
-                messages.warning(
-                    request, "You have already voted against this Recommendation."
-                )
-            recommendation.voted_abstain.remove(request.user.contributor)
-            # Create an alternative recommendation, if given
-            if (
-                form.cleaned_data["alternative_for_journal"]
-                and form.cleaned_data["alternative_recommendation"]
-            ):
-                altrec = AlternativeRecommendation(
-                    eicrec=recommendation,
-                    fellow=request.user.contributor,
-                    for_journal=form.cleaned_data["alternative_for_journal"],
-                    recommendation=form.cleaned_data["alternative_recommendation"],
-                )
-                altrec.save()
-        elif form.cleaned_data["vote"] == "abstain":
-            recommendation.voted_for.remove(request.user.contributor)
-            recommendation.voted_against.remove(request.user.contributor)
-            try:
-                recommendation.voted_abstain.add(request.user.contributor)
-            except IntegrityError:
-                messages.warning(
-                    request, "You have already abstained on this Recommendation."
-                )
-                pass
-        votechanged = previous_vote and form.cleaned_data["vote"] != previous_vote
-        if votechanged:
-            remark = Remark(
-                contributor=request.user.contributor,
-                recommendation=recommendation,
-                date=timezone.now(),
-                remark="Note from EdAdmin: {full_name} changed vote from {previous} to {current}".format(
-                    full_name=request.user.get_full_name(),
-                    previous=previous_vote,
-                    current=form.cleaned_data["vote"],
-                ),
-            )
-            remark.save()
-        recommendation.save()
-        messages.success(request, "Thank you for your vote.")
-        return redirect(reverse("submissions:pool:pool"))
 
     context = {
         "recommendation": recommendation,
-        "voting_form": form,
-        "previous_vote": previous_vote,
     }
     return render(request, "submissions/pool/recommendation.html", context)
 
@@ -2902,6 +2818,123 @@ class EICRecommendationDetailView(
     def get_object(self):
         """Return the latest version of the EICRecommendation associated to this Submission."""
         return self.submission.eicrecommendations.last()
+
+
+@login_required
+@fellowship_or_admin_required()
+@transaction.atomic
+def _hx_recommendation_vote_form(request, rec_id):
+    """Form view for Fellows to cast their vote on EICRecommendation."""
+    submissions = Submission.objects.in_pool(request.user)
+    previous_vote = None
+    try:
+        recommendation = EICRecommendation.objects.user_must_vote_on(request.user).get(
+            submission__in=submissions, id=rec_id
+        )
+        initial = {"vote": "abstain"}
+    except EICRecommendation.DoesNotExist:  # Try to find an EICRec already voted on:
+        try:
+            recommendation = EICRecommendation.objects.user_current_voted(
+                request.user
+            ).get(submission__in=submissions, id=rec_id)
+            if request.user.contributor in recommendation.voted_for.all():
+                previous_vote = "agree"
+            elif request.user.contributor in recommendation.voted_against.all():
+                previous_vote = "disagree"
+            elif request.user.contributor in recommendation.voted_abstain.all():
+                previous_vote = "abstain"
+        except EICRecommendation.DoesNotExist:
+            raise Http404
+    initial = {"vote": previous_vote}
+
+    if request.POST:
+        form = RecommendationVoteForm(request.POST)
+    else:
+        form = RecommendationVoteForm(initial=initial)
+    if form.is_valid():
+        # Delete previous tierings and alternative recs, irrespective of the vote
+        SubmissionTiering.objects.filter(
+            submission=recommendation.submission, fellow=request.user.contributor
+        ).delete()
+        AlternativeRecommendation.objects.filter(
+            eicrec=recommendation, fellow=request.user.contributor
+        ).delete()
+        if form.cleaned_data["vote"] == "agree":
+            try:
+                recommendation.voted_for.add(request.user.contributor)
+            except IntegrityError:
+                messages.warning(
+                    request, "You have already voted for this Recommendation."
+                )
+            recommendation.voted_against.remove(request.user.contributor)
+            recommendation.voted_abstain.remove(request.user.contributor)
+            # Add a tiering if form filled in:
+            if (
+                recommendation.recommendation == EIC_REC_PUBLISH
+                and form.cleaned_data["tier"] != ""
+            ):
+                tiering = SubmissionTiering(
+                    submission=recommendation.submission,
+                    fellow=request.user.contributor,
+                    for_journal=recommendation.for_journal,
+                    tier=form.cleaned_data["tier"],
+                )
+                tiering.save()
+        elif form.cleaned_data["vote"] == "disagree":
+            recommendation.voted_for.remove(request.user.contributor)
+            try:
+                recommendation.voted_against.add(request.user.contributor)
+            except IntegrityError:
+                messages.warning(
+                    request, "You have already voted against this Recommendation."
+                )
+            recommendation.voted_abstain.remove(request.user.contributor)
+            # Create an alternative recommendation, if given
+            if (
+                form.cleaned_data["alternative_for_journal"]
+                and form.cleaned_data["alternative_recommendation"]
+            ):
+                altrec = AlternativeRecommendation(
+                    eicrec=recommendation,
+                    fellow=request.user.contributor,
+                    for_journal=form.cleaned_data["alternative_for_journal"],
+                    recommendation=form.cleaned_data["alternative_recommendation"],
+                )
+                altrec.save()
+        elif form.cleaned_data["vote"] == "abstain":
+            recommendation.voted_for.remove(request.user.contributor)
+            recommendation.voted_against.remove(request.user.contributor)
+            try:
+                recommendation.voted_abstain.add(request.user.contributor)
+            except IntegrityError:
+                messages.warning(
+                    request, "You have already abstained on this Recommendation."
+                )
+                pass
+        votechanged = previous_vote and form.cleaned_data["vote"] != previous_vote
+        if votechanged:
+            remark = Remark(
+                contributor=request.user.contributor,
+                recommendation=recommendation,
+                date=timezone.now(),
+                remark="Note from EdAdmin: {full_name} changed vote from {previous} to {current}".format(
+                    full_name=request.user.get_full_name(),
+                    previous=previous_vote,
+                    current=form.cleaned_data["vote"],
+                ),
+            )
+            remark.save()
+        recommendation.save()
+        messages.success(request, "Thank you for your vote.")
+
+    context = {
+        "recommendation": recommendation,
+        "form": form,
+        "previous_vote": previous_vote,
+    }
+    return TemplateResponse(
+        request, "submissions/pool/_hx_recommendation_vote_form.html", context
+    )
 
 
 class EditorialDecisionCreateView(SubmissionMixin, PermissionsMixin, CreateView):

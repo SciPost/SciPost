@@ -1,0 +1,66 @@
+{% load bootstrap %}
+
+<h3 class="mt-4" id="votingForm">Your position on this recommendation</h3>
+
+{% if form.errors %}
+  <h1 class="text-danger">Warning: there was an error filling the voting form</h1>
+
+  {% for field in form %}
+
+    {% for error in field.errors %}
+      <div class="alert alert-danger">
+        <strong>{{ error|escape }}</strong>
+      </div>
+    {% endfor %}
+  {% endfor %}
+
+  {% for error in form.non_field_errors %}
+    <div class="alert alert-danger">
+      <strong>{{ error|escape }}</strong>
+    </div>
+  {% endfor %}
+
+  <p class="text-danger">
+    Please <a href="#votingForm">go back to the form</a> and try again!
+  </p>
+{% endif %}
+
+{% if previous_vote %}
+  <p>
+    You had previously voted <span class="text-danger">{{ previous_vote }}</span>; you can use the form below to change your vote:
+  </p>
+{% endif %}
+
+<form hx-post="{{ request.get_full_path }}" hx-target="closest section">
+  <p id="agree_instructions">
+
+    {% if recommendation.recommendation == 1 %}
+      <strong class="text-success">If you agree with a recommendation to publish, you can provide your ballpark quality tiering below</strong>
+      <br />
+      (this is not compulsory, but most welcome)
+    {% endif %}
+
+  </p>
+  <p id="disagree_instructions" class="text-danger">
+    <strong>If you vote disagree, please provide an alternative recommendation below</strong>
+  </p>
+  {% csrf_token %}
+  {{ form|bootstrap }}
+  <div class="row">
+    <div class="col-12 col-md">
+      <p class="bg-warning bg-opacity-10 p-2">
+        <span class="text-warning">{% include "bi/exclamation-triangle-fill.html" %}</span>
+        <strong>Important:</strong> Since October 2023, the remarks have been decoupled from the recommendation vote, allowing the two to be submitted independently.
+        <br />
+        <strong>Add your remarks before casting your vote</strong>, otherwise your vote will be submitted without any remarks.
+      </p>
+    </div>
+    <div class="col-12 col-md-auto">
+      <input type="submit"
+             name="submit"
+             value="Cast your vote"
+             class="btn btn-primary w-100"
+             id="submit-id-submit" />
+    </div>
+  </div>
+</form>

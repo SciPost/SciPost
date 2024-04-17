@@ -1,6 +1,5 @@
 {% extends 'submissions/pool/base.html' %}
 
-{% load bootstrap %}
 {% load scipost_extras %}
 
 {% block breadcrumb_items %}
@@ -8,27 +7,13 @@
   <span class="breadcrumb-item">Editorial Recommendation</span>
 {% endblock %}
 
-{% block pagetitle %}: Editorial Recommendation{% endblock pagetitle %}
+{% block pagetitle %}
+  : Editorial Recommendation
+{% endblock pagetitle %}
 
 {% block content %}
 
 
-  {% if voting_form.errors %}
-    <h1 class="text-danger">Warning: there was an error filling the voting form</h1>
-    {% for field in voting_form %}
-      {% for error in field.errors %}
-        <div class="alert alert-danger">
-          <strong>{{ error|escape }}</strong>
-        </div>
-      {% endfor %}
-    {% endfor %}
-    {% for error in voting_form.non_field_errors %}
-      <div class="alert alert-danger">
-        <strong>{{ error|escape }}</strong>
-      </div>
-    {% endfor %}
-    <p class="text-danger">Please <a href="#votingForm">go back to the form</a> and try again!</p>
-  {% endif %}
 
 
   <h1 class="highlight">Editorial Recommendation</h1>
@@ -36,73 +21,70 @@
   <h2>Concerning Submission:</h2>
   {% include 'submissions/_submission_li.html' with submission=recommendation.submission %}
 
-  <a class="d-inline-block mb-3" href="{{ recommendation.submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
+  <a class="d-inline-block mb-3"
+     href="{{ recommendation.submission.get_absolute_url }}"
+     target="_blank">View Reports and Submission details</a>
 
   {% include 'submissions/pool/_submission_info_table.html' with submission=recommendation.submission %}
-  <br>
+  <br />
 
   {% include 'submissions/_previous_recommendations_card_fellow_content.html' with recommendation=recommendation %}
 
   <h2 class="highlight">Editorial Recommendation (latest)</h2>
   {% include 'submissions/_recommendation_fellow_content.html' with recommendation=recommendation %}
 
+  <section id="recommendation-vote-form-section"
+           hx-get="{% url "submissions:_hx_recommendation_vote_form" rec_id=recommendation.id %}"
+           hx-trigger="load once">
+  </section>
 
-  {% if voting_form %}
-    <h3 class="mt-4" id="votingForm">Your position on this recommendation</h3>
-    {% if previous_vote %}
-      <p>You had previously voted <span class="text-danger">{{ previous_vote }}</span>; you can use the form below to change your vote:</p>
-    {% endif %}
-    <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
-      <p id="agree_instructions">
-	{% if recommendation.recommendation == 1 %}
-	  <strong class="text-success">If you agree with a recommendation to publish, you can provide your ballpark quality tiering below</strong><br>(this is not compulsory, but most welcome)
-	{% endif %}
-      </p>
-      <p id="disagree_instructions" class="text-danger"><strong>If you vote disagree, please provide an alternative recommendation below</strong></p>
-      {% csrf_token %}
-      {{ voting_form|bootstrap }}
-      <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary" id="submit-id-submit">
-    </form>
-  {% endif %}
 
 {% endblock %}
 
 {% block footer_script %}
   <script nonce="{{ request.csp_nonce }}">
-   $(document).ready(function(){
-       $("#agree_instructions").hide()
-       $("#disagree_instructions").hide()
-       $("input[name=tier]").parents('.form-group').hide()
-       $("#id_alternative_for_journal").parents('.form-group').hide()
-       $("#id_alternative_recommendation").parents('.form-group').hide()
-       $('input[name=vote]').on('change', function(){
-	   var selection = $('input[name=vote]:checked').val();
-	   switch(selection){
-	       case "agree":
-		   $("#agree_instructions").show()
-		   $("#disagree_instructions").hide()
-		   {% if recommendation.recommendation == 1 %}
-		   $("input[name=tier]").parents('.form-group').show()
-		   {% endif %}
-		   $("#id_alternative_for_journal").parents('.form-group').hide()
-		   $("#id_alternative_recommendation").parents('.form-group').hide()
-		   break;
-	       case "disagree":
-		   $("#agree_instructions").hide()
-		   $("#disagree_instructions").show()
-		   $("input[name=tier]").parents('.form-group').hide()
-		   $("#id_alternative_for_journal").parents('.form-group').show()
-		   $("#id_alternative_recommendation").parents('.form-group').show()
-		   break;
-	       default:
-		   $("#agree_instructions").hide()
-		   $("#disagree_instructions").hide()
-		   $("input[name=tier]").parents('.form-group').hide()
-		   $("#id_alternative_for_journal").parents('.form-group').hide()
-		   $("#id_alternative_recommendation").parents('.form-group').hide()
-		   break;
-	   }
-       }).trigger('change');
-   });
+    function update_vote_form_fields(){
+      var selection = $('input[name=vote]:checked').val();
+      switch(selection){
+        case "agree":
+          $("#agree_instructions").show()
+          $("#disagree_instructions").hide()
+          {% if recommendation.recommendation == 1 %}
+          $("input[name=tier]").parents('.form-group').show()
+          {% endif %}
+          $("#id_alternative_for_journal").parents('.form-group').hide()
+          $("#id_alternative_recommendation").parents('.form-group').hide()
+          break;
+        case "disagree":
+          $("#agree_instructions").hide()
+          $("#disagree_instructions").show()
+          $("input[name=tier]").parents('.form-group').hide()
+          $("#id_alternative_for_journal").parents('.form-group').show()
+          $("#id_alternative_recommendation").parents('.form-group').show()
+          break;
+        default:
+          $("#agree_instructions").hide()
+          $("#disagree_instructions").hide()
+          $("input[name=tier]").parents('.form-group').hide()
+          $("#id_alternative_for_journal").parents('.form-group').hide()
+          $("#id_alternative_recommendation").parents('.form-group').hide()
+          break;
+      }
+    }
+    function add_interactivity(){
+      $("#agree_instructions").hide()
+      $("#disagree_instructions").hide()
+      $("input[name=tier]").parents('.form-group').hide()
+      $("#id_alternative_for_journal").parents('.form-group').hide()
+      $("#id_alternative_recommendation").parents('.form-group').hide()
+
+
+      setTimeout(function(){
+        $('input[name=vote]').on('change', update_vote_form_fields).trigger('change');
+     }, 1000);
+    }
+
+   $('#recommendation-vote-form-section').on('htmx:afterSettle', add_interactivity);
+   $(document).ready(setTimeout(add_interactivity, 1000));
   </script>
 {% endblock %}

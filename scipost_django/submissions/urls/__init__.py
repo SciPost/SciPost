@@ -433,6 +433,11 @@ urlpatterns = [
     ),
     path("vote_on_rec/<int:rec_id>", views.vote_on_rec, name="vote_on_rec"),
     path(
+        "_hx_recommendation_vote_form/<int:rec_id>",
+        views._hx_recommendation_vote_form,
+        name="_hx_recommendation_vote_form",
+    ),
+    path(
         "claim_voting_right/<int:rec_id>",
         views.claim_voting_right,
         name="claim_voting_right",
