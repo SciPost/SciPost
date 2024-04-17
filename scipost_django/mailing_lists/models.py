@@ -20,7 +20,7 @@ from .constants import (
 )
 from .managers import MailListManager
 
-from profiles.models import Profile
+from profiles.models import Profile, ProfileEmail
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import NORMAL_CONTRIBUTOR
 from scipost.models import Contributor
@@ -160,3 +160,58 @@ class MailchimpSubscription(TimeStampedModel):
             "active_list",
             "contributor",
         )
+
+
+class MailingList(models.Model):
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
+
+    is_opt_in = models.BooleanField(default=False)
+    eligible_subscribers = models.ManyToManyField(
+        Contributor,
+        blank=True,
+        related_name="eligible_mailing_lists",
+    )
+    subscribed = models.ManyToManyField(
+        Contributor,
+        blank=True,
+        related_name="subscribed_mailing_lists",
+    )
+
+    @property
+    def email_list(self):
+        """
+        Returns a list of email addresses of all eligible subscribers who should receive emails from this list.
+        This is calculated as the set of eligible subscribers minus the set of unsubscribed subscribers.
+        """
+        return list(
+            self.subscribed.annotate(
+                primary_email=models.Subquery(
+                    ProfileEmail.objects.filter(
+                        profile=models.OuterRef("profile"), primary=True
+                    ).values("email")[:1]
+                )
+            ).values_list("primary_email", flat=True)
+        )
+
+    def add_eligible_subscriber(self, contributor):
+        """Adds the contributor to the list of eligible subscribers."""
+        self.eligible_subscribers.add(contributor)
+        # If the list is not opt-in, automatically subscribe the contributor
+        if not self.is_opt_in:
+            self.subscribe(contributor)
+
+    def subscribe(self, contributor):
+        """Subscribes the contributor to the list."""
+        if contributor not in self.eligible_subscribers.all():
+            raise ValueError("Contributor is not eligible to subscribe to this list.")
+        self.subscribed.add(contributor)
+
+    def unsubscribe(self, contributor):
+        """Unsubscribes the contributor from the list."""
+        if contributor not in self.subscribed.all():
+            raise ValueError("Contributor is not subscribed to this list.")
+        self.subscribed.remove(contributor)
+
+    def __str__(self):
+        return self.name
