@@ -16,6 +16,7 @@ from series.models import Collection
 
 from ..constants import (
     PUBLISHABLE_OBJECT_TYPE_CHOICES,
+    get_default_acceptance_criteria,
     get_publishable_object_types_default_list,
     get_submission_object_types_default,
     JOURNAL_STRUCTURE,
@@ -110,17 +111,7 @@ class Journal(models.Model):
     description = models.TextField(default="[To be filled in; you can use markup]")
     scope = models.TextField(default="[To be filled in; you can use markup]")
     content = models.TextField(default="[To be filled in; you can use markup]")
-    acceptance_criteria = models.JSONField(
-        default=json.loads(
-            """{"preamble": "Text before the list(s)", \
-                "sections": [\
-                    {"type":"expectations", "title": "First section", \
-                        "criteria": {"1": "First criterion", "2": "Second criterion"}},\
-                    {"type": "general_acceptance", "title": "Second section", \
-                        "criteria": {"1": "First criterion", "2": "Second criterion"}}\
-                ]}"""
-        )
-    )
+    acceptance_criteria = models.JSONField(default=get_default_acceptance_criteria)
 
     submission_insert = models.TextField(
         blank=True, null=True, default="[Optional; you can use markup]"

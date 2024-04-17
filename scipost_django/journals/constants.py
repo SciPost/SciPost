@@ -70,6 +70,24 @@ def get_submission_object_types_default():
     }
 
 
+def get_default_acceptance_criteria():
+    return {
+        "preamble": "Text before the list(s)",
+        "sections": [
+            {
+                "type": "expectations",
+                "title": "First section",
+                "criteria": {"1": "First criterion", "2": "Second criterion"},
+            },
+            {
+                "type": "general_acceptance",
+                "title": "Second section",
+                "criteria": {"1": "First criterion", "2": "Second criterion"},
+            },
+        ],
+    }
+
+
 ISSUES_AND_VOLUMES = "IV"
 ISSUES_ONLY = "IO"
 INDIVIDUAL_PUBLICATIONS = "IP"
