@@ -25,7 +25,7 @@ class BlogPostFactory(factory.django.DjangoModelFactory):
 
     status = LazyRandEnum(BlogPost.STATUS_CHOICES)
     title = factory.Faker("sentence")
-    slug = factory.LazyAttribute(lambda self: slugify(self.title))
+    slug = factory.LazyAttribute(lambda self: slugify(self.title.split(" ")[:3]))
     blurb = factory.Faker("paragraph")
     blurb_image = factory.django.ImageField()
     blurb_image_caption = factory.Faker("paragraph")
