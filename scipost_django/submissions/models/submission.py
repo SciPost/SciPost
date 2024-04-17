@@ -627,7 +627,7 @@ class Submission(models.Model):
             "submissions:submission", args=(self.preprint.identifier_w_vn_nr,)
         )
 
-    def get_fulfilled_expectations_display(self) -> List[str]:
+    def get_fulfilled_expectations_display(self) -> list[str]:
         """Return a list of fulfilled expectation displays"""
         return [
             display
