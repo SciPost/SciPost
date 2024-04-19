@@ -1,0 +1,24 @@
+{% include 'scipost/personal_page/_hx_tablist.html' with selected='communication' %}
+
+
+<div class="row">
+  <div class="col-12">
+    <div class="card bg-light">
+      <div class="card-body">
+        <h2 class="card-title">Communication</h2>
+        <ul class="mb-0">
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="mb-3">Email addresses associated to your Profile:</h3>
+
+    {% include 'profiles/_hx_profile_emails_table.html' with profile=contributor.profile %}
+
+  </div>
+</div>

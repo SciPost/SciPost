@@ -387,6 +387,11 @@ urlpatterns = [
         name="personal_page_hx_publications",
     ),
     path(
+        "personal_page/_hx_communication",
+        views.personal_page_hx_communication,
+        name="personal_page_hx_communication",
+    ),
+    path(
         "personal_page/_hx_submissions",
         views.personal_page_hx_submissions,
         name="personal_page_hx_submissions",

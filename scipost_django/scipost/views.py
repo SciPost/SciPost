@@ -1171,6 +1171,16 @@ def personal_page_hx_publications(request):
 
 
 @login_required
+def personal_page_hx_communication(request):
+    """
+    Personal Page tab: Communication.
+    """
+    contributor = request.user.contributor
+    context = {"contributor": contributor}
+    return render(request, "scipost/personal_page/_hx_communication.html", context)
+
+
+@login_required
 def personal_page_hx_submissions(request):
     """
     Personal Page tab: Submissions.
