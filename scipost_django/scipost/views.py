@@ -1172,13 +1172,13 @@ def personal_page_hx_publications(request):
 
 
 @login_required
-def personal_page_hx_communication(request):
+def personal_page_hx_email_preferences(request):
     """
-    Personal Page tab: Communication.
+    Personal Page tab: Email Preferences.
     """
     contributor = request.user.contributor
     context = {"contributor": contributor}
-    return render(request, "scipost/personal_page/_hx_communication.html", context)
+    return render(request, "scipost/personal_page/_hx_email_preferences.html", context)
 
 
 @login_required

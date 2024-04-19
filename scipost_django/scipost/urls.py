@@ -397,9 +397,9 @@ urlpatterns = [
         name="personal_page_hx_publications",
     ),
     path(
-        "personal_page/_hx_communication",
-        views.personal_page_hx_communication,
-        name="personal_page_hx_communication",
+        "personal_page/_hx_email_preferences",
+        views.personal_page_hx_email_preferences,
+        name="personal_page_hx_email_preferences",
     ),
     path(
         "personal_page/_hx_submissions",

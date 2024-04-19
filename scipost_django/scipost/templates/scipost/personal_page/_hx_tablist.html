@@ -3,9 +3,9 @@
     {% if selected == 'account' %}class="selected"{% endif %}
   >Account</a>
 
-  <a hx-get="{% url 'scipost:personal_page_hx_communication' %}" 
-    {% if selected == 'communication' %}class="selected"{% endif %}
-  >Communication</a>
+  <a hx-get="{% url 'scipost:personal_page_hx_email_preferences' %}" 
+    {% if selected == 'email_preferences' %}class="selected"{% endif %}
+  >Email Preferences</a>
 
   {% if "scipost_admin" in user_roles or "finadmin" in user_roles or perms.scipost.can_vet_registration_requests %}
     <a hx-get="{% url 'scipost:personal_page_hx_admin' %}" 
