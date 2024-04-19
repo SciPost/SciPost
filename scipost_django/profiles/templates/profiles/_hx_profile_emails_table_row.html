@@ -1,3 +1,7 @@
+{% load common_extras %}
+
+{% equal profile_mail.profile user.contributor.profile as is_mail_owner %}
+
 <tr>
   <td class=" 
     {% if profile_mail.primary %}fw-bold{% endif %}
@@ -27,34 +31,42 @@
 
   </td>
 
-  {% if perms.scipost.can_validate_profile_emails %}
-    <td class="d-flex justify-content-between">
-      <button type="button"
-              class="btn btn-sm btn-light py-0"
-              hx-target="closest tr"
-              hx-swap="outerHTML"
-              hx-patch="{% url 'profiles:_hx_profile_email_toggle_valid' profile_mail.id %}">
-        {{ profile_mail.still_valid|yesno:'Depr.,Valid' }}
-      </button>
-    {% endif %}
 
-    {% if perms.scipost.can_verify_profile_emails %}
-      <button type="button"
-              class="btn btn-sm btn-light py-0"
-              hx-target="closest tr"
-              hx-swap="outerHTML"
-              hx-patch="{% url 'profiles:_hx_profile_email_toggle_verified' profile_mail.id %}">
-        {{ profile_mail.verified|yesno:'Unverified,Verified' }}
-      </button>
-    {% endif %}
 
-    {% if perms.scipost.can_mark_profile_emails_primary %}
-      <button type="button"
-              class="btn btn-sm btn-light py-0"
-              hx-target="closest table"
-              hx-swap="outerHTML"
-              hx-patch="{% url 'profiles:_hx_profile_email_mark_primary' profile_mail.id %}">Primary</button>
-    {% endif %}
+  <td class="d-flex justify-content-between">
+    <div>
+
+      {% if is_mail_owner or perms.scipost.can_validate_profile_emails %}
+        <button type="button"
+                class="btn btn-sm btn-light py-0"
+                hx-target="closest tr"
+                hx-swap="outerHTML"
+                hx-patch="{% url 'profiles:_hx_profile_email_toggle_valid' profile_mail.id %}">
+          {{ profile_mail.still_valid|yesno:'Deprecate,Mark Valid' }}
+        </button>
+      {% endif %}
+
+      {% comment %} {% if is_mail_owner or perms.scipost.can_verify_profile_emails %}
+        <!-- TODO: Implement proper verification of emails -->
+        <button type="button"
+                class="btn btn-sm btn-light py-0"
+                hx-target="closest tr"
+                hx-swap="outerHTML"
+                hx-confirm="This will send a verification email to the address. Are you sure?"
+                hx-patch="{% url 'profiles:_hx_profile_email_toggle_verified' profile_mail.id %}">Verify</button>
+        <!-- TODO END-->
+      {% endif %} {% endcomment %}
+
+      {% if is_mail_owner or perms.scipost.can_mark_profile_emails_primary %}
+        <button type="button"
+                {% if profile_mail.primary %}disabled{% endif %}
+                class="btn btn-sm btn-light py-0"
+                hx-target="closest table"
+                hx-swap="outerHTML"
+                hx-patch="{% url 'profiles:_hx_profile_email_mark_primary' profile_mail.id %}">Set Primary</button>
+      {% endif %}
+
+    </div>
 
     {% if perms.scipost.can_delete_profile_emails %}
       <button type="button"

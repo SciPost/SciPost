@@ -463,12 +463,20 @@ def _hx_add_profile_email(request, profile_id):
     )
 
 
-@permission_required_htmx("scipost.can_mark_profile_emails_primary")
 def _hx_profile_email_mark_primary(request, email_id):
     """
     Make this email the primary one for this Profile.
     """
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
+
+    is_mail_owner = request.user.contributor.profile == profile_email.profile
+    can_validate_emails = request.user.has_perm("scipost.can_validate_profile_emails")
+    if not (is_mail_owner or can_validate_emails):
+        return HTMXResponse(
+            "danger",
+            "You do not have the required permissions to validate this email.",
+        )
+
     if request.method == "PATCH":
         ProfileEmail.objects.filter(profile=profile_email.profile).update(primary=False)
         profile_email.primary = True
@@ -480,10 +488,19 @@ def _hx_profile_email_mark_primary(request, email_id):
     )
 
 
-@permission_required_htmx("scipost.can_validate_profile_emails")
 def _hx_profile_email_toggle_valid(request, email_id):
     """Toggle valid/deprecated status of ProfileEmail."""
+
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
+
+    is_mail_owner = request.user.contributor.profile == profile_email.profile
+    can_validate_emails = request.user.has_perm("scipost.can_validate_profile_emails")
+    if not (is_mail_owner or can_validate_emails):
+        return HTMXResponse(
+            "danger",
+            "You do not have the required permissions to validate this email.",
+        )
+
     if request.method == "PATCH":
         profile_email.still_valid = not profile_email.still_valid
         profile_email.save()
