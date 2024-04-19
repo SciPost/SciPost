@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import urllib
 
+from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.conf import settings
@@ -1267,6 +1268,36 @@ def personal_page_hx_author_replies(request):
         ),
     }
     return render(request, "scipost/personal_page/_hx_author_replies.html", context)
+
+
+def _hx_accepts_scipost_emails_checkbox(request):
+    profile = request.user.contributor.profile
+
+    if request.method == "POST":
+        profile.accepts_SciPost_emails = (
+            request.POST.get("accepts_scipost_emails") == "on"
+        )
+        profile.save()
+
+    return TemplateResponse(
+        request,
+        "scipost/personal_page/_hx_accepts_scipost_emails_checkbox.html",
+    )
+
+
+def _hx_accepts_refereeing_requests_checkbox(request):
+    profile = request.user.contributor.profile
+
+    if request.method == "POST":
+        profile.accepts_refereeing_requests = (
+            request.POST.get("accepts_refereeing_requests") == "on"
+        )
+        profile.save()
+
+    return TemplateResponse(
+        request,
+        "scipost/personal_page/_hx_accepts_refereeing_requests_checkbox.html",
+    )
 
 
 def _update_personal_data_user_only(request):

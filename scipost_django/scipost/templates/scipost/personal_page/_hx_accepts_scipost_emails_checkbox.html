@@ -1,0 +1,7 @@
+<div class="d-flex flex-row gap-3 align-items-center">
+  <label for="accepts-scipost-emails">I accept to receive (unsolicited) emails from SciPost</label>
+  <input type="checkbox" id="accepts-scipost-emails" name="accepts_scipost_emails" hx-trigger="change" hx-target="this" hx-post="{% url 'scipost:_hx_accepts_scipost_emails_checkbox' %}" 
+    {% if user.contributor.profile.accepts_SciPost_emails %}checked{% endif %}
+     />
+
+  </div>

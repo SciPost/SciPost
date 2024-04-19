@@ -1,7 +1,7 @@
 {% include 'scipost/personal_page/_hx_tablist.html' with selected='communication' %}
 
 
-<div class="row">
+<div class="row mb-0">
   <div class="col-12">
     <div class="card bg-light">
       <div class="card-body">
@@ -14,9 +14,9 @@
 </div>
 
 
-<div class="row">
+<div class="row mb-0">
   <div class="col-12">
-    <h3 class="mb-3">Email addresses associated to your Profile:</h3>
+    <h3 class="mt-3">Email addresses associated to your Profile:</h3>
 
     <a role="button"
        type="button"
@@ -29,9 +29,9 @@
 
   </div>
 
-  <div class="row">
-    <div class="col-12">
-      <h3 class="mb-3">Mailing list subscriptions:</h3>
+  <div class="row mb-0">
+    <div class="col-12 col-md-8">
+      <h3 class="mt-3">Mailing list subscriptions:</h3>
  
 
       {% for mailing_list in contributor.eligible_mailing_lists.all %}
@@ -40,6 +40,14 @@
         There are no mailing lists available for subscription.
       {% endfor %}
 
+ 
+    </div>
+
+    <div class="col-12 col-md-4">
+      <h3 class="mt-3">Preferences:</h3>
+ 
+      {% include 'scipost/personal_page/_hx_accepts_scipost_emails_checkbox.html' %}
+      {% include 'scipost/personal_page/_hx_accepts_refereeing_requests_checkbox.html' %}
  
     </div>
   </div>

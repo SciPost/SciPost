@@ -418,9 +418,6 @@ class UpdatePersonalDataForm(forms.ModelForm):
             {"placeholder": "full URL, e.g. https://[yourpage].org"}
         ),
     )
-    accepts_SciPost_emails = forms.BooleanField(
-        required=False, label="You accept to receive unsolicited emails from SciPost"
-    )
 
     class Meta:
         model = Contributor
@@ -431,7 +428,6 @@ class UpdatePersonalDataForm(forms.ModelForm):
             "orcid_id",
             "address",
             "webpage",
-            "accepts_SciPost_emails",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -444,18 +440,12 @@ class UpdatePersonalDataForm(forms.ModelForm):
         ]
         self.fields["orcid_id"].initial = self.instance.profile.orcid_id
         self.fields["webpage"].initial = self.instance.profile.webpage
-        self.fields["accepts_SciPost_emails"].initial = (
-            self.instance.profile.accepts_SciPost_emails
-        )
 
     def save(self):
         self.instance.profile.title = self.cleaned_data["title"]
         self.instance.profile.acad_field = self.cleaned_data["acad_field"]
         self.instance.profile.orcid_id = self.cleaned_data["orcid_id"]
         self.instance.profile.webpage = self.cleaned_data["webpage"]
-        self.instance.profile.accepts_SciPost_emails = self.cleaned_data[
-            "accepts_SciPost_emails"
-        ]
         self.instance.profile.save()
         self.instance.profile.specialties.set(self.cleaned_data["specialties"])
         return super().save()

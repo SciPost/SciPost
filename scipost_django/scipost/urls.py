@@ -344,6 +344,16 @@ urlpatterns = [
     path(
         "update_personal_data", views.update_personal_data, name="update_personal_data"
     ),
+    path(
+        "_hx_accepts_scipost_emails_checkbox",
+        views._hx_accepts_scipost_emails_checkbox,
+        name="_hx_accepts_scipost_emails_checkbox",
+    ),
+    path(
+        "_hx_accepts_refereeing_requests_checkbox",
+        views._hx_accepts_refereeing_requests_checkbox,
+        name="_hx_accepts_refereeing_requests_checkbox",
+    ),
     path("totp/", views.TOTPListView.as_view(), name="totp"),
     path("totp/create", views.TOTPDeviceCreateView.as_view(), name="totp_create"),
     path(

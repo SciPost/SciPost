@@ -1,0 +1,7 @@
+<div class="d-flex flex-row gap-3 align-items-center">
+  <label for="accepts-refereeing-requests">I accept to receive refereeing requests</label>
+  <input type="checkbox" id="accepts-refereeing-requests" name="accepts_refereeing_requests" hx-trigger="change" hx-target="this" hx-post="{% url 'scipost:_hx_accepts_refereeing_requests_checkbox' %}" 
+    {% if user.contributor.profile.accepts_refereeing_requests %}checked{% endif %}
+     />
+
+  </div>
