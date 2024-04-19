@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import path
+from django.urls import include, path
 
 from . import views
 
@@ -18,5 +18,17 @@ urlpatterns = [
         "non_registered/export",
         views.export_non_registered_invitations,
         name="export_non_registered_invitations",
+    ),
+    path(
+        "mailing_list/<int:pk>/",
+        include(
+            [
+                path(
+                    "_hx_toggle_subscription",
+                    views._hx_toggle_subscription,
+                    name="_hx_toggle_subscription",
+                ),
+            ]
+        ),
     ),
 ]

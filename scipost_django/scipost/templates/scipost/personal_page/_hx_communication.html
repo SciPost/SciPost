@@ -28,4 +28,19 @@
     {% include 'profiles/_hx_profile_emails_table.html' with profile=contributor.profile %}
 
   </div>
+
+  <div class="row">
+    <div class="col-12">
+      <h3 class="mb-3">Mailing list subscriptions:</h3>
+ 
+
+      {% for mailing_list in contributor.eligible_mailing_lists.all %}
+        {% include 'mailing_lists/_hx_mailing_list_item.html' %}
+      {% empty %}
+        There are no mailing lists available for subscription.
+      {% endfor %}
+
+ 
+    </div>
+  </div>
 </div>

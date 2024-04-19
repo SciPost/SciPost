@@ -1,0 +1,24 @@
+
+
+<div id="mailing-list-item-{{ mailing_list.id }}"
+     class="bg-secondary bg-opacity-10 d-flex flex-row p-2 rounded justify-content-between">
+  {{ mailing_list.name }}
+  <div>
+
+    <a role="button"
+       type="button"
+       class="btn-link"
+       hx-get="{% url 'mailing_lists:_hx_toggle_subscription' pk=mailing_list.id %}"
+       hx-swap="outerHTML"
+       hx-target="#mailing-list-item-{{ mailing_list.id }}">
+
+      {% if user.contributor in mailing_list.subscribed.all %}
+        Unsubscribe
+      {% else %}
+        Subscribe
+      {% endif %}
+
+    </a>
+ 
+  </div>
+</div>

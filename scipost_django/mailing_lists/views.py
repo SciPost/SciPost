@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import HttpResponse
+from django.template.response import TemplateResponse
 from django.views.generic import UpdateView
 from django.views.generic.list import ListView
 from django.urls import reverse
@@ -16,7 +17,7 @@ from django.shortcuts import redirect, get_object_or_404
 from invitations.models import RegistrationInvitation
 
 from .forms import MailchimpUpdateForm
-from .models import MailchimpList
+from .models import MailchimpList, MailingList
 
 
 class MailchimpMixin(LoginRequiredMixin, PermissionRequiredMixin):
@@ -110,3 +111,25 @@ class ListDetailView(MailchimpMixin, UpdateView):
     def form_valid(self, form):
         messages.success(self.request, "List succesfully updated")
         return super().form_valid(form)
+
+
+def _hx_toggle_subscription(request, pk):
+    """
+    Toggle the subscription status of a user to a certain list.
+    Return the rerendered list item.
+    """
+    mailing_list = get_object_or_404(MailingList, pk=pk)
+    is_subscribed = request.user.contributor in mailing_list.subscribed.all()
+
+    print("Toggle subscription", is_subscribed, request.user.contributor, mailing_list)
+
+    if is_subscribed:
+        mailing_list.unsubscribe(request.user.contributor)
+    else:
+        mailing_list.subscribe(request.user.contributor)
+
+    return TemplateResponse(
+        request,
+        "mailing_lists/_hx_mailing_list_item.html",
+        {"mailing_list": mailing_list},
+    )
