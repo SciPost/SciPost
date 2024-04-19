@@ -18,6 +18,13 @@
   <div class="col-12">
     <h3 class="mb-3">Email addresses associated to your Profile:</h3>
 
+    <a role="button"
+       type="button"
+       class="btn-link"
+       hx-get="{% url 'profiles:_hx_add_profile_email' profile_id=contributor.profile.id %}"
+       hx-target="this"
+       hx-swap="afterend">Add a new Email</a>
+
     {% include 'profiles/_hx_profile_emails_table.html' with profile=contributor.profile %}
 
   </div>
