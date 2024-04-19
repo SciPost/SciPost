@@ -404,13 +404,12 @@ class SubmissionUtils(BaseMailUtil):
             "deadline": datetime.datetime.strftime(
                 cls.invitation.submission.reporting_deadline, "%Y-%m-%d"
             ),
-            "invitation_key": cls.invitation.invitation_key,
         }
         email_text_html += "<br/>" + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
-            "SciPost: reminder (refereeing request and registration invitation)",
+            "SciPost: reminder (refereeing request)",
             email_text,
             f"SciPost Refereeing <refereeing@{domain}>",
             [cls.invitation.email_address],
