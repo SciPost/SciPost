@@ -33,6 +33,11 @@ def rstrip_minutes(text):
     return text
 
 
+@register.simple_tag
+def equal(a, b):
+    return a == b
+
+
 # Math
 @register.filter
 def int_divide(a, b):
