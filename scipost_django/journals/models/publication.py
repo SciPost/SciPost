@@ -297,6 +297,10 @@ class Publication(models.Model):
             for idx, aff in enumerate(self.get_all_affiliations()):
                 if aff in author.affiliations.all():
                     affnrs.append(idx + 1)
+            # If no affiliation is found, add a None to the list
+            # Prevents crashes since Django v4
+            if len(affnrs) == 0:
+                affnrs = [None]
             indexed_author_list.append(affnrs)
         # Since nested ArrayFields must have the same dimension,
         # we pad the "empty" entries with Null:
