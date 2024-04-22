@@ -1,4 +1,4 @@
-<h2>This Submission's Fellowship</h2>
+d<h2>This Submission's Fellowship</h2>
 
 {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
   <div class="d-flex justify-content-between align-items-center">
@@ -28,9 +28,7 @@
         available
       </th>
       {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
-        <th>
-          {% include "icons/reception.html" with value=fellowship.contributor.editorial_assignments.ongoing.count max=4 %}
-        </th>
+        <th>Workload</th>
       {% endif %}
       <th>Qualification</th>
       <th>Readiness to take charge</th>
