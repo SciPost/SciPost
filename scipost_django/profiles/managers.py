@@ -69,9 +69,12 @@ class ProfileQuerySet(QuerySet):
             .filter(nel__gt=1)
         ]
         # Then determine all ids of related Profiles with an email in this list
-        ids_of_duplicates_by_email = [
-            pe.profile.id for pe in pel.filter(email_lower__in=duplicate_emails)
-        ]
+        ids_of_duplicates_by_email = []
+        for email in duplicate_emails:
+            prof_ids = pel.filter(email_lower=email).values_list("profile", flat=True)
+            prof_ids = set(prof_ids)
+            if len(prof_ids) > 1:
+                ids_of_duplicates_by_email.extend(prof_ids)
         # Now return list of potential duplicates
         return profiles.filter(
             Q(full_name_annot__in=duplicates_by_full_name)
