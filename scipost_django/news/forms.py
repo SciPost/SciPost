@@ -4,12 +4,12 @@ __license__ = "AGPL v3"
 
 from django import forms
 
-from .models import NewsLetter, NewsItem, NewsLetterNewsItemsTable
+from .models import NewsCollection, NewsItem, NewsCollectionNewsItemsTable
 
 
-class NewsLetterForm(forms.ModelForm):
+class NewsCollectionForm(forms.ModelForm):
     class Meta:
-        model = NewsLetter
+        model = NewsCollection
         fields = ["date", "intro", "closing", "published"]
 
 
@@ -30,13 +30,13 @@ class NewsItemForm(forms.ModelForm):
         ]
 
 
-class NewsLetterNewsItemsTableForm(forms.ModelForm):
+class NewsCollectionNewsItemsTableForm(forms.ModelForm):
     class Meta:
-        model = NewsLetterNewsItemsTable
+        model = NewsCollectionNewsItemsTable
         fields = ["newsitem"]
 
 
-class NewsLetterNewsItemsTableFormSet(forms.BaseModelFormSet):
+class NewsCollectionNewsItemsTableFormSet(forms.BaseModelFormSet):
     def save(self, *args, **kwargs):
         objects = super().save(*args, **kwargs)
         for form in self.ordered_forms:
@@ -45,10 +45,10 @@ class NewsLetterNewsItemsTableFormSet(forms.BaseModelFormSet):
         return objects
 
 
-NewsLetterNewsItemsOrderingFormSet = forms.modelformset_factory(
-    NewsLetterNewsItemsTable,
+NewsCollectionNewsItemsOrderingFormSet = forms.modelformset_factory(
+    NewsCollectionNewsItemsTable,
     fields=(),
     can_order=True,
     extra=0,
-    formset=NewsLetterNewsItemsTableFormSet,
+    formset=NewsCollectionNewsItemsTableFormSet,
 )

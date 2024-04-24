@@ -4,19 +4,19 @@ __license__ = "AGPL v3"
 
 import factory
 
-from .models import NewsItem, NewsLetter
+from .models import NewsItem, NewsCollection
 
 
-class NewsLetterFactory(factory.django.DjangoModelFactory):
+class NewsCollectionFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = NewsLetter
+        model = NewsCollection
 
     date = factory.Faker("date_this_year")
     intro = factory.Faker("paragraph", nb_sentences=2)
     closing = factory.Faker("paragraph", nb_sentences=2)
     published = True
 
-    # Create NewsItems for this NewsLetter linking them through NewsLetterNewsItemsTable
+    # Create NewsItems for this NewsCollection linking them through NewsCollectionNewsItemsTable
     @factory.post_generation
     def news_items(self, create, extracted, **kwargs):
         if not create:

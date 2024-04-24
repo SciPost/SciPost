@@ -8,11 +8,11 @@ from django.db import models
 from .managers import NewsManager
 
 
-class NewsLetter(models.Model):
+class NewsCollection(models.Model):
     """
     Container of NewsItems.
     Which NewsItems (and their order) are handled via the auxiliary
-    model NewsLetterNewsItemsTable.
+    model NewsCollectionNewsItemsTable.
     """
 
     date = models.DateField()
@@ -21,11 +21,11 @@ class NewsLetter(models.Model):
     published = models.BooleanField(default=False)
 
     def __str__(self):
-        return "SciPost Newsletter %s" % self.date.strftime("%Y-%m-%d")
+        return "SciPost News Collection %s" % self.date.strftime("%Y-%m-%d")
 
     def get_absolute_url(self):
         return reverse(
-            "news:newsletter_detail",
+            "news:newscollection_detail",
             kwargs={
                 "year": self.date.strftime("%Y"),
                 "month": self.date.strftime("%m"),
@@ -38,7 +38,7 @@ class NewsItem(models.Model):
     date = models.DateField()
     headline = models.CharField(max_length=300)
     blurb_short = models.TextField(
-        default="", help_text="Short version for use in Newsletter/emails etc"
+        default="", help_text="Short version for use in NewsCollection/emails etc"
     )
     blurb = models.TextField()
     image = models.ImageField(upload_to="news/newsitems/%Y/", blank=True)
@@ -63,12 +63,12 @@ class NewsItem(models.Model):
         return reverse("news:newsitem_detail", kwargs={"pk": self.id})
 
 
-class NewsLetterNewsItemsTable(models.Model):
+class NewsCollectionNewsItemsTable(models.Model):
     """
-    Carries the specification of which NewsItem sits in which NewsLetter,
+    Carries the specification of which NewsItem sits in which NewsCollection,
     and in which order.
     """
 
-    newsletter = models.ForeignKey("news.NewsLetter", on_delete=models.CASCADE)
+    newscollection = models.ForeignKey("news.NewsCollection", on_delete=models.CASCADE)
     newsitem = models.ForeignKey("news.NewsItem", on_delete=models.CASCADE)
     order = models.PositiveSmallIntegerField()

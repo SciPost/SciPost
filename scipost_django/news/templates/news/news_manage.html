@@ -14,25 +14,25 @@
     <div class="col-12">
       <h1 class="highlight">News Management</h1>
 
-      <h2 class="highlight">Newsletters</h2>
-      <a href="{% url 'news:newsletter_create' %}">Add a Newsletter</a>
+      <h2 class="highlight">NewsCollections</h2>
+      <a href="{% url 'news:newscollection_create' %}">Add a NewsCollection</a>
       <br/>
       <br/>
-      {% for nl in newsletters %}
+      {% for nc in newscollections %}
         <div class="card mb-2">
-          <div class="card-header" data-bs-toggle="collapse" href="#collapse{{ nl.id }}" aria-expanded="false" aria-controls="collapse{{ nl.id }}">
-            {{ nl }}
-            (status: {{ nl.published|yesno:'published,unpublished' }})
+          <div class="card-header" data-bs-toggle="collapse" href="#collapse{{ nc.id }}" aria-expanded="false" aria-controls="collapse{{ nc.id }}">
+            {{ nc }}
+            (status: {{ nc.published|yesno:'published,unpublished' }})
           </div>
-          <div class="card-body collapse" id="collapse{{ nl.id }}">
+          <div class="card-body collapse" id="collapse{{ nc.id }}">
             <div class="row">
               <div class="col-6">
-                <a href="{{ nl.get_absolute_url }}" target="_blank">View this Newsletter in a separate window</a>
+                <a href="{{ nc.get_absolute_url }}" target="_blank">View this NewsCollection in a separate window</a>
                 <br/>
                 <br/>
-                <h3>News Items included in this Newsletter:</h3>
+                <h3>News Items included in this NewsCollection:</h3>
                 <ul>
-                  {% for nt in nl.newsletternewsitemstable_set.all|dictsort:'order' %}
+                  {% for nt in nc.newscollectionnewsitemstable_set.all|dictsort:'order' %}
                     <li>{{ nt.newsitem }}{% if not nt.newsitem.published %}&nbsp;<span class="text-danger">WARNING: unpublished</span>{% endif %}</li>
                   {% empty %}
                     <li>No associated NewsItems found</li>
@@ -42,14 +42,14 @@
               <div class="col-6">
                 <h3>Actions:</h3>
                 <ul>
-                  <li><a href="{% url 'news:newsletter_update' pk=nl.id %}">Update</a></li>
-                  <li><a href="{% url 'news:newsletter_update_ordering' pk=nl.id %}">Update items ordering</a></li>
-                  <li><a href="{% url 'news:newsletter_delete' pk=nl.id %}">Delete</a></li>
+                  <li><a href="{% url 'news:newscollection_update' pk=nc.id %}">Update</a></li>
+                  <li><a href="{% url 'news:newscollection_update_ordering' pk=nc.id %}">Update items ordering</a></li>
+                  <li><a href="{% url 'news:newscollection_delete' pk=nc.id %}">Delete</a></li>
                   <li>
-                    Add a News Item to this Newsletter:
-                    <form class="d-block mt-2 mb-3" action="{% url 'news:add_newsitem_to_newsletter' nlpk=nl.id %}" method="post">
+                    Add a NewsItem to this NewsCollection:
+                    <form class="d-block mt-2 mb-3" action="{% url 'news:add_newsitem_to_newscollection' ncpk=nc.id %}" method="post">
                       {% csrf_token %}
-                      {{ add_ni_to_nl_form|bootstrap }}
+                      {{ add_ni_to_nc_form|bootstrap }}
                       <input type="submit" name="submit" value="Add" class="btn btn-outline-secondary">
                     </form>
                   </li>

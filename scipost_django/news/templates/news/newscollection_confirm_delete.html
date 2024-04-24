@@ -2,12 +2,14 @@
 
 {% load bootstrap %}
 
-{% block pagetitle %}: Delete NewsLetter{% endblock pagetitle %}
+{% block pagetitle %}
+  : Delete NewsCollection
+{% endblock pagetitle %}
 
 {% block content %}
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">Delete NewsLetter</h1>
+      <h1 class="highlight">Delete NewsCollection</h1>
       {{ object }}
     </div>
   </div>
@@ -15,11 +17,11 @@
     <div class="col-12">
       <form method="post">
         {% csrf_token %}
-        <h3 class="mb-2">Are you sure you want to delete this NewsLetter?</h3>
+        <h3 class="mb-2">Are you sure you want to delete this NewsCollection?</h3>
         <input type="submit" class="btn btn-danger" value="Yes, delete it" />
       </form>
     </ul>
-    </div>
   </div>
+</div>
 
 {% endblock content %}

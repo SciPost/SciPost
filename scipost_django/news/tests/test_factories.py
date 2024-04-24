@@ -3,13 +3,13 @@ __license__ = "AGPL v3"
 
 
 from django.test import TestCase
-from ..factories import NewsItemFactory, NewsLetterFactory
+from ..factories import NewsItemFactory, NewsCollectionFactory
 
 
-class TestNewsLetterFactory(TestCase):
+class TestNewsCollectionFactory(TestCase):
     def test_can_create_news_letters(self):
-        news_letter = NewsLetterFactory()
-        self.assertIsNotNone(news_letter)
+        news_collection = NewsCollectionFactory()
+        self.assertIsNotNone(news_collection)
 
 
 class TestNewsItemFactory(TestCase):

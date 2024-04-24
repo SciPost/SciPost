@@ -2,13 +2,15 @@
 
 {% load bootstrap %}
 
-{% block pagetitle %}: NewsLetters{% endblock pagetitle %}
+{% block pagetitle %}
+  : NewsCollections
+{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
   <a href="{% url 'news:news' %}" class="breadcrumb-item">News</a>
   <a href="{% url 'news:manage' %}" class="breadcrumb-item">Manage</a>
-  <span class="breadcrumb-item">Update NewsLetter</span>
+  <span class="breadcrumb-item">Update NewsCollection</span>
 {% endblock breadcrumb_items %}
 
 
@@ -16,20 +18,22 @@
 
   <div class="row">
     <div class="col-12">
-      <h1>Newsletter to update:</h1>
+      <h1>NewsCollection to update:</h1>
       {{ object }}
     </div>
   </div>
 
-  <hr/>
+  <hr />
 
   <div class="row">
     <div class="col-12">
       <h1>Edit it here:</h1>
-      <form action="{% url 'news:newsletter_update' pk=object.id %}" method="post">
-	{% csrf_token %}
-	{{ form|bootstrap }}
-	<input type="submit" value="Submit" class="btn btn-primary">
+      <form action="{% url 'news:newscollection_update' pk=object.id %}"
+            method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+	
+        <input type="submit" value="Submit" class="btn btn-primary" />
+      </div>
     </div>
-  </div>
-{% endblock content %}
+  {% endblock content %}

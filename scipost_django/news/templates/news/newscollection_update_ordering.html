@@ -2,13 +2,13 @@
 
 {% load bootstrap %}
 
-{% block pagetitle %}: NewsLetters{% endblock pagetitle %}
+{% block pagetitle %}: NewsCollections{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
   <a href="{% url 'news:news' %}" class="breadcrumb-item">News</a>
   <a href="{% url 'news:manage' %}" class="breadcrumb-item">Manage</a>
-  <span class="breadcrumb-item">Update NewsLetter Ordering</span>
+  <span class="breadcrumb-item">Update NewsCollection Ordering</span>
 {% endblock breadcrumb_items %}
 
 
@@ -16,7 +16,7 @@
 
   <div class="row">
     <div class="col-12">
-      <h1>Newsletter to update:</h1>
+      <h1>NewsCollection to update:</h1>
       {{ object }}
     </div>
   </div>
@@ -25,7 +25,7 @@
 
   <div class="row">
     <div class="col-12">
-      <h1>Update the ordering of News Items within this Newsletter:</h1>
+      <h1>Update the ordering of NewsItems within this NewsCollection:</h1>
       <form method="post" enctype="multipart/form-data">
 	{% csrf_token %}
 	{{ ni_formset.management_form }}

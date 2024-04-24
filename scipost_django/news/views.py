@@ -12,12 +12,12 @@ from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required
 
-from .models import NewsLetter, NewsItem, NewsLetterNewsItemsTable
+from .models import NewsCollection, NewsItem, NewsCollectionNewsItemsTable
 from .forms import (
-    NewsLetterForm,
+    NewsCollectionForm,
     NewsItemForm,
-    NewsLetterNewsItemsTableForm,
-    NewsLetterNewsItemsOrderingFormSet,
+    NewsCollectionNewsItemsTableForm,
+    NewsCollectionNewsItemsOrderingFormSet,
 )
 
 from scipost.mixins import PermissionsMixin
@@ -33,23 +33,23 @@ class NewsManageView(PermissionsMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["newsletters"] = NewsLetter.objects.all()
+        context["newscollections"] = NewsCollection.objects.all()
         context["newsitems"] = NewsItem.objects.all()
-        context["add_ni_to_nl_form"] = NewsLetterNewsItemsTableForm()
+        context["add_ni_to_nc_form"] = NewsCollectionNewsItemsTableForm()
         return context
 
 
-class NewsLetterView(TemplateView):
+class NewsCollectionView(TemplateView):
     """
-    Newsletter, for public consumption online.
+    NewsCollection, for public consumption online.
     """
 
-    template_name = "news/newsletter_detail.html"
+    template_name = "news/newscollection_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["nl"] = get_object_or_404(
-            NewsLetter,
+        context["nc"] = get_object_or_404(
+            NewsCollection,
             date__year=self.kwargs["year"],
             date__month=self.kwargs["month"],
             date__day=self.kwargs["day"],
@@ -57,53 +57,53 @@ class NewsLetterView(TemplateView):
         return context
 
 
-class NewsLetterCreateView(PermissionsMixin, CreateView):
+class NewsCollectionCreateView(PermissionsMixin, CreateView):
     """
-    Create a NewsLetter.
+    Create a NewsCollection.
     """
 
     permission_required = "scipost.can_manage_news"
-    form_class = NewsLetterForm
-    template_name = "news/newsletter_create.html"
+    form_class = NewsCollectionForm
+    template_name = "news/newscollection_create.html"
     success_url = reverse_lazy("news:manage")
 
 
-class NewsLetterUpdateView(PermissionsMixin, UpdateView):
+class NewsCollectionUpdateView(PermissionsMixin, UpdateView):
     """
-    Update a NewsLetter.
+    Update a NewsCollection.
     """
 
     permission_required = "scipost.can_manage_news"
-    model = NewsLetter
-    form_class = NewsLetterForm
-    template_name = "news/newsletter_update.html"
+    model = NewsCollection
+    form_class = NewsCollectionForm
+    template_name = "news/newscollection_update.html"
     success_url = reverse_lazy("news:news")
 
 
 @permission_required("scipost.can_manage_news", raise_exception=True)
-def newsletter_update_ordering(request, pk):
-    newsletter = get_object_or_404(NewsLetter, pk=pk)
-    ni_formset = NewsLetterNewsItemsOrderingFormSet(
+def newscollection_update_ordering(request, pk):
+    newscollection = get_object_or_404(NewsCollection, pk=pk)
+    ni_formset = NewsCollectionNewsItemsOrderingFormSet(
         request.POST or None,
-        queryset=newsletter.newsletternewsitemstable_set.order_by("order"),
+        queryset=newscollection.newscollectionnewsitemstable_set.order_by("order"),
     )
     if ni_formset.is_valid():
         ni_formset.save()
-        messages.success(request, "Newsletter items ordering updated")
-        return redirect(newsletter.get_absolute_url())
+        messages.success(request, "NewsCollection items ordering updated")
+        return redirect(newscollection.get_absolute_url())
     context = {
         "ni_formset": ni_formset,
     }
-    return render(request, "news/newsletter_update_ordering.html", context)
+    return render(request, "news/newscollection_update_ordering.html", context)
 
 
-class NewsLetterDeleteView(PermissionsMixin, DeleteView):
+class NewsCollectionDeleteView(PermissionsMixin, DeleteView):
     """
-    Delete a NewsLetter.
+    Delete a NewsCollection.
     """
 
     permission_required = "scipost.can_manage_news"
-    model = NewsLetter
+    model = NewsCollection
     success_url = reverse_lazy("news:news")
 
 
@@ -144,20 +144,20 @@ class NewsItemDeleteView(PermissionsMixin, DeleteView):
     success_url = reverse_lazy("news:news")
 
 
-class NewsLetterNewsItemsTableCreateView(PermissionsMixin, CreateView):
+class NewsCollectionNewsItemsTableCreateView(PermissionsMixin, CreateView):
     """
-    Add a NewsItem to a NewsLetter.
+    Add a NewsItem to a NewsCollection.
     """
 
     permission_required = "scipost.can_manage_news"
-    form_class = NewsLetterNewsItemsTableForm
+    form_class = NewsCollectionNewsItemsTableForm
     success_url = reverse_lazy("news:manage")
 
     def form_valid(self, form):
-        nl = get_object_or_404(NewsLetter, id=self.kwargs["nlpk"])
-        form.instance.newsletter = nl
-        form.instance.order = nl.newsletternewsitemstable_set.all().count() + 1
-        messages.success(self.request, "Successfully added News Item to Newsletter")
+        nc = get_object_or_404(NewsCollection, id=self.kwargs["ncpk"])
+        form.instance.newscollection = nc
+        form.instance.order = nc.newscollectionnewsitemstable_set.all().count() + 1
+        messages.success(self.request, "Successfully added NewsItem to NewsCollection")
         return super().form_valid(form)
 
 

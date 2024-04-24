@@ -1,14 +1,14 @@
 <div class="row">
   <div class="col-12">
     <div class="card bg-light card-news p-3 mb-4">
-      <h1>SciPost Newsletter {{ nl.date|date:'Y-m-d' }}</h1>
-      <div>{{ nl.intro|safe }}</div>
+      <h1>SciPost News Collection {{ nc.date|date:'Y-m-d' }}</h1>
+      <div>{{ nc.intro|safe }}</div>
     </div>
-    {% for nt in nl.newsletternewsitemstable_set.all|dictsort:'order' %}
+    {% for nt in nc.newscollectionnewsitemstable_set.all|dictsort:'order' %}
       {% include 'news/news_card_content.html' with news=nt.newsitem %}
     {% endfor %}
     <div class="card bg-light card-news p-3">
-      {{ nl.closing|safe }}
+      {{ nc.closing|safe }}
     </div>
   </div>
 </div>

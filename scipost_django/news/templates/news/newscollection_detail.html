@@ -2,8 +2,8 @@
 
 {% load bootstrap %}
 
-{% block meta_description %}{{ block.super }} Newsletter{% endblock meta_description %}
-{% block pagetitle %}: NewsLetter{% endblock pagetitle %}
+{% block meta_description %}{{ block.super }} Newscollection{% endblock meta_description %}
+{% block pagetitle %}: Newscollection{% endblock pagetitle %}
 
 {% block content %}
 
@@ -12,7 +12,7 @@
       {% if perms.scipost.can_manage_news %}
 	<p>Go to the <a href="{% url 'news:manage' %}">News management page</a></p>
       {% endif %}
-      {% include 'news/_newsletter_contents.html' with nl=nl %}
+      {% include 'news/_newscollection_contents.html' with nc=nc %}
     </div>
   </div>
 
