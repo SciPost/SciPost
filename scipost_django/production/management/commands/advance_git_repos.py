@@ -368,6 +368,12 @@ class Command(BaseCommand):
             """
             return date.strftime("%d-%m-%Y")
 
+        def format_relative_url(url: str) -> str:
+            """
+            Format a relative URL to an absolute one by adding the domain.
+            """
+            return f"https://{get_current_domain()}{url}"
+
         project = self.GL.projects.get(repo.git_path)
         project_filenames = list(
             map(lambda x: x["path"], project.repository_tree(get_all=True))
@@ -412,10 +418,16 @@ class Command(BaseCommand):
 
             collection_replacements_dict = {
                 "<|COLLECTION_NAME|>": (lambda _: collection.name, None),
-                "<|COLLECTION_URL|>": (lambda _: collection.get_absolute_url(), None),
+                "<|COLLECTION_URL|>": (
+                    format_relative_url,
+                    collection.get_absolute_url(),
+                ),
                 "<|EVENT_DETAILS|>": (lambda _: collection.event_details, None),
                 "<|SERIES_NAME|>": (lambda _: series.name, None),
-                "<|SERIES_URL|>": (lambda _: series.get_absolute_url(), None),
+                "<|SERIES_URL|>": (
+                    format_relative_url,
+                    series.get_absolute_url(),
+                ),
             }
 
             replacements_dict.update(collection_replacements_dict)
