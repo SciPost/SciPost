@@ -57,7 +57,10 @@ class MailchimpList(TimeStampedModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("mailing_lists:list_detail", args=[self.mailchimp_list_id])
+        return reverse(
+            "mailing_lists:mailchimp_list_detail",
+            args=[self.mailchimp_list_id],
+        )
 
     @transaction.atomic
     def update_members(self, status="subscribed"):

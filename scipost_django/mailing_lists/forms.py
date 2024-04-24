@@ -41,5 +41,5 @@ class MailchimpUpdateForm(forms.Form):
             count += 1
         return count
 
-    def sync_members(self, _list):
+    def sync_mailchimp_members(self, _list):
         return _list.update_members()

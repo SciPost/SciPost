@@ -51,7 +51,7 @@
             <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
           {% endif %}
           {% if perms.scipost.can_manage_mailchimp %}
-            <li><a href="{% url 'mailing_lists:overview' %}">Manage mailing lists</a></li>
+            <li><a href="{% url 'mailing_lists:mailchimp_overview' %}">Manage Mailchimp lists</a></li>
           {% endif %}
         </ul>
       {% endif %}

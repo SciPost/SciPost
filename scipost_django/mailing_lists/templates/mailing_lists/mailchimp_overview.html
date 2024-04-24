@@ -1,0 +1,70 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}
+  : mailing lists
+{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Mailchimp lists</span>
+{% endblock %}
+
+{% block content %}
+
+
+  <div class="row">
+    <div class="col-12">
+      <h1>All MailChimp lists known to SciPost</h1>
+      <h3>Actions:</h3>
+      <ul class="actions">
+        <li>
+          <a href="{% url 'mailing_lists:sync_mailchimp_lists' %}">Syncronize lists with the mail server</a>
+        </li>
+
+        {% if perms.scipost.can_read_all_privacy_sensitive_data %}
+          <li>
+            <a href="{% url 'mailing_lists:export_non_registered_invitations' %}">Export non-registered user invitations for MailChimp</a>
+          </li>
+        {% endif %}
+
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0">
+        <h3 class="card-title">All lists in the database:</h3>
+        <ul class="list-group list-group-flush">
+
+          {% for mail_list in object_list %}
+            <li class="list-group-item">
+              <div class="py-1">
+                <h3>
+                  <a href="{{ mail_list.get_absolute_url }}">{{ mail_list }}</a> <small><code>ID: {{ mail_list.mailchimp_list_id }}</code></small>
+
+                  {% if mail_list.open_for_subscription %}
+                    <span class="label label-sm label-outline-info">Open for subscription</span>
+                  {% endif %}
+
+                </h3>
+                <p class="text-muted mb-0">
+                  {{ mail_list.get_status_display }} | {{ mail_list.allowed_groups.count }} group{{ mail_list.allowed_groups.count|pluralize }} | last update: {{ mail_list.latest_activity }}
+                </p>
+              </div>
+            </li>
+          {% empty %}
+            <li class="list-group-item">
+              <p class="mb-0">
+                No mailing lists known. Please <a href="{% url 'mailing_lists:sync_mailchimp_lists' %}">update the list</a>.
+              </p>
+            </li>
+          {% endfor %}
+
+        </ul>
+      </div>
+    </div>
+  </div>
+
+
+{% endblock content %}

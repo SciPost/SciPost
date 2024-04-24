@@ -10,17 +10,32 @@ app_name = "mailing_lists"
 
 urlpatterns = [
     # Mailchimp
-    path("", views.MailchimpListView.as_view(), name="overview"),
-    path("sync", views.syncronize_lists, name="sync_lists"),
-    path("sync/<str:list_id>/members", views.syncronize_members, name="sync_members"),
-    path("<str:list_id>/", views.ListDetailView.as_view(), name="list_detail"),
     path(
-        "non_registered/export",
-        views.export_non_registered_invitations,
-        name="export_non_registered_invitations",
+        "mailchimp/",
+        include(
+            [
+                path("", views.MailchimpListView.as_view(), name="mailchimp_overview"),
+                path("sync", views.syncronize_lists, name="sync_mailchimp_lists"),
+                path(
+                    "sync/<str:list_id>/members",
+                    views.syncronize_members,
+                    name="sync_mailchimp_members",
+                ),
+                path(
+                    "<str:list_id>/",
+                    views.MailchimpListDetailView.as_view(),
+                    name="mailchimp_list_detail",
+                ),
+                path(
+                    "non_registered/export",
+                    views.export_non_registered_invitations,
+                    name="export_non_registered_invitations",
+                ),
+            ]
+        ),
     ),
     path(
-        "mailing_list/<int:pk>/",
+        "<int:pk>/",
         include(
             [
                 path(

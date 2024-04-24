@@ -33,7 +33,7 @@ class MailchimpListView(MailchimpMixin, ListView):
     some general mailchimp settings.
     """
 
-    template_name = "mailing_lists/overview.html"
+    template_name = "mailing_lists/mailchimp_overview.html"
     model = MailchimpList
 
 
@@ -49,7 +49,7 @@ def syncronize_lists(request):
     messages.success(
         request, "%i mailing lists have succesfully been updated." % updated
     )
-    return redirect(reverse("mailing_lists:overview"))
+    return redirect(reverse("mailing_lists:mailchimp_overview"))
 
 
 @login_required
@@ -85,7 +85,7 @@ def syncronize_members(request, list_id):
     """
     _list = get_object_or_404(MailchimpList, mailchimp_list_id=list_id)
     form = MailchimpUpdateForm()
-    unsubscribed, subscribed, response = form.sync_members(_list)
+    unsubscribed, subscribed, response = form.sync_mailchimp_members(_list)
 
     # Let the user know
     text = "<h3>Syncronize members complete.</h3>"
@@ -97,7 +97,7 @@ def syncronize_members(request, list_id):
     return redirect(_list.get_absolute_url() + "?bulkid=" + response.get("id"))
 
 
-class ListDetailView(MailchimpMixin, UpdateView):
+class MailchimpListDetailView(MailchimpMixin, UpdateView):
     """
     The detail view of a certain Mailchimp list. This allows the admin to i.e. manage group
     permissions to the group.
