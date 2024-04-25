@@ -1280,7 +1280,6 @@ def _hx_nomination_round_eligible_voter_action(
     fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
 
     if action == "add":
-        print(round.nomination.profile)
         if round.nomination.profile.has_competing_interest_with(
             fellowship.contributor.profile
         ):
