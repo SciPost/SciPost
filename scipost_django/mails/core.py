@@ -39,9 +39,9 @@ class MailEngine:
         self,
         mail_code,
         subject="",
-        recipient_list=[],
-        cc=[],
-        bcc=[],
+        recipient_list=None,
+        cc=None,
+        bcc=None,
         from_email="",
         from_name="",
         **kwargs,
@@ -62,6 +62,7 @@ class MailEngine:
         -- from_email (str, optional): Plain email address.
         -- from_name (str, optional): Display name for from address.
         """
+
         self.mail_code = mail_code
         self.extra_config = {
             "cc": cc,

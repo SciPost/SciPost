@@ -28,7 +28,6 @@ class EmailForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.mail_code = kwargs.pop("mail_code")
-
         # Check if all exta configurations are valid.
         self.extra_config.update(kwargs.pop("mail_config", {}))
 
@@ -82,7 +81,10 @@ class EmailForm(forms.Form):
         self.engine.render_template(self.cleaned_data["text"])
         self.engine.mail_data["subject"] = self.cleaned_data["subject"]
         if cc_mail_str := self.cleaned_data["cc_mail_field"]:
-            self.engine.mail_data["cc"] += [m.strip() for m in cc_mail_str.split(",")]
+            if self.engine.mail_data["cc"]:
+                self.engine.mail_data["cc"] += [m.strip() for m in cc_mail_str.split(",")]
+            else:
+                self.engine.mail_data["cc"] = [m.strip() for m in cc_mail_str.split(",")]
         if bcc_mail_str := self.cleaned_data["bcc_mail_field"]:
             self.engine.mail_data["bcc"] += [m.strip() for m in bcc_mail_str.split(",")]
         self.engine.send_mail()
