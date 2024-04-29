@@ -113,6 +113,22 @@ class MailchimpListDetailView(MailchimpMixin, UpdateView):
         return super().form_valid(form)
 
 
+def manage(request):
+    """
+    Manage mailing lists and newsletters
+    """
+    mailing_lists = MailingList.objects.all()
+    newsletters = Newsletter.objects.all()
+    return TemplateResponse(
+        request,
+        "mailing_lists/manage.html",
+        {
+            "mailing_lists": mailing_lists,
+            "newsletters": newsletters,
+        },
+    )
+
+
 def _hx_toggle_subscription(request, pk):
     """
     Toggle the subscription status of a user to a certain list.

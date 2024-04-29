@@ -1,0 +1,40 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb">
+
+        {% block breadcrumb_items %}
+          {{ block.super }}
+          <a class="breadcrumb-item">Mailing Lists</a>
+        {% endblock %}
+
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block pagetitle %}
+  : Mailing List Management
+{% endblock pagetitle %}
+
+{% block content %}
+  <h1 class="highlight">Mailing List Management</h1>
+  <div class="row">
+    <div class="col-12">
+
+      <h2 class="highlight">Mailing Lists</h2>
+      <a href="{% url 'mailing_lists:mailing_list_create' %}">Add a Mailing List</a>
+
+      {% for mailing_list in mailing_lists %}
+        <details>
+          <summary class="list-triangle">{{ mailing_list }}</summary>
+          This is the {{ mailing_list }} mailing list, with {{ mailing_list.subscribed.count }} subscribers.
+        </details>
+      {% endfor %}
+
+    </div>
+  </div>
+
+{% endblock content %}

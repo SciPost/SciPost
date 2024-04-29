@@ -1,0 +1,17 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb">
+
+        {% block breadcrumb_items %}
+          {{ block.super }}
+          <a href="{% url 'mailing_lists:mailing_lists' %}"
+             class="breadcrumb-item">Mailing Lists</a>
+        {% endblock %}
+
+      </nav>
+    </div>
+  </div>
+{% endblock %}

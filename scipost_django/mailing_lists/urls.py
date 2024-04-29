@@ -9,6 +9,19 @@ from . import views
 app_name = "mailing_lists"
 
 urlpatterns = [
+    path("manage", views.manage, name="mailing_lists_manage"),
+    path(
+        "<int:pk>/",
+        include(
+            [
+                path(
+                    "_hx_toggle_subscription",
+                    views._hx_toggle_subscription,
+                    name="_hx_toggle_subscription",
+                ),
+            ]
+        ),
+    ),
     # Mailchimp
     path(
         "mailchimp/",
@@ -30,18 +43,6 @@ urlpatterns = [
                     "non_registered/export",
                     views.export_non_registered_invitations,
                     name="export_non_registered_invitations",
-                ),
-            ]
-        ),
-    ),
-    path(
-        "<int:pk>/",
-        include(
-            [
-                path(
-                    "_hx_toggle_subscription",
-                    views._hx_toggle_subscription,
-                    name="_hx_toggle_subscription",
                 ),
             ]
         ),
