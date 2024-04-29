@@ -233,6 +233,10 @@
             {% endif %}
 
           </li>
+
+          <li>
+            <a href="{% url 'affiliates:journals' %}">Affiliate Journals</a>
+          </li>
         </ul>
 	
       </li>
@@ -274,7 +278,8 @@
           {% if request.user.contributor and not request.user.contributor.is_currently_available %}
  
             <button type="button" class="btn btn-link p-0 text-warning" data-bs-toggle="tooltip" data-bs-title="You are currently unavailable.
-              <br>Check your availability on your Personal Page if this should not be the case." data-bs-html="true">
+              <br>
+              Check your availability on your Personal Page if this should not be the case." data-bs-html="true">
               {% include 'bi/exclamation-triangle-fill.html' %}
             </button>
             &nbsp;
