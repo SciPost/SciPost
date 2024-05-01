@@ -3156,8 +3156,15 @@ class EICRecommendationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         journal = cleaned_data.get("for_journal")
+        recommendation = cleaned_data.get("recommendation")
 
-        if cleaned_data["recommendation"] == EIC_REC_PUBLISH:
+        if recommendation is None:
+            self.add_error(
+                "recommendation",
+                "You must select a recommendation for this manuscript.",
+            )
+
+        if recommendation == EIC_REC_PUBLISH:
             if cleaned_data["tier"] == "":
                 self.add_error(
                     "tier",
@@ -3183,14 +3190,14 @@ class EICRecommendationForm(forms.ModelForm):
                         ),
                     )
         if (
-            cleaned_data["recommendation"] in (EIC_REC_PUBLISH, EIC_REC_REJECT)
+            recommendation in (EIC_REC_PUBLISH, EIC_REC_REJECT)
             and len(cleaned_data["remarks_for_editorial_college"]) < 10
         ):
             self.add_error(
                 "remarks_for_editorial_college",
                 "You must substantiate your recommendation to accept or reject the manuscript.",
             )
-        if journal is None and cleaned_data["recommendation"] != EIC_REC_REJECT:
+        if journal is None and recommendation != EIC_REC_REJECT:
             self.add_error(
                 "for_journal",
                 "A specific journal must be chosen for any recommendation other than rejection.",
