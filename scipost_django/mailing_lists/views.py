@@ -16,7 +16,7 @@ from django.shortcuts import redirect, get_object_or_404
 
 from invitations.models import RegistrationInvitation
 
-from .forms import MailchimpUpdateForm
+from .forms import MailchimpUpdateForm, MailingListForm
 from .models import MailchimpList, MailingList
 
 
@@ -127,6 +127,40 @@ def manage(request):
             "newsletters": newsletters,
         },
     )
+
+
+def _hx_mailing_list_create(request):
+    """
+    Render the mailing list creation form and handle the response.
+    """
+
+    form = MailingListForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        response = HTMXResponse("Mailing list created successfully", tag="success")
+        response["HX-Trigger"] = "new-mailing-list-created"
+
+        return response
+
+    return TemplateResponse(
+        request,
+        "mailing_lists/_hx_mailing_list_form.html",
+        {"form": form},
+    )
+
+
+def _hx_mailing_list_list(request):
+    """
+    List all mailing lists.
+    """
+    mailing_lists = MailingList.objects.all()
+    return TemplateResponse(
+        request,
+        "mailing_lists/_hx_mailing_list_list.html",
+        {"mailing_lists": mailing_lists},
+    )
+
 
 
 def _hx_toggle_subscription(request, pk):

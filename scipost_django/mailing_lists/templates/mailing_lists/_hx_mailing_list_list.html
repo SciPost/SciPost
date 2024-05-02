@@ -1,0 +1,84 @@
+{% for mailing_list in mailing_lists %}
+  <details class="border border-opacity-10 rounded">
+    <summary class="list-triangle bg-primary bg-opacity-10 p-2 d-flex flex-row justify-content-between align-items-center">
+      <p class="m-0 fs-4">{{ mailing_list }}</p>
+      <div class="d-flex flex-row gap-3">
+
+        {% if mailing_list.newsletters %}
+          <table>
+            <tr>
+              <td class="text-muted">Total Newsletters:</td>
+              <td class="text-end">{{ mailing_list.newsletters.count }}</td>
+            </tr>
+            <tr>
+              <td class="text-muted">Latest Sent Date:</td>
+              <td class="text-end">
+                <time datetime="{{ mailing_list.latest_newsletter.sent_on|date:'c' }}">{{ mailing_list.latest_newsletter.sent_on }}</time>
+              </td>
+            </tr>
+          </table>
+        {% endif %}
+
+        <table>
+          <tr>
+            <td class="text-muted">Eligible:</td>
+            <td class="text-end">{{ mailing_list.eligible_subscribers.count }}</td>
+          </tr>
+          <tr>
+            <td class="text-muted">Subscribed:</td>
+            <td class="text-end">{{ mailing_list.subscribed.count }}</td>
+          </tr>
+        </table>
+      </div>
+    </summary>
+ 
+    <div class="row m-0">
+      <section class="col-4">
+        <hgroup class="py-2 d-flex justify-content-between align-items-center">
+          <h3 class="mb-0">Eligible Subscribers</h3>
+          <button class="btn btn-sm btn-primary"
+                  hx-target="closest hgroup"
+                  hx-swap="afterend"
+                  hx-get=""
+                  disabled>Add</button>
+        </hgroup>
+        <ul class="d-flex flex-column gap-2 p-0 overflow-scroll"
+            style="max-height:50vh">
+
+          {% for subscriber in mailing_list.eligible_subscribers.all %}
+            <li class="d-flex flex-row justify-content-between">
+              <span class="overflow-hidden text-truncate">
+                <a href="{{ subscriber.profile.get_absolute_url }}">{{ subscriber }}</a>
+              </span>
+
+              {% if subscriber in mailing_list.subscribed.all %}
+                <span class="badge bg-success">Subscribed</span>
+              {% else %}
+                <span class="badge bg-danger">Unsubscribed</span>
+              {% endif %}
+
+            </li>
+          {% endfor %}
+
+        </ul>
+      </section>
+      <div class="col-8">
+ 
+        <hgroup class="py-2 d-flex justify-content-between align-items-center">
+          <h3 class="mb-0">Newsletters</h3>
+          <button class="btn btn-sm btn-primary"
+                  hx-target="next ul"
+                  hx-swap="afterbegin"
+                  hx-get="{% url 'mailing_lists:_hx_newsletter_create' mailing_list.id %}">Create</button>
+        </hgroup>
+ 
+        <ul class="d-flex flex-column gap-2 p-0">
+
+          {% for newsletter in mailing_list.newsletters.all %}
+            {% include "mailing_lists/_hx_newsletter_list_item.html" %}
+          {% endfor %}
+
+        </div>
+      </div>
+    </details>
+  {% endfor %}

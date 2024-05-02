@@ -24,15 +24,18 @@
   <div class="row">
     <div class="col-12">
 
-      <h2 class="highlight">Mailing Lists</h2>
-      <a href="{% url 'mailing_lists:mailing_list_create' %}">Add a Mailing List</a>
+      <hgroup class="highlight p-2 d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Mailing Lists</h2>
+        <button class="btn btn-sm btn-primary"
+                hx-target="#mailing-list-list"
+                hx-swap="afterbegin"
+                hx-get="{% url 'mailing_lists:_hx_mailing_list_create' %}">Create</button>
+      </hgroup>
 
-      {% for mailing_list in mailing_lists %}
-        <details>
-          <summary class="list-triangle">{{ mailing_list }}</summary>
-          This is the {{ mailing_list }} mailing list, with {{ mailing_list.subscribed.count }} subscribers.
-        </details>
-      {% endfor %}
+      <div id="mailing-list-list"
+           class="d-flex flex-column gap-2"
+           hx-get="{% url 'mailing_lists:_hx_mailing_list_list' %}"
+           hx-trigger="load once, new-mailing-list-created delay:1s, mailing-list-deleted delay:1s"></div>
 
     </div>
   </div>

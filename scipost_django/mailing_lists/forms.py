@@ -43,3 +43,25 @@ class MailchimpUpdateForm(forms.Form):
 
     def sync_mailchimp_members(self, _list):
         return _list.update_members()
+
+
+class MailingListForm(forms.ModelForm):
+    class Meta:
+        model = MailingList
+
+        fields = ["name", "slug", "is_opt_in"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField("name"), css_class="col"),
+                Div(FloatingField("slug"), css_class="col"),
+                Div(Field("is_opt_in"), Submit("submit", "Save"), css_class="col-auto"),
+                css_class="row",
+            )
+        )
+

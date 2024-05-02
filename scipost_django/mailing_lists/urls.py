@@ -9,7 +9,9 @@ from . import views
 app_name = "mailing_lists"
 
 urlpatterns = [
-    path("manage", views.manage, name="mailing_lists_manage"),
+    path("manage", views.manage, name="manage"),
+    path("_hx_create", views._hx_mailing_list_create, name="_hx_mailing_list_create"),
+    path("_hx_list", views._hx_mailing_list_list, name="_hx_mailing_list_list"),
     path(
         "<int:pk>/",
         include(
