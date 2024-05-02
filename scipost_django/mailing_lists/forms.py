@@ -2,13 +2,18 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from typing import Any
 from django import forms
 from django.conf import settings
 
 from mailchimp3 import MailChimp
 
+from crispy_forms.helper import FormHelper, Layout
+from crispy_forms.layout import Div, Submit
+from crispy_bootstrap5.bootstrap5 import FloatingField, Field
+
 from .constants import MAIL_LIST_STATUS_ACTIVE, MAIL_LIST_STATUS_DEACTIVATED
-from .models import MailchimpList
+from .models import MailchimpList, MailingList, Newsletter
 
 
 class MailchimpUpdateForm(forms.Form):
@@ -65,3 +70,46 @@ class MailingListForm(forms.ModelForm):
             )
         )
 
+
+class NewsletterForm(forms.ModelForm):
+    class Meta:
+        model = Newsletter
+
+        fields = ["title", "content"]
+        widgets = {
+            "content": forms.Textarea(attrs={"rows": 25}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(FloatingField("title"), css_class="col-12"),
+            Div(Field("content"), css_class="col-6"),
+        )
+
+    def clean_title(self) -> str:
+        title = self.cleaned_data.get("title")
+
+        if title is None:
+            self.add_error("title", "Title is required")
+
+        title = title.strip()
+        if len(title) == 0:
+            self.add_error("title", "Title must not be empty")
+
+        return title
+
+    def clean_content(self) -> str:
+        content = self.cleaned_data.get("content")
+
+        if content is None:
+            self.add_error("content", "Content is required")
+
+        content = content.strip()
+        if len(content) == 0:
+            self.add_error("content", "Content must not be empty")
+
+        return content

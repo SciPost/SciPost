@@ -1,0 +1,29 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb">
+
+        {% block breadcrumb_items %}
+          {{ block.super }}
+          <a class="breadcrumb-item" href="{% url "mailing_lists:manage" %}">Mailing Lists</a>
+          <a class="breadcrumb-item">Write Newsletter</a>
+        {% endblock %}
+
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+
+  <h1>Write Newsletter (for {{ newsletter.mailing_list }})</h1>
+
+  <form hx-get="{% url "mailing_lists:_hx_newsletter_form" newsletter.id %}"
+        hx-swap="outerHTML"
+        hx-trigger="load once">
+  </form>
+ 
+
+{% endblock content %}

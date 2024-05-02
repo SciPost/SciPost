@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+<form id="newsletter-{{ newsletter.id }}-form"
+      class="row"
+      hx-post="{{ request.get_full_path }}"
+      hx-swap="outerHTML"
+      hx-trigger="submit, input from:textarea[name='content'] delay:3s, focusout from:textarea[name='content']">
+  {% crispy form %}
+  <div class="col-6">
+    <label class="form-label">Preview</label>
+    <div class="border p-1"
+         hx-get="{% url "mailing_lists:_hx_newsletter_display" newsletter.id %}"
+         hx-swap="innerHTML"
+         hx-trigger="load once, newletter-updated"></div>
+  </div>
+</form>

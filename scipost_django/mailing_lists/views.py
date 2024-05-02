@@ -15,9 +15,10 @@ from django.urls import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 from invitations.models import RegistrationInvitation
+from scipost.permissions import HTMXResponse
 
-from .forms import MailchimpUpdateForm, MailingListForm
-from .models import MailchimpList, MailingList
+from .forms import MailchimpUpdateForm, MailingListForm, NewsletterForm
+from .models import MailchimpList, MailingList, Newsletter
 
 
 class MailchimpMixin(LoginRequiredMixin, PermissionRequiredMixin):
@@ -161,6 +162,84 @@ def _hx_mailing_list_list(request):
         {"mailing_lists": mailing_lists},
     )
 
+
+def _hx_newsletter_create(request, mailing_list_id):
+    """
+    Create a new newsletter under the given mailing list and return the new item.
+    """
+    mailing_list = get_object_or_404(MailingList, id=mailing_list_id)
+
+    newsletter = Newsletter.objects.create(
+        mailing_list=mailing_list, title="New newsletter"
+    )
+
+    return TemplateResponse(
+        request,
+        "mailing_lists/_hx_newsletter_list_item.html",
+        {"newsletter": newsletter},
+    )
+
+
+def newsletter_edit(request, pk):
+    """
+    Load a newsletter and render the write template.
+    """
+    newsletter = get_object_or_404(Newsletter, pk=pk)
+
+    return TemplateResponse(
+        request,
+        "mailing_lists/newsletter_write.html",
+        {"newsletter": newsletter},
+    )
+
+
+def _hx_newsletter_form(request, pk):
+    """
+    Handle the submission of the newsletter form.
+    """
+    newsletter = get_object_or_404(Newsletter, pk=pk)
+
+    if request.method == "POST":
+        form = NewsletterForm(request.POST, instance=newsletter)
+        if form.is_valid():
+            form.save()
+    else:
+        form = NewsletterForm(instance=newsletter)
+
+    response = TemplateResponse(
+        request,
+        "mailing_lists/_hx_newsletter_form.html",
+        {"form": form, "newsletter": newsletter},
+    )
+
+    response["HX-Trigger"] = "newsletter-updated"
+
+    return response
+
+
+def _hx_newsletter_display(request, pk):
+    """
+    Display the newsletter content.
+    """
+    newsletter = get_object_or_404(Newsletter, pk=pk)
+
+    return TemplateResponse(
+        request,
+        "mailing_lists/_hx_newsletter_display.html",
+        {"newsletter": newsletter},
+    )
+
+
+def _hx_newsletter_send(request, pk):
+    """
+    Send the newsletter to all subscribers.
+    """
+    newsletter = get_object_or_404(Newsletter, pk=pk)
+    try:
+        newsletter.send()
+        return HTMXResponse("Newsletter sent successfully", tag="success")
+    except Exception as e:
+        return HTMXResponse(f"Failed to send newsletter: {e}", tag="danger")
 
 
 def _hx_toggle_subscription(request, pk):

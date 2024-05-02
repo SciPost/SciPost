@@ -13,6 +13,27 @@ urlpatterns = [
     path("_hx_create", views._hx_mailing_list_create, name="_hx_mailing_list_create"),
     path("_hx_list", views._hx_mailing_list_list, name="_hx_mailing_list_list"),
     path(
+        "<int:mailing_list_id>/newsletters/_hx_create",
+        views._hx_newsletter_create,
+        name="_hx_newsletter_create",
+    ),
+    path("newsletters/<int:pk>/edit", views.newsletter_edit, name="newsletter_edit"),
+    path(
+        "newsletters/<int:pk>/_hx_form",
+        views._hx_newsletter_form,
+        name="_hx_newsletter_form",
+    ),
+    path(
+        "newsletters/<int:pk>/_hx_display",
+        views._hx_newsletter_display,
+        name="_hx_newsletter_display",
+    ),
+    path(
+        "newsletters/<int:pk>/_hx_send",
+        views._hx_newsletter_send,
+        name="_hx_newsletter_send",
+    ),
+    path(
         "<int:pk>/",
         include(
             [

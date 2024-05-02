@@ -1,0 +1,12 @@
+<article>
+
+  <hgroup class="mb-2 d-flex justify-content-between align-items-center text-nowrap">
+    <h1 class="mb-0 text-truncate">{{ newsletter.title }}</h1>
+    <time datetime="{{ newsletter.updated_on|date:'c' }}">{{ newsletter.updated_on|date:'d M Y' }}</time>
+  </hgroup>
+
+  <section>
+    {{ newsletter.content|safe }}
+  </section>
+
+</article>

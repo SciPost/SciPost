@@ -21,6 +21,7 @@ class MailingListAdmin(admin.ModelAdmin):
     list_display = ["__str__", "is_opt_in", "eligible_count", "subscribed_count"]
     list_filter = ["is_opt_in"]
     autocomplete_fields = ["eligible_subscribers", "subscribed"]
+    search_fields = ["name"]
 
     readonly_fields = ["_email_list"]
 
@@ -32,3 +33,14 @@ class MailingListAdmin(admin.ModelAdmin):
 
     def _email_list(self, obj):
         return ", ".join(obj.email_list)
+
+
+@admin.register(Newsletter)
+class NewsletterAdmin(admin.ModelAdmin):
+    list_display = ["__str__", "status", "created_on", "sent_on"]
+    list_filter = ["status"]
+    autocomplete_fields = ["mailing_list"]
+    readonly_fields = ["_content"]
+
+    def _content(self, obj):
+        return obj.content

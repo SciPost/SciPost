@@ -196,6 +196,17 @@ class MailingList(models.Model):
             ).values_list("primary_email", flat=True)
         )
 
+    @property
+    def latest_newsletter(self):
+        """
+        Returns the latest newsletter sent to this list.
+        """
+        return (
+            self.newsletters.filter(status=Newsletter.STATUS_SENT)
+            .order_by("-sent_on")
+            .first()
+        )
+
     def add_eligible_subscriber(self, contributor):
         """Adds the contributor to the list of eligible subscribers."""
         self.eligible_subscribers.add(contributor)
@@ -217,3 +228,48 @@ class MailingList(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Newsletter(models.Model):
+    """
+    A hand-written periodical email that is sent to all subscribers of a mailing list.
+    """
+
+    STATUS_DRAFT = "draft"
+    STATUS_SCHEDULED = "scheduled"
+    STATUS_SENT = "sent"
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, "Draft"),
+        (STATUS_SCHEDULED, "Scheduled"),
+        (STATUS_SENT, "Sent"),
+    ]
+
+    mailing_list = models.ForeignKey(
+        MailingList,
+        on_delete=models.CASCADE,
+        related_name="newsletters",
+    )
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    status = models.CharField(
+        max_length=32,
+        choices=STATUS_CHOICES,
+        default=STATUS_DRAFT,
+    )
+
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    sent_on = models.DateTimeField(null=True, blank=True)
+    scheduled_for = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        if self.mailing_list is not None:
+            return f"{self.title} to {self.mailing_list.name}"
+        else:
+            return f"{self.title} (no mailing list)"
+
+    def send(self):
+        """
+        Creates the mailing task(s) to send the newsletter.
+        """
+        pass
