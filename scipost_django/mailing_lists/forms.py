@@ -76,9 +76,8 @@ class NewsletterForm(forms.ModelForm):
         model = Newsletter
 
         fields = ["title", "content"]
-        widgets = {
-            "content": forms.Textarea(attrs={"rows": 25}),
-        }
+
+    content = forms.CharField(widget=forms.Textarea(attrs={"class": "h-100"}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -87,7 +86,10 @@ class NewsletterForm(forms.ModelForm):
         self.helper.form_tag = False
         self.helper.layout = Layout(
             Div(FloatingField("title"), css_class="col-12"),
-            Div(Field("content"), css_class="col-6"),
+            Div(
+                Field("content", wrapper_class="h-100 d-flex flex-column"),
+                css_class="col-6",
+            ),
         )
 
     def clean_title(self) -> str:
