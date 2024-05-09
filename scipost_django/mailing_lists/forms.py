@@ -113,3 +113,41 @@ class NewsletterForm(forms.ModelForm):
             self.add_error("content", "Content must not be empty")
 
         return content
+
+
+class NewsletterUploadMediaForm(forms.Form):
+    """
+    Form to upload media for a newsletter. It stores the media in a folder related to the newsletter.
+    The media is not stored in any model but directly on the filesystem, so it can be accessed by the newsletter.
+    """
+
+    media_file = forms.FileField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.newsletter = kwargs.pop("newsletter")
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_tag = True
+        self.helper.layout = Layout(
+            Div(Field("media_file"), css_class="col"),
+            Div(Submit("submit", "Upload"), css_class="col-auto mt-auto"),
+        )
+
+    def clean_media_file(self) -> Any:
+        media_file = self.cleaned_data.get("media_file")
+
+        if media_file is None:
+            self.add_error("media_file", "Media file is required")
+
+        return media_file
+
+    def save(self):
+        media_file = self.cleaned_data.get("media_file")
+        media_folder = settings.MEDIA_ROOT + self.newsletter.get_media_folder()
+
+        with open(f"{media_folder}/{media_file.name}", "wb+") as destination:
+            for chunk in media_file.chunks():
+                destination.write(chunk)
+
+        return media_file.name

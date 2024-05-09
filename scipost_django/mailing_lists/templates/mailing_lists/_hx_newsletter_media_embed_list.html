@@ -1,0 +1,22 @@
+ 
+<div id="newsletter-{{ newsletter.id }}-media-list"
+     hx-get="{{ request.get_full_path }}"
+     hx-trigger="submit from:#newsletter-{{ newsletter.id }}-media-form"
+     hx-swap="outerHTML"
+     class="d-flex flex-row gap-2 overflow-scroll">
+
+  {% for media_file in newsletter.media %}
+    <div role="button"
+         class="rounded p-2"
+         hx-post="{% url "mailing_lists:_hx_newsletter_media_embed" newsletter.pk forloop.counter %}"
+         hx-swap="outerHTML"
+         hx-target="#newsletter-{{ newsletter.id }}-form">
+      <img style="max-height:100px !important;
+                  max-width:100px !important;
+                  object-fit:contain"
+           src="{{ media_file.path }}"
+           alt="{{ media_file.name }}" />
+    </div>
+  {% endfor %}
+
+</div>

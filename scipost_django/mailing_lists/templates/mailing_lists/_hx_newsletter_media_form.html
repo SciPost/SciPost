@@ -1,0 +1,9 @@
+{% load crispy_forms_tags %}
+<form id="newsletter-{{ newsletter.id }}-media-form"
+      enctype="multipart/form-data"
+      class="row"
+      hx-post="{{ request.get_full_path }}"
+      hx-swap="outerHTML"
+      hx-trigger="submit">
+  {% crispy form %}
+</form>

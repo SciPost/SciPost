@@ -17,7 +17,12 @@ from django.shortcuts import redirect, get_object_or_404
 from invitations.models import RegistrationInvitation
 from scipost.permissions import HTMXResponse
 
-from .forms import MailchimpUpdateForm, MailingListForm, NewsletterForm
+from .forms import (
+    MailchimpUpdateForm,
+    MailingListForm,
+    NewsletterForm,
+    NewsletterUploadMediaForm,
+)
 from .models import MailchimpList, MailingList, Newsletter
 
 
@@ -199,12 +204,10 @@ def _hx_newsletter_form(request, pk):
     """
     newsletter = get_object_or_404(Newsletter, pk=pk)
 
-    if request.method == "POST":
-        form = NewsletterForm(request.POST, instance=newsletter)
-        if form.is_valid():
-            form.save()
-    else:
-        form = NewsletterForm(instance=newsletter)
+    form = NewsletterForm(request.POST or None, instance=newsletter)
+
+    if form.is_valid():
+        form.save()
 
     response = TemplateResponse(
         request,
@@ -261,4 +264,63 @@ def _hx_toggle_subscription(request, pk):
         request,
         "mailing_lists/_hx_mailing_list_item.html",
         {"mailing_list": mailing_list},
+    )
+
+
+def _hx_newsletter_media_form(request, pk):
+    """
+    Handle the addition of media to a newsletter.
+    """
+    newsletter = get_object_or_404(Newsletter, pk=pk)
+
+    form = NewsletterUploadMediaForm(
+        request.POST or None,
+        request.FILES or None,
+        newsletter=newsletter,
+    )
+
+    if form.is_valid():
+        form.save()
+
+    response = TemplateResponse(
+        request,
+        "mailing_lists/_hx_newsletter_media_form.html",
+        {"form": form, "newsletter": newsletter},
+    )
+
+    if form.is_valid():
+        response["HX-Trigger"] = "newsletter-media-updated"
+
+    return response
+
+
+def _hx_newsletter_media_embed(request, pk, media_pk):
+    """
+    Append the embed code for a media item to the newsletter, and rerender the form.
+    """
+    newsletter = get_object_or_404(Newsletter, pk=pk)
+    try:
+        media_item = newsletter.media[media_pk - 1]
+    except IndexError:
+        return HTMXResponse("Media item not found", tag="danger")
+
+    img_tag = '<img src="{path}" alt="{name}" />'.format(
+        path=media_item.get("path"), name=media_item.get("name")
+    )
+    newsletter.content += img_tag
+    newsletter.save()
+
+    return _hx_newsletter_form(request, pk)
+
+
+def _hx_newsletter_media_embed_list(request, pk):
+    """
+    Return a list of all media items in the newsletter.
+    """
+    newsletter = get_object_or_404(Newsletter, pk=pk)
+
+    return TemplateResponse(
+        request,
+        "mailing_lists/_hx_newsletter_media_embed_list.html",
+        {"newsletter": newsletter},
     )

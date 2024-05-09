@@ -24,6 +24,15 @@
         hx-swap="outerHTML"
         hx-trigger="load once">
   </form>
+
+  <h3>Upload Media</h3>
+  <form hx-get="{% url "mailing_lists:_hx_newsletter_media_form" newsletter.id %}"
+        hx-swap="outerHTML"
+        hx-trigger="load once">
+  </form>
+  <div hx-get="{% url "mailing_lists:_hx_newsletter_media_embed_list" newsletter.id %}"
+       hx-swap="outerHTML"
+       hx-trigger="load once"></div>
  
 
 {% endblock content %}

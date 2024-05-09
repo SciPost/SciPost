@@ -24,6 +24,21 @@ urlpatterns = [
         name="_hx_newsletter_form",
     ),
     path(
+        "newsletters/<int:pk>/_hx_media_form",
+        views._hx_newsletter_media_form,
+        name="_hx_newsletter_media_form",
+    ),
+    path(
+        "newsletters/<int:pk>/_hx_media_embed/list",
+        views._hx_newsletter_media_embed_list,
+        name="_hx_newsletter_media_embed_list",
+    ),
+    path(
+        "newsletters/<int:pk>/media/<int:media_pk>/_hx_embed",
+        views._hx_newsletter_media_embed,
+        name="_hx_newsletter_media_embed",
+    ),
+    path(
         "newsletters/<int:pk>/_hx_display",
         views._hx_newsletter_display,
         name="_hx_newsletter_display",

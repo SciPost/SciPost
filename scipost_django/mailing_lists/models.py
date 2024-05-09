@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import json
+import os
 
 from django.db import models, transaction
 from django.contrib.auth.models import User
@@ -273,3 +274,33 @@ class Newsletter(models.Model):
         Creates the mailing task(s) to send the newsletter.
         """
         pass
+
+    def get_media_folder(self):
+        """
+        Returns the folder where the media for this newsletter is stored.
+        """
+        return f"newsletters/{self.pk}/media"
+
+    @property
+    def media(self):
+        """
+        Returns the media files that are associated with this newsletter.
+        """
+        media_folder = settings.MEDIA_ROOT + self.get_media_folder()
+        if not os.path.exists(media_folder):
+            os.makedirs(media_folder)
+
+        media_file_paths = [
+            f"{self.get_media_folder()}/{media}"
+            for media in os.listdir(settings.MEDIA_ROOT + self.get_media_folder())
+        ]
+
+        media_site_path = settings.MEDIA_URL + self.get_media_folder() + "/"
+        media = [
+            {
+                "name": os.path.basename(media_file),
+                "path": media_site_path + os.path.basename(media_file),
+            }
+            for media_file in media_file_paths
+        ]
+        return media
