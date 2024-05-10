@@ -1,14 +1,11 @@
-<li class="border p-2 rounded d-flex flex-row justify-content-between">
-  <div class="d-flex flex-column">
-    <span>{{ newsletter }}</span>
-    <span>{{ newsletter.get_status_display }}</span>
+<li class="border p-2 rounded d-flex flex-row justify-content-between gap-2">
+  <div class="d-flex flex-column text-truncate">
+    <span class="fw-bold">{{ newsletter.title }}</span>
+    <span class="text-truncate">{{ newsletter.content|striptags|truncatechars:200 }}</span>
   </div>
-
+ 
   <div class="align-self-end d-flex flex-column align-items-end">
     <a href="{% url "mailing_lists:newsletter_edit" newsletter.id %}">Edit</a>
-    <a href="#"
-       hx-swap="outerHTML"
-       hx-confirm="Are you sure you want to send this newsletter?"
-       hx-get="{% url "mailing_lists:_hx_newsletter_send" newsletter.id %}">Send Now</a>
+    <span>{{ newsletter.get_status_display }}</span>
   </div>
 </li>
