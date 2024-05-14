@@ -6,7 +6,7 @@ __license__ = "AGPL v3"
 import feedparser
 import logging
 
-from profiles.models import Profile
+from common.utils.text import latinise
 
 from .models import ConflictOfInterest
 
@@ -40,8 +40,8 @@ class ArxivCaller:
         for profile in author_profiles:
             for rel_profile in relating_profiles:
                 search_query = "au:({profile}+AND+({rel_profile}))".format(
-                    profile=profile.last_name,
-                    rel_profile=rel_profile.last_name,
+                    profile=latinise(profile.last_name),
+                    rel_profile=latinise(rel_profile.last_name),
                 )
                 queryurl = self.query_base_url.format(query=search_query)
                 queryurl += "&sortBy=submittedDate&sortOrder=descending&max_results=5"
