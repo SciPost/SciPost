@@ -2,6 +2,40 @@
 
 /* This file holds a limited set of classes to be used in rendering the newsletter, particularly in email clients */
 
+h1 {
+    margin: 0;
+}
+
+h2 {
+    margin: 0;
+}
+
+h3 {
+    margin: 0;
+}
+
+h4 {
+    margin: 0;
+}
+
+h5 {
+    margin: 0;
+}
+
+h6 {
+    margin: 0;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+    color: #002b49;
+}
+
+p+p {
+    margin-top: 1rem;
+}
+
 .float-left {
     float: left;
 }
@@ -11,6 +45,7 @@
 }
 
 .float-center {
+    display: flex;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 0.25rem;
@@ -49,15 +84,37 @@
 }
 
 .header {
-    padding: 0.75rem 1rem;
-    background-color: #002b49;
-    color: #c3d7ee;
+    margin: 1rem 0 0.75rem 0;
+    font-size: 1.25rem;
+    padding: 0.5rem 2rem;
+    background-color: #6884c2;
+    color: #fff;
 }
 
-.newsletter-item {
+.item {
     display: flex;
     flex-direction: column;
     margin-bottom: 1rem;
+}
+
+.item .content {
+    padding: 0rem 2rem;
+}
+
+.newsletter-header {
+    padding: 1.5rem 2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    color: #c3d7ee;
+    font-size: 1.5rem;
+    background-color: #002b49;
+}
+
+.p-0 {
+    padding: 0;
 }
 
 .p-2 {
@@ -70,6 +127,35 @@
 
 .p-4 {
     padding: 2rem;
+}
+
+.px-4 {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.mt-4 {
+    margin-top: 2rem;
+}
+
+.m-0 {
+    margin: 0;
 }
 
 .m-2 {
@@ -86,4 +172,28 @@
 
 .w-100 {
     width: 100% !important;
+}
+
+.fs-1 {
+    font-size: 0.5rem;
+}
+
+.fs-2 {
+    font-size: 0.75rem;
+}
+
+.fs-3 {
+    font-size: 1rem;
+}
+
+.fs-4 {
+    font-size: 1.25rem;
+}
+
+.fs-5 {
+    font-size: 1.5rem;
+}
+
+.fs-6 {
+    font-size: 2rem;
 }

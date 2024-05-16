@@ -1,0 +1,40 @@
+{% load static %}
+{% firstof newsletter.sent_on newsletter.scheduled_for newsletter.created_on as newsletter_date %}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title></title>
+    <base href="https://{{ domain }}/" target="_blank" />
+    <style>{{css_content}}</style>
+  </head>
+  <body>
+ 
+    <header class="newsletter-header">
+      <a href="{% url 'scipost:index' %}">
+        <img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}"
+             class="m-0 p-0"
+             alt="SciPost logo"
+             style="max-width: unset"
+             width="180"
+             height="55" />
+      </a>
+      <p class="text-light-blue m-0">{{ newsletter.mailing_list.name }} Newsletter</p>
+    </header>
+    <hgroup class="bg-dark-blue p-2 px-4">
+      <h1 class="text-light-blue m-0">{{ newsletter.title }}</h1>
+      <p class="text-light-blue m-0">{{ newsletter.created_on|date:"l j F Y" }}</p>
+    </hgroup>
+ 
+    {{ newsletter.content|safe }}
+
+  </body>
+
+  <footer class="bg-dark-blue p-3 mt-4">
+    <p class="text-center text-light-blue">
+      You are receiving this email because you are subscribed to the {{ newsletter.mailing_list.name }} mailing list.
+      Visit the "Email Preferences" tab on your <a class="text-light-blue" href="{% url "scipost:personal_page" %}">personal page</a> to manage your subscriptions.
+    </p>
+  </footer>
+</html>
