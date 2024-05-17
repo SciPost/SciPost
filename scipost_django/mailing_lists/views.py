@@ -228,7 +228,7 @@ def _hx_newsletter_display(request, pk):
 
     return TemplateResponse(
         request,
-        "mailing_lists/_hx_newsletter_display.html",
+        "mailing_lists/_newsletter_email_body.html",
         {"newsletter": newsletter},
     )
 

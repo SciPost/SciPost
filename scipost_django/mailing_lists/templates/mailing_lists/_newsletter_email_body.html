@@ -1,0 +1,89 @@
+{% load static %}
+{% load common_extras %}
+
+{% firstof newsletter.sent_on|date:"l j F Y" newsletter.created_on|date:"l j F Y" as newsletter_date %}
+
+<div style="max-width:600px; margin: 0 auto" class="bg-white">
+
+  <!-- Header -->
+  <table class="bg-dark-blue w-100"
+         align="center"
+         border="0"
+         cellpadding="0"
+         cellspacing="0"
+         role="presentation">
+    <tbody>
+      <tr>
+        <td>
+          <a href="{% url 'scipost:index' %}">
+            <img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}"
+                 class="m-0 p-2 px-4"
+                 alt="SciPost logo"
+                 style="max-width: unset"
+                 width="180"
+                 height="55" />
+          </a>
+        </td>
+        <td class="fs-4 px-4">
+          <p class="text-right text-light-blue m-0">{{ newsletter.mailing_list.name }} Newsletter</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Title -->
+  <table class="bg-dark-blue w-100"
+         align="center"
+         border="0"
+         cellpadding="0"
+         cellspacing="0"
+         role="presentation">
+    <tbody>
+      <tr>
+        <td class="pt-2 px-4">
+          <h1 class="text-light-blue m-0">{{ newsletter.title }}</h1>
+        </td>
+      </tr>
+      <tr>
+        <td class="pb-2 px-4">
+          <p class="text-light-blue m-0">{{ newsletter_date }}</p>
+        </td>
+      </tr>
+    </tbody>
+
+  </table>
+
+  <!-- Content -->
+  <table class="bg-white w-100"
+         align="center"
+         border="0"
+         cellpadding="0"
+         cellspacing="0"
+         role="presentation">
+    <tbody>
+      <tr>
+        <td>{{ newsletter.content|article_safe }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Footer -->
+  <table class="bg-dark-blue w-100"
+         align="center"
+         border="0"
+         cellpadding="0"
+         cellspacing="0"
+         role="presentation">
+    <tbody>
+      <tr>
+        <td class="p-3">
+          <p class="text-center text-light-blue">
+            You are receiving this email because you are subscribed to the {{ newsletter.mailing_list.name }} mailing list.
+            Visit the "Email Preferences" tab on your <a class="text-light-blue" href="{% url "scipost:personal_page" %}">personal page</a> to manage your subscriptions.
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+ 
+</div>

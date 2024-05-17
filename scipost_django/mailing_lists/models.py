@@ -4,14 +4,21 @@ __license__ = "AGPL v3"
 
 import json
 import os
+import re
 
+from django.conf.urls import static
+from django.core.mail import EmailMultiAlternatives
 from django.db import models, transaction
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.template.loader import render_to_string
 from django.urls import reverse
 
+from django.utils.html import strip_tags
 from mailchimp3 import MailChimp
+
+from common.utils.models import get_current_domain
 
 from .constants import (
     MAIL_LIST_STATUSES,
@@ -269,11 +276,48 @@ class Newsletter(models.Model):
         else:
             return f"{self.title} (no mailing list)"
 
+    @property
+    def email_content(self):
+        """
+        Return full HTML content of the email including the header, footer and styling.
+        """
+
+        # Load css content
+        css_path = os.path.join(
+            settings.BASE_DIR, "scipost/static/scipost/assets/css/newsletter.css"
+        )
+        css_content = re.sub(r"\s+", " ", open(css_path, "r").read())
+        domain = get_current_domain()
+        return render_to_string(
+            "mailing_lists/newsletter_email.html",
+            {
+                "newsletter": self,
+                "css_content": css_content,
+                "domain": domain,
+            },
+        )
+
     def send(self):
         """
         Creates the mailing task(s) to send the newsletter.
         """
-        pass
+        # Remove the style tags from the email content and strip the tags
+        stripped_email_content = re.sub(r"<style>.+?</style>", "", self.email_content)
+        stripped_email_content = re.sub(
+            r"(\r?\n\r?){2,}", "\n\n", stripped_email_content, flags=re.MULTILINE
+        )
+        stripped_email_content = strip_tags(stripped_email_content).strip()
+
+        for subscriber in self.mailing_list.subscribed.all():
+            # Create a task to send the email to the subscriber
+            mail = EmailMultiAlternatives(
+                subject=f"[SciPost] {self.mailing_list.name}: {self.title}",
+                body=stripped_email_content,
+                from_email="SciPost <noreply@scipost.org>",
+                to=[subscriber.profile.email],
+            )
+            mail.attach_alternative(self.email_content, "text/html")
+            mail.send()
 
     def get_media_folder(self):
         """

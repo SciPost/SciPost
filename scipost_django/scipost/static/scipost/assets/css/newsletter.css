@@ -2,6 +2,29 @@
 
 /* This file holds a limited set of classes to be used in rendering the newsletter, particularly in email clients */
 
+body {
+    margin: 0;
+    padding: 0;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+
+  table,
+  td {
+    border-collapse: collapse;
+    mso-table-lspace: 0pt;
+    mso-table-rspace: 0pt;
+  }
+
+  img {
+    border: 0;
+    height: auto;
+    line-height: 100%;
+    outline: none;
+    text-decoration: none;
+    -ms-interpolation-mode: bicubic;
+  }
+
 h1 {
     margin: 0;
 }
@@ -30,9 +53,16 @@ p {
     margin: 0;
     padding: 0;
     color: #002b49;
+    text-align: justify;
 }
 
+
+
 p+p {
+    margin-top: 1rem;
+}
+
+table+table {
     margin-top: 1rem;
 }
 
@@ -83,18 +113,28 @@ p+p {
     background-color: #002b49 !important;
 }
 
+.bg-white {
+    background-color: #fff !important;
+}
+
+.bg-gray {
+    background-color: #f0f0f0;
+}
+
+.text-right{
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
 .header {
     margin: 1rem 0 0.75rem 0;
     font-size: 1.25rem;
     padding: 0.5rem 2rem;
     background-color: #6884c2;
     color: #fff;
-}
-
-.item {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 1rem;
 }
 
 .item .content {
@@ -129,9 +169,21 @@ p+p {
     padding: 2rem;
 }
 
+.pt-2 {
+    padding-top: 0.5rem;
+}
+
+.pb-2 {
+    padding-bottom: 0.5rem;
+}
+
 .px-4 {
     padding-left: 2rem;
     padding-right: 2rem;
+}
+.mx-4 {
+    margin-left: 2rem;
+    margin-right: 2rem;
 }
 
 .mb-2 {
