@@ -2552,7 +2552,7 @@ class InviteRefereeSearchFrom(forms.Form):
         """
         Return a queryset of Profiles based on the search form.
         """
-        self.save_fields_to_session()
+        # self.save_fields_to_session() #! Removed because it is likely causing headaches for editors
 
         profiles = (
             Profile.objects.all()
