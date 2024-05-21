@@ -873,6 +873,21 @@ def add_affiliation(request, doi_label, pk):
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)
+def add_affiliation_id(request, doi_label, pk, organization_id):
+    """
+    Adds an affiliation to a PublicationAuthorsTable directly via its ID.
+    """
+    table = get_object_or_404(PublicationAuthorsTable, pk=pk)
+    org = get_object_or_404(Organization, pk=organization_id)
+    table.affiliations.add(org)
+    table.save()
+    Publication.objects.filter(id=table.publication.id).update(
+        cf_author_affiliation_indices_list=[]
+    )
+    return HttpResponse(f"Added{org.name} to {table.profile.full_name}'s affiliations.")
+
+
+@permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
 def remove_affiliation(request, doi_label, pk, organization_id):
     """

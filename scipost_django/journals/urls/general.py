@@ -119,6 +119,11 @@ urlpatterns = [
         name="author_affiliation_update",
     ),
     path(
+        "admin/<publication_doi_label:doi_label>/authoraffiliations/<int:pk>/add/<int:organization_id>/",
+        journals_views.add_affiliation_id,
+        name="author_affiliation_add_id",
+    ),
+    path(
         "admin/<publication_doi_label:doi_label>/authoraffiliations/<int:pk>/remove/<int:organization_id>/",
         journals_views.remove_affiliation,
         name="author_affiliation_remove",
