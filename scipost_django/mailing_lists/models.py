@@ -19,6 +19,7 @@ from django.utils.html import strip_tags
 from mailchimp3 import MailChimp
 
 from common.utils.models import get_current_domain
+from mails.models import MAIL_RENDERED, MailLog
 
 from .constants import (
     MAIL_LIST_STATUSES,
@@ -303,21 +304,25 @@ class Newsletter(models.Model):
         """
         # Remove the style tags from the email content and strip the tags
         stripped_email_content = re.sub(r"<style>.+?</style>", "", self.email_content)
-        stripped_email_content = re.sub(
-            r"(\r?\n\r?){2,}", "\n\n", stripped_email_content, flags=re.MULTILINE
-        )
         stripped_email_content = strip_tags(stripped_email_content).strip()
+        stripped_email_content = re.sub(r" +", " ", stripped_email_content)
+        stripped_email_content = re.sub(
+            r"(\r?\s?\n\s?\r?){2,}", "\n\n", stripped_email_content
+        )
 
-        for subscriber in self.mailing_list.subscribed.all():
-            # Create a task to send the email to the subscriber
-            mail = EmailMultiAlternatives(
-                subject=f"[SciPost] {self.mailing_list.name}: {self.title}",
-                body=stripped_email_content,
-                from_email="SciPost <noreply@scipost.org>",
-                to=[subscriber.profile.email],
-            )
-            mail.attach_alternative(self.email_content, "text/html")
-            mail.send()
+        # Create a bulk MailLog item which the cronjob will pick up
+        mail_log = MailLog.objects.create(
+            type=MailLog.TYPE_BULK,
+            status=MAIL_RENDERED,
+            from_email="SciPost <noreply@scipost.org>",
+            subject=f"[SciPost] {self.mailing_list.name}: {self.title}",
+            body=stripped_email_content,
+            body_html=self.email_content,
+            to_recipients=self.mailing_list.email_list,
+        )
+        self.sent_on = mail_log.created
+        self.status = Newsletter.STATUS_SENT
+        self.save()
 
     def get_media_folder(self):
         """
