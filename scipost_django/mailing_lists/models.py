@@ -181,8 +181,7 @@ class MailingList(models.Model):
     @property
     def email_list(self):
         """
-        Returns a list of email addresses of all eligible subscribers who should receive emails from this list.
-        This is calculated as the set of eligible subscribers minus the set of unsubscribed subscribers.
+        Returns a list of email addresses of all Contributors that are subscribed to this list.
         """
         return list(
             self.subscribed.annotate(
