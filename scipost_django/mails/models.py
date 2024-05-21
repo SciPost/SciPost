@@ -24,9 +24,22 @@ class MailLog(models.Model):
     Mails are not directly sent, but added to this table first.
     Using a cronjob, the unsent messages are eventually sent using
     the chosen MailBackend.
+
+    A mail can be of two types:
+    - Single: This log entry represents a single mail (optionally with multiple recipients)
+    - Bulk: This log entry represents an array of (identical) mails,
+            each with a single recipient, e.g. announcements or newsletters.
     """
 
+    TYPE_SINGLE = "single"
+    TYPE_BULK = "bulk"
+    TYPE_CHOICES = (
+        (TYPE_SINGLE, "Single"),
+        (TYPE_BULK, "Bulk"),
+    )
+
     processed = models.BooleanField(default=False)
+    type = models.CharField(max_length=64, choices=TYPE_CHOICES, default=TYPE_SINGLE)
     status = models.CharField(
         max_length=16, choices=MAIL_STATUSES, default=MAIL_RENDERED
     )
@@ -40,6 +53,8 @@ class MailLog(models.Model):
     cc_recipients = ArrayField(models.EmailField(), blank=True, null=True)
     bcc_recipients = ArrayField(models.EmailField(), blank=True, null=True)
 
+    sent_to = ArrayField(models.EmailField(), blank=True, null=True)
+
     from_email = models.CharField(max_length=254, blank=True)
     subject = models.CharField(max_length=254, blank=True)
 
@@ -49,15 +64,30 @@ class MailLog(models.Model):
     objects = MailLogQuerySet.as_manager()
 
     def __str__(self):
-        return "{id}. {subject} ({count} recipients)".format(
+        nr_recipients = self.get_number_of_recipients()
+        if self.type == self.TYPE_SINGLE:
+            recipients_str = f"{nr_recipients} recipients"
+        elif self.type == self.TYPE_BULK:
+            nr_sent = len(self.sent_to) if self.sent_to else 0
+            recipients_str = f"{nr_sent}/{nr_recipients} recipients"
+
+        return "{id}. {subject} ({recipients_str})".format(
             id=self.id,
             subject=self.subject[:30],
-            count=(
-                len(self.to_recipients)
-                + len(self.bcc_recipients)
-                + (len(self.cc_recipients) if self.cc_recipients else 0)
-            ),
+            recipients_str=recipients_str,
         )
+
+    def get_number_of_recipients(self):
+        def sum_optional(*args):
+            return sum([len(arg) for arg in args if arg])
+
+        if self.type == self.TYPE_SINGLE:
+            return sum_optional(
+                self.to_recipients, self.cc_recipients, self.bcc_recipients
+            )
+        elif self.type == self.TYPE_BULK:
+            return sum_optional(self.to_recipients)
+        return 0
 
     def get_full_context(self):
         """Get the full template context needed to render the template."""

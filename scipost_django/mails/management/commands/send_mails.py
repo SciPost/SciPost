@@ -1,8 +1,24 @@
+from typing import Iterable
+
+from django.core.mail import get_connection
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from ...core import MailEngine
 from ...models import MailLog
+
+BULK_EMAIL_THROTTLE = getattr(settings, "BULK_EMAIL_THROTTLE", 5)
+
+if hasattr(settings, "EMAIL_BACKEND_ORIGINAL"):
+    backend = settings.EMAIL_BACKEND_ORIGINAL
+else:
+    # Fallback to Django's default
+    backend = "django.core.mail.backends.smtp.EmailBackend"
+
+if backend == "mails.backends.filebased.ModelEmailBackend":
+    raise AssertionError("The `EMAIL_BACKEND_ORIGINAL` cannot be the ModelEmailBackend")
+
+connection = get_connection(backend=backend, fail_silently=False)
 
 
 class Command(BaseCommand):
@@ -18,7 +34,7 @@ class Command(BaseCommand):
             help="The id in the `MailLog` table for a specific mail, Leave blank to send all",
         )
 
-    def _process_mail(self, mail):
+    def _render_mail(self, mail):
         """
         Render the templates for the mail if not done yet.
         """
@@ -29,51 +45,90 @@ class Command(BaseCommand):
             body=message, body_html=html_message, status="rendered"
         )
 
-    def send_mails(self, mails):
-        from django.core.mail import get_connection, EmailMultiAlternatives
+    def _send_mail(self, connection, mail_log: "MailLog", recipients, **kwargs):
+        """
+        Build and send the mail, returning the response.
+        """
+        from django.core.mail import EmailMultiAlternatives
 
-        if hasattr(settings, "EMAIL_BACKEND_ORIGINAL"):
-            backend = settings.EMAIL_BACKEND_ORIGINAL
-        else:
-            # Fallback to Django's default
-            backend = "django.core.mail.backends.smtp.EmailBackend"
+        mail = EmailMultiAlternatives(
+            mail_log.subject,
+            mail_log.body,
+            mail_log.from_email,
+            recipients,
+            connection=connection,
+            cc=mail_log.cc_recipients,
+            bcc=mail_log.bcc_recipients,
+            reply_to=(mail_log.from_email,),
+            **kwargs,
+        )
+        mail.attach_alternative(mail_log.body_html, "text/html")
+        response = mail.send()
+        return response
 
-        if backend == "mails.backends.filebased.ModelEmailBackend":
-            raise AssertionError(
-                "The `EMAIL_BACKEND_ORIGINAL` cannot be the ModelEmailBackend"
-            )
-
-        connection = get_connection(backend=backend, fail_silently=False)
+    def process_mail_logs(self, mail_logs: "Iterable[MailLog]"):
+        """
+        Process the MailLogs according to their type and send the mails.
+        """
         count = 0
-        for db_mail in mails:
-            if db_mail.status == "not_rendered":
-                self._process_mail(db_mail)
-                db_mail.refresh_from_db()
+        for mail_log in mail_logs:
+            if mail_log.status == "not_rendered":
+                self._render_mail(mail_log)
+                mail_log.refresh_from_db()
 
-            mail = EmailMultiAlternatives(
-                db_mail.subject,
-                db_mail.body,
-                db_mail.from_email,
-                db_mail.to_recipients,
-                cc=db_mail.cc_recipients,
-                bcc=db_mail.bcc_recipients,
-                reply_to=(db_mail.from_email,),
-                connection=connection,
-            )
-            if db_mail.body_html:
-                mail.attach_alternative(db_mail.body_html, "text/html")
-            response = mail.send()
-            if response:
-                count += 1
-                db_mail.processed = True
-                db_mail.status = "sent"
-                db_mail.save()
+            # If single entry per mail, send regularly
+            if mail_log.type == mail_log.TYPE_SINGLE:
+                response = self._send_mail(
+                    connection,
+                    mail_log,
+                    mail_log.to_recipients,
+                )
+
+                if response:
+                    count += 1
+                    mail_log.status = "sent"
+                    mail_log.processed = True
+
+            # If bulk, build separate instances of the mail
+            # for each recipient up to the throttle limit per run
+            elif mail_log.type == mail_log.TYPE_BULK:
+                if mail_log.sent_to is None:
+                    mail_log.sent_to = []
+                if mail_log.to_recipients is None:
+                    self.stdout.write(
+                        "MailLog {} has no recipients. Skipping.".format(mail_log.id)
+                    )
+                    continue
+
+                remaining_recipients = [
+                    recipient
+                    for recipient in mail_log.to_recipients
+                    if recipient not in mail_log.sent_to
+                ]
+
+                # Guard against empty recipients, updating the status
+                if not remaining_recipients:
+                    mail_log.status = "sent"
+                    mail_log.processed = True
+                    mail_log.save()
+                    continue
+
+                # For each recipient not yet sent to and up to the throttle limit
+                for recipient in remaining_recipients[:BULK_EMAIL_THROTTLE]:
+                    response = self._send_mail(connection, mail_log, [recipient])
+
+                    if response:
+                        count += 1
+                        mail_log.sent_to.append(recipient)
+
+            mail_log.save()
+
         return count
 
     def handle(self, *args, **options):
         if options.get("id"):
-            mails = MailLog.objects.filter(id=options["id"])
+            mail_logs = MailLog.objects.filter(id=options["id"])
         else:
-            mails = MailLog.objects.not_sent().order_by("created")[:10]
-        nr_mails = self.send_mails(mails)
+            mail_logs = MailLog.objects.not_sent().order_by("created")[:10]
+        nr_mails = self.process_mail_logs(mail_logs)
         self.stdout.write("Sent {} mails.".format(nr_mails))

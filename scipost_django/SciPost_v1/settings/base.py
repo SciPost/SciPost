@@ -423,6 +423,7 @@ WEBPACK_LOADER = {
 }
 
 # Email
+BULK_EMAIL_THROTTLE = 5
 EMAIL_BACKEND = "mails.backends.filebased.EmailBackend"
 EMAIL_FILE_PATH = "local_files/email/"
 EMAIL_SUBJECT_PREFIX = "[SciPost Server] "

@@ -19,8 +19,8 @@ class MailLogRelationInline(admin.TabularInline):
 
 @admin.register(MailLog)
 class MailLogAdmin(admin.ModelAdmin):
-    list_display = ["__str__", "to_recipients", "created", "status"]
-    list_filter = ["status"]
+    list_display = ["__str__", "to_recipients", "created", "status", "type"]
+    list_filter = ["status", "type"]
     readonly_fields = ["created", "latest_activity"]
     search_fields = [
         "to_recipients",
