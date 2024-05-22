@@ -9,9 +9,9 @@
     <li class="list-group-item p-2 text-black">Veto: {{ voting_round.nomination.vetoes.count }}</li>
   {% else %}
 
-    {% for vetoer in voting_round.nomination.vetoes.all %}
-      <li class="list-group-item p-2 text-black">Vetoed by {{ vetoer }}</li>
-    {% endfor %}
+    {% if voting_round.nomination.vetoes %}
+      <li class="list-group-item p-2 text-black fs-3">Nomination vetoed!</li>
+    {% endif %}
 
   {% endif %}
 

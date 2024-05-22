@@ -7,10 +7,7 @@
 
         {% if "edadmin" in user_roles %}
 
-          {% if not round.is_unscheduled %}
-            <th>Vote</th>
-            <th>Voted on</th>
-          {% endif %}
+          {% if not round.is_unscheduled %}<th>Voted on</th>{% endif %}
 
           <th>Actions</th>
         {% endif %}
@@ -39,16 +36,7 @@
 
           {% if "edadmin" in user_roles %}
 
-            {% if not round.is_unscheduled %}
-
-              {% if voter.vote %}
-                <td class="text-{{ voter.vote.get_vote_bs_class }}">{{ voter.vote.get_vote_display }}</td>
-              {% else %}
-                <td class="text-muted">No vote</td>
-              {% endif %}
-
-              <td>{{ voter.vote.on }}</td>
-            {% endif %}
+            {% if not round.is_unscheduled %}<td>{{ voter.vote.on }}</td>{% endif %}
 
             <td>
 
