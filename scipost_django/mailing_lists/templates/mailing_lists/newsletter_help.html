@@ -1,0 +1,383 @@
+{% extends 'scipost/base.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb">
+
+        {% block breadcrumb_items %}
+          {{ block.super }}
+          <a class="breadcrumb-item">Mailing Lists</a>
+        {% endblock %}
+
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block pagetitle %}
+  : Newsletter Help
+{% endblock pagetitle %}
+
+{% block content %}
+  <h1 class="highlight">Newsletter Help</h1>
+  <div class="row">
+    <div class="col-12">
+      <h2 class="mb-1 mt-3">Description</h2>
+      <p class="mb-2">
+        The Newsletter content is written in HTML. You can use all the HTML tags proper
+        for writing articles, i.e. most tags that are not embedding external content
+        like scripts or iframes. You may style the content using CSS inline styles and classes.
+      </p>
+ 
+      <h2 class="mb-1 mt-3">Media</h2>
+      <p class="mb-2">
+        You can upload images to be embedded in the newsletter.
+        You may upload images through the form at the bottom of the Newsletter edit page,
+        after which you may insert the embedding code by clicking on the image thumbnail.
+        At the present moment, we recommend that the images are hosted on our server
+        instead of linking to external resources.
+      </p>
+
+      <h2 class="mb-1 mt-3">Styling</h2>
+      <h3 class="mb-1 mt-3">Changes</h3>
+      <p class="mb-2">The default browser CSS is overridden in a few places. A short list of the changes is below:</p>
+      <ul>
+        <li>
+          Removed margins from <code>h1</code>-<code>h6</code> tags.
+        </li>
+        <li>
+          Removed margins and padding from <code>p</code> tags.
+          Default color is SciPost dark blue (#002b49) and the text is justified.
+        </li>
+        <li>
+          <code>img</code> tags span the entire height/width of the line when space is available.
+        </li>
+      </ul>
+
+      <h3 class="mb-1 mt-3">Classes</h3>
+      <p class="mb-2">
+        The styling may be changed via adding CSS classes. These are placed inside an element like <code>&lt;div class="class1 class2 [...]"&gt;[...]&lt;/div&gt;</code>.
+      </p>
+      <h4 class="mt-3 mb-2">Components</h4>
+      <p>Here are some pre-built components that you can use in your newsletter.</p>
+      <h5 class="mt-3 mb-1">News Item</h5>
+      <div class="d-flex flex-row justify-content-between gap-2">
+        <pre>
+        &lt;div class="item"&gt;
+          &lt;h2 class="header"&gt;
+            My Title Here
+          &lt;/h2&gt;
+          
+          &lt;div class="content"&gt;
+            &lt;img class="float-right p-3" src="/static/scipost/images/logo_scipost_RGB_HTML_groot.png" 
+            alt="scipost logo" width="180" height="55" /&gt;
+
+            &lt;p&gt;
+            Commodo consectetur ullamco occaecat quis excepteur minim nostrud quis. 
+            Pariatur ut est non quis adipisicing elit mollit sunt sunt aute qui laborum labore. Anim proident reprehenderit amet. 
+            Ea dolor aliqua ad irure adipisicing irure quis eiusmod sint id anim duis adipisicing. 
+            Lorem ut laboris aliqua ex commodo adipisicing esse exercitation tempor ad esse elit. 
+            Pariatur ea ea est enim nisi incididunt tempor eiusmod voluptate consequat cillum culpa.
+            &lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      </pre>
+
+        <div class="item">
+          <h2 class="header">My Title Here</h2>
+ 
+          <div class="content">
+            <img class="float-right p-3"
+                 src="/static/scipost/images/logo_scipost_RGB_HTML_groot.png"
+                 alt="scipost logo"
+                 width="180"
+                 height="55" />
+            <p>
+              Commodo consectetur ullamco occaecat quis excepteur minim nostrud quis. Pariatur ut est non quis adipisicing elit mollit sunt sunt aute qui laborum labore. Anim proident reprehenderit amet. Ea dolor aliqua ad irure adipisicing irure quis eiusmod sint id anim duis adipisicing. Lorem ut laboris aliqua ex commodo adipisicing esse exercitation tempor ad esse elit. Pariatur ea ea est enim nisi incididunt tempor eiusmod voluptate consequat cillum culpa.
+            </p>
+          </div>
+        </div>
+ 
+      </div>
+
+      <h4 class="mb-2 mt-3">Colors</h4>
+      <p class="mb-2">
+        Color classes are built in two parts separated by a hyphen. The first part is the attribute whose color is changed, and the second part is name of the color.
+        The attribute is either <code>bg</code> for background color or <code>text</code> for text color.
+        The available colors are:
+      </p>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Class</th>
+            <th>Color</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Orange</td>
+            <td>
+              <code>{attr}-orange</code>
+            </td>
+            <td class="bg-orange p-1 text-white">#f6a11a</td>
+          </tr>
+          <tr>
+            <td>Light Blue</td>
+            <td>
+              <code>{attr}-light-blue</code>
+            </td>
+            <td class="bg-light-blue p-1">#c3d7ee</td>
+          </tr>
+          <tr>
+            <td>Blue</td>
+            <td>
+              <code>{attr}-blue</code>
+            </td>
+            <td class="bg-blue p-1 text-white">#6884c2</td>
+          </tr>
+          <tr>
+            <td>Dark Blue</td>
+            <td>
+              <code>{attr}-dark-blue</code>
+            </td>
+            <td class="bg-dark-blue p-1 text-white">#002b49</td>
+          </tr>
+          <tr>
+            <td>Black</td>
+            <td>
+              <code>{attr}-black</code>
+            </td>
+            <td class="bg-black text-white p-1">#f0f0f0</td>
+          </tr>
+          <tr>
+            <td>Light Gray</td>
+            <td>
+              <code>{attr}-light-gray</code>
+            </td>
+            <td class="bg-light-gray p-1">#f0f0f0</td>
+          </tr>
+          <tr>
+            <td>White</td>
+            <td>
+              <code>{attr}-white</code>
+            </td>
+            <td class="bg-white p-1">#ffffff</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="mb-3">
+        Therefore, for a box of orange text and dark-blue background you could write
+
+        <span class="d-inline-flex flex-row justify-content-between gap-2">
+
+          <code>
+            &lt;div class="bg-dark-blue text-orange"&gt;This is a box&lt;/div&gt;
+          </code>
+ 
+          <span class="bg-dark-blue text-orange">This is a box</span>
+        </span>
+      </p>
+
+      <h4 class="mt-3 mb-2">Images</h4>
+      <p>
+        There are a few alignment classes for images. These are <code>float-left</code> and <code>float-right</code> for floating the image to the left or right, and <code>float-center</code> for centering the image.
+      </p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Alignment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Float left</td>
+            <td>
+              <code>float-left</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Float right</td>
+            <td>
+              <code>float-right</code>
+            </td>
+          </tr>
+          <tr>
+            <td>Center</td>
+            <td>
+              <code>float-center</code>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 class="mt-3 mb-2">Text alignment</h4>
+      <p>
+        By default the text is justified. You can change the alignment by adding the class <code>text-left</code>, <code>text-right</code>, or <code>text-center</code>.
+      </p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Alignment</th>
+            <th>Class</th>
+            <th>Display</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Justified (default)</td>
+            <td>
+              <code>text-justify</code>
+            </td>
+            <td>
+              <div class="text-justify">Ad est excepteur aliquip. Est fugiat laboris consequat Lorem reprehenderit consectetur.</div>
+            </td>
+          </tr>
+          <tr>
+            <td>Left</td>
+            <td>
+              <code>text-left</code>
+            </td>
+            <td>
+              <div class="text-left">Ad est excepteur aliquip. Est fugiat laboris consequat Lorem reprehenderit consectetur.</div>
+            </td>
+          </tr>
+          <tr>
+            <td>Right</td>
+            <td>
+              <code>text-right</code>
+            </td>
+            <td>
+              <div class="text-right">Ad est excepteur aliquip. Est fugiat laboris consequat Lorem reprehenderit consectetur.</div>
+            </td>
+          </tr>
+          <tr>
+            <td>Center</td>
+            <td>
+              <code>text-center</code>
+            </td>
+            <td>
+              <div class="text-center">Ad est excepteur aliquip. Est fugiat laboris consequat Lorem reprehenderit consectetur.</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Font size</h4>
+      <p>
+        The font size can be changed by adding the class <code>fs-1</code> to <code>fs-6</code>, where 1 is the smallest and 6 is the largest. The default font size is <code>fs-3</code> (1rem).
+      </p>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Size</th>
+            <th>Class</th>
+            <th>Display</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0.5rem</td>
+            <td>
+              <code>fs-1</code>
+            </td>
+            <td class="fs-1">This is my changed font size</td>
+          </tr>
+          <tr>
+            <td>0.75rem</td>
+            <td>
+              <code>fs-2</code>
+            </td>
+            <td class="fs-2">This is my changed font size</td>
+          </tr>
+          <tr>
+            <td>1rem</td>
+            <td>
+              <code>fs-3</code>
+            </td>
+            <td class="fs-3">This is my changed font size</td>
+          </tr>
+          <tr>
+            <td>1.25rem</td>
+            <td>
+              <code>fs-4</code>
+            </td>
+            <td class="fs-4">This is my changed font size</td>
+          </tr>
+          <tr>
+            <td>1.5rem</td>
+            <td>
+              <code>fs-5</code>
+            </td>
+            <td class="fs-5">This is my changed font size</td>
+          </tr>
+          <tr>
+            <td>2rem</td>
+            <td>
+              <code>fs-6</code>
+            </td>
+            <td class="fs-6">This is my changed font size</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4 class="mb-2 mt-3">Spacing</h4>
+      <p class="mb-4">
+        The spacing classes are built in two parts separated by a hyphen. The first part is the attribute whose spacing is changed, and the second part is the size of the spacing.
+        The attribute is either <code>m</code> for margin or <code>p</code> for padding, and is optionally followed by the direction of the spacing: <code>t</code> for top or <code>b</code> for bottom, <code>r</code> for right or <code>l</code> for left, and <code>x</code> or <code>y</code> for both horizontal or vertical.
+        The available sizes are numbers from 0 to 4, where 0 is no spacing and 4 is the largest spacing (1.5rem).
+        Therefore <code>mt-3</code> would be a margin of size 2 at the top, <code>px-3</code> would be a padding of size 3 in the horizontal direction, and <code>m-0</code> would be no margin at all.
+      </p>
+
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Direction</th>
+            <th>Type</th>
+            <th>Sizes</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for d,direction in directions.items %}
+
+            {% for t,type in types.items %}
+              <tr>
+
+                {% if forloop.counter == 1 %}<td rowspan="{{ types.items|length }}">{{ direction }}</td>{% endif %}
+
+                <td>{{ type }}</td>
+
+                <td>
+
+                  <div class="d-flex justify-content-evenly gap-2">
+
+                    {% for s in sizes %}
+                      {% include "mailing_lists/_spacing_box_guide.html" %}
+                    {% endfor %}
+
+                  </div>
+
+                </td>
+ 
+              </tr>
+            {% endfor %}
+          {% endfor %}
+
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+{% endblock content %}
+
+
+{% block headsup %}
+  <link rel="stylesheet"
+        href="{% static 'scipost/assets/css/newsletter.css' %}" />
+{% endblock headsup %}

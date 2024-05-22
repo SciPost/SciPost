@@ -1,0 +1,26 @@
+{% if t == "m" %}
+
+  <div style="width: 100px;
+              height: 100px"
+       class="rounded border border-2 border-black d-flex justify-content-center align-items-center">
+    <div class="d-flex bg-warning bg-opacity-25 rounded">
+      <div style="width: 50px;
+                  height: 50px"
+           class="bg-white border rounded {{ t }}{{ d }}-{{ s }} d-flex justify-content-center align-items-center">
+        {{ t }}{{ d }}-{{ s }}
+      </div>
+    </div>
+  </div>
+
+{% elif t == "p" %}
+
+  <div style="width: 100px;
+              height: 100px"
+       class="rounded border border-2 border-black d-flex justify-content-center align-items-center">
+    <div class="position-relative d-flex bg-primary bg-opacity-25 rounded {{ t }}{{ d }}-{{ s }} w-100 h-100">
+      <span class="text-nowrap position-absolute top-50 end-100 translate-middle">{{ t }}{{ d }}-{{ s }}</span>
+      <div class="h-100 w-100 bg-white border rounded"></div>
+    </div>
+  </div>
+
+{% endif %}

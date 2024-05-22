@@ -159,6 +159,33 @@ def manage(request):
     )
 
 
+@permission_required(
+    "scipost.can_manage_newsletters",
+    raise_exception=True,
+)
+def newsletter_help(request):
+    """
+    Display help on how to create newsletters.
+    """
+    context = {
+        "types": {
+            "m": "Margin",
+            "p": "Padding",
+        },
+        "sizes": list(range(1, 5)),
+        "directions": {
+            "": "All",
+            "t": "Top",
+            "b": "Bottom",
+            "l": "Left",
+            "r": "Right",
+            "x": "Horizontal",
+            "y": "Vertical",
+        },
+    }
+    return TemplateResponse(request, "mailing_lists/newsletter_help.html", context)
+
+
 @permission_required_htmx(
     "scipost.can_manage_mailing_lists",
     "You are not allowed to manage mailing lists.",

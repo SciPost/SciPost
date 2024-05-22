@@ -19,7 +19,10 @@
 
 {% block content %}
 
-  <h1>Write Newsletter (for {{ newsletter.mailing_list }})</h1>
+  <hgroup class="mb-4 d-flex flex-row justify-content-between">
+    <h1>Write Newsletter (for {{ newsletter.mailing_list }})</h1>
+    <a href="{% url "mailing_lists:newsletter_help" %}">View Newsletter help</a>
+  </hgroup>
 
   <form hx-get="{% url "mailing_lists:_hx_newsletter_form" newsletter.id %}"
         hx-swap="outerHTML"

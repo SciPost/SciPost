@@ -17,6 +17,7 @@ urlpatterns = [
         views._hx_newsletter_create,
         name="_hx_newsletter_create",
     ),
+    path("newsletters/help", views.newsletter_help, name="newsletter_help"),
     path("newsletters/<int:pk>/edit", views.newsletter_edit, name="newsletter_edit"),
     path(
         "newsletters/<int:pk>/_hx_form",
