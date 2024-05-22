@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.shortcuts import redirect, get_object_or_404
 
 from invitations.models import RegistrationInvitation
-from scipost.permissions import HTMXResponse
+from scipost.permissions import HTMXResponse, permission_required_htmx
 
 from .forms import (
     MailchimpUpdateForm,
@@ -119,6 +119,30 @@ class MailchimpListDetailView(MailchimpMixin, UpdateView):
         return super().form_valid(form)
 
 
+def _hx_toggle_subscription(request, pk):
+    """
+    Toggle the subscription status of a user to a certain list.
+    Return the rerendered list item.
+    """
+    mailing_list = get_object_or_404(MailingList, pk=pk)
+    is_subscribed = request.user.contributor in mailing_list.subscribed.all()
+
+    if is_subscribed:
+        mailing_list.unsubscribe(request.user.contributor)
+    else:
+        mailing_list.subscribe(request.user.contributor)
+
+    return TemplateResponse(
+        request,
+        "mailing_lists/_hx_mailing_list_item.html",
+        {"mailing_list": mailing_list},
+    )
+
+
+@permission_required(
+    "scipost.can_manage_mailing_lists",
+    raise_exception=True,
+)
 def manage(request):
     """
     Manage mailing lists and newsletters
@@ -135,6 +159,10 @@ def manage(request):
     )
 
 
+@permission_required_htmx(
+    "scipost.can_manage_mailing_lists",
+    "You are not allowed to manage mailing lists.",
+)
 def _hx_mailing_list_create(request):
     """
     Render the mailing list creation form and handle the response.
@@ -156,6 +184,10 @@ def _hx_mailing_list_create(request):
     )
 
 
+@permission_required_htmx(
+    "scipost.can_view_mailing_lists",
+    "You are not allowed to view mailing lists.",
+)
 def _hx_mailing_list_list(request):
     """
     List all mailing lists.
@@ -168,6 +200,10 @@ def _hx_mailing_list_list(request):
     )
 
 
+@permission_required_htmx(
+    "scipost.can_manage_newsletters",
+    "You are not allowed to manage newsletters.",
+)
 def _hx_newsletter_create(request, mailing_list_id):
     """
     Create a new newsletter under the given mailing list and return the new item.
@@ -185,6 +221,7 @@ def _hx_newsletter_create(request, mailing_list_id):
     )
 
 
+@permission_required("scipost.can_manage_newsletters", raise_exception=True)
 def newsletter_edit(request, pk):
     """
     Load a newsletter and render the write template.
@@ -198,6 +235,10 @@ def newsletter_edit(request, pk):
     )
 
 
+@permission_required_htmx(
+    "scipost.can_manage_newsletters",
+    "You are not allowed to manage newsletters.",
+)
 def _hx_newsletter_form(request, pk):
     """
     Handle the submission of the newsletter form.
@@ -220,6 +261,10 @@ def _hx_newsletter_form(request, pk):
     return response
 
 
+@permission_required_htmx(
+    "scipost.can_manage_newsletters",
+    "You are not allowed to manage newsletters.",
+)
 def _hx_newsletter_display(request, pk):
     """
     Display the newsletter content.
@@ -233,6 +278,10 @@ def _hx_newsletter_display(request, pk):
     )
 
 
+@permission_required_htmx(
+    "scipost.can_send_newsletters",
+    "You are not allowed to send newsletters.",
+)
 def _hx_newsletter_send(request, pk):
     """
     Send the newsletter to all subscribers.
@@ -245,28 +294,10 @@ def _hx_newsletter_send(request, pk):
         return HTMXResponse(f"Failed to send newsletter: {e}", tag="danger")
 
 
-def _hx_toggle_subscription(request, pk):
-    """
-    Toggle the subscription status of a user to a certain list.
-    Return the rerendered list item.
-    """
-    mailing_list = get_object_or_404(MailingList, pk=pk)
-    is_subscribed = request.user.contributor in mailing_list.subscribed.all()
-
-    print("Toggle subscription", is_subscribed, request.user.contributor, mailing_list)
-
-    if is_subscribed:
-        mailing_list.unsubscribe(request.user.contributor)
-    else:
-        mailing_list.subscribe(request.user.contributor)
-
-    return TemplateResponse(
-        request,
-        "mailing_lists/_hx_mailing_list_item.html",
-        {"mailing_list": mailing_list},
-    )
-
-
+@permission_required_htmx(
+    "scipost.can_manage_newsletters",
+    "You are not allowed to manage newsletters.",
+)
 def _hx_newsletter_media_form(request, pk):
     """
     Handle the addition of media to a newsletter.
@@ -294,6 +325,10 @@ def _hx_newsletter_media_form(request, pk):
     return response
 
 
+@permission_required_htmx(
+    "scipost.can_manage_newsletters",
+    "You are not allowed to manage newsletters.",
+)
 def _hx_newsletter_media_embed(request, pk, media_pk):
     """
     Append the embed code for a media item to the newsletter, and rerender the form.
@@ -313,6 +348,10 @@ def _hx_newsletter_media_embed(request, pk, media_pk):
     return _hx_newsletter_form(request, pk)
 
 
+@permission_required_htmx(
+    "scipost.can_manage_newsletters",
+    "You are not allowed to manage newsletters.",
+)
 def _hx_newsletter_media_embed_list(request, pk):
     """
     Return a list of all media items in the newsletter.

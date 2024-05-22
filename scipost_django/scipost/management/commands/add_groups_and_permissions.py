@@ -432,6 +432,26 @@ class Command(BaseCommand):
             name="Can manage News",
             content_type=content_type,
         )
+        can_view_mailing_lists, created = Permission.objects.get_or_create(
+            codename="can_view_mailing_lists",
+            name="Can view mailing lists",
+            content_type=content_type,
+        )
+        can_manage_mailing_lists, created = Permission.objects.get_or_create(
+            codename="can_manage_mailing_lists",
+            name="Can manage mailing lists",
+            content_type=content_type,
+        )
+        can_manage_newsletters, created = Permission.objects.get_or_create(
+            codename="can_manage_newsletters",
+            name="Can manage newsletters",
+            content_type=content_type,
+        )
+        can_send_newsletters, created = Permission.objects.get_or_create(
+            codename="can_send_newsletters",
+            name="Can send newsletters",
+            content_type=content_type,
+        )
 
         # Mailchimp
         can_manage_mailchimp, created = Permission.objects.get_or_create(
@@ -537,6 +557,7 @@ class Command(BaseCommand):
                 can_add_notes,
                 can_view_internal_subsidy_notes,
                 can_view_internal_organization_notes,
+                can_manage_mailing_lists,
             ]
         )
 
@@ -611,6 +632,7 @@ class Command(BaseCommand):
                 can_view_all_nomination_voting_rounds,
                 can_view_fellowships_monitor,
                 can_add_notes,
+                can_view_mailing_lists,
             ]
         )
 
@@ -675,6 +697,9 @@ class Command(BaseCommand):
         NewsAdmin.permissions.set(
             [
                 can_manage_news,
+                can_manage_newsletters,
+                can_send_newsletters,
+                can_view_mailing_lists,
             ]
         )
 
