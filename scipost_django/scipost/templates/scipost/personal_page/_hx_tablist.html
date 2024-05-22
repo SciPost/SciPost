@@ -7,7 +7,7 @@
     {% if selected == 'email_preferences' %}class="selected"{% endif %}
   >Email Preferences</a>
 
-  {% if "scipost_admin" in user_roles or "finadmin" in user_roles or perms.scipost.can_vet_registration_requests %}
+  {% if "scipost_admin" in user_roles or "finadmin" in user_roles %}
     <a hx-get="{% url 'scipost:personal_page_hx_admin' %}" 
       {% if selected == 'admin' %}class="selected"{% endif %}
     >Admin</a>
