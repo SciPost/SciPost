@@ -62,7 +62,10 @@ class Command(BaseCommand):
             reply_to=(mail_log.from_email,),
             **kwargs,
         )
-        mail.attach_alternative(mail_log.body_html, "text/html")
+        # Attach the HTML version *ONLY* if one exists
+        # If attached while empty, it will cause the mail to be treated as if were
+        if mail_log.body_html:
+            mail.attach_alternative(mail_log.body_html, "text/html")
         response = mail.send()
         return response
 
