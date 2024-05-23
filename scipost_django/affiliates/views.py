@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.core.handlers.asgi import HttpRequest
 from django.db.models import Q, Sum
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.detail import DetailView
@@ -312,11 +312,11 @@ class AffiliateJournalYearSubsidyListView(PaginationMixin, ListView):
         return context
 
 
-@permission_required_or_403(
-    "affiliates.change_affiliatejournal", (AffiliateJournal, "slug", "slug")
-)
 def journal_add_subsidy(request, slug):
     journal = get_object_or_404(AffiliateJournal, slug=slug)
+    if not request.user.has_perm("manage_journal_content", journal):
+        return HttpResponseForbidden()
+
     form = AffiliateJournalAddYearSubsidyForm(request.POST or None)
     if form.is_valid():
         form.save()
@@ -326,9 +326,10 @@ def journal_add_subsidy(request, slug):
     return redirect(reverse("affiliates:journal_subsidies", kwargs={"slug": slug}))
 
 
-@permission_required_or_403(
-    "affiliates.change_affiliatejournal", (AffiliateJournal, "slug", "slug")
-)
 def journal_delete_subsidy(request, slug, pk):
+    journal = get_object_or_404(AffiliateJournal, slug=slug)
+    if not request.user.has_perm("manage_journal_content", journal):
+        return HttpResponseForbidden()
+
     AffiliateJournalYearSubsidy.objects.filter(pk=pk).delete()
     return redirect(reverse("affiliates:journal_subsidies", kwargs={"slug": slug}))
