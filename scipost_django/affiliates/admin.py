@@ -1,7 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-
+from guardian.admin import GuardedModelAdmin
 from django.contrib import admin
 
 from .models import (
@@ -17,19 +17,15 @@ admin.site.register(AffiliatePublisher)
 
 
 @admin.register(AffiliateJournal)
-class AffiliateJournalAdmin(admin.ModelAdmin):
+class AffiliateJournalAdmin(GuardedModelAdmin):
     search_fields = ["name"]
     list_display = ["name", "publisher"]
-
-
 
 
 @admin.register(AffiliateJournalYearSubsidy)
 class AffiliateJournalYearSubsidyAdmin(admin.ModelAdmin):
     search_fields = ["journal", "organization", "year"]
     list_display = ["journal", "year", "amount", "organization"]
-
-
 
 
 class AffiliatePubFractionInline(admin.TabularInline):
@@ -47,5 +43,3 @@ class AffiliatePublicationAdmin(admin.ModelAdmin):
     inlines = [
         AffiliatePubFractionInline,
     ]
-
-
