@@ -23,6 +23,7 @@ class AffiliateJournal(models.Model):
     )
 
     name = models.CharField(max_length=256)
+    description = models.TextField(blank=True)
 
     short_name = models.CharField(max_length=256, default="")
 
