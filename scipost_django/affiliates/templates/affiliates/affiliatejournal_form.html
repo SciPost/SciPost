@@ -1,0 +1,20 @@
+{% extends 'affiliates/base.html' %}
+{% load crispy_forms_tags %}
+
+
+{% block pagetitle %}: Affiliate Journal{% endblock %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Affiliates</span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journals' %}">Journals</a></span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journal_detail' object.slug %}">{{ object.name }}</a></span>
+  <span class="breadcrumb-item">Update</span>
+{% endblock %}
+
+{% block content %}
+
+  <h1>{{ object.name }}</h1>
+
+  {% crispy form %}
+ 
+{% endblock content %}

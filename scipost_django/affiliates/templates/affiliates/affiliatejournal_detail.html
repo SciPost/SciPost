@@ -3,6 +3,7 @@
 {% load static %}
 {% load bootstrap %}
 {% load guardian_tags %}
+{% load automarkup %}
 
 {% block pagetitle %}: Affiliate Journal: {{ object }}{% endblock %}
 
@@ -16,62 +17,106 @@
 
   {% get_obj_perms request.user for object as "user_perms" %}
 
-  <h2 class="highlight">Affiliate Journal: {{ object }}</h2>
+  <hgroup class="highlight p-2 d-flex flex-row justify-content-between align-items-center">
+    <h2 class="mb-0">Affiliate Journal: {{ object }}</h2>
+
+    {% if 'manage_journal_content' in user_perms %}
+      <a class="btn btn-primary"
+         href="{% url "affiliates:journal_update" slug=object.slug %}">Edit</a>
+    {% endif %}
+
+  </hgroup>
 
   <div class="row p-2">
-    <div class="col">
+    <div class="col-auto">
+
       {% if object.logo_svg %}
-	<img class="m-4" style="min-height: 8rem; max-height: 16rem; max-width: 32rem;"
-	     src="{{ object.logo_svg.url }}" alt="{{ object.name }} logo">
+        <img class="m-4"
+             style="min-height: 8rem;
+                    max-height: 16rem;
+                    max-width: 32rem"
+             src="{{ object.logo_svg.url }}"
+             alt="{{ object.name }} logo" />
       {% elif object.logo %}
-	<img class="m-4" style="max-height: 16rem; max-width: 32rem;"
-	     src="{{ object.logo.url }}" alt="{{ object.name }} logo">
+        <img class="m-4"
+             style="max-height: 16rem;
+                    max-width: 32rem"
+             src="{{ object.logo.url }}"
+             alt="{{ object.name }} logo" />
       {% endif %}
-      <h3>Journal information</h3>
-      <table class="table">
-	<tr>
-	  <th>Homepage</th>
-	  <td>{% if object.homepage %}<a href="{{ object.homepage }}" target="_blank">{{ object.homepage }}&emsp;{% include 'bi/box-arrow-up-right.html' %}</a>{% else %}(not defined){% endif %}</td>
-	</tr>
-	<tr>
-	  <th>Academic field</th>
-	  <td>{% if journal.acad_field %}{{ journal.acad_field }}{% else %}(unspecified){% endif %}</td>
-	</tr>
-      </table>
+
     </div>
+    <div class="col">
+      <p>{% automarkup object.description %}</p>
+    </div>
+ 
+    <h3>Journal information</h3>
+    <table class="table">
+      <tr>
+        <th>Homepage</th>
+        <td>
+
+          {% if object.homepage %}
+            <a href="{{ object.homepage }}" target="_blank">{{ object.homepage }}&emsp;
+              {% include 'bi/box-arrow-up-right.html' %}
+            </a>
+          {% else %}
+            (not defined)
+          {% endif %}
+
+        </td>
+      </tr>
+      <tr>
+        <th>Academic field</th>
+        <td>
+
+          {% if journal.acad_field %}
+            {{ journal.acad_field }}
+          {% else %}
+            (unspecified)
+          {% endif %}
+
+        </td>
+      </tr>
+    </table>
   </div>
 
   {% if perms.affiliates.can_edit_affiliatedjournal %}
     <div class="row p-2">
       <div class="col">
-	<div class="border border-danger mb-2 p-2">
-	  <strong class="text-danger">Administration</strong>
-	  <h3 class="highlight">Journal managers</h3>
-	  <div class="row p-2">
-	    <div class="col-lg-6">
-	      <h4>Add manager</h4>
-	      <form action="{% url 'affiliates:journal_add_manager' slug=object.slug %}" method="post">
-		{% csrf_token %}
-		{{ add_manager_form }}
-		<input type="submit" value="Submit" class="btn btn-primary">
-	      </form>
-	    </div>
-	    <div class="col-lg-6">
-	      <h4>Current list of managers</h4>
-	      <ul>
-		{% for manager in journal_managers.all %}
-		  <li>{{ manager.last_name }}, {{ manager.first_name }}&emsp;
-		    <a href="{% url 'affiliates:journal_remove_manager' slug=object.slug user_id=manager.pk %}">
-		      <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
-		    </a>
-		  </li>
-		{% empty %}
-		  <li>No managers found</li>
-		{% endfor %}
-	      </ul>
-	    </div>
-	  </div>
-	</div>
+        <div class="border border-danger mb-2 p-2">
+          <strong class="text-danger">Administration</strong>
+          <h3 class="highlight">Journal managers</h3>
+          <div class="row p-2">
+            <div class="col-lg-6">
+              <h4>Add manager</h4>
+              <form action="{% url 'affiliates:journal_add_manager' slug=object.slug %}"
+                    method="post">
+                {% csrf_token %}
+                {{ add_manager_form }}
+                <input type="submit" value="Submit" class="btn btn-primary" />
+              </form>
+            </div>
+            <div class="col-lg-6">
+              <h4>Current list of managers</h4>
+              <ul>
+
+                {% for manager in journal_managers.all %}
+                  <li>
+                    {{ manager.last_name }}, {{ manager.first_name }}&emsp;
+                    <a href="{% url 'affiliates:journal_remove_manager' slug=object.slug user_id=manager.pk %}">
+                      <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
+                    </a>
+                  </li>
+                {% empty %}
+                  <li>No managers found</li>
+                {% endfor %}
+
+
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   {% endif %}
@@ -79,12 +124,13 @@
   {% if perms.affiliates.can_edit_affiliatedjournal %}
     <div class="row p-2">
       <div class="col">
-	<div class="border border-danger mb-2 p-2">
-	  <strong class="text-danger">Administration</strong>
+        <div class="border border-danger mb-2 p-2">
+          <strong class="text-danger">Administration</strong>
 
-	  <h4>Update publications from Crossref</h4>
-	  <a class="btn btn-primary" href="{% url 'affiliates:journal_update_publications_from_Crossref' slug=object.slug %}">Run full update</a>
-	</div>
+          <h4>Update publications from Crossref</h4>
+          <a class="btn btn-primary"
+             href="{% url 'affiliates:journal_update_publications_from_Crossref' slug=object.slug %}">Run full update</a>
+        </div>
       </div>
     </div>
   {% endif %}
@@ -92,63 +138,77 @@
   {% if 'manage_journal_content' in user_perms %}
     <div class="row p-2">
       <div class="col">
-	<div class="border border-warning mb-2 p-2">
-	  <strong class="text-warning">Management</strong>
-	  <h4>Add a publication</h4>
-	  <form action="{% url 'affiliates:journal_add_publication' slug=object.slug %}" method="post">
-	    {% csrf_token %}
-	    {{ add_publication_form }}
-	    <input type="submit" value="Submit" class="btn btn-primary">
-	  </form>
-	</div>
+        <div class="border border-warning mb-2 p-2">
+          <strong class="text-warning">Management</strong>
+          <h4>Add a publication</h4>
+          <form action="{% url 'affiliates:journal_add_publication' slug=object.slug %}"
+                method="post">
+            {% csrf_token %}
+            {{ add_publication_form }}
+            <input type="submit" value="Submit" class="btn btn-primary" />
+          </form>
+        </div>
       </div>
     </div>
   {% endif %}
 
-
   <div class="row p-2">
     <div class="col">
-      <h3 class="highlight">Recent publications <small>(ten most recent)</small>
-	<a class="btn btn-sm btn-primary ms-5" href="{% url 'affiliates:publication_list' %}?journal={{ object.slug }}">
-	  {% include 'bi/arrow-right.html' %}View all publications in this Journal</a>
+      <h3 class="highlight">
+        Recent publications <small>(ten most recent)</small>
+        <a class="btn btn-sm btn-primary ms-5"
+           href="{% url 'affiliates:publication_list' %}?journal={{ object.slug }}">
+          {% include 'bi/arrow-right.html' %}
+        View all publications in this Journal</a>
       </h3>
 
       {% if 'manage_journal_content' in user_perms %}
-	{% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" can_manage_journal_content=True %}
+        {% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" can_manage_journal_content=True %}
       {% else %}
-	{% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" %}
+        {% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" %}
       {% endif %}
+
     </div>
   </div>
 
   <div class="row p-2">
     <div class="col">
-      <h3 class="highlight">Benefitting Organizations <small>(ten most prominent)</small>
-	<a class="btn btn-sm btn-primary ms-5" href="{% url 'affiliates:journal_organizations' slug=object.slug %}">
-	  {% include 'bi/arrow-right.html' %}&nbsp;View all benefitting Organizations</a>
+      <h3 class="highlight">
+        Benefitting Organizations <small>(ten most prominent)</small>
+        <a class="btn btn-sm btn-primary ms-5"
+           href="{% url 'affiliates:journal_organizations' slug=object.slug %}">
+          {% include 'bi/arrow-right.html' %}
+        &nbsp;View all benefitting Organizations</a>
       </h3>
 
       <table class="table">
-	<thead>
-	  <tr>
-	    <th>Organization</th>
-	    <th style="text-align: right">Summed<br>PubFractions</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for organization in top_benefitting_organizations %}
-	    <tr>
-	      <td>
-		<a href="{% url 'affiliates:journal_organization_detail' slug=object.slug organization_id=organization.id %}">{{ organization }}</a>
-	      </td>
-	      <td style="text-align: right">{{ organization.sum_affiliate_pubfractions }}</td>
-	    </tr>
-	  {% empty %}
-	    <tr>
-	      <td>No items at this time</td>
-	    </tr>
-	  {% endfor %}
-	</tbody>
+        <thead>
+          <tr>
+            <th>Organization</th>
+            <th style="text-align: right">
+              Summed
+              <br />
+              PubFractions
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for organization in top_benefitting_organizations %}
+            <tr>
+              <td>
+                <a href="{% url 'affiliates:journal_organization_detail' slug=object.slug organization_id=organization.id %}">{{ organization }}</a>
+              </td>
+              <td style="text-align: right">{{ organization.sum_affiliate_pubfractions }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td>No items at this time</td>
+            </tr>
+          {% endfor %}
+
+
+        </tbody>
       </table>
 
     </div>
@@ -157,108 +217,127 @@
   <div class="row p-2">
     <div class="col">
       <h3 class="highlight">Balance</h3>
+
       {% if 'manage_journal_content' in user_perms %}
         <div class="border border-warning mb-2 p-2">
-          
-        <h4><strong class="text-warning">Management</strong></h4>
-        <h4>Specify cost info</h4>
-        <form action="{% url 'affiliates:journal_specify_cost_info' slug=object.slug %}" method="post">
-          {% csrf_token %}
-          {{ specify_cost_info_form }}
-          <input type="submit" value="Submit" class="btn btn-primary">
-        </form>
-      {% endif %}
+ 
+          <h4>
+            <strong class="text-warning">Management</strong>
+          </h4>
+          <h4>Specify cost info</h4>
+          <form action="{% url 'affiliates:journal_specify_cost_info' slug=object.slug %}"
+                method="post">
+            {% csrf_token %}
+            {{ specify_cost_info_form }}
+            <input type="submit" value="Submit" class="btn btn-primary" />
+          </form>
+        {% endif %}
 
-	<table class="table mt-2" style="text-align: right;">
-	  <thead>
-	    <tr>
-	      <th>Year</th>
-	      <th>Expenditure per publication</th>
-	      <th></th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    {% for year, cost in object.cost_info.items reversed %}
-	      <tr>
-		<td>{{ year }}</td>
-		<td>{{ cost }}</td>
-		<td>
-		  {% if year != 'default' %}
-		    <a href="{% url 'affiliates:journal_delete_cost_info' slug=object.slug year=year %}">
-		      <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
-		    </a>
-		  {% endif %}
-		</td>
-	      </tr>
-	    {% endfor %}
-	  </tbody>
-	</table>
+        <table class="table mt-2" style="text-align: right;">
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>Expenditure per publication</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+
+            {% for year, cost in object.cost_info.items reversed %}
+              <tr>
+                <td>{{ year }}</td>
+                <td>{{ cost }}</td>
+                <td>
+
+                  {% if year != 'default' %}
+                    <a href="{% url 'affiliates:journal_delete_cost_info' slug=object.slug year=year %}">
+                      <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
+                    </a>
+                  {% endif %}
+
+                </td>
+              </tr>
+            {% endfor %}
+
+
+          </tbody>
+        </table>
       </div>
     </div>
 
-
     <table class="table" style="text-align: right;">
       <thead>
-	<tr>
-	  <th>Year</th>
-	  <th>Nr publications</th>
-	  <th>Unit cost</th>
-	  <th>Expenditure</th>
-	  <th>Subsidies</th>
-	  <th>Balance</th>
-	</tr>
+        <tr>
+          <th>Year</th>
+          <th>Nr publications</th>
+          <th>Unit cost</th>
+          <th>Expenditure</th>
+          <th>Subsidies</th>
+          <th>Balance</th>
+        </tr>
       </thead>
       <tbody>
-	{% for year, balance in object.balance_info.items %}
-	  <tr>
-	    <td>{{ year }}</td>
-	    <td>{{ balance.nr_publications }}</td>
-	    <td>{{ balance.unit_cost }}</td>
-	    <td>{{ balance.expenditure }}</td>
-	    <td>{{ balance.subsidies }}</td>
-	    <td>{{ balance.balance }}</td>
-	  </tr>
-	{% endfor %}
+
+        {% for year, balance in object.balance_info.items %}
+          <tr>
+            <td>{{ year }}</td>
+            <td>{{ balance.nr_publications }}</td>
+            <td>{{ balance.unit_cost }}</td>
+            <td>{{ balance.expenditure }}</td>
+            <td>{{ balance.subsidies }}</td>
+            <td>{{ balance.balance }}</td>
+          </tr>
+        {% endfor %}
+
+
       </tbody>
     </table>
   </div>
 
   <div class="row p-2">
     <div class="col">
-      <h3 class="highlight">Current Subsidies
-	<a class="btn btn-sm btn-primary ms-5" href="{% url 'affiliates:journal_subsidies' slug=object.slug %}">
-	  {% include 'bi/arrow-right.html' %}&nbsp;View all Subsidies</a>
+      <h3 class="highlight">
+        Current Subsidies
+        <a class="btn btn-sm btn-primary ms-5"
+           href="{% url 'affiliates:journal_subsidies' slug=object.slug %}">
+          {% include 'bi/arrow-right.html' %}
+        &nbsp;View all Subsidies</a>
       </h3>
 
       <table class="table">
-	<thead>
-	  <tr>
-	    <th>Organization</th>
-	    <th style="text-align: right">Subsidy (&euro;)</th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for subsidy in subsidies_current_year %}
-	    <tr>
-	      <td>
-		<a href="{% url 'affiliates:journal_organization_detail' slug=object.slug organization_id=subsidy.organization.id %}">
-		  {{ subsidy.organization }}
-		</a>
-	      </td>
-	      <td style="text-align: right">{{ subsidy.amount }}</td>
-	    </tr>
-	  {% empty %}
-	    <tr>
-	      <td>No subsidies defined</td>
-	    </tr>
-	  {% endfor %}
-	</tbody>
+        <thead>
+          <tr>
+            <th>Organization</th>
+            <th style="text-align: right">Subsidy (&euro;)</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for subsidy in subsidies_current_year %}
+            <tr>
+              <td>
+                <a href="{% url 'affiliates:journal_organization_detail' slug=object.slug organization_id=subsidy.organization.id %}">
+                  {{ subsidy.organization }}
+                </a>
+              </td>
+              <td style="text-align: right">{{ subsidy.amount }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td>No subsidies defined</td>
+            </tr>
+          {% endfor %}
+
+
+        </tbody>
       </table>
 
     </div>
   </div>
 
 {% endblock content %}
+
+
 
 {% block footer_script %}
   {{ add_manager_form.media }}

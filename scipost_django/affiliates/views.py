@@ -5,12 +5,16 @@ __license__ = "AGPL v3"
 import datetime
 
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
+from django.core.handlers.asgi import HttpRequest
 from django.db.models import Q, Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from django.views.generic.edit import UpdateView
 
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms
@@ -26,6 +30,8 @@ from .models import (
 )
 from .forms import (
     AffiliateJournalAddManagerForm,
+    AffiliateJournalForm,
+    AffiliateJournalManagerForm,
     AffiliateJournalSpecifyCostInfoForm,
     AffiliateJournalAddPublicationForm,
     AffiliatePublicationAddPubFractionForm,
@@ -77,6 +83,32 @@ class AffiliateJournalDetailView(DetailView):
             journal=self.object, year=datetime.date.today().year
         )
         return context
+
+
+class AffiliateJournalUpdateView(PermissionRequiredMixin, UpdateView):
+    """
+    Update an existing affiliate journal.
+    """
+
+    model = AffiliateJournal
+    template_name = "affiliates/affiliatejournal_form.html"
+
+    def has_permission(self):
+        self.object = self.get_object()
+        is_journal_manager = self.request.user.has_perm(
+            "manage_journal_content", self.object
+        )
+        return self.request.user.is_staff or is_journal_manager
+
+    def get_form_class(self):
+        if self.request.user.is_staff:
+            return AffiliateJournalForm
+        elif self.request.user.has_perm("manage_journal_content", self.object):
+            return AffiliateJournalManagerForm
+        return
+
+    def get_success_url(self):
+        return reverse("affiliates:journal_detail", kwargs={"slug": self.object.slug})
 
 
 @permission_required_or_403(

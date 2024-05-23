@@ -19,6 +19,11 @@ urlpatterns = [
         views.AffiliateJournalDetailView.as_view(),
         name="journal_detail",
     ),
+    path(  # /affiliates/journals/<slug>/edit
+        "journals/<slug:slug>/update",
+        views.AffiliateJournalUpdateView.as_view(),
+        name="journal_update",
+    ),
     path(  # /affiliates/journals/<slug>/add_manager
         "journals/<slug:slug>/add_manager",
         views.affiliatejournal_add_manager,

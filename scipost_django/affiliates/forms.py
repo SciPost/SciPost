@@ -5,6 +5,10 @@ __license__ = "AGPL v3"
 from django import forms
 from django.contrib.auth.models import User
 from django.forms import BaseModelFormSet, modelformset_factory
+from django.utils.text import slugify
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field, Fieldset, Div, Submit
 
 from dal import autocomplete
 
@@ -20,6 +24,98 @@ from .models import (
 )
 
 from .regexes import DOI_AFFILIATEPUBLICATION_REGEX
+
+
+class AffiliateJournalForm(forms.ModelForm):
+    """
+    Form for creating or updating an AffiliateJournal.
+    """
+
+    class Meta:
+        model = AffiliateJournal
+        fields = [
+            "publisher",
+            "name",
+            "description",
+            "short_name",
+            "slug",
+            "acad_field",
+            "specialties",
+            "homepage",
+            "logo_svg",
+            "logo",
+        ]
+        widgets = {
+            "description": forms.Textarea(attrs={"rows": 8}),
+            "specialties": autocomplete.ModelSelect2Multiple(
+                url="/ontology/specialty-autocomplete"
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("publisher", type="hidden"),
+            Fieldset(
+                "Name / Description",
+                Div(
+                    Field("name"),
+                    Field("short_name"),
+                    Field("slug"),
+                    css_class="col-12 col-md-auto",
+                ),
+                Div(Field("description"), css_class="col-12 col-md"),
+                css_class="row",
+            ),
+            Fieldset(
+                "Ontology",
+                Div(Field("acad_field"), css_class="col"),
+                Div(Field("specialties"), css_class="col"),
+                css_class="row",
+            ),
+            Fieldset(
+                "Branding",
+                Div(Field("homepage"), css_class="col"),
+                Div(Field("logo_svg"), css_class="col"),
+                Div(Field("logo"), css_class="col"),
+                css_class="row",
+            ),
+            Submit("submit", "Save"),
+        )
+
+    def clean_slug(self):
+        input_slug = self.cleaned_data["slug"]
+        sluggified = slugify(input_slug)
+        if input_slug.lower() != sluggified.lower():
+            raise forms.ValidationError(
+                "The slug does not follow the correct format. "
+                "The proper slug would be: "
+                f"{sluggified}"
+            )
+        if (
+            AffiliateJournal.objects.exclude(pk=self.instance.pk)
+            .filter(slug=input_slug)
+            .exists()
+        ):
+            raise forms.ValidationError("This slug is already in use.")
+        return input_slug
+
+
+class AffiliateJournalManagerForm(AffiliateJournalForm):
+    """
+    A subset of the AffiliateJournalForm for journal managers,
+    offering less fields to edit.
+    """
+
+    class Meta:
+        model = AffiliateJournal
+        fields = [
+            "name",
+            "description",
+            "homepage",
+        ]
 
 
 class AffiliateJournalAddManagerForm(forms.Form):
