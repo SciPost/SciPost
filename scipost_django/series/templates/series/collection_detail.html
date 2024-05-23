@@ -104,41 +104,38 @@
     </div>
   {% endif %}
 
-  {% with active_submissions=collection.submissions.under_consideration %}
 
-    {% if active_submissions|length > 0 %}
-      <div class="row">
-        <div class="col-12">
-          <h3 class="highlight">Submissions to this Collection</h3>
-          <ul>
+  {% if collection.submissions.under_consideration|length > 0 or collection.submissions.accepted|length > 0 %}
+    <div class="row">
+      <div class="col-12">
+        <h3 class="highlight">Submissions to this Collection</h3>
+        <ul>
 
-            {% for submission in active_submissions.accepted %}
-              <li>
-                <strong class="text-success">accepted:</strong>&nbsp;
-                <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-              </li>
-            {% endfor %}
+          {% for submission in collection.submissions.accepted %}
+            <li>
+              <strong class="text-success">accepted:</strong>&nbsp;
+              <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+            </li>
+          {% endfor %}
 
-            {% for submission in active_submissions.revision_requested %}
-              <li>
-                <strong class="text-primary">awaiting resubmission:</strong>&nbsp;
-                <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-              </li>
-            {% endfor %}
+          {% for submission in collection.submissions.revision_requested %}
+            <li>
+              <strong class="text-primary">awaiting resubmission:</strong>&nbsp;
+              <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+            </li>
+          {% endfor %}
 
-            {% for submission in active_submissions.in_refereeing %}
-              <li>
-                <strong class="text-warning">under refereeing:</strong>&nbsp;
-                <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-              </li>
-            {% endfor %}
+          {% for submission in collection.submissions.in_refereeing %}
+            <li>
+              <strong class="text-warning">under refereeing:</strong>&nbsp;
+              <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+            </li>
+          {% endfor %}
 
-          </ul>
-        </div>
+        </ul>
       </div>
-    {% endif %}
-
-  {% endwith %}
+    </div>
+  {% endif %}
 
   <div class="row">
     <div class="col-12">
