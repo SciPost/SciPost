@@ -109,6 +109,45 @@ class OrganizationCreateView(PermissionsMixin, CreateView):
     form_class = OrganizationForm
     template_name = "organizations/organization_create.html"
 
+    def get_success_url(self):
+        return reverse_lazy(
+            "organizations:organization_detail", kwargs={"pk": self.object.id}
+        )
+
+    def get_form(self, form_class=None):
+        # Handle normal form submission
+        if self.request.POST.get("submit", ""):
+            return super().get_form(form_class)
+
+        form_overrides = {}
+        if self.request.POST.get("fetch_ror", ""):
+
+            # Try to fetch ROR data if ror_id is provided
+            ror_id = self.request.POST.get("ror_id", "")
+            # ror_api_handler = RORAPIHandler()
+            # ror_data = ror_api_handler.from_id(ror_id)
+            organization_fields = RORAPIHandler.organization_from_ror_id(ror_id)
+
+            # Guard against empty ror_id or no data found
+            if ror_id is None or organization_fields == {}:
+                messages.error(self.request, "No ROR data found for this ID.")
+
+            form_overrides |= organization_fields
+
+        # Construct form (with ROR data)
+        if not form_class:
+            form_class = self.get_form_class()
+        form = form_class(self.request.POST.dict() | form_overrides or None)
+
+        return form
+
+    def form_valid(self, form):
+        # Do not save the form if the user has only fetched ROR data
+        if self.request.POST.get("fetch_ror", ""):
+            return self.render_to_response(self.get_context_data(form=form))
+
+        return super().form_valid(form)
+
 
 class OrganizationUpdateView(PermissionsMixin, UpdateView):
     """
@@ -119,7 +158,47 @@ class OrganizationUpdateView(PermissionsMixin, UpdateView):
     model = Organization
     form_class = OrganizationForm
     template_name = "organizations/organization_update.html"
-    success_url = reverse_lazy("organizations:organizations")
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "organizations:organization_detail", kwargs={"pk": self.object.id}
+        )
+
+    def get_form(self, form_class=None):
+        # Handle normal form submission
+        if self.request.POST.get("submit", ""):
+            return super().get_form(form_class)
+
+        form_overrides = {}
+        if self.request.POST.get("fetch_ror", ""):
+
+            # Try to fetch ROR data if ror_id is provided
+            ror_id = self.request.POST.get("ror_id", "")
+            # ror_api_handler = RORAPIHandler()
+            # ror_data = ror_api_handler.from_id(ror_id)
+            organization_fields = RORAPIHandler.organization_from_ror_id(ror_id)
+
+            # Guard against empty ror_id or no data found
+            if ror_id is None or organization_fields == {}:
+                messages.error(self.request, "No ROR data found for this ID.")
+
+            form_overrides |= organization_fields
+
+        # Construct form (with ROR data)
+        if not form_class:
+            form_class = self.get_form_class()
+        form = form_class(
+            self.request.POST.dict() | form_overrides or None, instance=self.object
+        )
+
+        return form
+
+    def form_valid(self, form):
+        # Do not save the form if the user has only fetched ROR data
+        if self.request.POST.get("fetch_ror", ""):
+            return self.render_to_response(self.get_context_data(form=form))
+
+        return super().form_valid(form)
 
 
 class OrganizationDeleteView(PermissionsMixin, DeleteView):
@@ -582,7 +661,7 @@ def _hx_add_ror(request, pk, ror_id):
     if ror_id == "None":
         organization.ror_json = {}
     else:
-        ror_data = ror_api_handler.from_id(ror_id)
+        ror_data = ror_api_handler.fetch(ror_id)
         organization.ror_json = ror_data
 
     organization.save()

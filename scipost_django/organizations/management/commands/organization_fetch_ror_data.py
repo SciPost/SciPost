@@ -22,7 +22,7 @@ class Command(BaseCommand):
         missing = 0
         for org in Organization.objects.all():
             if ror_id := org.ror_json.get("id", None):
-                org.ror_json = ror_api_handler.from_id(ror_id)
+                org.ror_json = ror_api_handler.fetch(ror_id)
                 org.save()
                 updated += 1
             else:

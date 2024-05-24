@@ -16,13 +16,13 @@ from django.utils import timezone
 from dal import autocomplete
 from guardian.shortcuts import assign_perm
 
-from .constants import ROLE_GENERAL
+from .constants import ORGANIZATION_TYPES, ROLE_GENERAL
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
 from scipost.constants import TITLE_CHOICES
 
 from crispy_forms.helper import FormHelper, Layout
-from crispy_forms.layout import Div, Field
+from crispy_forms.layout import Div, Field, Submit
 
 
 class SelectOrganizationForm(forms.Form):
@@ -52,17 +52,105 @@ class OrganizationForm(forms.ModelForm):
         label="Superseded by",
         required=False,
     )
+    ror_id = forms.CharField(
+        label="ROR ID",
+        required=False,
+        help_text="Provide the ROR ID of the organization if available, and optionally pre-fill the form with the fetched data.",
+        widget=forms.TextInput(attrs={"placeholder": "e.g. https://ror.org/00e5k0821"}),
+    )
+    orgtype = forms.ChoiceField(
+        label="Type",
+        choices=ORGANIZATION_TYPES,
+        widget=forms.Select(attrs={"class": "form-select"}),
+    )
 
     class Meta:
         model = Organization
-        fields = "__all__"
+        fields = [
+            "name",
+            "name_original",
+            "acronym",
+            "orgtype",
+            "status",
+            "logo",
+            "country",
+            "address",
+            "parent",
+            "superseded_by",
+            "ror_json",
+        ]
+        widgets = {
+            "status": forms.RadioSelect,
+            "address": forms.Textarea(attrs={"rows": 1}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Bypass JSONField not validating empty dict default
-        self.fields["cf_associated_publication_ids"].required = False
-        self.fields["cf_balance_info"].required = False
-        self.fields["cf_expenditure_for_publication"].required = False
+
+        if self.instance.ror_json:
+            self.fields["ror_id"].initial = self.instance.ror_json.get("ror_link", "")
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("ror_id"), css_class="col"),
+                Div(
+                    Submit(
+                        "fetch_ror",
+                        "Fetch Data",
+                        css_class="btn btn-primary",
+                        formnovalidate="formnovalidate",
+                    ),
+                    css_class="col-auto mt-4",
+                ),
+                css_class="row",
+            ),
+            Div(
+                "Names",
+                Div(Field("name"), css_class="col"),
+                Div(Field("name_original"), css_class="col"),
+                Div(Field("acronym"), css_class="col"),
+                css_class="row",
+            ),
+            Div(
+                "Classification",
+                Div(
+                    Field("orgtype"),
+                    Field("logo"),
+                    css_class="col",
+                ),
+                Div(Field("status"), css_class="col"),
+                css_class="row",
+            ),
+            Div(
+                "Location",
+                Div(Field("address"), css_class="col"),
+                Div(Field("country"), css_class="col"),
+                css_class="row",
+            ),
+            Div(
+                "Relationships",
+                Div(Field("parent"), css_class="col"),
+                Div(Field("superseded_by"), css_class="col"),
+                css_class="row",
+            ),
+            Submit("submit", "Save"),
+        )
+
+    def clean_ror_id(self):
+        ror_id = self.cleaned_data["ror_id"]
+        if not ror_id.startswith("https://ror.org/"):
+            raise forms.ValidationError("The ROR ID must start with 'https://ror.org/'")
+
+        if org := (
+            Organization.objects.exclude(id=self.instance.id)
+            .filter(ror_json__ror_link=ror_id)
+            .first()
+        ):
+            raise forms.ValidationError(
+                f"This ROR ID is already in use by {org.name} ({org.get_absolute_url()})."
+            )
+        return ror_id
 
 
 class OrganizationEventForm(forms.ModelForm):

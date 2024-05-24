@@ -1,18 +1,15 @@
 {% extends 'scipost/base.html' %}
+{% load crispy_forms_tags %}
 
 {% load bootstrap %}
 
-{% block pagetitle %}: Update Organization{% endblock pagetitle %}
+{% block pagetitle %}
+  : Update Organization
+{% endblock pagetitle %}
 
 {% block content %}
   <div class="row">
-    <div class="col-12">
-      <form action="{% url 'organizations:organization_update' pk=object.id %}" method="post" enctype="multipart/form-data">
-	{% csrf_token %}
-	{{ form|bootstrap }}
-	<input type="submit" value="Submit" class="btn btn-primary">
-      </form>
-    </div>
+    <div class="col-12">{% crispy form %}</div>
   </div>
 {% endblock content %}
 
