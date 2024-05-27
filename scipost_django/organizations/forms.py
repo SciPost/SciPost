@@ -141,7 +141,7 @@ class OrganizationForm(forms.ModelForm):
 
     def clean_ror_id(self):
         ror_id = self.cleaned_data["ror_id"]
-        if not ror_id.startswith("https://ror.org/"):
+        if ror_id and ror_id.startswith("https://ror.org/"):
             raise forms.ValidationError("The ROR ID must start with 'https://ror.org/'")
 
         if org := (
