@@ -1,4 +1,3 @@
-import json
 import requests
 import urllib
 
@@ -60,7 +59,6 @@ class RORAPIHandler:
                     if k.endswith("__not"):
                         filters.append(name[k[:-5]] != v)
                     elif k.endswith("__in"):
-                        print(v, name[k[:-4]])
                         filters.append(v in name[k[:-4]])
                     else:
                         filters.append(name[k] == v)
@@ -74,7 +72,7 @@ class RORAPIHandler:
 
         geonames = result.get("locations", [{}])[0].get("geonames_details", {})
         organization_fields = {
-            "ror_json": json.dumps(result),
+            "ror_json": result,
             "name": _first_name(result, types__in="ror_display"),
             "name_original": _first_name(result, types__in="label", lang__not="en"),
             "acronym": _first_name(result, types__in="acronym"),

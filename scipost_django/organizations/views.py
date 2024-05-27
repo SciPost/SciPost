@@ -2,10 +2,12 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
+from django.http import QueryDict
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.db import transaction
@@ -37,6 +39,7 @@ from .forms import (
 )
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
+from affiliates.models import AffiliateJournal
 from funders.models import Funder
 from mails.utils import DirectMailUtil
 from mails.views import MailEditorSubview
@@ -114,30 +117,60 @@ class OrganizationCreateView(PermissionsMixin, CreateView):
             "organizations:organization_detail", kwargs={"pk": self.object.id}
         )
 
-    def get_form(self, form_class=None):
-        # Handle normal form submission
-        if self.request.POST.get("submit", ""):
-            return super().get_form(form_class)
+    def has_permission(self):
+        """
+        Allow those with explicit permission and any
+        affiliate journal managers to create organizations.
+        """
+        is_any_affiliate_manager = any(
+            self.request.user.has_perm("manage_journal_content", journal)
+            for journal in AffiliateJournal.objects.all()
+        )
+        self.is_any_affiliate_manager = (
+            is_any_affiliate_manager and not self.request.user.is_superuser
+        )
 
-        form_overrides = {}
-        if self.request.POST.get("fetch_ror", ""):
+        return super().has_permission() or is_any_affiliate_manager
 
-            # Try to fetch ROR data if ror_id is provided
-            ror_id = self.request.POST.get("ror_id", "")
-            # ror_api_handler = RORAPIHandler()
-            # ror_data = ror_api_handler.from_id(ror_id)
-            organization_fields = RORAPIHandler.organization_from_ror_id(ror_id)
+    def get_form_kwargs(self):
+        """
+        Update the form kwargs to include ROR data if requested.
+        """
+        kwargs = {}
+        ror_id = self.request.POST.get("ror_id", None)
 
-            # Guard against empty ror_id or no data found
-            if ror_id is None or organization_fields == {}:
+        ror_data = {}
+        if ror_id:
+            ror_data = RORAPIHandler.organization_from_ror_id(ror_id)
+            if ror_data == {}:
                 messages.error(self.request, "No ROR data found for this ID.")
 
-            form_overrides |= organization_fields
+            ror_data["ror_id"] = ror_id
+            kwargs = {"initial": ror_data}
 
-        # Construct form (with ROR data)
-        if not form_class:
-            form_class = self.get_form_class()
-        form = form_class(self.request.POST.dict() | form_overrides or None)
+        # Replace POST data with the ROR data
+        should_replace_ror = self.request.POST.get("fetch_ror", False)
+        if should_replace_ror:
+            # JSON fields need to be serialized for the "data" key
+            ror_data["ror_json"] = json.dumps(ror_data["ror_json"])
+            kwargs["data"] = ror_data
+
+        return super().get_form_kwargs() | kwargs
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+
+        # Disable all fields except orgtype, status and ror_id for affiliate managers
+        if getattr(self, "is_any_affiliate_manager", False):
+            for field in form.fields:
+                form.fields[field].disabled = True
+
+            form.fields["orgtype"].disabled = False
+            form.fields["status"].disabled = False
+            form.fields["ror_id"].disabled = False
+
+            form.fields["ror_json"].required = True
+            form.fields["ror_id"].required = True
 
         return form
 

@@ -82,6 +82,7 @@ class OrganizationForm(forms.ModelForm):
         widgets = {
             "status": forms.RadioSelect,
             "address": forms.Textarea(attrs={"rows": 1}),
+            "ror_json": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -93,6 +94,7 @@ class OrganizationForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
+                Div(Field("ror_json")),
                 Div(Field("ror_id"), css_class="col"),
                 Div(
                     Submit(

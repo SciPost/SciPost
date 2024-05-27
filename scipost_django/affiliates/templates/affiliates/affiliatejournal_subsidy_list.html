@@ -23,6 +23,7 @@
 	<div class="border border-warning mb-2 p-2">
 	  <strong class="text-warning">Management</strong>
 	  <h4>Add a Subsidy</h4>
+    <p>Use the form below to add a subsidy to the journal. If you do not find the organization you are looking for, you may <a href="{% url "organizations:organization_create" %}">create it</a>.</p>
 	  <form action="{% url 'affiliates:journal_add_subsidy' slug=journal.slug %}" method="post">
 	    {% csrf_token %}
 	    {{ add_subsidy_form.as_p }}
