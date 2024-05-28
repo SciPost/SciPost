@@ -110,6 +110,7 @@ class SubsidySearchForm(forms.Form):
             ("date_until", "Date until"),
             ("annot_renewal_action_date", "Renewal date"),
         ),
+        initial="date_from",
         required=False,
     )
     ordering = forms.ChoiceField(
@@ -118,6 +119,7 @@ class SubsidySearchForm(forms.Form):
             ("+", "Ascending"),
             ("-", "Descending"),
         ),
+        initial="-",
         required=False,
     )
 
