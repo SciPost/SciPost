@@ -6,7 +6,7 @@
   <a href="https://{{ domain }}{% url 'scipost:activation' contributor.id contributor.activation_key %}">Activate your account</a>
 </p>
 
-{% if contributor.invitation_key %}
+{% if not contributor.invitation_key %}
   <h3>What happens now?</h3>
   <ul>
     <li>
