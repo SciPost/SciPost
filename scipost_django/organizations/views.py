@@ -197,34 +197,30 @@ class OrganizationUpdateView(PermissionsMixin, UpdateView):
             "organizations:organization_detail", kwargs={"pk": self.object.id}
         )
 
-    def get_form(self, form_class=None):
-        # Handle normal form submission
-        if self.request.POST.get("submit", ""):
-            return super().get_form(form_class)
+    def get_form_kwargs(self):
+        """
+        Update the form kwargs to include ROR data if requested.
+        """
+        kwargs = {}
+        ror_id = self.request.POST.get("ror_id", None)
 
-        form_overrides = {}
-        if self.request.POST.get("fetch_ror", ""):
-
-            # Try to fetch ROR data if ror_id is provided
-            ror_id = self.request.POST.get("ror_id", "")
-            # ror_api_handler = RORAPIHandler()
-            # ror_data = ror_api_handler.from_id(ror_id)
-            organization_fields = RORAPIHandler.organization_from_ror_id(ror_id)
-
-            # Guard against empty ror_id or no data found
-            if ror_id is None or organization_fields == {}:
+        ror_data = {}
+        if ror_id:
+            ror_data = RORAPIHandler.organization_from_ror_id(ror_id)
+            if ror_data == {}:
                 messages.error(self.request, "No ROR data found for this ID.")
 
-            form_overrides |= organization_fields
+            ror_data["ror_id"] = ror_id
+            kwargs = {"initial": ror_data}
 
-        # Construct form (with ROR data)
-        if not form_class:
-            form_class = self.get_form_class()
-        form = form_class(
-            self.request.POST.dict() | form_overrides or None, instance=self.object
-        )
+        # Replace POST data with the ROR data
+        should_replace_ror = self.request.POST.get("fetch_ror", False)
+        if should_replace_ror:
+            # JSON fields need to be serialized for the "data" key
+            ror_data["ror_json"] = json.dumps(ror_data["ror_json"])
+            kwargs["data"] = ror_data
 
-        return form
+        return super().get_form_kwargs() | kwargs
 
     def form_valid(self, form):
         # Do not save the form if the user has only fetched ROR data
