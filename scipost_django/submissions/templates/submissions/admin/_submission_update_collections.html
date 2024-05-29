@@ -1,0 +1,5 @@
+<a class="a-hx-get"
+   hx-get="{% url 'submissions:_hx_submission_update_collections_form' submission.preprint.identifier_w_vn_nr %}"
+   hx-target="#submission-{{ submission.id }}-update-collections">
+  Update the target Collections&emsp;<em>(currently:&emsp;{{ submission.collections.all|join:", " }})</em>
+</a>

@@ -152,6 +152,16 @@ urlpatterns = [
         name="_hx_submission_update_target_proceedings_form",
     ),
     path(
+        "admin/<identifier:identifier_w_vn_nr>/_hx_submission_update_collections",
+        views._hx_submission_update_collections,
+        name="_hx_submission_update_collections",
+    ),
+    path(
+        "admin/<identifier:identifier_w_vn_nr>/_hx_submission_update_collections_form",
+        views._hx_submission_update_collections_form,
+        name="_hx_submission_update_collections_form",
+    ),
+    path(
         "admin/<identifier:identifier_w_vn_nr>/_hx_submission_update_preprint_file",
         views._hx_submission_update_preprint_file,
         name="_hx_submission_update_preprint_file",

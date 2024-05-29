@@ -2125,6 +2125,32 @@ class SubmissionTargetProceedingsForm(forms.ModelForm):
         )
 
 
+class SubmissionCollectionsForm(forms.ModelForm):
+    """Change the target Collections for the Submission."""
+
+    class Meta:
+        model = Submission
+        fields = []
+
+    collections = forms.ModelMultipleChoiceField(
+        queryset=Collection.objects.all(),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["collections"].initial = self.instance.collections.all()
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("collections"),
+            ButtonHolder(Submit("submit", "Update", css_class="btn btn-danger")),
+        )
+
+    def save(self):
+        """Update the target Collections for the Submission."""
+        self.instance.collections.set(self.cleaned_data["collections"])
+
+
 class SubmissionPreprintFileForm(forms.ModelForm):
     """Change the submitted pdf for the Submission."""
 

@@ -72,6 +72,7 @@ from ..forms import (
     FigsharePrefillForm,
     OSFPreprintsPrefillForm,
     ConfigureRefereeInvitationForm,
+    SubmissionCollectionsForm,
     SubmissionForm,
     SubmissionPoolSearchForm,
     SubmissionOldSearchForm,
@@ -2711,6 +2712,48 @@ def _hx_submission_update_target_proceedings_form(request, identifier_w_vn_nr):
     return render(
         request,
         "submissions/admin/_hx_submission_update_target_proceedings_form.html",
+        context,
+    )
+
+@permission_required("scipost.can_fix_College_decision")
+def _hx_submission_update_collections(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    return render(
+        request,
+        "submissions/admin/_submission_update_collections.html",
+        context={
+            "submission": submission,
+        },
+    )
+
+@permission_required("scipost.can_fix_College_decision")
+def _hx_submission_update_collections_form(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    target_old = ", ".join([str(c) for c in submission.collections.all()])
+    form = SubmissionCollectionsForm(request.POST or None, instance=submission)
+    context = {
+        "submission": submission,
+    }
+    if form.is_valid():
+        form.save()
+        if form.has_changed():
+            submission.add_general_event(
+                "The Collections have been changed from %s to %s"
+                % (target_old, str(submission.proceedings))
+            )
+        return render(
+            request,
+            "submissions/admin/_submission_update_collections.html",
+            context,
+        )
+    context["form"] = form
+    return render(
+        request,
+        "submissions/admin/_hx_submission_update_collections_form.html",
         context,
     )
 

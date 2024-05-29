@@ -77,6 +77,15 @@
 		    </a>
 		  </li>
 		{% endif %}
+		  <li>
+		    <a class="a-hx-get"
+		       hx-get="{% url 'submissions:_hx_submission_update_collections' submission.preprint.identifier_w_vn_nr %}"
+		       hx-target="this"
+		       hx-swap="outerHTML"
+		    >
+		      Update the Collections&emsp;<em>(currently:&emsp;{{ submission.collections.all|join:", " }})</em>
+		    </a>
+		  </li>
 		{% if submission.preprint.has_file %}
 		  <li>
 		    <a class="a-hx-get"
