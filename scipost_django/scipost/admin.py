@@ -7,6 +7,7 @@ from django import forms
 
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Permission
+from django.contrib.sessions.models import Session
 
 from scipost.models import (
     TOTPDevice,
@@ -21,6 +22,17 @@ from organizations.admin import ContactInline
 from production.admin import ProductionUserInline
 from profiles.models import Profile
 from submissions.models import Submission
+
+
+@admin.register(Session)
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ["session_key", "_session_data", "expire_date"]
+    search_fields = ["session_key"]
+
+    def _session_data(self, obj):
+        return obj.get_decoded()
+
+    sortable_by = ["expire_date"]
 
 
 class TOTPDeviceAdmin(admin.ModelAdmin):
@@ -40,8 +52,6 @@ class UnavailabilityPeriodAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "contributor",
     ]
-
-
 
 
 @admin.register(Contributor)
@@ -96,7 +106,6 @@ class UserAdmin(UserAdmin):
     )
     def is_duplicate(self, obj):
         return obj.contributor.is_duplicate
-
 
 
 admin.site.unregister(User)
@@ -154,8 +163,6 @@ class RemarkAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 @admin.register(AuthorshipClaim)
 class AuthorshipClaimAdmin(admin.ModelAdmin):
     autocomplete_fields = [
@@ -172,13 +179,9 @@ class AuthorshipClaimAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 admin.site.register(Permission)
 
 
 @admin.register(PrecookedEmail)
 class PrecookedEmailAdmin(admin.ModelAdmin):
     search_fields = ["email_subject", "email_text", "emailed_to"]
-
-
