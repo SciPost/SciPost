@@ -16,7 +16,7 @@
 
       <div class="col-sm-6 col-md-3 mb-3 mb-md-0">
         <ul class="list-unstyled">
-          <li><a href="mailto:admin@{{ request.get_host }}">Contact the administrators</a></li>
+          <li><a href="{% url "scipost:contact" %}">Contact us</a></li>
 	  {% if request.user.is_authenticated %}
 	    <li><a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a></li>
 	  {% endif %}
