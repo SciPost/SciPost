@@ -6,6 +6,7 @@ from functools import reduce
 import gzip
 from io import UnsupportedOperation
 from itertools import chain, cycle
+import re
 from typing import Any, Callable, Dict, List, Tuple
 from time import sleep
 
@@ -265,6 +266,9 @@ class Command(BaseCommand):
             Abbreviate an author's name by taking the first letter\
             of their first and middle names, and their full last name.
             """
+
+            # Add spaces after dots, e.g. T.V.Brown -> T. V. Brown
+            author = re.sub(r"\.(\w)", r". \1", author)
 
             # TODO: This is somewhat naive, but it should work for now.
             first_name, *middle_names, last_name = author.split(" ")
