@@ -1,15 +1,20 @@
-Dear {{ assignment.to.profile.get_title_display }} {{ assignment.to.user.last_name }},
+<p>Dear {{ assignment.to.profile.get_title_display }} {{ assignment.to.user.last_name }},</p>
 
-Thank you for accepting to become Editor-in-charge of the SciPost Submission
-
+<p>
+  Thank you for accepting to become Editor-in-charge of the SciPost Submission<br />
 {{ assignment.submission.title }} by {{ assignment.submission.author_list }}.
+</p>
 
-You can take your editorial actions from <a href="https://{{ domain }}{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">the editorial page</a>.
+<p>You can take your editorial actions from <a href="https://{{ domain }}{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">the editorial page</a>.</p>
 
-In particular, you should now make sure at least 3 referees have been invited; you might want to make sure you are aware of the detailed procedure described in <a href="https://{{ domain }}{% url 'scipost:EdCol_by-laws' %}">the Editorial College by-laws</a>.
+<p>
+  In particular, you should now make sure at least 3 referees have been invited; 
+  you might want to make sure you are aware of the detailed procedure described in <a href="https://{{ domain }}{% url 'scipost:EdCol_by-laws' %}">the Editorial College by-laws</a>.
+</p>
 
-Many thanks in advance for your collaboration,
-
-SciPost Editorial Administration
+<p>
+  Many thanks in advance for your collaboration,<br />
+  SciPost Editorial Administration
+</p>
 
 {% include 'email/_submission_thread_uuid.html' with submission=assignment.submission %}

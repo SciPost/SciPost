@@ -1,13 +1,15 @@
-Dear {{ assignment.to.profile.get_title_display }} {{ assignment.to.user.last_name }},
+<p>Dear {{ assignment.to.profile.get_title_display }} {{ assignment.to.user.last_name }},</p>
 
-We have deprecated your assignment as Editor-in-charge of Submission
+<p>
+  We have deprecated your assignment as Editor-in-charge of Submission<br />
+  {{ assignment.submission.title }} by {{ assignment.submission.author_list }}.
+</p>
 
-{{ assignment.submission.title }} by {{ assignment.submission.author_list }}.
+<p>To see your current active assignments, check <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}?editor_in_charge=on.">the Pool</a>.</p>
 
-To see your current active assignments, check <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}?editor_in_charge=on.">the Pool</a>.
-
-Many thanks for your valuable work,
-
-SciPost Editorial Administration
+<p>
+  Many thanks for your valuable work,<br>
+  SciPost Editorial Administration
+</p>
 
 {% include 'email/_submission_thread_uuid.html' with submission=assignment.submission %}
