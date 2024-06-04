@@ -574,17 +574,9 @@ class FellowshipNominationForm(forms.ModelForm):
 
 
 class FellowshipNominationSearchForm(forms.Form):
-    all_nominations = FellowshipNomination.objects.all()
-    nomination_colleges = all_nominations.values_list("college", flat=True).distinct()
-
     nominee = forms.CharField(max_length=100, required=False, label="Nominee")
 
-    college = forms.MultipleChoiceField(
-        choices=College.objects.filter(id__in=nomination_colleges)
-        .order_by("name")
-        .values_list("id", "name"),
-        required=False,
-    )
+    college = forms.MultipleChoiceField(required=False)
 
     decision = forms.ChoiceField(
         choices=[("", "Any"), ("pending", "Pending")]
@@ -648,6 +640,13 @@ class FellowshipNominationSearchForm(forms.Form):
         self.user = kwargs.pop("user")
         self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
+
+        self.fields["college"].choices = (
+            FellowshipNomination.objects.all()
+            .values_list("college__id", "college__name")
+            .order_by("college__name")
+            .distinct()
+        )
 
         # Set the initial values of the form fields from the session data
         if self.session_key:
