@@ -221,6 +221,10 @@ def submit_choose_preprint_server(request, journal_doi_label):
     Choose a preprint server. If `thread_hash` is given as a GET parameter, this is a resubmission.
     """
     journal = get_object_or_404(Journal, doi_label=journal_doi_label)
+    # Guard against inactive journals
+    if not (journal.active or request.user.is_staff):
+        raise PermissionDenied("Journal is not active")
+
     preprint_servers = PreprintServer.objects.filter(
         acad_fields=journal.college.acad_field
     )
@@ -320,6 +324,11 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         """
         Redirect to `submit_choose_preprint_server` if preprint identifier is not known.
         """
+        # Guard against inactive journals
+        journal = get_object_or_404(Journal, doi_label=journal_doi_label)
+        if not (journal.active or request.user.is_staff):
+            raise PermissionDenied("Journal is not active")
+
         if self.prefill_form.is_valid():
             if self.prefill_form.is_resubmission():
                 resubmessage = (
@@ -2715,6 +2724,7 @@ def _hx_submission_update_target_proceedings_form(request, identifier_w_vn_nr):
         context,
     )
 
+
 @permission_required("scipost.can_fix_College_decision")
 def _hx_submission_update_collections(request, identifier_w_vn_nr):
     submission = get_object_or_404(
@@ -2727,6 +2737,7 @@ def _hx_submission_update_collections(request, identifier_w_vn_nr):
             "submission": submission,
         },
     )
+
 
 @permission_required("scipost.can_fix_College_decision")
 def _hx_submission_update_collections_form(request, identifier_w_vn_nr):

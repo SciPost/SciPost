@@ -304,6 +304,10 @@ def journal_detail(request, doi_label):
     or paginates its individual Publications.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
+    # Guard against inactive journals
+    if not (journal.active or request.user.is_staff):
+        raise PermissionDenied("Journal is not active")
+
     accepted_submission_ids = [
         sub.id
         for sub in Submission.objects.accepted()
@@ -1010,7 +1014,9 @@ def _hx_citation_list_item_form(request, doi_label, index: int | None = None):
     else:
         index = len(publication.metadata["citation_list"])
         form = CitationListItemForm(
-            request.POST or None, instance=publication, index=index,
+            request.POST or None,
+            instance=publication,
+            index=index,
         )
 
     if request.method == "POST":

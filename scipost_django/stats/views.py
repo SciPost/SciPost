@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 import datetime
 
 from django.contrib.auth.decorators import permission_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
@@ -66,6 +67,10 @@ def statistics(
     }
     if journal_doi_label:
         journal = get_object_or_404(Journal, doi_label=journal_doi_label)
+        # Guard against inactive journals
+        if not (journal.active or request.user.is_staff):
+            raise PermissionDenied("Journal is not active")
+
         context["journal"] = journal
         if year:
             context["year"] = year
