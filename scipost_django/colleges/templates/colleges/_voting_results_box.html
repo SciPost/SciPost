@@ -4,13 +4,13 @@
   <li class="list-group-item p-2 text-success">Agree: {{ voting_round.votes.agree.count }}</li>
   <li class="list-group-item p-2 text-warning">Abstain: {{ voting_round.votes.abstain.count }}</li>
   <li class="list-group-item p-2 text-danger">Disagree: {{ voting_round.votes.disagree.count }}</li>
-
+  
   {% if not is_ed_admin %}
     <li class="list-group-item p-2 text-black">Veto: {{ voting_round.nomination.vetoes.count }}</li>
   {% else %}
 
-    {% if voting_round.nomination.vetoes %}
-      <li class="list-group-item p-2 text-black fs-3">Nomination vetoed!</li>
+    {% if voting_round.nomination.vetoes.all %}
+      <li class="list-group-item p-2 text-black fs-3">Nomination vetoed by {{ voting_round.nomination.vetoes.count }} voters</li>
     {% endif %}
 
   {% endif %}
