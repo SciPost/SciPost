@@ -1102,6 +1102,12 @@ class AbstractJATSUpdateView(
 
     form_class = AbstractJATSForm
     template_name = "journals/create_abstract_jats.html"
+    
+    def get_success_url(self):
+        return reverse(
+            "journals:abstract_jats",
+            kwargs={"doi_label": self.object.doi_label},
+        )
 
 
 class FundingInfoView(
