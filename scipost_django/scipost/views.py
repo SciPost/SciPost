@@ -210,12 +210,6 @@ def portal_hx_home(request):
     context = {
         "news_items": news_items,
         "latest_blogpost": latest_blogpost,
-        "publications": Publication.objects.published()
-        .exclude(doi_label__contains="Proc")
-        .order_by("-publication_date", "-paper_nr")
-        .prefetch_related("in_issue__in_journal", "specialties", "collections__series")[
-            :5
-        ],
     }
     return render(request, "scipost/portal/_hx_home.html", context)
 

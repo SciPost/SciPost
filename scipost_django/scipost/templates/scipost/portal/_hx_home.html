@@ -1,150 +1,142 @@
 {% load static %}
 
-<div class="row">
+<div class="row g-4">
   <div class="col-md-8">
 
-    <h1 class="highlight mt-0">The Home of Genuine Open Publishing</h1>
-    <h2 class="ms-4 mb-4">SciPost is a complete publishing infrastructure
-    <br>
-    serving professional scientists worldwide.</h2>
+    {% include 'scipost/portal/_home_scipost_intro.html' %}
+
+    <div class="d-block d-md-none">{% include 'scipost/portal/_home_register_prompt.html' %}</div>
 
     <div hx-trigger="load once"
          hx-swap="outerHTML"
-         hx-get="{% url "scipost:portal_hx_recent_publications" %}"></div>
+         hx-get="{% url "scipost:portal_hx_recent_publications" %}">
+      <h2 class="highlight mt-0">Recent Publications</h2>
+      <div class="placeholder-glow d-flex flex-column gap-4">
+
+        {% for i_repeat in '12345' %}
+          <div class="d-flex flex-column gap-2">
+            <div class="placeholder w-25"></div>
+            <div class="placeholder w-100"></div>
+            <div class="placeholder w-75"></div>
+            <div class="placeholder w-25"></div>
+          </div>
+        {% endfor %}
+
+      </div>
+    </div>
   </div>
 
   <div class="col-md-4">
 
-    {% if not user.is_authenticated %}
-      <!-- Register -->
-      <div class="card border border-danger mb-3">
-	<div class="card-header">
-	  <h3>Register</h3>
-	</div>
-	<div class="card-body">
-	  <p class="mb-1">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="{% url 'scipost:register' %}">registration form</a>.</p>
-	</div><!-- End Register -->
-      </div>
-    {% endif %}
+    <div class="d-none d-md-block">{% include 'scipost/portal/_home_register_prompt.html' %}</div>
 
     <!-- News -->
     <div class="news">
-      <h2 class="highlight mt-0">News
-    	<a class="btn btn-link btn-sm" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">{% include 'bi/rss-fill.html' %}</a>
+      <h2 class="highlight mt-0">
+        <a href="{% url "news:news" %}" class="text-body">News</a>
       </h2>
       <ul>
-      	{% for news in news_items %}
-      	  <li>
-	    <div class="date">{{ news.date|date:'d' }}<span class="month">{{ news.date|date:'M' }}</span></div>
-	    <div>
-              <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
-	      {% if news.image %}
-		<div class="p-2">
-		  <img class="mb-3 mb-sm-0 {{ news.image.css_class }}"
-		       style="max-height: 80%; max-width: 80%;"
-		       src="{{ news.image.url }}" alt="image"/>
-		</div>
-	      {% endif %}
-              <p>{{ news.blurb_short|safe|linebreaksbr }}</p>
-	    </div>
-      	  </li>
-      	{% endfor %}
-      </ul>
 
-    </div><!-- End news -->
+        {% for news in news_items %}
+          <li>
+            <div class="date">
+              {{ news.date|date:'d' }}<span class="month">{{ news.date|date:'M' }}</span>
+            </div>
+            <div>
+              <h3>
+                <a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a>
+              </h3>
+
+              {% if news.image %}
+                <div class="p-2">
+                  <img class="mb-3 mb-sm-0 {{ news.image.css_class }}"
+                       style="max-height: 80%;
+                              max-width: 80%"
+                       src="{{ news.image.url }}"
+                       alt="image" />
+                </div>
+              {% endif %}
+
+              <p>{{ news.blurb_short|safe|linebreaksbr }}</p>
+            </div>
+          </li>
+        {% endfor %}
+
+      </ul>
+    </div>
+    <!-- End news -->
 
   </div>
-
 </div>
 
-
-<div class="row">
-  <div class="col-md-4 mb-4">
-    <div class="card">
-      <div class="card-header">
-	<h2 class="my-2">Our purpose: <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a></h2>
+<div class="row g-4">
+  <div class="col-md-8">
+    <h2 class="highlight my-2">
+      <a href="{% url "sponsors:sponsors" %}" class="text-body">Sponsors</a>
+    </h2>
+    <div class="row px-3">
+      <div class="col-md-6">
+        <p>
+          We invite <a href="{% url 'organizations:organizations' %}">organizations benefitting from SciPost's activities</a> to join our growing <a href="{% url 'sponsors:sponsors' %}">list of Sponsors</a>. Look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a>.
+        </p>
+        <p>
+          <strong>Scientists, please help us out:</strong> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.
+        </p>
+        <a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
       </div>
-      <div class="card-body">
-	<div class="row">
-	  <div class="col">
-	    <ul class="list list-unstyled">
-	      <li>{% include 'bi/check-square.html' %}&nbsp;Community Ownership</li>
-	      <li>{% include 'bi/check-square.html' %}&nbsp;Open Infrastructure</li>
-	      <li>{% include 'bi/check-square.html' %}&nbsp;Copyright to Authors</li>
-	      <li>{% include 'bi/check-square.html' %}&nbsp;Open Access</li>
-	      <li>{% include 'bi/check-square.html' %}&nbsp;Open Citations</li>
-	    </ul>
-	  </div>
-	  <div class="col">
-	    <ul class="list list-unstyled">
-	      <li>{% include 'bi/check-square.html' %}&nbsp;Fee Free</li>
-	      <li>{% include 'bi/check-square.html' %}&nbsp;Non Profit</li>
-	      <li>{% include 'bi/check-square.html' %}&nbsp;Open Finances</li>
-	      <li>{% include 'bi/check-square.html' %}&nbsp;Academic Editing</li>
-	    </ul>
-	  </div>
-	</div>
+      <div class="col-md-6">
+        <div id="sponsor-logos"
+             class="sp-swap"
+             hx-get="{% url 'scipost:_hx_sponsors' %}"
+             hx-push-url="false"
+             hx-trigger="load"
+             hx-swap="outerHTML swap:1s"></div>
       </div>
     </div>
   </div>
 
-  <div class="col-md-8 mb-4">
-    <div class="card">
-      <div class="card-header">
-	<h2 class="my-2">Sponsors</h2>
-      </div>
-      <div class="card-body">
-	<div class="row">
-	  <div class="col-md-6">
-	    <p>
-	      We invite <a href="{% url 'organizations:organizations' %}">organizations benefitting from SciPost's activities</a> to join our growing <a href="{% url 'sponsors:sponsors' %}">list of Sponsors</a>. Look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a>.
-	    </p>
-	    <p>
-	      <strong>Scientists, please help us out:</strong> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.
-	    </p>
-	  </div>
-	  <div class="col-md-6">
-	    <a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
-	    <br>
-	    <div id="sponsor-logos" class="sp-swap"
-		 hx-get="{% url 'scipost:_hx_sponsors' %}"
-		 hx-push-url="false"
-		 hx-trigger="load"
-		 hx-swap="outerHTML swap:1s"
-	    >
-	    </div>
-	  </div>
-	</div>
+  {% if latest_blogpost %}
+    <div class="col-md-4">
+      <div class="news">
+        <h2 class="highlight my-2">
+          <a href="{% url "blog:blog_index" %}" class="text-body">Blog</a>
+        </h2>
+        <ul class="px-3">
+          <li>
+            <div class="date">
+              {{ latest_blogpost.date_posted|date:'d' }}<span class="month">{{ latest_blogpost.date_posted|date:'M' }}</span>
+            </div>
+            <div>
+              <h3>
+                <a href="{{ latest_blogpost.get_absolute_url }}">{{ latest_blogpost.title }}</a>
+              </h3>
+              <p>{{ latest_blogpost.blurb }}</p>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
-  </div>
+  {% endif %}
 
-  <div class="col-md-4">
-    <div class="card mb-2">
-      <div class="card-header">
-	<h2 class="my-2">Further info</h2>
-      </div>
-      <div class="card-body">
-	<div class="row">
-	  <div class="col">
-	    <ul class="list list-unstyled">
-	      <li><a href="{% url 'scipost:about' %}">About SciPost</a></li>
-	      <li><a href="{% url 'scipost:foundation' %}">The Foundation</a></li>
-	      <li><a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
-	      <li><a href="{% url 'scipost:contact' %}">Contact us</a></li>
-	      <li><a href="{% url 'careers:job_openings' %}">Careers&#64;SciPost</a></li>
-	      <li><a href="{% url 'blog:blog_index' %}">Blog</a></li>
-	    </ul>
-	  </div>
-	  <div class="col">
-	    <ul class="list list-unstyled">
-	      <li><a href="https://disc.{{ request.get_host }}" target="_blank" rel="noopener">{% include 'bi/chat-right-text.html' %} Community</a></li>
-	      <li><a href="https://git.{{ request.get_host }}" target="_blank" rel="noopener">{% include 'bi/code-square.html' %} git.{{ request.get_host }}</a></li>
-	      <li class="mt-2">	<a href="{% url 'finances:business_model' %}">Our Business Model</a></li>
-	      <li><a href="{% url 'organizations:organizations' %}">Organizations <span class="small">benefitting from our activities</span></a></li>
-	    </ul>
-	  </div>
-	</div>
+  <div class="col-md-8">
+    <h2 class="highlight my-2">
+      <a href="{% url "finances:business_model" %}" class="text-body">Business Model</a>
+    </h2>
+    <div class="row px-3">
+      <div class="col">
+        <img src="{% static 'finances/SciPost_Business_Model_Sketch.jpg' %}"
+             alt="SciPost business model sketch"
+             style="max-width: 15rem"
+             height="auto"
+             width="auto"
+             class="float-end ms-3 mb-3" />
+        <p>
+          We don't charge authors, we don't charge readers, and we don't make any profit; we are an <strong>academic community service</strong> surviving on support from Organizations which benefit from our activities.
+        </p>
+        <p>
+          Regarding our operations, we run them in the most efficient way possible, with <strong>complete transparency</strong>, for the benefit not only of scientists worldwide, but also of their supporting Organizations (and anybody else interested in science).
+        </p>
+        <p>More information about our business model can be found <a href="{% url "finances:business_model" %}">here</a>.</p>
       </div>
     </div>
 
@@ -152,34 +144,6 @@
 
   <div class="col-md-4"
        hx-get="{% url 'scipost:_hx_participates_in' %}"
-       hx-push-url="false"
-       hx-trigger="load"
-  >
-  </div>
-
-  {% if latest_blogpost %}
-    <div class="col-md-4">
-      <div class="card news">
-	<div class="card-header">
-	  <h2 class="my-2">Blog</h2>
-	</div>
-	<div class="card-body">
-	  <ul>
-	    <li>
-	      <div class="date">{{ latest_blogpost.date_posted|date:'d' }}<span class="month">{{ latest_blogpost.date_posted|date:'M' }}</span></div>
-	      <div>
-		<h3>
-		  <a href="{{ latest_blogpost.get_absolute_url }}">
-		    {{ latest_blogpost.title }}
-		  </a>
-		</h3>
-		<p>{{ latest_blogpost.blurb }}</p>
-	      </div>
-	    </li>
-	  </ul>
-	</div>
-      </div>
-    </div>
-  {% endif %}
+       hx-trigger="load once"></div>
 
 </div>
