@@ -2,30 +2,23 @@
 {% load scipost_extras %}
 
 <div id="sponsor-logos"
-     class="d-flex sp-swap"
-     style="max-height: 250px;"
+     class="d-flex flex-column justify-content-center sp-swap h-100"
      hx-get="{% url 'scipost:_hx_sponsors' %}?dt={{ request.GET.dt|increment_dt }}"
      hx-push-url="false"
      hx-trigger="every {{ request.GET.dt|increment_dt }}s"
      hx-swap="outerHTML swap:1s">
 
   {% if sponsor.logo %}
-    <picture class="mx-auto d-flex flex-column w-100">
-      <img class="p-2 {{ sponsor.css_class }}"
-           style="max-height: 100%;
-                  max-width: 100%;
-                  object-fit: contain"
-           src="{{ sponsor.logo.url }}"
-           alt="{{ sponsor.name }} logo" />
-
-      <caption>
-        <a href="{{ sponsor.get_absolute_url }}" target="_blank">{{ sponsor.name }}</a>
-      </caption>
-    </picture>
+    <img class="p-2 {{ sponsor.css_class }}"
+         style="max-height: 150px;
+                max-width: 100%;
+                object-fit: contain"
+         src="{{ sponsor.logo.url }}"
+         alt="{{ sponsor.name }} logo" />
   {% else %}
-    <h2 class="mt-2">
-      <a href="{{ sponsor.get_absolute_url }}" target="_blank">{{ sponsor.name }}</a>
-    </h2>
+    <a href="{{ sponsor.get_absolute_url }}"
+       class="fs-2 text-center"
+       target="_blank">{{ sponsor.name }}</a>
   {% endif %}
 
 </div>
