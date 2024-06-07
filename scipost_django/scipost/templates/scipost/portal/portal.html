@@ -7,6 +7,7 @@
 {% load user_groups %}
 
 {% block basebundle %}
+  {{ block.super }}
   {% render_bundle 'style' %}
   {% get_files 'base' as base_scripts %}
   {% for file in base_scripts %}

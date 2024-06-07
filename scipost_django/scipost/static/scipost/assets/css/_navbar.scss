@@ -213,7 +213,6 @@
 
     .container {
         position: relative;
-	max-width: 1440px;
     }
 
     .separator {
@@ -466,7 +465,6 @@ header .nav-item {
     margin: 0;
 
     li button, li a {
-	border: 2px solid $scipost-blue48;
 	color: #eee;
 	font-size: 0.8rem;
 	font-weight: 800;
@@ -490,7 +488,6 @@ header .nav-item {
 
     li button:hover, li a:hover {
 	//background-color: $scipost-lightestblue;//#b8c8db;
-	border: 2px solid $scipost-darkblue;
 	//color: black;
 	text-decoration: underline;
     }
