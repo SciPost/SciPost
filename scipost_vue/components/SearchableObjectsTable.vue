@@ -44,6 +44,7 @@
 	    <input
 	      v-model="basicSearchQuery"
 	      type="text"
+          autofocus
 	      class="form-control"
 	      :id="'basicSearchInput-' + uId"
 	      :placeholder="basicSearchInputLabel"
