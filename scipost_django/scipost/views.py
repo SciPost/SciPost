@@ -44,6 +44,7 @@ from django.views.static import serve
 from dal import autocomplete
 from guardian.decorators import permission_required
 import requests
+from ontology.forms import AcadFieldSpecialtyForm
 from scipost.permissions import permission_required_htmx, HTMXResponse
 
 from .constants import SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR
@@ -217,6 +218,27 @@ def portal_hx_home(request):
         ],
     }
     return render(request, "scipost/portal/_hx_home.html", context)
+
+
+def portal_hx_recent_publications(request):
+    form = AcadFieldSpecialtyForm(request.POST or None)
+    acad_field = request.POST.get("acad_field_slug", None)
+    specialty = request.POST.get("specialty_slug", None)
+
+    publications = Publication.objects.published()
+    filter_q = Q()
+    if acad_field and acad_field != "all":
+        filter_q &= Q(acad_field__slug=acad_field)
+    if specialty and specialty != "all":
+        filter_q &= Q(specialties__slug=specialty)
+
+    publications = (
+        publications.filter(filter_q)
+        .order_by("-publication_date")
+        .prefetch_related("in_issue__in_journal", "specialties", "collections__series")
+    )
+    context = {"publications": publications[:5], "form": form}
+    return render(request, "scipost/portal/_hx_recent_publications.html", context)
 
 
 @login_required

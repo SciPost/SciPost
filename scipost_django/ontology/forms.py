@@ -29,6 +29,47 @@ def academic_field_slug_choices():
     return choices
 
 
+class AcadFieldSpecialtyForm(forms.Form):
+    """
+    A form to select an academic field and its associated specialties.
+    """
+
+    acad_field_slug = forms.ChoiceField(
+        label="Academic Field", choices=academic_field_slug_choices()
+    )
+    specialty_slug = forms.ChoiceField(label="Specialty", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Delete specialty_slug field from the form if acad_field_slug is not set
+        acad_field_slug = self.data.get("acad_field_slug")
+        if acad_field_slug is None or acad_field_slug == "all":
+            del self.fields["specialty_slug"]
+        else:
+            self.set_specialty_choices()
+
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Div(
+                FloatingField("specialty_slug"),
+                FloatingField("acad_field_slug"),
+                css_class="d-flex flex-row gap-2",
+            )
+        )
+
+    def set_specialty_choices(self):
+        acad_field_slug = self.data.get("acad_field_slug")
+        specialties = (
+            Specialty.objects.filter(acad_field__slug=acad_field_slug)
+            if acad_field_slug
+            else Specialty.objects.none()
+        )
+        self.fields["specialty_slug"].choices = [("all", "All specialties")] + [
+            (specialty.slug, str(specialty)) for specialty in specialties.all()
+        ]
+
+
 class SessionAcademicFieldForm(forms.Form):
     acad_field_slug = forms.ChoiceField(
         label="Academic Field", choices=academic_field_slug_choices()

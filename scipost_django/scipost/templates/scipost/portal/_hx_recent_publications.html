@@ -1,0 +1,26 @@
+{% load crispy_forms_tags %}
+
+<div class="publications">
+  <h2 class="highlight px-3 d-flex flex-row justify-content-between align-items-center">
+    <a href="{% url "journals:publications" %}" class="text-body">Recent publications</a>
+    <form hx-trigger="input change"
+          hx-target="div.publications"
+          hx-swap="outerHTML"
+          hx-post="{% url "scipost:portal_hx_recent_publications" %}">
+      {% crispy form %}
+    </form>
+  </h2>
+
+  <div class="publication-list">
+
+    {% for publication in publications %}
+      {% include 'journals/_publication_li_content-alt.html' with publication=publication %}
+    {% empty %}
+      <div class="publication">
+        <p class="fs-3 px-2">No publications found.</p>
+      </div>
+ 
+    {% endfor %}
+
+  </div>
+</div>

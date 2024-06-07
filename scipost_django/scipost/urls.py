@@ -92,6 +92,11 @@ urlpatterns = [
         name="portal_hx_publications",
     ),
     path(
+        "portal/_hx_recent_publications",
+        views.portal_hx_recent_publications,
+        name="portal_hx_recent_publications",
+    ),
+    path(
         "portal/_hx_publications_page",
         views.portal_hx_publications_page,
         name="portal_hx_publications_page",

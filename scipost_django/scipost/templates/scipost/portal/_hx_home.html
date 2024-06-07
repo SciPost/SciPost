@@ -8,15 +8,9 @@
     <br>
     serving professional scientists worldwide.</h2>
 
-    <div class="publications">
-      <h2 class="highlight">Selected publications</h2>
-
-      <div class="publication-list">
-        {% for publication in publications %}
-	  {% include 'journals/_publication_li_content-alt.html' with publication=publication %}
-        {% endfor %}
-      </div>
-    </div>
+    <div hx-trigger="load once"
+         hx-swap="outerHTML"
+         hx-get="{% url "scipost:portal_hx_recent_publications" %}"></div>
   </div>
 
   <div class="col-md-4">
