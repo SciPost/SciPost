@@ -7,66 +7,94 @@
 
       <div class="col-sm-6 col-md-3 mb-3 mb-md-0">
         <ul class="list-unstyled">
-          <li>Copyright &copy; <a href="{% url 'scipost:foundation' %}" target="_blank">SciPost Foundation</a></li>
-          <li><a href="{% url 'scipost:about' %}">About SciPost</a></li>
+          <li>&copy; <a href="{% url 'scipost:foundation' %}" target="_blank">SciPost Foundation</a></li>
+          <li><a href="{% url 'scipost:about' %}">About us</a></li>
+          <li><a href="{% url 'finances:business_model' %}">Business model</a></li>
           <li><a href="{% url 'scipost:terms_and_conditions' %}">Terms and conditions</a></li>
-          <li><a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
         </ul>
       </div>
 
       <div class="col-sm-6 col-md-3 mb-3 mb-md-0">
         <ul class="list-unstyled">
           <li><a href="{% url "scipost:contact" %}">Contact us</a></li>
-	  {% if request.user.is_authenticated %}
-	    <li><a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a></li>
-	  {% endif %}
+          <li><a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
+          <li><a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a></li>
           <li><a href="mailto:techsupport@{{ request.get_host }}">Write to tech support</a></li>
-          <li><a href="https://git.{{ request.get_host }}" target="_blank" rel="noopener">{% include 'bi/code-square.html' %} git.{{ request.get_host }}</a></li>
-	</ul>
+        </ul>
       </div>
 
       <div class="col-sm-6 col-md-3 mb-3 mb-md-0">
         <ul class="list-unstyled">
-          <li><a href="{% url 'organizations:organizations' %}">Organizations&nbsp;<small>benefitting<br/>&emsp;&emsp;from&nbsp;our&nbsp;activities</small></a></li>
+          <li><a href="{% url 'finances:finances' %}" target="_blank">Finances</a></li>
           <li><a href="{% url 'sponsors:sponsors' %}">Sponsors</a></li>
-          <li><a href="{% url 'finances:finances' %}" target="_blank">Finances</a>&emsp;-&emsp;<a href="{% url 'finances:business_model' %}">Our business model</a>
-	  </li>
-	</ul>
+          <li><a href="{% url 'organizations:organizations' %}">Benefitting Organizations</a></li>
+        </ul>
       </div>
+
       <div class="col-sm-6 col-md-3 mb-3 mb-md-0 text-md-right">
-    	<ul class="list-unstyled">
+        <ul class="list-unstyled">
           <li><a href="{% url 'news:news' %}">News</a></li>
           <li><a href="{% url 'blog:blog_index' %}">Blog</a></li>
-          <li><a href="{% url 'scipost:feeds' %}">Feeds</a></li>
-          <li><a href="https://disc.{{ request.get_host }}" target="_blank" rel="noopener">Community</a></li>
-    	</ul>
-
+          <li><a href="https://disc.{{ request.get_host }}"target="_blank" rel="noopener">Community</a>
+          </li>
+        </ul>
       </div>
     </div>
+
     <div class="row mt-3">
       <div class="col-12">
-	<ul class="list-inline text-center">
-	  <li class="list-inline-item">
-	    <a href="https://scipost.social/@scipost" target="_blank" rel="noopener">
-	      {% include "bi/mastodon.html" %} Mastodon
-	    </a>:&nbsp;
-	  </li>
-	  <li class="list-inline-item"><a href="https://scipost.social/@physics" target="_blank" rel="noopener">@physics</a></li>
-	  <li class="list-inline-item"><a href="https://scipost.social/@astro" target="_blank" rel="noopener">@astro</a></li>
-	  <li class="list-inline-item"><a href="https://scipost.social/@chemistry" target="_blank" rel="noopener">@chemistry</a></li>
-	  {% comment %} <li class="list-inline-item"><a href="https://scipost.social/@biology" target="_blank" rel="noopener">@biology</a></li>
-	  <li class="list-inline-item"><a href="https://scipost.social/@compsci" target="_blank" rel="noopener">@compsci</a></li>
-	  <li class="list-inline-item"><a href="https://scipost.social/@math" target="_blank" rel="noopener">@math</a></li>
-	  <li class="list-inline-item"><a href="https://scipost.social/@polsci" target="_blank" rel="noopener">@polsci</a></li> {% endcomment %}
-	</ul>
-        <br>
-	<div class="text-center">
-          <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" class="m-2">
-            <img alt="Creative Commons License" style="border-width:0" width="80" height="15" src="https://licensebuttons.net/l/by/4.0/80x15.png" />
-          </a>
-          Except where otherwise noted, all content on {{ request.get_host }} is licensed under a <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.
-	</div>
+        <ul class="list-inline text-center">
+          <li class="list-inline-item">
+            <a href="https://git.{{ request.get_host }}" target="_blank" rel="noopener">
+              <span>{% include 'bi/git.html' %}</span>&nbsp;Git Repository</a>
+          </li>
+          <li class="list-inline-item">
+            <a href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">
+              <span>{% include 'bi/rss-fill.html' %}</span>&nbsp;Feeds</a>
+          </li>
+          <li class="list-inline-item me-5"><a href="https://www.linkedin.com/company/scipost/" aria-label="RSS feeds">
+            <span>{% include 'bi/linkedin-fill.html' %}</span>&nbsp;LinkedIn</a></li>
+          <li class="list-inline-item">
+            <a href="https://scipost.social/@scipost" target="_blank" rel="noopener">
+              <span>{% include "bi/mastodon.html" %}</span>:&nbsp;Mastodon</a>
+          </li>
+          <li class="list-inline-item">
+            <a href="https://scipost.social/@physics" target="_blank" rel="noopener">@physics</a>
+          </li>
+          <li class="list-inline-item">
+            <a href="https://scipost.social/@astro" target="_blank" rel="noopener">@astro</a>
+          </li>
+          <li class="list-inline-item">
+            <a href="https://scipost.social/@chemistry" target="_blank" rel="noopener">@chemistry</a>
+          </li>
+          {% comment %}
+          <li class="list-inline-item"><a href="https://scipost.social/@biology" target="_blank" rel="noopener">@biology</a></li>
+          <li class="list-inline-item"><a href="https://scipost.social/@compsci" target="_blank" rel="noopener">@compsci</a></li>
+          <li class="list-inline-item"><a href="https://scipost.social/@math" target="_blank" rel="noopener">@math</a></li>
+          <li class="list-inline-item"><a href="https://scipost.social/@polsci" target="_blank" rel="noopener">@polsci</a></li> 
+          {% endcomment %}
+        </ul>
       </div>
     </div>
+
+    <div class="row mt-3">
+      <div class="col text-center">
+        <a rel="license noopener"
+           href="https://creativecommons.org/licenses/by/4.0/"
+           target="_blank"
+           class="m-2">
+          <img alt="Creative Commons License"
+               style="border-width:0"
+               width="80"
+               height="15"
+               src="https://licensebuttons.net/l/by/4.0/80x15.png" />
+        </a>
+        Except where otherwise noted, all content on {{ request.get_host }} is licensed under a
+        <a rel="license noopener"
+           href="https://creativecommons.org/licenses/by/4.0/"
+           target="_blank">Creative Commons Attribution 4.0 International License</a>.
+      </div>
+    </div>
+
   </div>
 </footer>
