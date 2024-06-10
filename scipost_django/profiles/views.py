@@ -429,12 +429,20 @@ def _hx_profile_specialties(request, profile_id):
     return render(request, "profiles/_hx_profile_specialties.html", context)
 
 
-@permission_required_htmx("scipost.can_add_profile_emails")
 def _hx_add_profile_email(request, profile_id):
     """
     Add an email address to a Profile.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
+
+    is_self_profile = request.user.contributor.profile == profile
+    can_add_any_emails = request.user.has_perm("scipost.can_add_profile_emails")
+    if not (is_self_profile or can_add_any_emails):
+        return HTMXResponse(
+            "You do not have the required permissions to add an email to this profile.",
+            tag="danger",
+        )
+
     form = AddProfileEmailForm(
         request.POST or None,
         profile=profile,
