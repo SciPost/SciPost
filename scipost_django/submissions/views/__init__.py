@@ -1505,6 +1505,7 @@ def invite_referee(
         submission.add_event_for_author("A referee has been invited.")
         submission.add_event_for_eic("Referee %s has been invited." % profile.last_name)
         messages.success(request, "Invitation sent")
+        mail_request.send_mail()
         return redirect(
             reverse(
                 "submissions:editorial_page",
