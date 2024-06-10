@@ -444,6 +444,8 @@ class UpdatePersonalDataForm(forms.ModelForm):
     def save(self):
         self.instance.profile.title = self.cleaned_data["title"]
         self.instance.profile.acad_field = self.cleaned_data["acad_field"]
+        if self.cleaned_data["orcid_id"] != self.instance.profile.orcid_id:
+            self.instance.profile.orcid_authenticated = False
         self.instance.profile.orcid_id = self.cleaned_data["orcid_id"]
         self.instance.profile.webpage = self.cleaned_data["webpage"]
         self.instance.profile.save()
