@@ -52,8 +52,8 @@ class AcadFieldSpecialtyForm(forms.Form):
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
             Div(
-                FloatingField("specialty_slug"),
-                FloatingField("acad_field_slug"),
+                FloatingField("specialty_slug", wrapper_class='mb-0'),
+                FloatingField("acad_field_slug", wrapper_class='mb-0'),
                 css_class="d-flex flex-row gap-2",
             )
         )
