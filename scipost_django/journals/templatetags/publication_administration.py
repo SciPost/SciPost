@@ -24,7 +24,7 @@ def authors_in_right_order(publication):
         return False
     list_of_authors = publication.author_list.split(",")
     for author in publication.authors.all():
-        if author.last_name not in list_of_authors[author.order - 1]:
+        if author.last_name and author.last_name not in list_of_authors[author.order - 1]:
             return False
     return True
 

@@ -6,6 +6,7 @@ from decimal import Decimal, getcontext
 import hashlib
 import json
 import os
+from profiles.models import Profile
 import random
 import string
 import shutil
@@ -29,7 +30,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -821,7 +822,31 @@ def manage_metadata(request, doi_label=None):
 
 @permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
-def add_author(request, doi_label):
+def reset_authors(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.is_draft and not request.user.has_perm(
+        "can_publish_accepted_submission"
+    ):
+        raise Http404("You do not have permission to edit this non-draft Publication")
+    
+    reset_author_associations(publication)
+    
+    return redirect(reverse("journals:add_author", kwargs={"doi_label": doi_label}))
+
+def reset_author_associations(publication_object: Publication) -> None:
+    """ Deletes all PublicationAuthorsTable entries for the given publication_object and repopulates it based on the author_list. """
+    PublicationAuthorsTable.objects.filter(publication=publication_object).delete()
+    
+    author_query_list = search_for_authors(publication_object)
+    author_dict_list = build_author_dict_list(publication_object, author_query_list)
+    
+    # We add the succesful authors from the author_dict_list to the PublicationAuthorsTable.
+    for author_dict in author_dict_list:
+        PublicationAuthorsTable.objects.create(publication=publication_object, profile=author_dict["profile"])
+    
+@permission_required("scipost.can_draft_publication", return_403=True)
+@transaction.atomic
+def add_author(request, doi_label: str) -> HttpResponse:
     """
     Link authors (via their Profile) to a Publication.
 
@@ -835,11 +860,18 @@ def add_author(request, doi_label):
         "can_publish_accepted_submission"
     ):
         raise Http404("You do not have permission to edit this non-draft Publication")
-
+    
+    authors_metadata_table = PublicationAuthorsTable.objects.filter(publication=publication)
+    if request.method == "GET" and not authors_metadata_table.exists():
+        reset_author_associations(publication)
+    
     form = ProfileSelectForm(request.POST or None)
     if request.POST and form.is_valid():
+        author_order = request.POST["selected_author_id"]
+        # We remove previous request.POST["selected_author_id"] and add a new one there.
+        authors_metadata_table.filter(order=author_order).delete()
         table, created = PublicationAuthorsTable.objects.get_or_create(
-            publication=publication, profile=form.cleaned_data["profile"]
+            publication=publication, profile=form.cleaned_data["profile"], order=author_order
         )
         if created:
             messages.success(request, "Added {} as an author.".format(table.profile))
@@ -851,13 +883,59 @@ def add_author(request, doi_label):
                     "Publication.".format(table.profile)
                 ),
             )
-        return redirect(publication.get_absolute_url())
+        
+        author_query_list = search_for_authors(publication)
+        author_dict_list = build_author_dict_list(publication, author_query_list)
+    
+        return render(request, "journals/add_author_list.html", {"author_list": author_dict_list, "selected_author_id": int(request.POST["selected_author_id"])})
+    
+    author_query_list = search_for_authors(publication)
+    author_dict_list = build_author_dict_list(publication, author_query_list)
+    
     context = {
         "publication": publication,
         "form": form,
+        "author_list": author_dict_list,
     }
     return render(request, "journals/add_author.html", context)
 
+def search_for_authors(publication_object: Publication) -> list:
+    """ Creates a list of (Profile) queryset objects based on the publication_object's.author_list [string]."""
+    author_profile_query_list = []
+    
+    authors_metadata_table = PublicationAuthorsTable.objects.filter(publication=publication_object)
+    
+    for i, tex_author in enumerate(publication_object.author_list.split(", ")): # Author1, Author2, ...
+        # If an author is already on the index of authors_metadata_table, do not search.
+        if not authors_metadata_table.exists() or i +1 > len(authors_metadata_table) or authors_metadata_table[i].is_empty():
+            query_results = Profile.objects.search(tex_author)
+        else:
+            print("Skipping search for author: ", tex_author)
+            query_results = Profile.objects.filter(id=authors_metadata_table[i].profile.id)
+            
+        
+        author_profile_query_list.append(query_results)
+    
+    return author_profile_query_list
+
+def build_author_dict_list(publication_object: Publication, author_profile_query_list: list) -> list:
+    """ Creates a list of dictionaries for each author in the publication_object's.author_list [string]. This list is used to render the author list in the add_author view."""
+    author_dict_lsit = []
+    
+    for author_profile_query, tex_author in zip(author_profile_query_list, publication_object.author_list.split(", ")): # Author1, Author2, ...
+        author_profile = author_profile_query.first() if len(author_profile_query) < 2 else None
+        has_name_warning = author_profile.full_name != tex_author if author_profile else False
+        other_with_same_name = len(author_profile_query) # To handle duplicate warnings.
+        
+        # We assume the first and last names in order to automate 2-word profile creation.
+        first_name_guess = tex_author.split(" ")[0]
+        last_name_guess = " ".join(tex_author.split(" ")[1:])
+        
+        author_dict_lsit.append({"tex_name": tex_author, "profile": author_profile, "affiliations": [1, 2],
+                            "first_name_guess": first_name_guess, "last_name_guess": last_name_guess,
+                            "has_name_warning": has_name_warning, "other_with_same_name": other_with_same_name})
+    
+    return author_dict_lsit
 
 class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
     """
@@ -1108,6 +1186,14 @@ class AbstractJATSUpdateView(
             "journals:abstract_jats",
             kwargs={"doi_label": self.object.doi_label},
         )
+        
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        
+        if request.POST.get("convert_button"):
+            # Change the abstract_jats field value to "LMAO"
+            self.get_form().data["abstract_jats"] = "LMAO"
+            
+        return super().post(request, *args, **kwargs)
 
 
 class FundingInfoView(

@@ -20,48 +20,36 @@
 
 {% block content %}
 
-  <h1 class="highlight">Add author to publication</h1>
+  <h1 class="highlight">Associate author profiles to the publication</h1>
   {% include 'journals/_publication_li_content.html' with publication=publication %}
   <br>
 
+  <div class="row position-relative">    
+    <div class="col-md-12 col-lg-6">
+      <h3>List of authors </h3>
+      {% include "journals/add_author_list.html" %}
+    </div>
 
-  <div class="row">
-    <div class="col-12">
-      <h3>Current list of authors</h3>
-      <ul>
-        {% for author in publication.authors.all %}
-          <li>
-            {% if author.is_registered %}
-              <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.contributor }}</a>
-            {% else %}
-              <a href="{{ author.profile }}">{{ author.profile }}</a>
-            {% endif %}
-          </li>
-        {% empty %}
-          <li>No authors known.</li>
-        {% endfor %}
-      </ul>
-
-      <br>
-      <h2 class="highlight">Add another author</h2>
-
-      <div class="row">
-	<div class="col-md-6 col-lg-6">
-	  <form action="{% url 'journals:add_author' doi_label=publication.doi_label %}" method="post">
-	    {% csrf_token %}
-            {{ form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Add this author">
-	  </form>
-	</div>
-	<div class="col-md-6 col-lg-6">
-	  <h3>Not found?</h3>
-	  <p>Then you can <a href="{% url 'profiles:profile_create' %}" target="_blank">add the required Profile</a> and come back to this page.</p>
-	</div>
+    <div class="col-md-12 col-lg-6">
+      <div class="position-sticky top-0 pt-5">
+        <h3>Author actions:</h3>
+        
+        <form hx-post="{% url 'journals:add_author' doi_label=publication.doi_label%}"
+              hx-target="#add_author_list" id = "add_author_form" hx-swap="outerHTML">
+          {% csrf_token %}
+                {{ form|bootstrap }}
+        </form>
+        <div class="d-flex flex-row gap-2">
+          <input class="btn btn-primary" type="submit" value="Add Author" form="add_author_form"/>
+          <a class="btn btn-secondary"
+            title="Fetch author list data from the git."
+            href="{% url 'journals:reset_authors' doi_label=publication.doi_label %}"> Reset
+          </a>
+        </div>
       </div>
     </div>
   </div>
-
-  <p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a>.</p>
+</div>
 
 
 {% endblock content %}

@@ -63,20 +63,24 @@ class PublicationAuthorsTable(models.Model):
             self.order = self.publication.authors.count() + 1
         return super().save(*args, **kwargs)
 
+    def is_empty(self) -> bool:
+        """Check if object is a temporary placeholder."""
+        return self.profile is None
+    
     @property
-    def is_registered(self):
+    def is_registered(self) -> bool:
         """Check if author is registered at SciPost."""
-        return self.profile.contributor is not None
+        return not self.is_empty() and self.profile.contributor is not None
 
     @property
-    def first_name(self):
-        """Return first name of author."""
-        return self.profile.first_name
+    def first_name(self) -> str:
+        """Return first name of author. If not available, return None."""
+        return self.profile.first_name if self.profile else None
 
     @property
-    def last_name(self):
-        """Return last name of author."""
-        return self.profile.last_name
+    def last_name(self) -> str:
+        """Return last name of author. If not available, return None."""
+        return self.profile.last_name if self.profile else None
 
 
 class Publication(models.Model):
