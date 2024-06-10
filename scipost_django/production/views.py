@@ -299,7 +299,7 @@ def stream(request, stream_id):
     """
     Overview page for specific stream.
     """
-    streams = ProductionStream.objects.ongoing()
+    streams = ProductionStream.objects.all()
     if not request.user.has_perm("scipost.can_view_all_production_streams"):
         # Restrict stream queryset if user is not supervisor
         streams = streams.filter_for_user(request.user.production_user)
