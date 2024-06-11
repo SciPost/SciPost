@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 JOURNAL_DOI_LABEL_REGEX = r"(SciPost)[a-zA-Z]+|(MigPol)"
 
-VOLUME_DOI_LABEL_REGEX = r"({})\.\w".format(JOURNAL_DOI_LABEL_REGEX)
+VOLUME_DOI_LABEL_REGEX = r"({})\.\w+".format(JOURNAL_DOI_LABEL_REGEX)
 
 ISSUE_DOI_LABEL_REGEX = r"({})\.\w+(\.[0-9]+)?".format(JOURNAL_DOI_LABEL_REGEX)
 
