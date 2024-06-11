@@ -1,6 +1,6 @@
 {% load static %}
 
-<div class="row g-4">
+<div class="row gx-5">
   <div class="col-md-8">
 
     {% include 'scipost/portal/_home_scipost_intro.html' %}
@@ -10,7 +10,7 @@
     <div hx-trigger="load once"
          hx-swap="outerHTML"
          hx-get="{% url "scipost:portal_hx_recent_publications" %}">
-      <h2 class="highlight mt-0">Recent Publications</h2>
+      <h2 class="highlight mt-0 fs-2">Recent Publications</h2>
       <div class="placeholder-glow d-flex flex-column gap-4">
 
         {% for i_repeat in '12345' %}
@@ -33,7 +33,7 @@
     <!-- News -->
     <div class="news">
       <h2 class="highlight mt-0">
-        <a href="{% url "news:news" %}" class="text-body">News</a>
+        <a href="{% url "news:news" %}" class="text-body fs-2">News</a>
       </h2>
       <ul>
 
@@ -69,10 +69,10 @@
   </div>
 </div>
 
-<div class="row g-4">
+<div class="row gx-5">
   <div class="col-md-8">
     <h2 class="highlight my-2">
-      <a href="{% url "sponsors:sponsors" %}" class="text-body">Sponsors</a>
+      <a href="{% url "sponsors:sponsors" %}" class="text-body fs-2">Sponsors</a>
     </h2>
     <div class="row px-3">
       <div class="col-md-6">
@@ -99,7 +99,7 @@
     <div class="col-md-4">
       <div class="news">
         <h2 class="highlight my-2">
-          <a href="{% url "blog:blog_index" %}" class="text-body">Blog</a>
+          <a href="{% url "blog:blog_index" %}" class="text-body fs-2">Blog</a>
         </h2>
         <ul class="px-3">
           <li>
@@ -120,7 +120,7 @@
 
   <div class="col-md-8">
     <h2 class="highlight my-2">
-      <a href="{% url "finances:business_model" %}" class="text-body">Business Model</a>
+      <a href="{% url "finances:business_model" %}" class="text-body fs-2">Business Model</a>
     </h2>
     <div class="row px-3">
       <div class="col">

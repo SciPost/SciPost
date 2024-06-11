@@ -2,7 +2,7 @@
 
 <div class="publications">
   <h2 class="highlight px-3 d-flex flex-row justify-content-between align-items-center">
-    <a href="{% url "journals:publications" %}" class="text-body">Recent publications</a>
+    <a href="{% url "journals:publications" %}" class="text-body fs-2">Recent publications</a>
     <form hx-trigger="input change"
           hx-target="div.publications"
           hx-swap="outerHTML"
@@ -11,7 +11,7 @@
     </form>
   </h2>
 
-  <div class="publication-list">
+  <div class="publication-list px-3">
 
     {% for publication in publications %}
       {% include 'journals/_publication_li_content-alt.html' with publication=publication %}
