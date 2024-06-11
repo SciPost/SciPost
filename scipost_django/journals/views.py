@@ -602,28 +602,6 @@ class PublicationGrantsRemovalView(PermissionsMixin, DetailView):
             reverse("journals:update_grants", args=(self.object.doi_label,))
         )
 
-
-@permission_required("scipost.can_draft_publication", raise_exception=True)
-def publication_authors_ordering(request, doi_label):
-    publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_draft and not request.user.has_perm(
-        "scipost.can_publish_accepted_submission"
-    ):
-        raise Http404("You do not have permission to edit this non-draft Publication")
-    formset = PublicationAuthorOrderingFormSet(
-        request.POST or None, queryset=publication.authors.order_by("order")
-    )
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, "Author ordering updated")
-        return redirect(publication.get_absolute_url())
-    context = {
-        "formset": formset,
-        "publication": publication,
-    }
-    return render(request, "journals/publication_authors_form.html", context)
-
-
 class DraftPublicationCreateView(PermissionsMixin, CreateView):
     """
     Create a draft of a Publication.
