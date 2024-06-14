@@ -110,7 +110,7 @@ urlpatterns = [
     ),
     path(
         "admin/<publication_doi_label:doi_label>/authoraffiliations/",
-        journals_views.AuthorAffiliationView.as_view(),
+        journals_views.author_affiliations,
         name="author_affiliations",
     ),
     path(
