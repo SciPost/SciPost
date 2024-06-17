@@ -986,15 +986,6 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
     }
     return render(request, "journals/author_affiliations.html", context)
 
-# class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
-#     """
-#     Handle the author affiliations for a Publication.
-#     """
-
-#     permission_required = "scipost.can_draft_publication"
-#     template_name = "journals/author_affiliations.html"
-    
-#     form_class = AuthorsTableOrganizationSelectForm
 
 def get_affiliations() -> dict:
     # First we find the section where the affiliations exist. --TODO: Enable below for git integration.
@@ -1473,20 +1464,25 @@ def metadata_xml_deposit(request, doi_label, option="test"):
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def mark_deposit_success(request, deposit_id, success):
+def mark_deposit_success(request, deposit_id: int, success: int) -> HttpResponse:
+    """ Mark a crossref metadata deposit as successful or unsuccessful. """
     deposit = get_object_or_404(Deposit, pk=deposit_id)
+    
     if success == 1:
         deposit.deposit_successful = True
     elif success == 0:
         deposit.deposit_successful = False
     else:
         return Http404
+    
     deposit.save()
     return redirect("journals:manage_metadata")
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def produce_metadata_DOAJ(request, doi_label):
+def produce_metadata_DOAJ(request, doi_label: str) -> HttpResponse:
+    """ Produce metadata report for DOAJ. """
+    
     publication = get_object_or_404(Publication, doi_label=doi_label)
     form = CreateMetadataDOAJForm(
         request.POST or None, instance=publication, request=request
@@ -1506,11 +1502,8 @@ def produce_metadata_DOAJ(request, doi_label):
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
 @transaction.atomic
-def metadata_DOAJ_deposit(request, doi_label):
-    """
-    DOAJ metadata deposit.
-    Makes use of the python requests module.
-    """
+def metadata_DOAJ_deposit(request, doi_label: str) -> HttpResponse:
+    """  Deposit metadata to DOAJ. Makes use of the python requests module. """
     publication = get_object_or_404(Publication, doi_label=doi_label)
 
     if not publication.metadata_DOAJ:
@@ -1558,9 +1551,11 @@ def metadata_DOAJ_deposit(request, doi_label):
         "api_key": settings.DOAJ_API_KEY,
     }
     try:
+        doaj_success = True
         r = requests.post(url, params=params, json=publication.metadata_DOAJ)
         r.raise_for_status()
     except requests.exceptions.HTTPError:
+        doaj_success = False
         messages.warning(
             request,
             "<h3>%s</h3>Failed: Post went wrong, response text: %s"
@@ -1588,17 +1583,16 @@ def metadata_DOAJ_deposit(request, doi_label):
     deposit.metadata_DOAJ_file = path
     deposit.save()
 
-    messages.success(
-        request,
-        "<h3>%s</h3>Successful deposit of metadata DOAJ." % publication.doi_label,
-    )
-    return redirect(
-        reverse("journals:manage_metadata", kwargs={"doi_label": doi_label})
-    )
+    if doaj_success:
+        messages.success(request, "<h3>%s</h3>Successful deposit of metadata DOAJ." % publication.doi_label)
+        mark_doaj_deposit_success(request, deposit.id, 1)
+    else:
+        print("DOAJ deposit failed", deposit.id)
+        mark_doaj_deposit_success(request, deposit.id, 0)
 
 
 @permission_required("scipost.can_manage_ontology", return_403=True)
-def publication_add_topic(request, doi_label):
+def publication_add_topic(request, doi_label: str) -> HttpResponse:
     """
     Add a predefined Topic to an existing Publication object.
     This also adds the Topic to all Submissions of this Publication.
@@ -1679,14 +1673,17 @@ def adjust_pubfracs(request, doi_label):
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def mark_doaj_deposit_success(request, deposit_id, success):
+def mark_doaj_deposit_success(request, deposit_id: int, success: int) -> HttpResponse:
+    """ Mark a DOAJ metadata deposit as successful or unsuccessful. """
     deposit = get_object_or_404(DOAJDeposit, pk=deposit_id)
+    
     if success == 1:
         deposit.deposit_successful = True
     elif success == 0:
         deposit.deposit_successful = False
     else:
         raise Http404
+    
     deposit.save()
     return redirect("journals:manage_metadata")
 
