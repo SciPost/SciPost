@@ -1,15 +1,21 @@
 <h3>Current Production Team</h3>
 <ul>
-    {% for officer in officers %}
-        <li id="production-team-officer-{{ officer.id }}">
 
-            {{ officer }}
-            <form class="d-inline px-1"
-                  hx-post="{% url 'production:_hx_team_delete_officer' officer.id %}"
-                  hx-target="#production-team-officer-{{ officer.id }}">
-                {% csrf_token %}
-                <input type="submit" class="btn btn-danger mb-1" value="Remove Officer">
-            </form>
-        </li>
-    {% endfor %}
+  {% for officer in officers %}
+    <li id="production-team-officer-{{ officer.id }}">
+
+      {{ officer }}
+      <form class="d-inline px-1"
+            hx-post="{% url 'production:_hx_team_delete_officer' officer.id %}"
+            hx-target="#production-team-officer-{{ officer.id }}">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-danger mb-1" value="Remove Officer" />
+      </form>
+    </li>
+  {% endfor %}
+
 </ul>
+
+{% if perms.scipost.can_view_timesheets %}
+  <a href="{% url 'finances:timesheets' %}">See team timesheets</a>
+{% endif %}
