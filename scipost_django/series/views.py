@@ -15,6 +15,7 @@ from profiles.models import Profile
 from profiles.forms import ProfileSelectForm, ProfileDynSelForm
 from colleges.forms import FellowshipDynSelForm
 from colleges.models import Fellowship
+from submissions.models.submission import Submission
 
 from .models import Series, Collection, CollectionPublicationsTable
 
@@ -54,6 +55,19 @@ class CollectionDetailView(DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["expected_author_form"] = ProfileSelectForm()
+        context["collection_submissions"] = self.object.submissions.filter(
+            status__in=[
+                Submission.REFEREEING_IN_PREPARATION,
+                Submission.IN_REFEREEING,
+                Submission.REFEREEING_CLOSED,
+                Submission.AWAITING_RESUBMISSION,
+                Submission.VOTING_IN_PREPARATION,
+                Submission.IN_VOTING,
+                Submission.ACCEPTED_IN_TARGET,
+                Submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
+                Submission.ACCEPTED_IN_ALTERNATIVE,
+            ]
+        )
         return context
 
 

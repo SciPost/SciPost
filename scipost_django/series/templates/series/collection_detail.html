@@ -105,34 +105,29 @@
   {% endif %}
 
 
-  {% if collection.submissions.under_consideration|length > 0 or collection.submissions.accepted|length > 0 %}
+  {% if collection_submissions|length > 0 %}
     <div class="row">
       <div class="col-12">
         <h3 class="highlight">Submissions to this Collection</h3>
-        <ul>
+ 
+        {% regroup collection_submissions|dictsort:'status' by status as submissions_by_status %}
 
-          {% for submission in collection.submissions.accepted %}
-            <li>
-              <strong class="text-success">accepted:</strong>&nbsp;
-              <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-            </li>
-          {% endfor %}
+        {% for submission_group in submissions_by_status %}
+          <section class="px-2"
+                   aria-labelledby="submission-{{ submission_group.grouper }}-header">
+            <h4 id="submission-{{ submission_group.grouper }}-header">{{ submission_group.list.0.get_status_display }}</h4>
+            <ul>
 
-          {% for submission in collection.submissions.revision_requested %}
-            <li>
-              <strong class="text-primary">awaiting resubmission:</strong>&nbsp;
-              <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-            </li>
-          {% endfor %}
+              {% for submission in submission_group.list %}
+                <li>
+                  <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+                </li>
+              {% endfor %}
 
-          {% for submission in collection.submissions.in_refereeing %}
-            <li>
-              <strong class="text-warning">under refereeing:</strong>&nbsp;
-              <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-            </li>
-          {% endfor %}
+            </ul>
+          </section>
+        {% endfor %}
 
-        </ul>
       </div>
     </div>
   {% endif %}
