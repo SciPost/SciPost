@@ -70,8 +70,8 @@
       >{{ deposit.deposit_successful }}</span>
     </td>
 	  <td>Mark deposit as:
-      <a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=1 %}" class="text-success">Success</a> |
-      <a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=0 %}" class="text-danger">Failed</a>
+      <a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=1 %}" class="badge bg-primary">Success</a> |
+      <a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=0 %}" class="badge bg-secondary">Failed</a>
 	  </td>
 	</tr>
       {% empty %}
@@ -102,8 +102,8 @@
       >{{ deposit.deposit_successful }}</span>
     </td>
 	  <td>Mark deposit as:
-      <a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=1 %}" class="text-success">Success</a> |
-      <a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=0 %}" class="text-danger">Failed</a>
+      <a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=1 %}" class="badge bg-primary">Success</a> |
+      <a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=0 %}" class="badge bg-secondary">Failed</a>
 	  </td>
 	</tr>
       {% empty %}
