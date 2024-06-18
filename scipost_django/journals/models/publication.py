@@ -338,15 +338,16 @@ class Publication(models.Model):
         ).distinct()
 
     @property
-    def doi_string(self):
+    def doi_string(self) -> str:
         return "10.21468/" + self.doi_label
 
     @property
-    def is_draft(self):
+    def is_draft(self) -> bool:
+        """ Check if the publication is in draft status, awaiting to be published. """
         return self.status == STATUS_DRAFT
 
     @property
-    def is_published(self):
+    def is_published(self) -> bool:
         if self.status != PUBLICATION_PUBLISHED:
             return False
 
@@ -357,11 +358,13 @@ class Publication(models.Model):
         return False
 
     @property
-    def has_abstract_jats(self):
+    def has_abstract_jats(self) -> bool:
+        """ Check if there is a JATS version of the abstract used for Crossref deposits. """
         return self.abstract_jats != ""
 
     @property
-    def has_xml_metadata(self):
+    def has_xml_metadata(self) -> bool:
+        """ Check if there is XML metadata used for Crossref deposits."""
         return self.metadata_xml != ""
 
     @property
