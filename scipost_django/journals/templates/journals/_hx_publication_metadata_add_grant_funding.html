@@ -4,13 +4,24 @@
 
 {% if publication.metadata.funding_statement %}
   <p>{{ publication.metadata.funding_statement }}</p>
+
+  <div class="card p-3 mb-4">
+    <h3>Associate a grant to this publication:</h3>
+    <form hx-post="{% url 'journals:_hx_publication_metadata_add_grant_funding' publication.doi_label %}"
+          hx-target="#publication-grant-funding">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+   
+      <input class="btn btn-outline-secondary" type="submit" value="Add" />
+    </form>
+  </div>
 {% else %}
   <p>No funding statement was found</p>
 {% endif %}
 
 <h2>Grants associated to this publication:</h2>
+{% if publication.grants.all|length > 0 %}
 <ul>
-
   {% for grant in publication.grants.all %}
     <li id="grant-{{ grant.id }}">
       {{ grant }}
@@ -19,19 +30,8 @@
          hx-target="#grant-{{ grant.id }}"
          hx-swap="delete">{% include "bi/trash-fill.html" %}</a>
     </li>
-  {% empty %}
-    <li>no associated grants found</li>
   {% endfor %}
-
 </ul>
-
-<div class="card p-3 mb-4">
-  <h3>Associate a grant to this publication:</h3>
-  <form hx-post="{% url 'journals:_hx_publication_metadata_add_grant_funding' publication.doi_label %}"
-        hx-target="#publication-grant-funding">
-    {% csrf_token %}
-    {{ form|bootstrap }}
- 
-    <input class="btn btn-outline-secondary" type="submit" value="Add" />
-  </form>
-</div>
+{% else %}
+  <p>No associated grants found.</p>
+{% endif %}
