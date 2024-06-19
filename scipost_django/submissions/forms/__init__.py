@@ -2154,6 +2154,11 @@ class SubmissionCollectionsForm(forms.ModelForm):
 class SubmissionPreprintFileForm(forms.ModelForm):
     """Change the submitted pdf for the Submission."""
 
+    _file = forms.FileField(
+        help_text=("Simply submit the new .pdf file, the old one will be replaced."),
+        required=True,
+    )
+
     class Meta:
         model = Preprint
         fields = ["_file"]
