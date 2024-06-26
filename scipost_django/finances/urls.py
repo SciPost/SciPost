@@ -75,7 +75,7 @@ urlpatterns = [
                                                         name="_hx_subsidypayment_form",
                                                     ),
                                                     path(
-                                                        "delete",
+                                                        "/delete",
                                                         views._hx_subsidypayment_delete,
                                                         name="_hx_subsidypayment_delete",
                                                     ),

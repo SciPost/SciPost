@@ -67,6 +67,21 @@
   </div>
 </div>
 
+{% if "finadmin" in user_roles %}
+  <div class="row">
+    <div class="col-12">
+      <h3>Payments</h3>
+      <div id="subsidy-{{ subsidy.id }}-finadmin-details">
+        <div hx-get="{% url 'finances:_hx_subsidy_finadmin_details' subsidy_id=subsidy.id %}"
+            hx-trigger="revealed"
+            hx-target="#subsidy-{{ subsidy.id }}-finadmin-details"
+        >
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
 <div class="row">
   <div class="col-12">
     <h3>Attachments</h3>
