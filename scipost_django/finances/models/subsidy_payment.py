@@ -33,6 +33,9 @@ class SubsidyPayment(models.Model):
 
     objects = SubsidyPaymentQuerySet.as_manager()
 
+    class Meta:
+        ordering = ["date_scheduled", "reference", "amount"]
+
     def __str__(self):
         return f"payment {self.reference} for {self.subsidy}"
 
