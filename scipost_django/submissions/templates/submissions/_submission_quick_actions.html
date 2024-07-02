@@ -63,6 +63,10 @@
 	<li class="py-1">Commenting on this Submission is closed.</li>
       {% endif %}
 
+      <li class="pt-1">
+        <h4><a href="{% url "submissions:referee_indications" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Indicate a Refereee</a></h4>
+      </li>
+
       {% if submission.editor_in_charge == request.user.contributor %}
 	<li class="pt-1">
 	  <h4><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Editorial Page</a></h4>
