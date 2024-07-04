@@ -80,6 +80,7 @@ STATUS_UNCLEAR = "unclear"
 STATUS_INCORRECT = "incorrect"
 STATUS_NOT_USEFUL = "notuseful"
 STATUS_NOT_ACADEMIC = "notacademic"
+STATUS_DUPLICATE = "duplicate"
 
 REPORT_REFUSAL_CHOICES = (
     (None, "-"),
@@ -97,6 +98,7 @@ REPORT_STATUSES = (
     (STATUS_UNCLEAR, "Rejected (unclear)"),
     (STATUS_NOT_USEFUL, "Rejected (not useful)"),
     (STATUS_NOT_ACADEMIC, "Rejected (not academic in style)"),
+    (STATUS_DUPLICATE, "Rejected (duplicate)"),
 )
 
 REPORT_NORMAL = "report_normal"
