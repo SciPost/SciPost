@@ -88,6 +88,7 @@ REPORT_REFUSAL_CHOICES = (
     (STATUS_INCORRECT, "not fully factually correct"),
     (STATUS_NOT_USEFUL, "not useful for the authors"),
     (STATUS_NOT_ACADEMIC, "not sufficiently academic in style"),
+    (STATUS_DUPLICATE, "duplicate"),
 )
 
 REPORT_STATUSES = (
