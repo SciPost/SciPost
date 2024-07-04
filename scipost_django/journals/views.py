@@ -366,7 +366,7 @@ class IssuesView(DetailView):
     List all Issues sorted per Journal.
     """
 
-    queryset = Journal.objects.has_issues()
+    queryset = Journal.objects.active().has_issues()
     slug_field = slug_url_kwarg = "doi_label"
     template_name = "journals/journal_issues.html"
 
@@ -409,6 +409,10 @@ def authoring(request, doi_label=None):
     context = {}
     if doi_label:
         journal = get_object_or_404(Journal, doi_label=doi_label)
+        # Guard against inactive journals
+        if not (journal.active or request.user.is_staff):
+            raise PermissionDenied("Journal is not active")
+
         context = {"journal": journal}
     return render(request, "journals/authoring.html", context)
 
@@ -418,12 +422,19 @@ def refereeing(request, doi_label=None):
     context = {}
     if doi_label:
         journal = get_object_or_404(Journal, doi_label=doi_label)
+        # Guard against inactive journals
+        if not (journal.active or request.user.is_staff):
+            raise PermissionDenied("Journal is not active")
+
         context = {"journal": journal}
     return render(request, "journals/refereeing.html", context)
 
 
 def redirect_to_about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
+    # Guard against inactive journals
+    if not (journal.active or request.user.is_staff):
+        raise PermissionDenied("Journal is not active")
     return redirect(
         reverse("journal:about", kwargs={"doi_label": journal.doi_label}),
         permanent=True,
@@ -433,6 +444,10 @@ def redirect_to_about(request, doi_label):
 def about(request, doi_label):
     """Journal specific about page."""
     journal = get_object_or_404(Journal, doi_label=doi_label)
+    # Guard against inactive journals
+    if not (journal.active or request.user.is_staff):
+        raise PermissionDenied("Journal is not active")
+
     year = timezone.now().year
     nr_publications = journal.nr_publications(year=year)
     nr_publications_1 = journal.nr_publications(year=year - 1)
@@ -473,6 +488,9 @@ def provide_plot(x, y, name, nonce=None):
 
 def metrics(request, doi_label, specialty=None):
     journal = get_object_or_404(Journal, doi_label=doi_label)
+    # Guard against inactive journals
+    if not (journal.active or request.user.is_staff):
+        raise PermissionDenied("Journal is not active")
     context = {
         "journal": journal,
         "specialty": specialty,
