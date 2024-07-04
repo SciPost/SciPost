@@ -1,5 +1,5 @@
 <p>
-  Dear {{ invitation.referee.profile.get_title_display }} {{ invitation.referee.user.last_name }},
+  Dear {% if invitation.referee %}{{ invitation.referee.profile.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.profile.get_title_display }} {{ invitation.profile.last_name }}{% endif %},
 </p>
 <p>
   This is a simple email to remind you of the approaching deadline (in one week) to send a Report on

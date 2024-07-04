@@ -1,4 +1,6 @@
-<p>Dear {{ invitation.referee.profile.get_title_display }} {{ invitation.referee.user.last_name }},</p>
+<p>
+  Dear {% if invitation.referee %}{{ invitation.referee.profile.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.profile.get_title_display }} {{ invitation.profile.last_name }}{% endif %},
+</p>
 
 <p>
   We hereby confirm your choice to {% if invitation.accepted %}accept{% else %}decline (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
