@@ -1732,20 +1732,23 @@ def sign_existing_report(request, report_id):
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def manage_report_metadata(request):
+def manage_report_metadata(request) -> HttpResponse:
     """
     This page offers Editorial Administrators tools for managing
     the metadata of Reports.
     """
     reports = Report.objects.all()
     ready_for_deposit = request.GET.get("ready_for_deposit") == "1"
+    
     if ready_for_deposit:
-        report_ids = [
-            r.id
-            for r in reports.exclude(needs_doi=False).filter(doi_label="")
-            if r.associated_published_doi is not None
-        ]
+        report_ids = []
+        for r in reports.exclude(needs_doi=False).filter(doi_label=""):
+            associated_publication = r.associated_publication
+            if associated_publication is not None and associated_publication.is_published:
+                report_ids.append(r.id)
+            
         reports = reports.filter(id__in=report_ids, doi_label="")
+    
     needing_update = request.GET.get("needing_update") == "1"
     if needing_update:
         reports = reports.filter(
