@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: refereeing deadline approaching",
     "recipient_list": [
-	"email_address"
+	    "email_address"
     ],
     "bcc": [
         "edadmin@"
