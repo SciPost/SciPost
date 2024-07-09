@@ -112,19 +112,9 @@ urlpatterns = [
         name="subsidy_delete",
     ),
     path(
-        "subsidies/autocomplete/",
-        views.SubsidyAutocompleteView.as_view(),
+        "subsidies/autocomplete",
+        views.HXDynselSubsidyAutocomplete.as_view(),
         name="subsidy_autocomplete",
-    ),
-    path(
-        "subsidies/_hx_dynsel_/page",
-        views.HXDynselSubsidyResultPage.as_view(),
-        name="_hx_dynsel_subsidy_result_page",
-    ),
-    path(
-        "subsidies/_hx_dynsel/select_option",
-        views.HXDynselSubsidySelectOption.as_view(),
-        name="_hx_dynsel_subsidy_select_option",
     ),
     path(
         "subsidies/<int:pk>/", views.SubsidyDetailView.as_view(), name="subsidy_details"

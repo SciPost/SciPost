@@ -24,7 +24,7 @@
   </div>
   <div class="col-12"
        hx-get="{% url "finances:_hx_subsidyattachment_link_form" attachment_id=attachment.id %}"
-       hx-trigger="revealed once">
+       hx-trigger="intersect once">
     <div class="spinner-grow spinner-grow-sm ms-2"
          role="status"
          aria-hidden="true"></div>

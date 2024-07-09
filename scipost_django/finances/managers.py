@@ -31,7 +31,7 @@ class SubsidyAttachmentQuerySet(models.QuerySet):
         return self.filter(kind=self.model.KIND_PROOF_OF_PAYMENT)
 
     def orphaned(self):
-        return self.filter(subsidy__isnull=True)
+        return self.filter(subsidy__isnull=True).order_by("date")
 
     def unattached(self):
         return self.filter(

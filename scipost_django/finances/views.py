@@ -15,7 +15,7 @@ from django.template.response import TemplateResponse
 from django.utils.html import format_html
 import matplotlib
 
-from common.views import HXDynselResultPage, HXDynselSelectOptionView
+from common.views import HXDynselAutocomplete, HXDynselSelectOptionView
 from finances.constants import SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_PROMISED
 
 matplotlib.use("Agg")
@@ -720,10 +720,8 @@ def _hx_subsidyattachment_link_form(request, attachment_id):
     )
 
 
-class HXDynselSubsidyResultPage(HXDynselResultPage):
+class HXDynselSubsidyAutocomplete(HXDynselAutocomplete):
     model = Subsidy
-    collection_name = "subsidies"
-    obj_select_option_url = reverse_lazy("finances:_hx_dynsel_subsidy_select_option")
 
     def search(self, queryset, q):
         return queryset.filter(
@@ -735,10 +733,6 @@ class HXDynselSubsidyResultPage(HXDynselResultPage):
             | Q(date_from__year__icontains=q)
             | Q(date_until__year__icontains=q)
         )
-
-
-class HXDynselSubsidySelectOption(HXDynselSelectOptionView):
-    model = Subsidy
 
 
 def subsidy_attachment(request, attachment_id):

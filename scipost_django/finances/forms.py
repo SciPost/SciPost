@@ -305,12 +305,7 @@ class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
     subsidy = forms.ModelChoiceField(
         queryset=Subsidy.objects.all(),
         widget=HTMXDynSelWidget(
-            dynsel_context={
-                "results_page_url": reverse_lazy(
-                    "finances:_hx_dynsel_subsidy_result_page"
-                ),
-                "collection_name": "subsidies",
-            }
+            url=reverse_lazy("finances:subsidy_autocomplete"),
         ),
         help_text=("Start typing, and select from the popup."),
         required=False,
@@ -357,8 +352,8 @@ class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
             )
         )
 
-    def clean_subsidy(self):
-        return
+    # def clean_subsidy(self):
+    #     return
 
     def clean(self):
         return self.cleaned_data
