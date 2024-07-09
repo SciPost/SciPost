@@ -16,60 +16,108 @@
 }
 
 
-.hx-dynsel-container {
+.hx-dynsel {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
     position: relative;
 
-    &>select {
-        display: none;
+    select {
+        all: unset;
+        min-width: 10%;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        pointer-events: none;
+        background-color: rgba(10, 10, 255, 0.1)
     }
 
-    &>input {
+    ul {
+        margin-bottom: 0;
+    }
+
+    // Input Styling
+    .input-query-container {
         width: 100%;
-        padding: 0.5rem;
         border: 1px solid #ced4da;
         border-radius: 0.25rem;
+        height: 3em;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        padding: 0.5rem;
+
+        >input {
+            flex: 1;
+            padding: 0.25em;
+            border: 0;
+            min-width: 10ch;
+
+            &:focus,
+            &:focus-visible {
+                border: 0;
+                outline-color: unset;
+            }
+        }
+
+        >.selected-items {
+
+            &:empty {
+                display: none;
+            }
+
+            >.selected-item {
+                background: rgba(10, 10, 255, 0.1);
+                padding: 0.25em;
+                overflow: hidden;
+                text-wrap: nowrap;
+                text-overflow: ellipsis;
+                flex-shrink: 1;
+
+                &::after {
+                    content: "x";
+                    color: red;
+                }
+            }
+        }
     }
 
-    &>.hx-dynsel-result-container {
+    // Results Styling
+    .result-list {
         display: none;
         position: absolute;
         top: 100%;
         margin-top: 0.5rem;
         background-color: white;
-        width: 100%;
         overflow-y: scroll;
         z-index: 1;
         max-height: 30vh;
+        width: 100%;
+        padding: 0.25rem;
 
-        &>.hx-dynsel-result-list:empty {
+        &:empty {
             display: none;
         }
 
-        &>.hx-dynsel-result-list {
-            width: 100%;
-            padding: 0.25rem;
+        >.result-item {
+            display: block;
+            padding: 0.1rem;
 
-            &>.hx-dynsel-result-list-item {
-                display: block;
-
-                &:hover {
-                    background-color: var(--bs-primary);
-                    color: white;
-                    cursor: pointer;
-                }
+            &:hover {
+                background-color: var(--bs-primary);
+                color: white;
+                cursor: pointer;
             }
+
         }
     }
-}
 
-input:focus~.hx-dynsel-result-container,
-.hx-dynsel-result-container:focus-within {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 0.5rem 1rem 0 rgba(108, 108, 108, 0.5);
-    border: 2px solid var(--bs-secondary);
-    border-radius: 0.25rem;
+    // Display results on focus 
+    &:focus-within .result-list {
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 0.5rem 1rem 0 rgba(108, 108, 108, 0.5);
+        border: 2px solid var(--bs-secondary);
+        border-radius: 0.25rem;
+    }
+
 }

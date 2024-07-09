@@ -1,41 +1,36 @@
+{% load scipost_extras %}
+
 {% for obj in page_obj %}
-  <li class="hx-dynsel-result-list-item"
+  <li class="result-item"
       role="option"
       tabindex="1"
-      hx-get="{{ obj_select_option_url }}?pk={{ obj.pk }}"
+      hx-get="{% url "common:hx_dynsel_select_option" obj|content_type_id obj.id %}"
       hx-target="previous select"
       hx-swap="innerHTML"
       hx-trigger="click consume">{{ obj }}</li>
-{% empty %}
-  <div id="{{ collection_name }}-results-load-next" hx-swap-oob="true">
-    <li class="p-2 d-flex justify-content-center">
-      <strong>No {{ model_name }} could be found</strong>
-    </li>
-  </div>
 {% endfor %}
 
-{% if page_obj.has_next %}
-  <div id="{{ collection_name }}-results-load-next"
-       class="htmx-indicator"
-       hx-swap-oob="true"
-       hx-post="{{ request.path }}?page={{ page_obj.next_page_number }}"
-       hx-include="previous input"
-       hx-target="previous .hx-dynsel-result-list"
-       hx-trigger="intersect once"
-       hx-swap="beforeend"
-       hx-indicator="#{{ collection_name }}-results-load-next">
+<!-- Pagination -->
 
-    <li class="d-flex bg-primary bg-opacity-25 justify-content-center">
-      <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
-      <div class="spinner-grow spinner-grow-sm ms-2"
-           role="status"
-           aria-hidden="true"></div>
-    </li>
-  </div>
+{% if page_obj.has_next %}
+  <li class="htmx-indicator w-100 d-flex justify-content-center bg-primary bg-opacity-25"
+      hx-post="{{ request.path }}?page={{ page_obj.next_page_number }}"
+      hx-include="previous input"
+      hx-trigger="intersect once"
+      hx-swap="outerHTML"
+      hx-target="this"
+      hx-indicator="closest div">
+    <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+    <div class="spinner-grow spinner-grow-sm ms-2"
+         role="status"
+         aria-hidden="true"></div>
+  </li>
+{% elif page_obj|length == 0 %}
+  <li class="w-100 d-flex justify-content-center">
+    <strong>No {{ model_name }} could be found</strong>
+  </li>
 {% else %}
-  <div id="{{ collection_name }}-results-load-next" hx-swap-oob="true">
-    <li class="d-flex justify-content-center">
-      <strong>All {{ model_name }} loaded</strong>
-    </li>
-  </div>
+  <li class="w-100 d-flex justify-content-center">
+    <strong>All {{ model_name }} loaded</strong>
+  </li>
 {% endif %}

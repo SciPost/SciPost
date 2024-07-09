@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import copy
 from django import forms
 from crispy_forms.helper import FormHelper
 from django.core.validators import EmailValidator
@@ -31,14 +32,50 @@ class MultiEmailField(forms.CharField):
 
 
 ##### HTMX Class Based Forms #####
-class HTMXDynSelWidget(forms.Widget):
+class HTMXDynSelWidget(forms.Select):
     template_name = "htmx/dynsel.html"
 
-    def __init__(self, *args, **kwargs):
-        self.dynsel_context = kwargs.pop("dynsel_context", {})
-        super().__init__(*args, **kwargs)
+    def __init__(self, attrs=None, choices=(), **kwargs):
+        self.url = kwargs.pop("url", {})
+        super().__init__(attrs, choices, **kwargs)
+
+        self.attrs = self.attrs | {
+            "onclick": "return false;",
+            "onkeydown": "return false;",
+            "tabindex": "-1",
+        }
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        context["dynsel_context"] = self.dynsel_context
+        context["url"] = self.url
         return context
+
+    def filter_choices_to_render(self, selected_choices):
+        """Replace self.choices with selected_choices."""
+        if hasattr(self.choices, "queryset"):
+            try:
+                self.choices.queryset = self.choices.queryset.filter(
+                    pk__in=[c for c in selected_choices if c]
+                )
+            except ValueError:
+                # if selected_choices are invalid, do nothing
+                pass
+        else:
+            self.choices = [c for c in self.choices if str(c[0]) in selected_choices]
+
+    def optgroups(self, name, value, attrs=None):
+        """
+        Exclude unselected self.choices before calling the parent method.
+
+        Used by Django>=1.10.
+        """
+        # Filter out None values, not needed for autocomplete
+        selected_choices = [str(c) for c in value if c]
+        all_choices = copy.copy(self.choices)
+
+        self.filter_choices_to_render(selected_choices)
+
+        result = super().optgroups(name, value, attrs)
+        self.choices = all_choices
+
+        return result

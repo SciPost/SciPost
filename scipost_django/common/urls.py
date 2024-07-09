@@ -13,5 +13,10 @@ urlpatterns = [
         "empty",
         views.empty,
         name="empty",
-    )
+    ),
+    path(
+        "hx_dynsel/select_option/<int:content_type_id>/<int:object_id>",
+        views.HXDynselSelectOptionView.as_view(),
+        name="hx_dynsel_select_option",
+    ),
 ]

@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 from typing import Any, Dict
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.db.models.query import QuerySet
 from django.forms.forms import BaseForm
@@ -145,30 +146,25 @@ class HTMXInlineCRUDModelListView(ListView):
         return context
 
 
-class HXDynselSelectOptionView(SingleObjectMixin, View):
-    def get(self, request):
-        obj = self.get_object()
+class HXDynselSelectOptionView(View):
+    def get(self, request, content_type_id, object_id):
+        obj = self.get_object(content_type_id, object_id)
 
         return HttpResponse(
-            format_html(
-                '<option value="{}" selected>{}</option>',
-                obj.pk,
-                str(obj),
-            )
+            format_html('<option value="{}" selected>{}</option>', obj.pk, str(obj))
         )
 
-    def get_object(self):
-        queryset = self.model.objects.all()
-        pk = self.request.GET.get("pk")
-        return get_object_or_404(queryset, pk=pk)
+    def get_object(self, content_type_id, object_id):
+        model = ContentType.objects.get_for_id(content_type_id).model_class()
+        if model is None:
+            raise ValueError("Model not found")
+        return get_object_or_404(model, pk=object_id)
 
 
-class HXDynselResultPage(View):
+class HXDynselAutocomplete(View):
     model = None
-    collection_name = "results"
     template_name = "htmx/dynsel_list_page.html"
     paginate_by = 16
-    obj_select_option_url = None
 
     def post(self, request):
         self.page_nr = request.GET.get("page")
@@ -203,45 +199,8 @@ class HXDynselResultPage(View):
 
     def get_context_data(self, **kwargs):
         context = {}
-        context["collection_name"] = self.collection_name
-        context["obj_select_option_url"] = self.obj_select_option_url
         context["model_name"] = self.model._meta.verbose_name_plural
         context["q"] = self.q
         context["page_obj"] = self.get_page_obj(self.page_nr)
 
         return context
-
-
-# def _hx_dynsel_organization_page(request):
-#     model = Organization
-#     queryset = model.objects.all()
-
-#     collection_name = "organizations-list"
-
-#     if q := request.POST.get("q", ""):
-#         queryset = queryset.filter(
-#             Q(name__unaccent__icontains=q)
-#             | Q(name_original__unaccent__icontains=q)
-#             | Q(acronym__unaccent__icontains=q)
-#             | Q(ror_json__names__contains=[{"value": q}])  # Search ROR
-#         )
-
-#     paginator = Paginator(queryset, 50)
-#     page_nr = request.GET.get("page")
-#     page_obj = paginator.get_page(page_nr)
-
-#     context = {
-#         "page_obj": page_obj,
-#         "q": q,
-#         "model_name": model._meta.verbose_name_plural,
-#         "collection_name": collection_name,
-#         "obj_select_option_url": reverse(
-#             "organizations:organization-hx-dynsel-select-option"
-#         ),
-#     }
-
-#     return TemplateResponse(
-#         request,
-#         "organizations/_hx_dynsel_organization_page.html",
-#         context,
-#     )
