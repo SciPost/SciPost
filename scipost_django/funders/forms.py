@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django import forms
 
+from common.forms import HTMXDynSelWidget
+
 from .models import Funder, Grant
 
 from dal import autocomplete
@@ -28,7 +30,7 @@ class FunderForm(forms.ModelForm):
 class FunderSelectForm(forms.Form):
     funder = forms.ModelChoiceField(
         queryset=Funder.objects.all(),
-        widget=autocomplete.ModelSelect2(
+        widget=HTMXDynSelWidget(
             url="/funders/funder-autocomplete", attrs={"data-html": True}
         ),
     )
@@ -56,9 +58,7 @@ class GrantForm(HttpRefererFormMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["funder"] = forms.ModelChoiceField(
             queryset=Funder.objects.all(),
-            widget=autocomplete.ModelSelect2(
-                url="/funders/funder-autocomplete", attrs={"data-html": True}
-            ),
+            widget=HTMXDynSelWidget(url="/funders/funder-autocomplete"),
         )
         self.fields["recipient"] = forms.ModelChoiceField(
             queryset=Contributor.objects.select_related("user").order_by(
@@ -71,7 +71,5 @@ class GrantForm(HttpRefererFormMixin, forms.ModelForm):
 class GrantSelectForm(forms.Form):
     grant = forms.ModelChoiceField(
         queryset=Grant.objects.all(),
-        widget=autocomplete.ModelSelect2(
-            url="/funders/grant-autocomplete", attrs={"data-html": True}
-        ),
+        widget=HTMXDynSelWidget(url="/funders/grant-autocomplete"),
     )

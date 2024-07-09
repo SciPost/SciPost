@@ -15,7 +15,7 @@ from django.utils.html import format_html
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import get_object_or_404, render, redirect
 
-from dal import autocomplete
+from common.views import HXDynselAutocomplete
 
 from .models import Funder, Grant
 from .forms import (
@@ -28,65 +28,36 @@ from .forms import (
 from scipost.mixins import PermissionsMixin
 
 
-class FunderAutocompleteView(autocomplete.Select2QuerySetView):
-    """
-    View to feed the Select2 widget.
-    """
+class HXDynselFunderAutocomplete(HXDynselAutocomplete):
+    model = Funder
 
-    def get_queryset(self):
+    def search(self, queryset, q):
+        return queryset.filter(
+            Q(name__unaccent__icontains=q)
+            | Q(acronym__unaccent__icontains=q)
+            | Q(identifier__icontains=q)
+            | Q(organization__name__unaccent__icontains=q)
+            | Q(organization__name_original__unaccent__icontains=q)
+            | Q(organization__acronym__unaccent__icontains=q)
+        ).order_by("name")
+
+
+class HXDynselGrantAutocomplete(HXDynselAutocomplete):
+    model = Grant
+
+    def search(self, queryset, q):
         if not self.request.user.has_perm("scipost.can_draft_publication"):
-            return None
-        qs = Funder.objects.all()
-        if self.q:
-            qs = qs.filter(
-                Q(name__unaccent__icontains=self.q)
-                | Q(acronym__unaccent__icontains=self.q)
-                | Q(identifier__icontains=self.q)
-                | Q(organization__name__unaccent__icontains=self.q)
-                | Q(organization__name_original__unaccent__icontains=self.q)
-                | Q(organization__acronym__unaccent__icontains=self.q)
-            ).order_by("name")
-        return qs
-
-    def get_result_label(self, item):
-        if item.organization:
-            return format_html(
-                '<span><i class="{}" title="{}"></i>&emsp;{}</span>',
-                item.organization.country.flag_css,
-                item.organization.country.name,
-                item.name,
-            )
-        return format_html("<span>{}</span>", item.name)
-
-
-class GrantAutocompleteView(autocomplete.Select2QuerySetView):
-    """
-    View to feed the Select2 widget.
-    """
-
-    def get_queryset(self):
-        if not self.request.user.has_perm("scipost.can_draft_publication"):
-            return None
-        qs = Grant.objects.all()
-        if self.q:
-            qs = qs.filter(
-                Q(funder__name__unaccent__icontains=self.q)
-                | Q(funder__acronym__icontains=self.q)
-                | Q(number__icontains=self.q)
-                | Q(recipient_name__unaccent__icontains=self.q)
-                | Q(recipient__user__last_name__unaccent__icontains=self.q)
-                | Q(recipient__user__first_name__unaccent__icontains=self.q)
-                | Q(further_details__icontains=self.q)
+            return Grant.objects.none()
+        else:
+            return queryset.filter(
+                Q(funder__name__unaccent__icontains=q)
+                | Q(funder__acronym__icontains=q)
+                | Q(number__icontains=q)
+                | Q(recipient_name__unaccent__icontains=q)
+                | Q(recipient__user__last_name__unaccent__icontains=q)
+                | Q(recipient__user__first_name__unaccent__icontains=q)
+                | Q(further_details__icontains=q)
             ).order_by("funder__name", "number")
-        return qs
-
-    def get_result_label(self, item):
-        return format_html(
-            "<span>Number:&nbsp;{}<br>Recipient:&nbsp;{}<br>From:&nbsp;{}",
-            item.number,
-            item.recipient if item.recipient else item.recipient_name,
-            item.funder,
-        )
 
 
 @permission_required("scipost.can_view_all_funding_info", raise_exception=True)

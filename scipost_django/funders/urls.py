@@ -11,12 +11,12 @@ app_name = "funders"
 urlpatterns = [
     path(
         "funder-autocomplete",
-        views.FunderAutocompleteView.as_view(),
+        views.HXDynselFunderAutocomplete.as_view(),
         name="funder-autocomplete",
     ),
     path(
         "grant-autocomplete",
-        views.GrantAutocompleteView.as_view(),
+        views.HXDynselGrantAutocomplete.as_view(),
         name="grant-autocomplete",
     ),
     path("", views.funders, name="funders"),
