@@ -113,8 +113,13 @@ urlpatterns = [
     ),
     path(
         "subsidies/autocomplete",
-        views.HXDynselSubsidyAutocomplete.as_view(),
+        views.SubsidyAutocompleteView.as_view(),
         name="subsidy_autocomplete",
+    ),
+    path(
+        "subsidies/autocomplete/dynsel",
+        views.HXDynselSubsidyAutocomplete.as_view(),
+        name="subsidy_dynsel",
     ),
     path(
         "subsidies/<int:pk>/", views.SubsidyDetailView.as_view(), name="subsidy_details"

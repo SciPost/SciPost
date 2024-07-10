@@ -305,7 +305,7 @@ class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
     subsidy = forms.ModelChoiceField(
         queryset=Subsidy.objects.all(),
         widget=HTMXDynSelWidget(
-            url=reverse_lazy("finances:subsidy_autocomplete"),
+            url=reverse_lazy("finances:subsidy_dynsel"),
         ),
         help_text=("Start typing, and select from the popup."),
         required=False,
