@@ -16,6 +16,8 @@ from django.db.models import Value
 from django.db.models.functions import Concat
 from django.conf import settings
 
+from guardian.shortcuts import assign_perm, remove_perm
+
 from common.utils import latinise
 from journals.models import Journal
 from submissions.models.decision import EditorialDecision
@@ -126,6 +128,75 @@ class ProductionStream(models.Model):
 
     def get_absolute_url(self):
         return reverse("production:stream", args=(self.id,))
+
+    def set_supervisor(
+        self,
+        supervisor: ProductionUser | None,
+        performed_by: ProductionUser | None = None,
+    ):
+        # Remove permissions from previous supervisor
+        if prev_supervisor := self.supervisor:
+            remove_perm("can_perform_supervisory_actions", prev_supervisor.user, self)
+            # Remove work permission only if they have no other role
+            if prev_supervisor not in [self.officer, self.invitations_officer]:
+                remove_perm("can_work_for_stream", prev_supervisor.user, self)
+
+        self.supervisor = supervisor
+
+        # Add permissions to new supervisor
+        if supervisor:
+            assign_perm("can_perform_supervisory_actions", supervisor.user, self)
+            assign_perm("can_work_for_stream", supervisor.user, self)
+            comments = " assigned Production Supervisor:"
+        else:
+            comments = f" removed Production Supervisor: {prev_supervisor}"
+
+            self.add_event(
+                event="assignment", by=performed_by, to=supervisor, comments=comments
+            )
+
+    def set_officer(
+        self,
+        officer: ProductionUser | None,
+        performed_by: ProductionUser | None = None,
+    ):
+        # Remove permissions from previous officer
+        if (prev_officer := self.officer) and (
+            prev_officer not in [self.supervisor, self.invitations_officer]
+        ):
+            print("Removing permissions for", prev_officer.user)
+            remove_perm("can_work_for_stream", prev_officer.user, self)
+
+        self.officer = officer
+
+        # Add permissions to new officer
+        if officer:
+            assign_perm("can_work_for_stream", officer.user, self)
+            comments = " assigned Production Officer:"
+        else:
+            comments = f" removed Production Officer: {prev_officer}"
+
+        self.add_event(
+            event="assignment", by=performed_by, to=officer, comments=comments
+        )
+
+    def add_event(
+        self,
+        event,
+        by: ProductionUser | None = None,
+        comments=None,
+        duration=None,
+        to=None,
+    ):
+        by = by or ProductionUser.objects.filter(user__username="system").first()
+        ProductionEvent.objects.create(
+            stream=self,
+            event=event,
+            noted_by=by,
+            noted_to=to,
+            comments=comments,
+            duration=duration,
+        )
 
     @cached_property
     def total_duration(self):

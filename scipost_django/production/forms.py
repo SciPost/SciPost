@@ -71,8 +71,15 @@ class AssignOfficerForm(forms.ModelForm):
         model = ProductionStream
         fields = ("officer",)
 
+    # Override the default clean method called via is_valid
+    # which overrides the instance and hides its previous value
+    def _post_clean(self):
+        return
+
     def save(self, commit=True):
         stream = super().save(False)
+        stream.set_officer(self.cleaned_data["officer"], self.production_user)
+
         if commit:
             if stream.status in [
                 constants.PRODUCTION_STREAM_INITIATED,
@@ -85,6 +92,7 @@ class AssignOfficerForm(forms.ModelForm):
         return stream
 
     def __init__(self, *args, **kwargs):
+        self.production_user = kwargs.pop("production_user", None)
         super().__init__(*args, **kwargs)
         self.fields["officer"].queryset = ProductionUser.objects.active().filter(
             user__groups__name="Production Officers"
@@ -110,11 +118,26 @@ class AssignSupervisorForm(forms.ModelForm):
         model = ProductionStream
         fields = ("supervisor",)
 
+    # Override the default clean method called via is_valid
+    # which overrides the instance and hides its previous value
+    def _post_clean(self):
+        return
+
     def __init__(self, *args, **kwargs):
+        self.production_user = kwargs.pop("production_user", None)
         super().__init__(*args, **kwargs)
         self.fields["supervisor"].queryset = ProductionUser.objects.active().filter(
             user__groups__name="Production Supervisor"
         )
+
+    def save(self, commit=True):
+        stream = self.instance
+        stream.set_supervisor(self.cleaned_data["supervisor"], self.production_user)
+
+        if commit:
+            stream.save()
+
+        return stream
 
 
 class StreamStatusForm(forms.ModelForm):
