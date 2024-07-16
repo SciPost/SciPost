@@ -1,6 +1,8 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: decline refereeing invitation{% endblock pagetitle %}
+{% block pagetitle %}
+  : decline refereeing invitation
+{% endblock pagetitle %}
 
 {% load bootstrap %}
 {% load static %}
@@ -8,24 +10,43 @@
 
 {% block content %}
 
+  <h1>Decline Refereeing Invitation</h1>
+
   <div class="row">
-    <div class="col-12">
-      <h1 class="highlight">SciPost Submission which you have been asked to Referee:</h1>
-      <h3><a href="{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a></h3>
+    <h2 class="highlight">SciPost Submission (which you have been asked to Referee):</h2>
+    <div class="col-12 col-md-8">
+      <a class="fs-3" href="{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
       <p>{{ invitation.submission.author_list }}</p>
+      <p>{{ invitation.submission.abstract }}</p>
     </div>
+ 
+    <aside class="col-12 col-md-4">
+      <div class="bg-warning bg-opacity-10 border border-2 border-warning p-2">
+        <h3>Indicate alternative referees</h3>
+        <p>
+          If you know of alternative referees who could review this submission, you can greatly help SciPost if you indicate them.
+        </p>
+        <a class="fs-4"
+           target="_blank"
+           href="{% url "submissions:referee_indications" identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr %}">Indicate a Refereee</a>
+      </div>
+    </aside>
   </div>
+ 
   <div class="row">
     <div class="col-12">
       <h3 class="highlight">You are choosing to decline this Refereeing Invitation</h3>
-      <form action="{% url 'submissions:decline_ref_invitation' invitation_key=invitation.invitation_key %}" method="post">
-	{% csrf_token %}
-	{{ form|bootstrap }}
-	<input type="submit" class="btn btn-outline-secondary" value="Submit" />
+      <form action="{% url 'submissions:decline_ref_invitation' invitation_key=invitation.invitation_key %}"
+            method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+	
+        <input type="submit" class="btn btn-outline-secondary" value="Submit" />
       </form>
     </div>
   </div>
-
+ 
+ 
 {% endblock content %}
 
 {% block footer_script %}
