@@ -7,6 +7,7 @@ import os
 import random
 import re
 import string
+import gitlab
 
 from datetime import datetime
 
@@ -1024,12 +1025,28 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
                     noted_by=self.request.user.production_user,
                 )
                 prodevent.save()
+    
+    def tag_publication(self) -> None:
+        """ Creates a tag in the git repository for the publication."""
+        gl = gitlab.Gitlab("https://git.scipost.org", private_token = settings.GITLAB_KEY)
+        gl.auth()
+        
+        publication: Publication = self.instance
+        repo_url: str = publication.accepted_submission.production_stream.proofs_repository.git_url[24:] # skip gitlab prefix
+        project = gl.projects.get(repo_url)
+        
+        tag_name = publication.doi_label +"_Published"
+        if tag_name not in [tag.name for tag in project.tags.list()]:
+            project.tags.create({"tag_name": tag_name, "ref": "main"})
+        else:
+            print(f"Publication tag: {tag_name} already exists. Something went wrong.")
 
     def save(self, commit=True):
         if commit:
             self.move_pdf()
             self.update_submission()
             self.update_stream()
+            self.tag_publication()
 
             # Email authors
             JournalUtils.load({"publication": self.instance})
