@@ -440,8 +440,12 @@
           </p>
         {% endif %}
 
-
         {% include 'submissions/pool/_referee_invitations.html' with submission=submission invitations=submission.referee_invitations.all submission=submission %}
+
+          <h3 class="mt-3">Referee indications</h3>
+          <div hx-get="{% url "submissions:_hx_referee_indication_table" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+               hx-trigger="load once, referee-indications-updated from:body delay:1s"></div>
+
       {% endif %}
 
       <hr class="lg my-5">
