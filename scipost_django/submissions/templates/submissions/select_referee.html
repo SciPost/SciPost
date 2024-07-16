@@ -72,6 +72,11 @@
     </div>
   {% endif %}
 
+  <h3>Referee Indications</h3>
+  <div hx-get="{% url "submissions:_hx_referee_indication_table" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+       hx-trigger="load once, referee-indications-updated from:body delay:1s"></div>
+
+
   <section name="search_form">
     <details open id="select-referee-filter-details" class="card my-4">
       <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
