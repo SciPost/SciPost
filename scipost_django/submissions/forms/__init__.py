@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse, reverse_lazy
+
+from common.forms import HTMXDynSelWidget
 from .appraisal import QualificationForm, ReadinessForm
 
 
@@ -3746,7 +3748,9 @@ class RefereeIndicationForm(forms.ModelForm):
 
     referee = forms.ModelChoiceField(
         queryset=Profile.objects.all(),
-        widget=autocomplete.ModelSelect2(url="/profiles/profile-autocomplete"),
+        widget=HTMXDynSelWidget(
+            url=reverse_lazy("profiles:profile_dynsel"),
+        ),
         required=False,
         help_text="Preferably select a referee from the list. If not found, fill in the other fields.",
     )
