@@ -5,32 +5,50 @@
 {% load user_groups %}
 {% is_ed_admin request.user as is_ed_admin %}
 
-{% if submission.thread_full.first.publication and submission.thread_full.first.publication.is_published %}
-  <h4 class="my-4">
-    <span class="border border-2 border-success p-2">
-      Published as
-      <a href="{{ submission.thread_full.first.publication.get_absolute_url }}">
-        {{ submission.thread_full.first.publication.citation }}
-      </a>
-    </span>
-  </h4>
-{% endif %}
-
 <div class="row">
-  <div class="col-12 col-md-6">
+
+  {% if submission.thread_full.first.publication and submission.thread_full.first.publication.is_published %}
+    <div class="col-12">
+      <h4 class="my-4">
+        <span class="border border-2 border-success p-2">
+          Published as
+          <a href="{{ submission.thread_full.first.publication.get_absolute_url }}">
+            {{ submission.thread_full.first.publication.citation }}
+          </a>
+        </span>
+      </h4>
+    </div>
+  {% endif %}
+
+  {% if submission.referee_indications.all %}
+    <div class="col-12">
+      <h4>Refereeing indications</h4>
+      <div hx-get="{% url "submissions:_hx_referee_indication_table" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+           hx-trigger="load once, referee-indications-updated from:body delay:1s"></div>
+    </div>
+  {% endif %}
+
+  <div class="col-12 col-md-6 d-flex flex-column gap-2">
     <div>{% include "submissions/pool/_submission_recommendation_card.html" %}</div>
-    <div class="mt-4">{% include "submissions/pool/_submission_refereeing_history_card.html" %}</div>
+    <div>{% include "submissions/pool/_submission_refereeing_history_card.html" %}</div>
   </div>
 
   <div class="col-12 col-md d-flex flex-column">
 
-    {% if is_ed_admin and submission.editor_in_charge %}
-      <h4>Editor in Charge potential conflicts of interest</h4>
-      <div class="overflow-scroll" style="max-height: 50vh">
-        {% with submission.editor_in_charge.conflict_of_interests.non_deprecated|filter_for_submission:submission as conflicts %}
-          {% include 'submissions/admin/_conflicts.html' with conflicts=conflicts %}
-        {% endwith %}
-      </div>
+    <h4>EIC conflicts of interest</h4>
+
+    {% if is_ed_admin %}
+
+      {% if submission.editor_in_charge %}
+        <div class="overflow-scroll" style="max-height: 50vh">
+          {% with submission.editor_in_charge.conflict_of_interests.non_deprecated|filter_for_submission:submission as conflicts %}
+            {% include 'submissions/admin/_conflicts.html' with conflicts=conflicts %}
+          {% endwith %}
+        </div>
+      {% else %}
+        <p>No editor in charge assigned yet.</p>
+      {% endif %}
+
     {% endif %}
 
     <a class="mt-auto"

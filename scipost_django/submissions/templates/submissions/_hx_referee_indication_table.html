@@ -76,7 +76,12 @@
 
     </tr>
 
-  {% endfor %}
+  {% empty %}
+ 
+    <tr>
+      <td colspan="6" class="text-center">No referee indications created yet.</td>
+    </tr>
 
+  {% endfor %}
 
 </table>
