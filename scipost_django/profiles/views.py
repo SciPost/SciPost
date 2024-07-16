@@ -18,6 +18,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 from mails.views import MailView
+from common.views import HXDynselAutocomplete
 from profiles import constants
 
 from scipost.mixins import PermissionsMixin, PaginationMixin
@@ -43,6 +44,13 @@ from .forms import (
 ################
 # Autocomplete #
 ################
+
+
+class HXDynselProfileAutocomplete(HXDynselAutocomplete):
+    model = Profile
+
+    def search(self, queryset, q):
+        return queryset.search(q)
 
 
 class ProfileAutocompleteView(autocomplete.Select2QuerySetView):

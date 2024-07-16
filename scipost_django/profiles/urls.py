@@ -15,6 +15,11 @@ urlpatterns = [
         views.ProfileAutocompleteView.as_view(),
         name="profile-autocomplete",
     ),
+    path(
+        "autocomplete/dynsel",
+        views.HXDynselProfileAutocomplete.as_view(),
+        name="profile_dynsel",
+    ),
     # Create
     path(
         "add/<from_type>/<int:pk>",
