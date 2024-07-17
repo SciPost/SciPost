@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.urls import reverse
@@ -13,6 +14,11 @@ from scipost.constants import TITLE_CHOICES
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..managers import RefereeInvitationQuerySet
 from ..models import EditorialAssignment
+
+if TYPE_CHECKING:
+    from profiles.models import Profile
+    from scipost.models import Contributor
+    from submissions.models import Submission
 
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
@@ -25,15 +31,15 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
 
     """
 
-    profile = models.ForeignKey(
+    profile = models.ForeignKey["Profile"](
         "profiles.Profile", on_delete=models.SET_NULL, blank=True, null=True
     )
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission",
         on_delete=models.CASCADE,
         related_name="referee_invitations",
     )
-    referee = models.ForeignKey(
+    referee = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         related_name="referee_invitations",
         blank=True,
