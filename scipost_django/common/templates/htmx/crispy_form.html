@@ -1,0 +1,7 @@
+{% load crispy_forms_tags %}
+
+{% crispy form %}
+
+{% if management_form %}
+  <div id="{{ formset_prefix }}-formset-management-form" hx-swap-oob="true">{{ management_form }}</div>
+{% endif %}
