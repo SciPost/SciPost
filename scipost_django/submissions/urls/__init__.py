@@ -67,6 +67,21 @@ urlpatterns = [
         name="submission_wo_vn_nr",
     ),
     path(
+        "referee_indications/<int:pk>/delete",
+        views._hx_referee_indication_delete,
+        name="_hx_referee_indication_delete",
+    ),
+    path(
+        "referee_indications/<int:pk>/delete/<str:invitation_key>",
+        views._hx_referee_indication_delete,
+        name="_hx_referee_indication_delete",
+    ),
+    # path(
+    #     "referee_indications/<int:pk>/edit",
+    #     views._hx_referee_indication_edit,
+    #     name="_hx_referee_indication_edit",
+    # ),
+    path(
         "<identifier:identifier_w_vn_nr>/",
         include(
             [
@@ -79,6 +94,16 @@ urlpatterns = [
                     "referee_indications/",
                     include(
                         [
+                            path(
+                                "",
+                                views.referee_indications,
+                                name="referee_indications",
+                            ),
+                            path(
+                                "table",
+                                views._hx_referee_indication_table,
+                                name="_hx_referee_indication_table",
+                            ),
                             path(
                                 "_hx_formset",
                                 views.HXRefereeIndicationFormSetView.as_view(),
