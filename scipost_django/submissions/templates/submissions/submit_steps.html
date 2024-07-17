@@ -31,7 +31,15 @@
 	{% if step == 4 %}<span class="text-warning">{% include 'bi/arrow-right-square-fill.html' %}</span>{% endif %}
 	{% if step > 4 %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% endif %}
       </td>
-      <td>Complete and submit the form</td>
+      <td>Fill in the submission details form</td>
+    </tr>
+    <tr>
+      <td>Step&nbsp;5</td>
+      <td class="text-center">
+  {% if step == 5 %}<span class="text-warning">{% include 'bi/arrow-right-square-fill.html' %}</span>{% endif %}
+	{% if step > 5 %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% endif %}
+      </td>
+      <td>Indicate potential referees</td>
     </tr>
   </table>
 </div>

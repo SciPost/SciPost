@@ -316,7 +316,6 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     """Formview to submit a new manuscript (Submission)."""
 
     permission_required = "scipost.can_submit_manuscript"
-    success_url = reverse_lazy("scipost:personal_page")
     form_class = SubmissionForm
     template_name = "submissions/submission_form.html"
 
@@ -380,10 +379,11 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         kwargs["initial"] = getattr(self, "initial_data", {})
         return kwargs
 
-    @transaction.atomic
+    # @transaction.atomic
     def form_valid(self, form):
         """Redirect and send out mails if all data is valid."""
         submission = form.save()
+        self.submission = submission
 
         submission.add_general_event("Submitted to %s." % str(submission.submitted_to))
 
@@ -409,13 +409,21 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
                 "authors/acknowledge_submission", submission=submission
             )
             mail_util.send_mail()
-        return HttpResponseRedirect(self.success_url)
+
+        return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
         """Add warnings as messages to make those more explicit."""
         for error_messages in form.errors.values():
             messages.warning(self.request, *error_messages)
         return super().form_invalid(form)
+
+    def get_success_url(self):
+        """Redirect to the indicate referees step."""
+        return reverse(
+            "submissions:submit_indicate_referees",
+            kwargs={"identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr},
+        )
 
 
 class RequestSubmissionUsingSciPostView(RequestSubmissionView):
@@ -486,6 +494,40 @@ class RequestSubmissionUsingOSFPreprintsView(RequestSubmissionView):
             thread_hash=request.GET.get("thread_hash"),
         )
         return super().get(request, journal_doi_label)
+
+
+@login_required
+@permission_required("scipost.can_submit_manuscript", raise_exception=True)
+def submit_indicate_referees(request, identifier_w_vn_nr):
+    """
+    Inform users of SciPost's unique refereeing process and ask them to indicate referees.
+
+    This page should only be accessible to the submitting author and only before the submission has passed preassignment.
+    Afterwards, visitors should be redirected to the main `indicate_referees` page.
+    """
+
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    if (request.user.contributor != submission.submitted_by) and not is_edadmin(
+        request.user
+    ):
+        raise PermissionDenied("You are not the submitting author of this Submission.")
+
+    if submission.status != Submission.INCOMING:
+        return redirect(
+            reverse(
+                "submissions:referee_indications",
+                kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+            )
+        )
+
+    context = {
+        "submission": submission,
+    }
+
+    return render(request, "submissions/submit_indicate_referees.html", context)
 
 
 @login_required
