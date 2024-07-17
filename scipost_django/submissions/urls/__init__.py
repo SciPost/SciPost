@@ -75,6 +75,18 @@ urlpatterns = [
                     views.submission_detail,
                     name="submission",
                 ),
+                path(
+                    "referee_indications/",
+                    include(
+                        [
+                            path(
+                                "_hx_formset",
+                                views.HXRefereeIndicationFormSetView.as_view(),
+                                name="_hx_referee_indication_formset",
+                            ),
+                        ]
+                    ),
+                ),
                 # Topics
                 path(
                     "_hx_submission_topics/",
