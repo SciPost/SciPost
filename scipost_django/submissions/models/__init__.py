@@ -34,3 +34,5 @@ from .report import Report
 from .recommendation import EICRecommendation, AlternativeRecommendation
 
 from .decision import EditorialDecision
+
+from .referee_indication import RefereeIndication
