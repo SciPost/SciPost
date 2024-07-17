@@ -44,7 +44,9 @@ from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
 from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 
 if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
     from submissions.models import EditorialDecision
+    from ..models.referee_invitation import RefereeInvitation
 
 
 class SubmissionAuthorProfile(models.Model):
@@ -241,6 +243,9 @@ class Submission(models.Model):
         STAGE_IN_REFEREEING + STAGE_DECISIONMAKING + STAGE_DECIDED
     )
     STAGE_IN_REFEREEING_COMPLETED_STATUSES = STAGE_DECISIONMAKING + STAGE_DECIDED
+
+    # Related managers
+    referee_invitations: "RelatedManager[RefereeInvitation]"
 
     # Fields
     preprint = models.OneToOneField(
