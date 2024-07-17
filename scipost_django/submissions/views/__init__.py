@@ -37,6 +37,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 import sentry_sdk
 
+from common.views import HXFormSetView
 from scipost.permissions import (
     HTMXPermissionsDenied,
     HTMXResponse,
@@ -69,6 +70,7 @@ from ..models import (
 from ..mixins import SubmissionMixin, SubmissionAdminViewMixin
 from ..forms import (
     InviteRefereeSearchFrom,
+    RefereeIndicationForm,
     SciPostPrefillForm,
     ArXivPrefillForm,
     ChemRxivPrefillForm,
@@ -3492,3 +3494,52 @@ def monitor(request):
         ),
     }
     return render(request, "submissions/monitor.html", context)
+
+
+class HXRefereeIndicationFormSetView(HXFormSetView):
+    form_class = RefereeIndicationForm
+
+    def formset_valid(self):
+        response = HTMXResponse("Referee indications saved successfully", tag="success")
+        response.headers["HX-Trigger"] = "referee-indications-updated"
+        return response
+
+    def get_factory_kwargs(self):
+
+        #! Improvement: Kind of a hacky way to reuse the same decorator code
+        def save_profile(request, **kwargs):
+            # Create a dummy view that saves the profile kwarg on self
+            setattr(kwargs.pop("self"), "profile", kwargs.pop("profile"))
+
+        resolve_profile(save_profile)(self.request, self=self)
+
+        identifier_w_vn_nr = self.kwargs.get("identifier_w_vn_nr")
+        self.submission = Submission.objects.get(
+            preprint__identifier_w_vn_nr=identifier_w_vn_nr
+        )
+
+        kwargs = super().get_factory_kwargs()
+        kwargs.update({"can_delete": True})
+
+        return kwargs
+
+    def get_formset_kwargs(self):
+        kwargs = super().get_formset_kwargs()
+
+        kwargs.update(
+            {
+                "queryset": RefereeIndication.objects.all()
+                .for_submission(self.submission)
+                .by_profile(self.profile),
+            }
+        )
+
+        return kwargs
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        kwargs.update({"submission": self.submission, "profile": self.profile})
+
+        return kwargs
+

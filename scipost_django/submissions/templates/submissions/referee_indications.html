@@ -1,0 +1,35 @@
+{% extends 'submissions/base.html' %}
+
+
+{% block meta_description %}
+  {{ block.super }} Submission Detail {{ submission.title }}
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  Submission: {{ submission.title|truncatechars:40 }}
+{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'submissions:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.preprint.identifier_w_vn_nr }}</a></span>
+  <span class="breadcrumb-item active">Referee Indications</span>
+{% endblock %}
+
+
+{% block content %}
+  <h1>Referee Indications</h1>
+  <p>
+    Referee indications are used to suggest / advise against specific referees for the submission. Indications can be made by the authors of the submission, invited referees, or any other SciPost contributor.
+  </p>
+
+  <h2>Table</h2>
+  <p>Preview of referee indications for this submission visible to you.</p>
+  <div hx-get="{% url "submissions:_hx_referee_indication_table" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+       hx-trigger="load once, referee-indications-updated from:body delay:1s"></div>
+
+  <h2>Indicate Referees</h2>
+  <p>View the refereeing indications you have made for this submission and add new ones.</p>
+  <div hx-get="{% url "submissions:_hx_referee_indication_formset" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+       hx-trigger="load once, referee-indications-updated from:body delay:1s"></div>
+
+{% endblock content %}

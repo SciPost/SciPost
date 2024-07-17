@@ -1,0 +1,70 @@
+{% extends 'submissions/base.html' %}
+
+{% load static %}
+{% load bootstrap %}
+{% load journals_extras %}
+{% load automarkup %}
+
+{% block headsup %}
+  <style>{% for journal in journals %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
+{% endblock headsup %}
+
+{% block pagetitle %}
+  : submit manuscript
+{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Submit a manuscript</span>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Indicate (potential) referees for your manuscript</h1>
+    </div>
+  </div>
+
+  {% if perms.scipost.can_submit_manuscript %}
+    <div class="row">
+      <div class="col-md-6">
+        <h2 class=highlight>Step 5</h2>
+        <h3>Suggest or advise against referees reviewing your manuscript</h3>
+      </div>
+      <div class="col-md-6">{% include 'submissions/submit_steps.html' with step=5 %}</div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+
+        <h4>SciPost refereeing system</h4>
+        <p>
+          SciPost relies on a unique refereeing system, where editors are responsible for the selection of manuscripts at a voluntary basis.
+          Therefore, <strong>SciPost does not guarantee that all manuscripts will be picked up for refereeing</strong> by an editor.
+          Most often, editors selecting a manuscript do so on the basis of their expertise, the novelty / interest of the manuscript and the availability of referees.
+        </p>
+        <p>
+          You can help potential editors of your manuscript by suggesting referees that are experts in the field and are not in conflict of interest with the authors.
+          Furthermore, you can also advise against referees that you believe are not suitable for refereeing your manuscript, provided you have a valid reason for this.
+          The referees suggested by the authors are not automatically selected for refereeing, but can serve as a guide for the editors who ultimately decide who to invite for refereeing.
+        </p>
+
+        <h4>Indicate referees</h4>
+        <div hx-get="{% url "submissions:_hx_referee_indication_formset" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+             hx-trigger="load once, referee-indications-updated from:body delay:1s"></div>
+
+      </div>
+    </div>
+
+    <div>
+      <a class="btn btn-link"
+         href="{% url "submissions:submission" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">View submission page</a>
+    </div>
+
+  {% else %}
+    <h3>You are currently not allowed to submit a manuscript.</h3>
+  {% endif %}
+
+ 
+
+{% endblock content %}
