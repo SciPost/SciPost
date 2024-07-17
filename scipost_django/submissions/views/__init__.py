@@ -38,6 +38,8 @@ from dal import autocomplete
 import sentry_sdk
 
 from common.views import HXFormSetView, empty
+from profiles.utils import resolve_profile
+
 from scipost.permissions import (
     HTMXPermissionsDenied,
     HTMXResponse,
@@ -1826,6 +1828,10 @@ def decline_ref_invitation(request, invitation_key):
         RefereeInvitation.objects.awaiting_response(), invitation_key=invitation_key
     )
 
+    # Push the invitation to the user's session
+    # for use with refereeing indications later
+    request.session["invitation_key"] = invitation_key
+
     form = ConsiderRefereeInvitationForm(
         request.POST or None, initial={"accept": False}
     )
@@ -3545,7 +3551,8 @@ class HXRefereeIndicationFormSetView(HXFormSetView):
         return kwargs
 
 
-def referee_indications(request, identifier_w_vn_nr, invitation_key=None):
+@resolve_profile
+def referee_indications(request, identifier_w_vn_nr, profile=None):
     """
     View to display the referee indications table for a submission,
     the creation formset, and the instruction set for either.
@@ -3555,23 +3562,31 @@ def referee_indications(request, identifier_w_vn_nr, invitation_key=None):
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
 
+    if profile is None:
+        raise PermissionDenied("You must be logged in to view this page.")
+
     context = {
         "submission": submission,
-        "referee_indications": submission.referee_indications.all(),
-        "invitation": RefereeInvitation.objects.filter(
-            invitation_key=invitation_key
-        ).first(),
+        "referee_indications": RefereeIndication.objects.all()
+        .for_submission(submission)
+        .visible_by(profile),
     }
 
     return render(request, "submissions/referee_indications.html", context)
 
 
-def _hx_referee_indication_table(request, identifier_w_vn_nr):
+@resolve_profile
+def _hx_referee_indication_table(request, identifier_w_vn_nr, profile=None):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
-    referee_indications = submission.referee_indications.all()
-    # author_profile =
+
+    if profile is None:
+        raise PermissionDenied("You must be logged in to view this page.")
+
+    referee_indications = (
+        RefereeIndication.objects.all().for_submission(submission).visible_by(profile)
+    )
 
     return render(
         request,
@@ -3583,7 +3598,8 @@ def _hx_referee_indication_table(request, identifier_w_vn_nr):
     )
 
 
-def _hx_referee_indication_delete(request: HttpRequest, pk):
+@resolve_profile
+def _hx_referee_indication_delete(request: HttpRequest, pk, profile=None):
 
     # Guard against invalid request methods
     if request.method != "DELETE":
@@ -3591,7 +3607,7 @@ def _hx_referee_indication_delete(request: HttpRequest, pk):
 
     referee_indication = get_object_or_404(RefereeIndication, pk=pk)
 
-    is_author = False
+    is_author = profile == referee_indication.indicated_by
     if not is_author:
         return HTMXResponse("You are not allowed to delete this referee indication")
 
