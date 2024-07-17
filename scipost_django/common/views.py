@@ -6,7 +6,9 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.db.models.query import QuerySet
+from django.forms import formset_factory, modelformset_factory
 from django.forms.forms import BaseForm
+from django.forms.formsets import ManagementForm
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.response import TemplateResponse
@@ -15,6 +17,9 @@ from django.utils.html import format_html
 from django.views import View
 from django.views.generic import FormView, ListView
 from django.views.generic.detail import SingleObjectMixin
+
+from scipost.permissions import HTMXResponse
+
 from .forms import HTMXInlineCRUDModelForm
 
 
@@ -204,3 +209,141 @@ class HXDynselAutocomplete(View):
         context["page_obj"] = self.get_page_obj(self.page_nr)
 
         return context
+
+
+class HXFormSetView(View):
+    """
+    Class-based view for handling formsets with HTMX.
+    """
+
+    form_class = None
+    formset_prefix = "formset"
+    template_name = "htmx/formset_form.html"
+    template_name_form = "htmx/crispy_form.html"
+
+    def get_initial(self):
+        """
+        Return the initial form instances to be used in the formset if pre-existing data is available.
+        Does not set the initial data for each new form.
+        """
+        return []
+
+    def get_form_kwargs(self):
+        return {"initial": {}}
+
+    def get_factory_kwargs(self):
+        return {}
+
+    def get_formset_kwargs(self):
+        kwargs: dict[str, Any] = {
+            "form_kwargs": self.get_form_kwargs(),
+        }
+
+        if self.request.method in ("POST", "PUT"):
+            kwargs.update(
+                {
+                    "data": self.request.POST,
+                    "files": self.request.FILES,
+                }
+            )
+        return kwargs
+
+    def get_formset(self, data=None):
+        # Determine if the formset is modelformset or regular formset
+        if hasattr(self.form_class, "Meta") and hasattr(self.form_class.Meta, "model"):
+            factory = modelformset_factory(
+                self.form_class.Meta.model,
+                form=self.form_class,
+                **self.get_factory_kwargs(),
+            )
+        else:
+            factory = formset_factory(self.form_class, **self.get_factory_kwargs())
+
+        formset = factory(**self.get_formset_kwargs())
+
+        # This sets up the initial forms, not the (same) initial data for each (new) form
+        formset.initial = self.get_initial()
+
+        # Remove form tag if using crispy forms
+        for form in formset:
+            if getattr(form, "helper", None):
+                form.helper.form_tag = False
+
+        return formset
+
+    def get_context_data(self, **kwargs: Any):
+        context = {}
+        context["formset"] = self.get_formset()
+        return context
+
+    def formset_invalid(self):
+        return render(self.request, self.template_name, self.get_context_data())
+
+    def formset_valid(self):
+        response = HTMXResponse("Formset saved successfully", tag="success")
+        return response
+
+    def get(self, request, **kwargs):
+        self.request = request
+        self.kwargs = kwargs
+
+        return render(request, self.template_name, self.get_context_data())
+
+    def post(self, request, **kwargs):
+        self.request = request
+        self.kwargs = kwargs
+        formset = self.get_formset()
+
+        # If the "add extra form" button was pressed, add an extra form to the formset
+        if request.POST.get("add-extra-form", False):
+            return self._hx_add_extra_form(request, formset)
+
+        # formset = self.get_formset()
+        else:
+            formset.full_clean()
+            if formset.is_valid():
+                formset.save()
+                return self.formset_valid()
+            else:
+                return self.formset_invalid()
+
+    def _hx_add_extra_form(self, request, formset):
+        """
+        Creates a new form and adds it to the formset.
+        Also updates the formset's total form count to reflect the addition.
+        Returns the updated formset to be replaced in the DOM.
+        """
+
+        # Create a new form and add it to the formset
+        # omit the form tag if using crispy forms
+        form = formset.empty_form
+        if getattr(form, "helper", None):
+            form.helper.form_tag = False
+
+        # add prefix to the form
+        form.prefix = formset.add_prefix(formset.total_form_count())
+
+        management_form = ManagementForm(
+            auto_id=formset.auto_id,
+            prefix=formset.prefix,
+            initial={
+                "TOTAL_FORMS": formset.total_form_count() + 1,
+                "INITIAL_FORMS": formset.initial_form_count(),
+                "MIN_NUM_FORMS": formset.min_num,
+                "MAX_NUM_FORMS": formset.max_num,
+            },
+            renderer=formset.renderer,
+        )
+
+        response = render(
+            request,
+            self.template_name_form,
+            {
+                "form": form,
+                "formset_prefix": formset.prefix,
+                "management_form": management_form,
+            },
+        )
+        response["HX-Retarget"] = f"#{formset.prefix}-formset-forms"
+        response["HX-Reswap"] = "beforeend"
+        return response
