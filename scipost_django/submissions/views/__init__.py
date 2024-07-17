@@ -37,7 +37,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 import sentry_sdk
 
-from common.views import HXFormSetView
+from common.views import HXFormSetView, empty
 from scipost.permissions import (
     HTMXPermissionsDenied,
     HTMXResponse,
@@ -66,6 +66,7 @@ from ..models import (
     RefereeInvitation,
     Report,
     SubmissionEvent,
+    RefereeIndication,
 )
 from ..mixins import SubmissionMixin, SubmissionAdminViewMixin
 from ..forms import (
@@ -3543,3 +3544,56 @@ class HXRefereeIndicationFormSetView(HXFormSetView):
 
         return kwargs
 
+
+def referee_indications(request, identifier_w_vn_nr, invitation_key=None):
+    """
+    View to display the referee indications table for a submission,
+    the creation formset, and the instruction set for either.
+    """
+
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    context = {
+        "submission": submission,
+        "referee_indications": submission.referee_indications.all(),
+        "invitation": RefereeInvitation.objects.filter(
+            invitation_key=invitation_key
+        ).first(),
+    }
+
+    return render(request, "submissions/referee_indications.html", context)
+
+
+def _hx_referee_indication_table(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    referee_indications = submission.referee_indications.all()
+    # author_profile =
+
+    return render(
+        request,
+        "submissions/_hx_referee_indication_table.html",
+        {
+            "submission": submission,
+            "referee_indications": referee_indications,
+        },
+    )
+
+
+def _hx_referee_indication_delete(request: HttpRequest, pk):
+
+    # Guard against invalid request methods
+    if request.method != "DELETE":
+        return HTMXResponse("Invalid request method", tag="danger")
+
+    referee_indication = get_object_or_404(RefereeIndication, pk=pk)
+
+    is_author = False
+    if not is_author:
+        return HTMXResponse("You are not allowed to delete this referee indication")
+
+    referee_indication.delete()
+    return empty(request)
