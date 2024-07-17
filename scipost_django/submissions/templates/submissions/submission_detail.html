@@ -70,10 +70,17 @@
 
       {% if is_author %}
 	<div class="w-100">
-	  <div class="border py-2 px-3 mb-3">
+	  <div class="border border-success py-2 px-3 mb-3">
             <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> You are a verified author of this Submission.
 	  </div>
 	</div>
+      {% endif %}
+      {% if not submission.visible_public %}
+  <div class="w-100">
+    <div class="border border-warning py-2 px-3 mb-3">
+      <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> The submission is not publicly visible yet. This happens only after an editor voluntarily takes charge of it.
+    </div>
+  </div>
       {% endif %}
       <!-- End notifications -->
 
