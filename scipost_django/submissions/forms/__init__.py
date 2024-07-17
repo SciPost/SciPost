@@ -72,6 +72,7 @@ from ..models import (
     PlagiarismAssessment,
     iThenticateReport,
     EditorialCommunication,
+    RefereeIndication,
 )
 from ..regexes import CHEMRXIV_DOI_PATTERN
 
@@ -3706,3 +3707,83 @@ class iThenticateReportForm(forms.ModelForm):
                 self.add_error(None, msg)
             return None
         return data
+
+
+class RefereeIndicationForm(forms.ModelForm):
+    class Meta:
+        model = RefereeIndication
+        exclude = ["submission", "indicated_by"]
+
+    referee = forms.ModelChoiceField(
+        queryset=Profile.objects.all(),
+        widget=autocomplete.ModelSelect2(url="/profiles/profile-autocomplete"),
+        required=False,
+        help_text="Preferably select a referee from the list. If not found, fill in the other fields.",
+    )
+    reason = forms.CharField(
+        widget=forms.Textarea(attrs={"rows": 4, "maxlength": 255}),
+        help_text="Short reason for this indication; <strong>mandatory when advising against</strong>.",
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop("submission")
+        self.user = kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        # self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Div(
+                        Div(Field("indication"), css_class="col-2"),
+                        Div(Field("referee"), css_class="col-10"),
+                        Div(Field("first_name"), css_class="col-6 col-md-2"),
+                        Div(Field("last_name"), css_class="col-6 col-md-2"),
+                        Div(Field("email_address"), css_class="col-6 col-md-4"),
+                        Div(Field("affiliation"), css_class="col-6 col-md-4"),
+                        css_class="row",
+                    ),
+                    css_class="col",
+                ),
+                Div(Field("reason"), css_class="col-12 col-xl-3 h-100"),
+                css_class="row",
+            )
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        referee_info_fields = [
+            cleaned_data.get("first_name"),
+            cleaned_data.get("last_name"),
+            cleaned_data.get("email_address"),
+        ]
+
+        if cleaned_data.get("referee") is None and not all(referee_info_fields):
+            self.add_error(
+                None,
+                "If you don't select a referee, you must provide all the necessary information.",
+            )
+
+        if cleaned_data.get("indication") == RefereeIndication.INDICATION_AGAINST:
+            if reason := cleaned_data.get("reason"):
+                self.add_error(
+                    "reason",
+                    "You must provide a reason when indicating against a referee.",
+                )
+            elif len(reason) < 10:
+                self.add_error(
+                    "reason",
+                    "The reason is too short, please provide a more detailed explanation.",
+                )
+
+        return cleaned_data
+
+    def save(self):
+        indication = super().save(commit=False)
+        indication.submission = self.submission
+        indication.indicated_by = self.user.profile
+        indication.save()
+        return indication

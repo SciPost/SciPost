@@ -27,6 +27,7 @@ from submissions.models import (
     Qualification,
     Readiness,
     PreprintServer,
+    RefereeIndication,
 )
 from scipost.models import Contributor
 from colleges.models import Fellowship
@@ -46,8 +47,6 @@ class PreprintServerAdmin(admin.ModelAdmin):
     autocomplete_fields = ["acad_fields"]
 
 
-
-
 @admin.register(iThenticateReport)
 class iThenticateReportAdmin(admin.ModelAdmin):
     list_display = ["doc_id", "to_submission", "status"]
@@ -55,8 +54,6 @@ class iThenticateReportAdmin(admin.ModelAdmin):
     search_fields = [
         "doc_id",
     ]
-
-
 
 
 class InternalPlagiarismAssessmentInline(admin.StackedInline):
@@ -211,7 +208,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                     "specialties",
                     "approaches",
                     "proceedings",
-                    "code_metadata"
+                    "code_metadata",
                 ),
             },
         ),
@@ -285,8 +282,6 @@ class SubmissionAdmin(GuardedModelAdmin):
     )
 
 
-
-
 @admin.register(EditorialAssignment)
 class EditorialAssignmentAdmin(admin.ModelAdmin):
     search_fields = [
@@ -309,8 +304,6 @@ class EditorialAssignmentAdmin(admin.ModelAdmin):
         "submission",
         "to",
     ]
-
-
 
 
 @admin.register(RefereeInvitation)
@@ -339,8 +332,6 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
     search_fields = ["author__user__last_name", "submission__title"]
@@ -362,14 +353,10 @@ class ReportAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 @admin.register(EditorialCommunication)
 class EditorialCommunicationAdmin(admin.ModelAdmin):
     search_fields = ["submission__title", "referee__user__last_name", "text"]
     autocomplete_fields = ["submission", "referee"]
-
-
 
 
 class AlternativeRecommendationInline(admin.StackedInline):
@@ -408,8 +395,6 @@ class EICRecommendationAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 @admin.register(EditorialDecision)
 class EditorialDecisionAdmin(admin.ModelAdmin):
     search_fields = [
@@ -436,8 +421,6 @@ class EditorialDecisionAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 @admin.register(SubmissionEvent)
 class SubmissionEventAdmin(admin.ModelAdmin):
     autocomplete_fields = [
@@ -445,3 +428,33 @@ class SubmissionEventAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(RefereeIndication)
+class RefereeIndicationAdmin(admin.ModelAdmin):
+    search_fields = [
+        "submission__title",
+        "submission__preprint__identifier_w_vn_nr",
+        "referee__first_name",
+        "referee__last_name",
+        "first_name",
+        "last_name",
+        "email_address",
+    ]
+    list_display = (
+        "submission",
+        "indicated_by",
+        "indication",
+        "referee_name",
+    )
+    list_filter = ("indication",)
+    autocomplete_fields = [
+        "submission",
+        "indicated_by",
+        "referee",
+    ]
+
+    def referee_name(self, obj):
+        return (
+            obj.referee.full_name
+            if obj.referee
+            else f"{obj.first_name} {obj.last_name}"
+        )
