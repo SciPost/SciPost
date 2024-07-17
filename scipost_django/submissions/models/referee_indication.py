@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 from typing import TYPE_CHECKING, Literal
 from django.db import models
 
+from submissions.managers.referee_indication import RefereeIndicationQuerySet
+
 if TYPE_CHECKING:
     from .submission import Submission
     from ...profiles.models import Profile
@@ -58,6 +60,8 @@ class RefereeIndication(models.Model):
 
     # If the indication is negative, it is best to provide a reason
     reason = models.TextField(blank=True, null=True)
+
+    objects = RefereeIndicationQuerySet.as_manager()
 
     class Meta:
         unique_together = ("submission", "referee")
