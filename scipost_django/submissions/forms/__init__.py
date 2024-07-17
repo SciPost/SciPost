@@ -3758,7 +3758,7 @@ class RefereeIndicationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.submission = kwargs.pop("submission")
-        self.user = kwargs.pop("user")
+        self.profile = kwargs.pop("profile")
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
@@ -3778,6 +3778,7 @@ class RefereeIndicationForm(forms.ModelForm):
                     css_class="col",
                 ),
                 Div(Field("reason"), css_class="col-12 col-xl-3 h-100"),
+                Div(Field("id", type="hidden"), css_class="d-none"),
                 css_class="row",
             )
         )
@@ -3798,7 +3799,8 @@ class RefereeIndicationForm(forms.ModelForm):
             )
 
         if cleaned_data.get("indication") == RefereeIndication.INDICATION_AGAINST:
-            if reason := cleaned_data.get("reason"):
+            reason = cleaned_data.get("reason")
+            if reason is None or reason == "":
                 self.add_error(
                     "reason",
                     "You must provide a reason when indicating against a referee.",
@@ -3811,9 +3813,9 @@ class RefereeIndicationForm(forms.ModelForm):
 
         return cleaned_data
 
-    def save(self):
+    def save(self, commit=True):
         indication = super().save(commit=False)
         indication.submission = self.submission
-        indication.indicated_by = self.user.profile
+        indication.indicated_by = self.profile
         indication.save()
         return indication
