@@ -339,6 +339,11 @@ urlpatterns = [
         name="submit_manuscript_osfpreprints",
     ),
     path(
+        "submit_manuscript/<identifier:identifier_w_vn_nr>/indicate_referees",
+        views.submit_indicate_referees,
+        name="submit_indicate_referees",
+    ),
+    path(
         "withdraw_manuscript/<identifier:identifier_w_vn_nr>/",
         views.withdraw_manuscript,
         name="withdraw_manuscript",
