@@ -3635,6 +3635,7 @@ def _hx_referee_indication_table(request, identifier_w_vn_nr, profile=None):
         "submissions/_hx_referee_indication_table.html",
         {
             "submission": submission,
+            "profile": profile,
             "referee_indications": referee_indications,
         },
     )
