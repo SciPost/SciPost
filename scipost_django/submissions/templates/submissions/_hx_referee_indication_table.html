@@ -61,7 +61,7 @@
 
       <td>
 
-        {% if author_profile == refind.indicated_by %}
+        {% if profile == refind.indicated_by %}
 
           <button class="btn btn-sm btn-light"
                   hx-delete="{% url 'submissions:_hx_referee_indication_delete' refind.pk %}"
