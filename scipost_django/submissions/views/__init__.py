@@ -370,6 +370,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         context["journal"] = get_object_or_404(
             Journal, doi_label=self.kwargs.get("journal_doi_label")
         )
+        context["thread_hash"] = self.request.GET.get("thread_hash")
         return context
 
     def get_form_kwargs(self):
@@ -423,10 +424,13 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 
     def get_success_url(self):
         """Redirect to the indicate referees step."""
-        return reverse(
-            "submissions:submit_indicate_referees",
-            kwargs={"identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr},
-        )
+
+        url_kwargs = {"identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr}
+        if not self.submission.is_resubmission:
+            # First submission, redirect to indicate referees
+            return reverse("submissions:submit_indicate_referees", kwargs=url_kwargs)
+        else:
+            return reverse("submissions:submission", kwargs=url_kwargs)
 
 
 class RequestSubmissionUsingSciPostView(RequestSubmissionView):
@@ -518,7 +522,8 @@ def submit_indicate_referees(request, identifier_w_vn_nr):
     ):
         raise PermissionDenied("You are not the submitting author of this Submission.")
 
-    if submission.status != Submission.INCOMING:
+    # Redirect to main referee indications view if passed preassignment of is resubmission
+    if submission.status != Submission.INCOMING or submission.is_resubmission:
         return redirect(
             reverse(
                 "submissions:referee_indications",
