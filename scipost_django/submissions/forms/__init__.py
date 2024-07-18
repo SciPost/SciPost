@@ -1012,6 +1012,7 @@ class SciPostPrefillForm(SubmissionPrefillForm):
                     "approaches": self.latest_submission.approaches,
                     "referees_flagged": self.latest_submission.referees_flagged,
                     "referees_suggested": self.latest_submission.referees_suggested,
+                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
                 }
             )
         return form_data
@@ -1067,6 +1068,7 @@ class ArXivPrefillForm(SubmissionPrefillForm):
                     "specialties": [
                         s.id for s in self.latest_submission.specialties.all()
                     ],
+                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
                 }
             )
         return form_data
@@ -1134,6 +1136,7 @@ class ChemRxivPrefillForm(SubmissionPrefillForm):
                     "specialties": [
                         s.id for s in self.latest_submission.specialties.all()
                     ],
+                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
                 }
             )
         return form_data
@@ -1196,6 +1199,7 @@ class FigsharePrefillForm(SubmissionPrefillForm):
                     "specialties": [
                         s.id for s in self.latest_submission.specialties.all()
                     ],
+                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
                 }
             )
         return form_data
@@ -1258,6 +1262,7 @@ class OSFPreprintsPrefillForm(SubmissionPrefillForm):
                     "specialties": [
                         s.id for s in self.latest_submission.specialties.all()
                     ],
+                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
                 }
             )
         return form_data
