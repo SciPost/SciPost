@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from decimal import Decimal
 from string import Template as string_Template
+import re
 
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -581,7 +582,100 @@ class Publication(models.Model):
             models.Q(doi_label=doi_anchor)
             | models.Q(doi_label__startswith=f"{doi_anchor}-")
         ).order_by("doi_label")
+    
+    @staticmethod
+    def extract_affiliations_from_tex(tex_contents: str) -> list[str]:
+        """
+        Extracts the affiliations from the TeX contents, constructing a list with each affiliation as a string.
+        This list is used to render the affiliation list in the add_author view.
+        """
+        affiliation_field = re.findall("%%%%%%%%%% TODO: AFFILIATIONS(.*?)%%%%%%%%%% END TODO: AFFILIATIONS", tex_contents, re.DOTALL)[0]
+        affiliation_texts = affiliation_field.strip().split("\n\\\\")
+        
+        affiliation_list = []
+        for affiliation_text in affiliation_texts:
+            affiliation = re.findall("{\\\\bf\s*\d+} (.*)", affiliation_text, re.DOTALL) or [affiliation_text]
+            affiliation = affiliation[0].strip()
+            affiliation_list.append(affiliation)
+        
+        return affiliation_list
 
+    def construct_affiliation_list(self) -> list[str]:
+        """
+        Constructs a list of affiliations from the TeX file of the publication.
+        This list is used to render the affiliation list in the add_author view.
+        """
+
+        tex_contents = self.proofs_repository.fetch_publication_tex()
+        return Publication.extract_affiliations_from_tex(tex_contents)
+
+    def construct_tex_author_info(self) -> tuple[list[str], list[list[int]]]:
+        """ Puts together information for each author from the TeX file of the publication. """
+        
+        tex_contents = self.proofs_repository.fetch_publication_tex()
+        author_field = re.findall("%%%%%%%%%% TODO: AUTHORS(.*?)%%%%%%%%%% END TODO: AUTHORS", tex_contents, re.DOTALL)[0]
+        author_texts = author_field.strip().split("\n")
+
+        if len(author_texts) > 1 and " and" in author_texts[-2]:
+            author_texts[-2] = author_texts[-2].replace(" and", ",").replace("\nand ", "\n")
+
+        author_list = []; affiliation_list = []
+        for author_text in author_texts:            
+            has_supperscript = re.search("textsuperscript", author_text) is not None
+            has_affiliation = re.search("\d", author_text) is not None
+            
+            delimiter: str = r"\\textsuperscript" if has_supperscript else ","
+            
+            author = re.findall(rf"(.*?){delimiter}", author_text)[0]
+            author_list.append(author)
+            
+            # If no affiliation is present, we add them all.
+            if not has_affiliation:
+                total_affiliations = len(Publication.extract_affiliations_from_tex(tex_contents))
+                default_affiliations = list(range(1, total_affiliations +1))
+                affiliation_list.append(default_affiliations)
+                continue
+            
+            superscript = re.findall("textsuperscript\{(.*?)\}", author_text)[0]
+            
+            # We remove anything following the first "$" character which separates affiliations from emails.
+            affiliations = superscript.split("$")[0].strip().split(",")
+            affiliations = [int(aff.strip()) for aff in affiliations]
+            affiliation_list.append(affiliations)
+
+        return author_list, affiliation_list
+    
+    def reset_author_associations(self) -> None:
+        """ Deletes all PublicationAuthorsTable entries and repopulates it based on the tex file uploaded on git. """
+        PublicationAuthorsTable.objects.filter(publication=self).delete()
+        
+        author_string_list, author_affiliation_ids = self.construct_tex_author_info()
+        author_query_list = self.search_for_authors(author_string_list)
+        
+        # We add the succesful authors from the author_render_list to the PublicationAuthorsTable.
+        for author_profile_query in author_query_list:
+            author_profile = author_profile_query.first() if len(author_profile_query) < 2 else None
+            PublicationAuthorsTable.objects.create(publication=self, profile=author_profile)
+    
+    def search_for_authors(self, author_string_list: list[str]) -> list:
+        """ Creates a list of (Profile) queryset objects based on the strings in author_string_list."""
+        from profiles.models import Profile
+        
+        author_profile_query_list = []
+        
+        authors_metadata_table = PublicationAuthorsTable.objects.filter(publication=self)
+        
+        for i, tex_author in enumerate(author_string_list): # Author1, Author2, ...
+            # If an author is already on the index of authors_metadata_table, do not search.
+            if not authors_metadata_table.exists() or i +1 > len(authors_metadata_table) or authors_metadata_table[i].is_empty():
+                query_results = Profile.objects.search(tex_author)
+            else:
+                query_results = Profile.objects.filter(id=authors_metadata_table[i].profile.id)
+            
+            author_profile_query_list.append(query_results)
+        
+        return author_profile_query_list
+        
 
 class Reference(models.Model):
     """A Refence is a reference used in a specific Publication."""
