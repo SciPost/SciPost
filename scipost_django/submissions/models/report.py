@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import subprocess
+from typing import TYPE_CHECKING
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models.signals import post_save
@@ -34,6 +35,10 @@ from ..constants import (
 )
 from ..managers import ReportQuerySet
 
+if TYPE_CHECKING:
+    from scipost.models import Contributor
+    from submissions.models import Submission
+
 
 class Report(SubmissionRelatedObjectMixin, models.Model):
     """Report on a Submission, written by a Contributor."""
@@ -44,7 +49,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     report_type = models.CharField(
         max_length=32, choices=REPORT_TYPES, default=REPORT_NORMAL
     )
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission", related_name="reports", on_delete=models.CASCADE
     )
     report_nr = models.PositiveSmallIntegerField(
@@ -53,7 +58,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         "refeering to the Report nr. of "
         "the Submission",
     )
-    vetted_by = models.ForeignKey(
+    vetted_by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         related_name="report_vetted_by",
         blank=True,
@@ -66,7 +71,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     # `flagged' if author of report has been flagged by submission authors (surname check only)
     flagged = models.BooleanField(default=False)
-    author = models.ForeignKey(
+    author = models.ForeignKey["Contributor"](
         "scipost.Contributor", on_delete=models.CASCADE, related_name="reports"
     )
     qualification = models.PositiveSmallIntegerField(

@@ -6,6 +6,7 @@ import datetime
 import hashlib
 import random
 import string
+from typing import TYPE_CHECKING
 
 from django.urls import reverse
 from django.conf import settings
@@ -38,6 +39,9 @@ from .managers import (
 from conflicts.models import ConflictOfInterest
 
 today = timezone.now().date()
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 
 def get_sentinel_user():
@@ -84,7 +88,7 @@ class Contributor(models.Model):
     profile = models.OneToOneField(
         "profiles.Profile", on_delete=models.SET_NULL, null=True, blank=True
     )
-    user = models.OneToOneField(
+    user = models.OneToOneField["User"](
         settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True
     )
     invitation_key = models.CharField(max_length=40, blank=True)
