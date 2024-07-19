@@ -45,6 +45,14 @@
 <div class="tab-content">
   {% if tab == "info" %}
     {% include "submissions/_submission_summary.html" with submission=submission hide_title=1 show_abstract=1 %}
+
+    {% if submission.remarks_for_editors %}
+    <details class="hcard hcard-primary bg-opacity-25">
+      <summary class="list-triangle fs-5">Remarks for Editors</summary>
+      <p>{{ submission.remarks_for_editors }}</p>
+    </details>
+    {% endif %}
+
     <div id="submission-{{ submission.pk }}-topics"
 	 hx-get="{% url 'submissions:_hx_submission_topics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}?include_matches=1"
 	 hx-trigger="revealed"
