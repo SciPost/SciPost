@@ -3268,6 +3268,13 @@ class PlagiarismReportPDFView(
     permission_required = "scipost.can_do_plagiarism_checks"
     editorial_page = True
 
+    # Reset queryset to all submissions (if user is edadmin)
+    def get_queryset(self):
+        if is_edadmin(self.request.user):
+            return Submission.objects.all()
+        else:
+            return super().get_queryset()
+
     def get_redirect_url(self, *args, **kwargs):
         """Get the temporary url provided by the iThenticate API."""
         submission = self.get_object()
