@@ -678,6 +678,9 @@ class DraftPublicationForm(forms.ModelForm):
         super().save(*args, **kwargs)
         if do_prefill:
             self.first_time_fill()
+            # We cannot trust the author associations ordered in Submission.
+            self.instance.reset_author_associations()
+        
         return self.instance
 
     def first_time_fill(self):
