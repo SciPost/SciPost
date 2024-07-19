@@ -106,7 +106,7 @@ class Contributor(models.Model):
         null=True,
     )
     # If this Contributor is merged into another, then this field is set to point to the new one:
-    duplicate_of = models.ForeignKey(
+    duplicate_of = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.SET_NULL,
         null=True,

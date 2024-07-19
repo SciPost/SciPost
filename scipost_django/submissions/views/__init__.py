@@ -22,7 +22,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction, IntegrityError
 from django.db.models import Q, Count, Sum
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
 from django.urls import reverse, reverse_lazy
@@ -899,16 +899,28 @@ def report_pdf_compile(request, report_id):
 
 
 @login_required
-@user_passes_test(is_edadmin)
-def _hx_anonymize_report(request, report_id):
+def _hx_anonymize_report(request: HttpRequest, report_id):
     report = get_object_or_404(Report, id=report_id)
-    report.anonymous = True
-    report.save()
-    report.submission.add_event_for_eic(
-        f"{request.user.get_full_name()} anonymized "
-        f"referee report #{report.report_nr} "
-        f"(by {report.author.profile.full_name})"
-    )
+
+    is_report_author = report.author.user == request.user
+    if not (is_edadmin(request.user) or is_report_author):
+        raise PermissionDenied
+
+    if is_report_author and report.date_submitted < (
+        timezone.now() - datetime.timedelta(days=1)
+    ):
+        messages.error(
+            request,
+            "You can only anonymize your own report within 24 hours of submission.",
+        )
+    else:
+        report.anonymous = True
+        report.save()
+        report.submission.add_event_for_eic(
+            f"{request.user.get_full_name()} anonymized "
+            f"referee report #{report.report_nr} "
+            f"(by {report.author.profile.full_name})"
+        )
 
     return render(
         request,

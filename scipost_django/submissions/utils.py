@@ -540,6 +540,25 @@ class SubmissionUtils(BaseMailUtil):
                 f'the <a href="https://{domain}/submissions/'
                 "{{ identifier_w_vn_nr }}\">Submission's page</a>.</p>"
             )
+            if not cls.report.anonymous:
+                email_text += (
+                    "\n\nPlease note that your Report is not anonymous and thus your identity will be publicly visible. "
+                    "You may anonymize your Report within 24 hours at "
+                    f"https://{domain}/submissions/"
+                    + cls.report.submission.preprint.identifier_w_vn_nr
+                    + f"#report_{cls.report.report_nr}."
+                    "\n\nIf you choose to do so, your identity will be immediately hidden from the public. "
+                    "However, kindly understand that SciPost cannot guarantee that this information "
+                    "has not already been saved by unaffiliated third-parties during the time in which is was public."
+                )
+                email_text_html += (
+                    "\n<p>Please note that your Report is not anonymous and thus your identity will be publicly visible. "
+                    f'You may anonymize your Report within 24 hours at the <a href="https://{domain}/submissions/"'
+                    f"{{ identifier_w_vn_nr }}//#report_{cls.report.report_nr}\">Submission's page</a>.</p>"
+                    "<p>If you choose to do so, your identity will be immediately hidden from the public. "
+                    "However, kindly understand that SciPost cannot guarantee that this information "
+                    "has not already been saved by unaffiliated third-parties during the time in which is was public.</p>"
+                )
         else:
             email_text += (
                 "\n\nYour Report has been reviewed by the Editor-in-charge of the Submission, "
