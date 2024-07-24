@@ -41,17 +41,12 @@ def _hx_note_delete(request, pk):
     if note is None:
         return HTMXResponse("Note not found", tag="danger")
 
-    if note.visibility == Note.VISIBILITY_PRIVATE:
-        if note.author == request.user.contributor:
-            note.delete()
-            return HttpResponse()
-        else:
-            response = HTMXResponse(
-                "You are not the author of this note.", tag="danger"
-            )
+    if note.author == request.user.contributor:
+        note.delete()
+        return HttpResponse()
     else:
         response = HTMXResponse(
-            "Deletion of non-private notes is disabled.", tag="danger"
+            "You are not the author of this note.", tag="danger"
         )
 
     response["HX-Trigger"] = "notes-updated"
