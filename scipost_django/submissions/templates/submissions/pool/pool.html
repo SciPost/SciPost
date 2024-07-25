@@ -154,7 +154,16 @@
     </div>
   </div>
 
-  <h4 class="bg-primary bg-opacity-10 p-2"><span class="text-primary">{% include "bi/info-circle-fill.html" %}</span>&emsp;<em>Tip: click anywhere on a Submission header's light blue background to expand detailed tabs</em></h4>
+  <p class="bg-primary bg-opacity-10 p-2"><span class="text-primary fs-5 me-2">{% include "bi/info-circle-fill.html" %}</span>Tip: click anywhere on a Submission header's light blue background to expand detailed tabs</p>
+
+  {% if nr_potential_author_conflicts %}
+    <p class="bg-warning bg-opacity-10 p-2">
+      <span class="text-warning fs-5 me-2">{% include "bi/exclamation-triangle-fill.html" %}</span>
+      A total of {{nr_potential_author_conflicts}} submissions are hidden based on grounds of potential authorship, i.e. your last name is contained in the author-provided list of authors. 
+      Verify or refute these claims in the <a href="{% url "scipost:claim_authorships" %}">claim authorships page</a>.
+    </p>
+  {% endif %}
+
   <div id="search-results" class="mt-2"></div>
 
 {% endblock content %}

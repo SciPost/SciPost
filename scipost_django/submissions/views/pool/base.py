@@ -40,6 +40,9 @@ def pool(request, identifier_w_vn_nr=None):
     nr_potfels_to_vote_on = PotentialFellowship.objects.to_vote_on(
         request.user.contributor
     ).count()
+    nr_potential_author_conflicts = Submission.objects.with_potential_unclaimed_author(
+        request.user.contributor
+    ).count()
     recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user)
     recs_current_voted = EICRecommendation.objects.user_current_voted(request.user)
     assignments_to_consider = EditorialAssignment.objects.invited().filter(
@@ -49,6 +52,7 @@ def pool(request, identifier_w_vn_nr=None):
     if identifier_w_vn_nr:
         initial = {"identifier": identifier_w_vn_nr}
     context = {
+        "nr_potential_author_conflicts": nr_potential_author_conflicts,
         "nr_potfels_to_vote_on": nr_potfels_to_vote_on,
         "recs_to_vote_on": recs_to_vote_on,
         "recs_current_voted": recs_current_voted,

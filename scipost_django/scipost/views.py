@@ -1258,11 +1258,7 @@ def personal_page_hx_submissions(request):
     context = {"contributor": contributor}
 
     context["nr_submission_authorships_to_claim"] = (
-        Submission.objects.filter(author_list__contains=request.user.last_name)
-        .exclude(authors=contributor)
-        .exclude(authors_claims=contributor)
-        .exclude(authors_false_claims=contributor)
-        .count()
+        Submission.objects.with_potential_unclaimed_author(contributor).count()
     )
     context["own_submissions"] = contributor.submissions.latest().order_by(
         "-submission_date"
@@ -1473,21 +1469,27 @@ def claim_authorships(request):
     contributor = Contributor.objects.get(user=request.user)
 
     submission_authorships_to_claim = (
-        Submission.objects.filter(author_list__contains=contributor.user.last_name)
+        Submission.objects.filter(
+            author_list__unaccent__icontains=contributor.user.last_name
+        )
         .exclude(authors=contributor)
         .exclude(authors_claims=contributor)
         .exclude(authors_false_claims=contributor)
     )
     sub_auth_claim_form = AuthorshipClaimForm()
     commentary_authorships_to_claim = (
-        Commentary.objects.filter(author_list__contains=contributor.user.last_name)
+        Commentary.objects.filter(
+            author_list__unaccent__icontains=contributor.user.last_name
+        )
         .exclude(authors=contributor)
         .exclude(authors_claims=contributor)
         .exclude(authors_false_claims=contributor)
     )
     com_auth_claim_form = AuthorshipClaimForm()
     thesis_authorships_to_claim = (
-        ThesisLink.objects.filter(author__contains=contributor.user.last_name)
+        ThesisLink.objects.filter(
+            author__unaccent__icontains=contributor.user.last_name
+        )
         .exclude(author_as_cont=contributor)
         .exclude(author_claims=contributor)
         .exclude(author_false_claims=contributor)

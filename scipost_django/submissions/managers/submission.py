@@ -9,6 +9,11 @@ from django.utils import timezone
 
 from .. import constants
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ...scipost.models import Contributor
+
 
 class SubmissionQuerySet(models.QuerySet):
     ##################################
@@ -146,22 +151,30 @@ class SubmissionQuerySet(models.QuerySet):
     def latest(self):
         return self.exclude(status=self.model.RESUBMITTED)
 
-    def remove_COI(self, user):
+    def with_potential_unclaimed_author(self, contributor: "Contributor"):
+        """
+        Return Submissions for which the contributor could potentially be an author.
+        """
+        return (
+            self.filter(author_list__unaccent__icontains=contributor.user.last_name)
+            .exclude(authors=contributor)
+            .exclude(authors_claims=contributor)
+            .exclude(authors_false_claims=contributor)
+        )
+
+    def remove_COI(self, contributor: "Contributor"):
         """
         Filter on basic conflicts of interest.
 
         Prevent conflicts of interest by filtering out submissions
         which are possibly related to user.
         """
-        try:
-            return self.exclude(authors=user.contributor).exclude(
-                models.Q(
-                    author_list__unaccent__icontains=user.last_name
-                ),  # TODO: replace by Profiles-based checks
-                ~models.Q(authors_false_claims=user.contributor),
-            )
-        except AttributeError:
-            return self.none()
+        return self.exclude(authors=contributor).exclude(
+            models.Q(
+                author_list__unaccent__icontains=contributor.user.last_name
+            ),  # TODO: replace by Profiles-based checks
+            ~models.Q(authors_false_claims=contributor),
+        )
 
     def in_pool(self, user, latest: bool = True, historical: bool = False):
         """
@@ -213,7 +226,7 @@ class SubmissionQuerySet(models.QuerySet):
         ).exclude(
             competing_interests__related_profile=user.contributor.profile,
         )
-        return qs.remove_COI(user)
+        return qs.remove_COI(user.contributor)
 
     def in_pool_filter_for_eic(
         self,
