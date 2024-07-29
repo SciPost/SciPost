@@ -1486,15 +1486,25 @@ class SubmissionForm(forms.ModelForm):
                 + str(kwargs["initial"].get("acad_field").id)
             )
 
+        core_version_doi = self.submitted_to_journal.doi_label
+        if not core_version_doi.endswith("Core"):
+            core_version_doi += "Core"
         self.fields["fulfilled_expectations"].help_text = (
             """<div class="mt-2">Please indicate which <a href='{expectations_url}'>journal expectations</a> you assert are being fulfilled by this Submission. 
-            This information will be publicly visible and scrutinized during the refereeing process. <br>
-            Looking for a more accessible alternative? Consider <a href='{core_url}'>submitting to SciPost Physics Core</a>.</div>""".format(
+            At least one should be fulfilled for publication in {journal_name}. <br>
+            This information will be publicly visible and scrutinized during the refereeing process. 
+            Looking for a more accessible alternative? Consider <a href='{core_url}{thread_hash_get_param}'>submitting to {journal_name} Core</a>.</div>""".format(
                 expectations_url=reverse_lazy(
                     "journal:about", args=[self.submitted_to_journal.doi_label]
                 )
                 + "#criteria",
-                core_url="https://scipost.org/submissions/submit/SciPostPhysCore",
+                journal_name=self.submitted_to_journal.name,
+                core_url=reverse_lazy(
+                    "submissions:submit_choose_preprint_server", args=[core_version_doi]
+                ),
+                thread_hash_get_param=(
+                    f"?thread_hash={self.thread_hash}" if self.thread_hash else ""
+                ),
             )
         )
         object_types = self.submitted_to_journal.submission_object_types["options"]
