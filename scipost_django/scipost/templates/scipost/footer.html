@@ -19,7 +19,7 @@
           <li><a href="{% url "scipost:contact" %}">Contact us</a></li>
           <li><a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
           <li><a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a></li>
-          <li><a href="mailto:techsupport@{{ request.get_host }}">Write to tech support</a></li>
+          <li><a href="mailto:techsupport@{{ DOMAIN_HOST }}">Write to tech support</a></li>
         </ul>
       </div>
 
@@ -35,7 +35,7 @@
         <ul class="list-unstyled">
           <li><a href="{% url 'news:news' %}">News</a></li>
           <li><a href="{% url 'blog:blog_index' %}">Blog</a></li>
-          <li><a href="https://disc.{{ request.get_host }}"target="_blank" rel="noopener">Community</a>
+          <li><a href="https://disc.{{ DOMAIN_HOST }}"target="_blank" rel="noopener">Community</a>
           <li><a href="{% url "careers:job_openings" %}">Careers</a>
           </li>
         </ul>
@@ -46,7 +46,7 @@
       <div class="col-12">
         <ul class="list-inline text-center">
           <li class="list-inline-item">
-            <a href="https://git.{{ request.get_host }}" target="_blank" rel="noopener">
+            <a href="https://git.{{ DOMAIN_HOST }}" target="_blank" rel="noopener">
               <span>{% include 'bi/git.html' %}</span>&nbsp;Git Repository</a>
           </li>
           <li class="list-inline-item">
@@ -90,7 +90,7 @@
                height="15"
                src="https://licensebuttons.net/l/by/4.0/80x15.png" />
         </a>
-        Except where otherwise noted, all content on {{ request.get_host }} is licensed under a
+        Except where otherwise noted, all content on {{ DOMAIN_HOST }} is licensed under a
         <a rel="license noopener"
            href="https://creativecommons.org/licenses/by/4.0/"
            target="_blank">Creative Commons Attribution 4.0 International License</a>.

@@ -337,6 +337,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "scipost.context_processors.roles_processor",
+                "scipost.context_processors.domain_processor",
                 "journals.context_processors.publishing_years_processor",
                 "journals.context_processors.journals_processor",
                 "ontology.context_processors.ontology_processor",

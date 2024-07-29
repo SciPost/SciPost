@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django.contrib.auth.models import Group
 
+from common.utils.models import get_current_domain
+
 
 def roles_processor(request):
     """
@@ -47,3 +49,10 @@ def roles_processor(request):
     except AttributeError:
         pass
     return context
+
+
+def domain_processor(request):
+    """
+    Add the domain name to the context.
+    """
+    return {"DOMAIN_HOST": get_current_domain()}
