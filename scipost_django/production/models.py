@@ -536,19 +536,54 @@ class ProofsRepository(models.Model):
 
         return paths
 
-    def fetch_publication_tex(self) -> str:
-        """ Fetches the TeX file of the publication. """
-        gl = gitlab.Gitlab("https://" + settings.GITLAB_URL, private_token = settings.GITLAB_KEY)
-        gl.auth()
-        
-        project = gl.projects.get(self.git_path)
+    def fetch_tex(self) -> str | None:
+        """
+        Fetches the TeX file of the publication, or of the proofs if not available.
+        If both fail, returns None.
+        """
+        # Attempt to authenticate with GitLab
+        try:
+            gl = gitlab.Gitlab(
+                "https://" + settings.GITLAB_URL,
+                private_token=settings.GITLAB_KEY,
+            )
+            gl.auth()
+        except:
+            return None
+
         publication: "Publication" = self.stream.submission.publications.first()
-        
-        main_file_path = publication.doi_label.replace(".", "_") +".tex"
-        publication_file = project.files.get(file_path = main_file_path, ref = "main")
-        tex_contents = publication_file.decode().decode("utf-8")
-        
-        return tex_contents
+        publication_filename = publication.doi_label.replace(".", "_") + ".tex"
+
+        # Attempt to fetch the project from GitLab
+        try:
+            project = gl.projects.get(self.git_path)
+        except:
+            return None
+
+        # Attempt to fetch the publication file
+        try:
+            publication_file = project.files.get(
+                file_path=publication_filename, ref="main"
+            )
+            tex_contents = publication_file.decode().decode("utf-8")
+            return tex_contents
+        except:
+            pass
+
+        # Fall back to the submission's main file
+        proofs_file = None
+        for project_file in project.repository_tree(ref="main"):
+            project_filename = project_file["name"]
+            if project_filename.endswith(".tex") and self.name in project_filename:
+                proofs_file = project.files.get(file_path=project_filename, ref="main")
+                break
+
+        if proofs_file is not None:
+            tex_contents = proofs_file.decode().decode("utf-8")
+            return tex_contents
+
+        # If all else fails, return None
+        return None
 
     def __str__(self) -> str:
         return f"Proofs repo for {self.stream}"

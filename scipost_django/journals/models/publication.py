@@ -5,12 +5,14 @@ __license__ = "AGPL v3"
 from decimal import Decimal
 from string import Template as string_Template
 import re
+from typing import TYPE_CHECKING
 
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Min, Sum
 from django.urls import reverse
+from django.utils.functional import cached_property
 
 from ..constants import (
     STATUS_DRAFT,
@@ -29,6 +31,10 @@ from common.utils import get_current_domain
 from finances.models import PubFrac
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
+
+
+if TYPE_CHECKING:
+    from production.models import ProofsRepository
 
 
 class PublicationAuthorsTable(models.Model):
@@ -67,7 +73,7 @@ class PublicationAuthorsTable(models.Model):
     def is_empty(self) -> bool:
         """Check if object is a temporary placeholder."""
         return self.profile is None
-    
+
     @property
     def is_registered(self) -> bool:
         """Check if author is registered at SciPost."""
@@ -476,7 +482,7 @@ class Publication(models.Model):
         return self.pubfracs.aggregate(Sum("fraction"))["fraction__sum"] == 1
     
     @property
-    def proofs_repository(self):
+    def proofs_repository(self) -> "ProofsRepository":
         """Return the proofs repository for the publication."""
         return self.accepted_submission.production_stream.proofs_repository
 
@@ -606,14 +612,29 @@ class Publication(models.Model):
         This list is used to render the affiliation list in the add_author view.
         """
 
-        tex_contents = self.proofs_repository.fetch_publication_tex()
-        return Publication.extract_affiliations_from_tex(tex_contents)
+        if self.tex_contents:
+            return Publication.extract_affiliations_from_tex(self.tex_contents)
+        return []
+
+    @cached_property
+    def tex_contents(self) -> str | None:
+        return self.proofs_repository.fetch_tex()
 
     def construct_tex_author_info(self) -> tuple[list[str], list[list[int]]]:
-        """ Puts together information for each author from the TeX file of the publication. """
-        
-        tex_contents = self.proofs_repository.fetch_publication_tex()
-        author_field = re.findall("%%%%%%%%%% TODO: AUTHORS(.*?)%%%%%%%%%% END TODO: AUTHORS", tex_contents, re.DOTALL)[0]
+        """Puts together information for each author from the TeX file of the publication."""
+
+        tex_contents = self.tex_contents or ""
+        author_field_match = re.search(
+            "%%%%%%%%%% TODO: AUTHORS(.*?)%%%%%%%%%% END TODO: AUTHORS",
+            tex_contents,
+            re.DOTALL,
+        )
+        if author_field_match is None:
+            # If matching against the tex file fails, we use the author_list of the submission.
+            original_authors_as_list = [author.strip() for author in self.author_list.split(",")]
+            return original_authors_as_list, [[] for _ in original_authors_as_list]
+        else:
+            author_field = author_field_match.group(1)
         author_texts = author_field.strip().replace("\,", "").split("\n")
 
         # Remove any trailing or leading "and"s.
