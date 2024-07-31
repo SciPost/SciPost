@@ -172,3 +172,10 @@ def remove_extra_spacing(text):
     Remove extra spacing from text in the form of multiple spaces.
     """
     return " ".join(text.strip().split())
+
+
+def split_strip(text: str, delimiter=",") -> list[str]:
+    """
+    Split a string by a delimiter and strip each part.
+    """
+    return [part.strip() for part in text.split(delimiter)]
