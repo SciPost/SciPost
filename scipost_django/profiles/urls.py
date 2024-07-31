@@ -47,6 +47,11 @@ urlpatterns = [
         include(
             [
                 path(
+                    "send_email/",
+                    views.ProfileSendEmailView.as_view(),
+                    name="profile_send_email",
+                ),
+                path(
                     "update/", views.ProfileUpdateView.as_view(), name="profile_update"
                 ),
                 path(

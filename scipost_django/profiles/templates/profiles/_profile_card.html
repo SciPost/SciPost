@@ -210,6 +210,7 @@
 	</div>
 	<div class="card-body">
 	  <ul>
+          <li><a href="{% url 'profiles:profile_send_email' pk=profile.id %}">Send an email</a> to this Profile</li>
     	    <li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> this Profile</li>
     	    <li><a href="{% url 'profiles:profile_delete' pk=profile.id %}" class="text-danger">Delete</a> this Profile</li>
 	  </ul>

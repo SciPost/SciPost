@@ -17,6 +17,7 @@ from django.views.generic.list import ListView
 
 from dal import autocomplete
 from guardian.decorators import permission_required
+from mails.views import MailView
 from profiles import constants
 
 from scipost.mixins import PermissionsMixin, PaginationMixin
@@ -634,3 +635,14 @@ class AffiliationDeleteView(UserPassesTestMixin, DeleteView):
                 "profiles:profile_detail", kwargs={"pk": self.object.profile.id}
             )
         return reverse_lazy("scipost:personal_page")
+
+
+class ProfileSendEmailView(PermissionsMixin, MailView):
+    """Send a custom email to the profile."""
+
+    permission_required = "scipost.can_email_profiles"
+    queryset = Profile.objects.all()
+    mail_code = "profiles/profile_send_mail"
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()

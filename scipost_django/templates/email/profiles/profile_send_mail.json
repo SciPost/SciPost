@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: ",
+    "recipient_list": [
+        "emails|values_list:email"
+    ],
+    "bcc": [
+        "edadmin@"
+    ],
+    "from_name": "SciPost EdAdmin",
+    "from_email": "edadmin@"
+}

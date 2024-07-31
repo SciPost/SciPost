@@ -172,6 +172,11 @@ class Command(BaseCommand):
             name="Can email particulars",
             content_type=content_type,
         )
+        can_email_profiles, created = Permission.objects.get_or_create(
+            codename="can_email_profiles",
+            name="Can email profiles",
+            content_type=content_type,
+        )
 
         # Editorial College
         can_manage_college_composition, created = Permission.objects.get_or_create(
@@ -518,6 +523,7 @@ class Command(BaseCommand):
                 can_create_registration_invitations,
                 can_email_group_members,
                 can_email_particulars,
+                can_email_profiles,
                 can_resend_registration_requests,
                 can_vet_registration_requests,
                 can_vet_commentary_requests,
@@ -588,6 +594,7 @@ class Command(BaseCommand):
             [
                 can_view_pool,
                 can_invite_fellows,
+                can_email_profiles,
                 can_assign_submissions,
                 can_do_plagiarism_checks,
                 can_oversee_refereeing,
