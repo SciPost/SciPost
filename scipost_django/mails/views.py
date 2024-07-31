@@ -9,6 +9,9 @@ from django.shortcuts import render
 from django.utils.encoding import force_str
 from django.views.generic.edit import UpdateView
 
+from common.utils.models import get_current_domain
+from scipost.templatetags.user_groups import is_ed_admin, is_scipost_admin
+
 from .forms import EmailForm, HiddenDataForm
 
 
@@ -63,7 +66,7 @@ class MailFormView(MailViewBase, UpdateView):
                 mail_code=self.mail_code,
                 instance=self.object,
                 **self.get_mail_config(),
-                **self.mail_variables
+                **self.mail_variables,
             )
             if self.mail_form.is_valid():
                 return self.form_valid(form)
@@ -125,11 +128,30 @@ class MailView(MailViewBase, UpdateView):
     form_class = EmailForm
     template_name = "mails/mail_form.html"
 
+    def get_available_from_addresses(self):
+        """Determine the available from addresses based on the request user's permissions.
+
+        Returns a list of tuples with the email address and the human readable name.
+        """
+
+        user = self.request.user
+        emails = []
+        domain = get_current_domain()
+
+        if is_ed_admin(user):
+            emails.append(("edadmin@" + domain, "SciPost Editorial Administration"))
+
+        if is_scipost_admin(user):
+            emails.append(("admin@" + domain, "SciPost Administration"))
+
+        return emails
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["mail_code"] = self.mail_code
         kwargs["instance"] = self.get_object()
         kwargs["csp_nonce"] = self.request.csp_nonce
+        kwargs["available_from_addresses"] = self.get_available_from_addresses()
         kwargs.update(**self.get_mail_config())
         kwargs.update(**self.mail_variables)
         return kwargs
@@ -169,7 +191,7 @@ class MailEditorSubview:
             request.POST or None,
             csp_nonce=self.request.csp_nonce,
             mail_code=mail_code,
-            **kwargs
+            **kwargs,
         )
         self._is_valid = False
 

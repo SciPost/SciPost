@@ -30,6 +30,8 @@ class MailEngine:
         "from_name",
         "cc",
         "bcc",
+        "html_message",
+        "message",
     ]
     _email_fields = ["recipient_list", "from_email", "cc", "bcc"]
     _processed_template = False
@@ -203,17 +205,20 @@ class MailEngine:
 
         try:
             with open(json_location, "r") as f:
-                self.mail_data = json.loads(f.read())
+                self.default_data = json.loads(f.read())
         except OSError:
             raise ImportError(
                 "No configuration file found. Mail code: %s" % self.mail_code
             )
 
         # Check if configuration file is valid.
-        if "subject" not in self.mail_data:
+        if "subject" not in self.default_data:
             raise ConfigurationError('key "subject" is missing.')
-        if "recipient_list" not in self.mail_data:
+        if "recipient_list" not in self.default_data:
             raise ConfigurationError('key "recipient_list" is missing.')
+
+        # Set mail data to default data when keys are missing.
+        self.mail_data = {**self.default_data, **getattr(self, "mail_data", {})}
 
         # Overwrite mail data if parameters are given.
         for key, val in self.extra_config.items():
