@@ -272,14 +272,22 @@ class MailEngine:
                 was_list = isinstance(emails, list)
                 emails = emails if was_list else [emails]
 
-                valid_emails = [
+                valid_emails: list[str | list[str]] = [
                     valid_entry
                     for entry in emails
                     if (valid_entry := self._validate_email_addresses(entry))
                 ]
 
+                # Chain list of lists to a single list.
+                flattened_valid_emails = []
+                for entry in valid_emails:
+                    if isinstance(entry, list):
+                        flattened_valid_emails.extend(entry)
+                    else:
+                        flattened_valid_emails.append(entry)
+
                 # Remove duplicate recipients from email list
-                valid_emails = list(set(valid_emails))
+                valid_emails = list(set(flattened_valid_emails))
 
                 if len(valid_emails) == 0:
                     raise ConfigurationError(
@@ -294,24 +302,37 @@ class MailEngine:
         """
         Return email address given raw email, email prefix or database relation given in `entry`.
         """
+        # Separate entry from possible filter function.
+        entry, filter_func = entry.split("|") if "|" in entry else (entry, "")
+        filter_func, args = (
+            filter_func.split(":") if ":" in filter_func else (filter_func, "email")
+        )
+
+        # Email string
         if re.match("[^@]+@[^@]+\.[^@]+", entry):
-            # Email string
             return entry
-        # if the email address is given as a prefix of the form `[recipient]@`, add domain name:
+        # Domain prefixed `[recipient]@`
         elif re.match("[^@]+@$", entry):
-            return "%s%s" % (entry, get_current_domain())
-        elif self.template_variables["object"]:
-            mail_to = self.template_variables["object"]
-            for attr in entry.split("|")[0].split("."):
+            return f"{entry}{get_current_domain()}"
+        # Database relation
+        elif obj := self.template_variables["object"]:
+            obj = self.template_variables["object"]
+
+            print(obj, entry, filter_func, args)
+
+            # Recurse through object properties to get the email address.
+            for attr in entry.split("."):
                 try:
-                    mail_to = getattr(mail_to, attr)
-                    if inspect.ismethod(mail_to):
-                        mail_to = mail_to()
+                    obj = getattr(obj, attr)
+                    if isinstance(obj, models.Manager):
+                        obj = list(obj.values_list(args, flat=True))
+                    elif inspect.ismethod(obj):
+                        obj = obj()
                 except AttributeError:
-                    # Invalid property/mail
-                    if entry.endswith("|None"):
-                        # Allow None values
+                    # Allow None values
+                    if filter_func == "None":
                         return None
                     raise KeyError("The property (%s) does not exist." % entry)
-            return mail_to
-        raise KeyError("Neither an email adress nor db instance is given.")
+            return obj
+
+        raise KeyError("Neither an email address nor db instance is given.")
