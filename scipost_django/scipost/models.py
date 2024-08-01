@@ -42,6 +42,7 @@ today = timezone.now().date()
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
+    from profiles.models import Profile
 
 
 def get_sentinel_user():
@@ -85,7 +86,7 @@ class Contributor(models.Model):
     Other information is carried by the related Profile.
     """
 
-    profile = models.OneToOneField(
+    profile = models.OneToOneField["Profile"](
         "profiles.Profile", on_delete=models.SET_NULL, null=True, blank=True
     )
     user = models.OneToOneField["User"](
@@ -98,7 +99,7 @@ class Contributor(models.Model):
         max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED
     )
     address = models.CharField(max_length=1000, verbose_name="address", blank=True)
-    vetted_by = models.ForeignKey(
+    vetted_by = models.ForeignKey['Contributor'](
         "self",
         on_delete=models.SET(get_sentinel_user),
         related_name="contrib_vetted_by",

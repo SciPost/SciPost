@@ -10,12 +10,20 @@ from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import ED_COMM_CHOICES
 from ..managers import EditorialCommunicationQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scipost.models import Contributor
+    from submissions.models import Submission
+
 
 class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     """Message between two of the EIC, referees, Editorial Administration and/or authors."""
 
-    submission = models.ForeignKey("submissions.Submission", on_delete=models.CASCADE)
-    referee = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
+        "submissions.Submission", on_delete=models.CASCADE
+    )
+    referee = models.ForeignKey["Contributor"](
         "scipost.Contributor", on_delete=models.CASCADE, blank=True, null=True
     )
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)

@@ -45,6 +45,11 @@ from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 
 if TYPE_CHECKING:
     from submissions.models import EditorialDecision
+    from scipost.models import Contributor
+    from journals.models import Journal, Publication
+    from proceedings.models import Proceedings
+    from iThenticate_report import iThenticateReport
+    from ontology.models import AcademicField, Specialty, Topic
 
 
 class SubmissionAuthorProfile(models.Model):
@@ -260,20 +265,20 @@ class Submission(models.Model):
     )
 
     # Ontology-based semantic linking
-    acad_field = models.ForeignKey(
+    acad_field = models.ForeignKey["AcademicField"](
         "ontology.AcademicField", on_delete=models.PROTECT, related_name="submissions"
     )
-    specialties = models.ManyToManyField(
+    specialties = models.ManyToManyField["Submission", "Specialty"](
         "ontology.Specialty", related_name="submissions"
     )
-    topics = models.ManyToManyField("ontology.Topic", blank=True)
+    topics = models.ManyToManyField["Submission", "Topic"]("ontology.Topic", blank=True)
 
     approaches = ChoiceArrayField(
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
         blank=True,
         null=True,
     )
-    editor_in_charge = models.ForeignKey(
+    editor_in_charge = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         related_name="EIC",
         blank=True,
@@ -297,7 +302,7 @@ class Submission(models.Model):
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
 
     # Link to previous Submission, or existing bundle member
-    is_resubmission_of = models.ForeignKey(
+    is_resubmission_of = models.ForeignKey["Submission"](
         "self",
         blank=True,
         null=True,
@@ -305,7 +310,7 @@ class Submission(models.Model):
         related_name="successor",
     )
     thread_hash = models.UUIDField(default=uuid.uuid4)
-    followup_of = models.ManyToManyField(
+    followup_of = models.ManyToManyField["Submission", "Publication"](
         "journals.Publication",
         blank=True,
         related_name="followups",
@@ -316,17 +321,19 @@ class Submission(models.Model):
     )
 
     auto_updated_fellowship = models.BooleanField(default=True)
-    fellows = models.ManyToManyField(
+    fellows = models.ManyToManyField["Submission", "Fellowship"](
         "colleges.Fellowship", blank=True, related_name="pool"
     )
 
-    submitted_by = models.ForeignKey(
+    submitted_by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.CASCADE,
         related_name="submitted_submissions",
     )
-    submitted_to = models.ForeignKey("journals.Journal", on_delete=models.CASCADE)
-    proceedings = models.ForeignKey(
+    submitted_to = models.ForeignKey["Journal"](
+        "journals.Journal", on_delete=models.CASCADE
+    )
+    proceedings = models.ForeignKey["Proceedings"](
         "proceedings.Proceedings",
         null=True,
         blank=True,
@@ -342,13 +349,13 @@ class Submission(models.Model):
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField(
+    authors = models.ManyToManyField["Submission", "Contributor"](
         "scipost.Contributor", blank=True, related_name="submissions"
     )
-    authors_claims = models.ManyToManyField(
+    authors_claims = models.ManyToManyField["Submission", "Contributor"](
         "scipost.Contributor", blank=True, related_name="claimed_submissions"
     )
-    authors_false_claims = models.ManyToManyField(
+    authors_false_claims = models.ManyToManyField["Submission", "Contributor"](
         "scipost.Contributor", blank=True, related_name="false_claimed_submissions"
     )
     abstract = models.TextField()
@@ -380,7 +387,7 @@ class Submission(models.Model):
         blank=True,
         null=True,
     )
-    iThenticate_plagiarism_report = models.OneToOneField(
+    iThenticate_plagiarism_report = models.OneToOneField["iThenticateReport"](
         "submissions.iThenticateReport",
         on_delete=models.SET_NULL,
         blank=True,
