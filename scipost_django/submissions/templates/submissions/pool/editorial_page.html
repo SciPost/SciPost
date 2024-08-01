@@ -497,14 +497,17 @@
         <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
       {% endif %}
       {% if is_ed_admin %}
-        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Draft and send a communication as Editorial Administrator to the Editor-in-charge</a></li>
+        {% if submission.editor_in_charge %}
+          <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Draft and send a communication as Editorial Administrator to the Editor-in-charge</a></li>
+        {% endif %}
+        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoA' %}">Draft and send a communication as Editorial Administrator to the submitting Author</a></li>
       {% endif %}
     </ul>
 
     {% if submission.editor_in_charge == request.user.contributor %}
-      {% include 'submissions/_communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=1 %}
+      {% include 'submissions/_communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' %}
     {% else %}
-      {% include 'submissions/_communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=0 %}
+      {% include 'submissions/_communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' %}
     {% endif %}
 
     <h2 class="mt-3" id="events">Events</h2>

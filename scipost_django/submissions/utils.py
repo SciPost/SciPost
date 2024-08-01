@@ -735,6 +735,11 @@ class SubmissionUtils(BaseMailUtil):
             raise ValueError("No communication attribute found. Please `.load()` it.")
 
         valid_comtypes = [comtype[0] for comtype in ED_COMM_CHOICES]
+
+        # Referee to Author communication is strictly forbidden
+        valid_comtypes.remove("RtoA")
+        valid_comtypes.remove("AtoR")
+
         if communication.comtype not in valid_comtypes:
             raise ValueError(
                 f"Invalid comtype {communication.comtype}. "

@@ -26,13 +26,13 @@
   <div class="card bg-light mb-3">
     <div class="card-body">
       <h1 class="pb-0">Send a Communication</h1>
-      {% if comtype == 'EtoA' %}
+      {% if comtype|last == 'A' %}
         <h3 class="mb-0">to the submitting Author of Submission</h3>
-      {% elif comtype == 'AtoE' or comtype == 'RtoE' or comtype == 'StoE' %}
+      {% elif comtype|last == 'E' %}
         <h3 class="mb-0">to the Editor-in-charge of Submission</h3>
-      {% elif comtype == 'EtoR' %}
+      {% elif comtype|last == 'R' %}
         <h3 class="mb-0">to Referee of Submission</h3>
-      {% elif comtype == 'EtoS' %}
+      {% elif comtype|last == 'S' %}
         <h3 class="mb-0">to SciPost Editorial Administrators</h3>
       {% endif %}
     </div>

@@ -7,9 +7,9 @@ from django.db import models
 
 class EditorialCommunicationQuerySet(models.QuerySet):
     def for_referees(self):
-        """Only return communication between Referees and Editors."""
-        return self.filter(comtype__in=["EtoR", "RtoE"])
+        """Only return communication related to Referees."""
+        return self.filter(comtype__contains="R")
 
     def for_authors(self):
-        """Only return communication between Authors and Editors."""
-        return self.filter(comtype__in=["EtoA", "AtoE"])
+        """Only return communication related to Authors."""
+        return self.filter(comtype__contains="A")

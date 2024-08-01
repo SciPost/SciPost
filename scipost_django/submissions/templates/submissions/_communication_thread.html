@@ -1,45 +1,19 @@
 <ul class="mt-2 communications {{ css_class }}">
+
   {% for comm in communication %}
-    <li class="date"><span>{{ comm.timestamp|date:'d F Y' }}</span></li>
+    <li class="date">
+      <span>{{ comm.timestamp|date:'d F Y' }}</span>
+    </li>
     <li class="comm comm-{{ comm.comtype }}">
       <span class="datetime">{{ comm.timestamp|date:'d F Y G:i' }}</span>
       <span class="time">{{ comm.timestamp|date:'G:i' }}</span>
       <div class="content">
-        <span class="header">
-          {% if comm.comtype == 'RtoE' %}
-            From {{ comm.referee.user.first_name }} {{ comm.referee.user.last_name }} to {{ reader_is_editor|yesno:'you,Editor-in-charge' }}
-          {% elif comm.comtype == 'EtoR' %}
-            From {{ reader_is_editor|yesno:'you,Editor-in-charge' }} to
-            {% if comm.referee %}
-              {{ comm.referee.user.first_name }} {{ comm.referee.user.last_name }}
-            {% else %}
-              referee (?)
-            {% endif %}
-          {% elif comm.comtype == 'AtoE' %}
-            From
-            {% if comm.referee %}
-              {{ comm.referee.user.first_name }} {{ comm.referee.user.last_name }}
-            {% else %}
-              author (?)
-            {% endif %}
-            to {{ reader_is_editor|yesno:'you,Editor-in-charge' }}
-          {% elif comm.comtype == 'EtoA' %}
-            From {{ reader_is_editor|yesno:'you,Editor-in-charge' }} to
-            {% if comm.referee %}
-              {{ comm.referee.user.first_name }} {{ comm.referee.user.last_name }}
-            {% else %}
-              author (?)
-            {% endif %}
-          {% elif comm.comtype == 'StoE' %}
-            From Editorial Administration to {{ reader_is_editor|yesno:'you,Editor-in-charge' }}
-          {% elif comm.comtype == 'EtoS' %}
-            From {{ reader_is_editor|yesno:'you,Editor-in-charge' }} to Editorial Administration
-          {% endif %}
-        </span>
+        <span class="header">From {{ comm.author_name }} to {{ comm.recipient_name }}</span>
         <p class="comm-text">{{ comm.text|linebreaksbr }}</p>
       </div>
     </li>
   {% empty %}
     <li>There have been no communications.</li>
   {% endfor %}
+
 </ul>

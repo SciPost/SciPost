@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import re
 
 from django.core.paginator import Paginator
 from django.template.response import TemplateResponse
@@ -43,6 +44,7 @@ from scipost.permissions import (
 )
 
 from ..constants import (
+    ED_COMM_CHOICES,
     STATUS_VETTED,
     STATUS_DRAFT,
     CYCLE_DIRECT_REC,
@@ -2023,19 +2025,26 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
     Communication may be between two of: editor-in-charge, author and referee.
     """
     referee = None
-    if comtype in ["EtoA", "EtoR", "EtoS"]:
-        # Editor to {Author, Referee, Editorial Administration}
+    author, recipient = re.match(r"(\w)to(\w)", comtype).groups()
+
+    valid_comtypes = [comtype[0] for comtype in ED_COMM_CHOICES]
+
+    # Referee to Author communication is strictly forbidden
+    valid_comtypes.remove("RtoA")
+    valid_comtypes.remove("AtoR")
+
+    if comtype not in valid_comtypes:
+        raise Http404("Invalid communication type")
+
+    if author == "E":
         submissions_qs = Submission.objects.in_pool_filter_for_eic(
             request.user,
             latest=False,
             historical=True,
         )
-    elif comtype == "AtoE":
-        # Author to Editor
+    elif author == "A":
         submissions_qs = Submission.objects.filter_for_author(request.user)
-        referee = request.user.contributor
-    elif comtype == "RtoE":
-        # Referee to Editor (Contributor account required)
+    elif author == "R":
         if not hasattr(request.user, "contributor"):
             # Raise PermissionDenied to let the user know something is wrong with its account.
             raise PermissionDenied
@@ -2044,8 +2053,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
             referee_invitations__referee__user=request.user
         )
         referee = request.user.contributor
-    elif comtype == "StoE":
-        # Editorial Administration to Editor
+    elif author == "S":
         if not request.user.has_perm("scipost.can_oversee_refereeing"):
             raise PermissionDenied
         submissions_qs = Submission.objects.in_pool(
@@ -2055,7 +2063,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         referee = request.user.contributor
     else:
         # Invalid commtype in the url!
-        raise Http404
+        raise Http404("Invalid communication type")
 
     # Uniquify and get the showpiece itself or return 404
     submissions_qs = submissions_qs.distinct()
@@ -2063,12 +2071,12 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         submissions_qs, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
 
-    if referee_id and comtype in ["EtoA", "EtoR", "EtoS"]:
+    if recipient == "R" and referee_id:
         # Get the Contributor to communicate with if not already defined (`Eto?` communication)
         # To Fix: Assuming the Editorial Administrator won't make any `referee_id` mistakes
         referee = get_object_or_404(Contributor.objects.active(), pk=referee_id)
-    elif comtype == "EtoA":
-        referee = submission.submitted_by
+    else:
+        referee = None
 
     form = EditorialCommunicationForm(request.POST or None)
     if form.is_valid():
@@ -2084,22 +2092,23 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         except Exception as e:
             messages.error(
                 request,
-                "Communication submitted, but an error occurred while sending the email: " + str(e),
+                "Communication submitted, but an error occurred while sending the email: "
+                + str(e),
             )
             sentry_sdk.capture_exception(e)
             return redirect(submission.get_absolute_url())
 
         messages.success(request, "Communication submitted")
-        if comtype in ["EtoA", "EtoR", "EtoS"]:
+        if author == "E":
             return redirect(
                 reverse(
                     "submissions:editorial_page",
                     kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
                 )
             )
-        elif comtype == "AtoE":
+        elif author == "A":
             return redirect(submission.get_absolute_url())
-        elif comtype == "StoE":
+        elif author == "S":
             return redirect(reverse("submissions:pool:pool"))
         return redirect(submission.get_absolute_url())
 
