@@ -6,6 +6,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from common.utils.models import get_current_domain
+
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import ED_COMM_CHOICES
 from ..managers import EditorialCommunicationQuerySet
@@ -51,3 +53,59 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     def get_absolute_url(self):
         """Return the url of the related Submission detail page."""
         return self.submission.get_absolute_url()
+
+    def _resolve_contributor_from_letter(self, letter: str):
+        recipients: dict[str, "Contributor | None"] = {
+            "E": self.submission.editor_in_charge,
+            "A": self.submission.submitted_by,
+            "R": self.referee,
+        }
+
+        return recipients.get(letter)
+
+    def _resolve_contributor_name(self, letter: str):
+        if letter == "S":
+            return "SciPost Editorial Administration"
+        elif contributor := self._resolve_contributor_from_letter(letter):
+            return f"{contributor.profile_title} {contributor.user.last_name}"
+        return "Unknown"
+
+    def _resolve_contributor_email(self, letter: str):
+        if letter == "S":
+            domain = get_current_domain()
+            return f"editorial@{domain}"
+        elif contributor := self._resolve_contributor_from_letter(letter):
+            return contributor.user.email
+        return ""
+
+    @property
+    def author_letter(self):
+        return self.comtype[0]
+
+    @property
+    def recipient_letter(self):
+        return self.comtype[-1]
+
+    @property
+    def author(self):
+        return self._resolve_contributor_from_letter(self.author_letter)
+
+    @property
+    def recipient(self):
+        return self._resolve_contributor_from_letter(self.recipient_letter)
+
+    @property
+    def author_name(self):
+        return self._resolve_contributor_name(self.author_letter)
+
+    @property
+    def recipient_name(self):
+        return self._resolve_contributor_name(self.recipient_letter)
+
+    @property
+    def author_email(self):
+        return self._resolve_contributor_email(self.author_letter)
+
+    @property
+    def recipient_email(self):
+        return self._resolve_contributor_email(self.recipient_letter)

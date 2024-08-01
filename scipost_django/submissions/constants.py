@@ -1,14 +1,19 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import itertools
 
-ED_COMM_CHOICES = (
-    ("EtoA", "Editor-in-charge to Author"),
-    ("EtoR", "Editor-in-charge to Referee"),
-    ("EtoS", "Editor-in-charge to SciPost Editorial Administration"),
-    ("AtoE", "Author to Editor-in-charge"),
-    ("RtoE", "Referee to Editor-in-charge"),
-    ("StoE", "SciPost Editorial Administration to Editor-in-charge"),
+
+ED_COMM_PARTIES = (
+    ("E", "Editor-in-charge"),
+    ("A", "Author"),
+    ("R", "Referee"),
+    ("S", "SciPost Editorial Administration"),
+)
+ED_COMM_CHOICES = tuple(
+    (f"{X}to{Y}", f"{x} to {y}")
+    for (X, x), (Y, y) in itertools.product(ED_COMM_PARTIES, repeat=2)
+    if X != Y
 )
 
 REFEREE_QUALIFICATION = (
