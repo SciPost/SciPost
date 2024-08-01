@@ -28,6 +28,7 @@ from .constants import (
     AUTHORSHIP_CLAIM_STATUS,
     CONTRIBUTOR_STATUSES,
     NEWLY_REGISTERED,
+    TITLE_DR,
 )
 from .fields import ChoiceArrayField
 from .managers import (
@@ -231,6 +232,10 @@ class Contributor(models.Model):
             self.user.groups.filter(name="Vetting Editors").exists()
             or self.user.is_superuser
         )
+
+    @property
+    def profile_title(self) -> str:
+        return self.profile.get_title_display() if self.profile else TITLE_DR
 
     def generate_key(self, feed=""):
         """Generate a new activation_key for the contributor, given a certain feed."""
