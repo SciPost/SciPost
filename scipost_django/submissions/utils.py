@@ -780,26 +780,18 @@ class SubmissionUtils(BaseMailUtil):
             further_action_page = f"https://{domain}/submission/editorial_page/{communication.submission.preprint.identifier_w_vn_nr}"
 
         email_text = (
-            recipient_greeting
-            + ", \n\nPlease find here a communication ("
-            + cls.communication.get_comtype_display()
-            + ") "
-            "concerning Submission\n\n"
-            + cls.communication.submission.title
-            + " by "
-            + cls.communication.submission.author_list
-            + "."
-            "\n\nText of the communication:\n------------------------------------------\n"
-            + cls.communication.text
-            + "\n------------------------------------------"
-        )
-        if further_action_page:
-            email_text += (
-                "\n\nYou can take follow-up actions from " + further_action_page + "."
-            )
-        email_text += (
-            "\n\nWe thank you very much for your contribution."
-            "\n\nSincerely," + "\n\nThe SciPost Team."
+            f"{recipient_greeting},\n\n"
+            f"Please find here a communication ({communication.get_comtype_display()}) concerning Submission:\n\n"
+            f"{communication.submission.title}\nby {communication.submission.author_list}.\n"
+            f"(https://{domain}/{communication.submission.get_absolute_url()})\n\n"
+            "Text of the communication:\n"
+            "------------------------------------------\n"
+            f"{communication.text}\n"
+            "------------------------------------------\n\n"
+            + (f"You can take follow-up actions from {further_action_page}.\n\n" if further_action_page else "") +
+            "We thank you very much for your contribution.\n\n"
+            "Sincerely,\n"
+            "The SciPost Team."
         )
 
         emailmessage = EmailMessage(
