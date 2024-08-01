@@ -12,6 +12,8 @@ from typing import TYPE_CHECKING
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 
+from common.utils.urls import absolute_reverse
+
 from .constants import (
     STATUS_VETTED,
     STATUS_UNCLEAR,
@@ -776,8 +778,30 @@ class SubmissionUtils(BaseMailUtil):
             bcc_emails.append(communication.submission.editor_in_charge.user.email)
 
         # Further action page for Editor and Editorial Administrator
-        if recipient in ["E", "S"]:  # EtoS and StoE
-            further_action_page = f"https://{domain}/submission/editorial_page/{communication.submission.preprint.identifier_w_vn_nr}"
+        if recipient in ["E", "S"]:  # EtoS and _toE
+            editorial_page_url = absolute_reverse(
+                "submissions:editorial_page",
+                args=[communication.submission.preprint.identifier_w_vn_nr],
+            )
+            further_action = (
+                f"You can take follow-up actions from {editorial_page_url}."
+            )
+        # Further action page for Author and Referee
+        elif recipient in ["R", "A"]:  # EtoA and EtoR
+            preprint_identifier = communication.submission.preprint.identifier_w_vn_nr
+            communication_url = absolute_reverse(
+                "submissions:communication",
+                args=[preprint_identifier, recipient + "toE"],
+            )
+            submission_page_url = absolute_reverse(
+                "submissions:submission",
+                args=[preprint_identifier],
+            )
+            further_action = (
+                f"To reply to the Editor-in-charge, please visit {communication_url}. "
+                "You can find all previous communications between you and the Editor-in-charge, as well as other communications tools, "
+                f"on the submission page at {submission_page_url} (login needed)."
+            )
 
         email_text = (
             f"{recipient_greeting},\n\n"
@@ -788,7 +812,7 @@ class SubmissionUtils(BaseMailUtil):
             "------------------------------------------\n"
             f"{communication.text}\n"
             "------------------------------------------\n\n"
-            + (f"You can take follow-up actions from {further_action_page}.\n\n" if further_action_page else "") +
+            f"{further_action}\n\n"
             "We thank you very much for your contribution.\n\n"
             "Sincerely,\n"
             "The SciPost Team."
