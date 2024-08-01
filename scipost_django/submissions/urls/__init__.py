@@ -355,9 +355,9 @@ urlpatterns = [
         name="_hx_quick_invite_referee",
     ),
     path(
-        "refereeing/_hx_configure_invitation/<identifier:identifier_w_vn_nr>/<int:profile_id>",
-        views._hx_configure_refereeing_invitation,
-        name="_hx_configure_refereeing_invitation",
+        "refereeing/_hx_customize_invitation/<identifier:identifier_w_vn_nr>/<int:profile_id>",
+        views._hx_customize_refereeing_invitation,
+        name="_hx_customize_refereeing_invitation",
     ),
     path(
         "refereeing/_hx_add_referee_profile_email/<int:profile_id>",

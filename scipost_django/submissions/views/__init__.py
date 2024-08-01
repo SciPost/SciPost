@@ -1263,7 +1263,7 @@ def select_referee(request, identifier_w_vn_nr):
     return render(request, "submissions/select_referee.html", context)
 
 
-def _hx_configure_refereeing_invitation(request, identifier_w_vn_nr, profile_id):
+def _hx_customize_refereeing_invitation(request, identifier_w_vn_nr, profile_id):
     submission = get_object_or_404(
         Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
@@ -1295,7 +1295,7 @@ def _hx_configure_refereeing_invitation(request, identifier_w_vn_nr, profile_id)
         )
 
     return render(
-        request, "submissions/_hx_configure_refereeing_invitation.html", context
+        request, "submissions/_hx_customize_refereeing_invitation.html", context
     )
 
 
@@ -1332,7 +1332,7 @@ def _hx_add_referee_profile_email(request, profile_id):
         return response
 
     return render(
-        request, "submissions/_hx_configure_refereeing_invitation.html", {"form": form}
+        request, "submissions/_hx_customize_refereeing_invitation.html", {"form": form}
     )
 
 

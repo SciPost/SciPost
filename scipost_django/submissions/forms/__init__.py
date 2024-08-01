@@ -2723,7 +2723,7 @@ class ConfigureRefereeInvitationForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.form_action = reverse(
-            "submissions:_hx_configure_refereeing_invitation",
+            "submissions:_hx_customize_refereeing_invitation",
             kwargs={
                 "identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr,
                 "profile_id": self.profile.id,
@@ -2740,7 +2740,7 @@ class ConfigureRefereeInvitationForm(forms.Form):
                 ),
                 Div(Field("profile_email"), css_class="mx-4"),
                 ButtonHolder(
-                    Submit("submit", "Invite", css_class="btn btn-sm btn-primary"),
+                    Submit("submit", "Draft Email", css_class="btn btn-sm btn-primary"),
                     Button(
                         "cancel",
                         "Cancel",

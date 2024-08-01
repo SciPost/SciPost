@@ -47,20 +47,22 @@
               hx-swap="afterend">Add Email</button>
 
       <button id="ref-inv-{{ profile.id }}-send-btn" type="button" class="me-2 btn btn-sm btn-{% if profile.warned_against_invitation %}warning{% else %}light{% endif %}" 
-      {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
-      hx-get="{% url 'submissions:_hx_configure_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" hx-target="closest tr" 
-      {% if not profile.can_be_sent_invitation %}disabled{% endif %}
-      hx-swap="afterend">Configure</button>
+        {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
+         hx-get="{% url 'submissions:_hx_customize_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" 
+         hx-target="closest tr" 
+         hx-swap="afterend"
+         {% if not profile.can_be_sent_invitation %}disabled{% endif %}
+         >Customize Invitation</button>
       <button id="ref-inv-{{ profile.id }}-send-btn" type="button" class="ms-auto btn btn-sm btn-{% if profile.warned_against_invitation %}warning{% else %}primary{% endif %}" 
-      {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
-      hx-get="{% url 'submissions:_hx_quick_invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" hx-target="closest td" 
-      {% if not profile.can_be_sent_invitation %}disabled{% endif %}
-      hx-swap="outerHTML">Quick Send</button>
+        {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
+         hx-get="{% url 'submissions:_hx_quick_invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" 
+         hx-target="closest td" 
+         hx-swap="outerHTML"
+         {% if not profile.can_be_sent_invitation %}disabled{% endif %}
+         >Quick Send</button>
     </div>
 
-    {% if profile.already_invited %}
-      <div class="text-warning">This person has already been invited</div>
-    {% endif %}
+    {% if profile.already_invited %}<div class="text-warning">This person has already been invited</div>{% endif %}
 
     {% if not profile.accepts_refereeing_requests %}
       <div class="text-danger">This person does not accept refereeing requests</div>
