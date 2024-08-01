@@ -34,6 +34,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from dal import autocomplete
+import sentry_sdk
 
 from scipost.permissions import (
     HTMXPermissionsDenied,
@@ -2077,8 +2078,16 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         communication.referee = referee
         communication.save()
 
-        SubmissionUtils.load({"communication": communication})
-        SubmissionUtils.send_communication_email()
+        try:
+            SubmissionUtils.load({"communication": communication})
+            SubmissionUtils.send_communication_email()
+        except Exception as e:
+            messages.error(
+                request,
+                "Communication submitted, but an error occurred while sending the email: " + str(e),
+            )
+            sentry_sdk.capture_exception(e)
+            return redirect(submission.get_absolute_url())
 
         messages.success(request, "Communication submitted")
         if comtype in ["EtoA", "EtoR", "EtoS"]:

@@ -3,8 +3,11 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import itertools
 import os
+import re
 import subprocess
+from typing import TYPE_CHECKING
 
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
@@ -21,6 +24,11 @@ from scipost.utils import EMAIL_FOOTER
 from common.utils import get_current_domain, BaseMailUtil
 
 domain = get_current_domain()
+
+
+if TYPE_CHECKING:
+    from submissions.models.communication import EditorialCommunication
+    from scipost.models import Contributor
 
 
 class SubmissionUtils(BaseMailUtil):
@@ -716,51 +724,60 @@ class SubmissionUtils(BaseMailUtil):
         recipient_email = []
         bcc_emails = []
         further_action_page = None
-        if cls.communication.comtype in ["AtoE", "RtoE", "StoE"]:
-            recipient_email.append(
-                cls.communication.submission.editor_in_charge.user.email
+
+        PARTIES = ["E", "A", "R", "S"]
+        # Allow only comtype to and from E(ditor)
+        valid_comtypes = [
+            f"{x}to{y}"
+            for x, y in itertools.product(PARTIES, repeat=2)
+            if "E" in [x, y] and x != y
+        ]
+
+        communication: "EditorialCommunication | None" = getattr(
+            cls, "communication", None
+        )
+        if communication is None:
+            raise ValueError("No communication attribute found. Please `.load()` it.")
+
+        if communication.comtype not in valid_comtypes:
+            raise ValueError(
+                f"Invalid comtype {communication.comtype}. "
+                f"Valid comtypes are {valid_comtypes}."
             )
-            recipient_greeting = (
-                "Dear "
-                + cls.communication.submission.editor_in_charge.profile.get_title_display()
-                + " "
-                + cls.communication.submission.editor_in_charge.user.last_name
-            )
-            further_action_page = (
-                f"https://{domain}/submission/editorial_page/"
-                + cls.communication.submission.preprint.identifier_w_vn_nr
-            )
-            if cls.communication.comtype == "RtoE":
-                bcc_emails.append(cls.communication.referee.user.email)
+
+        recipients: dict[str, "Contributor | None"] = {
+            "E": communication.submission.editor_in_charge,
+            "A": communication.submission.submitted_by,
+            "R": communication.referee,
+        }
+
+        author, recipient = re.match(r"(\w)to(\w)", communication.comtype).groups()
+
+        # Use standard greeting for all communications except to Editorial Administrator
+        if recipient != "S":
+            recipient_contributor = recipients.get(recipient, None)
+            if recipient_contributor is None:
+                raise ValueError(
+                    f"Recipient not found for comtype {communication.comtype}. Must be one of {recipients.keys()}"
+                )
+
+            recipient_email.append(recipient_contributor.user.email)
+            recipient_greeting = f"Dear {recipient_contributor.profile_title} {recipient_contributor.user.last_name}"
+
+            # BCC all non-edadmin communications to the Editorial Administrator
             bcc_emails.append(f"submissions@{domain}")
-        elif cls.communication.comtype in ["EtoA"]:
-            recipient_email.append(cls.communication.submission.submitted_by.user.email)
-            recipient_greeting = (
-                "Dear "
-                + cls.communication.submission.submitted_by.profile.get_title_display()
-                + " "
-                + cls.communication.submission.submitted_by.user.last_name
-            )
-            bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
-            bcc_emails.append(f"submissions@{domain}")
-        elif cls.communication.comtype in ["EtoR"]:
-            recipient_email.append(cls.communication.referee.user.email)
-            recipient_greeting = (
-                "Dear "
-                + cls.communication.referee.profile.get_title_display()
-                + " "
-                + cls.communication.referee.user.last_name
-            )
-            bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
-            bcc_emails.append(f"submissions@{domain}")
-        elif cls.communication.comtype in ["EtoS"]:
+        else:
+            # Communication to Editorial Administrator doesn't have a specific recipient contributor
             recipient_email.append(f"submissions@{domain}")
             recipient_greeting = "Dear Editorial Administrators"
-            bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
-            further_action_page = (
-                f"https://{domain}/submission/editorial_page/"
-                + cls.communication.submission.preprint.identifier_w_vn_nr
-            )
+
+        # BCC all editor-authored communications to the Editor-in-charge
+        if author == "E":
+            bcc_emails.append(communication.submission.editor_in_charge.user.email)
+
+        # Further action page for Editor and Editorial Administrator
+        if recipient in ["E", "S"]:  # EtoS and StoE
+            further_action_page = f"https://{domain}/submission/editorial_page/{communication.submission.preprint.identifier_w_vn_nr}"
 
         email_text = (
             recipient_greeting
@@ -784,8 +801,9 @@ class SubmissionUtils(BaseMailUtil):
             "\n\nWe thank you very much for your contribution."
             "\n\nSincerely," + "\n\nThe SciPost Team."
         )
+
         emailmessage = EmailMessage(
-            "SciPost: communication (" + cls.communication.get_comtype_display() + ")",
+            "SciPost: communication (" + communication.get_comtype_display() + ")",
             email_text,
             f"SciPost Editorial Admin <submissions@{domain}>",
             recipient_email,
