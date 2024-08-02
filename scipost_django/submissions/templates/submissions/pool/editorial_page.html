@@ -473,21 +473,22 @@
 
       {% include 'submissions/pool/_submission_reports_summary_table.html' with submission=submission %}
 
-
-      <h3 class="mt-4 mb-2" id="comments-summary">Comments</h3>
-
-      {% if submission.comments_set_complete.awaiting_vetting %}
-        <p>{{ submission.comments_set_complete.awaiting_vetting|pluralize:'A new Comment has,New Comments have' }} been delivered. Please vet {{ submission.comments_set_complete.awaiting_vetting|pluralize:'it,them' }} below.</p>
-      {% elif submission.comments_set_complete %}
-        <p>No action required. All Comments are processed.</p>
-      {% else %}
-        <p>There are no Comments yet. When a Comment is submitted, you can take further action from here.</p>
-      {% endif %}
-      {% include 'submissions/pool/_submission_comments_summary_table.html' with submission=submission %}
     {% endif %}
   {% endif %}
 
   {% if full_access %}
+
+    <h3 class="mt-4 mb-2" id="comments-summary">Comments</h3>
+
+    {% if submission.comments_set_complete.awaiting_vetting %}
+      <p>{{ submission.comments_set_complete.awaiting_vetting|pluralize:'A new Comment has,New Comments have' }} been delivered. Please vet {{ submission.comments_set_complete.awaiting_vetting|pluralize:'it,them' }} below.</p>
+    {% elif submission.comments_set_complete %}
+      <p>No action required. All Comments are processed.</p>
+    {% else %}
+      <p>There are no Comments yet. When a Comment is submitted, you can take further action from here.</p>
+    {% endif %}
+    {% include 'submissions/pool/_submission_comments_summary_table.html' with submission=submission %}
+
     <hr class="lg my-5">
 
     <h2 id="communications">Communications</h2>
