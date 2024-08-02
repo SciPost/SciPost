@@ -13,6 +13,10 @@
   </span>
 {% endblock %}
 
+{% block container_class %}
+container border border-warning border-3 border-top-0 border-bottom-0
+{% endblock container_class %}
+
 {% block content %}
 
   {% is_ed_admin request.user as is_ed_admin %}
@@ -108,7 +112,7 @@
     </div>
   </div>
 
-  <hr class="lg">
+  <hr class="lg bg-warning">
 
   <div class="py-2 mb-2">
     <h2 class="highlight">Editorial Workflow</h2>
@@ -444,7 +448,7 @@
         {% include 'submissions/pool/_referee_invitations.html' with submission=submission invitations=submission.referee_invitations.all submission=submission %}
       {% endif %}
 
-      <hr class="lg my-5">
+      <hr class="lg bg-warning my-5">
 
       <h2 id="current-contributions">Current contributions</h2>
       <h3 class="mt-3 mb-2" id="reports-summary">Reports</h3>
@@ -489,7 +493,7 @@
     {% endif %}
     {% include 'submissions/pool/_submission_comments_summary_table.html' with submission=submission %}
 
-    <hr class="lg my-5">
+    <hr class="lg bg-warning my-5">
 
     <h2 id="communications">Communications</h2>
     <ul>
