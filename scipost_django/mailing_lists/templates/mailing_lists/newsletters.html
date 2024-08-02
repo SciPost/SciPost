@@ -1,0 +1,61 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb">
+
+        {% block breadcrumb_items %}
+          {{ block.super }}
+          <a class="breadcrumb-item">Newsletters</a>
+        {% endblock %}
+
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block pagetitle %}
+  : Newsletters
+{% endblock pagetitle %}
+
+{% block content %}
+  <h1 class="highlight">Newsletters</h1>
+  <p>
+    Here you can view all newsletters for the mailing lists you are subscribed to.
+    <nav>
+      You may manage your subscriptions on your <a href="{% url "scipost:personal_page" %}">personal page</a>, in the "Email Preferences" tab.
+
+      {% if perms.scipost.can_manage_mailing_lists %}
+        You may also create new Newsletters or manage the Mailing Lists themselves on the <a href="{% url "mailing_lists:manage" %}">Mailing Lists management page</a>.
+      {% endif %}
+
+    </nav>
+  </p>
+
+
+  <div class="row">
+    <div class="col-12">
+
+      {% regroup newsletters by mailing_list as newsletters %}
+
+      {% for mailing_list in newsletters %}
+        <h2>{{ mailing_list.grouper }}</h2>
+
+        {% for newsletter in mailing_list.list %}
+          {% include "mailing_lists/_hx_newsletter_list_item.html" %}
+        {% endfor %}
+
+
+      {% empty %}
+        <h2>No Newsletters</h2>
+        <p>There are no newsletters visible to you.</p>
+      {% endfor %}
+
+
+ 
+ 
+    </div>
+  </div>
+
+{% endblock content %}

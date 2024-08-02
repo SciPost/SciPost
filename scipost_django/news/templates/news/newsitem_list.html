@@ -18,7 +18,12 @@
     <div class="col-12">
       <h1 class="highlight">SciPost News</h1>
       {% if perms.scipost.can_manage_news %}
-	<p>Go to the <a href="{% url 'news:manage' %}">News management page</a></p>
+	      <p>Go to the <a href="{% url 'news:manage' %}">News management page</a></p>
+      {% endif %}
+
+      {% if request.user.is_authenticated %}
+        <nav>Visit the <a href="{% url "mailing_lists:newsletters" %}">newsletters page</a> to access past newsletters for your subscribed mailing lists.
+        Go to your <a href="{% url 'scipost:personal_page' %}">personal page</a> to manage your subscriptions.</nav>
       {% endif %}
     </div>
   </div>

@@ -1,0 +1,36 @@
+{% extends 'scipost/base.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb">
+
+        {% block breadcrumb_items %}
+          {{ block.super }}
+          <a class="breadcrumb-item" href="{% url "mailing_lists:newsletters" %}">Newsletters</a>
+          <a class="breadcrumb-item">View Newsletter</a>
+        {% endblock %}
+
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block container_class %}
+m-auto p-2
+{% endblock container_class %}
+
+{% block content %}
+
+  <h1 class="mb-4">{{ newsletter }}</h1>
+
+  {% include "mailing_lists/_newsletter_email_body.html" %}
+
+{% endblock content %}
+
+
+{% block headsup %}
+  <link rel="stylesheet"
+        href="{% static 'scipost/assets/css/newsletter.css' %}" />
+{% endblock headsup %}

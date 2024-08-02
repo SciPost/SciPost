@@ -50,6 +50,16 @@ urlpatterns = [
         name="_hx_newsletter_send",
     ),
     path(
+        "newsletters/<int:pk>",
+        views.newsletter_detail,
+        name="newsletter",
+    ),
+    path(
+        "newsletters",
+        views.newsletters,
+        name="newsletters",
+    ),
+    path(
         "<int:pk>/",
         include(
             [

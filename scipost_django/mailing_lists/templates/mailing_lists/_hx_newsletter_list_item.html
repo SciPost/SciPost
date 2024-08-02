@@ -4,8 +4,19 @@
     <span class="text-truncate">{{ newsletter.content|striptags|truncatechars:200 }}</span>
   </div>
  
-  <div class="align-self-end d-flex flex-column align-items-end">
-    <a href="{% url "mailing_lists:newsletter_edit" newsletter.id %}">Edit</a>
-    <span>{{ newsletter.get_status_display }}</span>
+  <div class="align-self-end d-flex align-items-end gap-2">
+
+    <div class="d-flex flex-column">
+      <a href="{% url "mailing_lists:newsletter" newsletter.id %}">View</a>
+    </div>
+ 
+    <div class="d-flex flex-column align-items-end">
+
+      {% if perms.scipost.can_manage_newsletters %}
+        <span>{{ newsletter.get_status_display }}</span>
+        <a href="{% url "mailing_lists:newsletter_edit" newsletter.id %}">Edit</a>
+      {% endif %}
+
+    </div>
   </div>
 </li>

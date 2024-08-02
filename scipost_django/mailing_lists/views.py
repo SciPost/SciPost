@@ -390,3 +390,41 @@ def _hx_newsletter_media_embed_list(request, pk):
         "mailing_lists/_hx_newsletter_media_embed_list.html",
         {"newsletter": newsletter},
     )
+
+
+@login_required
+def newsletters(request):
+    """
+    Display a list of newsletters.
+
+    - Regular user: newsletters in subscribed mailing lists after they have been sent.
+    - Users with `can_manage_newsletters`: all newsletters.
+    """
+    newsletters = Newsletter.objects.all()
+
+    # If not newsletter manager, only show sent newsletters from subscribed mailing lists
+    if not request.user.has_perm("scipost.can_manage_newsletters"):
+        newsletters = newsletters.filter(
+            mailing_list__subscribed=request.user.contributor,
+            status=Newsletter.STATUS_SENT,
+        )
+
+    return TemplateResponse(
+        request,
+        "mailing_lists/newsletters.html",
+        {"newsletters": newsletters},
+    )
+
+
+@login_required
+def newsletter_detail(request, pk):
+    """
+    Display the newsletter content.
+    """
+    newsletter = get_object_or_404(Newsletter, pk=pk)
+
+    return TemplateResponse(
+        request,
+        "mailing_lists/newsletter_detail.html",
+        {"newsletter": newsletter},
+    )
