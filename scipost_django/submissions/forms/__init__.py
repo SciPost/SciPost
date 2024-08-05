@@ -3156,17 +3156,14 @@ class EICRecommendationForm(forms.ModelForm):
                     latest_recommendation.recommendation
                 )
 
-        for_journal_qs = Journal.objects.active().filter(
-            # The journals which can be recommended for are those falling under
-            # the responsibility of the College of the journal submitted to
-            college=self.submission.submitted_to.college
-        )
-        if self.submission.submitted_to.name.partition(" ")[0] == "SciPost":
-            # Submitted to a SciPost journal, so Selections is accessible
-            for_journal_qs = for_journal_qs | Journal.objects.filter(
-                name="SciPost Selections"
+        alternative_journal_ids = (
+            self.submission.submitted_to.alternative_journals.active().values_list(
+                "id", flat=True
             )
-        self.fields["for_journal"].empty_label = "Any/All Journals"
+        )
+        for_journal_qs = Journal.objects.filter(
+            id__in=list(alternative_journal_ids) + [self.submission.submitted_to.id]
+        )
         self.fields["for_journal"].queryset = for_journal_qs
         if self.submission.submitted_to.name.partition(" ")[0] == "SciPost":
             # Submitted to a SciPost journal, so Core and Selections are accessible
@@ -3400,6 +3397,14 @@ class RecommendationVoteForm(forms.Form):
         choices=ALT_REC_CHOICES,
         required=False,
     )
+
+    def __init__(self, *args, **kwargs):
+        self.recommendation: "EICRecommendation" = kwargs.pop("recommendation")
+        super().__init__(*args, **kwargs)
+
+        self.fields["alternative_for_journal"].queryset = (
+            self.recommendation.submission.submitted_to.alternative_journals.all()
+        )
 
     def clean(self):
         cleaned_data = super().clean()

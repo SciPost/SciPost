@@ -2948,9 +2948,9 @@ def _hx_recommendation_vote_form(request, rec_id):
     initial = {"vote": previous_vote}
 
     if request.POST:
-        form = RecommendationVoteForm(request.POST)
+        form = RecommendationVoteForm(request.POST, recommendation=recommendation)
     else:
-        form = RecommendationVoteForm(initial=initial)
+        form = RecommendationVoteForm(initial=initial, recommendation=recommendation)
     if form.is_valid():
         # Delete previous tierings and alternative recs, irrespective of the vote
         SubmissionTiering.objects.filter(
