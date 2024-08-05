@@ -22,6 +22,8 @@ from ..managers import EICRecommendationQuerySet
 
 if TYPE_CHECKING:
     from scipost.models import Contributor
+    from submissions.models import Submission
+    from journals.models import Journal
 
 
 class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
@@ -34,7 +36,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     reject, it is voted on by chosen Fellows of the appropriate Editorial College.
     """
 
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission",
         on_delete=models.CASCADE,
         related_name="eicrecommendations",
@@ -54,7 +56,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     remarks_for_editorial_college = models.TextField(
         blank=True, verbose_name="optional remarks for the" " Editorial College"
     )
-    for_journal = models.ForeignKey(
+    for_journal = models.ForeignKey["Journal"](
         "journals.Journal", blank=True, null=True, on_delete=models.SET_NULL
     )
     recommendation = models.SmallIntegerField(choices=EIC_REC_CHOICES)
@@ -65,16 +67,16 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     active = models.BooleanField(default=True)
 
     # Editorial Fellows who have assessed this recommendation:
-    eligible_to_vote = models.ManyToManyField(
+    eligible_to_vote = models.ManyToManyField["EICRecommendation", "Contributor"](
         "scipost.Contributor", blank=True, related_name="eligible_to_vote"
     )
-    voted_for = models.ManyToManyField(
+    voted_for = models.ManyToManyField["EICRecommendation", "Contributor"](
         "scipost.Contributor", blank=True, related_name="voted_for"
     )
-    voted_against = models.ManyToManyField(
+    voted_against = models.ManyToManyField["EICRecommendation", "Contributor"](
         "scipost.Contributor", blank=True, related_name="voted_against"
     )
-    voted_abstain = models.ManyToManyField(
+    voted_abstain = models.ManyToManyField["EICRecommendation", "Contributor"](
         "scipost.Contributor", blank=True, related_name="voted_abstain"
     )
     voting_deadline = models.DateTimeField("date submitted", default=timezone.now)
@@ -175,7 +177,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
             if self.for_journal is not None
             else "Any/all journals"
         )
-    
+
     def get_for_journal_short_display(self):
         """Return `for_journal` field short display."""
         return (
