@@ -3165,23 +3165,40 @@ class EICRecommendationForm(forms.ModelForm):
             id__in=list(alternative_journal_ids) + [self.submission.submitted_to.id]
         )
         self.fields["for_journal"].queryset = for_journal_qs
-        if self.submission.submitted_to.name.partition(" ")[0] == "SciPost":
-            # Submitted to a SciPost journal, so Core and Selections are accessible
-            self.fields["for_journal"].help_text = (
-                "Please be aware of all the points below!"
-                "<ul><li>SciPost Selections: means article in field flagship journal "
+        self.fields["for_journal"].empty_label = "Any/All Journals"
+
+        can_recommend_for_selections = for_journal_qs.filter(
+            name__contains="Selections"
+        ).exists()
+        can_recommend_for_core = for_journal_qs.filter(name__contains="Core").exists()
+        journal_help_points = []
+        if can_recommend_for_selections:
+            journal_help_points.append(
+                "SciPost Selections: means article in field flagship journal "
                 "(SciPost Physics, Astronomy, Biology, Chemistry...) "
                 "with extended abstract published separately in SciPost Selections. "
-                "Only choose this for "
-                "an <em>exceptionally</em> good submission to a flagship journal.</li>"
-                "<li>A submission to a flagship which does not meet the latter's "
-                "tough expectations and criteria can be recommended for publication "
-                "in the field's Core journal (if it exists).</li>"
-                "<li>Conversely, an extremely good submission to a field's Core journal can be "
-                "recommended for publication in the field's flagship, provided "
-                "it fulfils the latter's expectations and criteria.</li>"
-                "</ul>"
+                "Only choose this for an <em>exceptionally</em> good submission to a flagship journal."
             )
+        if can_recommend_for_core:
+            journal_help_points.append(
+                "A submission to a flagship which does not meet the latter's "
+                "tough expectations and criteria can be recommended for publication "
+                "in the field's Core journal (if it exists)."
+            )
+            journal_help_points.append(
+                "Conversely, an extremely good submission to a field's Core journal can be "
+                "recommended for publication in the field's flagship, provided "
+                "it fulfils the latter's expectations and criteria."
+            )
+
+        if journal_help_points:
+            self.fields["for_journal"].help_text = (
+                "Please be aware of all the points below!"
+                "<ul>"
+                + "".join([f"<li>{point}</li>" for point in journal_help_points])
+                + "</ul>"
+            )
+
         self.fields["recommendation"].help_text = (
             "Selecting any of the three Publish choices means that you recommend publication.<br>"
             "Which one you choose simply indicates your ballpark evaluation of the "
