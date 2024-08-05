@@ -50,7 +50,11 @@ class JournalAdmin(admin.ModelAdmin):
     # - that are active
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "alternative_journals":
-            journal_id = request.resolver_match.kwargs["object_id"]
+            journal_id = request.resolver_match.kwargs.get("object_id")
+
+            if journal_id is None:
+                return super().formfield_for_manytomany(db_field, request, **kwargs)
+
             journal = Journal.objects.get(pk=journal_id)
             selections = Journal.objects.filter(name="SciPost Selections")
 
