@@ -52,9 +52,18 @@ class JournalAdmin(admin.ModelAdmin):
         if db_field.name == "alternative_journals":
             journal_id = request.resolver_match.kwargs["object_id"]
             journal = Journal.objects.get(pk=journal_id)
-            kwargs["queryset"] = Journal.objects.filter(
-                active=True, college__acad_field=journal.college.acad_field
-            ).exclude(pk=journal_id)
+            selections = Journal.objects.filter(name="SciPost Selections")
+
+            # Show all active journals if the current journal is SciPost Selections
+            if journal == selections.first():
+                kwargs["queryset"] = Journal.objects.all()
+            else:
+                kwargs["queryset"] = (
+                    Journal.objects.filter(college=journal.college) | selections
+                )
+
+            kwargs["queryset"] = kwargs["queryset"].active().exclude(pk=journal_id)
+
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
