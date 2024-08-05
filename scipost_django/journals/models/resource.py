@@ -11,10 +11,12 @@ class PublicationResource(models.Model):
     TYPE_SOURCE_REPO = "source_repo"
     TYPE_RELEASE_ARCHIVE_REPO = "release_repo"
     TYPE_LIVE_REPO = "live_repo"
+    TYPE_SUP_INFO = "supplemental_info"
     TYPE_CHOICES = (
         (TYPE_SOURCE_REPO, "Publication source files repository"),
         (TYPE_RELEASE_ARCHIVE_REPO, "Codebase release version (archive) repository"),
         (TYPE_LIVE_REPO, "Live (external) repository"),
+        (TYPE_SUP_INFO, "Supplemental information"),
     )
     _type = models.CharField(max_length=32, choices=TYPE_CHOICES)
     publication = models.ForeignKey(

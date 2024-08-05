@@ -26,6 +26,10 @@
   <div hx-get="{% url "journals:_hx_publication_resource_list" doi_label=publication.doi_label %}"
        hx-trigger="load once"></div>
 
-  <a class="btn btn-sm btn-primary"
-     href="{{ publication.get_absolute_url }}">Back to Publication</a>
+  <div class="d-flex flex-row">
+    <a class="btn btn-sm btn-secondary"
+       href="{{ publication.get_absolute_url }}">Back to Publication</a>
+    <a class="btn btn-sm btn-primary ms-auto"
+       href="{% url "journals:fetch_publication_resources" publication.doi_label %}">Fetch from preprint server</a>
+  </div>
 {% endblock content %}

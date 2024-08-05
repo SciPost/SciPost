@@ -735,12 +735,60 @@ def draft_accompanying_publication(request, doi_label):
 @permission_required("scipost.can_draft_publication", raise_exception=True)
 def manage_publication_resources(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
+
+    # Determine whether to display button with automatic creation of resource
+    # Currently, only possible for ChemaRxiv submissions
+    can_fetch_resources = (
+        "chemrxiv"
+        in publication.accepted_submission.preprint.identifier_w_vn_nr.lower()
+    )
+
     context = {
         "publication": publication,
+        "can_fetch_resources": can_fetch_resources,
     }
     return TemplateResponse(
         request, "journals/manage_publication_resources.html", context
     )
+
+
+def fetch_publication_resources(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if (
+        "chemrxiv"
+        not in publication.accepted_submission.preprint.identifier_w_vn_nr.lower()
+    ):
+        messages.error(
+            request, "Resource fetching is only available for ChemRxiv submissions"
+        )
+        return redirect(
+            reverse("journals:manage_publication_resources", args=(doi_label,))
+        )
+
+    # Fetch resources from ChemRxiv
+    response = requests.get(
+        f"https://chemrxiv.org/engage/chemrxiv/public-api/v1/items/doi/"
+        + publication.accepted_submission.preprint.identifier_w_vn_nr
+    )
+
+    if response.status_code != 200:
+        messages.error(request, "Resource fetching failed.")
+        return redirect(
+            reverse("journals:manage_publication_resources", args=(doi_label,))
+        )
+
+    if resources := response.json().get("suppItems", []):
+        resources = sorted(resources, key=lambda x: x.get("id"))
+
+    for resource in resources:
+        PublicationResource.objects.get_or_create(
+            publication=publication,
+            comments=resource.get("title"),
+            url=resource.get("asset", {}).get("original", {}).get("url", ""),
+            _type=PublicationResource.TYPE_SUP_INFO,
+        )
+
+    return redirect(reverse("journals:manage_publication_resources", args=(doi_label,)))
 
 
 @method_decorator(login_required, name="dispatch")

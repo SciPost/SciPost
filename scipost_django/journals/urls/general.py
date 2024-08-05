@@ -218,6 +218,11 @@ urlpatterns = [
         journals_views.HTMXInlinePublicationResourceListView.as_view(),
         name="_hx_publication_resource_list",
     ),
+    path(
+        "admin/<publication_doi_label:doi_label>/fetch_publication_resources",
+        journals_views.fetch_publication_resources,
+        name="fetch_publication_resources",
+    ),
     # Admin: Volumes and Issues
     path(
         "admin/volumes/",

@@ -96,3 +96,6 @@ class PublicationResourceQuerySet(models.QuerySet):
 
     def live(self):
         return self.filter(_type=self.model.TYPE_LIVE_REPO)
+    
+    def sup_info(self):
+        return self.filter(_type=self.model.TYPE_SUP_INFO)

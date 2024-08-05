@@ -693,6 +693,22 @@ class DraftPublicationForm(forms.ModelForm):
                 )
             self.instance.topics.add(*self.submission.topics.all())
 
+            # Create supplementary information for any provided external links
+            if self.submission.code_repository_url:
+                PublicationResource.objects.get_or_create(
+                    publication=self.instance,
+                    _type=PublicationResource.TYPE_SUP_INFO,
+                    url=self.submission.code_repository_url,
+                    comments="Code repository",
+                )
+            if self.submission.data_repository_url:
+                PublicationResource.objects.get_or_create(
+                    publication=self.instance,
+                    _type=PublicationResource.TYPE_SUP_INFO,
+                    url=self.submission.data_repository_url,
+                    comments="Data repository",
+                )
+
     def prefill_fields(self):
         if self.submission:
             self.fields["title"].initial = self.submission.title

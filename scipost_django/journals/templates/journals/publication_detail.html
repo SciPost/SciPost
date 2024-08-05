@@ -85,38 +85,56 @@
   {% endif %}
   <hr class="mt-5 mb-4"/>
 
-  {% if publication.topics.all or perms.scipost.can_manage_ontology %}
-    <h3 class="mt-2">Ontology / Topics</h3>
-    See full <a href="{% url 'ontology:ontology' %}">Ontology</a> or <a href="{% url 'ontology:topics' %}">Topics</a> database.
-    <br>
-    <br>
+  <div class="row">
+    <div class="col">
+      {% if publication.topics.all or perms.scipost.can_manage_ontology %}
+        <h3 class="mt-2">Ontology / Topics</h3>
+        See full <a href="{% url 'ontology:ontology' %}">Ontology</a> or <a href="{% url 'ontology:topics' %}">Topics</a> database.
+        <br>
+        <br>
 
-    <div>
-      {% for topic in publication.topics.all %}
-        <span class="label label-secondary"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'journals:publication_remove_topic' doi_label=publication.doi_label slug=topic.slug %}"><span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span></a>{% endif %}</span>
-      {% empty %}
-        <div>No Topic has yet been associated to this Publication</div>
-      {% endfor %}
+        <div>
+          {% for topic in publication.topics.all %}
+            <span class="label label-secondary"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'journals:publication_remove_topic' doi_label=publication.doi_label slug=topic.slug %}"><span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span></a>{% endif %}</span>
+          {% empty %}
+            <div>No Topic has yet been associated to this Publication</div>
+          {% endfor %}
+        </div>
+
+        {% if perms.scipost.can_manage_ontology %}
+
+          <br>
+          <ul class="list-inline">
+            <li class="list-inline-item">
+              <form class="form-inline" action="{% url 'journals:publication_add_topic' doi_label=publication.doi_label %}" method="post">
+                <ul class="list-inline">
+                  <li class="list-inline-item">Add an existing Topic:</li>
+                  <li class="list-inline-item">{% csrf_token %}{{ select_topic_form }}</li>
+                  <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Link"></li>
+                </ul>
+              </form>
+            </li>
+            <li class="list-inline-item p-2">Can't find the Topic you need? <a href="{% url 'ontology:topic_create' %}" target="_blank">Create it</a> (opens in new window)</li>
+          </ul>
+        {% endif %}
+
+      {% endif %}
     </div>
-
-    {% if perms.scipost.can_manage_ontology %}
-
-      <br>
-      <ul class="list-inline">
-        <li class="list-inline-item">
-          <form class="form-inline" action="{% url 'journals:publication_add_topic' doi_label=publication.doi_label %}" method="post">
-            <ul class="list-inline">
-              <li class="list-inline-item">Add an existing Topic:</li>
-              <li class="list-inline-item">{% csrf_token %}{{ select_topic_form }}</li>
-              <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Link"></li>
-            </ul>
-          </form>
-        </li>
-        <li class="list-inline-item p-2">Can't find the Topic you need? <a href="{% url 'ontology:topic_create' %}" target="_blank">Create it</a> (opens in new window)</li>
-      </ul>
+    {% if publication.resources.sup_info %}
+      <div class="col-12 col-md col-xl-4">
+        <details {% if publication.resources.sup_info|length < 4 %}open{% endif %}
+          class="hcard hcard-secondary bg-opacity-25">
+          <summary class="list-triangle"><h3>Supplemental Information</h3></summary>
+          <p class="text-muted">External links to supplemental resources; opens in a new tab.</p>
+          <ul class="list-unstyled">
+            {% for sup_info in publication.resources.sup_info.all %}
+            <li><a class="fs-6" href="{{ sup_info.url }}" target="_blank">{{ sup_info.comments }}</a></li>
+            {% endfor %}
+          </ul>
+        </details>
+      </div>
     {% endif %}
-
-  {% endif %}
+  </div>
 
   <h3 class="mt-4">
     Author{{ publication.authors.all|length|pluralize }} / Affiliation{{ affiliations_list|length|pluralize }}: mappings to Contributors and Organizations
