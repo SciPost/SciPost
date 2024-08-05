@@ -32,10 +32,14 @@ class JournalUtils(BaseMailUtil):
             "\n\nThe permanent DOI for your publication is 10.21468/"
             + cls.publication.doi_label
             + "."
-            "\n\nTo facilitate dissemination of your paper, we will also automatically "
-            "update the arXiv Journal-ref with this information (this update usually "
-            "takes place within one week; you do not need to take action)."
-            "\n\nWe warmly congratulate you on this achievement and thank you "
+            + (
+                "\n\nTo facilitate dissemination of your paper, we will also automatically "
+                "update the arXiv Journal-ref with this information (this update usually "
+                "takes place within one week; you do not need to take action)."
+                if cls.publication.accepted_submission.preprint.is_arXiv
+                else ""
+            )
+            + "\n\nWe warmly congratulate you on this achievement and thank you "
             "for entrusting us with the task of publishing your research. "
             "\n\nSincerely," + "\n\nThe SciPost Team."
         )
