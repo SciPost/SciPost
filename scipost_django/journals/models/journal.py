@@ -145,6 +145,8 @@ class Journal(models.Model):
         blank=True,
     )
 
+    alternative_journals = models.ManyToManyField("self")
+
     # Cost per publication information
     cost_info = models.JSONField(default=cost_default_value)
 
