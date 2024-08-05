@@ -17,7 +17,7 @@
       <span class="label label-secondary">{{ submission.get_status_display }}</span>
     </div>
 
-    {% if is_submission_fellow and submission.status == "seeking_assignment" %}
+    {% if can_read_editorial_information and submission.status == "seeking_assignment" %}
       <section class="p-2 bg-primary bg-opacity-10">
         <p>This paper is still seeking assignment. Appraise this paper?</p>
         <div id="submission-{{ submission.id }}-appraisal" class="mb-0">

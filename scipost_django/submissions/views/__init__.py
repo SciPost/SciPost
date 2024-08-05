@@ -676,10 +676,15 @@ def submission_detail(request, identifier_w_vn_nr):
             # their permission level is.
             context["can_read_editorial_information"] = False
         else:
-            # User may read eg. Editorial Recommendations if they are in the Fellowship.
-            context["can_read_editorial_information"] = submission.fellows.filter(
-                contributor__user=request.user
-            ).exists()
+            # User may read eg. Editorial Recommendations if they are in the Fellowship
+            # and they have no competing interests against the authors of the Submission.
+            context["can_read_editorial_information"] = (
+                submission.fellows.without_competing_interests_against_submission_authors_of(
+                    submission
+                )
+                .filter(contributor__user=request.user)
+                .exists()
+            )
 
             # User may also read eg. Editorial Recommendations if they are editorial administrator.
             if not context["can_read_editorial_information"]:
@@ -696,6 +701,15 @@ def submission_detail(request, identifier_w_vn_nr):
 
     recommendations = submission.eicrecommendations.active()
 
+    has_appraised_submission = (
+        submission.qualification_set.filter(
+            fellow__contributor__user=request.user.id
+        ).exists()
+        and submission.readiness_set.filter(
+            fellow__contributor__user=request.user.id
+        ).exists()
+    )
+
     context.update(
         {
             "submission": submission,
@@ -707,6 +721,7 @@ def submission_detail(request, identifier_w_vn_nr):
             "is_author": is_author,
             "is_author_unchecked": is_author_unchecked,
             "is_submission_fellow": is_submission_fellow,
+            "has_appraised_submission": has_appraised_submission,
         }
     )
     return render(request, "submissions/submission_detail.html", context)
