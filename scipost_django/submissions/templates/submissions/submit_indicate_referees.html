@@ -21,7 +21,11 @@
 {% block content %}
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">Indicate (potential) referees for your manuscript</h1>
+      <h1 class="highlight">(Optionally) indicate potential referees for your manuscript</h1>
+      <p class="p-2 fs-4 bg-success text-white">
+        <span class="me-2">{% include 'bi/check-circle-fill.html' %}</span>
+        You have successfully submitted to {{ submission.submitted_to.name }}. As an optional step, please consider indicating referees below.
+      </p>
     </div>
   </div>
 
@@ -39,26 +43,30 @@
 
         <h4>SciPost refereeing system</h4>
         <p>
-          SciPost relies on a unique refereeing system, where editors are responsible for the selection of manuscripts at a voluntary basis.
-          Therefore, <strong>SciPost does not guarantee that all manuscripts will be picked up for refereeing</strong> by an editor.
-          Most often, editors selecting a manuscript do so on the basis of their expertise, the novelty / interest of the manuscript and the availability of referees.
+          SciPost relies on a unique <a href="{% url "submissions:editorial_procedure" %}">editorial procedure</a> whose first evaluation step (the Assignment phase) requires a Fellow of the Editorial College to actively take charge of an incoming Submission. 
+          Taking charge is voluntary: therefore <strong>SciPost does NOT guarantee</strong> that all manuscripts in the Assignment phase will eventually be picked up for refereeing. 
+          Fellows taking charge of a manuscript do so on the basis of their expertise, and on the scientific quality and topical interest of the manuscript.
         </p>
         <p>
-          You can help potential editors of your manuscript by suggesting referees that are experts in the field and are not in conflict of interest with the authors.
-          Furthermore, you can also advise against referees that you believe are not suitable for refereeing your manuscript, provided you have a valid reason for this.
-          The referees suggested by the authors are not automatically selected for refereeing, but can serve as a guide for the editors who ultimately decide who to invite for refereeing.
+          You can facilitate the Assignment process by suggesting referees that are experts in the field (being careful to avoid competing interests). 
+          Furthermore, you can also advise against referees that you believe are not suitable for refereeing your manuscript, provided you have a valid reason for this. 
+          Referees suggested by the authors are not automatically selected for (or excluded from) refereeing, but can serve as a guide for the editors who ultimately decide who to invite.
         </p>
 
         <h4>Indicate referees</h4>
+        <p>
+          Click <kbd>Add</kbd> to create a new referee indication and fill out the appropriate fields for as many referees as you want. Finally, click <kbd>Save</kbd> to submit your indications.
+        </p>
         <div hx-get="{% url "submissions:_hx_referee_indication_formset" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
              hx-trigger="load once, referee-indications-updated from:body delay:1s"></div>
 
       </div>
     </div>
 
-    <div>
-      <a class="btn btn-link"
-         href="{% url "submissions:submission" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">View submission page</a>
+    <div class="d-flex align-items-baseline">
+      <a class="btn btn-link text-nowrap"
+       href="{% url "submissions:submission" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Continue to submission page</a>
+    <span class="text-muted"><strong>Warning:</strong> Continue to submission only after pressing <kbd>Save</kbd> or your indications will be discarded.</span>
     </div>
 
   {% else %}
