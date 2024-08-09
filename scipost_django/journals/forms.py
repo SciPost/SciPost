@@ -694,14 +694,17 @@ class DraftPublicationForm(forms.ModelForm):
             self.instance.topics.add(*self.submission.topics.all())
 
             # Create supplementary information for any provided external links
-            if self.submission.code_repository_url:
+            #! Refactor: may be possible to check if url is present in related publications
+            is_codebase = "codebase" in self.to_journal.name.lower()
+            if self.submission.code_repository_url and not is_codebase:
                 PublicationResource.objects.get_or_create(
                     publication=self.instance,
                     _type=PublicationResource.TYPE_SUP_INFO,
                     url=self.submission.code_repository_url,
                     comments="Code repository",
                 )
-            if self.submission.data_repository_url:
+            is_datasets = "datasets" in self.to_journal.name.lower()
+            if self.submission.data_repository_url and not is_datasets:
                 PublicationResource.objects.get_or_create(
                     publication=self.instance,
                     _type=PublicationResource.TYPE_SUP_INFO,
