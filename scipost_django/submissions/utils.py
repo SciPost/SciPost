@@ -792,7 +792,7 @@ class SubmissionUtils(BaseMailUtil):
             f"Dear {communication.recipient_name},\n\n"
             f"Please find here a communication ({communication.get_comtype_display()}) concerning Submission:\n\n"
             f"{communication.submission.title}\nby {communication.submission.author_list}.\n"
-            f"(https://{domain}/{communication.submission.get_absolute_url()})\n\n"
+            f"(https://{domain}{communication.submission.get_absolute_url()})\n\n"
             "Text of the communication:\n"
             "------------------------------------------\n"
             f"{communication.text}\n"
