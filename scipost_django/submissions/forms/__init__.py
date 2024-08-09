@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse, reverse_lazy
 
+from colleges.permissions import is_edadmin
 from common.forms import HTMXDynSelWidget
 from .appraisal import QualificationForm, ReadinessForm
 
@@ -3798,6 +3799,21 @@ class RefereeIndicationForm(forms.ModelForm):
                 css_class="row",
             )
         )
+
+        # If user is not an author, edadmin, or a college member, hide the "advising against" option
+        is_author = self.profile.id in self.submission.authors.values_list(
+            "profile__id", flat=True
+        )
+        is_fellow = self.profile.id in self.submission.fellows.values_list(
+            "contributor__profile__id", flat=True
+        )
+        if not (is_author or is_fellow or is_edadmin(self.profile.contributor.user)):
+            self.fields["indication"].choices = [
+                RefereeIndication.INDICATION_CHOICES[0]
+            ]
+            self.fields["reason"].help_text = (
+                "Optional short reason for this indication."
+            )
 
         for field in ["first_name", "last_name", "affiliation", "email_address"]:
             self.fields[field].label = "Ref. " + self.fields[field].label.capitalize()

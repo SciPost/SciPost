@@ -64,7 +64,7 @@
       {% endif %}
 
       <li class="pt-1">
-        <h4><a href="{% url "submissions:referee_indications" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Indicate a Refereee</a></h4>
+        <h4><a href="{% url "submissions:referee_indications" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{% if is_author or can_read_editorial_information %}Indicate{% else %}Suggest{% endif %} a Refereee</a></h4>
       </li>
 
       {% if submission.editor_in_charge == request.user.contributor %}
