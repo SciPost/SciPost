@@ -1392,8 +1392,6 @@ class SubmissionForm(forms.ModelForm):
             "author_comments",
             "list_of_changes",
             "remarks_for_editors",
-            "referees_suggested",
-            "referees_flagged",
             "data_repository_url",
             "code_repository_url",
             "code_name",
@@ -3757,10 +3755,10 @@ class RefereeIndicationForm(forms.ModelForm):
             url=reverse_lazy("profiles:profile_dynsel"),
         ),
         required=False,
-        help_text="Preferably select a referee from the list. If not found, fill in the other fields.",
+        help_text="Preferably select a referee from the list. If not found, fill in the fields below.",
     )
     reason = forms.CharField(
-        widget=forms.Textarea(attrs={"rows": 4, "maxlength": 255}),
+        widget=forms.Textarea(attrs={"rows": 2, "maxlength": 255}),
         help_text="Short reason for this indication; <strong>mandatory when advising against</strong>.",
         required=False,
     )
@@ -3776,21 +3774,33 @@ class RefereeIndicationForm(forms.ModelForm):
             Div(
                 Div(
                     Div(
-                        Div(Field("indication"), css_class="col-2"),
-                        Div(Field("referee"), css_class="col-10"),
-                        Div(Field("first_name"), css_class="col-6 col-md-2"),
-                        Div(Field("last_name"), css_class="col-6 col-md-2"),
-                        Div(Field("email_address"), css_class="col-6 col-md-4"),
-                        Div(Field("affiliation"), css_class="col-6 col-md-4"),
+                        Field("indication"),
+                        Field("reason"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col-12 col-sm-4 col-md-3",
+                ),
+                Div(
+                    Div(
+                        Field("referee", css_class="col"),
+                        css_class="row mb-0",
+                    ),
+                    Div(
+                        Div(Field("first_name"), css_class="col-12 col-sm-6 col-md"),
+                        Div(Field("last_name"), css_class="col-12 col-sm-6 col-md"),
+                        Div(Field("affiliation"), css_class="col-12 col-sm-6 col-md"),
+                        Div(Field("email_address"), css_class="col-12 col-sm-6 col-md"),
                         css_class="row",
                     ),
                     css_class="col",
                 ),
-                Div(Field("reason"), css_class="col-12 col-xl-3 h-100"),
                 Div(Field("id", type="hidden"), css_class="d-none"),
                 css_class="row",
             )
         )
+
+        for field in ["first_name", "last_name", "affiliation", "email_address"]:
+            self.fields[field].label = "Ref. " + self.fields[field].label.capitalize()
 
     def clean(self):
         cleaned_data = super().clean()
