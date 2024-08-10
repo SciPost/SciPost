@@ -3,14 +3,20 @@ __license__ = "AGPL v3"
 
 
 import re
+from typing import TYPE_CHECKING
 from django import forms
 
 from common.forms import MultiEmailField
+from common.utils.models import get_current_domain
 from common.utils.text import split_strip
+from scipost.templatetags.user_groups import is_ed_admin, is_scipost_admin
 
 from .core import MailEngine
 from .exceptions import ConfigurationError
 from .widgets import SummernoteEditor
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
 
 
 class EmailForm(forms.Form):
@@ -36,6 +42,9 @@ class EmailForm(forms.Form):
         self.mail_code = kwargs.pop("mail_code")
         # Check if all exta configurations are valid.
         self.extra_config.update(kwargs.pop("mail_config", {}))
+
+        # Pop out user to prevent saving it as a form field.
+        user = kwargs.pop("user", None)
 
         if not all(
             key in MailEngine._possible_parameters
@@ -82,12 +91,12 @@ class EmailForm(forms.Form):
         # Determine the available from addresses passed to the form.
         # Append the default from address from the mail_code json.
         # Remove duplicates and select the default from address as initial.
-        available_from_addresses = kwargs.pop("available_from_addresses", []) + [
+        self.available_from_addresses = [
             (self.engine.mail_data["from_email"], self.engine.mail_data["from_name"])
-        ]
+        ] + EmailForm.get_available_from_addresses_for_user(user)
 
         from_addresses = []
-        for address, description in available_from_addresses:
+        for address, description in self.available_from_addresses:
             if address not in [a[0] for a in from_addresses]:
                 from_addresses.append((address, f"{description} <{address}>"))
 
@@ -132,7 +141,7 @@ class EmailForm(forms.Form):
                     )
 
             from_address = self.cleaned_data.get("from_address")
-            from_address_choices = dict(self.fields["from_address"].choices)
+            from_address_choices = dict(self.available_from_addresses)
             if from_address not in from_address_choices:
                 self.add_error("from_address", "Sender address not in list.")
 
@@ -140,7 +149,7 @@ class EmailForm(forms.Form):
             old_mail_data = self.engine.mail_data
             self.engine.mail_data.update(
                 {
-                    "from_name": from_address_choices.get(from_address, None),
+                    "from_name": from_address_choices.get(from_address, ""),
                     "from_email": from_address,
                     "recipient_list": to_addresses,
                 }
@@ -169,6 +178,27 @@ class EmailForm(forms.Form):
 
         self.engine.send_mail()
         return self.engine.template_variables["object"]
+
+    @staticmethod
+    def get_available_from_addresses_for_user(user: "User | None") -> list:
+        """Determine the available from addresses based on the request user's permissions.
+
+        Returns a list of tuples with the email address and the human readable name.
+        """
+
+        if user is None:
+            return []
+
+        emails = []
+        domain = get_current_domain()
+
+        if is_ed_admin(user):
+            emails.append(("edadmin@" + domain, "SciPost Editorial Administration"))
+
+        if is_scipost_admin(user):
+            emails.append(("admin@" + domain, "SciPost Administration"))
+
+        return emails
 
 
 class HiddenDataForm(forms.Form):
