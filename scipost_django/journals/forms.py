@@ -222,7 +222,8 @@ class AbstractJATSForm(forms.ModelForm):
             {
                 "placeholder": "Paste the JATS abstract here (use pandoc to generate; see docs)"
             }
-        )
+        ),
+        required = False,        
     )
 
     class Meta:
