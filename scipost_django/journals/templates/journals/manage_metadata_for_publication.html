@@ -42,7 +42,8 @@
       
       <h3>Other funding-related actions:</h3>
       <ul>
-	<li><a href="{% url 'funders:funders_dashboard' %}" target="_blank">go to the Funders page to add a Funder and/or Grant instance</a></li>
+	      <li><a href="{% url 'funders:funders_dashboard' %}" target="_blank">Go to the Funders page to add a Funder and/or Grant instance</a></li>
+        <li><a href="{% url 'journals:update_grants' publication.doi_label %}">Create/update grants</a></li>
       </ul>
     </div>
   </div>
@@ -52,10 +53,10 @@
   <table class="table table-sm bg-white mx-3">
     <thead class="table-light">
       <th>Timestamp</th>
-      <th>batch id</th>
-      <th>deposition date</th>
+      <th>Batch id</th>
+      <th>Deposition date</th>
       <th>Successful?</th>
-      <th>actions</th>
+      <th>Actions</th>
     </thead>
     <tbody>
       {% for deposit in publication.deposit_set.all %}
@@ -63,12 +64,14 @@
 	  <td>{{ deposit.timestamp }}</td>
 	  <td>{{ deposit.doi_batch_id }}</td>
 	  <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
-	  <td>{{ deposit.deposit_successful }}</td>
-	  <td>Mark deposit as
-  	    <ul>
-  	      <li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
-  	      <li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
-  	    </ul>
+    <td>
+      <span {% if deposit.deposit_successful %}class="badge text-dark bg-success"
+      {% elif deposit.deposit_successful == False %}class="badge text-dark bg-danger"{% else %} class="badge text-dark bg-warning"{% endif %}
+      >{{ deposit.deposit_successful }}</span>
+    </td>
+	  <td>Mark deposit as:
+      <a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=1 %}" class="text-success">Success</a> |
+      <a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=0 %}" class="text-danger">Failed</a>
 	  </td>
 	</tr>
       {% empty %}
@@ -84,21 +87,23 @@
   <table class="table table-sm bg-white mx-3">
     <thead class="table-light">
       <th>Timestamp</th>
-      <th>deposition date</th>
+      <th>Deposition date</th>
       <th>Successful?</th>
-      <th>actions</th>
+      <th>Actions</th>
     </thead>
     <tbody>
       {% for deposit in publication.doajdeposit_set.all %}
 	<tr>
 	  <td>{{ deposit.timestamp }}</td>
 	  <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
-	  <td>{{ deposit.deposit_successful }}</td>
-	  <td>Mark deposit as
-  	    <ul>
-  	      <li><a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
-  	      <li><a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
-  	    </ul>
+	  <td>
+      <span {% if deposit.deposit_successful %}class="badge text-dark bg-success"
+      {% elif deposit.deposit_successful == False %}class="badge text-dark bg-danger"{% else %} class="badge text-dark bg-warning"{% endif %}
+      >{{ deposit.deposit_successful }}</span>
+    </td>
+	  <td>Mark deposit as:
+      <a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=1 %}" class="text-success">Success</a> |
+      <a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=0 %}" class="text-danger">Failed</a>
 	  </td>
 	</tr>
       {% empty %}
