@@ -59,6 +59,9 @@
               <strong class="text-success">task accepted</strong>
             {% else %}
               <strong class="text-danger">task declined</strong>
+              {% if invitation.refusal_reason %}
+                <br><span class="text-muted">{{ invitation.get_refusal_reason_display }}</span>
+              {% endif %}
             {% endif %}
             <div>{{ invitation.date_responded }}</div>
           {% else %}
