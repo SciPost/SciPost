@@ -31,6 +31,23 @@
       Your manuscript will now be taken charge of by our production team,
       which will soon send you proofs to check before final publication.
     </p>
+  {% elif decision.for_journal.name|add:" Core" == decision.submission.submitted_to.name %}
+    <!-- This is a special case for when a submission gets upgraded from a Core to a flagship journal -->
+    <p>
+      The Editorial College has considered your submission for publication 
+      in the journal to which you had submitted, namely {{ decision.submission.submitted_to.name }}. 
+      After deliberating, the College has pointed out that your manuscript would be more appropriate 
+      for publication in {{ decision.for_journal.name }}, our flagship title 
+      in the field of {{ decision.for_journal.college.acad_field.name }}.
+    </p>
+    <p>
+      The present email is thus to formally offer you immediate acceptance in this journal.
+      You can inform us of choice by going to your personal page: under the Submissions tab, 
+      you will find links to accept this offer or to turn it down (you will also find 
+      these links on the submission page of this manuscript). 
+      <strong>We will await your confirmation of acceptance of this publication offer 
+        before initiating production of the proofs of your paper.</strong>
+    </p>
   {% else %}
     <p>
       The Editorial College has considered your submission for publication in
