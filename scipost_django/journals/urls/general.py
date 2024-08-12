@@ -80,11 +80,6 @@ urlpatterns = [
         name="send_publication_for_approval",
     ),
     path(
-        "admin/publications/<publication_doi_label:doi_label>/authors",
-        journals_views.publication_authors_ordering,
-        name="update_author_ordering",
-    ),
-    path(
         "admin/publications/<publication_doi_label:doi_label>/grants",
         journals_views.PublicationGrantsView.as_view(),
         name="update_grants",
@@ -101,7 +96,7 @@ urlpatterns = [
         name="add_author",
     ),
     path(
-        "admin/<publication_doi_label:doi_label>/authors/reset_authors",
+        "admin/<publication_doi_label:doi_label>/authors/reset",
         journals_views.reset_authors,
         name="reset_authors",
     ),
