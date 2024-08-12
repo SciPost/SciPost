@@ -987,8 +987,9 @@ def add_author(request, doi_label: str) -> HttpResponse:
     )
 
     # Update and save the author_list in the publication object.
-    publication.author_list = ", ".join(author_string_list)
-    publication.save()
+    if len(author_string_list) > 0:
+        publication.author_list = ", ".join(author_string_list)
+        publication.save()
 
     context = {
         "publication": publication,
