@@ -614,10 +614,14 @@ class Publication(models.Model):
         
         tex_contents = self.proofs_repository.fetch_publication_tex()
         author_field = re.findall("%%%%%%%%%% TODO: AUTHORS(.*?)%%%%%%%%%% END TODO: AUTHORS", tex_contents, re.DOTALL)[0]
-        author_texts = author_field.strip().split("\n")
+        author_texts = author_field.strip().replace("\,", "").split("\n")
 
+        # Remove any trailing or leading "and"s.
         if len(author_texts) > 1 and " and" in author_texts[-2]:
             author_texts[-2] = author_texts[-2].replace(" and", ",").replace("\nand ", "\n")
+        
+        # Remove \orcidlink{...} commands.
+        author_texts = [re.sub(r"\\orcidlink\{.*?\}", "", author_text) for author_text in author_texts]
 
         author_list = []; affiliation_list = []
         for author_text in author_texts:            
