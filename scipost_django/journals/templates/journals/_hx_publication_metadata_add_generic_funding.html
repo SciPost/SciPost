@@ -1,6 +1,7 @@
 {% load bootstrap %}
 
 <h2>Generic (not via grant) funders associated to this publication:</h2>
+{% if publication.funders_generic.all|length > 0 %}
 <ul>
 
   {% for funder in publication.funders_generic.all %}
@@ -11,11 +12,12 @@
          hx-target="#funder-{{ funder.id }}"
          hx-swap="delete">{% include "bi/trash-fill.html" %}</a>
     </li>
-  {% empty %}
-    <li>No generic funder found</li>
   {% endfor %}
 
 </ul>
+{% else %}
+  <p>No generic funder found</p>
+{% endif %}
 
 <div class="card p-3 mb-4">
   <h3>Associate a generic funder to this publication:</h3>
