@@ -183,7 +183,7 @@ class ProfileQuerySet(QuerySet):
         Returns all Profiles matching the query for first name, last name, email, or ORCID.
         Exact matches are returned first, then partial matches.
         """
-        terms = query.replace(",", "").split(" ")
+        terms = query.replace(",", "").replace(".", "").split(" ")
 
         # Get ORCID term.
         orcid_term = Q()
