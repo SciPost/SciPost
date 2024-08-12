@@ -1,0 +1,9 @@
+<td class="ps-4" id="organization_column_{{checked_row_id}}">
+    <input type="hidden" value="{{organization.id}}" form="submit_affiliation_form" name="affiliation_id_{{checked_row_id}}">
+    {% if organization is not None %}
+        <img src="{{ organization.country.flag }}" style="width:15px;" alt="{{ organization.country }} flag" title="{{organization.get_country_display}}" data-bs-toggle="tooltip"/>
+        <a href="{{ organization.get_absolute_url }}">{{ organization.name }} </a>
+    {% else %}
+        -- No affiliation --
+    {% endif %}
+</td>

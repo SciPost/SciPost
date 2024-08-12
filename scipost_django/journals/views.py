@@ -6,6 +6,7 @@ from decimal import Decimal, getcontext
 import hashlib
 import json
 import os
+import re
 from profiles.models import Profile
 import random
 import string
@@ -800,7 +801,7 @@ def manage_metadata(request, doi_label=None):
 
 @permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
-def reset_authors(request, doi_label):
+def reset_authors(request, doi_label: str) -> HttpResponse:
     publication = get_object_or_404(Publication, doi_label=doi_label)
     if not publication.is_draft and not request.user.has_perm(
         "can_publish_accepted_submission"
@@ -864,7 +865,7 @@ def add_author(request, doi_label: str) -> HttpResponse:
         
         author_query_list = search_for_authors(publication)
         author_dict_list = build_author_dict_list(publication, author_query_list)
-    
+
         return render(request, "journals/add_author_list.html", {"author_list": author_dict_list, "selected_author_id": int(request.POST["selected_author_id"])})
     
     author_query_list = search_for_authors(publication)
@@ -888,7 +889,6 @@ def search_for_authors(publication_object: Publication) -> list:
         if not authors_metadata_table.exists() or i +1 > len(authors_metadata_table) or authors_metadata_table[i].is_empty():
             query_results = Profile.objects.search(tex_author)
         else:
-            print("Skipping search for author: ", tex_author)
             query_results = Profile.objects.filter(id=authors_metadata_table[i].profile.id)
             
         
@@ -915,20 +915,110 @@ def build_author_dict_list(publication_object: Publication, author_profile_query
     
     return author_dict_lsit
 
-class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
-    """
-    Handle the author affiliations for a Publication.
-    """
+@permission_required("scipost.can_draft_publication", return_403=True)
+@transaction.atomic
+def author_affiliations(request, doi_label: str) -> HttpResponse:
+    def _affiliations_from_post(request: HttpRequest) -> list[Organization|None]:
+        """ Iterate over the POST request keys 'affiliation_id_k' to build a list of affiliation Organization objects. """
+        total_affiliations_from_tex = int(request.POST.get("total_affiliations"))
+        
+        affiliations = []
+        for i in range(total_affiliations_from_tex):
+            affiliation_id = request.POST.get(f"affiliation_id_{i +1}")
+            affiliation_id = int(affiliation_id) if affiliation_id else None
+            affiliation = Organization.objects.filter(pk=affiliation_id).first()
+            affiliations.append(affiliation)
+        
+        return affiliations
+    
+    # -------------
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.is_draft and not request.user.has_perm("can_publish_accepted_submission"):
+        raise Http404("You do not have permission to edit this non-draft Publication")
+    
+    form = AuthorsTableOrganizationSelectForm(request.POST or None)
+    
+    if request.POST:
+        if not request.POST.get("submit"):
+            context = {
+                "checked_row_id": int(request.POST["checked_row_id"]),
+                "organization": Organization.objects.get(pk=form["organization"].value()),
+            }
+            
+            response = render(request, "journals/author_affiliations_orgcell.html", context)
+            response.headers["HX-Retarget"] = "#organization_column_" + request.POST["checked_row_id"]
+            
+            return response
+        else:
+            # First we need to check if all of the affiliations exist.
+            affiliations = _affiliations_from_post(request)
+            total_affiliations_from_tex = int(request.POST.get("total_affiliations"))
+            total_non_empty_affiliations = len(list(filter(lambda x: x is not None, affiliations)))
+            
+            if total_non_empty_affiliations != total_affiliations_from_tex:
+                messages.warning(request, "<h3>%s</h3>Failed: Make sure that all affiliations are selected." % publication.doi_label)
+                
+                tex_affiliations = get_affiliations()
+                context = {
+                    "publication": publication,
+                    "form": form,
+                    "affiliation_texts": tex_affiliations,
+                    "default_affiliations": affiliations, # To reconstruct the form.
+                }
+                return render(request, "journals/author_affiliations.html", context)
+            else:
+                authors = PublicationAuthorsTable.objects.filter(publication=publication)
+                affiliations_for_author = [[1, 2], [1], [2], [1, 2], [1, 2], [1]] # TODO: TEX DATA
+                for author, their_affiliations in zip(authors, affiliations_for_author):
+                    author.affiliations.set([affiliations[index -1] for index in their_affiliations])
+                
+                publication.cf_author_affiliation_indices_list = []
+                publication.save()
+                
+                return publication_detail(request, doi_label)
+    
+    tex_affiliations = get_affiliations()
+    context = {
+        "publication": publication,
+        "form": form,
+        "affiliation_texts": tex_affiliations,
+        "default_affiliations": [None] * len(tex_affiliations),
+    }
+    return render(request, "journals/author_affiliations.html", context)
 
-    permission_required = "scipost.can_draft_publication"
-    template_name = "journals/author_affiliations.html"
+# class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
+#     """
+#     Handle the author affiliations for a Publication.
+#     """
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["add_affiliation_form"] = AuthorsTableOrganizationSelectForm()
-        return context
+#     permission_required = "scipost.can_draft_publication"
+#     template_name = "journals/author_affiliations.html"
+    
+#     form_class = AuthorsTableOrganizationSelectForm
 
-
+def get_affiliations() -> dict:
+    # First we find the section where the affiliations exist. --TODO: Enable below for git integration.
+    # section = re.findall('TODO: AFFILIATIONS\n(.*?)\n%%%%%%%%%% END', paper, re.DOTALL)[0] + "%" # We add a % to the end to make sure the regex works.
+    section = r"""{\bf 1} Martin Fisher School of Physics, Brandeis University, Waltham, Massachusetts 02453, USA
+\\
+{\bf 2} California Institute of Technology, Pasadena, California 91125, USA""" +"%"
+    affids = re.findall(r"\{\\bf (\d+)\}", section) # We look for affiliations based on the {\bf k} format.
+    if affids:
+        affids = [int(i) for i in affids] # We count the number of affiliations.
+        
+        if affids != list(range(1, len(affids)+1)):
+            raise ValueError("Affiliation numbers not in correct order! Check the TeX file. Are they all present?")
+        
+        affiliations = [] # We create a list of affiliations.
+        for k in affids: # Extract the affiliation text for each affiliation id.
+            aff = re.findall(fr"bf {k}}} (.*?)({{|\%)", section, re.DOTALL)[0][0]
+            aff = aff.replace("\\", " ").replace("  ", " ").strip() # Remove leading and trailing whitespaces.
+            
+            affiliations.append(aff)
+        return affiliations
+    else: # There is only one affiliation OR something went wrong. We return all as is.
+        return [section[:-1]] # We remove the % at the end (which was put for the other case to work).
+    
 @permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
 def add_affiliation(request, doi_label, pk):
