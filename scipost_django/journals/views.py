@@ -6,10 +6,7 @@ from decimal import Decimal, getcontext
 import hashlib
 import json
 import os
-import re
 
-import gitlab
-from profiles.models import Profile
 import random
 import string
 import shutil
@@ -916,28 +913,9 @@ def reset_authors(request, doi_label: str) -> HttpResponse:
     ):
         raise Http404("You do not have permission to edit this non-draft Publication")
 
-    reset_author_associations(publication)
+    publication.reset_author_associations()
 
     return redirect(reverse("journals:add_author", kwargs={"doi_label": doi_label}))
-
-
-def reset_author_associations(publication_object: Publication) -> None:
-    """Deletes all PublicationAuthorsTable entries for the given publication_object and repopulates it based on the author_list."""
-    PublicationAuthorsTable.objects.filter(publication=publication_object).delete()
-
-    author_string_list, author_affiliation_ids = fetch_tex_author_info(
-        publication_object
-    )
-    author_query_list = search_for_authors(publication_object, author_string_list)
-    author_render_list = build_author_render_list(
-        author_string_list, author_query_list, author_affiliation_ids
-    )
-
-    # We add the succesful authors from the author_render_list to the PublicationAuthorsTable.
-    for author_dict in author_render_list:
-        PublicationAuthorsTable.objects.create(
-            publication=publication_object, profile=author_dict["profile"]
-        )
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)
@@ -961,7 +939,7 @@ def add_author(request, doi_label: str) -> HttpResponse:
         publication=publication
     )
     if request.method == "GET" and not authors_metadata_table.exists():
-        reset_author_associations(publication)
+        publication.reset_author_associations()
 
     form = ProfileSelectForm(request.POST or None)
     if request.POST and form.is_valid():
@@ -984,8 +962,10 @@ def add_author(request, doi_label: str) -> HttpResponse:
                 ),
             )
 
-        author_string_list, author_affiliation_ids = fetch_tex_author_info(publication)
-        author_query_list = search_for_authors(publication, author_string_list)
+        author_string_list, author_affiliation_ids = (
+            publication.construct_tex_author_info()
+        )
+        author_query_list = publication.search_for_authors(author_string_list)
         author_render_list = build_author_render_list(
             author_string_list, author_query_list, author_affiliation_ids
         )
@@ -1000,8 +980,8 @@ def add_author(request, doi_label: str) -> HttpResponse:
         )
 
     # Fetch authors and affiliations as they appear in the TeX file.
-    author_string_list, author_affiliation_ids = fetch_tex_author_info(publication)
-    author_query_list = search_for_authors(publication, author_string_list)
+    author_string_list, author_affiliation_ids = publication.construct_tex_author_info()
+    author_query_list = publication.search_for_authors(author_string_list)
     author_render_list = build_author_render_list(
         author_string_list, author_query_list, author_affiliation_ids
     )
@@ -1016,34 +996,6 @@ def add_author(request, doi_label: str) -> HttpResponse:
         "author_list": author_render_list,
     }
     return render(request, "journals/add_author.html", context)
-
-
-def search_for_authors(
-    publication_object: Publication, author_string_list: list[str]
-) -> list:
-    """Creates a list of (Profile) queryset objects based on the strings in author_string_list."""
-    author_profile_query_list = []
-
-    authors_metadata_table = PublicationAuthorsTable.objects.filter(
-        publication=publication_object
-    )
-
-    for i, tex_author in enumerate(author_string_list):  # Author1, Author2, ...
-        # If an author is already on the index of authors_metadata_table, do not search.
-        if (
-            not authors_metadata_table.exists()
-            or i + 1 > len(authors_metadata_table)
-            or authors_metadata_table[i].is_empty()
-        ):
-            query_results = Profile.objects.search(tex_author)
-        else:
-            query_results = Profile.objects.filter(
-                id=authors_metadata_table[i].profile.id
-            )
-
-        author_profile_query_list.append(query_results)
-
-    return author_profile_query_list
 
 
 def build_author_render_list(
@@ -1084,83 +1036,6 @@ def build_author_render_list(
         )
 
     return author_dict_lsit
-
-
-def extract_affiliations_from_tex(tex_contents: str) -> list[str]:
-    """
-    Extracts the affiliations from the TeX contents, constructing a list with each affiliation as a string.
-    This list is used to render the affiliation list in the add_author view.
-    """
-    affiliation_field = re.findall(
-        "%%%%%%%%%% TODO: AFFILIATIONS(.*?)%%%%%%%%%% END TODO: AFFILIATIONS",
-        tex_contents,
-        re.DOTALL,
-    )[0]
-    affiliation_texts = affiliation_field.strip().split("\n\\\\")
-
-    affiliation_list = []
-    for affiliation_text in affiliation_texts:
-        affiliation = re.findall(
-            "{\\\\bf\s*\d+} (.*)", affiliation_text, re.DOTALL
-        ) or [affiliation_text]
-        affiliation = affiliation[0].strip()
-        affiliation_list.append(affiliation)
-
-    return affiliation_list
-
-
-def fetch_affiliation_list(publication: Publication) -> list[str]:
-    """
-    Constructs a list of affiliations from the TeX file of the publication.
-    This list is used to render the affiliation list in the add_author view.
-    """
-
-    tex_contents = publication.proofs_repository.fetch_publication_tex()
-    return extract_affiliations_from_tex(tex_contents)
-
-
-def fetch_tex_author_info(
-    publication: Publication,
-) -> tuple[list[str], list[list[int]]]:
-    """Fetches information for each author from the TeX file of the publication."""
-
-    tex_contents = publication.proofs_repository.fetch_publication_tex()
-    author_field = re.findall(
-        "%%%%%%%%%% TODO: AUTHORS(.*?)%%%%%%%%%% END TODO: AUTHORS",
-        tex_contents,
-        re.DOTALL,
-    )[0]
-    author_texts = author_field.strip().split("\n")
-
-    if len(author_texts) > 1 and " and" in author_texts[-2]:
-        author_texts[-2] = author_texts[-2].replace(" and", ",").replace("\nand ", "\n")
-
-    author_list = []
-    affiliation_list = []
-    for author_text in author_texts:
-        has_supperscript = re.search("textsuperscript", author_text) is not None
-        has_affiliation = re.search("\d", author_text) is not None
-
-        delimiter: str = r"\\textsuperscript" if has_supperscript else ","
-
-        author = re.findall(rf"(.*?){delimiter}", author_text)[0]
-        author_list.append(author)
-
-        # If no affiliation is present, we add them all.
-        if not has_affiliation:
-            total_affiliations = len(extract_affiliations_from_tex(tex_contents))
-            default_affiliations = list(range(1, total_affiliations + 1))
-            affiliation_list.append(default_affiliations)
-            continue
-
-        superscript = re.findall("textsuperscript\{(.*?)\}", author_text)[0]
-
-        # We remove anything following the first "$" character which separates affiliations from emails.
-        affiliations = superscript.split("$")[0].strip().split(",")
-        affiliations = [int(aff.strip()) for aff in affiliations]
-        affiliation_list.append(affiliations)
-
-    return author_list, affiliation_list
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)
@@ -1220,7 +1095,7 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
                     % publication.doi_label,
                 )
 
-                tex_affiliations = fetch_affiliation_list(publication)
+                tex_affiliations = publication.construct_affiliation_list()
                 context = {
                     "publication": publication,
                     "form": form,
@@ -1232,8 +1107,8 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
                 authors = PublicationAuthorsTable.objects.filter(
                     publication=publication
                 )
-                authors_list, affiliations_of_authors = fetch_tex_author_info(
-                    publication
+                authors_list, affiliations_of_authors = (
+                    publication.construct_tex_author_info()
                 )
                 for author, their_affiliations in zip(authors, affiliations_of_authors):
                     author.affiliations.set(
@@ -1245,7 +1120,7 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
 
                 return publication_detail(request, doi_label)
 
-    tex_affiliations = fetch_affiliation_list(publication)
+    tex_affiliations = publication.construct_affiliation_list()
     context = {
         "publication": publication,
         "form": form,
