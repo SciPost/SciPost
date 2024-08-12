@@ -124,7 +124,14 @@ class ProfileCreateView(PermissionsMixin, CreateView):
         initial = super().get_initial()
         from_type = self.kwargs.get("from_type", None)
         pk = self.kwargs.get("pk", None)
-
+        
+        # Build initial data from GET parameters of the name.
+        first_name = self.request.GET.get("first_name", None)
+        last_name = self.request.GET.get("last_name", None)
+        
+        if first_name: initial.update({"first_name": first_name})
+        if last_name: initial.update({"last_name": last_name})
+        
         if pk and from_type:
             pk = int(pk)
             if from_type == "contributor":
