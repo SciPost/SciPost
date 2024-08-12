@@ -138,7 +138,6 @@ class CitationListItemForm(forms.ModelForm):
     doi = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={"placeholder": "DOI"}),
-        validators=[doi_validator],
     )
 
     class Meta:
