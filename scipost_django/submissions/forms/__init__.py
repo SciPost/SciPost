@@ -413,11 +413,11 @@ class SubmissionPoolSearchForm(forms.Form):
                     "Accepted in other journal; awaiting puboffer acceptance",
                 ),
                 (Submission.ACCEPTED_IN_ALTERNATIVE, "Accepted in alternative Journal"),
+                (Submission.PUBLISHED, "Published"),
                 (Submission.REJECTED, "Rejected"),
                 (Submission.WITHDRAWN, "Withdrawn by the Authors"),
             ),
         )
-        processed = (("Processed", ((Submission.PUBLISHED, "Published"),)),)
         if user.contributor.is_ed_admin:
             choices = (
                 ("All", (("all", "All Submissions"),)),
