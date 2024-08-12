@@ -15,6 +15,7 @@ from django.dispatch import receiver
 from django.db.models import Value
 from django.db.models.functions import Concat
 from django.conf import settings
+import gitlab
 
 from guardian.shortcuts import assign_perm, remove_perm
 
@@ -47,6 +48,7 @@ from scipost.storage import SecureFileStorage
 
 if TYPE_CHECKING:
     from submissions.models import Submission
+    from journals.models import Publication
 
 
 class ProductionUser(models.Model):
@@ -533,6 +535,20 @@ class ProofsRepository(models.Model):
             paths.append("{ROOT}/Templates/Selected".format(ROOT=settings.GITLAB_ROOT))
 
         return paths
+
+    def fetch_publication_tex(self) -> str:
+        """ Fetches the TeX file of the publication. """
+        gl = gitlab.Gitlab("https://" + settings.GITLAB_URL, private_token = settings.GITLAB_KEY)
+        gl.auth()
+        
+        project = gl.projects.get(self.git_path)
+        publication: "Publication" = self.stream.submission.publications.first()
+        
+        main_file_path = publication.doi_label.replace(".", "_") +".tex"
+        publication_file = project.files.get(file_path = main_file_path, ref = "main")
+        tex_contents = publication_file.decode().decode("utf-8")
+        
+        return tex_contents
 
     def __str__(self) -> str:
         return f"Proofs repo for {self.stream}"

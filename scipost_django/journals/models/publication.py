@@ -473,6 +473,11 @@ class Publication(models.Model):
     def pubfracs_sum_to_1(self):
         """Checks that the support fractions sum up to one."""
         return self.pubfracs.aggregate(Sum("fraction"))["fraction__sum"] == 1
+    
+    @property
+    def proofs_repository(self):
+        """Return the proofs repository for the publication."""
+        return self.accepted_submission.production_stream.proofs_repository
 
     @property
     def compensated_expenditures(self):
