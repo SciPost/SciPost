@@ -45,7 +45,7 @@
       {% for report in reports %}
 	<tr data-bs-toggle="collapse" data-parent="#accordion" href="#collapse{{ report.id }}" aria-expanded="true" aria-controls="collapse{{ report.id }}" style="cursor: pointer;">
 	  <td>{{ report.submission.preprint.identifier_w_vn_nr }}</td>
-	  <td>{{ report.associated_published_doi }}</td>
+	  <td>{{ report.associated_publication.doi_string }}</td>
 	  <td>{{ report.report_nr }}</td>
 	  <td>{{ report.needs_doi|yesno:'Yes,No,-' }}</td>
 	  <td>{{ report.doi_label }}</td>
