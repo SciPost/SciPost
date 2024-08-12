@@ -262,22 +262,19 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         )
 
     @property
-    def associated_published_doi(self):
-        """Return the related Publication doi.
+    def associated_publication(self) -> Publication | None:
+        """Return the related Publication object.
 
-        Check if the Report relates to a SciPost-published object. If it does, return the doi
-        of the published object.
+        Check if the Report relates to a SciPost-published object. If it does, return the
+        Publication object.
         """
-        publication = (
+        return (
             Publication.objects.filter(
                 accepted_submission__thread_hash=self.submission.thread_hash
             )
             .order_by("doi_label")
             .first()
-        )
-        # order by doi_label to give priority to main article, which has no DOI suffix
-        if publication:
-            return publication.doi_string
+        )  # order by doi_label to give priority to main article, which has no DOI suffix
 
     @property
     def relation_to_published(self):

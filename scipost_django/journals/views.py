@@ -1945,13 +1945,14 @@ def sign_existing_report(request, report_id):
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def manage_report_metadata(request):
+def manage_report_metadata(request) -> HttpResponse:
     """
     This page offers Editorial Administrators tools for managing
     the metadata of Reports.
     """
     reports = Report.objects.all()
     ready_for_deposit = request.GET.get("ready_for_deposit") == "1"
+
     if ready_for_deposit:
         reports = (
             reports.annotate(
