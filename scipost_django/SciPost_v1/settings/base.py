@@ -35,6 +35,17 @@ with open(os.path.join(BASE_DIR, "secrets.json")) as f:
     secrets = json.load(f)
 
 
+def get_latest_commit_hash():
+    try:
+        ps = os.popen("git log -n 1 --pretty=format:%h").read()
+        return ps.strip()
+    except Exception:
+        return None
+
+
+COMMIT_HASH = get_latest_commit_hash()
+
+
 def get_secret(setting, secrets=secrets):
     """Get the secret variable or return explicit exception."""
     try:
@@ -338,6 +349,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "scipost.context_processors.roles_processor",
                 "scipost.context_processors.domain_processor",
+                "scipost.context_processors.commit_hash_processor",
                 "journals.context_processors.publishing_years_processor",
                 "journals.context_processors.journals_processor",
                 "ontology.context_processors.ontology_processor",

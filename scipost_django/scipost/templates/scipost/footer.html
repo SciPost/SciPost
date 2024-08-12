@@ -47,7 +47,8 @@
         <ul class="list-inline text-center">
           <li class="list-inline-item">
             <a href="https://git.{{ DOMAIN_HOST }}" target="_blank" rel="noopener">
-              <span>{% include 'bi/git.html' %}</span>&nbsp;Git Repository</a>
+              <span>{% include 'bi/git.html' %}</span>&nbsp;Git Repository</a> 
+              <span class="ms-1">(server version <a class="text-info" href="https://git.{{ DOMAIN_HOST }}/scipost/SciPost/-/commit/{{COMMIT_HASH}}">{{ COMMIT_HASH }}</a>)</span>
           </li>
           <li class="list-inline-item">
             <a href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">

@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.conf import settings
 from django.contrib.auth.models import Group
 
 from common.utils.models import get_current_domain
@@ -56,3 +57,10 @@ def domain_processor(request):
     Add the domain name to the context.
     """
     return {"DOMAIN_HOST": get_current_domain()}
+
+
+def commit_hash_processor(request):
+    """
+    Add the current commit hash to the context.
+    """
+    return {"COMMIT_HASH": settings.COMMIT_HASH}
