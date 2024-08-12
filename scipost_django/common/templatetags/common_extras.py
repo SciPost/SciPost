@@ -8,7 +8,6 @@ from django import template
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-
 register = template.Library()
 
 
@@ -49,6 +48,13 @@ def int_divide(a, b):
 def multiply(a, b):
     return a * b
 
+@register.filter
+def index(list, index):
+    return list[index]
+
+@register.filter
+def zip_dj(list1, list2):
+    return zip(list1, list2)
 
 # HTML
 @register.filter
