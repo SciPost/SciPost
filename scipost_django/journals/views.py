@@ -1107,64 +1107,10 @@ def get_affiliations() -> dict:
 
             affiliations.append(aff)
         return affiliations
-    else:  # There is only one affiliation OR something went wrong. We return all as is.
-        return [
-            section[:-1]
-        ]  # We remove the % at the end (which was put for the other case to work).
-
-
-@permission_required("scipost.can_draft_publication", return_403=True)
-@transaction.atomic
-def add_affiliation(request, doi_label, pk):
-    """
-    Adds an affiliation to a PublicationAuthorsTable.
-    """
-    table = get_object_or_404(PublicationAuthorsTable, pk=pk)
-    form = AuthorsTableOrganizationSelectForm(request.POST or None)
-    if form.is_valid():
-        table.affiliations.add(form.cleaned_data["organization"])
-        table.save()
-        Publication.objects.filter(id=table.publication.id).update(
-            cf_author_affiliation_indices_list=[]
-        )  # force recompute it
-        return redirect(
-            reverse("journals:author_affiliations", kwargs={"doi_label": doi_label})
-        )
-    context = {"table": table, "add_affiliation_form": form}
-    return render(request, "journals/author_affiliation_add.html", context)
-
-
-@permission_required("scipost.can_draft_publication", return_403=True)
-def add_affiliation_id(request, doi_label, pk, organization_id):
-    """
-    Adds an affiliation to a PublicationAuthorsTable directly via its ID.
-    """
-    table = get_object_or_404(PublicationAuthorsTable, pk=pk)
-    org = get_object_or_404(Organization, pk=organization_id)
-    table.affiliations.add(org)
-    table.save()
-    Publication.objects.filter(id=table.publication.id).update(
-        cf_author_affiliation_indices_list=[]
-    )
-    return HttpResponse(f"Added{org.name} to {table.profile.full_name}'s affiliations.")
-
-
-@permission_required("scipost.can_draft_publication", return_403=True)
-@transaction.atomic
-def remove_affiliation(request, doi_label, pk, organization_id):
-    """
-    Remove an affiliation in a PublicationAuthorsTable.
-    """
-    table = get_object_or_404(PublicationAuthorsTable, pk=pk)
-    org = get_object_or_404(Organization, pk=organization_id)
-    table.affiliations.remove(org)
-    table.save()
-    Publication.objects.filter(id=table.publication.id).update(
-        cf_author_affiliation_indices_list=[]
-    )  # force recompute it
-    return redirect(
-        reverse("journals:author_affiliations", kwargs={"doi_label": doi_label})
-    )
+    else:
+        # There is only one affiliation OR something went wrong. We return all as is.
+        # We remove the % at the end (which was put for the other case to work).
+        return [section[:-1]]
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)
