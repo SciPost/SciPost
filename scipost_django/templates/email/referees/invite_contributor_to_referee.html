@@ -5,11 +5,11 @@
   We have received a Submission to {% if invitation.submission.submitted_to.doi_label == "MigPol" %}Migration Politics{% else %}SciPost{% endif %} which, in view of your expertise and On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.first_name }} {{ invitation.submission.editor_in_charge.user.last_name }}, we would like to invite you to referee:
   <br />
   <br />
-  {{ invitation.submission.title }}
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
   <br />
   by {{ invitation.submission.author_list }}
   <br />
-  (see https://{{ domain }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
+  (see <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">https://{{ domain }}{{ invitation.submission.get_absolute_url }}</a> - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
   Please <a href="https://{{ domain }}{% url 'submissions:accept_or_decline_ref_invitations' %}">accept or decline</a> (login required) this invitation as soon as possible (ideally within the next 2 working days).
