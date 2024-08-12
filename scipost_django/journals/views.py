@@ -6,6 +6,7 @@ from decimal import Decimal, getcontext
 import hashlib
 import json
 import os
+import re
 from profiles.models import Profile
 import random
 import string
@@ -659,6 +660,7 @@ class PublicationGrantsRemovalView(PermissionsMixin, DetailView):
             reverse("journals:update_grants", args=(self.object.doi_label,))
         )
 
+
 class DraftPublicationCreateView(PermissionsMixin, CreateView):
     """
     Create a draft of a Publication.
@@ -905,7 +907,7 @@ def manage_metadata(request, doi_label=None):
 
 @permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
-def reset_authors(request, doi_label):
+def reset_authors(request, doi_label: str) -> HttpResponse:
     publication = get_object_or_404(Publication, doi_label=doi_label)
     if not publication.is_draft and not request.user.has_perm(
         "can_publish_accepted_submission"
@@ -1017,7 +1019,6 @@ def search_for_authors(publication_object: Publication) -> list:
         ):
             query_results = Profile.objects.search(tex_author)
         else:
-            print("Skipping search for author: ", tex_author)
             query_results = Profile.objects.filter(
                 id=authors_metadata_table[i].profile.id
             )
@@ -1070,13 +1071,46 @@ class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
     Handle the author affiliations for a Publication.
     """
 
-    permission_required = "scipost.can_draft_publication"
-    template_name = "journals/author_affiliations.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["add_affiliation_form"] = AuthorsTableOrganizationSelectForm()
-        return context
+#     permission_required = "scipost.can_draft_publication"
+#     template_name = "journals/author_affiliations.html"
+
+#     form_class = AuthorsTableOrganizationSelectForm
+
+
+def get_affiliations() -> dict:
+    # First we find the section where the affiliations exist. --TODO: Enable below for git integration.
+    # section = re.findall('TODO: AFFILIATIONS\n(.*?)\n%%%%%%%%%% END', paper, re.DOTALL)[0] + "%" # We add a % to the end to make sure the regex works.
+    section = (
+        r"""{\bf 1} Martin Fisher School of Physics, Brandeis University, Waltham, Massachusetts 02453, USA
+\\
+{\bf 2} California Institute of Technology, Pasadena, California 91125, USA"""
+        + "%"
+    )
+    affids = re.findall(
+        r"\{\\bf (\d+)\}", section
+    )  # We look for affiliations based on the {\bf k} format.
+    if affids:
+        affids = [int(i) for i in affids]  # We count the number of affiliations.
+
+        if affids != list(range(1, len(affids) + 1)):
+            raise ValueError(
+                "Affiliation numbers not in correct order! Check the TeX file. Are they all present?"
+            )
+
+        affiliations = []  # We create a list of affiliations.
+        for k in affids:  # Extract the affiliation text for each affiliation id.
+            aff = re.findall(rf"bf {k}}} (.*?)({{|\%)", section, re.DOTALL)[0][0]
+            aff = (
+                aff.replace("\\", " ").replace("  ", " ").strip()
+            )  # Remove leading and trailing whitespaces.
+
+            affiliations.append(aff)
+        return affiliations
+    else:  # There is only one affiliation OR something went wrong. We return all as is.
+        return [
+            section[:-1]
+        ]  # We remove the % at the end (which was put for the other case to work).
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)
