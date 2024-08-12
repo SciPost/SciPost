@@ -34,8 +34,9 @@
 	<th>Submission</th>
 	<th>Associated doi</th>
 	<th>Report nr</th>
+	<th>Status</th>
 	<th>Needs own doi</th>
-	<th>own doi</th>
+	<th>Own doi</th>
 	<th>Latest successful Crossref deposit</th>
 	<th>Deposit needs updating?</th>
       </tr>
@@ -47,6 +48,7 @@
 	  <td>{{ report.submission.preprint.identifier_w_vn_nr }}</td>
 	  <td>{{ report.associated_publication.doi_string }}</td>
 	  <td>{{ report.report_nr }}</td>
+	  <td>{{ report.status }}</td>
 	  <td>{{ report.needs_doi|yesno:'Yes,No,-' }}</td>
 	  <td>{{ report.doi_label }}</td>
 	  <td>{{ report|latest_successful_crossref_deposit_report }}</td>

@@ -2077,7 +2077,7 @@ def manage_proceedings_metadata(request):
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
-def mark_report_doi_needed(request, report_id, needed):
+def mark_report_doi_needed(request, report_id, needed) -> HttpResponse:
     report = get_object_or_404(Report, pk=report_id)
     if needed == 1:
         report.needs_doi = True
