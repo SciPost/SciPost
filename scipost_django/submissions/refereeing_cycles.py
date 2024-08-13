@@ -130,12 +130,18 @@ class VettingAction(BaseAction):
 
     @property
     def url(self):
-        return "{}#current-contributions".format(
-            reverse(
-                "submissions:editorial_page",
-                args=(self.submission.preprint.identifier_w_vn_nr,),
-            )
-        )
+        match self.id.split("."):
+            case "Comment", comment_id:
+                return reverse("comments:vet_submitted_comment", args=[comment_id])
+            case "Report", report_id:
+                return reverse("submissions:vet_submitted_report", args=[report_id])
+            case _:
+                return "{}#current-contributions".format(
+                    reverse(
+                        "submissions:editorial_page",
+                        args=(self.submission.preprint.identifier_w_vn_nr,),
+                    )
+                )
 
 
 class NoRefereeResponseAction(BaseAction):
