@@ -5,7 +5,10 @@ __license__ = "AGPL v3"
 import datetime
 
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
+
+from comments.models import Comment
 
 from .. import constants
 
@@ -396,6 +399,26 @@ class SubmissionQuerySet(models.QuerySet):
             .annot_clearance_by(fellow.contributor.profile)
             .exclude(has_qualification=True, has_readiness=True, has_clearance=True)
         )
+
+    def comments_set_complete(self):
+        """Return Comments on Submissions, Reports and other Comments."""
+        qs = Comment.objects.filter(
+            Q(submissions__in=self)
+            | Q(reports__submission__in=self)
+            | Q(comments__reports__submission__in=self)
+            | Q(comments__submissions__in=self)
+        )
+        # Add recursive comments:
+        for c in qs:
+            if c.nested_comments:
+                qs = qs | c.all_nested_comments().all()
+        return qs.distinct()
+
+    def reports(self):
+        """Return all Reports for Submissions."""
+        from submissions.models import Report
+
+        return Report.objects.filter(submission__in=self)
 
 
 class SubmissionEventQuerySet(models.QuerySet):

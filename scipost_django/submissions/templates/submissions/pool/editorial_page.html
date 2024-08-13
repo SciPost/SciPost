@@ -373,7 +373,15 @@ container border border-warning border-3
               </ul>
             </li>
           {% else %}
-            <li>All Reports have been vetted.</li>
+            {% with submission.other_versions.reports.awaiting_vetting as other_reports %}
+              <li>All Reports on this version have been vetted.
+                {% if other_reports %}
+                  <span class="text-warning ms-1">{% include "bi/exclamation-triangle-fill.html" %}</span>
+                  There {{ other_reports|pluralize:"is,are" }} still {{ other_reports.count }} 
+                  Report{{ other_reports|pluralize }} awaiting vetting on other versions.
+                {% endif %}
+              </li>
+            {% endwith %}
           {% endif %}
         {% endwith %}
 
@@ -388,7 +396,15 @@ container border border-warning border-3
               </ul>
             </li>
           {% else %}
-            <li>All Comments have been vetted.</li>
+            {% with submission.other_versions.comments_set_complete.awaiting_vetting as other_comments %}
+              <li>All Comments on this version have been vetted.
+                {% if other_comments %}
+                  <span class="text-warning ms-1">{% include "bi/exclamation-triangle-fill.html" %}</span>
+                  There {{ other_comments|pluralize:"is,are" }} still {{ other_comments.count }} 
+                  Comment{{ other_comments|pluralize }} awaiting vetting on other versions.
+                {% endif %}
+              </li>
+            {% endwith %}
           {% endif %}
         {% endwith %}
         {% if submission.eic_recommendation_required %}
