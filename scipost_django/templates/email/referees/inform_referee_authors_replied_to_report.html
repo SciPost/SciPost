@@ -6,7 +6,7 @@
   <br><br>
   {{ report.submission.title }}
   <br>by {{ report.submission.author_list }}<br>
-  (see https://{{ domain }}{{ report.submission.get_absolute_url }} - first submitted {{ report.submission.original_submission_date|date:"d M Y" }}).
+  (see <a href="https://{{ domain }}{{ report.submission.get_absolute_url }}">https://{{ domain }}{{ report.submission.get_absolute_url }}</a> - first submitted {{ report.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
   You can view your Report and the associated reply directly at

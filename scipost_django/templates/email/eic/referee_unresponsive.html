@@ -7,7 +7,7 @@
   <br><br>
   <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
   <br>by {{ invitation.submission.author_list }}<br>
-  (see https://{{ domain }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}),<br>
+  (see <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">https://{{ domain }}{{ invitation.submission.get_absolute_url }}</a> - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}),<br>
   has failed to respond to the invitation (after being sent {{ invitation.nr_reminders }} reminders).
 </p>
 <p>
