@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  {% if perms.careers.add_job_opening %}
+  {% if perms.scipost.can_manage_job_openings %}
     <h1 class="highlight">Applications for this position</h1>
     <div class="accordion" id="job_app_accordion">
       {% for job_app in job_opening.job_applications.all %}

@@ -22,6 +22,9 @@ class Command(BaseCommand):
         FinancialAdmin, created = Group.objects.get_or_create(
             name="Financial Administrators"
         )
+        HumanResourcesAdmin, created = Group.objects.get_or_create(
+            name="Human Resources Administrators"
+        )
         AdvisoryBoard, created = Group.objects.get_or_create(name="Advisory Board")
         EditorialAdmin, created = Group.objects.get_or_create(
             name="Editorial Administrators"
@@ -425,9 +428,16 @@ class Command(BaseCommand):
             name="Can manage subsidies",
             content_type=content_type,
         )
+
+        # Human Resources Administration
         can_view_timesheets, created = Permission.objects.get_or_create(
             codename="can_view_timesheets",
             name="Can view timesheets",
+            content_type=content_type,
+        )
+        can_manage_job_openings, created = Permission.objects.get_or_create(
+            codename="can_manage_job_openings",
+            name="Can manage job openings",
             content_type=content_type,
         )
 
@@ -575,6 +585,13 @@ class Command(BaseCommand):
                 can_add_notes,
                 can_view_internal_subsidy_notes,
                 can_view_internal_organization_notes,
+            ]
+        )
+
+        HumanResourcesAdmin.permissions.set(
+            [
+                can_view_timesheets,
+                can_manage_job_openings,
             ]
         )
 

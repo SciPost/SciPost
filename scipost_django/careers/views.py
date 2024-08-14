@@ -24,7 +24,7 @@ class JobOpeningCreateView(UserPassesTestMixin, CreateView):
     success_url = reverse_lazy("careers:job_openings")
 
     def test_func(self):
-        return self.request.user.has_perm("careers.add_job_opening")
+        return self.request.user.has_perm("scipost.can_manage_job_openings")
 
 
 class JobOpeningUpdateView(UserPassesTestMixin, UpdateView):
@@ -33,7 +33,7 @@ class JobOpeningUpdateView(UserPassesTestMixin, UpdateView):
     success_url = reverse_lazy("careers:job_openings")
 
     def test_func(self):
-        return self.request.user.has_perm("careers.add_job_opening")
+        return self.request.user.has_perm("scipost.can_manage_job_openings")
 
 
 class JobOpeningListView(ListView):
@@ -42,7 +42,7 @@ class JobOpeningListView(ListView):
 
     def get_queryset(self):
         qs = JobOpening.objects.all()
-        if not self.request.user.has_perm("careers.add_job_opening"):
+        if not self.request.user.has_perm("scipost.can_manage_job_openings"):
             qs = qs.publicly_visible()
         return qs
 
@@ -54,7 +54,7 @@ class JobOpeningDetailView(DetailView):
 
     def get_queryset(self):
         qs = JobOpening.objects.all()
-        if not self.request.user.has_perm("careers.add_job_opening"):
+        if not self.request.user.has_perm("scipost.can_manage_job_openings"):
             qs = qs.publicly_visible()
         return qs
 
