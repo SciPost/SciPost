@@ -28,6 +28,7 @@ from organizations.models import Organization
 from scipost.fields import UserModelChoiceField
 
 from .models import Subsidy, SubsidyPayment, SubsidyAttachment, WorkLog
+from .models.work_log import HOURLY_RATE
 
 
 class SubsidyForm(forms.ModelForm):
@@ -472,7 +473,7 @@ class LogsFilterForm(forms.Form):
         required=True, widget=forms.DateInput(attrs={"type": "date"})
     )
     end = forms.DateField(required=True, widget=forms.DateInput(attrs={"type": "date"}))
-    hourly_rate = forms.FloatField(min_value=0, initial=WorkLog.HOURLY_RATE)
+    hourly_rate = forms.FloatField(min_value=0, initial=HOURLY_RATE)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
