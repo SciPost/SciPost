@@ -318,8 +318,6 @@ class MailEngine:
         elif obj := self.template_variables["object"]:
             obj = self.template_variables["object"]
 
-            print(obj, entry, filter_func, args)
-
             # Recurse through object properties to get the email address.
             for attr in entry.split("."):
                 try:
