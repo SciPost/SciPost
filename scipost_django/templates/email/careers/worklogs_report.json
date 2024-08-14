@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: Worklogs report",
+    "recipient_list": [
+        "user_set|values_list:email"
+    ],
+    "bcc": [
+        "admin@"
+    ],
+    "from_name": "SciPost Administration",
+    "from_email": "admin@"
+}

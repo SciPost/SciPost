@@ -1,0 +1,16 @@
+<p>Dear HR Administrators,</p>
+
+<p>
+  Here is the worklog summary from {{ start }} to {{ end }}.
+  <br />
+  <br />
+  {{ rendered_table|safe }}
+</p>
+ 
+<p>
+  Best regards,
+  <br />
+  The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}
