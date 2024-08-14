@@ -20,7 +20,8 @@ class RefereeIndicationQuerySet(models.QuerySet):
 
     def by_submission_authors(self, submission):
         return self.filter(
-            submission=submission, indicated_by__in=submission.authors.all()
+            submission=submission,
+            indicated_by__in=submission.authors.values_list("profile__id", flat=True),
         )
 
     def visible_by(self, profile):
@@ -44,7 +45,7 @@ class RefereeIndicationQuerySet(models.QuerySet):
 
         contributor = getattr(profile, "contributor", None)
         if contributor is not None:
-            if contributor.is_ed_admin or submission.editor_in_charge == contributor:
+            if contributor.is_ed_admin or contributor.id in submission.fellows.values_list("contributor", flat=True):
                 return self
             elif contributor in submission.authors.all():
                 return self.by_submission_authors(submission)

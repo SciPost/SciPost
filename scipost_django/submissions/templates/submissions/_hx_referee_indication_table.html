@@ -6,13 +6,21 @@
     <th>Referee name</th>
     <th>Referee email</th>
     <th>Referee institution</th>
+    <th>Reason</th>
     <th>Actions</th>
   </tr>
 
   {% for refind in referee_indications %}
 
     <tr>
-      <td>{{ refind.indicated_by.full_name }} ({{ refind.indicated_by_role }})</td>
+      <td>
+        <!-- This flag should be True only if the viewer is a fellow that is not the EIC -->
+        {% if can_view_indicated_by_names %}
+          {{ refind.indicated_by.full_name }} ({{ refind.indicated_by_role }})
+        {% else %}
+          {{ refind.indicated_by_role|title }}
+        {% endif %}
+      </td>
       <td>{{ refind.get_indication_display }}</td>
 
       {% if refind.referee %}
@@ -58,6 +66,8 @@
         <td>{{ refind.email_address }}</td>
         <td>{{ refind.affiliation|default:"" }}</td>
       {% endif %}
+
+      <td>{{ refind.reason }}</td>
 
       <td>
 

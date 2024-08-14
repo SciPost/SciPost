@@ -82,15 +82,23 @@ class RefereeIndication(models.Model):
         - "fellow" if the Profile is a Fellow
         - "author" if the Profile is an Author
         - "referee" if the Profile is another (invited) Referee
-        - "other" if the Profile is not any of the above
+        - "contributor" if the Profile is not any of the above
         """
-        if self.indicated_by == self.submission.editor_in_charge:
+        if self.indicated_by == getattr(
+            self.submission.editor_in_charge, "profile", None
+        ):
             return "editor"
-        elif self.indicated_by in self.submission.authors.all():
+        elif self.indicated_by.id in self.submission.authors.values_list(
+            "profile__id", flat=True
+        ):
             return "author"
-        elif self.indicated_by in self.submission.referee_invitations.all():
+        elif self.indicated_by.id in self.submission.referee_invitations.values_list(
+            "profile__id", flat=True
+        ):
             return "referee"
-        elif self.indicated_by in self.submission.fellows.all():
+        elif self.indicated_by in self.submission.fellows.values_list(
+            "contributor__profile__id", flat=True
+        ):
             return "fellow"
         else:
-            return "other"
+            return "contributor"
