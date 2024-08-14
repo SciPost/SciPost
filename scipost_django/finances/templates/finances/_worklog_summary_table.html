@@ -1,0 +1,31 @@
+{% load scipost_extras %}
+
+<table class="table table-hover text-nowrap">
+  <thead class="table-light">
+    <tr>
+      <th>Employee</th>
+
+      {% for month in logs_filter_form.get_months %}<th colspan="2" scope="colgroup">{{ month|date:'N Y' }}</th>{% endfor %}
+
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for user_data in logs_filter_form.filter_per_month %}
+      <tr>
+        <td>{{ user_data.user.contributor }}</td>
+
+        {% for _, total_time, monthly_salary in user_data.monthly_data %}
+          <td>{{ total_time|duration }}</td>
+          <td>€{{ monthly_salary|floatformat:0 }}</td>
+        {% endfor %}
+
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="5">No logs found.</td>
+      </tr>
+    {% endfor %}
+
+  </tbody>
+</table>
