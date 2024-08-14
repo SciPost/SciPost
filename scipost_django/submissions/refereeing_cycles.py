@@ -12,6 +12,11 @@ from common.utils import get_current_domain
 
 from . import constants
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from submissions.models.submission import Submission
+
 
 @html_safe
 class RequiredActionsDict(dict):
@@ -243,7 +248,7 @@ class BaseCycle:
     days_for_refereeing = 28
     can_invite_referees = True
 
-    def __init__(self, submission):
+    def __init__(self, submission: "Submission"):
         self._submission = submission
         self._required_actions = None
 
@@ -274,6 +279,19 @@ class BaseCycle:
         """Gather the required actions list and populate self._required_actions."""
         self._required_actions = RequiredActionsDict()
 
+        # Comments requiring vetting (including replies and recursive comments)
+        comments_to_vet = self._submission.comments_set_complete().awaiting_vetting()
+        for comment in comments_to_vet:
+            self.add_action(VettingAction(comment))
+
+        reports_to_vet = self._submission.reports.awaiting_vetting()
+        for report in reports_to_vet:
+            self.add_action(VettingAction(report))
+
+        # If this cycle is not the latest one in the thread, return early, skipping other actions
+        if not self._submission.is_latest:
+            return
+
         if not self._submission.refereeing_cycle:
             # Submission is a resubmission: EIC has to determine which cycle to proceed with.
             self.add_action(CycleChoiceAction())
@@ -287,15 +305,6 @@ class BaseCycle:
                     not self._submission.reports.non_draft().exists()
                 )
                 self.add_action(action)
-
-        # Comments requiring vetting (including replies and recursive comments)
-        comments_to_vet = self._submission.comments_set_complete().awaiting_vetting()
-        for comment in comments_to_vet:
-            self.add_action(VettingAction(comment))
-
-        reports_to_vet = self._submission.reports.awaiting_vetting()
-        for report in reports_to_vet:
-            self.add_action(VettingAction(report))
 
         if self.can_invite_referees and self._submission.in_stage_in_refereeing:
             # Referees required in this cycle.

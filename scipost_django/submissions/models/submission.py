@@ -582,7 +582,7 @@ class Submission(models.Model):
 
     @property
     def is_latest(self):
-        return self.status != self.RESUBMITTED
+        return self == self.get_latest_version()
 
     @property
     def authors_as_list(self):
