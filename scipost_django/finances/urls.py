@@ -160,6 +160,11 @@ urlpatterns = [
         name="subsidyattachment_orphaned_list",
     ),
     path(
+        "subsidies/attachments/orphaned/_hx_search_form/<str:filter_set>",
+        views._hx_subsidyattachment_search_form,
+        name="_hx_subsidyattachment_search_form",
+    ),
+    path(
         "subsidies/attachments/orphaned/_hx_list_page",
         views._hx_subsidyattachment_list_page,
         name="_hx_subsidyattachment_list_page",

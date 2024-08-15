@@ -6,6 +6,7 @@ import re
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse_lazy
 from django.utils.dates import MONTHS
 from django.db.models import Q, Case, DateField, Max, Min, Sum, Value, When, F
@@ -432,6 +433,207 @@ class SubsidyAttachmentForm(forms.ModelForm):
     #             "The filename does not match the required regex pattern "
     #             f"'{filename_regex}'",
     #         )
+
+
+from django.contrib.postgres.forms.ranges import DateRangeField
+
+
+class SubsidyAttachmentSearchForm(forms.Form):
+    form_id = "subsidyattachment-orphaned-search-form"
+
+    kind = forms.MultipleChoiceField(
+        choices=SubsidyAttachment.KIND_CHOICES,
+        required=False,
+    )
+
+    filename = forms.CharField(
+        max_length=128,
+        required=False,
+        label="Filename",
+    )
+
+    description = forms.CharField(
+        max_length=128,
+        required=False,
+    )
+
+    visibility = forms.ChoiceField(
+        choices=[("", "Any")] + list(SubsidyAttachment.VISIBILITY_CHOICES),
+        required=False,
+    )
+
+    # is_orphaned = forms.BooleanField(
+    #     required=False,
+    #     label="Orphaned",
+    # )
+
+    date_from = forms.DateField(
+        label="From date",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        required=False,
+    )
+    date_to = forms.DateField(
+        label="To date",
+        widget=forms.DateInput(attrs={"type": "date"}),
+        required=False,
+    )
+
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(
+            ("date", "Date"),
+            ("attachment", "Filename"),
+        ),
+        required=False,
+    )
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=(
+            ("+", "Ascending"),
+            ("-", "Descending"),
+        ),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        self.session_key = kwargs.pop("session_key", None)
+        super().__init__(*args, **kwargs)
+
+        # Set the initial values of the form fields from the session data
+        if self.session_key:
+            session = SessionStore(session_key=self.session_key)
+
+            for field_key in self.fields:
+                session_key = (
+                    f"{self.form_id}_{field_key}"
+                    if hasattr(self, "form_id")
+                    else field_key
+                )
+
+                if session_value := session.get(session_key):
+                    self.fields[field_key].initial = session_value
+
+        self.helper = FormHelper()
+
+        div_block_ordering = Div(
+            Div(FloatingField("orderby"), css_class="col-6 col-md-12 col-xl-6"),
+            Div(FloatingField("ordering"), css_class="col-6 col-md-12 col-xl-6"),
+            css_class="row mb-0",
+        )
+        div_block_checkbox = Div(
+            Div(Field("is_orphaned"), css_class="col-auto col-lg-12 col-xl-auto"),
+            css_class="row mb-0",
+        )
+        div_block_dates = Div(
+            Div(Field("date_from"), css_class="col-6"),
+            Div(Field("date_to"), css_class="col-6"),
+            css_class="row mb-0",
+        )
+
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    Div(
+                        Div(FloatingField("filename"), css_class="col"),
+                        Div(
+                            FloatingField("visibility"),
+                            css_class="col-3 col-md-4 col-lg-2",
+                        ),
+                        Div(FloatingField("description"), css_class="col-12"),
+                        Div(div_block_ordering, css_class="col-12 col-md-6 col-xl-12"),
+                        Div(div_block_checkbox, css_class="col-12 col-md-6 col-xl-12"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col",
+                ),
+                Div(
+                    Field("kind", size=4),
+                    Div(div_block_dates, css_class="col-12"),
+                    css_class="col-12 col-md-6 col-lg-4",
+                ),
+                css_class="row mb-0",
+            ),
+        )
+
+    def save_fields_to_session(self):
+        # Save the form data to the session
+        if self.session_key is not None:
+            session = SessionStore(session_key=self.session_key)
+
+            for field_key in self.cleaned_data:
+                session_key = (
+                    f"{self.form_id}_{field_key}"
+                    if hasattr(self, "form_id")
+                    else field_key
+                )
+
+                if field_value := self.cleaned_data.get(field_key):
+                    if isinstance(field_value, datetime.date):
+                        field_value = field_value.strftime("%Y-%m-%d")
+
+                session[session_key] = field_value
+
+            session.save()
+
+    def apply_filter_set(self, filters: dict, none_on_empty: bool = False):
+        # Apply the filter set to the form
+        for key in self.fields:
+            if key in filters:
+                self.fields[key].initial = filters[key]
+            elif none_on_empty:
+                if isinstance(self.fields[key], forms.MultipleChoiceField):
+                    self.fields[key].initial = []
+                else:
+                    self.fields[key].initial = None
+
+    def search_results(self):
+        self.save_fields_to_session()
+
+        subsidy_attachments = SubsidyAttachment.objects.orphaned().distinct()
+
+        if filename := self.cleaned_data.get("filename"):
+            subsidy_attachments = subsidy_attachments.filter(
+                Q(attachment__icontains=filename)
+            )
+        if description := self.cleaned_data.get("description"):
+            subsidy_attachments = subsidy_attachments.filter(
+                description__icontains=description
+            )
+        if visibility := self.cleaned_data.get("visibility"):
+            subsidy_attachments = subsidy_attachments.filter(visibility=visibility)
+        if kind := self.cleaned_data.get("kind"):
+            subsidy_attachments = subsidy_attachments.filter(
+                kind__in=kind,
+            )
+        if (date_from := self.cleaned_data.get("date_from")) and (
+            date_to := self.cleaned_data.get("date_to")
+        ):
+            subsidy_attachments = subsidy_attachments.filter(
+                date__gte=date_from, date__lte=date_to
+            )
+
+        # if is_orphaned := self.cleaned_data.get("is_orphaned"):
+        #     subsidy_attachments = subsidy_attachments.orphaned()
+
+        # Ordering of subsidy_attachments
+        # Only order if both fields are set
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            subsidy_attachments = subsidy_attachments.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
+                ]
+            )
+
+        return subsidy_attachments
 
 
 #############

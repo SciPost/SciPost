@@ -1,31 +1,38 @@
 <div class="row border-bottom">
-  <div class="col d-flex flex-row mb-3">
-    <div class="me-2">
-      <div class="text-muted">Kind</div>
-      <div>{{ attachment.get_kind_display }}</div>
+  <div class="col">
+    <div class="row mb-0">
+      <div class="col-12 d-flex flex-row mb-3 gap-3">
+        <div>
+          <div class="text-muted">Kind</div>
+          <div>{{ attachment.get_kind_display }}</div>
+        </div>
+        <div>
+          <div class="text-muted">Date</div>
+          <div>{{ attachment.date }}</div>
+        </div>
+        <div>
+          <div class="text-muted">Filename</div>
+          <div>{{ attachment.filename }}</div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="me-2  overflow-hidden text-trunctate">
+          <div class="text-muted">Description</div>
+          <div>{{ attachment.description }}</div>
+        </div>
+      </div>
     </div>
-    <div class="me-2">
-      <div class="text-muted">Date</div>
-      <div>{{ attachment.date }}</div>
-    </div>
-    <div class="me-2">
-      <div class="text-muted">Filename</div>
-      <div>{{ attachment.filename }}</div>
-    </div>
-    <div class="me-2  overflow-hidden text-trunctate">
-      <div class="text-muted">Description</div>
-      <div>{{ attachment.description }}</div>
-    </div>
-
   </div>
+
   <div class="col-auto d-flex flex-column">
     <a href="{% url 'finances:subsidyattachment_update' pk=attachment.id %}"><span class="text-warning">Update</span></a>
     <a href="{% url 'finances:subsidy_attachment' attachment_id=attachment.id %}">View</a>
   </div>
-  <div class="col-12"
+
+  <div class="col-12 mt-3"
        hx-get="{% url "finances:_hx_subsidyattachment_link_form" attachment_id=attachment.id %}"
        hx-trigger="intersect once">
-    <div class="spinner-grow spinner-grow-sm ms-2"
+    <div class="placeholder-glow placeholder w-100 bg-opacity-25 p-5"
          role="status"
          aria-hidden="true"></div>
   </div>

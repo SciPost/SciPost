@@ -1,44 +1,38 @@
 {% for attachment in page_obj %}
   {% include 'finances/_hx_subsidyattachment_list_item.html' %}
 {% empty %}
-  <tr id="orphaned-subsidies-results-load-next" hx-swap-oob="true">
-    <td colspan="12" class="text-center p-0">
-      <div class="p-2 d-flex justify-content-center">
-        <strong>No orphaned SubsidyAttachments could be found</strong>
-      </div>
-    </td>
-  </tr>
+  <div id="search-subsidyattachment-results-load-next" hx-swap-oob="true">
+    <div class="p-2 d-flex justify-content-center">
+      <strong>No orphaned SubsidyAttachments could be found</strong>
+    </div>
+  </div>
 {% endfor %}
 
 {% if page_obj.has_next %}
-  <tr id="orphaned-subsidies-results-load-next"
-      class="htmx-indicator"
-      hx-swap-oob="true"
-      hx-post="{% url 'finances:_hx_subsidyattachment_list_page' %}?page={{ page_obj.next_page_number }}"
-      hx-target="#orphaned-subsidies-results"
-      hx-include="#orphaned-subsidies-form"
-      hx-trigger="revealed"
-      hx-swap="beforeend"
-      hx-indicator="#orphaned-subsidies-results-load-next">
+  <div id="search-subsidyattachment-results-load-next"
+       class="htmx-indicator"
+       hx-swap-oob="true"
+       hx-post="{% url 'finances:_hx_subsidyattachment_list_page' %}?page={{ page_obj.next_page_number }}"
+       hx-target="#search-subsidyattachment-results"
+       hx-include="#orphaned-subsidies-form"
+       hx-trigger="revealed"
+       hx-swap="beforeend"
+       hx-indicator="#search-subsidyattachment-results-load-next">
 
-    <td colspan="12" class="text-center p-0">
-      <div class="p-2 bg-primary bg-opacity-25 d-flex justify-content-center">
-        <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
-        <div class="spinner-grow spinner-grow-sm ms-2"
-             role="status"
-             aria-hidden="true"></div>
-      </div>
-    </td>
-  </tr>
+    <div class="p-2 bg-primary bg-opacity-25 d-flex justify-content-center">
+      <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2"
+           role="status"
+           aria-hidden="true"></div>
+    </div>
+  </div>
 {% else %}
-  <tr id="orphaned-subsidies-results-load-next" hx-swap-oob="true">
+  <div id="search-subsidyattachment-results-load-next" hx-swap-oob="true">
 
-    <td colspan="12" class="text-center p-0">
-      <div class="p-2 d-flex justify-content-center">
-        <strong>All SubsidyAttachments loaded</strong>
-      </div>
-    </td>
-  </tr>
+    <div class="p-2 d-flex justify-content-center">
+      <strong>All SubsidyAttachments loaded</strong>
+    </div>
+  </div>
 {% endif %}
 
 {{ form_media }}

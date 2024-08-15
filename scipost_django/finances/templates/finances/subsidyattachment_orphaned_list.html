@@ -21,10 +21,45 @@
   {% is_ed_admin request.user as is_ed_admin %}
   <h1 class="highlight">Orphaned SubsidyAttachment List</h1>
 
-  <div id="orphaned-subsidies-results"
-       hx-get="{% url 'finances:_hx_subsidyattachment_list_page' %}?page=1"
-       hx-trigger="load once"></div>
+
+  <details open id="subsidyattachment-filter-details" class="card my-4">
+    <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
+      <div class="fs-3">Search / Filter</div>
+      <div class="d-none d-md-flex align-items-center">
  
+        <div id="indicator-search-subsidyattachment" class="htmx-indicator">
+          <button class="btn btn-warning text-white d-none d-md-block me-2"
+                  type="button"
+                  disabled>
+            <strong>Loading...</strong>
  
+            <div class="spinner-grow spinner-grow-sm ms-2"
+                 role="status"
+                 aria-hidden="true"></div>
+          </button>
+        </div>
+
+        <button class="btn btn-outline-secondary me-2"
+                type="button"
+                hx-get="{% url 'finances:_hx_subsidyattachment_search_form' filter_set="empty" %}"
+                hx-target="#subsidyattachment-search-form-container">Clear Filters</button>
+ 
+        <a id="refresh-button" class="me-2 btn btn-primary">
+          {% include "bi/arrow-clockwise.html" %}
+        &nbsp;Refresh</a>
+      </div>
+
+    </summary>
+    <div class="card-body">
+      <div id="subsidyattachment-search-form-container"
+           hx-get="{% url 'finances:_hx_subsidyattachment_search_form' filter_set='latest' %}"
+           hx-trigger="load, intersect once"></div>
+    </div>
+  </details>
+
+  <div id="search-subsidyattachment-results" class="mt-2"></div>
+  <div id="search-subsidyattachment-results-load-next"></div>
+
+
 
 {% endblock content %}

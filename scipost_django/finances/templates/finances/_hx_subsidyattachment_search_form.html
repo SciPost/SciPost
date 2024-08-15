@@ -1,0 +1,10 @@
+{% load crispy_forms_tags %}
+
+<form hx-post="{% url 'finances:_hx_subsidyattachment_list_page' %}"
+      hx-trigger="load, keyup delay:500ms, change delay:500ms, click from:#refresh-button"
+      hx-sync="#subsidyattachment-orphaned-search-form:replace"
+      hx-target="#search-subsidyattachment-results"
+      hx-indicator="#indicator-search-subsidyattachment">
+ 
+  <div id="subsidyattachment-orphaned-search-form">{% crispy form %}</div>
+</form>

@@ -37,6 +37,7 @@ from django.views.generic.list import ListView
 
 from .forms import (
     SubsidyAttachmentInlineLinkForm,
+    SubsidyAttachmentSearchForm,
     SubsidyForm,
     SubsidySearchForm,
     SubsidyPaymentForm,
@@ -673,8 +674,29 @@ def subsidyattachment_orphaned_list(request):
     )
 
 
+def _hx_subsidyattachment_search_form(request, filter_set: str):
+    form = SubsidyAttachmentSearchForm(
+        user=request.user,
+        session_key=request.session.session_key,
+    )
+
+    if filter_set == "empty":
+        form.apply_filter_set({}, none_on_empty=True)
+
+    context = {
+        "form": form,
+    }
+    return render(request, "finances/_hx_subsidyattachment_search_form.html", context)
+
+
 def _hx_subsidyattachment_list_page(request):
-    attachments = SubsidyAttachment.objects.orphaned()
+    form = SubsidyAttachmentSearchForm(
+        request.POST or None, user=request.user, session_key=request.session.session_key
+    )
+    if form.is_valid():
+        attachments = form.search_results()
+    else:
+        attachments = SubsidyAttachment.objects.orphaned()
     paginator = Paginator(attachments, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
