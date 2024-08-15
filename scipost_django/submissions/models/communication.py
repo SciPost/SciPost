@@ -73,7 +73,7 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     def _resolve_contributor_email(self, letter: str):
         if letter == "S":
             domain = get_current_domain()
-            return f"editorial@{domain}"
+            return f"submissions@{domain}"
         elif contributor := self._resolve_contributor_from_letter(letter):
             return contributor.user.email
         return ""
