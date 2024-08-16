@@ -209,6 +209,11 @@ urlpatterns = [
         name="_hx_submission_update_preprint_file_form",
     ),
     path(
+        "admin/<identifier:identifier_w_vn_nr>/_hx_submission_add_specialty",
+        views._hx_submission_add_specialty,
+        name="_hx_submission_add_specialty",
+    ),
+    path(
         "admin/<identifier:identifier_w_vn_nr>/preassignment",
         views.PreassignmentView.as_view(),
         name="do_preassignment",

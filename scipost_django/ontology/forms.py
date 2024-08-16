@@ -6,9 +6,12 @@ from django import forms
 from django.db.utils import ProgrammingError
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Div
+from crispy_forms.layout import Layout, Field, Div, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
+from django.urls import reverse_lazy
+
+from common.forms import HTMXDynSelWidget
 
 from .constants import TOPIC_RELATIONS_ASYM
 from .models import Branch, AcademicField, Specialty, Tag, Topic
@@ -52,8 +55,8 @@ class AcadFieldSpecialtyForm(forms.Form):
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
             Div(
-                FloatingField("specialty_slug", wrapper_class='mb-0'),
-                FloatingField("acad_field_slug", wrapper_class='mb-0'),
+                FloatingField("specialty_slug", wrapper_class="mb-0"),
+                FloatingField("acad_field_slug", wrapper_class="mb-0"),
                 css_class="d-flex flex-row gap-2",
             )
         )
@@ -111,6 +114,39 @@ class SessionSpecialtyForm(forms.Form):
         self.helper.disable_csrf = True
         self.helper.show_errors = True
         self.helper.layout = Layout(Div(FloatingField("specialty_slug")))
+
+
+class SpecialtyInlineForm(forms.Form):
+    """
+    Form to select a specialty.
+    """
+
+    specialty = forms.ModelChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=HTMXDynSelWidget(
+            url=reverse_lazy("ontology:specialty_dynsel"),
+        ),
+        label="",
+    )
+
+    def __init__(self, *args, **kwargs):
+        submission = kwargs.pop("submission", None)
+
+        super().__init__(*args, **kwargs)
+
+        # If a submission is passed, limit the choices to the specialties of its target journal
+        if submission:
+            self.fields["specialty"].queryset = (
+                submission.submitted_to.specialties.all()
+            )
+        self.helper = FormHelper(self)
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("specialty")),
+                Submit("add", "Add", css_class="mt-2 mb-3"),
+                css_class="d-flex gap-2",
+            )
+        )
 
 
 class SelectTagsForm(forms.Form):

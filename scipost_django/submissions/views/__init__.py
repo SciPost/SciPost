@@ -125,7 +125,7 @@ from journals.models import Journal, Publication
 from mails.utils import DirectMailUtil
 from mails.views import MailEditorSubview
 from ontology.models import Topic
-from ontology.forms import SelectTopicForm, TopicDynSelForm
+from ontology.forms import SpecialtyInlineForm, TopicDynSelForm
 from preprints.models import Preprint
 from production.forms import ProofsDecisionForm
 from production.utils import get_or_create_production_stream
@@ -2922,6 +2922,55 @@ def _hx_submission_update_preprint_file_form(request, identifier_w_vn_nr):
     )
 
 
+def _hx_submission_add_specialty(request, identifier_w_vn_nr):
+    """
+    Renders the form to add a specialty to a submission. Returns the ontological info table if successful.
+    """
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    # User should have access only if:
+    # - they are EdAdmin
+    # - they are EIC of the submission if one is assigned
+    # - they are a Fellow of the submission if no EIC is assigned
+    if not (
+        is_edadmin(request.user)
+        or (submission.editor_in_charge is not None)
+        and (submission.editor_in_charge == request.user.contributor)
+        or (submission.editor_in_charge is None)
+        and submission.fellows.filter(contributor=request.user.contributor).exists()
+    ):
+        return HTMXPermissionsDenied(
+            "You are not allowed to add a specialty to this submission."
+        )
+
+    form = SpecialtyInlineForm(request.POST or None, submission=submission)
+    form.helper.attrs["hx-post"] = reverse(
+        "submissions:_hx_submission_add_specialty",
+        kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+    )
+
+    if form.is_valid():
+        specialty = form.cleaned_data["specialty"]
+        submission.specialties.add(specialty)
+        submission.add_event_for_edadmin(
+            f"Specialty {specialty} by {request.user.contributor.profile.full_name}."
+        )
+        submission.fellows.add(*submission.get_default_fellowship())
+
+        response = TemplateResponse(
+            request,
+            "submissions/_submission_ontological_info_table.html",
+            {"submission": submission},
+        )
+
+        response["HX-Retarget"] = f"#submission-{submission.id}-ontological-info-table"
+        return response
+
+    return TemplateResponse(request, "htmx/crispy_form.html", {"form": form})
+
+
 class PreassignmentView(SubmissionAdminViewMixin, UpdateView):
     """Do preassignment of Submissions."""
 
@@ -3636,7 +3685,9 @@ def _hx_referee_indication_table(request, identifier_w_vn_nr, profile=None):
     )
 
     #! Refactor: This is a bit of a hack to avoid having to add a new permission
-    is_in_fellow_pool = profile.contributor.id in submission.fellows.values_list("contributor__id", flat=True)
+    is_in_fellow_pool = profile.contributor.id in submission.fellows.values_list(
+        "contributor__id", flat=True
+    )
     is_submission_eic = submission.editor_in_charge == profile.contributor
     can_view_indicated_by_names = is_submission_eic or not is_in_fellow_pool
 
