@@ -213,6 +213,8 @@ class ProfileEmail(models.Model):
     email = models.EmailField()
     still_valid = models.BooleanField(default=True)
     verified = models.BooleanField(default=False)
+    verification_token = models.CharField(max_length=128, unique=True)
+    token_expiration = models.DateTimeField(default=timezone.now)
     added_by = models.ForeignKey(
         "scipost.Contributor",
         on_delete=models.SET_NULL,
