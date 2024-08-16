@@ -14,6 +14,8 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 
+from common.views import HXDynselAutocomplete
+
 from .models import AcademicField, Specialty, Tag, Topic, RelationAsym
 from .forms import (
     SessionAcademicFieldForm,
@@ -137,6 +139,13 @@ class SpecialtyAutocompleteView(autocomplete.Select2QuerySetView):
         if self.q:
             qs = qs.filter(name__icontains=self.q)
         return qs.order_by("name")
+
+
+class HXDynselSpecialtyAutocomplete(HXDynselAutocomplete):
+    model = Specialty
+
+    def search(self, queryset, q):
+        return queryset.filter(name__icontains=q)
 
 
 class TagAutocompleteView(autocomplete.Select2QuerySetView):

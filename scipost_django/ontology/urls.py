@@ -20,6 +20,11 @@ urlpatterns = [
         name="specialty-autocomplete",
     ),
     path(
+        "specialty/autocomplete/dynsel",
+        views.HXDynselSpecialtyAutocomplete.as_view(),
+        name="specialty_dynsel",
+    ),
+    path(
         "tag-autocomplete/",
         views.TagAutocompleteView.as_view(),
         name="tag-autocomplete",
