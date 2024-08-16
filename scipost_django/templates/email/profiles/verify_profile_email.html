@@ -1,0 +1,26 @@
+<p>Dear {{ object.profile.get_title_display }} {{ object.profile.last_name }},</p>
+
+<p>To verify your email address, please click the following link:</p>
+
+<p>
+  <a style="font-weight: bold;
+            font-size: 2em"
+     href="https://{{ domain }}{{ object.get_verification_url }}">Verify Email</a>
+</p>
+
+<p>
+  If the direct link is not working, you can also copy and paste the following link in your browser: https://{{ domain }}{{ object.get_verification_url }}
+</p>
+
+<p>
+  If you did not request this verification, it is possible that a SciPost Administrator has requested it on your behalf.
+  Rest assured that your email address and SciPost account are safe.
+</p>
+
+<p>
+  Best regards,
+  <br />
+  The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}

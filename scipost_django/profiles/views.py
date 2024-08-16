@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.exceptions import BadRequest
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
@@ -529,16 +530,54 @@ def _hx_profile_email_toggle_valid(request, email_id):
 
 
 @permission_required_htmx("scipost.can_verify_profile_emails")
-def _hx_profile_email_toggle_verified(request, email_id):
+def _hx_profile_email_request_verification(request, email_id):
     """Toggle verified/unverified status of ProfileEmail."""
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
-    if request.method == "PATCH":
-        profile_email.verified = not profile_email.verified
-        profile_email.save()
+
+    if not request.method == "PATCH":
+        raise BadRequest("Invalid request method")
+
+    if not profile_email.verified:
+        profile_email.send_verification_email()
+        messages.success(
+            request,
+            f"Verification email sent to {profile_email.email}.",
+        )
+    else:
+        messages.warning(
+            request,
+            f"{profile_email.email} is already verified.",
+        )
+
     return TemplateResponse(
         request,
         "profiles/_hx_profile_emails_table_row.html",
         {"profile_mail": profile_email},
+    )
+
+
+def verify_profile_email(request, email_id, token: str):
+    """Verify a ProfileEmail."""
+    profile_email = get_object_or_404(ProfileEmail, pk=email_id)
+
+    is_token_correct = profile_email.verification_token == token
+    was_previously_verified = profile_email.verified
+    if (
+        not profile_email.has_token_expired
+        and is_token_correct
+        and not was_previously_verified
+    ):
+        profile_email.verified = True
+        profile_email.save()
+
+    return TemplateResponse(
+        request,
+        "profiles/verify_profile_email.html",
+        {
+            "profile_email": profile_email,
+            "is_token_correct": is_token_correct,
+            "was_previously_verified": was_previously_verified,
+        },
     )
 
 

@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import secrets
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models import Q
 
@@ -12,6 +13,7 @@ from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from mails.utils import DirectMailUtil
 from scipost.behaviors import orcid_validator
 from scipost.constants import TITLE_CHOICES, TITLE_DR
 from scipost.models import Contributor
@@ -213,7 +215,7 @@ class ProfileEmail(models.Model):
     email = models.EmailField()
     still_valid = models.BooleanField(default=True)
     verified = models.BooleanField(default=False)
-    verification_token = models.CharField(max_length=128, unique=True)
+    verification_token = models.CharField(max_length=128, null=True)
     token_expiration = models.DateTimeField(default=timezone.now)
     added_by = models.ForeignKey(
         "scipost.Contributor",
@@ -231,6 +233,28 @@ class ProfileEmail(models.Model):
 
     def __str__(self):
         return self.email
+
+    def reset_verification_token(self):
+        self.verification_token = secrets.token_urlsafe(40)
+        self.token_expiration = timezone.now() + datetime.timedelta(hours=48)
+        self.save()
+
+    @property
+    def has_token_expired(self):
+        return timezone.now() > self.token_expiration
+
+    def send_verification_email(self):
+        if self.has_token_expired:
+            self.reset_verification_token()
+
+        mail_sender = DirectMailUtil("profiles/verify_profile_email", object=self)
+        mail_sender.send_mail()
+
+    def get_verification_url(self):
+        return reverse(
+            "profiles:verify_profile_email",
+            kwargs={"email_id": self.id, "token": self.verification_token},
+        )
 
 
 def get_profiles(slug):

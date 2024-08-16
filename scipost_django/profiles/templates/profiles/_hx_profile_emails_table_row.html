@@ -20,6 +20,8 @@
 
     {% if profile_mail.verified %}
       <span class="text-success">{% include "bi/check-circle-fill.html" %}</span>
+    {% elif not profile_mail.has_token_expired %}
+      <span class="text-warning">{% include "bi/clock-fill.html" %}</span>
     {% else %}
       <span class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
     {% endif %}
@@ -46,16 +48,17 @@
         </button>
       {% endif %}
 
-      {% comment %} {% if is_mail_owner or perms.scipost.can_verify_profile_emails %}
-        <!-- TODO: Implement proper verification of emails -->
+      {% if is_mail_owner or perms.scipost.can_verify_profile_emails %}
         <button type="button"
                 class="btn btn-sm btn-light py-0"
                 hx-target="closest tr"
                 hx-swap="outerHTML"
+                {% if not profile_mail.has_token_expired %}hx-confirm="Your previous verification code has not expired yet. Are you sure you want to resend the verification email?"{% endif %}
                 hx-confirm="This will send a verification email to the address. Are you sure?"
-                hx-patch="{% url 'profiles:_hx_profile_email_toggle_verified' profile_mail.id %}">Verify</button>
-        <!-- TODO END-->
-      {% endif %} {% endcomment %}
+                hx-patch="{% url 'profiles:_hx_profile_email_request_verification' profile_mail.id %}"
+                {% if profile_mail.verified %}disabled{% endif %}
+                >Verify</button>
+      {% endif %}
 
       {% if is_mail_owner or perms.scipost.can_mark_profile_emails_primary %}
         <button type="button"

@@ -94,6 +94,11 @@ urlpatterns = [
         include(
             [
                 path(
+                    "delete",
+                    views._hx_profile_email_delete,
+                    name="_hx_profile_email_delete",
+                ),
+                path(
                     "make_primary",
                     views._hx_profile_email_mark_primary,
                     name="_hx_profile_email_mark_primary",
@@ -104,14 +109,14 @@ urlpatterns = [
                     name="_hx_profile_email_toggle_valid",
                 ),
                 path(
-                    "toggle_verified",
-                    views._hx_profile_email_toggle_verified,
-                    name="_hx_profile_email_toggle_verified",
+                    "request_verification",
+                    views._hx_profile_email_request_verification,
+                    name="_hx_profile_email_request_verification",
                 ),
                 path(
-                    "delete",
-                    views._hx_profile_email_delete,
-                    name="_hx_profile_email_delete",
+                    "verify/<str:token>",
+                    views.verify_profile_email,
+                    name="verify_profile_email",
                 ),
             ]
         ),

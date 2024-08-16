@@ -1,0 +1,45 @@
+{% extends "profiles/base.html" %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Email Verification</span>
+{% endblock %}
+
+{% block content %}
+  <h1>Email Verification</h1>
+  <div class="w-100 text-center">
+
+    <div class="fs-2">
+
+      {% if was_previously_verified %}
+        <p>
+          <span class="text-success me-3">{% include "bi/check-circle-fill.html" %}</span>
+          Your email address has already been verified.
+        </p>
+      {% elif profile_email.verified %}
+        <p>
+          <span class="text-success me-3">{% include "bi/check-circle-fill.html" %}</span>
+          Your email address has been successfully verified.
+        </p>
+      {% else %}
+        <p>
+          <span class="text-danger me-3">{% include "bi/x-circle-fill.html" %}</span>
+          Your email address could not be verified.
+        </p>
+
+        {% if profile_email.has_token_expired %}
+          <p class="fs-5">
+            Your token has expired, please request a new one from the <a href="{% url "scipost:personal_page" %}">personal page</a>.
+          </p>
+        {% elif not is_token_correct %}
+          <p class="fs-5">The token you provided is incorrect, please verify that you copied it correctly.</p>
+        {% endif %}
+
+      {% endif %}
+
+    </div>
+
+    <p class="fs-5 text-muted">You may now close this window.</p>
+  </div>
+
+{% endblock %}
