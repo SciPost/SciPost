@@ -1,14 +1,14 @@
 # Core
 argon2-cffi==20.1.0		# 2021-07-18 Password hashing algorithm
 Babel==2.9.1			# 2022-01-23
-Django==4.2.10			# 2024-02-27
+Django==4.2.15			# 2024-08-19
 feedparser~=6.0.8     # Check: not updated since 2016. [JdW, 2021-09-25] Upgrade to v6; v5 fails.
 psycopg==3.1.18  		# 2024-02-27 PostgreSQL engine -- 2023-05-10 update for python 3.11
 pytz==2021.3			# 2022-11-18 Timezone package
 # djangorestframework==3.9.3	# DEPREC, see next entry -- 2019-12-05  IMPORTANT: update templates/rest_framework/base.html if corresponding file rest_framework/templates/rest_framework/base.html has changed
 # git+https://github.com/SciPost/django-rest-framework.git@bootstrap-v5
-djangorestframework==3.14.0
-requests==2.30.0		# 2023-05-06
+djangorestframework==3.15.2    # 2024-08-19
+requests==2.32.3		# 2024-08-19
 pyotp==2.2.7
 mock==2.0.0
 
@@ -36,18 +36,19 @@ django-stubs-ext==4.2.2
 
 # Plotting
 plotly==4.6.0			# 2020-05-05
-matplotlib==3.6.3		# 2023-02-05
+matplotlib==3.9.2		# 2024-08-19
 
 # Documentation Packages
 docutils==0.16			# 2020-02-21
-Pygments==2.9.0			# 2021-05-21 Syntax highlighter
+Pygments==2.15.0			# 2021-05-21 Syntax highlighter
 Sphinx==2.4.2			# 2020-02-21
 sphinx-rtd-theme==0.4.3		# 2020-02-21 Sphinx theme
 sphinxcontrib-mermaid		# 2022-04-18
+Jinja2==3.1.4			# 2024-08-19 for sphinx
 
 # Sentry
-urllib3==1.26.15		# 2023-05-06, for sentry-sdk
-sentry-sdk==1.22.1		# 2023-05-06, req: certifi, urllib3
+urllib3==1.26.19		# 2024-08-19, for sentry-sdk
+sentry-sdk==2.13		# 2024-08-19, req: certifi, urllib3
 
 # Silk monitoring
 django-silk==4.1.0		# 2021-10-16
@@ -66,7 +67,6 @@ Whoosh==2.7.4
 # Python Utils
 ithenticate-api-python==0.8
 python-dateutil==2.8.2		# 2023-02-05
-Pillow==9.4.0			# 2023-02-05
 html2text
 lxml==4.9.3             # 2023-11-29 
 
@@ -76,10 +76,10 @@ Bleach==3.3.0			# 2021-05-21
 
 # Possibly dead
 imagesize==0.7.1
-Jinja2==3.0.1			# 2021-05-21
 pep8==1.7.0
 six==1.16.0             # 2024-02-27
 snowballstemmer==1.2.1
+# Pillow==10.4.0			# 2024-08-19
 
 
 # Scheduled tasks

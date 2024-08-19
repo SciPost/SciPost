@@ -48,8 +48,16 @@ app_name = "api"
 router = routers.SimpleRouter()
 
 # search (Vue-based) routes
-router.register("search/publications", PublicationPublicSearchAPIViewSet)
-router.register("search/submissions", SubmissionPublicSearchAPIViewSet)
+router.register(
+    "search/publications",
+    PublicationPublicSearchAPIViewSet,
+    basename="search_publications",
+)
+router.register(
+    "search/submissions",
+    SubmissionPublicSearchAPIViewSet,
+    basename="search_submissions",
+)
 
 #############################
 # publicly-accessible routes
@@ -68,10 +76,12 @@ router.register("submissions", SubmissionPublicAPIViewSet)
 
 # organizations
 router.register("organizations", OrganizationPublicAPIViewSet)
-router.register("nap", OrganizationNAPViewSet)
+router.register("nap", OrganizationNAPViewSet, basename="organization_nap")
 
 # finances
-router.register("finadmin/subsidies", SubsidyFinAdminAPIViewSet)
+router.register(
+    "finadmin/subsidies", SubsidyFinAdminAPIViewSet, basename="subsidies_finadmin"
+)
 router.register("subsidies", SubsidyPublicAPIViewSet)
 
 # Next two: old style, to be deprecated:
