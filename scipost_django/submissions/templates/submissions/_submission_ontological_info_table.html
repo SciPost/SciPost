@@ -1,8 +1,6 @@
 {% load submissions_extras %}
 
 {% load user_groups %}
-{% is_ed_admin request.user as is_ed_admin %}
-
 
 <table id="submission-{{ submission.id }}-ontological-info-table" class="submission summary">
   <thead class="bg-info">
@@ -20,14 +18,17 @@
             {% for specialty in submission.specialties.all %}
               <li>{{ specialty }}</li>
             {% endfor %}
-            {% if is_ed_admin or submission.editor_in_charge and request.user|is_editor_of_submission:submission or not submission.editor_in_charge and request.user|is_in_submission_fellowship:submission %}
+            {% if request %}
+              {% is_ed_admin request.user as is_ed_admin %}
+              {% if is_ed_admin or submission.editor_in_charge and request.user|is_editor_of_submission:submission or not submission.editor_in_charge and request.user|is_in_submission_fellowship:submission %}
               <li>
                 <button class="btn btn-sm btn-outline-primary ms-auto"
-                        hx-get="{% url "submissions:_hx_submission_add_specialty" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" 
-                        hx-target="closest li"
-                        hx-swap="outerHTML"
-                        >Add specialty</button>
+                hx-get="{% url "submissions:_hx_submission_add_specialty" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" 
+                hx-target="closest li"
+                hx-swap="outerHTML"
+                >Add specialty</button>
               </li>
+              {% endif %}
             {% endif %}
           </ul>
       </td>
