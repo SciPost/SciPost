@@ -3685,9 +3685,12 @@ def _hx_referee_indication_table(request, identifier_w_vn_nr, profile=None):
     )
 
     #! Refactor: This is a bit of a hack to avoid having to add a new permission
-    is_in_fellow_pool = profile.contributor.id in submission.fellows.values_list(
-        "contributor__id", flat=True
-    )
+    try:
+        is_in_fellow_pool = profile.contributor.id in submission.fellows.values_list(
+            "contributor__id", flat=True
+        )
+    except Profile.contributor.RelatedObjectDoesNotExist:
+        is_in_fellow_pool = False
     is_submission_eic = submission.editor_in_charge == profile.contributor
     can_view_indicated_by_names = is_submission_eic or not is_in_fellow_pool
 
