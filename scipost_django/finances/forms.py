@@ -299,6 +299,11 @@ class SubsidyPaymentForm(forms.ModelForm):
         return instance
 
 
+class SubsidyPaymentAmountDateChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj: SubsidyPayment):
+        return f"{obj.status} €{obj.amount} on {obj.date_scheduled}"
+
+
 class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
     class Meta:
         model = SubsidyAttachment
@@ -313,7 +318,7 @@ class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
         required=False,
     )
 
-    subsidy_payment = forms.ModelChoiceField(
+    subsidy_payment = SubsidyPaymentAmountDateChoiceField(
         queryset=SubsidyPayment.objects.none(),
         widget=forms.RadioSelect(),
         required=False,
