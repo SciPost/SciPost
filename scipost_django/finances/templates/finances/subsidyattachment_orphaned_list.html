@@ -19,7 +19,10 @@
 
 {% block content %}
   {% is_ed_admin request.user as is_ed_admin %}
-  <h1 class="highlight">Orphaned SubsidyAttachment List</h1>
+  <div class="highlight p-3 d-flex justify-content-between align-items-center">
+    <h1 class="mb-0">Orphaned SubsidyAttachment List</h1>
+    <span class="fs-3">Total: {{ nr_orphaned_subsidies }}</span>
+  </div>
 
 
   <details open id="subsidyattachment-filter-details" class="card my-4">

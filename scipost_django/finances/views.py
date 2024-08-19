@@ -669,8 +669,13 @@ class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
 @login_required()
 @permission_required("scipost.can_manage_subsidies", raise_exception=True)
 def subsidyattachment_orphaned_list(request):
+    nr_orphaned_subsidies = SubsidyAttachment.objects.orphaned().count()
     return TemplateResponse(
-        request, "finances/subsidyattachment_orphaned_list.html", {}
+        request,
+        "finances/subsidyattachment_orphaned_list.html",
+        {
+            "nr_orphaned_subsidies": nr_orphaned_subsidies,
+        },
     )
 
 
