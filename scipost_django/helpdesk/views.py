@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -169,10 +170,6 @@ class QueueDetailView(PermissionRequiredMixin, DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["users_with_perms"] = get_users_with_perms(self.object)
-
-        if queue := context.get("queue"):
-            search_tickets_form = TicketSearchForm(None, queue_slug=queue.slug)
-            context["search_tickets_form"] = search_tickets_form
 
         return context
 
@@ -383,16 +380,54 @@ class TicketMarkClosed(TicketFollowupView):
         return redirect(self.get_success_url())
 
 
-def _hx_ticket_table(request, slug):
-    form = TicketSearchForm(request.POST or None, queue_slug=slug)
+def _hx_ticket_search_form(request, filter_set: str, queue_slug=None):
+    queue = get_object_or_404(Queue, slug=queue_slug) if queue_slug else None
+
+    form = TicketSearchForm(
+        request.POST or None,
+        user=request.user,
+        queue=queue,
+        session_key=request.session.session_key,
+    )
+
+    if filter_set == "empty":
+        form.apply_filter_set(
+            {
+                "show_email_unknown": True,
+                "show_with_CI": True,
+                "show_unavailable": True,
+            },
+            none_on_empty=True,
+        )
+
+    context = {"form": form, "queue": queue}
+    return render(request, "helpdesk/_hx_ticket_search_form.html", context)
+
+
+def _hx_ticket_search_table(request, queue_slug=None):
+    queue = get_object_or_404(Queue, slug=queue_slug) if queue_slug else None
+
+    form = TicketSearchForm(
+        request.POST or None,
+        user=request.user,
+        queue=queue,
+        session_key=request.session.session_key,
+    )
 
     if form.is_valid():
         tickets = form.search_results()
     else:
         tickets = form.tickets
 
-    return render(
-        request,
-        "helpdesk/tickets_table.html",
-        {"tickets": tickets},
-    )
+    paginator = Paginator(tickets, 16)
+    page_nr = request.GET.get("page")
+    page_obj = paginator.get_page(page_nr)
+    count = paginator.count
+    start_index = page_obj.start_index
+    context = {
+        "queue": queue,
+        "count": count,
+        "page_obj": page_obj,
+        "start_index": start_index,
+    }
+    return render(request, "helpdesk/_hx_ticket_search_table.html", context)

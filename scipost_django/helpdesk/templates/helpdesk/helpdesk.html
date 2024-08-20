@@ -8,7 +8,9 @@
 {% endblock %}
 
 
-{% block pagetitle %}: Helpdesk{% endblock pagetitle %}
+{% block pagetitle %}
+  : Helpdesk
+{% endblock pagetitle %}
 
 {% block content %}
 
@@ -17,59 +19,41 @@
 
       <h2 class="highlight">Helpdesk</h2>
       <ul>
-	{% if perms.helpdesk.add_queue %}
-	  <li><a href="{% url 'helpdesk:queue_create' %}">Create a new Queue</a></li>
-	{% endif %}
-	<li><a href="{% url 'helpdesk:ticket_create' %}">Open a new Ticket</a></li>
+
+        {% if perms.helpdesk.add_queue %}
+          <li>
+            <a href="{% url 'helpdesk:queue_create' %}">Create a new Queue</a>
+          </li>
+        {% endif %}
+
+        <li>
+          <a href="{% url 'helpdesk:ticket_create' %}">Open a new Ticket</a>
+        </li>
       </ul>
 
-      {% if request.user.ticket_set.all|length > 0 %}
-	<br class="my-4">
-	<h3 class="highlight">Tickets you opened</h3>
-	<div class="p-2">
-	  {% include 'helpdesk/_tickets_tablist.html' with tickets=request.user.ticket_set.all marker="own" %}
-	</div>
-      {% endif %}
-
-      {% if request.user.assigned_tickets.all|length > 0 %}
-	<br class="my-4">
-	<h2 class="highlight">Tickets assigned to you</h2>
-	<div class="p-2">
-	  {% include 'helpdesk/_tickets_tablist.html' with tickets=request.user.assigned_tickets marker="assigned" %}
-	</div>
-      {% endif %}
-
-      {% if object_list.all|length > 0 %}
-	<br class="my-4">
-	<h3 class="highlight">Other Tickets in your Queues <small class="text-muted"><em>[please feel free to pick up or handle further]</em></small></h3>
-	<div class="p-2">
-	  {% include 'helpdesk/_tickets_tablist.html' with tickets=object_list marker="other"%}
-	</div>
-      {% endif %}
-
       {% if managed_queues.all|length > 0 %}
-	<br class="my-4">
-	<h3 class="highlight">Queues for which you are in managing group</h3>
-	<div class="row p-2">
-	  {% for queue in managed_queues %}
-	    <div class="col-md-6 col-lg-4 mb-2">
-	      {% include 'helpdesk/queue_card.html' with queue=queue %}
-	    </div>
-	  {% endfor %}
-	</div>
+        <h3 class="highlight">Queues you can manage</h3>
+        <div class="row p-2">
+
+          {% for queue in managed_queues %}
+            <div class="col-md-6 col-lg-4 mb-2">{% include 'helpdesk/queue_card.html' with queue=queue %}</div>
+          {% endfor %}
+
+        </div>
       {% endif %}
 
       {% if visible_queues.all|length > 0 %}
-	<br class="my-4">
-	<h3 class="highlight">Queues which you can view</h3>
-	<div class="row p-2">
-	  {% for queue in visible_queues %}
-	    <div class="col-md-6 col-lg-4 mb-2">
-	      {% include 'helpdesk/queue_card.html' with queue=queue %}
-	    </div>
-	  {% endfor %}
-	</div>
+        <h3 class="highlight">Queues you can view</h3>
+        <div class="row p-2">
+
+          {% for queue in visible_queues %}
+            <div class="col-md-6 col-lg-4 mb-2">{% include 'helpdesk/queue_card.html' with queue=queue %}</div>
+          {% endfor %}
+
+        </div>
       {% endif %}
+
+      {% include "helpdesk/_ticket_search_section.html" %}
 
     </div>
   </div>

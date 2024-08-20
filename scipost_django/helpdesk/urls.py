@@ -11,6 +11,16 @@ app_name = "helpdesk"
 urlpatterns = [
     path("", views.HelpdeskView.as_view(), name="helpdesk"),
     path(
+        "_hx_ticket_search_form/<str:filter_set>",
+        views._hx_ticket_search_form,
+        name="_hx_ticket_search_form",
+    ),
+    path(
+        "_hx_ticket_search_table",
+        views._hx_ticket_search_table,
+        name="_hx_ticket_search_table",
+    ),
+    path(
         "queue/<slug:parent_slug>/add/",
         views.QueueCreateView.as_view(),
         name="queue_create",
@@ -28,9 +38,14 @@ urlpatterns = [
     ),
     path("queue/<slug:slug>/", views.QueueDetailView.as_view(), name="queue_detail"),
     path(
-        "queue/<slug:slug>/_hx_ticket_table",
-        views._hx_ticket_table,
-        name="_hx_ticket_table",
+        "queue/<slug:queue_slug>/_hx_ticket_search_form/<str:filter_set>",
+        views._hx_ticket_search_form,
+        name="_hx_ticket_search_form",
+    ),
+    path(
+        "queue/<slug:queue_slug>/_hx_ticket_search_table",
+        views._hx_ticket_search_table,
+        name="_hx_ticket_search_table",
     ),
     path(
         "ticket/add/<int:concerning_type_id>/<int:concerning_object_id>/",

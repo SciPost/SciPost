@@ -1,0 +1,51 @@
+<tr class="text-nowrap">
+  <td class="text-truncate" style="max-width:1px;">
+    <span class="text-muted">{{ ticket.queue }}</span>
+    <br />
+    <a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a>
+
+    {% if ticket.concerning_object %}
+      <span class="text-small text-muted" style="font-size: 80%;">
+        <br />
+        Re: <a href="{{ ticket.concerning_object.get_absolute_url }}" target="_blank">{{ ticket.concerning_object }}</a>
+      </span>
+    {% endif %}
+
+  </td>
+  <td>
+    {{ ticket.defined_on|date:"Y-m-d" }}
+    <br />
+    <a href="{{ ticket.defined_by.contributor.profile.get_absolute_url }}">{{ ticket.defined_by.contributor.profile.full_name }}</a>
+  </td>
+  <td data-bs-toggle="tooltip" title="{{ ticket.priority }}">
+
+    {% for a in "x"|ljust:ticket.priority_level %}
+      {% include 'bi/exclamation-square-fill.html' %}
+    {% endfor %}
+
+  </td>
+  {% with classes=ticket.status_classes %}
+    <td>
+      <span class="bg-{{ classes.class }} text-{{ classes.text }}">&emsp;</span>
+      {{ ticket.get_status_display }}
+    </td>
+  {% endwith %}
+  <td>
+
+    {% if ticket.assigned_to %}
+      {{ ticket.assigned_to }}
+    {% else %}
+      -
+    {% endif %}
+
+  </td>
+  <td>
+    {{ ticket.latest_activity }}
+
+    {% if ticket.is_open %}
+      <br />
+      <span class="text-small text-muted" style="font-size: 80%;">[{{ ticket.latest_activity|timesince }} ago]</span>
+    {% endif %}
+
+  </td>
+</tr>

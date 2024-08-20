@@ -2,16 +2,22 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sessions.backends.db import SessionStore
+from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
+
+from profiles.models import Profile
 
 from .models import Queue, Ticket, Followup
 from .constants import TICKET_PRIORITIES, TICKET_STATUSES
 from crispy_forms.helper import FormHelper, Layout
 from crispy_bootstrap5.bootstrap5 import FloatingField, Field
 from crispy_forms.layout import Div
-from django.db.models import Q
+from django.db.models import Q, Case, CharField, OuterRef, Subquery, Value, When
 
 
 class QueueForm(forms.ModelForm):
@@ -98,13 +104,34 @@ class FollowupForm(forms.ModelForm):
 class TicketSearchForm(forms.Form):
     title = forms.CharField(max_length=64, required=False)
     description = forms.CharField(max_length=512, required=False)
-    priority = forms.MultipleChoiceField(choices=TICKET_PRIORITIES, required=False)
+    assigned_to = forms.MultipleChoiceField(
+        required=False, choices=[("0", "Unassigned")]
+    )
+    defined_by = forms.CharField(
+        max_length=128,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "placeholder": "Name, email, or ORCID. Partial matches may not work as expected."
+            }
+        ),
+    )
+    priority = forms.MultipleChoiceField(
+        choices=[(key, key.title()) for key, _ in TICKET_PRIORITIES], required=False
+    )
     status = forms.MultipleChoiceField(choices=TICKET_STATUSES, required=False)
+    concerning_object = forms.CharField(
+        max_length=128,
+        required=False,
+        widget=forms.TextInput(attrs={"placeholder": "ID of concerning object"}),
+    )
 
     orderby = forms.ChoiceField(
         label="Order by",
         choices=(
-            ("defined_on", "Opened date"),
+            ("defined_on", "Defined on"),
+            ("defined_by__contributor__profile__last_name", "Last name"),
+            ("defined_by__contributor__profile__first_name", "First name"),
             ("followups__latest__timestamp", "Latest activity"),
             ("status", "Status"),
             ("priority", "Priority"),
@@ -121,43 +148,161 @@ class TicketSearchForm(forms.Form):
         required=False,
     )
 
+    def save_fields_to_session(self):
+        # Save the form data to the session
+        if self.session_key is not None:
+            session = SessionStore(session_key=self.session_key)
+
+            for field_key in self.cleaned_data:
+                session_key = (
+                    f"{self.form_id}_{field_key}"
+                    if hasattr(self, "form_id")
+                    else field_key
+                )
+
+                if field_value := self.cleaned_data.get(field_key):
+                    if isinstance(field_value, datetime.date):
+                        field_value = field_value.strftime("%Y-%m-%d")
+
+                session[session_key] = field_value
+
+            session.save()
+
+    def apply_filter_set(self, filters: dict, none_on_empty: bool = False):
+        # Apply the filter set to the form
+        for key in self.fields:
+            if key in filters:
+                self.fields[key].initial = filters[key]
+            elif none_on_empty:
+                if isinstance(self.fields[key], forms.MultipleChoiceField):
+                    self.fields[key].initial = []
+                else:
+                    self.fields[key].initial = None
+
     def __init__(self, *args, **kwargs):
-        if queue_slug := kwargs.pop("queue_slug", None):
-            self.queue = get_object_or_404(Queue, slug=queue_slug)
+        if not (user := kwargs.pop("user", None)):
+            raise ValueError("user is required to filter the tickets")
+
+        self.session_key = kwargs.pop("session_key", None)
+        if queue := kwargs.pop("queue", None):
+            self.queue = queue
             self.tickets = Ticket.objects.filter(queue=self.queue)
         else:
             self.tickets = Ticket.objects.all()
+
+        self.tickets = self.tickets.visible_by(user)
+
         super().__init__(*args, **kwargs)
 
+        self.fields["assigned_to"].choices += (
+            User.objects.filter(
+                pk__in=self.tickets.values_list("assigned_to", flat=True).distinct()
+            )
+            .annotate(
+                full_name=Concat(
+                    "contributor__profile__first_name",
+                    Value(" "),
+                    "contributor__profile__last_name",
+                    output_field=CharField(),
+                )
+            )
+            .values_list("id", "full_name")
+        )
+
+        # Set the initial values of the form fields from the session data
+        if self.session_key:
+            session = SessionStore(session_key=self.session_key)
+
+            for field_key in self.fields:
+                session_key = (
+                    f"{self.form_id}_{field_key}"
+                    if hasattr(self, "form_id")
+                    else field_key
+                )
+
+                if session_value := session.get(session_key):
+                    self.fields[field_key].initial = session_value
+
         self.helper = FormHelper()
+
+        div_block_ordering = Div(
+            Div(Field("orderby"), css_class="col-12"),
+            Div(Field("ordering"), css_class="col-12"),
+            css_class="row mb-0",
+        )
+
         self.helper.layout = Layout(
             Div(
-                Div(
-                    Div(
-                        Div(Field("priority", size=4), css_class="col-12"),
-                        Div(FloatingField("title"), css_class="col-12"),
-                        css_class="row mb-0",
-                    ),
-                    css_class="col-6",
-                ),
-                Div(Field("status", size=8), css_class="col-6"),
-                Div(FloatingField("description"), css_class="col-12"),
-                css_class="row mb-0",
+                Div(Field("title"), css_class="col-12 col-md-6"),
+                Div(Field("defined_by"), css_class="col-12 col-md-6"),
+                Div(Field("description"), css_class="col-12 col-md"),
+                Div(Field("concerning_object"), css_class="col-12 col-md-4"),
+                css_class="row",
             ),
             Div(
-                Div(Field("ordering"), css_class="col-6"),
-                Div(Field("orderby"), css_class="col-6"),
-                css_class="row mb-0",
+                Div(Field("assigned_to", size=7), css_class="col-12 col-sm-6 col-lg"),
+                Div(Field("status", size=7), css_class="col-12 col-sm-6 col-lg"),
+                Div(
+                    Field("priority", size=5), css_class="col-auto col-sm-6 col-lg-auto"
+                ),
+                Div(div_block_ordering, css_class="col col-sm-6 col-md"),
+                css_class="row",
             ),
         )
 
     def search_results(self):
+        self.save_fields_to_session()
+
         tickets = self.tickets
 
         if title := self.cleaned_data.get("title"):
             tickets = tickets.filter(title__icontains=title)
         if description := self.cleaned_data.get("description"):
             tickets = tickets.filter(description__icontains=description)
+        if defined_by := self.cleaned_data.get("defined_by"):
+            profiles_matched = Profile.objects.search(defined_by)
+            tickets = tickets.filter(
+                defined_by__contributor__profile__in=profiles_matched
+            )
+        if concerning_object := self.cleaned_data.get("concerning_object"):
+            from submissions.models import Submission, Report
+
+            # If the concerning object is a submission, also check it preprint identifier
+            report_type = ContentType.objects.get_for_model(Report)
+            submission_type = ContentType.objects.get_for_model(Submission)
+            tickets = tickets.annotate(
+                preprint_id=Case(
+                    When(
+                        concerning_object_type=submission_type,
+                        then=Subquery(
+                            Submission.objects.filter(
+                                pk=OuterRef("concerning_object_id")
+                            ).values("preprint__identifier_w_vn_nr")
+                        ),
+                    ),
+                    When(
+                        concerning_object_type=report_type,
+                        then=Subquery(
+                            Report.objects.filter(
+                                pk=OuterRef("concerning_object_id")
+                            ).values("submission__preprint__identifier_w_vn_nr")
+                        ),
+                    ),
+                    default=Value(""),
+                    output_field=CharField(),
+                )
+            )
+
+            # Include matches with the concerning object preprint ID
+            Q_concerning_object = Q(preprint_id__icontains=concerning_object)
+
+            # Include matches with the concerning object ID if input is an integer
+            if concerning_object.isdigit():
+                Q_concerning_object |= Q(concerning_object_id=concerning_object)
+
+            tickets = tickets.filter(
+                Q(concerning_object_id__isnull=False) & Q_concerning_object
+            )
 
         def is_in_or_null(queryset, key, value, implicit_all=True):
             """
@@ -179,6 +324,7 @@ class TicketSearchForm(forms.Form):
 
         tickets = is_in_or_null(tickets, "priority", "priority")
         tickets = is_in_or_null(tickets, "status", "status")
+        tickets = is_in_or_null(tickets, "assigned_to", "assigned_to")
 
         # Ordering of streams
         # Only order if both fields are set

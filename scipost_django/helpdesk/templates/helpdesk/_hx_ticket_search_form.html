@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+
+<form id="ticket-search-form"
+      {% if queue %}
+        hx-post="{% url 'helpdesk:_hx_ticket_search_table' queue_slug=queue.slug %}"
+      {% else %}
+        hx-post="{% url 'helpdesk:_hx_ticket_search_table' %}"
+      {% endif %}
+      hx-trigger="load, keyup delay:500ms, change delay:500ms, click from:#refresh-button"
+      hx-sync="#ticket-search-form:replace"
+      hx-target="#ticket-search-results"
+      hx-indicator="#ticket-search-indicator">
+ 
+  {% crispy form %}
+</form>

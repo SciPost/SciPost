@@ -15,6 +15,8 @@ from .constants import (
     TICKET_STATUS_CLOSED,
 )
 
+from guardian.shortcuts import get_objects_for_user
+
 
 class QueueQuerySet(models.QuerySet):
     def anchors(self):
@@ -52,3 +54,28 @@ class TicketQuerySet(models.QuerySet):
 
     def handled(self):
         return self.filter(status__in=[TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED])
+
+    def visible_by(self, user):
+        from helpdesk.models import Queue
+
+        # If user has permission to view all tickets in the queue, return all tickets
+        # in the queue. Otherwise, return only tickets assigned to the user.
+        if user.has_perm("helpdesk.can_view_all_tickets"):
+            return self
+
+        user_viewable_queues = get_objects_for_user(
+            user, "helpdesk.can_view_queue", klass=Queue
+        )
+        tickets_viewable_because_of_queue = self.filter(queue__in=user_viewable_queues)
+
+        user_viewable_tickets = get_objects_for_user(
+            user, "helpdesk.can_view_ticket", klass=self
+        )
+
+        user_handled_tickets = self.filter(assigned_to=user)
+
+        return (
+            tickets_viewable_because_of_queue
+            | user_viewable_tickets
+            | user_handled_tickets
+        )

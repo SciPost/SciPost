@@ -190,13 +190,16 @@ class Ticket(models.Model):
 
     @property
     def is_awaiting_handling(self):
-        return self.status in [TICKET_STATUS_ASSIGNED, TICKET_STATUS_PASSED_ON]
+        return self.status in [
+            TICKET_STATUS_ASSIGNED,
+            TICKET_STATUS_PASSED_ON,
+            TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE,
+        ]
 
     @property
     def is_in_handling(self):
         return self.status in [
             TICKET_STATUS_PICKEDUP,
-            TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE,
             TICKET_STATUS_AWAITING_RESPONSE_USER,
         ]
 
