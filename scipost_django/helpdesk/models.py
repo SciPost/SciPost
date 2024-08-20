@@ -233,18 +233,6 @@ class Ticket(models.Model):
         elif self.status == TICKET_STATUS_CLOSED:
             return {"class": "secondary", "text": "dark"}
 
-    @property
-    def progress_level(self):
-        """For fa box checking: 0 if unassigned, 1 if assigned, 2 if in handling, 3 if handled."""
-        if self.is_unassigned:
-            return {"1": "", "2": "", "3": ""}
-        elif self.is_awaiting_handling:
-            return {"1": "-check", "2": "", "3": ""}
-        elif self.is_in_handling:
-            return {"1": "-check", "2": "-check", "3": ""}
-        elif self.is_handled:
-            return {"1": "-check", "2": "-check", "3": "-check"}
-
 
 class Followup(models.Model):
     """

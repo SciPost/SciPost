@@ -1,27 +1,38 @@
-<table class="table">
-  <thead class="table-light">
+<table class="table table-hover">
+  <colgroup>
+    <col width="40%" />
+    <col width="0%" />
+    <col width="0%" />
+    <col width="0%" />
+    <col width="0%" />
+    <col width="0%" />
+    <col width="0%" />
+  </colgroup>
+  <thead class="table-light text-nowrap">
     <tr>
       <th><span class="text-muted">Queue</span><br/>Ticket</th>
-      <th>Defined&nbsp;on</th>
+      <th><span class="text-muted">Defined on</span><br/>Defined by</th>
       <th>Priority</th>
       <th>Status</th>
-      <th>Progress</th>
-      <th>Assigned&nbsp;to</th>
-      <th>Latest&nbsp;activity</th>
+      <th>Assigned to</th>
+      <th>Latest activity</th>
     </tr>
   </thead>
   <tbody>
     {% for ticket in tickets %}
-      <tr>
-	<td><span class="text-muted">{{ ticket.queue }}</span><br/>
+      <tr class="text-nowrap">
+	<td class="text-truncate" style="max-width:1px;"><span class="text-muted">{{ ticket.queue }}</span><br/>
 	  <a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a>
 	  {% if ticket.concerning_object %}
-	    <span class="text-small text-muted" style="font-size: 80%;">
-	      <br/>Re: <a href="{{ ticket.concerning_object.get_absolute_url }}" target="_blank">{{ ticket.concerning_object|truncatechars:64 }}</a>
+	    <span class="text-muted" style="font-size: 80%;">
+	      <br/>Re: <a href="{{ ticket.concerning_object.get_absolute_url }}" target="_blank">{{ ticket.concerning_object }}</a>
 	    </span>
 	  {% endif %}
 	</td>
-	<td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
+	<td>
+    {{ ticket.defined_on|date:"Y-m-d" }}<br />
+    <a href="{{ ticket.defined_by.contributor.profile.get_absolute_url }}">{{ ticket.defined_by.contributor.profile.full_name }}</a>
+  </td>
 	<td data-bs-toggle="tooltip" title="{{ ticket.priority }}">
 	  {% for a in "x"|ljust:ticket.priority_level %}
 	    {% include 'bi/exclamation-square-fill.html' %}
@@ -33,24 +44,17 @@
 	    {{ ticket.get_status_display }}
 	  </td>
 	{% endwith %}
-	{% with level=ticket.progress_level %}
-	  <td>
-	    <i class="fa fa{{ level.1 }}-square" data-bs-toggle="tooltip" title="Assigned?"></i>
-	    <i class="fa fa{{ level.2 }}-square" data-bs-toggle="tooltip" title="In handling?"></i>
-	    <i class="fa fa{{ level.3 }}-square" data-bs-toggle="tooltip" title="Handled?"></i>
-	  </td>
-	{% endwith %}
 	<td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}-{% endif %}</td>
 	<td>
 	  {{ ticket.latest_activity }}
 	  {% if ticket.is_open %}
-	    <br/><span class="text-small text-muted" style="font-size: 80%;">[{{ ticket.latest_activity|timesince }} ago]</span>
+	    <br/><span class="text-muted" style="font-size: 80%;">[{{ ticket.latest_activity|timesince }} ago]</span>
 	  {% endif %}
 	</td>
       </tr>
     {% empty %}
       <tr>
-	<td colspan="4">No ticket visible in this queue</td>
+	<td colspan="7">No ticket visible in this queue</td>
       </tr>
     {% endfor %}
   </tbody>
