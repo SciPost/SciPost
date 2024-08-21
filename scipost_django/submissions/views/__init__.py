@@ -2146,8 +2146,6 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         # Get the Contributor to communicate with if not already defined (`Eto?` communication)
         # To Fix: Assuming the Editorial Administrator won't make any `referee_id` mistakes
         referee = get_object_or_404(Contributor.objects.active(), pk=referee_id)
-    else:
-        referee = None
 
     form = EditorialCommunicationForm(request.POST or None)
     if form.is_valid():
