@@ -22,6 +22,9 @@ class Command(BaseCommand):
         FinancialAdmin, created = Group.objects.get_or_create(
             name="Financial Administrators"
         )
+        HelpdeskAdmin, created = Group.objects.get_or_create(
+            name="Helpdesk Administrators"
+        )
         HumanResourcesAdmin, created = Group.objects.get_or_create(
             name="Human Resources Administrators"
         )
@@ -587,6 +590,8 @@ class Command(BaseCommand):
                 can_view_internal_organization_notes,
             ]
         )
+
+        HelpdeskAdmin.permissions.set([])
 
         HumanResourcesAdmin.permissions.set(
             [
