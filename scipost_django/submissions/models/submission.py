@@ -52,6 +52,7 @@ if TYPE_CHECKING:
     from iThenticate_report import iThenticateReport
     from ontology.models import AcademicField, Specialty, Topic
     from ..models.referee_invitation import RefereeInvitation
+    from series.models import Collection
 
 
 class SubmissionAuthorProfile(models.Model):
@@ -250,7 +251,10 @@ class Submission(models.Model):
     STAGE_IN_REFEREEING_COMPLETED_STATUSES = STAGE_DECISIONMAKING + STAGE_DECIDED
 
     # Related managers
-    referee_invitations: "RelatedManager[RefereeInvitation]"
+    if TYPE_CHECKING:
+        referee_invitations: "RelatedManager[RefereeInvitation]"
+        author_profiles: "RelatedManager[SubmissionAuthorProfile]"
+        collections: "RelatedManager[Collection]"
 
     # Fields
     preprint = models.OneToOneField(
@@ -917,33 +921,23 @@ class Submission(models.Model):
         which have at least one Specialty in common with the Submission.
         - For a Proceedings Submission, this is the guest Editor of the Proceedings.
         """
-        # fmt: off
-        # I wish Black didn't format chaining of method calls so badly...
-        fellows = Fellowship.objects.none()
-        non_comp_fellows = Fellowship.objects.active() \
+        fellows = (
+            Fellowship.objects.active()
             .without_competing_interests_against_submission_authors_of(self)
-        # fmt: on
+            .without_authorship_of_submission(self)
+        )
 
         if self.proceedings:
             # Add only Proceedings-related Fellowships
-            fellows = non_comp_fellows.filter(
-                proceedings=self.proceedings
-            ).return_active_for_submission(self)
-        elif len(self.collections.all()) > 0:
+            fellows = fellows.filter(proceedings=self.proceedings)
+        elif self.collections.all():
             # Add the Fellowships of the collections
-            fellows = [
-                fellow
-                for collection in self.collections.all()
-                for fellow in collection.expected_editors.all()
-                if fellow in non_comp_fellows
-            ]
-
-        if len(fellows) == 0:
-            # Add only Fellowships from the same College and with matching specialties
-            fellows = non_comp_fellows.filter(
-                college=self.submitted_to.college,
-                contributor__profile__specialties__in=self.specialties.all(),
+            fellows = fellows.filter(
+                id__in=self.collections.all().values("expected_editors")
             )
+        else:
+            # Add only Fellowships from the same College and with matching specialties
+            fellows = fellows.college_specialties_overlap_with_submission(self)
 
             # As a special rule, MigPol only wants Senior Fellows to be assigned
             if self.submitted_to.name == "Migration Politics":
@@ -951,10 +945,7 @@ class Submission(models.Model):
             else:
                 fellows = fellows.regular_or_senior()
 
-            fellows = fellows.return_active_for_submission(self)
-
-        # Remove duplicates from the list
-        return list(set(fellows))
+        return fellows.distinct()
 
     @property
     def editorial_decision(self) -> "EditorialDecision | None":

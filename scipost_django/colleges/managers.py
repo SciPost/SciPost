@@ -1,18 +1,19 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-
-from typing import TYPE_CHECKING
-
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Q, CharField, Value
 from django.utils import timezone
 from ethics.models import CompetingInterest
+from scipost.models import Contributor
 
 from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
 
+from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from colleges.models import Fellowship
+    from submissions.models import Submission
 
 
 class FellowQuerySet(models.QuerySet["Fellowship"]):
@@ -76,30 +77,18 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
             contributor__profile__specialties__slug__in=specialties_slug_list
         )
 
+    def college_specialties_overlap_with_submission(self, submission: "Submission"):
+        """
+        Returns all Fellows whose college and specialties overlap with those specified in the submission
+        """
+        return self.filter(
+            college=submission.submitted_to.college,
+            contributor__profile__specialties__in=submission.specialties.all(),
+        )
+
     def ordered(self):
         """Return ordered queryset explicitly, since this may have big effect on performance."""
         return self.order_by("contributor__user__last_name")
-
-    def return_active_for_submission(self, submission):
-        """
-        This method returns a *list* of Fellowships that passed the 'author-check' for
-        a specific submission.
-        """
-        try:
-            qs = self.exclude(contributor__in=submission.authors.all()).active()
-            false_claims = submission.authors_false_claims.all()
-            author_list = submission.author_list.lower()
-            fellowships = []
-            for fellowship in qs:
-                if (
-                    fellowship.contributor.user.last_name.lower() in author_list
-                    and fellowship.contributor not in false_claims
-                ):
-                    continue
-                fellowships.append(fellowship)
-            return fellowships
-        except AttributeError:
-            return []
 
     def no_competing_interests_with(self, profile):
         """
@@ -131,6 +120,39 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
             contributor__profile__id__in=profile_CI
             + related_CI
             + tuple(submission_author_profile_ids)
+        )
+
+    def without_authorship_of_submission(self, submission: "Submission"):
+        """
+        Exclude all Fellowships which may have authorship with the particular submission:
+        - Verified authors
+        - Profiles added in preassignment
+        - Personal contributor claims of authorship
+        - Potential authorship without false claims
+        """
+        preassigned_authors = Contributor.objects.filter(
+            profile__in=submission.author_profiles.values("profile")
+        )
+        submission_authors = submission.authors.all()
+
+        false_claims = submission.authors_false_claims.all()
+        author_claims = submission.authors_claims.all()
+
+        # Annotate the queryset with a constant value of the submission `author_list`
+        fellow_contributors = Contributor.objects.filter(
+            id__in=self.values("contributor")
+        ).annotate(author_list=Value(submission.author_list, output_field=CharField()))
+
+        # Use it for unaccenting and comparing to the profile's last name
+        potential_authors_without_false_claim = fellow_contributors.filter(
+            author_list__unaccent__icontains=F("profile__last_name")
+        ).exclude(id__in=false_claims)
+
+        return self.exclude(
+            contributor__in=submission_authors
+            | preassigned_authors
+            | author_claims
+            | potential_authors_without_false_claim
         )
 
 
