@@ -54,6 +54,9 @@ class Command(BaseCommand):
         ProductionOfficers, created = Group.objects.get_or_create(
             name="Production Officers"
         )
+        PublicationOfficers, created = Group.objects.get_or_create(
+            name="Publication Officers"
+        )
 
         OrgContacts, created = Group.objects.get_or_create(name="Organization Contacts")
 
@@ -767,6 +770,22 @@ class Command(BaseCommand):
                 can_view_docs_scipost,
                 can_view_production,
                 can_upload_proofs,
+            ]
+        )
+
+        PublicationOfficers.permissions.set(
+            [
+                can_draft_publication,
+                can_view_all_funding_info,
+                can_create_grants,
+                can_manage_reports,
+                can_view_all_production_streams,
+                can_view_production,
+                can_create_profiles,
+                can_view_profiles,
+                can_add_profile_affiliations,
+                can_add_profile_emails,
+                can_manage_organizations,
             ]
         )
 
