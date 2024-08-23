@@ -65,14 +65,14 @@ class Profile(models.Model):
         blank=True,
         default="",
         verbose_name="First name (original)",
-        help_text="Name in original script (if not using the Latin alphabet)",
+        help_text="Optional: Name in non-Latin alphabet",
     )
     last_name_original = models.CharField(
         max_length=64,
         blank=True,
         default="",
         verbose_name="Last name (original)",
-        help_text="Name in original script (if not using the Latin alphabet)",
+        help_text="Optional: Name in non-Latin alphabet",
     )
 
     orcid_authenticated = models.BooleanField(default=False)
