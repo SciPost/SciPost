@@ -786,6 +786,7 @@ class Command(BaseCommand):
                 can_add_profile_affiliations,
                 can_add_profile_emails,
                 can_manage_organizations,
+                can_publish_accepted_submission,
             ]
         )
 
