@@ -2692,7 +2692,7 @@ class InviteRefereeSearchFrom(forms.Form):
             ),
         )
 
-        return profiles
+        return profiles.distinct()
 
 
 class ConfigureRefereeInvitationForm(forms.Form):
