@@ -52,6 +52,7 @@ from .decorators import has_contributor, is_contributor_user
 from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim
 from .forms import (
     SciPostAuthenticationForm,
+    SciPostPasswordResetForm,
     UserAuthInfoForm,
     TOTPDeviceForm,
     UnavailabilityPeriodForm,
@@ -99,7 +100,6 @@ from submissions.models import (
 from submissions.forms import PortalSubmissionSearchForm, ReportSearchForm
 from theses.models import ThesisLink
 from theses.forms import ThesisSearchForm
-
 
 ###########
 # Sitemap #
@@ -983,22 +983,35 @@ class SciPostPasswordResetView(PasswordResetView):
     * get_success_url
     """
 
+    form_class = SciPostPasswordResetForm
     template_name = "scipost/password_reset.html"
     email_template_name = "scipost/password_reset_email.html"
     subject_template_name = "scipost/password_reset_subject.txt"
+    success_url = reverse_lazy("scipost:index")
 
-    def get_success_url(self):
-        """
-        Add a message confirming the request for a new token, then redirect to homepage.
-        """
-        messages.success(
-            self.request,
-            (
-                "We have just emailed you a password reset token. "
-                "Please follow the link in this email to reset your password."
-            ),
-        )
-        return reverse_lazy("scipost:index")
+    def form_valid(self, form):
+        is_valid = super().form_valid(form)
+
+        # Extract whether a new activation link has been sent
+        if getattr(form, "has_sent_new_activation_link", False):
+            messages.warning(
+                self.request,
+                (
+                    "Since your account is not yet activated, we have sent you a new activation link.\n"
+                    "Please check your inbox and follow the instructions.\n"
+                    "You may reset your password only after activating your account."
+                ),
+            )
+        else:
+            messages.success(
+                self.request,
+                (
+                    "A password reset email has been sent to your email address. "
+                    "Please check your inbox and follow the instructions."
+                ),
+            )
+
+        return is_valid
 
 
 class SciPostPasswordResetConfirmView(PasswordResetConfirmView):

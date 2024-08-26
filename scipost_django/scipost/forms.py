@@ -10,7 +10,7 @@ import re
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
@@ -25,6 +25,7 @@ from dal import autocomplete
 
 from .behaviors import orcid_validator
 from .constants import (
+    NEWLY_REGISTERED,
     NORMAL_CONTRIBUTOR,
     TITLE_CHOICES,
     SCIPOST_FROM_ADDRESSES,
@@ -1108,3 +1109,45 @@ class ConfirmationForm(forms.Form):
         choices=((True, "Confirm"), (False, "Abort")),
         label="",
     )
+
+
+class SciPostPasswordResetForm(PasswordResetForm):
+    def clean(self):
+        super_clean = super().clean()
+
+        users = User.objects.filter(email__iexact=self.cleaned_data.get("email"))
+        if len(list(users)) == 0:
+            self.add_error(
+                "email",
+                "There is no user associated with this email address.",
+            )
+
+        return super_clean
+
+    def get_newly_registered_contributors(self, email: str):
+        """
+        Given an email, return a list of newly registered users with that email.
+        """
+        return Contributor.objects.filter(
+            user__email__iexact=email, status=NEWLY_REGISTERED
+        )
+
+    def save(self, **kwargs):
+        """
+        Process users as PasswordResetForm does if they are active.
+        If newly registered, Inactive users get a new activation link.
+        """
+
+        super().save(**kwargs)
+
+        email = self.cleaned_data["email"]
+        for contributor in self.get_newly_registered_contributors(email):
+            contributor.generate_key()
+            contributor.save()
+
+            mail_util = DirectMailUtil(
+                "contributors/new_activitation_link", contributor=contributor
+            )
+            mail_util.send_mail()
+
+            self.has_sent_new_activation_link = True
