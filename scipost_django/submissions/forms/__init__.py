@@ -2886,6 +2886,11 @@ class ReportForm(forms.ModelForm):
 
     required_css_class = "required-asterisk"
     report_type = REPORT_NORMAL
+    license_agreement = forms.BooleanField(
+        required=True,
+        label="I agree for this report to be published under a CC BY 4.0 license.",
+        help_text="The <a href='https://creativecommons.org/licenses/by/4.0/'>CC BY 4.0 license</a> allows others to share and adapt the work with proper attribution.",
+    )
 
     class Meta:
         model = Report
