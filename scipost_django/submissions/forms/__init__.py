@@ -380,6 +380,10 @@ class SubmissionPoolSearchForm(forms.Form):
                     Submission.REFEREEING_IN_PREPARATION,
                     "Refereeing in preparation (cycle choice needed)",
                 ),
+                (
+                    "in_preparation_week_1",
+                    "... & inactive for > 1 week",
+                ),
                 ("in_refereeing", "In refereeing"),
                 ("unvetted_reports", "... with unvetted Reports"),
                 ("deadline_passed", "deadline passed, no recommendation yet"),
@@ -555,6 +559,11 @@ class SubmissionPoolSearchForm(forms.Form):
                     reporting_deadline__lt=timezone.now(),
                 )
                 .exclude(eicrecommendations__isnull=False)
+            )
+        elif status == "in_preparation_week_1":
+            submissions = submissions.filter(
+                status="refereeing_in_preparation",
+                latest_activity__lt=timezone.now() - datetime.timedelta(days=7),
             )
         elif status == "refereeing_1":
             submissions = (
