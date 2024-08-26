@@ -56,6 +56,7 @@ from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
 from pins.models import Note
 
 
+# TODO: Why is this a context preprocesor? Refactor it.
 def publishing_years():
     start_year = (
         Publication.objects.all()

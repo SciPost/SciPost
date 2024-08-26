@@ -134,27 +134,25 @@
              role="tabpanel"
              aria-labelledby="publications-{{ org.id }}-tab">
           <h3>
-            Publications associated to this Organization
+            {% if org.cf_nr_associated_publications %}{{ org.cf_nr_associated_publications }}{% else %}No{% endif %} 
+            Publication{{ org.cf_nr_associated_publications|pluralize }} associated to this Organization
 
             {% if perms.scipost.can_manage_organizations %}
               <span class="text-muted small">(with PubFracs <span data-bs-toggle="tooltip" data-bs-html="true" title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>
             {% endif %}:
           </h3>
 
-          {% for pubyear in publishing_years %}
-            <h4>
-              {{ pubyear }}
+          {% regroup org.get_publications_with_year|dictsort:'publication_year' by publication_year as publication_years %}
 
-              {% if perms.scipost.can_manage_organizations %}
-                <span class="text-muted small">(PubFracs {{ org|pubfracs_in_year:pubyear }})</span>
-              {% endif %}
-
-            </h4>
+          {% for publication_year in publication_years %}
+            <hgroup>
+              <h4>{{ publication_year.grouper }}</h4>
+              <p class="text-muted">{{ publication_year.list|length }} publication{{ publication_year.list|pluralize }}{% if perms.scipost.can_manage_organizations %}, {{ org|pubfracs_in_year:publication_year.grouper }} pubfracs{% endif %}</p>
+            </hgroup>
             <ul>
 
-              {% for publication in org.get_publications %}
+              {% for publication in publication_year.list %}
 
-                {% if publication.publication_date|date:'Y'|add:"0" == pubyear %}
                   <li>
                     <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a><br />
                     by {{ publication.author_list }},<br />
@@ -166,7 +164,6 @@
                     {% endif %}
 
                   </li>
-                {% endif %}
 
               {% endfor %}
 

@@ -21,7 +21,4 @@ def expenditure_for_publication(org, publication):
 @register.filter(name="pubfracs_in_year")
 def pubfracs_in_year(org, year):
     fractions = org.pubfracs_in_year(int(year))
-    if not fractions["total"]:
-        return "total: 0"
-    text = "total: %s" % fractions["total"]
-    return text
+    return fractions["total"] or "0"

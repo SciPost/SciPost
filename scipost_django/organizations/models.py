@@ -9,7 +9,7 @@ import string
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import F, Q, Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -205,6 +205,11 @@ class Organization(models.Model):
         if year:
             publications = publications.filter(publication_date__year=year)
         return publications.filter(pk__in=self.cf_associated_publication_ids["all"])
+
+    def get_publications_with_year(self, year=None, journal=None):
+        return self.get_publications(year=year, journal=journal).annotate(
+            publication_year=F("publication_date__year")
+        )
 
     def get_affiliate_publications(self, journal):
         return AffiliatePublication.objects.filter(
