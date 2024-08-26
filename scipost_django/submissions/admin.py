@@ -206,6 +206,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                     "author_comments",
                     "acad_field",
                     "specialties",
+                    "topics",
                     "approaches",
                     "proceedings",
                     "code_metadata",

@@ -1833,6 +1833,7 @@ class SubmissionForm(forms.ModelForm):
             }
 
         submission.save()
+        submission.topics.add(*self.cleaned_data["topics"])
 
         # Try to match the submitting author's last name to a position from the author list.
         try:
