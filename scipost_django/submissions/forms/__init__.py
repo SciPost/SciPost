@@ -1928,6 +1928,23 @@ class SubmissionForm(forms.ModelForm):
             status=EditorialAssignment.STATUS_ACCEPTED,
         )
 
+        # Add author-profile relations from previous submission
+        SubmissionAuthorProfile.objects.bulk_create(
+            [
+                SubmissionAuthorProfile(
+                    submission=submission,
+                    profile=author_profile.profile,
+                    order=author_profile.order,
+                )
+                for author_profile in previous_submission.author_profiles.all()
+            ]
+        )
+
+        # Add competing interests from previous submission
+        submission.competing_interests.add(
+            *previous_submission.competing_interests.all()
+        )
+
 
 class SubmissionReportsForm(forms.ModelForm):
     """Update refereeing pdf for Submission."""
