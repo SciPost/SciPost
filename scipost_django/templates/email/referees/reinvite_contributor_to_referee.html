@@ -11,14 +11,16 @@
   (<a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">see on SciPost.org</a>)
 </p>
 <p>
-  have resubmitted their manuscript to SciPost. On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.first_name }} {{ invitation.submission.editor_in_charge.user.last_name }}, we would like to invite you to quickly review this new version.
-</p>
-<p>Please accept or decline the invitation (login required) as soon as possible (ideally within the next 2 days).</p>
-<p>
-  If you accept, your report can be submitted by simply clicking on the "Contribute a Report" link on the Submission's Page before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'N j, Y' }}; your report will be automatically recognized as an invited report).
+  have submitted a new (revised) version of their manuscript to SciPost. On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.first_name }} {{ invitation.submission.editor_in_charge.user.last_name }}, we would like to invite you to review this new version.
 </p>
 <p>
-  You might want to make sure you are familiar with our refereeing code of conduct and with the refereeing procedure.
+  Your report can be submitted by clicking on the <a href="https://{{ domain }}{% url 'submissions:submit_report' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr %}">Contribute a Report</a> link on the <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">Submission's Page</a> before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'N j, Y' }}).
+</p>
+<p>
+  You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:editorial_procedure' %}">editorial procedure</a>, <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
+</p>
+<p>
+  If you are unable to review this version, you may <a href="https://{{ domain }}{% url 'submissions:accept_or_decline_ref_invitations' %}">decline</a> this invitation (login required).
 </p>
 <p>
   We would be extremely grateful for your contribution, and thank you in advance for your consideration.

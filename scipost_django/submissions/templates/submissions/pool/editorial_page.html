@@ -439,7 +439,10 @@ container border border-warning border-3
           {% else %}
             <p>You have {{ submission.referee_invitations.non_cancelled|length }} referee{{ submission.referee_invitations.non_cancelled|length|pluralize }} who are either invited, have accepted or submitted a Report.
           {% endif %}
-          <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least {{ submission.cycle.minimum_number_of_referees }} referees</a>.</p>
+          {% if submission.nr_unique_thread_vetted_reports == 0 or not submission.is_resubmission %}
+            <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least {{ submission.cycle.minimum_number_of_referees }} referees</a>.
+          {% endif %}
+          </p>
         {% else %}
           <p>Currently, you have {{ submission.referee_invitations.non_cancelled|length }} referees who are either invited, have accepted or submitted a Report. See details below.</p>
         {% endif %}

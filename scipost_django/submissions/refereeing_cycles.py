@@ -312,8 +312,12 @@ class BaseCycle:
                 self._submission.referee_invitations.non_cancelled().count()
             )
 
-            # The current number of referees does not meet the minimum number of referees yet.
-            if referee_invitations_count < self.minimum_number_of_referees:
+            # The current number of referees does not meet the minimum number of referees yet
+            # Except if the submission is a resubmission with vetted reports
+            if (referee_invitations_count < self.minimum_number_of_referees) and (
+                self._submission.nr_unique_thread_vetted_reports == 0
+                or not self._submission.is_resubmission
+            ):
                 self.add_action(
                     NeedRefereesAction(
                         current_number_of_referees=referee_invitations_count,
