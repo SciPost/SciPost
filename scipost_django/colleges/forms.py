@@ -745,6 +745,7 @@ class FellowshipNominationSearchForm(forms.Form):
             .annotate(
                 latest_round_deadline=latest_round_subquery("voting_deadline"),
                 latest_round_open=latest_round_subquery("voting_opens"),
+                latest_round_decision=latest_round_subquery("decision"),
                 latest_round_decision_outcome=latest_round_subquery(
                     "decision__outcome"
                 ),
@@ -768,11 +769,11 @@ class FellowshipNominationSearchForm(forms.Form):
         if decision := self.cleaned_data.get("decision"):
             if decision == "pending":
                 nominations = nominations.filter(
-                    voting_rounds__decision__isnull=True,
+                    latest_round_decision__isnull=True,
                 )
             else:
                 nominations = nominations.filter(
-                    voting_rounds__decision__outcome=decision,
+                    latest_round_decision_outcome=decision,
                 )
         if invitation_response := self.cleaned_data.get("invitation_response"):
             nominations = nominations.filter(
