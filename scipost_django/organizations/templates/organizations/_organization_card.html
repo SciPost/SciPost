@@ -142,7 +142,7 @@
             {% endif %}:
           </h3>
 
-          {% regroup org.get_publications_with_year|dictsort:'publication_year' by publication_year as publication_years %}
+          {% regroup org.get_publications_with_year|dictsortreversed:'publication_year' by publication_year as publication_years %}
 
           {% for publication_year in publication_years %}
             <hgroup>
