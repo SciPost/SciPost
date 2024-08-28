@@ -578,6 +578,8 @@ class FellowshipNominationSearchForm(forms.Form):
 
     college = forms.MultipleChoiceField(required=False)
 
+    specialties = forms.MultipleChoiceField(required=False)
+
     decision = forms.ChoiceField(
         choices=[("", "Any"), ("pending", "Pending")]
         + FellowshipNominationDecision.OUTCOME_CHOICES,
@@ -603,11 +605,6 @@ class FellowshipNominationSearchForm(forms.Form):
         label="Has voting rounds",
         required=False,
         initial=True,
-    )
-    needs_specialties = forms.BooleanField(
-        label="Needs specialties",
-        required=False,
-        initial=False,
     )
     needs_edadmin_attention = forms.BooleanField(
         label="Needs EdAdmin attention",
@@ -643,8 +640,15 @@ class FellowshipNominationSearchForm(forms.Form):
 
         self.fields["college"].choices = (
             FellowshipNomination.objects.all()
-            .values_list("college__id", "college__name")
             .order_by("college__name")
+            .values_list("college__id", "college__name")
+            .distinct()
+        )
+
+        self.fields["specialties"].choices = [("None", "None")] + list(
+            FellowshipNomination.objects.all()
+            .order_by("profile__specialties__name")
+            .values_list("profile__specialties__slug", "profile__specialties__name")
             .distinct()
         )
 
@@ -659,15 +663,14 @@ class FellowshipNominationSearchForm(forms.Form):
         self.helper = FormHelper()
 
         div_block_ordering = Div(
-            Div(FloatingField("orderby"), css_class="col-6 col-md-12 col-xl-6"),
-            Div(FloatingField("ordering"), css_class="col-6 col-md-12 col-xl-6"),
+            Div(FloatingField("orderby"), css_class="col-6"),
+            Div(FloatingField("ordering"), css_class="col-6"),
             css_class="row mb-0",
         )
         div_block_checkbox = Div(
-            Div(Field("can_vote"), css_class="col-auto col-lg-12 col-xl-auto"),
-            Div(Field("voting_open"), css_class="col-auto col-lg-12 col-xl-auto"),
-            Div(Field("has_rounds"), css_class="col-auto col-lg-12 col-xl-auto"),
-            Div(Field("needs_specialties"), css_class="col-auto col-lg-12 col-xl-auto"),
+            Div(Field("can_vote"), css_class="col-auto"),
+            Div(Field("voting_open"), css_class="col-auto"),
+            Div(Field("has_rounds"), css_class="col-auto"),
             css_class="row mb-0",
         )
 
@@ -675,7 +678,7 @@ class FellowshipNominationSearchForm(forms.Form):
             div_block_checkbox.append(
                 Div(
                     Field("needs_edadmin_attention"),
-                    css_class="col-auto col-lg-12 col-xl-auto",
+                    css_class="col-auto",
                 )
             )
 
@@ -683,21 +686,25 @@ class FellowshipNominationSearchForm(forms.Form):
             Div(
                 Div(
                     Div(
-                        Div(FloatingField("nominee"), css_class="col-12 col-lg-6"),
-                        Div(FloatingField("decision"), css_class="col-6 col-lg-3"),
-                        Div(
-                            FloatingField("invitation_response"),
-                            css_class="col-6 col-lg-3",
-                        ),
-                        Div(div_block_ordering, css_class="col-12 col-md-6 col-xl-12"),
-                        Div(div_block_checkbox, css_class="col-12 col-md-6 col-xl-12"),
+                        Div(FloatingField("nominee"), css_class="col-12"),
+                        Div(FloatingField("decision"), css_class="col-6"),
+                        Div(FloatingField("invitation_response"), css_class="col-6"),
+                        Div(div_block_ordering, css_class="col-12"),
                         css_class="row mb-0",
                     ),
                     css_class="col",
                 ),
                 Div(
-                    Field("college", size=6),
-                    css_class="col-12 col-md-6 col-lg-4",
+                    Div(
+                        Div(Field("college", size=8), css_class="col-auto"),
+                        Div(Field("specialties", size=8), css_class="col"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col-12 col-md-6",
+                ),
+                Div(
+                    Div(div_block_checkbox),
+                    css_class="col-12",
                 ),
                 css_class="row mb-0",
             ),
@@ -766,6 +773,16 @@ class FellowshipNominationSearchForm(forms.Form):
             )
         if college := self.cleaned_data.get("college"):
             nominations = nominations.filter(college__id__in=college)
+        if specialties := self.cleaned_data.get("specialties"):
+            if "None" in specialties:
+                nominations = nominations.filter(
+                    Q(profile__specialties__isnull=True)
+                    | Q(profile__specialties__slug__in=specialties)
+                )
+            else:
+                nominations = nominations.filter(
+                    profile__specialties__slug__in=specialties,
+                )
         if decision := self.cleaned_data.get("decision"):
             if decision == "pending":
                 nominations = nominations.filter(
@@ -786,8 +803,6 @@ class FellowshipNominationSearchForm(forms.Form):
             )
         if self.cleaned_data.get("has_rounds"):
             nominations = nominations.filter(voting_rounds__isnull=False)
-        if self.cleaned_data.get("needs_specialties"):
-            nominations = nominations.filter(profile__specialties__isnull=True)
 
         # Ordering of nominations
         # Only order if both fields are set
