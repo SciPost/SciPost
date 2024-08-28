@@ -97,9 +97,15 @@
       {% if is_ed_admin %}
         <div class="adminLinks">
           <h3>Admin actions</h3>
-          <ul>
+          <ul class="list-unstyled">
             <li>
-              After initial setup: <a href="{% url 'colleges:fellowship_email_start' pk=fellowship.id %}">send Fellowship start email</a>
+              <button
+                  class="btn btn-sm btn-danger"
+                  hx-swap="outerHTML"
+                  hx-get="{% url 'colleges:fellowship_remove_recommendations_vote_eligibility' fellowship.id %}"
+                  hx-confirm="Are you sure you want to remove this fellow's vote eligibility for all recommendations?">
+                Remove Fellow's EICRec vote eligibility
+              </button>
             </li>
           </ul>
         </div>
@@ -256,7 +262,14 @@
   </div>
 
   {% if is_ed_admin %}
-    <h3 class="highlight">Pool for this Fellowship</h3>
+    <div class="highlight p-3 d-flex justify-content-between align-items-center">
+      <h3 class="mb-0">Pool for this Fellowship</h3>
+      <button class="btn btn-sm btn-danger"
+          hx-swap="outerHTML"
+          hx-get="{% url 'colleges:fellowship_remove_all_submissions' fellowship.id %}"
+          hx-confirm="Are you sure you want to remove this fellow from all pools?"
+          >Remove Fellow from all pools</button>
+    </div>
     <table class="table table-hover">
       <thead>
         <tr>
@@ -276,6 +289,8 @@
 
               {% if submission.editor_in_charge == fellowship.contributor %}
                 <strong>Fellow is Editor-in-charge</strong>
+              {% elif submission.status == "in_voting" and fellowship.contributor in submission.recommendation.contributors_voted %}
+                <strong>Fellow has voted in the recommendation</strong>
               {% else %}
                 <a class="text-danger"
                    href="{% url 'colleges:fellowship_remove_submission' fellowship.id submission.preprint.identifier_w_vn_nr %}">Remove from this Fellowship's pool</a>

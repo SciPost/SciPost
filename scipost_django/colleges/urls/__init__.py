@@ -85,6 +85,16 @@ urlpatterns = [
         name="fellowship_remove_submission",
     ),
     path(
+        "fellowships/<int:id>/submissions/remove",
+        views.fellowship_remove_all_submissions,
+        name="fellowship_remove_all_submissions",
+    ),
+    path(
+        "fellowships/<int:id>/eic_recommendations/remove_all_votes_eligibility",
+        views.fellowship_remove_recommendations_vote_eligibility,
+        name="fellowship_remove_recommendations_vote_eligibility",
+    ),
+    path(
         "fellowships/<int:id>/submissions/add",
         views.fellowship_add_submission,
         name="fellowship_add_submission",

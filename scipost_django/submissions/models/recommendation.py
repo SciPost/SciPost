@@ -144,6 +144,12 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def decision_fixed(self):
         return self.status == DECISION_FIXED
 
+    @property
+    def contributors_voted(self):
+        return (
+            self.voted_for.all() | self.voted_against.all() | self.voted_abstain.all()
+        )
+
     def get_other_versions(self):
         """Return other versions of EICRecommendations for this Submission."""
         return self.submission.eicrecommendations.exclude(id=self.id)

@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import (
     user_passes_test,
 )
 from django.core.paginator import Paginator
+from django.db.models import Q, OuterRef, Subquery
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
@@ -32,8 +33,9 @@ from colleges.utils import check_profile_eligibility_for_fellowship
 from invitations.constants import INVITATION_EDITORIAL_FELLOW
 from invitations.models import RegistrationInvitation
 from scipost.constants import TITLE_DR
-from scipost.permissions import HTMXResponse
+from scipost.permissions import HTMXResponse, permission_required_htmx
 from submissions.models import Submission
+from submissions.models.recommendation import EICRecommendation
 
 from ..constants import (
     POTENTIAL_FELLOWSHIP_STATUSES,
@@ -407,6 +409,90 @@ def fellowship_remove_submission(request, id, identifier_w_vn_nr):
 
     context = {"fellowship": fellowship, "form": form, "submission": submission}
     return render(request, "colleges/fellowship_submission_remove.html", context)
+
+
+@login_required
+@permission_required_htmx(
+    "scipost.can_manage_college_composition", raise_exception=True
+)
+def fellowship_remove_all_submissions(request, id):
+    """
+    Remove untreated Submissions from the Fellowship,
+    unless the Fellow is the Editor in Charge of the Submission
+    or has voted on the Submission's recommendation.
+    """
+    fellowship = get_object_or_404(Fellowship, id=id)
+
+    recommendations_voted_on = (
+        fellowship.contributor.voted_for.all()
+        | fellowship.contributor.voted_against.all()
+        | fellowship.contributor.voted_abstain.all()
+    )
+
+    submissions_in_pool = fellowship.pool.all()
+    untreated_submissions = submissions_in_pool.exclude(
+        id__in=submissions_in_pool.treated()
+    )
+
+    submissions_to_remove = untreated_submissions.annotate(
+        latest_recommendation=Subquery(
+            EICRecommendation.objects.filter(
+                submission=OuterRef("pk"),
+                active=True,
+            )
+            .order_by("-version")
+            .values("id")[:1]
+        )
+    ).exclude(
+        Q(status="in_voting") & Q(latest_recommendation__in=recommendations_voted_on)
+        | Q(editor_in_charge=fellowship.contributor)
+    )
+
+    fellowship.pool.remove(*submissions_to_remove)
+
+    return HTMXResponse(
+        "Submissions removed from Fellowship.",
+        tag="success",
+    )
+
+
+@login_required
+@permission_required_htmx(
+    "scipost.can_manage_college_composition", raise_exception=True
+)
+def fellowship_remove_recommendations_vote_eligibility(request, id):
+    """
+    Remove a Fellow from the list of voters for their untreated
+    submissions pool's recommendations, unless they have voted on them
+    or are the Editor in Charge of the Submission.
+    """
+    fellowship = get_object_or_404(Fellowship, id=id)
+
+    eligible_voter_recommendations_in_untreated_submissions = (
+        fellowship.contributor.eligible_to_vote.all()
+        .exclude(submission__in=Submission.objects.treated())
+        .active()
+    )
+
+    recommendations_voted_on = (
+        fellowship.contributor.voted_for.all()
+        | fellowship.contributor.voted_against.all()
+        | fellowship.contributor.voted_abstain.all()
+    )
+
+    recommendations_to_remove = (
+        eligible_voter_recommendations_in_untreated_submissions.exclude(
+            Q(id__in=recommendations_voted_on)
+            | Q(submission__editor_in_charge=fellowship.contributor)
+        )
+    )
+
+    fellowship.contributor.eligible_to_vote.remove(*recommendations_to_remove)
+
+    return HTMXResponse(
+        "EIC Recommendations vote eligibility removed.",
+        tag="success",
+    )
 
 
 @login_required
