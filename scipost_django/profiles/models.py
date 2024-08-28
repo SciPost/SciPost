@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 import secrets
+from typing import TYPE_CHECKING
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models import Q
 
@@ -55,6 +56,10 @@ class Profile(models.Model):
        * mark somebody as not willing to receive emails from SciPost.
        * mark somebody as a non-referee (if that person does not want to referee for SciPost)
     """
+
+    if TYPE_CHECKING:
+        id: int
+        contributor: Contributor | None
 
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, default=TITLE_DR)
     first_name = models.CharField(max_length=64)

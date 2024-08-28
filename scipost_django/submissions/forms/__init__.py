@@ -3799,6 +3799,13 @@ class RefereeIndicationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.submission = kwargs.pop("submission")
         self.profile = kwargs.pop("profile")
+
+        if not isinstance(self.profile, Profile):
+            raise ValueError("Profile object is required for this form.")
+
+        if not isinstance(self.submission, Submission):
+            raise ValueError("Submission object is required for this form.")
+
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
@@ -3839,7 +3846,12 @@ class RefereeIndicationForm(forms.ModelForm):
         is_fellow = self.profile.id in self.submission.fellows.values_list(
             "contributor__profile__id", flat=True
         )
-        if not (is_author or is_fellow or is_edadmin(self.profile.contributor.user)):
+        if not (
+            is_author
+            or is_fellow
+            or getattr(self.profile, "contributor") is not None
+            and is_edadmin(self.profile.contributor.user)
+        ):
             self.fields["indication"].choices = [
                 RefereeIndication.INDICATION_CHOICES[0]
             ]
