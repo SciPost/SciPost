@@ -1184,6 +1184,7 @@ def personal_page_hx_edadmin(request):
                 "Editorial College",
                 "Vetting Editors",
                 "Junior Ambassadors",
+                "Publication Officers",
             ]
         ).exists()
         or request.user.is_superuser

@@ -13,7 +13,7 @@
     >Admin</a>
   {% endif %}
 
-  {% if "scipost_admin" in user_roles or "edadmin" in user_roles or "active_fellow" in user_roles or "advisory_board" in user_roles or "vetting_editor" in user_roles or "ambassador" in user_roles or "junior_ambassador" in user_roles %}
+  {% if "scipost_admin" in user_roles or "edadmin" in user_roles or "active_fellow" in user_roles or "advisory_board" in user_roles or "vetting_editor" in user_roles or "ambassador" in user_roles or "junior_ambassador" in user_roles or "publication_officer" in user_roles %}
     <a hx-get="{% url 'scipost:personal_page_hx_edadmin' %}" 
       {% if selected == 'edadmin' %}class="selected"{% endif %}
     >Editorial Actions</a>

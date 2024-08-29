@@ -35,22 +35,28 @@
       </ul>
     {% endif %}
 
-    {% if perms.scipost.can_oversee_refereeing %}
-      <h3>Editorial Admin actions</h3>
-      <ul>
+    <h3>Editorial Admin actions</h3>
+    <ul>
+      <li><a href="{% url 'submissions:pool:pool' %}">Submissions Pool</a></li>
+      {% if perms.scipost.can_manage_reports %}
         <li><a href="{% url 'submissions:reports_accepted_list' %}">Accepted Reports</a>{% if nr_reports_without_pdf %} ({{nr_reports_without_pdf}} unfinished){% endif %}</li>
-        <li><a href="{% url 'submissions:pool:pool' %}">Submissions Pool</a></li>
         <li><a href="{% url 'submissions:treated_submissions_list' %}">Fully treated Submissions</a>{% if nr_treated_submissions_without_pdf %} ({{nr_treated_submissions_without_pdf}} unfinished){% endif %}</li>
+      {% endif %}
+      {% if perms.scipost.can_publish_accepted_submission %}
         <li><a href="{% url 'journals:harvest_citedby_list' %}">Harvest citedby data</a></li>
-        <li><a href="{% url 'journals:manage_comment_metadata' %}">Manage Comment metadata</a></li>
-        <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
+        <li><a href="{% url 'journals:harvest_citedby_list' %}">Manage Volumes</a></li>
+      {% endif %}
+      {% if perms.scipost.can_manage_issues %}
         <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
         <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
+      {% endif %}
+      {% if perms.scipost.can_publish_accepted_submission %}
         <li><a href="{% url 'journals:manage_metadata' %}">Manage Publication metadata</a></li>
-        <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
         <li><a href="{% url 'journals:manage_update_metadata' %}">Manage PublicationUpdate metadata</a></li>
-      </ul>
-    {% endif %}
+        <li><a href="{% url 'journals:manage_comment_metadata' %}">Manage Comment metadata</a></li>
+        <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
+      {% endif %}
+    </ul>
 
   </div>
 

@@ -32,6 +32,8 @@ def roles_processor(request):
         context["user_roles"].append("junior_ambassador")
     if "Production Officers" in group_names:
         context["user_roles"].append("production_officer")
+    if "Publication Officers" in group_names:
+        context["user_roles"].append("publication_officer")
     # Contributor-based roles
     try:
         active_fellowships = request.user.contributor.fellowships.active()
