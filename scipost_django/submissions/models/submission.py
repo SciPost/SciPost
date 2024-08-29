@@ -27,6 +27,7 @@ from colleges.models.fellowship import Fellowship
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
+    CYCLE_UNDETERMINED,
     SUBMISSION_CYCLES,
     CYCLE_DEFAULT,
     CYCLE_SHORT,
@@ -636,6 +637,17 @@ class Submission(models.Model):
             self._cycle = DirectCycle(self)
         else:
             self._cycle = RegularCycle(self)
+
+    def reset_refereeing_cycle(self):
+        """
+        Reset the submission's refereeing cycle:
+        - Set the refereeing cycle to the undetermined state
+        - Set the submission status to refereeing in preparation
+        """
+        self._cycle = None
+        self.status = self.REFEREEING_IN_PREPARATION
+        self.refereeing_cycle = CYCLE_UNDETERMINED
+        self.save()
 
     def get_absolute_url(self):
         """Return url of the Submission detail page."""

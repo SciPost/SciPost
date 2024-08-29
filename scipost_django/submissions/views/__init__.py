@@ -2192,6 +2192,32 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
 
 @login_required
 @fellowship_or_admin_required()
+def reset_refereeing_cycle(request, identifier_w_vn_nr):
+    """Reset the refereeing cycle for a Submission.
+
+    Accessible for: Editor-in-charge and Editorial Administration
+    """
+    submission: "Submission" = get_object_or_404(
+        Submission.objects.in_pool_filter_for_eic(request.user),
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+
+    submission.reset_refereeing_cycle()
+
+    messages.success(request, "Refereeing cycle has been reset.")
+
+    submission.add_event_for_eic("The refereeing cycle has been reset.")
+    return redirect(
+        reverse(
+            "submissions:editorial_page",
+            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+        )
+    )
+
+
+
+@login_required
+@fellowship_or_admin_required()
 @transaction.atomic
 def eic_recommendation(request, identifier_w_vn_nr):
     """Write EIC Recommendation.

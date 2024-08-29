@@ -91,6 +91,11 @@ urlpatterns = [
                     name="submission",
                 ),
                 path(
+                    "reset_refereeing_cycle",
+                    views.reset_refereeing_cycle,
+                    name="reset_refereeing_cycle",
+                ),
+                path(
                     "referee_indications/",
                     include(
                         [

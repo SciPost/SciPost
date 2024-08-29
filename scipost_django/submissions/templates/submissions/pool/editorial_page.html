@@ -125,15 +125,15 @@ container border border-warning border-3
   <table class="table table-borderless">
     <tr>
       <td>Submission status:</td>
-      <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
+      <td><span class="p-1 label label-secondary">{{ submission.get_status_display }}</span></td>
     </tr>
     <tr>
       <td>Recommendation status:</td>
       <td>
         {% if submission.recommendation %}
-          <span class="label label-secondary">{{ submission.recommendation.get_status_display }}</span>
+          <span class="p-1 label label-secondary">{{ submission.recommendation.get_status_display }}</span>
         {% else %}
-          <span class="label label-secondary mb-1">No Editorial Recommendation is formulated yet.</span>
+          <span class="p-1 label label-secondary mb-1">No Editorial Recommendation is formulated yet.</span>
         {% endif %}
       </td>
     </tr>
@@ -149,7 +149,11 @@ container border border-warning border-3
     </tr>
     <tr>
       <td>Refereeing cycle:</td>
-      <td>{{ submission.get_refereeing_cycle_display }}</td>
+      <td><span class="p-1 label label-secondary me-3">{{ submission.get_refereeing_cycle_display }}</span>
+        {% if full_access and submission.refereeing_cycle and submission.is_resubmission and not submission.referee_invitations.all and not submission.recommendation %}
+            Was this a mistake? If so, you may <a href="{% url 'submissions:reset_refereeing_cycle' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">reset the refereeing cycle</a>.
+        {% endif %}
+      </td>
     </tr>
     <tr>
       <td>Publicly available:</td>
