@@ -424,6 +424,19 @@ class EditorialDecisionAdmin(admin.ModelAdmin):
 
 @admin.register(SubmissionEvent)
 class SubmissionEventAdmin(admin.ModelAdmin):
+    search_fields = [
+        "submission__title",
+        "submission__author_list",
+        "submission__preprint__identifier_w_vn_nr",
+    ]
+    list_display = [
+        "submission",
+        "event",
+        "text",
+    ]
+    list_filter = [
+        "event",
+    ]
     autocomplete_fields = [
         "submission",
     ]
