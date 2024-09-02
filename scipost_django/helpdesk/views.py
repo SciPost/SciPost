@@ -21,6 +21,7 @@ from guardian.shortcuts import (
     get_users_with_perms,
     get_groups_with_perms,
     get_objects_for_user,
+    get_perms,
 )
 from scipost.mixins import PermissionsMixin
 
@@ -100,16 +101,15 @@ class QueueCreateView(PermissionsMixin, CreateView):
         Assign appropriate object-level permissions to managing and response groups.
         """
         self.object = form.save()
-        assign_perm(
-            "can_manage_queue", form.cleaned_data["managing_group"], self.object
-        )
-        assign_perm(
-            "can_handle_queue", form.cleaned_data["managing_group"], self.object
-        )
-        assign_perm("can_view_queue", form.cleaned_data["managing_group"], self.object)
+
+        managing_group = form.cleaned_data["managing_group"]
+        assign_perm("can_manage_queue", managing_group, self.object)
+        assign_perm("can_handle_queue", managing_group, self.object)
+        assign_perm("can_view_queue", managing_group, self.object)
+
         for group in form.cleaned_data["response_groups"].all():
             assign_perm("can_handle_queue", group, self.object)
-            assign_perm("can_view_queue", group, self.object)
+
         return super().form_valid(form)
 
 
@@ -127,16 +127,15 @@ class QueueUpdateView(PermissionRequiredMixin, UpdateView):
         for group, perms_list in groups_perms_dict.items():
             for perm in perms_list:
                 remove_perm(perm, group, self.object)
-        assign_perm(
-            "can_manage_queue", form.cleaned_data["managing_group"], self.object
-        )
-        assign_perm(
-            "can_handle_queue", form.cleaned_data["managing_group"], self.object
-        )
-        assign_perm("can_view_queue", form.cleaned_data["managing_group"], self.object)
+
+        managing_group = form.cleaned_data["managing_group"]
+        assign_perm("can_manage_queue", managing_group, self.object)
+        assign_perm("can_handle_queue", managing_group, self.object)
+        assign_perm("can_view_queue", managing_group, self.object)
+
         for group in form.cleaned_data["response_groups"].all():
             assign_perm("can_handle_queue", group, self.object)
-            assign_perm("can_view_queue", group, self.object)
+
         return super().form_valid(form)
 
 
@@ -262,13 +261,9 @@ class TicketAssignView(UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         ticket = get_object_or_404(Ticket, pk=self.kwargs.get("pk"))
-        return self.request.user.groups.filter(
-            name=ticket.queue.managing_group.name
-        ).exists()
+        user_queue_permissions = get_perms(self.request.user, ticket.queue)
 
-    def form_valid(self, form):
-        self.object.status = TICKET_STATUS_ASSIGNED
-        return super().form_valid(form)
+        return "can_handle_queue" in user_queue_permissions
 
 
 def is_ticket_creator_or_handler(request, pk):

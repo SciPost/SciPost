@@ -9,11 +9,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.backends.db import SessionStore
 from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
+from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms
 
 from profiles.models import Profile
 
 from .models import Queue, Ticket, Followup
-from .constants import TICKET_PRIORITIES, TICKET_STATUSES
+from .constants import TICKET_PRIORITIES, TICKET_STATUS_ASSIGNED, TICKET_STATUSES
 from crispy_forms.helper import FormHelper, Layout
 from crispy_bootstrap5.bootstrap5 import FloatingField, Field
 from crispy_forms.layout import Div
@@ -78,14 +79,31 @@ class TicketAssignForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        group_ids = [
-            k["id"]
-            for k in list(self.instance.queue.response_groups.all().values("id"))
-        ]
-        group_ids.append(self.instance.queue.managing_group.id)
+
         self.fields["assigned_to"].queryset = User.objects.filter(
-            groups__id__in=group_ids
+            groups__id__in=list(
+                self.instance.queue.response_groups.all().values_list("id", flat=True)
+            )
+            + [self.instance.queue.managing_group.id]
         ).distinct()
+
+    def save(self, commit=True):
+        ticket = super().save(commit=False)
+        ticket.status = TICKET_STATUS_ASSIGNED
+
+        # Remove old view permissions
+        can_view_users = get_users_with_perms(
+            ticket, only_with_perms_in=["can_view_ticket"]
+        )
+        for user in can_view_users:
+            remove_perm("can_view_ticket", user, ticket)
+
+        # Assign view permission to assignee
+        assign_perm("can_view_ticket", ticket.assigned_to, ticket)
+
+        if commit:
+            ticket.save()
+        return ticket
 
 
 class FollowupForm(forms.ModelForm):

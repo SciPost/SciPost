@@ -1,6 +1,11 @@
 {% load bootstrap %}
 {% load automarkup %}
 {% load scipost_extras %}
+{% load guardian_tags %}
+
+{% if ticket %}
+  {% get_obj_perms request.user for ticket.queue as "user_perms" %}
+{% endif %}
 
 <div class="card">
   <div class="card-header">
@@ -76,7 +81,7 @@
 	      {% endfor %}
 	    </ul>
 	    {% if ticket.is_open %}
-	      {% if request.user|is_in_group:ticket.queue.managing_group.name %}
+      {% if 'can_manage_queue' in user_perms %}
 		<a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:ticket_delete' pk=ticket.id %}">{% include 'bi/trash-fill.html' %}&nbsp;Delete</a>
 		<a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_update' pk=ticket.id %}">{% include 'bi/pencil-square.html' %}&nbsp;Update</a>
 		{% if not ticket.assigned_to %}
