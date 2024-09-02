@@ -17,7 +17,7 @@ __pycache__
 # Package managers
 /venv*
 /.venv*
-/node_modules/
+**/node_modules/
 *webpack-stats.json
 
 .python-version
@@ -45,6 +45,7 @@ UPLOADS
 /scipost_django/local_files/
 /static/
 static_bundles/
+**/css/dist/*
 
 celerybeat-schedule
 start_flower.sh
