@@ -150,8 +150,8 @@ container border border-warning border-3
     <tr>
       <td>Refereeing cycle:</td>
       <td><span class="p-1 label label-secondary me-3">{{ submission.get_refereeing_cycle_display }}</span>
-        {% if full_access and submission.refereeing_cycle and submission.is_resubmission and not submission.referee_invitations.all and not submission.recommendation %}
-            Was this a mistake? If so, you may <a href="{% url 'submissions:reset_refereeing_cycle' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">reset the refereeing cycle</a>.
+        {% if full_access and submission.refereeing_cycle and not submission.referee_invitations.all and not submission.recommendation %}
+            Was this a mistake? If so, you may <a href="{% url 'submissions:reset_refereeing_cycle' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">reset the refereeing cycle {% if submission.is_resubmission %}to default{% endif %}</a>.
         {% endif %}
       </td>
     </tr>

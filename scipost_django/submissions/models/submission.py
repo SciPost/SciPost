@@ -641,12 +641,14 @@ class Submission(models.Model):
     def reset_refereeing_cycle(self):
         """
         Reset the submission's refereeing cycle:
-        - Set the refereeing cycle to the undetermined state
+        - Set the refereeing cycle to the undetermined state if it a resubmission, otherwise to the default cycle
         - Set the submission status to refereeing in preparation
         """
         self._cycle = None
         self.status = self.REFEREEING_IN_PREPARATION
-        self.refereeing_cycle = CYCLE_UNDETERMINED
+        self.refereeing_cycle = (
+            CYCLE_UNDETERMINED if self.is_resubmission else CYCLE_DEFAULT
+        )
         self.save()
 
     def get_absolute_url(self):
