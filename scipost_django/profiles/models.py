@@ -231,6 +231,9 @@ class ProfileEmail(models.Model):
     )
     primary = models.BooleanField(default=False)
 
+    if TYPE_CHECKING:
+        objects: models.Manager["ProfileEmail"]
+
     class Meta:
         unique_together = ["profile", "email"]
         ordering = ["-primary", "-still_valid", "email"]
@@ -260,6 +263,14 @@ class ProfileEmail(models.Model):
             "profiles:verify_profile_email",
             kwargs={"email_id": self.id, "token": self.verification_token},
         )
+
+    def set_primary(self):
+        """
+        Sets this email as the primary email for the Profile, unsetting others.
+        """
+        self.profile.emails.update(primary=False)
+        self.primary = True
+        self.save()
 
 
 def get_profiles(slug):

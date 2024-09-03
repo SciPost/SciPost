@@ -297,15 +297,9 @@ class AddProfileEmailForm(forms.ModelForm):
         """Mark the email as still_valid but not primary."""
 
         self.instance.profile = self.profile
-
-        if self.request:
-            is_editing_self = self.request.user.contributor.profile == self.profile
-            is_ed_admin = self.request.user.contributor.is_ed_admin
-            self.instance.verified = is_editing_self or is_ed_admin
-
         self.instance.still_valid = True
         self.instance.primary = False
-        self.instance.added_by = self.request.user.contributor
+        self.instance.added_by = self.request.user.contributor if self.request else None
         return super().save()
 
 
