@@ -28,7 +28,7 @@ from django.urls import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Q, OuterRef, Subquery
+from django.db.models import Q, Exists, OuterRef
 from django.http import Http404, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
@@ -1687,25 +1687,25 @@ def manage_report_metadata(request):
     if ready_for_deposit:
         reports = (
             reports.annotate(
-                publication_doi=Subquery(
+                paper_published=Exists(
                     Publication.objects.filter(
-                        accepted_submission=OuterRef("submission")
+                        accepted_submission__thread_hash=OuterRef(
+                            "submission__thread_hash"
+                        )
                     )
-                    .order_by("doi_label")[:1]
-                    .values("doi_label")
                 ),
-                successful_deposit=Subquery(
+                successful_deposit=Exists(
                     GenericDOIDeposit.objects.filter(
                         object_id=OuterRef("id"),
                         content_type=ContentType.objects.get_for_model(Report),
                         deposit_successful=True,
-                    ).values("id")[:1]
+                    )
                 ),
             )
             .exclude(needs_doi=False)
             .filter(
-                publication_doi__isnull=False,
-                successful_deposit__isnull=True,
+                paper_published=True,
+                successful_deposit=False,
             )
         )
 
