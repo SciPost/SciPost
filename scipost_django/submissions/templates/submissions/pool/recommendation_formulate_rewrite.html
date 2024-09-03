@@ -3,7 +3,7 @@
 {% block pagetitle %}: Editorial Recommendation for Submission{% endblock pagetitle %}
 
 {% load scipost_extras %}
-{% load bootstrap %}
+{% load crispy_forms_tags %}
 
 {% block breadcrumb_items %}
   {{block.super}}
@@ -18,11 +18,10 @@
   <br>
   {% include 'submissions/_submission_summary.html' with submission=submission show_abstract=1 %}
 
-
   <br>
   <div class="border bg-light p-3 mb-3">
     <h2>Reformulate your Editorial Recommendation</h2>
-    <p>You recommendation will be processed by the Editorial Administration.</p>
+    <p>Your recommendation will be processed by the Editorial Administration.</p>
     <ul>
       <li>acceptance or rejection: forwarded to the Editorial College for ratification</li>
       <li>request for revision: sent directly to the authors</li>
@@ -43,34 +42,10 @@
 
   <div class="row">
     <div class="col-12">
-      <form method="post">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <input class="btn btn-primary" type="submit" value="Submit Recommendation"/>
-      </form>
+      
+      {% include "submissions/pool/_hx_eic_recommendation_form.html" with form=form %}
+
     </div>
   </div>
 
-
 {% endblock content %}
-
-
-
-{% block footer_script %}
-  <script nonce="{{ request.csp_nonce }}">
-   $(document).ready(function(){
-       $("input[name=tier]").parents('.form-group').hide()
-       $('select[name=recommendation]').on('change', function(){
-	   var rec = $('select[name=recommendation]').val();
-	   switch(rec){
-	       case "1":
-		   $("input[name=tier]").parents('.form-group').show()
-		   break;
-	       default:
-		   $("input[name=tier]").parents('.form-group').hide()
-		   break;
-	   }
-       }).trigger('change');
-   });
-  </script>
-{% endblock %}

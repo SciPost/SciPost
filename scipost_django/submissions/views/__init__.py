@@ -2215,6 +2215,43 @@ def reset_refereeing_cycle(request, identifier_w_vn_nr):
     )
 
 
+@login_required
+@fellowship_or_admin_required()
+@transaction.atomic
+def _hx_eic_recommendation_form(request, identifier_w_vn_nr):
+    """
+    Handle the EIC Recommendation form submission.
+    """
+    submission = get_object_or_404(
+        Submission.objects.in_pool_filter_for_eic(request.user),
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+
+    form = EICRecommendationForm(request.POST or None, submission=submission)
+
+    if form.is_valid():
+        recommendation = form.save()
+        if form.revision_requested():
+            # Send mail to authors to notify about the request for revision.
+            SubmissionUtils.load(
+                {
+                    "submission": form.submission,
+                    "recommendation": recommendation,
+                }
+            )
+            SubmissionUtils.send_author_revision_requested_email()
+
+        response = HttpResponse()
+        messages.success(request, "Editorial Recommendation successfully formulated")
+        response["HX-Redirect"] = reverse(
+            "submissions:editorial_page",
+            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+        )
+        return response
+
+    context = {"submission": submission, "form": form}
+    return render(request, "submissions/pool/_hx_eic_recommendation_form.html", context)
+
 
 @login_required
 @fellowship_or_admin_required()
@@ -2263,26 +2300,6 @@ def eic_recommendation(request, identifier_w_vn_nr):
             )
         )
 
-    if form.is_valid():
-        recommendation = form.save()
-        if form.revision_requested():
-            # Send mail to authors to notify about the request for revision.
-            SubmissionUtils.load(
-                {
-                    "submission": form.submission,
-                    "recommendation": recommendation,
-                }
-            )
-            SubmissionUtils.send_author_revision_requested_email()
-
-        messages.success(request, "Editorial Recommendation succesfully submitted")
-        return redirect(
-            reverse(
-                "submissions:editorial_page",
-                kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
-            )
-        )
-
     context = {"submission": submission, "form": form}
     return render(request, "submissions/pool/recommendation_formulate.html", context)
 
@@ -2318,26 +2335,6 @@ def reformulate_eic_recommendation(request, identifier_w_vn_nr):
     form = EICRecommendationForm(
         request.POST or None, submission=submission, reformulate=True
     )
-    if form.is_valid():
-        recommendation = form.save()
-        if form.revision_requested():
-            # Send mail to authors to notify about the request for revision.
-            SubmissionUtils.load(
-                {
-                    "submission": form.submission,
-                    "recommendation": recommendation,
-                }
-            )
-            SubmissionUtils.send_author_revision_requested_email()
-
-        messages.success(request, "Editorial Recommendation succesfully reformulated")
-        return redirect(
-            reverse(
-                "submissions:editorial_page",
-                kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
-            )
-        )
-
     context = {"submission": submission, "form": form}
     return render(
         request, "submissions/pool/recommendation_formulate_rewrite.html", context

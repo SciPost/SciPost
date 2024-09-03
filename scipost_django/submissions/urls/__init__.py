@@ -473,6 +473,11 @@ urlpatterns = [
         name="communication",
     ),
     path(
+        "eic_recommendation/<identifier:identifier_w_vn_nr>/_hx_form",
+        views._hx_eic_recommendation_form,
+        name="_hx_eic_recommendation_form",
+    ),
+    path(
         "eic_recommendation/<identifier:identifier_w_vn_nr>",
         views.eic_recommendation,
         name="eic_recommendation",

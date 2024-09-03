@@ -3151,7 +3151,7 @@ class EICRecommendationForm(forms.ModelForm):
                         "Your remarks for the authors. If you recommend to accept or reject, will"
                         " only be seen after the college vote concludes."
                     ),
-                    "rows": 10,
+                    "rows": 3,
                 }
             ),
             "requested_changes": forms.Textarea(
@@ -3160,6 +3160,7 @@ class EICRecommendationForm(forms.ModelForm):
                         "If you request revisions, give a numbered (1-, 2-, ...)"
                         " list of specifically requested changes"
                     ),
+                    "rows": 3,
                 }
             ),
             "remarks_for_editorial_college": forms.Textarea(
@@ -3169,6 +3170,7 @@ class EICRecommendationForm(forms.ModelForm):
                         " will vote. Summarize the reasons for your recommendation. Focus especially"
                         " on the aspects that do not directly follow from the referee reports."
                     ),
+                    "rows": 3,
                 }
             ),
         }
@@ -3185,8 +3187,43 @@ class EICRecommendationForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        self.fields["for_journal"].initial = self.submission.submitted_to
+        self.layout_fields = {}
+        self.layout_fields["for_journal"] = Div(Field("for_journal"))
+        self.layout_fields["recommendation"] = Div(Field("recommendation"))
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    self.layout_fields["for_journal"],
+                    Div(
+                        Div(
+                            self.layout_fields["recommendation"],
+                            css_class="col-12 col-lg",
+                        ),
+                        Div(Field("tier"), css_class="col-12 col-lg-auto"),
+                        css_class="row mb-0",
+                    ),
+                    Field("remarks_for_authors"),
+                    Field("requested_changes"),
+                    Field("remarks_for_editorial_college"),
+                    css_class="col-12",
+                ),
+                ButtonHolder(
+                    Submit(
+                        "submit", "Save", css_class="btn btn-primary", required=True
+                    ),
+                    css_class="col-12",
+                ),
+                css_class="row",
+            )
+        )
+        self.fields["recommendation"].help_text = (
+            "Selecting any of the three Publish choices means that you recommend publication.<br>"
+            "Which one you choose simply indicates your ballpark evaluation of the "
+            "submission's quality and has no further consequence on the publication."
+        )
 
+        self.fields["for_journal"].initial = self.submission.submitted_to
         if self.reformulate:
             latest_recommendation = self.earlier_recommendations.first()
             if latest_recommendation:
@@ -3195,6 +3232,7 @@ class EICRecommendationForm(forms.ModelForm):
                     latest_recommendation.recommendation
                 )
 
+        # Determine help points for the journal selection
         alternative_journal_ids = (
             self.submission.submitted_to.alternative_journals.active().values_list(
                 "id", flat=True
@@ -3231,18 +3269,25 @@ class EICRecommendationForm(forms.ModelForm):
             )
 
         if journal_help_points:
-            self.fields["for_journal"].help_text = (
-                "Please be aware of all the points below!"
-                "<ul>"
+            journal_help_points_HTML = HTML(
+                '<div class="bg-info bg-opacity-25 p-2 mb-2">Please be aware of all the points below!'
+                + '<ul class="mb-0">'
                 + "".join([f"<li>{point}</li>" for point in journal_help_points])
                 + "</ul>"
+                + "</div>"
             )
+            self.layout_fields["for_journal"].append(journal_help_points_HTML)
 
-        self.fields["recommendation"].help_text = (
-            "Selecting any of the three Publish choices means that you recommend publication.<br>"
-            "Which one you choose simply indicates your ballpark evaluation of the "
-            "submission's quality and has no further consequence on the publication."
-        )
+        # Hide the tier field if the recommendation is not to publish
+        if recommendation_data := self.data.get("recommendation"):
+            hide_tier = recommendation_data != str(EIC_REC_PUBLISH)
+        else:
+            hide_tier = self.fields["recommendation"].initial != EIC_REC_PUBLISH
+
+        if hide_tier:
+            self.fields["tier"].widget = forms.HiddenInput()
+            self.fields["tier"].required = False
+
         self.load_assignment()
 
     def clean(self):
@@ -3257,30 +3302,11 @@ class EICRecommendationForm(forms.ModelForm):
             )
 
         if recommendation == EIC_REC_PUBLISH:
-            if cleaned_data["tier"] == "":
+            if not cleaned_data["tier"]:
                 self.add_error(
                     "tier",
                     "If you recommend publication, please also provide a Tier.",
                 )
-            if journal is None:
-                self.add_error(
-                    "for_journal",
-                    "You must select a journal to recommend publication.",
-                )
-            else:
-                if (
-                    self.submission.nr_unique_thread_vetted_reports
-                    < journal.minimal_nr_of_reports
-                ):
-                    self.add_error(
-                        "recommendation",
-                        "The number of latest vetted reports in this thread"
-                        " ({total_reports}) is too low for this journal"
-                        " ({min_reports}) to recommend publication.".format(
-                            total_reports=self.submission.nr_unique_thread_vetted_reports,
-                            min_reports=journal.minimal_nr_of_reports,
-                        ),
-                    )
         if (
             recommendation in (EIC_REC_PUBLISH, EIC_REC_REJECT)
             and len(cleaned_data["remarks_for_editorial_college"]) < 10
@@ -3294,6 +3320,57 @@ class EICRecommendationForm(forms.ModelForm):
                 "for_journal",
                 "A specific journal must be chosen for any recommendation other than rejection.",
             )
+
+        if journal and (
+            self.submission.nr_unique_thread_vetted_reports
+            < journal.minimal_nr_of_reports
+        ):
+            if recommendation == EIC_REC_PUBLISH:
+                self.add_error(
+                    "recommendation",
+                    "The number of latest vetted reports in this thread"
+                    " ({total_reports}) is too low for this journal"
+                    " ({min_reports}) to recommend publication.".format(
+                        total_reports=self.submission.nr_unique_thread_vetted_reports,
+                        min_reports=journal.minimal_nr_of_reports,
+                    ),
+                )
+            elif recommendation in [EIC_REC_MINOR_REVISION, EIC_REC_MAJOR_REVISION]:
+                self.layout_fields["recommendation"].append(
+                    HTML(
+                        '<div class="bg-warning bg-opacity-10 p-2 mb-2">'
+                        "<p>At least {min_reports} report(s) from different referees are needed to accept a paper "
+                        "in {journal}, whereas you currently have acquired {total_reports} of them. If you request a revision for {journal}, you will need to secure "
+                        "the remaining reports in the next refereeing round before recommending acceptance.</p>"
+                        '<p class="mb-0">You may continue with this recommendation now and secure the reports later, or <a href="{editorial_page_url}">go back</a> to try obtaining them in this round.</p></div>'.format(
+                            journal=journal,
+                            total_reports=self.submission.nr_unique_thread_vetted_reports,
+                            min_reports=journal.minimal_nr_of_reports,
+                            editorial_page_url=reverse(
+                                "submissions:editorial_page",
+                                kwargs={
+                                    "identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr
+                                },
+                            ),
+                        ),
+                    ),
+                )
+
+    def full_clean(self) -> None:
+        super_clean = super().full_clean()
+
+        if not self.data.get("submit"):
+            self.errors.clear()
+
+        return super_clean
+
+    def is_valid(self) -> bool:
+        super_valid = super().is_valid()
+
+        if not self.data.get("submit"):
+            return False
+
+        return super_valid
 
     def save(self):
         # If the cycle hadn't been chosen, set it to the DirectCycle
