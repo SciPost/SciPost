@@ -44,7 +44,7 @@
       {% endif %}
       {% if perms.scipost.can_publish_accepted_submission %}
         <li><a href="{% url 'journals:harvest_citedby_list' %}">Harvest citedby data</a></li>
-        <li><a href="{% url 'journals:harvest_citedby_list' %}">Manage Volumes</a></li>
+        <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
       {% endif %}
       {% if perms.scipost.can_manage_issues %}
         <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
