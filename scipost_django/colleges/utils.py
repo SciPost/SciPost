@@ -32,13 +32,13 @@ def check_profile_eligibility_for_fellowship(profile):
             "There is currently no College in {profile.acad_field}. "
             "Contact EdAdmin or techsupport to get one started."
         )
-    if (
-        Fellowship.objects.active()
-        .regular_or_senior()
-        .filter(contributor__profile=profile)
-        .exists()
-    ):
-        blocks.append("This Profile is associated to an active Fellowship.")
+    # if (
+    #     Fellowship.objects.active()
+    #     .regular_or_senior()
+    #     .filter(contributor__profile=profile)
+    #     .exists()
+    # ):
+    #     blocks.append("This Profile is associated to an active Fellowship.")
     latest_nomination = FellowshipNomination.objects.filter(profile=profile).first()
     if latest_nomination:
         try:

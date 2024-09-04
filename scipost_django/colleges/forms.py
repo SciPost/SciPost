@@ -432,10 +432,12 @@ class FellowshipNominationForm(forms.ModelForm):
         self.profile = kwargs.pop("profile")
         super().__init__(*args, **kwargs)
         self.fields["college"].queryset = College.objects.filter(
-            acad_field=self.profile.acad_field,
-            # id__in=Fellowship.objects.active()
-            # .filter(contributor=self.fields["nominated_by"].initial)
-            # .values_list("college", flat=True),
+            Q(acad_field=self.profile.acad_field)
+            | Q(
+                acad_field__in=self.profile.specialties.values_list(
+                    "acad_field", flat=True
+                )
+            )
         )
         self.fields["college"].empty_label = None
         self.fields["nominator_comments"].label = False
@@ -490,10 +492,7 @@ class FellowshipNominationForm(forms.ModelForm):
         if failed_eligibility_criteria:
             for criterion in failed_eligibility_criteria:
                 self.add_error(None, criterion)
-        if data["college"].acad_field != self.profile.acad_field:
-            self.add_error(
-                "college", "Mismatch between college.acad_field and profile.acad_field."
-            )
+
         if (not is_edadmin(data["nominated_by"].user)) and (
             data["college"].id
             not in Fellowship.objects.active()
@@ -512,6 +511,18 @@ class FellowshipNominationForm(forms.ModelForm):
             self.add_error(
                 None,
                 "You must denote at least one specialty for the nominee in their nominated college.",
+            )
+
+        # Check that the profile doesn't have an active Fellowship in the selected College
+        if (
+            Fellowship.objects.active()
+            .filter(contributor__profile=self.profile)
+            .filter(college=data["college"])
+            .exists()
+        ):
+            self.add_error(
+                "college",
+                "The nominee already has an active Fellowship in the selected College.",
             )
         return data
 
