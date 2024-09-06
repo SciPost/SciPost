@@ -19,7 +19,7 @@ django-cors-headers==3.5.0	# 2020-09-11, for enabling OAuth2 with django-oauth-t
 django-countries==7.5.1		# 2023-02-26
 django-crispy-forms==2.1	# 2024-02-27
 crispy-bootstrap5==2024.02		# 2024-02-27, bootstrap5 plugin for crispy forms
-django-debug-toolbar==3.2.1     # 2021-05-21
+django-debug-toolbar==4.4.6     # 2024-09-06
 django-extensions==3.2.3	# 2024-02-27 for e.g. runserver_plus (usage: python3 manage.py runserver_plus --cert [certificate .crt file])
 django-filter==2.4.0		# 2021-06-08
 django-guardian==2.4.0		# 2021-07-15
