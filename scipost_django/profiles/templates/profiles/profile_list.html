@@ -146,9 +146,10 @@
                 </thead>
 	
                 <tbody>
- 
-                    {% for branch in branches %}
- 
+                      {% regroup academic_fields by branch as branches %}
+
+                      {% for branch, academic_fields_in_branch in branches %}
+
                         <tr>
  
                             <td class="align-middle">
@@ -160,12 +161,12 @@
 	
                                 <ul class="list-inline m-0">
  
-                                    {% for acad_field in branch.academic_fields.all %}
- 
+                                {% for acad_field in academic_fields_in_branch %}
+
                                         <li class="list-inline-item">
  
-                                            {% if acad_field.profiles.all|length > 0 %}
-	
+                                    {% if acad_field.nr_profiles > 0 %}
+
                                                 <div class="dropdown">
  
                                                     <button class="btn btn-sm btn-primary dropdown-toggle"

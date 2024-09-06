@@ -46,36 +46,29 @@ class ProfileQuerySet(QuerySet):
         last names, and separately by (case-insensitive) email).
         """
         # Start by treating name duplicates, excluding marked Profile non-duplicates
-        from .models import ProfileNonDuplicates
+        from .models import ProfileEmail
 
-        profiles = self.with_full_names().exclude(
-            id__in=ProfileNonDuplicates.objects.values_list("profiles", flat=True)
-        )
+        profiles = self.with_full_names().filter(profilenonduplicates__isnull=True)
+
         duplicates_by_full_name = (
             profiles.values("full_name_annot")
             .annotate(nr_count=Count("full_name_annot"))
             .filter(nr_count__gt=1)
-            .values_list("full_name_annot", flat=True)
+            .values("full_name_annot")
         )
-        from .models import ProfileEmail
 
-        # Now for email duplicates. Because of case-insensitivity, we need some gymnastics
-        pel = ProfileEmail.objects.annotate(email_lower=Lower("email"))
-        # Build list of all duplicate lowercased emails
-        duplicate_emails = [
-            pe["email_lower"]
-            for pe in pel.values("email_lower")
-            .annotate(nel=Count("email_lower"))
-            .filter(nel__gt=1)
-        ]
-        # Then determine all ids of related Profiles with an email in this list
-        ids_of_duplicates_by_email = []
-        for email in duplicate_emails:
-            prof_ids = pel.filter(email_lower=email).values_list("profile", flat=True)
-            prof_ids = set(prof_ids)
-            if len(prof_ids) > 1:
-                ids_of_duplicates_by_email.extend(prof_ids)
-        # Now return list of potential duplicates
+        # Find Profiles whose email is used by another Profile
+        ids_of_duplicates_by_email = (
+            ProfileEmail.objects.annotate(
+                used_by_another=Exists(
+                    ProfileEmail.objects.filter(
+                        ~Q(profile=OuterRef("profile")),
+                        email__iexact=OuterRef("email"),
+                    )
+                )
+            ).filter(used_by_another=True)
+        ).values("profile")
+
         return profiles.filter(
             Q(full_name_annot__in=duplicates_by_full_name)
             | Q(id__in=ids_of_duplicates_by_email)

@@ -9,7 +9,7 @@ from django.core.exceptions import BadRequest
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.detail import DetailView
@@ -20,6 +20,7 @@ from dal import autocomplete
 from guardian.decorators import permission_required
 from mails.views import MailView
 from common.views import HXDynselAutocomplete
+from ontology.models.academic_field import AcademicField
 from profiles import constants
 
 from scipost.mixins import PermissionsMixin, PaginationMixin
@@ -264,7 +265,11 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         """
         Return a queryset of Profiles using optional GET data.
         """
-        queryset = Profile.objects.all()
+        queryset = (
+            Profile.objects.all()
+            .prefetch_related("specialties")
+            .select_related("contributor", "contributor__user")
+        )
         if self.request.GET.get("field"):
             queryset = queryset.filter(acad_field__slug=self.request.GET["field"])
             if self.request.GET.get("specialty"):
@@ -291,11 +296,19 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         refinv_wo_profile = RefereeInvitation.objects.filter(profile__isnull=True)
         reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
 
+        academic_fields = (
+            AcademicField.objects.annotate(nr_profiles=Count("profiles"))
+            .prefetch_related("specialties")
+            .prefetch_related("branch")
+            .order_by("branch")
+        )
+
         context.update(
             {
                 "searchform": SearchTextForm(
                     initial={"text": self.request.GET.get("text")}
                 ),
+                "academic_fields": academic_fields,
                 "nr_contributors_w_duplicate_emails": contributors_w_duplicate_email.count(),
                 "nr_contributors_w_duplicate_names": contributors_w_duplicate_names.count(),
                 "nr_contributors_wo_profile": contributors_wo_profile.count(),
