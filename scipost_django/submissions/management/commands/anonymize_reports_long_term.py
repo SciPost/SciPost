@@ -38,7 +38,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
-        SCIPOST_BACKUPS_DIR = os.environ.get("SCIPOST_BACKUPS_DIR", ".")
+        BACKUPS_DIR = os.environ.get("BACKUP_DIR", ".")
 
         # Get all reports that are signed anonymously
         # and associated with a publication older than three months
@@ -86,7 +86,7 @@ class Command(BaseCommand):
             return
 
         report_anonymization_backup_path = os.path.join(
-            SCIPOST_BACKUPS_DIR, report_anonymization_backup_filename
+            BACKUPS_DIR, report_anonymization_backup_filename
         )
         if os.path.exists(report_anonymization_backup_path):
             self.stdout.write(
