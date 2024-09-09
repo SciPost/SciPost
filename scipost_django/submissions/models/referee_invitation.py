@@ -95,9 +95,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     def __str__(self):
         """Summarize the RefereeInvitation's basic information."""
         value = (
-            self.first_name
-            + " "
-            + self.last_name
+            self.referee_str
             + " to referee "
             + self.submission.title[:30]
             + " by "

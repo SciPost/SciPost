@@ -22,6 +22,13 @@ from ethics.models import CompetingInterest
 
 
 class ProfileQuerySet(QuerySet):
+
+    def eponymous(self):
+        """
+        Returns all non-anonymous Profiles.
+        """
+        return self.exclude(first_name="Anonymous")
+
     def get_unique_from_email_or_None(self, email):
         try:
             return self.get(emails__email=email)

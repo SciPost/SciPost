@@ -6,7 +6,8 @@ import datetime
 import hashlib
 import random
 import string
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
+import uuid
 
 from django.urls import reverse
 from django.conf import settings
@@ -100,7 +101,7 @@ class Contributor(models.Model):
         max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED
     )
     address = models.CharField(max_length=1000, verbose_name="address", blank=True)
-    vetted_by = models.ForeignKey['Contributor'](
+    vetted_by = models.ForeignKey["Contributor"](
         "self",
         on_delete=models.SET(get_sentinel_user),
         related_name="contrib_vetted_by",
@@ -161,6 +162,10 @@ class Contributor(models.Model):
     @property
     def is_duplicate(self):
         return self.duplicate_of is not None
+
+    @property
+    def is_anonymous(self):
+        return self.user.username.startswith("anonymous_")
 
     @property
     def is_currently_available(self):
@@ -250,6 +255,26 @@ class Contributor(models.Model):
         if not self.profile:
             return ConflictOfInterest.objects.none()
         return ConflictOfInterest.objects.filter_for_profile(self.profile)
+
+    @classmethod
+    def create_anonymous(cls, uuid_str: str | None = None) -> "Self":
+        """Create an anonymous contributor with optional UUID last name."""
+        from profiles.models import Profile
+
+        uuid_str = str(uuid.uuid4()) if uuid_str is None else uuid_str
+
+        anonymous_profile = Profile.create_anonymous(uuid_str)
+        anonymous_user = get_user_model().objects.create(
+            first_name="Anonymous",
+            last_name=uuid_str,
+            username="anonymous_" + uuid_str,
+            is_active=False,
+        )
+        return cls.objects.create(
+            status=DISABLED,
+            user=anonymous_user,
+            profile=anonymous_profile,
+        )
 
 
 class UnavailabilityPeriod(models.Model):

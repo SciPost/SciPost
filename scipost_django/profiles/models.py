@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 import datetime
 import secrets
 from typing import TYPE_CHECKING
+import uuid
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models import Q
 
@@ -211,6 +212,17 @@ class Profile(models.Model):
             Q(profile=self, related_profile=profile)
             | Q(related_profile=self, profile=profile)
         ).exists()
+
+    @classmethod
+    def create_anonymous(cls, uuid_str: str | None = None):
+        """Create an anonymous profile."""
+        return cls.objects.create(
+            title="MX",
+            first_name="Anonymous",
+            last_name=uuid_str or str(uuid.uuid4()),
+            accepts_SciPost_emails=False,
+            accepts_refereeing_requests=False,
+        )
 
 
 class ProfileEmail(models.Model):

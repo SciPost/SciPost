@@ -32,6 +32,7 @@ from submissions.models import (
 from scipost.models import Contributor
 from colleges.models import Fellowship
 from ethics.models import SubmissionClearance
+from submissions.models.report import AnonymizedReportContributor
 
 
 def submission_short_title(obj):
@@ -472,3 +473,25 @@ class RefereeIndicationAdmin(admin.ModelAdmin):
             if obj.referee
             else f"{obj.first_name} {obj.last_name}"
         )
+
+
+@admin.register(AnonymizedReportContributor)
+class AnonymizedReportContributorAdmin(admin.ModelAdmin):
+    search_fields = [
+        "report__submission__title",
+        "report__submission__author_list",
+        "report__submission__preprint__identifier_w_vn_nr",
+        "original_author__profile__last_name",
+        "original_author__profile__first_name",
+        "anonymized_author__profile__last_name",
+    ]
+    list_display = (
+        "report",
+        "original_author",
+        "anonymized_author",
+    )
+    autocomplete_fields = [
+        "report",
+        "original_author",
+        "anonymized_author",
+    ]
