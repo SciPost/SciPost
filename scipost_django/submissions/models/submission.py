@@ -14,8 +14,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 
-from guardian.models import UserObjectPermissionBase
-from guardian.models import GroupObjectPermissionBase
+from guardian.models import UserObjectPermissionBase, GroupObjectPermissionBase
+from guardian.shortcuts import assign_perm, remove_perm
 
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import SCIPOST_APPROACHES
@@ -24,6 +24,7 @@ from scipost.models import Contributor
 
 from comments.models import Comment
 from colleges.models.fellowship import Fellowship
+from submissions.models.assignment import EditorialAssignment
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
@@ -256,6 +257,7 @@ class Submission(models.Model):
         referee_invitations: "RelatedManager[RefereeInvitation]"
         author_profiles: "RelatedManager[SubmissionAuthorProfile]"
         collections: "RelatedManager[Collection]"
+        editorial_assignments: "RelatedManager[EditorialAssignment]"
 
     # Fields
     preprint = models.OneToOneField(
@@ -927,6 +929,52 @@ class Submission(models.Model):
             fellowships__pool=self
         ).values_list("id", flat=True)
         return self.editor_in_charge.id not in contributors_ids
+
+    def set_editor_in_charge(
+        self, eic: Contributor | None, commit: bool = True
+    ) -> None:
+        """
+        Set the Editor-in-Charge of the Submission.
+        If `eic` is `None`, the EIC will be removed.
+        Also updates the following:
+            - Add permission to the new EIC to vet comments.
+
+        Args:
+            eic: The new Editor-in-Charge.
+            commit: Whether to save the changes to the database.
+        """
+        old_editor = self.editor_in_charge
+        editor_changed = old_editor != eic
+
+        # If the EIC has not changed, return early
+        if not editor_changed:
+            return
+
+        # Add permission to new EIC, remove from old EIC if replaced
+        if isinstance(eic, Contributor):
+            assign_perm("comments.can_vet_comments", eic.user, self.comments.all())
+        if old_editor:
+            remove_perm(
+                "comments.can_vet_comments", old_editor.user, self.comments.all()
+            )
+
+        self.editor_in_charge = eic
+
+        # Add appropriate event for EdAdmin
+        if isinstance(eic, Contributor):
+            self.add_event_for_edadmin(
+                f"Editor-in-Charge {eic} has been assigned to the Submission"
+                + f", replacing {old_editor}."
+                if old_editor
+                else "."
+            )
+        elif eic is None:
+            self.add_event_for_edadmin(
+                f"Editor-in-Charge {old_editor} has been removed from the Submission."
+            )
+
+        if commit:
+            self.save()
 
     def get_default_fellowship(self):
         """

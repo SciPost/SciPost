@@ -2083,7 +2083,7 @@ class SubmissionReassignmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         """Add related submission as argument."""
-        self.submission = kwargs.pop("submission")
+        self.submission: "Submission" = kwargs.pop("submission")
         super().__init__(*args, **kwargs)
 
         self.fields["new_editor"].queryset = Contributor.objects.filter(
@@ -2112,8 +2112,8 @@ class SubmissionReassignmentForm(forms.ModelForm):
             date_invited=now,
             date_answered=now,
         )
-        self.submission.editor_in_charge = self.cleaned_data["new_editor"]
-        self.submission.save()
+
+        self.submission.set_editor_in_charge(self.cleaned_data["new_editor"])
 
         # Email old and new editor
         if old_assignment and self.cleaned_data["email_old_eic"]:
