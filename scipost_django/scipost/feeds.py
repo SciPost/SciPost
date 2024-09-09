@@ -157,7 +157,13 @@ class LatestPublicationsFeedRSS(Feed):
     link = "/journals/"
 
     def get_object(self, request, specialty=None):
-        qs = Publication.objects.published()
+        qs = Publication.objects.published().prefetch_related(
+            "specialties",
+            "in_issue",
+            "in_issue__in_volume",
+            "in_issue__in_volume__in_journal",
+            "in_journal",
+        )
         if specialty:
             qs = qs.filter(specialties=specialty)
         self.specialty = specialty
