@@ -105,10 +105,8 @@ class BaseAction:
         return text.format(
             count=len(self._objects),
             object=obj.__class__.__name__,
-            author=obj.author.formal_str
-            if hasattr(obj, "author") and obj.author
-            else "",
-            referee=obj.referee_str if hasattr(obj, "referee_str") else "",
+            author=obj.author.formal_str if getattr(obj, "author", None) else "",
+            referee=getattr(obj, "referee_str", ""),
             days=timedelta.days,
             deadline=deadline.days,
             deadline_min=-deadline.days,
