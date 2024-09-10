@@ -3916,12 +3916,11 @@ class RefereeIndicationForm(forms.ModelForm):
         is_fellow = self.profile.id in self.submission.fellows.values_list(
             "contributor__profile__id", flat=True
         )
-        if not (
-            is_author
-            or is_fellow
-            or getattr(self.profile, "contributor") is not None
-            and is_edadmin(self.profile.contributor.user)
-        ):
+        try:
+            is_ed_admin = is_edadmin(self.profile.contributor.user)
+        except Contributor.DoesNotExist:
+            is_ed_admin = False
+        if not (is_author or is_fellow or is_ed_admin):
             self.fields["indication"].choices = [
                 RefereeIndication.INDICATION_CHOICES[0]
             ]
