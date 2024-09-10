@@ -816,79 +816,134 @@ class SubmissionUtils(BaseMailUtil):
     @classmethod
     def send_author_revision_requested_email(cls):
         """Requires loading 'submission' and 'recommendation' attributes."""
+
+        from submissions.models import EICRecommendation, Submission
+
+        recommendation = getattr(cls, "recommendation", None)
+        submission = getattr(cls, "submission", None)
+
+        if not isinstance(recommendation, EICRecommendation):
+            raise ValueError("No recommendation attribute found. Please `.load()` it.")
+        if not isinstance(submission, Submission):
+            raise ValueError("No submission attribute found. Please `.load()` it.")
+
+        match recommendation.recommendation:
+            case -1:  # Minor revision
+                revision_type = "minor"
+            case -2:  # Major revision
+                revision_type = "major"
+            case _:  # Unknown revision type
+                raise ValueError("Unknown revision type")
+
         email_text = (
-            "Dear "
-            + cls.submission.submitted_by.profile.get_title_display()
-            + " "
-            + cls.submission.submitted_by.user.last_name
-            + ", \n\nThe Editor-in-charge of your recent Submission to SciPost,\n\n"
-            + cls.submission.title
-            + " by "
-            + cls.submission.author_list
-            + ","
-            "\n\nhas formulated an Editorial Recommendation, asking for a "
+            "Dear {auth_title} {auth_last_name},"
+            "\n\n"
+            "The Editor-in-charge of your recent Submission to {original_journal_name},\n"
+            "{sub_title}\nby {author_list},\n"
+            "has formulated an Editorial Recommendation, asking for a {revision_type} revision."
+            "\n\n"
+            + (
+                "Moreover, the Editor-in-charge recommends you to submit your modified manuscript "
+                "to {recommendation_journal_name} instead. You can find more information on {recommendation_journal_name}, "
+                "including its acceptance criteria, at https://{domain}/{recommendation_journal_doi}/about."
+                if recommendation.for_journal
+                and recommendation.for_journal != submission.submitted_to
+                else ""
+            )
+            + "You can view the full recommendation at the Submission's Page "
+            "https://{domain}/submission/{identifier_w_vn_nr} "
+            "together with possible Remarks for authors and Requested changes."
+            "Note that the recommendation is viewable only by "
+            "the registered authors of the submission."
+            "\n\n"
+            "To resubmit your paper, please first update the version "
+            "on the preprint server you used to submit the manuscript (e.g. arXiv); "
+            "after appearance, go to the submission page "
+            "https://{domain}/submissions/submit_manuscript and fill in the forms. "
+            "Your submission will be automatically recognized as a resubmission. "
+            "We remind you that you can reply to the referee report(s) "
+            'directly from this Submission Page, using the "Reply to the above Report" link below each report.'
+            "\n\n"
+            + (
+                "Remarks for authors from the Editor-in-charge:\n"
+                "{remarks_for_authors}"
+                "\n\n"
+                if recommendation.remarks_for_authors
+                else ""
+            )
+            + (
+                "Requested changes:\n" "{requested_changes}" "\n\n"
+                if recommendation.requested_changes
+                else ""
+            )
+            + "We thank you very much for your contribution."
+            "\n\nSincerely," + "\nThe SciPost Team."
         )
         email_text_html = (
             "<p>Dear {{ auth_title }} {{ auth_last_name }},</p>"
-            "<p>The Editor-in-charge of your recent Submission to SciPost,</p>"
-            "<p>{{ sub_title }}</p>\n<p>by {{ author_list }},</p>"
-            "\n<p>has formulated an Editorial Recommendation, asking for a "
-        )
-        if cls.recommendation.recommendation == -1:
-            email_text += "minor"
-            email_text_html += "minor"
-        elif cls.recommendation.recommendation == -2:
-            email_text += "major"
-            email_text_html += "major"
-        email_text += (
-            " revision."
-            "\n\nYou can view it at the Submission Page "
-            f"https://{domain}/submission/"
-            + cls.submission.preprint.identifier_w_vn_nr
-            + ". "
+            "<p>The Editor-in-charge of your recent Submission to {{ original_journal_name }},</p>"
+            "<p>{{ sub_title }}\nby {{ author_list }},</p>"
+            "\n<p>has formulated an Editorial Recommendation, asking for a {{ revision_type }} revision.</p>"
+            + (
+                "<p>Moreover, the Editor-in-charge recommends you to submit your modified manuscript "
+                "to <strong>{{ recommendation_journal_name }}</strong> instead. "
+                "You can find more information on {{ recommendation_journal_name }}, "
+                "including its acceptance criteria, at its "
+                '<a href="https://{{ domain }}/{{ recommendation_journal_doi }}/about">about</a> page.</p>'
+                if recommendation.for_journal
+                and recommendation.for_journal != submission.submitted_to
+                else ""
+            )
+            + "\n<p>You can view the full recommendation at the "
+            '<a href="https://{{ domain }}/submission/'
+            "{{ identifier_w_vn_nr }}\">Submission's Page</a>. "
             "Note that the recommendation is viewable only by "
-            "the registered authors of the submission."
-            "To resubmit your paper, please first update the version "
-            "on the arXiv; after appearance, go to the submission page "
-            f"https://{domain}/submissions/submit_manuscript and fill "
-            "in the forms. Your submission will be automatically recognized "
-            "as a resubmission."
-            "\n\nWe thank you very much for your contribution."
-            "\n\nSincerely," + "\n\nThe SciPost Team."
-        )
-        email_text_html += (
-            " revision.</p>"
-            "\n<p>You can view it at the "
-            f'<a href="https://{domain}/submission/'
-            "{{ identifier_w_vn_nr }}\">Submission's Page</a>.</p>"
-            "<p>Note that the recommendation is viewable only by "
             "the registered authors of the submission.</p>"
             "<p>To resubmit your paper, please first update the version "
-            "on the arXiv; after appearance, go to the "
-            f'<a href="https://{domain}/submissions/submit_manuscript">'
-            "submission page</a> and fill "
-            "the forms in. Your submission will be automatically recognized "
-            "as a resubmission.</p>"
-            "\n<p>We thank you very much for your contribution.</p>"
-            "<p>Sincerely,</p>"
-            "<p>The SciPost Team.</p>"
+            "on the preprint server you used to submit the manuscript (e.g. arXiv); "
+            "after appearance, go to the "
+            '<a href="https://{{ domain }}/submissions/submit_manuscript">'
+            "submission page</a> and fill the forms in. "
+            "Your submission will be automatically recognized as a resubmission.</p>"
+            "<p>We remind you that you can reply to the referee report(s) "
+            'directly from this Submission Page, using the "Reply to the above Report" link below each report.</p>'
+            + (
+                "<p>Remarks for authors from the Editor-in-charge:</p>"
+                "<p>{{ remarks_for_authors }}</p>"
+                if recommendation.remarks_for_authors
+                else ""
+            )
+            + (
+                "<p>Requested changes:</p>" "<p>{{ requested_changes }}</p>"
+                if recommendation.requested_changes
+                else ""
+            )
+            + "\n<p>We thank you very much for your contribution.</p>"
+            "<p>Sincerely,\nThe SciPost Team.</p>"
         )
         email_context = {
-            "auth_title": cls.submission.submitted_by.profile.get_title_display(),
-            "auth_last_name": cls.submission.submitted_by.user.last_name,
-            "sub_title": cls.submission.title,
-            "author_list": cls.submission.author_list,
-            "identifier_w_vn_nr": cls.submission.preprint.identifier_w_vn_nr,
+            "auth_title": submission.submitted_by.profile.get_title_display(),
+            "auth_last_name": submission.submitted_by.user.last_name,
+            "sub_title": submission.title,
+            "author_list": submission.author_list,
+            "identifier_w_vn_nr": submission.preprint.identifier_w_vn_nr,
+            "original_journal_name": submission.submitted_to.name,
+            "revision_type": revision_type,
+            "recommendation_journal_name": recommendation.for_journal.name,
+            "recommendation_journal_doi": recommendation.for_journal.doi_label,
+            "remarks_for_authors": recommendation.remarks_for_authors,
+            "requested_changes": recommendation.requested_changes,
+            "domain": domain,
         }
         email_text_html += "<br/>" + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             "SciPost: revision requested",
-            email_text,
+            email_text.format(**email_context),
             f"SciPost Editorial Admin <submissions@{domain}>",
-            [cls.submission.submitted_by.user.email],
-            bcc=[cls.submission.editor_in_charge.user.email, f"submissions@{domain}"],
+            [submission.submitted_by.user.email],
+            bcc=[submission.editor_in_charge.user.email, f"submissions@{domain}"],
             reply_to=[f"submissions@{domain}"],
         )
         emailmessage.attach_alternative(html_version, "text/html")
