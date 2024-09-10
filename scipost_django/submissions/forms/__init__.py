@@ -2421,18 +2421,10 @@ class EditorialAssignmentForm(forms.ModelForm):
         if self.has_accepted_invite():
             # Update related Submission.
             if self.is_normal_cycle():
-                # Default Refereeing process
-                deadline = (
-                    timezone.now()
-                    + self.instance.submission.submitted_to.refereeing_period
-                )
-
                 # Update related Submission.
                 Submission.objects.filter(id=self.submission.id).update(
                     refereeing_cycle=CYCLE_DEFAULT,
-                    status=Submission.IN_REFEREEING,
                     editor_in_charge=self.request.user.contributor,
-                    reporting_deadline=deadline,
                     open_for_reporting=True,
                     open_for_commenting=True,
                     visible_public=True,
@@ -2440,6 +2432,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                 )
                 # Refresh the instance
                 self.instance.submission = Submission.objects.get(id=self.submission.id)
+                self.instance.submission.cycle.reset_refereeing_round()
             else:
                 # Direct editorial recommendation
                 visible_public = False

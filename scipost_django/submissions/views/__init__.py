@@ -1798,7 +1798,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
     else:
         invitation = invitation.first()
 
-    if not invitation:
+    if not isinstance(invitation, RefereeInvitation):
         messages.success(
             request, "There are no more Refereeing Invitations for you to consider."
         )
@@ -1821,6 +1821,13 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
                     )
                 ),
             )
+
+            # If this is the first report to be accepted,
+            # (re)set the refereeing cycle's deadline
+            if not invitation.submission.referee_invitations.accepted().exists():
+                if invitation.submission.cycle:
+                    invitation.submission.cycle.set_default_refereeing_deadline()
+
         else:
             invitation.accepted = False
             decision_string = "declined"

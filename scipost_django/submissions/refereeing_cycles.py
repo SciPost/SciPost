@@ -407,13 +407,18 @@ class BaseCycle(abc.ABC):
         """
         Set the Submission status to IN_REFEREEING and reset the reporting deadline.
         """
-        from .models import Submission  # Prevent circular import errors
+
+        self._submission.status = self._submission.IN_REFEREEING
+        self.set_default_refereeing_deadline()
+
+    def set_default_refereeing_deadline(self):
+        """
+        Reset the reporting deadline to the default value.
+        """
 
         deadline = timezone.now() + datetime.timedelta(days=self.days_for_refereeing)
-        Submission.objects.filter(id=self._submission.id).update(
-            status=self._submission.IN_REFEREEING,
-            reporting_deadline=deadline,
-        )
+        self._submission.reporting_deadline = deadline
+        self._submission.save()
 
     def reinvite_referees(self, referees):
         """
@@ -445,7 +450,7 @@ class RegularCycle(BaseCycle):
 
     @property
     def days_for_refereeing(self):
-        return self._submission.submitted_to.refereeing_period
+        return self._submission.submitted_to.refereeing_period.days
 
 
 class ShortCycle(BaseCycle):
