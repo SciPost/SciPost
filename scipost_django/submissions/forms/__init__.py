@@ -2621,7 +2621,7 @@ class InviteRefereeSearchFrom(forms.Form):
         # self.save_fields_to_session() #! Removed because it is likely causing headaches for editors
 
         profiles = (
-            Profile.objects.all()
+            Profile.objects.eponymous()
             .annot_has_competing_interests_with_submission_authors(self.submission)
             .annotate(
                 is_unavailable=Exists(
