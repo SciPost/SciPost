@@ -54,6 +54,21 @@ class IssueQuerySet(models.QuerySet):
         ).first()
 
 
+class IssueManager(models.Manager.from_queryset(IssueQuerySet)):
+    # Since Issue's `str` method requires these related fields, we prefetch them
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .prefetch_related(
+                "proceedings",
+                "in_volume",
+                "in_volume__in_journal",
+                "in_journal",
+            )
+        )
+
+
 class PublicationQuerySet(models.QuerySet):
     def published(self):
         return self.filter(status=PUBLICATION_PUBLISHED).filter(
@@ -96,6 +111,6 @@ class PublicationResourceQuerySet(models.QuerySet):
 
     def live(self):
         return self.filter(_type=self.model.TYPE_LIVE_REPO)
-    
+
     def sup_info(self):
         return self.filter(_type=self.model.TYPE_SUP_INFO)

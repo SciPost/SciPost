@@ -15,6 +15,7 @@ import requests
 import matplotlib
 
 from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
+from submissions.models.decision import EditorialDecision
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -28,7 +29,14 @@ from django.urls import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Q, Exists, OuterRef
+from django.db.models import (
+    Q,
+    Count,
+    Exists,
+    OuterRef,
+    Subquery,
+    prefetch_related_objects,
+)
 from django.http import Http404, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
@@ -308,22 +316,57 @@ def journal_detail(request, doi_label):
     if not (journal.active or request.user.is_staff):
         raise PermissionDenied("Journal is not active")
 
-    accepted_submission_ids = [
-        sub.id
-        for sub in Submission.objects.accepted()
-        if sub.editorial_decision.for_journal == journal
-    ]
+    prefetch_related_objects([journal], "contained_series")
+
+    accepted_submissions = (
+        (
+            Submission.objects.accepted()
+            .annotate(
+                decision_journal=Subquery(
+                    EditorialDecision.objects.filter(submission=OuterRef("pk"))
+                    .nondeprecated()
+                    .order_by("-version")
+                    .values("for_journal")[:1]
+                )
+            )
+            .filter(decision_journal=journal)
+        )
+        .annotate(
+            thread_sequence_order=Subquery(
+                Submission.objects.filter(
+                    thread_hash=OuterRef("thread_hash"),
+                    submission_date__lte=OuterRef("submission_date"),
+                )
+                .annotate(nr_submissions=Count("pk"))
+                .values("nr_submissions")[:1]
+            ),
+            is_latest=~Exists(
+                Submission.objects.filter(
+                    thread_hash=OuterRef("thread_hash"),
+                    submission_date__gt=OuterRef("submission_date"),
+                )
+            ),
+        )
+        .prefetch_related(
+            "specialties",
+        )
+        .select_related(
+            "acad_field",
+            "preprint",
+            "submitted_to",
+        )
+    )
+
+    journal_publications = Publication.objects.for_journal(journal.name).published()
+
+    most_cited = journal_publications.most_cited(5)
+    latest_publications = journal_publications[:5]
+
     context = {
         "journal": journal,
-        "most_cited": Publication.objects.for_journal(journal.name)
-        .published()
-        .most_cited(5),
-        "latest_publications": Publication.objects.for_journal(
-            journal.name
-        ).published()[:5],
-        "accepted_submissions": Submission.objects.accepted()
-        .filter(pk__in=accepted_submission_ids)
-        .order_by("-latest_activity"),
+        "most_cited": most_cited,
+        "latest_publications": latest_publications,
+        "accepted_submissions": accepted_submissions,
     }
     return render(request, "journals/journal_detail.html", context)
 

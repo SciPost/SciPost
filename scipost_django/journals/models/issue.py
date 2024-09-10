@@ -17,7 +17,7 @@ from ..constants import (
     STATUS_PUBLISHED,
     STATUS_PUBLICLY_OPEN,
 )
-from ..managers import IssueQuerySet
+from ..managers import IssueManager
 from ..validators import doi_issue_validator
 
 
@@ -56,7 +56,7 @@ class Issue(models.Model):
     # absolute path on filesystem: (JOURNALS_DIR)/journal/vol/issue/
     path = models.CharField(max_length=200)
 
-    objects = IssueQuerySet.as_manager()
+    objects = IssueManager()
 
     class Meta:
         default_related_name = "issues"

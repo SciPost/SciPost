@@ -592,7 +592,7 @@ class Submission(models.Model):
     # End shortucut properties for stage checking #
     ###############################################
 
-    @property
+    @cached_property
     def is_latest(self):
         return self == self.get_latest_version()
 
