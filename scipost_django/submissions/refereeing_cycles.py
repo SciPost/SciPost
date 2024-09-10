@@ -1,6 +1,7 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import abc
 import datetime
 import json
 
@@ -235,7 +236,7 @@ class NeedRefereesAction(BaseAction):
         return text
 
 
-class BaseCycle:
+class BaseCycle(abc.ABC):
     """A base blueprint for the Submission refereeing cycle.
 
     The refereeing process may be defined differently for every cycle class by its own
@@ -243,7 +244,6 @@ class BaseCycle:
     permissions and the overall refereeing process.
     """
 
-    days_for_refereeing = 28
     can_invite_referees = True
 
     def __init__(self, submission: "Submission"):
@@ -255,6 +255,11 @@ class BaseCycle:
         if self._required_actions is None:
             self.update_required_actions()
         return self._required_actions
+
+    @property
+    @abc.abstractmethod
+    def days_for_refereeing(self):
+        return 0
 
     @property
     def minimum_number_of_referees(self):
@@ -433,7 +438,14 @@ class BaseCycle:
 
 
 class RegularCycle(BaseCycle):
-    pass
+    """
+    Regular refereeing cycle, used for the first round of refereeing.
+    Duration differs based on the journal, according to article 3.6.3 of the by-laws.
+    """
+
+    @property
+    def days_for_refereeing(self):
+        return self._submission.submitted_to.refereeing_period
 
 
 class ShortCycle(BaseCycle):
@@ -442,7 +454,9 @@ class ShortCycle(BaseCycle):
     by the editor.
     """
 
-    days_for_refereeing = 14
+    @property
+    def days_for_refereeing(self):
+        return 2 * 7  # 2 weeks
 
     @property
     def minimum_number_of_referees(self):

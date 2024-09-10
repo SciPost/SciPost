@@ -193,6 +193,14 @@ class Journal(models.Model):
         ]
         return list(chain(*criteria))
 
+    @property
+    def is_flagship(self):
+        """
+        Return True if this Journal is a flagship Journal,
+        i.e. if its name is of the form "SciPost [Field]".
+        """
+        return self.name == "SciPost " + self.college.acad_field.name
+
     def get_issues(self):
         from journals.models import Issue
 
