@@ -257,7 +257,6 @@ class BaseCycle(abc.ABC):
         return self._required_actions
 
     @property
-    @abc.abstractmethod
     def days_for_refereeing(self):
         return 0
 
