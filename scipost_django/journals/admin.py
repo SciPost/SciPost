@@ -108,9 +108,7 @@ class PublicationResourceInline(admin.TabularInline):
 class PubFracInline(admin.TabularInline):
     model = PubFrac
     list_display = ("organization", "publication", "fraction")
-    autocomplete_fields = [
-        "organization",
-    ]
+    autocomplete_fields = ["organization", "compensated_by"]
 
 
 @admin.register(Publication)
@@ -134,6 +132,8 @@ class PublicationAdmin(admin.ModelAdmin):
         PublicationResourceInline,
     ]
     autocomplete_fields = [
+        "in_journal",
+        "in_issue",
         "accepted_submission",
         "grants",
         "funders_generic",
