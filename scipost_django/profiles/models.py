@@ -30,7 +30,7 @@ from .constants import (
     AFFILIATION_CATEGORIES,
     AFFILIATION_CATEGORY_UNSPECIFIED,
 )
-from .managers import ProfileQuerySet, AffiliationQuerySet
+from .managers import ProfileManager, ProfileQuerySet, AffiliationQuerySet
 
 
 class Profile(models.Model):
@@ -112,7 +112,7 @@ class Profile(models.Model):
         related_query_name="profile",
     )
 
-    objects = ProfileQuerySet.as_manager()
+    objects = ProfileManager()
 
     class Meta:
         ordering = ["last_name", "first_name"]

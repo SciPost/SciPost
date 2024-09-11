@@ -81,6 +81,7 @@ class ContributorQuerySet(models.QuerySet):
             self.exclude(status=DOUBLE_ACCOUNT)
             .exclude(user__is_superuser=True)
             .exclude(user__is_staff=True)
+            .exclude(user__email="")
             .annotate(lower_email=Lower("user__email"))
         )
         duplicates = (
