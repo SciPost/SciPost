@@ -12,6 +12,7 @@ from django.db.models import Q, Sum
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
+from django.views.generic import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
@@ -83,6 +84,16 @@ class AffiliateJournalDetailView(DetailView):
             journal=self.object, year=datetime.date.today().year
         )
         return context
+
+
+class AffiliateJournalCreateView(PermissionRequiredMixin, CreateView):
+    """
+    Create a new affiliate journal.
+    """
+
+    permission_required = "scipost.can_create_affiliate_journals"
+    form_class = AffiliateJournalForm
+    template_name = "affiliates/affiliatejournal_form.html"
 
 
 class AffiliateJournalUpdateView(PermissionRequiredMixin, UpdateView):

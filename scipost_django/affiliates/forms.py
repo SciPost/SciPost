@@ -12,6 +12,7 @@ from crispy_forms.layout import Layout, Field, Fieldset, Div, Submit
 
 from dal import autocomplete
 
+from affiliates.models.publisher import AffiliatePublisher
 from scipost.services import DOICaller, extract_publication_date_from_Crossref_data
 
 from organizations.models import Organization
@@ -30,6 +31,14 @@ class AffiliateJournalForm(forms.ModelForm):
     """
     Form for creating or updating an AffiliateJournal.
     """
+
+    publisher = forms.ChoiceField(
+        choices=[
+            (None, "---------"),
+            ("create", "Create from journal name"),
+        ]
+        + list(AffiliatePublisher.objects.values_list("id", "name")),
+    )
 
     class Meta:
         model = AffiliateJournal
@@ -57,7 +66,7 @@ class AffiliateJournalForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("publisher", type="hidden"),
+            Field("publisher"),
             Fieldset(
                 "Name / Description",
                 Div(
@@ -101,6 +110,20 @@ class AffiliateJournalForm(forms.ModelForm):
         ):
             raise forms.ValidationError("This slug is already in use.")
         return input_slug
+
+    def clean(self):
+        input_publisher = self.cleaned_data["publisher"]
+        if input_publisher == "create":
+            self.cleaned_data["publisher"] = AffiliatePublisher.objects.get_or_create(
+                name=self.cleaned_data["name"]
+            )[0]
+        else:
+            try:
+                self.cleaned_data["publisher"] = AffiliatePublisher.objects.get(
+                    id=input_publisher
+                )
+            except AffiliatePublisher.DoesNotExist:
+                raise forms.ValidationError("The selected publisher does not exist.")
 
 
 class AffiliateJournalManagerForm(AffiliateJournalForm):

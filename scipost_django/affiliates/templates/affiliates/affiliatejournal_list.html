@@ -9,7 +9,10 @@
 
 {% block content %}
 
-  <h2 class="highlight">Affiliate Journals</h2>
+  <div class="d-flex flex-row justify-content-between align-items-center highlight p-2">
+    <h2 class="m-0">Affiliate Journals</h2>
+    <a href="{% url 'affiliates:journal_create' %}" class="btn btn-primary">Create Affiliate Journal</a>
+  </div>
 
   <table class="table align-middle">
     {% for journal in object_list %}

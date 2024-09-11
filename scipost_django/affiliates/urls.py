@@ -14,6 +14,11 @@ urlpatterns = [
     path(  # /affiliates/journals
         "journals", views.AffiliateJournalListView.as_view(), name="journals"
     ),
+    path(  # /affiliates/journals/create
+        "journals/create",
+        views.AffiliateJournalCreateView.as_view(),
+        name="journal_create",
+    ),
     path(  # /affiliates/journals/<slug>
         "journals/<slug:slug>",
         views.AffiliateJournalDetailView.as_view(),

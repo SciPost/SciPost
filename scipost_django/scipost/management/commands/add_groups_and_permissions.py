@@ -531,6 +531,13 @@ class Command(BaseCommand):
             )
         )
 
+        # Affiliate Journals
+        can_create_affiliate_journals, created = Permission.objects.get_or_create(
+            codename="can_create_affiliate_journals",
+            name="Can create Affiliate Journals",
+            content_type=content_type,
+        )
+
         # Assign permissions to groups
         SciPostAdmin.permissions.set(
             [
@@ -580,6 +587,7 @@ class Command(BaseCommand):
                 can_view_internal_subsidy_notes,
                 can_view_internal_organization_notes,
                 can_manage_mailing_lists,
+                can_create_affiliate_journals,
             ]
         )
 
@@ -665,6 +673,7 @@ class Command(BaseCommand):
                 can_view_fellowships_monitor,
                 can_add_notes,
                 can_view_mailing_lists,
+                can_create_affiliate_journals,
             ]
         )
 
