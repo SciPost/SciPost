@@ -240,8 +240,6 @@ class Journal(models.Model):
         return self.publications.all()
 
     def nr_publications(self, tier=None, year=None):
-        from journals.models import Publication
-
         publications = self.get_publications()
         if year:
             publications = publications.filter(publication_date__year=year)
@@ -280,64 +278,35 @@ class Journal(models.Model):
         publications = self.get_publications()
         if specialty:
             publications = publications.filter(specialties=specialty)
-        ncites = 0
-        for pub in publications:
-            if pub.citedby and pub.latest_citedby_update:
-                for citation in pub.citedby:
-                    if citation["year"] == str(year):
-                        ncites += 1
-        return ncites
+
+        return publications.citations_in_year(year)
+
+    def nr_citations_per_year(self):
+        publications = self.get_publications()
+
+        return publications.citations_per_year()
 
     def citedby_impact_factor(self, year, specialty=None):
-        """Compute the impact factor for a given year YYYY, from Crossref cited-by data.
+        """Compute the journals' impact factor for a given year.
 
-        This is defined as the total number of citations in year YYYY
-        for all papers published in years YYYY-1 and YYYY-2, divided
-        by the number of papers published in year YYYY.
+        Optionally, filter publications by specialty.
         """
-        publications = self.get_publications().filter(
-            models.Q(publication_date__year=int(year) - 1)
-            | models.Q(publication_date__year=int(year) - 2)
-        )
+        publications = self.get_publications()
         if specialty:
             publications = publications.filter(specialties=specialty)
-        nrpub = publications.count()
-        if nrpub == 0:
-            return 0
-        ncites = 0
-        for pub in publications:
-            if pub.citedby and pub.latest_citedby_update:
-                for citation in pub.citedby:
-                    if citation["year"] == str(year):
-                        ncites += 1
-        return ncites / nrpub
+
+        return publications.impact_factor(year)
 
     def citedby_citescore(self, year, specialty=None):
-        """Compute the CiteScore for a given year YYYY, from Crossref cited-by data.
+        """Compute the journals' CiteScore for a given year.
 
-        This is defined as the total number of citations in years YYYY to YYYY-3
-        for all papers published in years YYYY to YYYY-3, divided
-        by the number of papers published in that same set of years.
+        Optionally, filter publications by specialty.
         """
-        publications = self.get_publications().filter(
-            publication_date__year__lte=int(year),
-            publication_date__year__gte=int(year) - 3,
-        )
+        publications = self.get_publications()
         if specialty:
             publications = publications.filter(specialties=specialty)
-        nrpub = publications.count()
-        if nrpub == 0:
-            return 0
-        ncites = 0
-        for pub in publications:
-            if pub.citedby and pub.latest_citedby_update:
-                for citation in pub.citedby:
-                    if (
-                        int(citation["year"]) <= year
-                        and int(citation["year"]) >= year - 3
-                    ):
-                        ncites += 1
-        return ncites / nrpub
+
+        return publications.citescore(year)
 
     def cost_per_publication(self, year):
         try:

@@ -492,17 +492,28 @@ def about(request, doi_label):
         raise PermissionDenied("Journal is not active")
 
     year = timezone.now().year
-    nr_publications = journal.nr_publications(year=year)
-    nr_publications_1 = journal.nr_publications(year=year - 1)
-    nr_publications_2 = journal.nr_publications(year=year - 2)
-    nr_citations = journal.nr_citations(year=year)
-    nr_citations_1 = journal.nr_citations(year=year - 1)
-    nr_citations_2 = journal.nr_citations(year=year - 2)
-    citedby_citescore = journal.citedby_citescore(year=year)
-    citedby_citescore_1 = journal.citedby_citescore(year=year - 1)
-    citedby_citescore_2 = journal.citedby_citescore(year=year - 2)
-    citedby_impact_factor_1 = journal.citedby_impact_factor(year - 1)
-    citedby_impact_factor_2 = journal.citedby_impact_factor(year - 2)
+    journal_publications = journal.get_publications()
+
+    nr_publications = journal_publications.filter(publication_date__year=year).count()
+    nr_publications_1 = journal_publications.filter(
+        publication_date__year=year - 1
+    ).count()
+    nr_publications_2 = journal_publications.filter(
+        publication_date__year=year - 2
+    ).count()
+
+    nr_citations_per_year = journal_publications.citations_per_year()
+    nr_citations = nr_citations_per_year.get(year, 0)
+    nr_citations_1 = nr_citations_per_year.get(year - 1, 0)
+    nr_citations_2 = nr_citations_per_year.get(year - 2, 0)
+
+    citedby_citescore = journal_publications.citescore(year=year)
+    citedby_citescore_1 = journal_publications.citescore(year=year - 1)
+    citedby_citescore_2 = journal_publications.citescore(year=year - 2)
+
+    citedby_impact_factor_1 = journal_publications.impact_factor(year - 1)
+    citedby_impact_factor_2 = journal_publications.impact_factor(year - 2)
+
     context = {
         "journal": journal,
         "nr_publications": nr_publications,

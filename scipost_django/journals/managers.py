@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.db import models
+from django.db import connection, models
 from django.utils import timezone
 
 from .constants import (
@@ -97,6 +97,128 @@ class PublicationQuerySet(models.QuerySet):
 
     def most_cited(self, n_returns=5):
         return self.order_by("-number_of_citations")[:n_returns]
+
+    def citations_in_year(self, year) -> int:
+        """
+        Returns the number of citations for all publications in the queryset for a given year.
+        """
+        if not self.exists():
+            return 0
+
+        query = (
+            "SELECT COUNT(*) "
+            "FROM ("
+            "    SELECT jsonb_array_elements(citedby::jsonb) AS citation"
+            "    FROM journals_publication"
+            "    WHERE citedby <> '{}'::jsonb "
+            f"   AND id IN ({', '.join(map(str, self.values_list('id', flat=True)))})"
+            ") AS citations "
+            f"WHERE citation->>'year' = '{year}'"
+        )
+
+        # Run the query
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            citations = cursor.fetchone()
+
+        if citations:
+            return citations[0]
+
+    def citations_per_year(self) -> dict[int, int]:
+        """
+        Returns a dictionary with year as key and number of citations as value.
+        """
+        if not self.exists():
+            return {}
+
+        query = (
+            "SELECT CAST(citation->>'year' AS INTEGER), COUNT(*) "
+            "FROM ("
+            "    SELECT jsonb_array_elements(citedby::jsonb) AS citation"
+            "    FROM journals_publication"
+            "    WHERE citedby <> '{}'::jsonb "
+            f"   AND id IN ({', '.join(map(str, self.values_list('id', flat=True)))})"
+            ") AS citations "
+            "GROUP BY citation->>'year' "
+            "ORDER BY citation->>'year'"
+        )
+
+        # Run the query
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            citations = cursor.fetchall()
+
+        return dict(citations)
+
+    def impact_factor(self, year):
+        """
+        Compute the impact factor for a given year YYYY, from Crossref cited-by data.
+
+        This is defined as the total number of citations in year YYYY
+        for all papers published in years YYYY-1 and YYYY-2, divided
+        by the number of papers published in that same set of years.
+        """
+        qs = self.filter(
+            publication_date__year__gte=int(year) - 2,
+            publication_date__year__lte=int(year) - 1,
+        )
+
+        if not qs.exists():
+            return 0
+
+        query = (
+            "SELECT COUNT(*) "
+            "FROM ("
+            "    SELECT jsonb_array_elements(citedby::jsonb) AS citation"
+            "    FROM journals_publication"
+            "    WHERE citedby <> '{}'::jsonb "
+            f"   AND id IN ({', '.join(map(str, qs.values_list('id', flat=True)))})"
+            ") AS citations "
+            f"WHERE citation->>'year' = '{year}'"
+        )
+
+        # Run the query
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            citations = cursor.fetchone()
+
+        if citations:
+            return citations[0] / qs.count()
+
+    def citescore(self, year):
+        """
+        Compute the CiteScore for a given year YYYY, from Crossref cited-by data.
+
+        This is defined as the total number of citations in years YYYY to YYYY-3
+        for all papers published in years YYYY to YYYY-3, divided
+        by the number of papers published in that same set of years.
+        """
+        qs = self.filter(
+            publication_date__year__lte=int(year),
+            publication_date__year__gte=int(year) - 3,
+        )
+
+        if not qs.exists():
+            return 0
+
+        query = (
+            "SELECT COUNT(*) "
+            "FROM ("
+            "    SELECT jsonb_array_elements(citedby::jsonb) AS citation"
+            "    FROM journals_publication"
+            "    WHERE citedby <> '{}'::jsonb "
+            f"   AND id IN ({', '.join(map(str, qs.values_list('id', flat=True)))})"
+            ") AS citations "
+            f"WHERE citation->>'year' IN ('{year}', '{int(year) - 1}', '{int(year) - 2}', '{int(year) - 3}')"
+        )
+
+        # Run the query
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            citations = cursor.fetchone()
+
+        if citations:
+            return citations[0] / qs.count()
 
 
 class PublicationResourceQuerySet(models.QuerySet):
