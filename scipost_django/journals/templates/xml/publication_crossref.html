@@ -95,6 +95,11 @@
                     <day>{{ publication.publication_date|date:'d' }}</day>
                     <year>{{ publication.publication_date|date:'Y' }}</year>
                 </publication_date>
+                <acceptance_date>
+                    <month>{{ publication.acceptance_date|date:'m' }}</month>
+                    <day>{{ publication.acceptance_date|date:'d' }}</day>
+                    <year>{{ publication.acceptance_date|date:'Y' }}</year>
+                </acceptance_date>
                 <publisher_item>
                     <item_number item_number_type='article-number'>{{ publication.get_paper_nr }}</item_number>
                 </publisher_item>
