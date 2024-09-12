@@ -21,7 +21,13 @@
       {% for issue in form.get_possible_issues %}
         <li><a href="?issue={{ issue.id }}">{{ issue }}</a></li>
       {% empty %}
-        <li><em>No Issues found. Please contact administration</em></li>
+        <li>No Issues found.
+          {% if perms.scipost.can_manage_issues %}
+            <a href="{% url 'journals:add_issue' %}">Create a new one.</a>
+          {% else %}
+            Contact administration.
+          {% endif %}
+        </li>
       {% endfor %}
     </ul>
   {% endif %}
