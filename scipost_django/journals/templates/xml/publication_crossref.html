@@ -63,31 +63,9 @@
                     <title>{{ publication.title }}</title>
                 </titles>
                 <contributors>
-                    {% for author_object in publication.authors.all %}
-                      <person_name sequence="{% if author_object.order == 1 %}first{% else %}additional{% endif %}" contributor_role='author'>
-                        <given_name>{{ author_object.first_name }}</given_name>
-                        <surname>{{ author_object.last_name }}</surname>
-                        <affiliations>
-                        {% if author_object.affiliations %}
-                          {% for aff in author_object.affiliations.all %}
-                          <institution>
-                            <institution_name>{{ aff.name }}</institution_name>
-                            {% if aff.ror_json.ror_link %}
-                              <institution_id type="ror">{{ aff.ror_json.ror_link }}</institution_id>
-                            {% else %} {% comment %} Only if ror doesn't exist, acronyms may help {% endcomment %}
-                              {% if aff.acronym %}
-                                <institution_acronym>{{ aff.acronym }}</institution_acronym>
-                              {% endif %}
-                            {% endif %}
-                          </institution>
-                          {% endfor %}
-                        {% endif %}
-                        </affiliations>
-                        {% if author_object.profile.orcid_id %}
-                          <ORCID authenticated="{{ author_object.profile.orcid_authenticated|yesno:"true,false" }}">https://orcid.org/{{ author_object.profile.orcid_id }}</ORCID>
-                        {% endif %}
-                      </person_name>
-                    {% endfor %}
+                  {% for publication_author in publication.authors.all %}
+                    {% include "xml/_person_name_crossref.html" with publication_author=publication_author %}
+                  {% endfor %}
                 </contributors>
 		            <jats:abstract>{{ publication.abstract_jats|safe }}</jats:abstract>
                 <publication_date media_type='online'>

@@ -1,0 +1,21 @@
+<person_name sequence="{% if publication_author.order == 1 %}first{% else %}additional{% endif %}" contributor_role='author'>
+  <given_name>{{ publication_author.first_name }}</given_name>
+  <surname>{{ publication_author.last_name }}</surname>
+  <affiliations>
+    {% for affiliation in publication_author.affiliations.all %}
+      <institution>
+        <institution_name>{{ affiliation.name }}</institution_name>
+        {% if affiliation.ror_json.ror_link %}
+          <institution_id type="ror">{{ affiliation.ror_json.ror_link }}</institution_id>
+        {% else %} {% comment %} Only if ror doesn't exist, acronyms may help {% endcomment %}
+          {% if affiliation.acronym %}
+            <institution_acronym>{{ affiliation.acronym }}</institution_acronym>
+          {% endif %}
+        {% endif %}
+      </institution>
+    {% endfor %}
+  </affiliations>
+  {% if publication_author.profile.orcid_id %}
+    <ORCID authenticated="{{ publication_author.profile.orcid_authenticated|yesno:"true,false" }}">https://orcid.org/{{ publication_author.profile.orcid_id }}</ORCID>
+  {% endif %}
+</person_name>
