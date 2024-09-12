@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import BadRequest
 from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
@@ -497,15 +498,45 @@ def _hx_add_profile_email(request, profile_id):
 def _hx_profile_email_mark_primary(request, email_id):
     """
     Make this email the primary one for this Profile.
+
+    If the email's owner is a registered Contributor, only they and users
+    with the `scipost.can_mark_profile_emails_primary` permission can mark it as primary.
+    Otherwise, anyone with the `scipost.can_validate_profile_emails` permission can do so.
+    If the latter try when the user is registered, they are instructed to open a ticket.
     """
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
 
     is_mail_owner = request.user.contributor.profile == profile_email.profile
     can_validate_emails = request.user.has_perm("scipost.can_validate_profile_emails")
-    if not (is_mail_owner or can_validate_emails):
+    can_mark_primary = request.user.has_perm("scipost.can_mark_profile_emails_primary")
+
+    # If the email's owner is a registered Contributor, only they and users
+    # with the `scipost.can_mark_profile_emails_primary` permission can mark it as primary.
+    # Warn users with the `scipost.can_validate_profile_emails` permission to open a ticket.
+    if (
+        profile_email.profile.has_active_contributor
+        and not (can_mark_primary or is_mail_owner)
+        and can_validate_emails
+    ):
+        ticket_url = reverse(
+            "helpdesk:ticket_create",
+            kwargs={
+                "concerning_type_id": ContentType.objects.get_for_model(Profile).id,
+                "concerning_object_id": profile_email.profile.id,
+            },
+        )
         return HTMXResponse(
-            "danger",
-            "You do not have the required permissions to validate this email.",
+            "There exists a Contributor for this email address "
+            "who is the authoritative source for this information. "
+            "If you believe this email should be marked as primary, "
+            "please open a <a href='{}'>support ticket</a>.".format(ticket_url),
+            tag="danger",
+        )
+
+    if not (is_mail_owner or can_validate_emails or can_mark_primary):
+        return HTMXResponse(
+            "You do not have the required permissions to mark this email as primary.",
+            tag="danger",
         )
 
     if request.method == "PATCH":
@@ -528,8 +559,8 @@ def _hx_profile_email_toggle_valid(request, email_id):
     can_validate_emails = request.user.has_perm("scipost.can_validate_profile_emails")
     if not (is_mail_owner or can_validate_emails):
         return HTMXResponse(
-            "danger",
             "You do not have the required permissions to validate this email.",
+            tag="danger",
         )
 
     if request.method == "PATCH":

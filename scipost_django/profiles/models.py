@@ -228,7 +228,7 @@ class Profile(models.Model):
 class ProfileEmail(models.Model):
     """Any email related to a Profile instance."""
 
-    profile = models.ForeignKey("profiles.Profile", on_delete=models.CASCADE)
+    profile = models.ForeignKey[Profile]("profiles.Profile", on_delete=models.CASCADE)
     email = models.EmailField()
     still_valid = models.BooleanField(default=True)
     verified = models.BooleanField(default=False)

@@ -60,7 +60,7 @@
                 >Verify</button>
       {% endif %}
 
-      {% if is_mail_owner or perms.scipost.can_mark_profile_emails_primary %}
+      {% if is_mail_owner or perms.scipost.can_mark_profile_emails_primary or perms.scipost.can_validate_profile_emails %}
         <button type="button"
                 {% if profile_mail.primary %}disabled{% endif %}
                 class="btn btn-sm btn-light py-0"
