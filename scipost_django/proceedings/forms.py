@@ -21,6 +21,7 @@ class ProceedingsForm(forms.ModelForm):
             "submissions_open",
             "submissions_deadline",
             "submissions_close",
+            "publication_date",
             "template_latex_tgz",
             "logo",
             "cover_image",
@@ -33,6 +34,7 @@ class ProceedingsForm(forms.ModelForm):
             "submissions_open": forms.DateInput(attrs={"type": "date"}),
             "submissions_deadline": forms.DateInput(attrs={"type": "date"}),
             "submissions_close": forms.DateInput(attrs={"type": "date"}),
+            "publication_date": forms.DateInput(attrs={"type": "date"}),
             "event_start_date": forms.DateInput(attrs={"type": "date"}),
             "event_end_date": forms.DateInput(attrs={"type": "date"}),
         }
