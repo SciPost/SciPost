@@ -1837,6 +1837,31 @@ def manage_update_metadata(request):
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
+def manage_proceedings_metadata(request):
+    """
+    This page offers Editorial Administrators tools for managing
+    the metadata of Proceedings.
+    """
+    proceedings = Proceedings.objects.all()
+
+    paginator = Paginator(proceedings, 25)
+    page = request.GET.get("page")
+    try:
+        proceedings = paginator.page(page)
+    except PageNotAnInteger:
+        proceedings = paginator.page(1)
+    except EmptyPage:
+        proceedings = paginator.page(paginator.num_pages)
+
+    context = {
+        "proceedings_set": proceedings,
+        "page_obj": proceedings,
+        "paginator": paginator,
+    }
+    return render(request, "journals/manage_proceedings_metadata.html", context)
+
+
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def mark_report_doi_needed(request, report_id, needed):
     report = get_object_or_404(Report, pk=report_id)
     if needed == 1:
@@ -1894,6 +1919,10 @@ def generic_metadata_xml_deposit(request, **kwargs):
         _object = get_object_or_404(Comment, id=object_id)
     elif type_of_object == "update":
         _object = get_object_or_404(PublicationUpdate, id=object_id)
+    elif type_of_object == "proceedings":
+        _object = get_object_or_404(Proceedings, id=object_id)
+    else:
+        raise Http404
 
     if not _object.doi_label:
         _object.create_doi_label()
@@ -1910,9 +1939,10 @@ def generic_metadata_xml_deposit(request, **kwargs):
     idsalt = idsalt.encode("utf8")
     doi_batch_id = hashlib.sha1(salt + idsalt).hexdigest()
 
-    if type_of_object == "update":
+    if isinstance(_object, PublicationUpdate):
         metadata_xml = _object.xml(doi_batch_id=doi_batch_id)
-
+    elif isinstance(_object, Proceedings):
+        metadata_xml = _object.metadata_xml
     else:  # Report or Comment
         relation_to_published = (
             _object.relation_to_published

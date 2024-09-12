@@ -16,6 +16,11 @@
   </li>
   <li>
     <a 
+      {% if active == "proceedings_metadata" %}class="active"{% endif %}
+     href="{% url 'journals:manage_proceedings_metadata' %}">Manage Proceedings metadata</a>
+  </li>
+  <li>
+    <a 
       {% if active == "publication" %}class="active"{% endif %}
      href="{% url 'journals:manage_metadata' %}">Manage Publication metadata</a>
   </li>

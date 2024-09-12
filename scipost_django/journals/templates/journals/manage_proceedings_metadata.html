@@ -1,0 +1,125 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}
+  : Manage Proceedings metadata
+{% endblock pagetitle %}
+
+{% load bootstrap %}
+{% load static %}
+
+{% load journals_extras %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Manage Proceedings metadata</span>
+{% endblock %}
+
+{% block content %}
+  <h1 class="highlight">Manage Proceedings metadata</h1>
+  {% include "journals/_manage_link_list.html" with active="proceedings_metadata" %}
+
+  <h2 class="mt-4">Proceedings</h2>
+
+  <table class="table table-hover">
+    <thead class="table-light">
+      <tr>
+        <th>Proceedings</th>
+        <th>Latest successful Crossref deposit</th>
+        <th>Deposit needs updating?</th>
+      </tr>
+    </thead>
+
+    <tbody id="accordion" role="tablist" aria-multiselectable="true">
+
+      {% for proceedings in proceedings_set %}
+        <tr data-bs-toggle="collapse"
+            data-parent="#accordion"
+            href="#collapse{{ proceedings.id }}"
+            aria-expanded="true"
+            aria-controls="collapse{{ proceedings.id }}"
+            style="cursor: pointer">
+          <td>{{ proceedings }}</td>
+          <td>{{ proceedings|latest_successful_crossref_generic_deposit }}</td>
+          <td>{{ proceedings.doideposit_needs_updating|yesno:'Yes,No,-' }}</td>
+        </tr>
+        <tr id="collapse{{ proceedings.id }}"
+            class="collapse"
+            role="tabpanel"
+            aria-labelledby="heading{{ proceedings.id }}"
+            style="background-color: #fff">
+          <td>
+            <p>
+              <a href="{{ proceedings.get_absolute_url }}">Proceedings {{ proceedings }}</a>
+            </p>
+
+            <h2 class="ms-3">Actions</h2>
+            <ul>
+              <li>
+                <a href="{% url 'proceedings:proceedings_edit' proceedings.id %}">Edit Proceedings</a> (add publication date)
+              </li>
+              <li>
+                <a href="{% url 'journals:create_proceedings_metadata_xml' proceedings.pk %}">Create XML metadata</a>
+              </li>
+              <li>
+                <a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='proceedings' object_id=proceedings.id %}" {% if not proceedings.metadata_xml %}class="pe-none text-muted"{% endif %}>Deposit to Crossref</a>
+              </li>
+            </ul>
+
+          </td>
+          <td colspan="4">
+            <h3 class="mt-4">Crossref Deposits</h3>
+            <table class="table table-sm bg-white">
+              <thead class="table-light">
+                <th>Timestamp</th>
+                <th>batch id</th>
+                <th>deposition date</th>
+                <th>Successful?</th>
+                <th>actions</th>
+              </thead>
+              <tbody>
+
+                {% for deposit in proceedings.genericdoideposit.all %}
+                  <tr>
+                    <td>{{ deposit.timestamp }}</td>
+                    <td>{{ deposit.doi_batch_id }}</td>
+                    <td>
+
+                      {% if deposit.deposition_date %}
+                        {{ deposit.deposition_date }}
+                      {% else %}
+                        Not deposited
+                      {% endif %}
+
+                    </td>
+                    <td>{{ deposit.deposit_successful|yesno:'Yes,No,-' }}</td>
+                    <td>
+                      Mark deposit as
+                      <ul>
+                        <li>
+                          <a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=1 %}">successful</a>
+                        </li>
+                        <li>
+                          <a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a>
+                        </li>
+                      </ul>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="5">No Deposits found for this Proceedings</td>
+                  </tr>
+                {% endfor %}
+
+              </tbody>
+            </table>
+
+          </td>
+        </tr>
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+  <div class="col-12">{% include '_pagination.html' with page_obj=page_obj %}</div>
+
+{% endblock content %}

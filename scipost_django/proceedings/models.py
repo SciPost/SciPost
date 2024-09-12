@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.urls import reverse
 from django.db import models
 from django.utils import timezone
@@ -66,6 +67,9 @@ class Proceedings(TimeStampedModel):
 
     # Metadata
     metadata_xml = models.TextField(blank=True)
+    genericdoideposit = GenericRelation(
+        "journals.GenericDOIDeposit", related_query_name="genericdoideposit"
+    )
 
     # Templates
     template_latex_tgz = models.FileField(
@@ -95,3 +99,7 @@ class Proceedings(TimeStampedModel):
     @property
     def open_for_submission(self):
         return self.submissions_open <= today and self.submissions_close >= today
+
+    @property
+    def doi_label(self):
+        return self.issue.doi_label
