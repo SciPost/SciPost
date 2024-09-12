@@ -96,6 +96,11 @@ class Proceedings(TimeStampedModel):
     def get_absolute_url(self):
         return reverse("proceedings:proceedings_details", args=(self.id,))
 
+    @staticmethod
+    def get_metadata_management_url():
+        """Return url of the metadata management page for Proceedings."""
+        return reverse("journals:manage_proceedings_metadata")
+
     @property
     def open_for_submission(self):
         return self.submissions_open <= today and self.submissions_close >= today

@@ -205,6 +205,11 @@ class Comment(TimeStampedModel):
     def get_attachment_url(self):
         return reverse("comments:attachment", args=(self.id,))
 
+    @staticmethod
+    def get_metadata_management_url():
+        """Return url of the metadata management page for Comments."""
+        return reverse("journals:manage_comment_metadata")
+
     def grant_permissions(self):
         # Import here due to circular import errors
         from submissions.models import Submission

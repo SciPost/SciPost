@@ -2091,6 +2091,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
     context = {
         "response_headers": r.headers,
         "response_text": r.text,
+        "manage_metadata_url": _object.__class__.get_metadata_management_url(),
     }
     return render(request, "journals/generic_metadata_xml_deposit.html", context)
 
@@ -2107,10 +2108,8 @@ def mark_generic_deposit_success(request, deposit_id, success):
     else:
         raise Http404
     deposit.save()
-    if deposit.content_type.name == "report":
-        return redirect(reverse("journals:manage_report_metadata"))
-    else:
-        return redirect(reverse("journals:manage_comment_metadata"))
+
+    return redirect(deposit.content_type.model_class().get_metadata_management_url())
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)

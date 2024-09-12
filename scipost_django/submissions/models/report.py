@@ -199,6 +199,11 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             },
         )
 
+    @staticmethod
+    def get_metadata_management_url():
+        """Return url of the metadata management page for Reports."""
+        return reverse("journals:manage_report_metadata")
+
     @property
     def is_in_draft(self):
         """Return if Report is in draft."""

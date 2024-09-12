@@ -34,10 +34,7 @@
 	{{ response_text|safe }}
       </div>
 
-      <h3>Return to the <a href="{% url 'journals:manage_report_metadata' %}">report</a>,
-	<a href="{% url 'journals:manage_comment_metadata' %}">comment</a>
-	or <a href="{% url 'journals:manage_update_metadata' %}">PublicationUpdate</a>
-	metadata management page</h3>
+      <h3>Return to the <a href="{{ manage_metadata_url }}">management page</a></h3>
 
     </div>
   </div>

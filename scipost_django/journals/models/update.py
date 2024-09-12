@@ -112,6 +112,11 @@ class PublicationUpdate(models.Model):
             "scipost:publication_update_detail",
             kwargs={"doi_label": self.publication.doi_label, "update_nr": self.number},
         )
+    
+    @staticmethod
+    def get_metadata_management_url():
+        """Return url of the metadata management page for PublicationUpdates."""
+        return reverse("journals:manage_update_metadata")
 
     def xml(self, doi_batch_id):
         """
