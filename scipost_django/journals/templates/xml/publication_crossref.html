@@ -141,7 +141,7 @@
                 {% if publication.metadata.citation_list %}
                     <citation_list>
                         {% for ref in publication.metadata.citation_list %}
-                            <citation key='{{ ref.key }}'>
+                            <citation key="{{ ref.key }}">
                                 <doi>{{ ref.doi }}</doi>
                             </citation>
                         {% endfor %}
