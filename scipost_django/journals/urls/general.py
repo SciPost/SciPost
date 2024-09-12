@@ -267,8 +267,8 @@ urlpatterns = [
     ),
     path(
         "admin/<publication_doi_label:doi_label>/metadata/crossref/create",
-        journals_views.CreateMetadataXMLView.as_view(),
-        name="create_metadata_xml",
+        journals_views.CreatePublicationMetadataXMLView.as_view(),
+        name="create_publication_metadata_xml",
     ),
     path(
         "admin/<publication_doi_label:doi_label>/metadata/crossref/deposit/<str:option>",

@@ -14,6 +14,7 @@ import requests
 
 import matplotlib
 
+from proceedings.models import Proceedings
 from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
 from submissions.models.decision import EditorialDecision
 
@@ -72,6 +73,8 @@ from .models import (
 from .forms import (
     AbstractJATSForm,
     CitationListItemForm,
+    CreateProceedingsMetadataXMLForm,
+    CreatePublicationMetadataXMLForm,
     DraftPublicationUpdateForm,
     FundingInfoForm,
     HTMXInlinePublicationResourceForm,
@@ -81,7 +84,7 @@ from .forms import (
     CreateMetadataXMLForm,
     CitationListBibitemsForm,
     ReferenceFormSet,
-    CreateMetadataDOAJForm,
+    CreatePublicationMetadataDOAJForm,
     DraftPublicationForm,
     PublicationGrantsForm,
     DraftAccompanyingPublicationForm,
@@ -1321,7 +1324,7 @@ def _hx_publication_metadata_delete_generic_funding(request, doi_label, funder_i
     return HttpResponse("")
 
 
-class CreateMetadataXMLView(
+class CreatePublicationMetadataXMLView(
     PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView
 ):
     """
@@ -1331,8 +1334,8 @@ class CreateMetadataXMLView(
     The contents can then be sent to Crossref for registration.
     """
 
-    form_class = CreateMetadataXMLForm
-    template_name = "journals/create_metadata_xml.html"
+    form_class = CreatePublicationMetadataXMLForm
+    template_name = "journals/create_publication_metadata_xml.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -1340,6 +1343,28 @@ class CreateMetadataXMLView(
         valid, errors, xml_str = form.validate_xml(form.xml_str)
 
         return {**context, "valid": valid, "errors": errors, "xml_str": xml_str}
+
+
+class CreateProceedingsMetadataXMLView(UpdateView):
+    """
+    To be called by an EdAdmin (or Production Supervisor) after all proceedings
+    publications have been published. Populates the metadata_xml field of a Proceedings instance.
+    The contents can then be sent to Crossref for registration.
+    """
+
+    model = Proceedings
+    form_class = CreateProceedingsMetadataXMLForm
+    template_name = "journals/create_proceedings_metadata_xml.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        form = context["form"]
+        valid, errors, xml_str = form.validate_xml(form.xml_str)
+
+        return {**context, "valid": valid, "errors": errors, "xml_str": xml_str}
+
+    def get_success_url(self) -> str:
+        return reverse("journals:manage_proceedings_metadata")
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)
@@ -1370,7 +1395,7 @@ def metadata_xml_deposit(request, doi_label, option="test"):
         )
         return redirect(
             reverse(
-                "journals:create_metadata_xml",
+                "journals:create_publication_metadata_xml",
                 kwargs={"doi_label": publication.doi_label},
             )
         )
@@ -1484,7 +1509,7 @@ def mark_deposit_success(request, deposit_id, success):
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def produce_metadata_DOAJ(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    form = CreateMetadataDOAJForm(
+    form = CreatePublicationMetadataDOAJForm(
         request.POST or None, instance=publication, request=request
     )
     if form.is_valid():
@@ -1898,6 +1923,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
     * Reports
     * Comments
     * PublicationUpdates
+    * Proceedings
 
     The metadata is created and immediately deposited at Crossref.
 
@@ -1907,6 +1933,8 @@ def generic_metadata_xml_deposit(request, **kwargs):
 
     For PublicationUpdates, the deposit type is `journal_article` and
     the journal is used as container.
+
+    For Proceedings, the deposit type is `conference`.
     """
     domain = get_current_domain()
 

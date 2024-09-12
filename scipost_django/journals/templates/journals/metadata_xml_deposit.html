@@ -1,6 +1,8 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: metadata XML deposit{% endblock pagetitle %}
+{% block pagetitle %}
+  : metadata XML deposit
+{% endblock pagetitle %}
 
 {% block breadcrumb %}
   <div class="breadcrumb-container">
@@ -19,7 +21,9 @@
 
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">Metadata deposit <small>(using the {{ option }} server)</small></h1>
+      <h1 class="highlight">
+        Metadata deposit <small>(using the {{ option }} server)</small>
+      </h1>
     </div>
   </div>
 
@@ -34,8 +38,10 @@
         <pre><code>{{ response_text|linebreaks }}</code></pre>
 
         {% if perms.scipost.can_publish_accepted_submission %}
-          <br>
-          <p><a href="{{publication.get_absolute_url}}">return to the publication's page</a>, to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a></p>
+          <br />
+          <p>
+            <a href="{{ publication.get_absolute_url }}">return to the publication's page</a>, to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a>
+          </p>
         {% endif %}
 
 
@@ -45,18 +51,20 @@
     <div class="row">
       <div class="col-12">
         <p>
-          <span class="text-danger">The metadata file for this metadata timestamp already exists.</span><br>
-          You might want to <a href="{% url 'journals:create_metadata_xml' doi_label=publication.doi_label %}">produce new metadata</a> to do a new deposit instead.
+          <span class="text-danger">The metadata file for this metadata timestamp already exists.</span>
+          <br />
+          You might want to <a href="{% url 'journals:create_publication_metadata_xml' doi_label=publication.doi_label %}">produce new metadata</a> to do a new deposit instead.
           <p>
 
-          {% if perms.scipost.can_publish_accepted_submission %}
-          <p>
-            <a href="{% url 'journals:manage_metadata' %}">Back to Admin</a>
-          </p>
-          {% endif %}
-      </div>
-    </div>
-  {% endif %}
+            {% if perms.scipost.can_publish_accepted_submission %}
+              <p>
+                <a href="{% url 'journals:manage_metadata' %}">Back to Admin</a>
+              </p>
+            {% endif %}
+
+          </div>
+        </div>
+      {% endif %}
 
 
-{% endblock %}
+    {% endblock %}

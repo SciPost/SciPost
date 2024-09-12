@@ -12,7 +12,7 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
-from django.db.models import Q, Max
+from django.db.models import Q, Max, prefetch_related_objects
 from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
@@ -305,12 +305,8 @@ class CreateMetadataXMLForm(forms.ModelForm):
         if cls.parser is None:
             cls.parser = ET.XMLParser(schema=cls.schema)
 
-    class Meta:
-        model = Publication
-        fields = ["metadata_xml"]
-
     def __init__(self, *args, **kwargs):
-        xml = self.new_xml(kwargs.get("instance"))
+        xml = self.generate_xml(kwargs.get("instance"))
         self.xml_str = self.format_xml(self.decode_html_entities(xml))
         kwargs["initial"] = {"metadata_xml": self.xml_str}
 
@@ -341,34 +337,11 @@ class CreateMetadataXMLForm(forms.ModelForm):
         self.instance.latest_metadata_update = timezone.now()
         return super().save(*args, **kwargs)
 
-    def new_xml(self, publication):
+    def generate_xml(self, object):
         """
         Create new XML structure, return as a string.
         """
-        # Create a doi_batch_id
-        salt = ""
-        for i in range(5):
-            salt = salt + random.choice(string.ascii_letters)
-        salt = salt.encode("utf8")
-        idsalt = publication.title[:10]
-        idsalt = idsalt.encode("utf8")
-        doi_batch_id = hashlib.sha1(salt + idsalt).hexdigest()
-
-        funders = (
-            Funder.objects.filter(grants__in=publication.grants.all())
-            | publication.funders_generic.all()
-        ).distinct()
-
-        # Render from template
-        template = loader.get_template("xml/publication_crossref.html")
-        context = {
-            "domain": get_current_domain(),
-            "publication": publication,
-            "doi_batch_id": doi_batch_id,
-            "deposit_email": settings.CROSSREF_DEPOSIT_EMAIL,
-            "funders": funders,
-        }
-        return template.render(context)
+        return ""
 
     def format_xml(self, xml_str: str) -> str:
         """
@@ -400,7 +373,81 @@ class CreateMetadataXMLForm(forms.ModelForm):
             return False, [str(error)], xml_str
 
 
-class CreateMetadataDOAJForm(forms.ModelForm):
+class CreatePublicationMetadataXMLForm(CreateMetadataXMLForm):
+
+    class Meta:
+        model = Publication
+        fields = ["metadata_xml"]
+
+    def generate_xml(self, publication):
+        # Create a doi_batch_id
+        salt = ""
+        for i in range(5):
+            salt = salt + random.choice(string.ascii_letters)
+        salt = salt.encode("utf8")
+        idsalt = publication.title[:10]
+        idsalt = idsalt.encode("utf8")
+        doi_batch_id = hashlib.sha1(salt + idsalt).hexdigest()
+
+        prefetch_related_objects(
+            [publication],
+            "authors__profile",
+            "authors__affiliations",
+            "grants",
+        )
+
+        funders = (
+            Funder.objects.filter(grants__in=publication.grants.all())
+            | publication.funders_generic.all()
+        ).distinct()
+
+        # Render from template
+        template = loader.get_template("xml/publication_crossref.html")
+        context = {
+            "domain": get_current_domain(),
+            "publication": publication,
+            "doi_batch_id": doi_batch_id,
+            "deposit_email": settings.CROSSREF_DEPOSIT_EMAIL,
+            "funders": funders,
+        }
+        return template.render(context)
+
+
+class CreateProceedingsMetadataXMLForm(CreateMetadataXMLForm):
+
+    class Meta:
+        model = Proceedings
+        fields = ["metadata_xml"]
+
+    def generate_xml(self, proceedings: "Proceedings"):
+        # Create a doi_batch_id
+        salt = ""
+        for i in range(5):
+            salt = salt + random.choice(string.ascii_letters)
+        salt = salt.encode("utf8")
+        idsalt = proceedings.event_name[:10]
+        idsalt = idsalt.encode("utf8")
+        doi_batch_id = hashlib.sha1(salt + idsalt).hexdigest()
+
+        prefetch_related_objects(
+            [proceedings],
+            "fellowships__contributor__profile",
+            "issue__publications__authors__profile",
+            "issue__publications__authors__affiliations",
+        )
+
+        # Render from template
+        template = loader.get_template("xml/proceedings_crossref.html")
+        context = {
+            "domain": get_current_domain(),
+            "proceedings": proceedings,
+            "doi_batch_id": doi_batch_id,
+            "deposit_email": settings.CROSSREF_DEPOSIT_EMAIL,
+        }
+        return template.render(context)
+
+
+class CreatePublicationMetadataDOAJForm(forms.ModelForm):
     class Meta:
         model = Publication
         fields = ["metadata_DOAJ"]
@@ -694,7 +741,9 @@ class DraftPublicationForm(forms.ModelForm):
 
             # Create supplementary information for any provided external links
             #! Refactor: may be possible to check if url is present in related publications
-            is_codebase = self.issue is None and "codebase" in self.to_journal.name.lower()
+            is_codebase = (
+                self.issue is None and "codebase" in self.to_journal.name.lower()
+            )
             if self.submission.code_repository_url and not is_codebase:
                 PublicationResource.objects.get_or_create(
                     publication=self.instance,
@@ -702,7 +751,9 @@ class DraftPublicationForm(forms.ModelForm):
                     url=self.submission.code_repository_url,
                     comments="Code repository",
                 )
-            is_datasets = self.issue is None and "datasets" in self.to_journal.name.lower()
+            is_datasets = (
+                self.issue is None and "datasets" in self.to_journal.name.lower()
+            )
             if self.submission.data_repository_url and not is_datasets:
                 PublicationResource.objects.get_or_create(
                     publication=self.instance,

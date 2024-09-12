@@ -31,7 +31,7 @@
     <div>Crossref</div>
     <ul>
       <li>
-        <a href="{% url 'journals:create_metadata_xml' publication.doi_label %}">Create/update the XML metadata</a>
+        <a href="{% url 'journals:create_publication_metadata_xml' publication.doi_label %}">Create/update the XML metadata</a>
       </li>
       <li>
         <a href="{% url 'journals:metadata_xml_deposit' publication.doi_label 'deposit' %}">Deposit the metadata to Crossref</a>
@@ -75,7 +75,7 @@
         <a href="{% url 'journals:manage_publication_resources' publication.doi_label %}">Manage publication resources</a>
       </li>
       <li>
-	<a href="{% url 'journals:define_pubfracs' publication.doi_label %}">Define PubFracs (balanced affiliations algorithm)</a>
+        <a href="{% url 'journals:define_pubfracs' publication.doi_label %}">Define PubFracs (balanced affiliations algorithm)</a>
       </li>
       <li>
         <a href="{% url 'journals:adjust_pubfracs' publication.doi_label %}">Adjust PubFracs</a>

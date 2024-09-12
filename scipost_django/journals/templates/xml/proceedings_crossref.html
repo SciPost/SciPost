@@ -1,0 +1,113 @@
+{% spaceless %}
+<?xml version="1.0" encoding="UTF-8"?>
+<doi_batch version="5.3.1" xmlns="http://www.crossref.org/schema/5.3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fr="http://www.crossref.org/fundref.xsd" xsi:schemaLocation="http://www.crossref.org/schema/5.3.1 http://www.crossref.org/shema/deposit/crossref5.3.1.xsd" xmlns:ai="http://www.crossref.org/AccessIndicators.xsd" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+    <head>
+        <doi_batch_id>{{ doi_batch_id }}</doi_batch_id>
+        <timestamp>{% now "YmdHis" %}</timestamp>
+        <depositor>
+            <depositor_name>scipost</depositor_name>
+            <email_address>{{ deposit_email }}</email_address>
+        </depositor>
+        <registrant>scipost</registrant>
+    </head>
+    <body>
+      <conference>
+        <contributors>
+          {% if proceedings.lead_fellow %} <!-- If there is a lead fellow, we put them first -->
+            <person_name sequence="first" contributor_role="editor">
+              <given_name>{{ proceedings.lead_fellow.contributor.profile.first_name }}</given_name>
+              <surname>{{ proceedings.lead_fellow.contributor.profile.last_name }}</surname>
+            </person_name>
+            {% for fellow in proceedings.fellowships.all %}
+              {% if not fellow == proceedings.lead_fellow %}
+                <person_name sequence="additional" contributor_role="editor">
+                  <given_name>{{ fellow.contributor.profile.first_name }}</given_name>
+                  <surname>{{ fellow.contributor.profile.last_name }}</surname>
+                </person_name>
+              {% endif %}
+            {% endfor %}
+          {% else %} <!-- If there is no lead fellow, we list them in default order -->
+            {% for fellow in proceedings.fellowships.all %}
+              <person_name sequence="{% if forloop.first %}first{% else %}additional{% endif %}" contributor_role="editor">
+                <given_name>{{ fellow.contributor.profile.first_name }}</given_name>
+                <surname>{{ fellow.contributor.profile.last_name }}</surname>
+              </person_name>
+            {% endfor %}
+          {% endif %}
+          <person_name sequence="first" contributor_role="editor">
+            <given_name>Elvira</given_name>
+            <surname>Drolbman</surname>
+          </person_name>
+        </contributors>
+        <event_metadata>
+          <conference_name>{{ proceedings.event_name }}</conference_name>
+          <conference_acronym>{{ proceedings.event_suffix }}</conference_acronym>
+          <conference_date start_month="{{ proceedings.event_start_date|date:'m' }}" start_year="{{ proceedings.event_start_date|date:'Y' }}" start_day="{{ proceedings.event_start_date|date:'d' }}" end_month="{{ proceedings.event_end_date|date:'m' }}" end_year="{{ proceedings.event_end_date|date:'Y' }}" end_day="{{ proceedings.event_end_date|date:'d' }}">
+            {{ proceedings.event_start_date|date:'Y-m-d' }} to {{ proceedings.event_end_date|date:'Y-m-d' }}
+          </conference_date>
+        </event_metadata>
+        <proceedings_metadata language="en">
+          <proceedings_title>Proceedings of the {{ proceedings.event_name }}</proceedings_title>
+          <publisher>
+            <publisher_name>SciPost</publisher_name>
+            <publisher_place>Amsterdam, The Netherlands</publisher_place>
+          </publisher>
+          {% if proceedings.publication_date %}
+            <publication_date media_type="online">
+              <month>{{ proceedings.publication_date|date:'m' }}</month>
+              <day>{{ proceedings.publication_date|date:'d' }}</day>
+              <year>{{ proceedings.publication_date|date:'Y' }}</year>
+            </publication_date>
+          {% endif %}
+          <noisbn reason="simple_series"/>
+          <doi_data>
+            <doi>{{ proceedings.issue.doi_string }}</doi>
+            <resource>https://{{ domain }}/{{ proceedings.issue.doi_string }}</resource>
+          </doi_data>
+        </proceedings_metadata>
+        {% for publication in proceedings.issue.publications.all %}
+          <conference_paper publication_type="full_text">
+            <contributors>
+              {% for publication_author in publication.authors.all %}
+                {% include "xml/_person_name_crossref.html" with  publication_author=publication_author%}
+              {% endfor %}
+            </contributors>
+            <titles>
+              <title>{{ publication.title }}</title>
+            </titles>
+            <publication_date media_type="online">
+              <month>{{ publication.publication_date|date:'m' }}</month>
+              <day>{{ publication.publication_date|date:'d' }}</day>
+              <year>{{ publication.publication_date|date:'Y' }}</year>
+            </publication_date>
+            <doi_data>
+              <doi>{{ publication.doi_string }}</doi>
+              <resource>https://{{ domain }}/{{ publication.doi_string }}</resource>
+              {% if publication.pdf_file %}
+                <collection property='crawler-based'>
+                  <item crawler='iParadigms'>
+                    <resource>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
+                  </item>
+                </collection>
+                <collection property='text-mining'>
+                  <item>
+                    <resource mime_type='application/pdf'>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
+                  </item>
+                </collection>
+              {% endif %}
+            </doi_data>
+            {% if publication.metadata.citation_list %}
+                <citation_list>
+                    {% for ref in publication.metadata.citation_list %}
+                        <citation key="{{ ref.key }}">
+                            <doi>{{ ref.doi }}</doi>
+                        </citation>
+                    {% endfor %}
+                </citation_list>
+            {% endif %}
+          </conference_paper>
+        {% endfor %}
+      </conference>
+    </body>
+</doi_batch>
+{% endspaceless %}
