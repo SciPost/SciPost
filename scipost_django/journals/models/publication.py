@@ -650,8 +650,9 @@ class Publication(models.Model):
             has_affiliation = re.search("\d", author_text) is not None
             
             delimiter: str = r"\\textsuperscript" if has_supperscript else ","
+            has_delimiter = re.search(delimiter, author_text)
             
-            author = re.findall(rf"(.*?){delimiter}", author_text)[0]
+            author = re.findall(rf"(.*?){delimiter}", author_text)[0] if has_delimiter else author_text
             author_list.append(author)
             
             # If no affiliation is present, we add them all.
