@@ -566,6 +566,7 @@ class DraftPublicationForm(forms.ModelForm):
             "title",
             "author_list",
             "abstract",
+            "author_info_source",
             "acad_field",
             "specialties",
             "approaches",
@@ -579,6 +580,7 @@ class DraftPublicationForm(forms.ModelForm):
             "submission_date": forms.DateInput(attrs={"type": "date"}),
             "acceptance_date": forms.DateInput(attrs={"type": "date"}),
             "publication_date": forms.DateInput(attrs={"type": "date"}),
+            "author_info_source": forms.Textarea(attrs={"rows": 1, "placeholder": "Required for docx files! Add a tex-like file with authors and affiliation information."}),
         }
 
     def __init__(
@@ -621,6 +623,14 @@ class DraftPublicationForm(forms.ModelForm):
         else:
             self.fields["in_issue"].queryset = self.get_possible_issues()
             self.delete_secondary_fields()
+        
+        if self.submission: # For when creating the publication object.
+            repository = self.submission.production_stream.proofs_repository
+        else: # For when Updating the publication object.
+            repository = self.instance.proofs_repository
+        
+        if repository.fetch_tex():
+            self.fields["author_info_source"].required = False
 
     def get_possible_issues(self):
         issues = Issue.objects.filter(until_date__gte=timezone.now())
@@ -679,7 +689,7 @@ class DraftPublicationForm(forms.ModelForm):
         if do_prefill:
             self.first_time_fill()
             # We cannot trust the author associations ordered in Submission.
-            self.instance.reset_author_associations()
+            self.instance.reset_author_associations()                
         
         return self.instance
 

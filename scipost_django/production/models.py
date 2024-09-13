@@ -16,6 +16,7 @@ from django.db.models import Value
 from django.db.models.functions import Concat
 from django.conf import settings
 import gitlab
+import re
 
 from guardian.shortcuts import assign_perm, remove_perm
 
@@ -551,9 +552,6 @@ class ProofsRepository(models.Model):
         except:
             return None
 
-        publication: "Publication" = self.stream.submission.publications.first()
-        publication_filename = publication.doi_label.replace(".", "_") + ".tex"
-
         # Attempt to fetch the project from GitLab
         try:
             project = gl.projects.get(self.git_path)
@@ -562,6 +560,7 @@ class ProofsRepository(models.Model):
 
         # Attempt to fetch the publication file
         try:
+            publication_filename = [file["name"] for file in project.repository_tree() if re.findall("\d+(_\d+)*.tex", file["name"])][0]
             publication_file = project.files.get(
                 file_path=publication_filename, ref="main"
             )

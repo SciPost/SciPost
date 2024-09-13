@@ -182,6 +182,7 @@ class Publication(models.Model):
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = models.JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
+    author_info_source = models.TextField(blank=True, null=True) # To handle docx files better.
 
     # Date fields
     submission_date = models.DateField(verbose_name="submission date")
@@ -618,6 +619,9 @@ class Publication(models.Model):
 
     @cached_property
     def tex_contents(self) -> str | None:
+        if self.author_info_source != "": # For docx files use author_info_source.
+            return self.author_info_source
+        
         return self.proofs_repository.fetch_tex()
 
     def construct_tex_author_info(self) -> tuple[list[str], list[list[int]]]:
