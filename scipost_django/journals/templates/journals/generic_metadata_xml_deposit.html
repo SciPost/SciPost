@@ -25,14 +25,10 @@
       {% endif %}
 
       <h3 class="my-1">Response headers:</h3>
-      <div>
-	<pre><code>{{ response_headers|linebreaks }}</code></pre>
-      </div>
+	    <pre><code>{{ response_headers|linebreaks }}</code></pre>
 
       <h3 class="mt-3">Response text:</h3>
-      <div class="border p-3 my-3">
-	{{ response_text|safe }}
-      </div>
+      <pre><code>{{ response_text|linebreaks }}</code></pre>
 
       <h3>Return to the <a href="{{ manage_metadata_url }}">management page</a></h3>
 

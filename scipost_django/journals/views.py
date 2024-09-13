@@ -1970,7 +1970,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
     if isinstance(_object, PublicationUpdate):
         metadata_xml = _object.xml(doi_batch_id=doi_batch_id)
     elif isinstance(_object, Proceedings):
-        metadata_xml = _object.metadata_xml
+        metadata_xml = _object.metadata_xml.encode("utf-8")
     else:  # Report or Comment
         relation_to_published = (
             _object.relation_to_published
