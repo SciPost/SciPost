@@ -3023,9 +3023,13 @@ class ReportForm(forms.ModelForm):
             report.status = STATUS_UNVETTED
 
             # Update invitation and report meta data if exist
-            updated_invitations = self.submission.referee_invitations.filter(
+            invitations = self.submission.referee_invitations.filter(
                 referee=report.author
-            ).update(fulfilled=True)
+            )
+            updated_invitations = invitations.update(fulfilled=True)
+            invitations.filter(accepted=None).update(
+                accepted=True, date_responded=timezone.now()
+            )
             if updated_invitations > 0:
                 report.invited = True
 
