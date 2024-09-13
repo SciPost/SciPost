@@ -1736,6 +1736,10 @@ def metadata_DOAJ_deposit(request, doi_label: str) -> HttpResponse:
         print("DOAJ deposit failed", deposit.id)
         mark_doaj_deposit_success(request, deposit.id, 0)
 
+    return redirect(
+        reverse("journals:manage_metadata", kwargs={"doi_label": doi_label})
+    )
+
 
 @permission_required("scipost.can_manage_ontology", return_403=True)
 def publication_add_topic(request, doi_label: str) -> HttpResponse:
