@@ -177,7 +177,21 @@
                     hx-get="{% url 'production:_hx_toggle_on_hold' stream_id=productionstream.id %}"
                     hx-target="#productionstream-{{productionstream.id}}-details"
                     hx-confirm="Are you sure you wish to put this stream on hold?"
-                    hx-swap="outerHTML">Put stream on hold</a>
+                    hx-swap="outerHTML">Put on hold</a>
+                </div>
+              </div>
+            {% endif %}
+
+            
+            {% if perms.scipost.can_publish_accepted_submission %}
+              <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
+                <div class="row m-0 d-none-empty">
+                  <a class="btn btn-light" role="button"
+                          hx-get="{% url 'production:_hx_mark_as_completed' stream_id=productionstream.id %}"
+                          {% if productionstream.status != 'published' %}hx-confirm="Are you sure you want to mark this unpublished stream as completed?"{% endif %}
+                          hx-target="#productionstream-{{ productionstream.id }}-details">
+                    Mark completed
+                  </a>
                 </div>
               </div>
             {% endif %}
@@ -186,25 +200,22 @@
               <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
                 <div class="row m-0 d-none-empty">
                   <a class="btn btn-primary text-white"
-                     href="{% url 'journals:create_publication' productionstream.submission.preprint.identifier_w_vn_nr %}">
-                    Draft publication
+                      href="{% url 'journals:create_publication' productionstream.submission.preprint.identifier_w_vn_nr %}">
+                    Draft new publication
                   </a>
                 </div>
               </div>
-            {% endif %}
-            
-            {% if perms.scipost.can_publish_accepted_submission %}
-              <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
-                <div class="row m-0 d-none-empty">
-                  <a class="btn btn-warning text-white" role="button"
-                          hx-get="{% url 'production:_hx_mark_as_completed' stream_id=productionstream.id %}"
-                          {% if productionstream.status != 'published' %}hx-confirm="Are you sure you want to mark this unpublished stream as completed?"{% endif %}
-                          hx-target="#productionstream-{{ productionstream.id }}-details">
-                    Mark this stream as completed
-                  </a>
+
+              {% for publication in productionstream.submission.publications.all %}
+                <div class="col-12 col-sm-auto col-md-12 col-lg-auto h-100 d-none-empty">
+                  <div class="row m-0 d-none-empty">
+                    <a class="btn btn-link"
+                       href="{{ publication.get_absolute_url }}">{{ publication.citation }}</a>
+                  </div>
                 </div>
-              </div>
+              {% endfor %}
             {% endif %}
+
           </div>
  
         </div>
