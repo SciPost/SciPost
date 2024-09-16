@@ -116,23 +116,27 @@
 	</div>
 </div>
 
-{% if active_assignments %}
+{% if submissions_in_charge %}
   <div class="row">
     <div class="col-12">
       <h3 class="highlight">Submissions for which you are Editor-in-charge</h3>
     </div>
     <div class="col-12">
-      <ul class="list-group list-group-flush">
-        {% for assignment in active_assignments %}
+      {% regroup submissions_in_charge by status_category as submissions_by_status %}
+      {% for submission_group in submissions_by_status %}
+        <h4 class="mt-4 fs-2">{{ submission_group.grouper }}</h4>
+        <ul class="list-group list-group-flush">
+        {% for submission in submission_group.list %}
           <li class="list-group-item">
             <div class="card-body px-0">
-              {% include 'submissions/_submission_card_content.html' with submission=assignment.submission %}
-              {% include 'submissions/_submission_status.html' with submission=assignment.submission %}
-              <p class="card-text mt-2">Manage this Submission from its <a href="{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial Page</a>.</p>
+              {% include 'submissions/_submission_card_content.html' with submission=submission %}
+              {% include 'submissions/_submission_status.html' with submission=submission %}
+              <p class="card-text mt-2">Manage this Submission from its <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Editorial Page</a>.</p>
             </div>
           </li>
         {% endfor %}
-      </ul>
+        </ul>
+      {% endfor %}
     </div>
   </div>
 {% endif %}

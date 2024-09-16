@@ -28,7 +28,17 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import (
+    Q,
+    Case,
+    CharField,
+    Count,
+    Exists,
+    OuterRef,
+    Subquery,
+    Value,
+    When,
+)
 from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect
 from django.template import Context, Template
@@ -1216,7 +1226,53 @@ def personal_page_hx_edadmin(request):
         context["nr_assignments_to_consider"] = (
             contributor.editorial_assignments.invited().count()
         )
-        context["active_assignments"] = contributor.editorial_assignments.ongoing()
+        context["submissions_in_charge"] = (
+            contributor.EIC.exclude(
+                Q(status__in=Submission.TREATED) | Q(status=Submission.RESUBMITTED)
+            )
+            .annotate(
+                status_category=Case(
+                    When(
+                        status=Submission.AWAITING_RESUBMISSION,
+                        then=Value("Awaiting resubmission"),
+                    ),
+                    When(
+                        status=Submission.VOTING_IN_PREPARATION,
+                        then=Value("Voting at the Editorial College"),
+                    ),
+                    When(
+                        status=Submission.IN_VOTING,
+                        then=Value("Voting at the Editorial College"),
+                    ),
+                    default=Value("Ongoing"),
+                    output_field=CharField(),
+                )
+            )
+            .annotate(
+                thread_sequence_order=Subquery(
+                    Submission.objects.filter(
+                        thread_hash=OuterRef("thread_hash"),
+                        submission_date__lte=OuterRef("submission_date"),
+                    )
+                    .annotate(nr_submissions=Count("pk"))
+                    .values("nr_submissions")[:1]
+                ),
+                is_latest=~Exists(
+                    Submission.objects.filter(
+                        thread_hash=OuterRef("thread_hash"),
+                        submission_date__gt=OuterRef("submission_date"),
+                    )
+                ),
+            )
+            .prefetch_related("specialties")
+            .select_related(
+                "acad_field",
+                "preprint",
+                "submitted_to",
+            )
+            .order_by("-status_category", "-submission_date")
+        )
+
         context["nr_reports_to_vet"] = (
             Report.objects.awaiting_vetting()
             .filter(submission__editor_in_charge=contributor)
