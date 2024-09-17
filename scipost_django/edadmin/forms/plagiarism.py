@@ -30,7 +30,10 @@ class PlagiarismAssessmentForm(forms.ModelForm):
         self.fields["comments_for_authors"].widget.attrs.update({"rows": 5, "cols": 80})
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Div(Div(Field("status"), css_class="col col-lg-6"), css_class="row"),
+            Div(
+                Div(Field("status", css_class="d-flex gap-3"), css_class="col"),
+                css_class="row",
+            ),
             Div(
                 Div(Field("comments_for_edadmin"), css_class="col col-lg-6"),
                 Div(Field("comments_for_authors"), css_class="col col-lg-6"),
@@ -57,6 +60,7 @@ class InternalPlagiarismAssessmentForm(PlagiarismAssessmentForm):
             "comments_for_edadmin",
             "comments_for_authors",
         ]
+        widgets = {"status": forms.RadioSelect}
 
 
 class iThenticatePlagiarismAssessmentForm(PlagiarismAssessmentForm):
@@ -67,3 +71,4 @@ class iThenticatePlagiarismAssessmentForm(PlagiarismAssessmentForm):
             "comments_for_edadmin",
             "comments_for_authors",
         ]
+        widgets = {"status": forms.RadioSelect}

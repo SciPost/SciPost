@@ -80,8 +80,9 @@
 
   <div id="submission-{{ submission.pk }}-plagiarism-iThenticate-assessment"
        class="m-2 p-2 border border-2 border-warning"
+       hx-get="{% url 'edadmin:incoming:_hx_plagiarism_iThenticate_assess' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+        hx-trigger="load once"
   >
-    {% include "edadmin/incoming/_hx_plagiarism_assessment.html" with submission=submission assessment=submission.iThenticate_plagiarism_assessment method="iThenticate" %}
   </div>
 
 </details>
