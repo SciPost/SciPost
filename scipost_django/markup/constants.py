@@ -105,6 +105,8 @@ BLEACH_ALLOWED_TAGS = [
     "th",
     "tr",
     "ul",
+    "div",
+    "span",
 ]
 BLEACH_ALLOWED_ATTRIBUTES = {
     "*": ["id"],

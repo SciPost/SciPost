@@ -12,7 +12,9 @@ from django.template.defaultfilters import linebreaksbr
 from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 
-from .constants import (
+from markup.utils.mathjax import MathJaxExtension
+
+from ..constants import (
     recognized_markup_languages,
     ReST_HEADER_REGEX_DICT,
     ReST_ROLES,
@@ -336,50 +338,6 @@ def detect_markup_language(text):
     return detector
 
 
-def apply_markdown_preserving_displayed_maths_bracket(text):
-    """
-    Subsidiary function called by ``apply_markdown_preserving_displayed_maths``.
-    See explanations in docstring of that method.
-    """
-    part = text.partition(r"\[")
-    part2 = part[2].partition(r"\]")
-    return "%s%s%s%s%s" % (
-        markdown.markdown(part[0], extensions=["attr_list"], output_format="html5"),
-        part[1],
-        part2[0],
-        part2[1],
-        (
-            apply_markdown_preserving_displayed_maths_bracket(part2[2])
-            if len(part2[2]) > 0
-            else ""
-        ),
-    )
-
-
-def apply_markdown_preserving_displayed_maths(text):
-    """
-    Processes the string text by first splitting out displayed maths, then applying
-    Markdown on the non-displayed math parts.
-
-    Both ``$$ ... $$`` and ``\[ ... \]`` are recognized, so a double recursive logic is used,
-    first dealing with the ``$$ ... $$`` and then with the ``\[ .. \]``.
-    See the complementary method ``apply_markdown_preserving_displayed_maths_bracket``.
-    """
-    part = text.partition("$$")
-    part2 = part[2].partition("$$")
-    return "%s%s%s%s%s" % (
-        apply_markdown_preserving_displayed_maths_bracket(part[0]),
-        part[1],
-        part2[0],
-        part2[1],
-        (
-            apply_markdown_preserving_displayed_maths(part2[2])
-            if len(part2[2]) > 0
-            else ""
-        ),
-    )
-
-
 def process_markup(text_given, language_forced=None, include_errors=False):
     """
     Process a text in a markup language into HTML.
@@ -463,7 +421,11 @@ def process_markup(text_given, language_forced=None, include_errors=False):
     elif language == "Markdown":
         markup["processed"] = mark_safe(
             bleach.clean(
-                apply_markdown_preserving_displayed_maths(text),
+                markdown.markdown(
+                    text,
+                    extensions=["attr_list", MathJaxExtension()],
+                    output_format="html5",
+                ),
                 tags=BLEACH_ALLOWED_TAGS,
                 attributes=BLEACH_ALLOWED_ATTRIBUTES,
             )
