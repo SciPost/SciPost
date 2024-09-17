@@ -23,9 +23,11 @@ class SubsidyPaymentInline(admin.TabularInline):
     ]
     extra = 0
 
+
 class SubsidyAttachmentInline(admin.TabularInline):
     model = SubsidyAttachment
     extra = 0
+
 
 @admin.register(Subsidy)
 class SubsidyAdmin(admin.ModelAdmin):
@@ -59,7 +61,7 @@ class SubsidyAdmin(admin.ModelAdmin):
     def organization_name_short(self, obj):
         return obj.organization.name[:40]
 
-    @admin.display(description='org type')
+    @admin.display(description="org type")
     def orgtype_display(self, obj):
         return obj.organization.get_orgtype_display()
 
@@ -86,6 +88,32 @@ class SubsidyAttachmentAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(SubsidyPayment)
+class SubsidyPaymentAdmin(admin.ModelAdmin):
+    list_display = [
+        "subsidy",
+        "reference",
+        "amount",
+        "date_scheduled",
+        "status",
+    ]
+    autocomplete_fields = [
+        "subsidy",
+        "invoice",
+        "proof_of_payment",
+    ]
+    search_fields = [
+        "reference",
+        "amount",
+        "subsidy__organization__name",
+        "subsidy__organization__name_original",
+        "subsidy__organization__acronym",
+    ]
+
+    def status(self, obj):
+        return obj.status
+
+
 @admin.register(PubFrac)
 class PubFracAdmin(admin.ModelAdmin):
     list_display = [
@@ -93,7 +121,7 @@ class PubFracAdmin(admin.ModelAdmin):
         "doi_label_display",
         "fraction",
         "cf_value",
-        "compensated_by"
+        "compensated_by",
     ]
     autocomplete_fields = [
         "organization",
@@ -107,15 +135,14 @@ class PubFracAdmin(admin.ModelAdmin):
         "organization__acronym",
     ]
 
-    @admin.display(description='doi label')
+    @admin.display(description="doi label")
     def doi_label_display(self, obj):
-        return (obj.publication.doi_label)
+        return obj.publication.doi_label
 
 
 @admin.register(WorkLog)
 class WorkLogAdmin(admin.ModelAdmin):
     autocomplete_fields = ["user"]
-
 
 
 admin.site.register(PeriodicReportType)
