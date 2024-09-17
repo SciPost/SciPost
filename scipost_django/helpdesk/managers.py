@@ -72,10 +72,13 @@ class TicketQuerySet(models.QuerySet):
             user, "helpdesk.can_view_ticket", klass=self
         )
 
+        created_tickets = self.filter(defined_by=user)
+
         user_handled_tickets = self.filter(assigned_to=user)
 
         return (
             tickets_viewable_because_of_queue
             | user_viewable_tickets
             | user_handled_tickets
+            | created_tickets
         )
