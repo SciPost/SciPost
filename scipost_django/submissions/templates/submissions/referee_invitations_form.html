@@ -30,7 +30,9 @@
       <div class="col-12">
         <h2 class="highlight">Accept or Decline this Refereeing Invitation</h2>
         <h3>Please let us know if you can provide us with a Report for this Submission:</h3>
-        <p>We will expect your report by <b>{{invitation.submission.reporting_deadline}}</b></p>
+        {% if invitation.submission.reporting_deadline %}
+          <p>We will expect your report by <b>{{invitation.submission.reporting_deadline}}</b></p>
+        {% endif %}
         <form action="{% url 'submissions:accept_or_decline_ref_invitations' invitation_id=invitation.id %}" method="post">
           {% csrf_token %}
           {{ form|bootstrap:'4,8' }}

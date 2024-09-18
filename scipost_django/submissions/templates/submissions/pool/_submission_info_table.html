@@ -89,7 +89,9 @@
   <tr>
     <td>Reporting deadline</td>
     <td>
-      {% if submission.reporting_deadline > now %}
+      {% if submission.reporting_deadline is None %}
+        not set
+      {% elif submission.reporting_deadline > now %}
         in {{ submission.reporting_deadline|timeuntil }}
       {% else %}
         {{ submission.reporting_deadline|timesince }} ago

@@ -22,7 +22,9 @@
 	    <h4 class="mb-0">
               <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a>
 	    </h4>
-	    <div class="text-danger mt-1 mb-3">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
+      {% if submission.reporting_deadline %}
+	      <div class="text-danger mt-1 mb-3">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
+      {% endif %}
 	  </li>
 	{% elif is_author_unchecked %}
 	  <li>

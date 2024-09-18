@@ -93,9 +93,10 @@ class BaseAction:
 
         if hasattr(obj, "date_invited") and obj.date_invited:
             timedelta = timezone.now() - obj.date_invited
-        if hasattr(obj, "submission"):
-            print
+        if hasattr(obj, "submission") and obj.submission.reporting_deadline:
             deadline = obj.submission.reporting_deadline - timezone.now()
+        else:
+            deadline = None
 
         # Add the domain name to the url so that it is clickable in the email
         if self.url.startswith("/"):
@@ -109,8 +110,8 @@ class BaseAction:
             author=obj.author.formal_str if getattr(obj, "author", None) else "",
             referee=getattr(obj, "referee_str", ""),
             days=timedelta.days,
-            deadline=deadline.days,
-            deadline_min=-deadline.days,
+            deadline=deadline.days if deadline else "-",
+            deadline_min=-deadline.days if deadline else "-",
             url=base_url,
             url2=self.url2,
         )

@@ -29,6 +29,7 @@ from django.template import Template, Context
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.timezone import timedelta
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -1305,7 +1306,7 @@ def select_referee(request, identifier_w_vn_nr):
     Search for a referee in the set of Profiles, and if none is found,
     create a new Profile and return to this page for further processing.
     """
-    submission = get_object_or_404(
+    submission: Submission = get_object_or_404(
         Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
@@ -1323,11 +1324,16 @@ def select_referee(request, identifier_w_vn_nr):
             )
         )
 
+    # If an explicit refereeing deadline does not exist, assume the cycle's default deadline
+    refereeing_deadline = submission.reporting_deadline or (
+        timezone.now() + timedelta(days=submission.cycle.days_for_refereeing)
+    )
+
     context = {
         "submission": submission,
         "new_profile_form": SimpleProfileForm(),
         "workdays_left_to_report": workdays_between(
-            timezone.now(), submission.reporting_deadline
+            timezone.now(), refereeing_deadline
         ),
     }
     return render(request, "submissions/select_referee.html", context)
@@ -1979,6 +1985,16 @@ def extend_refereeing_deadline(request, identifier_w_vn_nr, days):
         Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
+
+    # Guard against null reporting_deadline
+    if submission.reporting_deadline is None:
+        messages.warning(request, "Reporting deadline is not set.")
+        return redirect(
+            reverse(
+                "submissions:editorial_page",
+                kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+            )
+        )
 
     Submission.objects.filter(pk=submission.id).update(
         reporting_deadline=submission.reporting_deadline

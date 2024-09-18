@@ -12,9 +12,11 @@ by {{ submission.author_list }}%0D%0A
 (see https://{{ request.get_host }}{{ submission.get_absolute_url }} ).
 %0D%0A
 %0D%0A
+{% if submission.reporting_deadline %}
 The refereeing deadline is currently set at {{ submission.reporting_deadline|date:"d M Y" }}.
 %0D%0A
 %0D%0A
+{% endif %}
 Since SciPost runs an open peer-witnessed refereeing process, your input could help in the evaluation of this manuscript. To provide your expert opinion, after logging in, you can simply follow the &quot;Contribute a Report&quot; link on the submission page linked above. You will find refereeing guidelines at https://{{ request.get_host }}{% url 'submissions:referee_guidelines' %} and further links therein.
 %0D%0A
 %0D%0A

@@ -556,6 +556,7 @@ class SubmissionPoolSearchForm(forms.Form):
             submissions = (
                 submissions.in_refereeing()
                 .filter(
+                    reporting_deadline__isnull=False,
                     reporting_deadline__lt=timezone.now(),
                 )
                 .exclude(eicrecommendations__isnull=False)
@@ -1799,12 +1800,6 @@ class SubmissionForm(forms.ModelForm):
         """
         submission = super().save(commit=False)
         submission.submitted_by = self.requested_by.contributor
-        submission.reporting_deadline = (
-            # give 8 days for Admission, Preassignment and Assignment stages
-            timezone.now()
-            + datetime.timedelta(days=8)
-            + self.cleaned_data["submitted_to"].refereeing_period
-        )
 
         # Save expectations
         if fulfilled_expectations := self.cleaned_data.get("fulfilled_expectations"):

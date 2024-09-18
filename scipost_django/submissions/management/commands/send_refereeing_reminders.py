@@ -64,7 +64,10 @@ class Command(BaseCommand):
                     )
                     mail_sender.send_mail()
             # one week before refereeing deadline: auto email reminder to ref
-            if workdays_between(timezone.now(), submission.reporting_deadline) == 5:
+            if (
+                submission.reporting_deadline is not None
+                and workdays_between(timezone.now(), submission.reporting_deadline) == 5
+            ):
                 for (
                     invitation
                 ) in (

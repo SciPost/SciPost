@@ -86,7 +86,7 @@
             <p>
               <em>by {{ assignment.submission.author_list }}</em>
             </p>
-            <p>Refereeing deadline: {{ assignment.submission.reporting_deadline|date:"Y-m-d" }}.</p>
+            <p>Refereeing deadline: {% if assignment.submission.reporting_deadline %}{{ assignment.submission.reporting_deadline|date:"Y-m-d" }}{% else %}not set{% endif %} .</p>
             <p><em>You can manage this Submission from its </em><a href="https://{{ domain }}{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial page</a>.</p>
           </li>
       {% endfor %}

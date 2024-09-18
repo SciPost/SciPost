@@ -32,7 +32,11 @@
           <table>
 	    <tr>
               <th style='min-width: 100px;'>Due:</th>
-              <td>{{ invitation.submission.reporting_deadline|date:'d F Y' }}{% if invitation.submission.reporting_deadline_has_passed %} <span class="label label-sm label-danger ms-2 px-3">overdue</span> {% endif %}<td>
+              {% if invitation.submission.reporting_deadline %}
+                <td>{{ invitation.submission.reporting_deadline|date:'d F Y' }}{% if invitation.submission.reporting_deadline_has_passed %} <span class="label label-sm label-danger ms-2 px-3">overdue</span> {% endif %}</td>
+              {% else %}
+                <td>Not set</td>
+              {% endif %}
 	    </tr>
 	    <tr>
               <th>Status:</th>

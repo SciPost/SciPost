@@ -16,7 +16,10 @@
 
 <p>
   {% if invitation.accepted %}
-    We will look forward to receiving your Report by the reporting deadline {{ invitation.submission.reporting_deadline|date:'Y-m-d' }}.
+    We will look forward to receiving your Report
+    {% if invitation.submission.reporting_deadline %}
+    by the reporting deadline {{ invitation.submission.reporting_deadline|date:'Y-m-d' }}
+    {% endif %}.
     <br/>
     Many thanks for your collaboration,
   {% else %}

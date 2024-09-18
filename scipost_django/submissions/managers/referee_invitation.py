@@ -48,14 +48,16 @@ class RefereeInvitationQuerySet(models.QuerySet):
         1. not responded to invite in more than 3 days.
         2. not fulfilled (but accepted) with deadline within 7 days.
         """
-        compare_3_days = timezone.now() + datetime.timedelta(days=3)
-        compare_7_days = timezone.now() + datetime.timedelta(days=7)
+        in_3_days = timezone.now() + datetime.timedelta(days=3)
+        in_7_days = timezone.now() + datetime.timedelta(days=7)
         return (
             self.filter(cancelled=False, fulfilled=False)
             .filter(
-                models.Q(accepted=None, date_last_reminded__lt=compare_3_days)
+                models.Q(accepted=None, date_last_reminded__lt=in_3_days)
                 | models.Q(
-                    accepted=True, submission__reporting_deadline__lt=compare_7_days
+                    accepted=True,
+                    submission__reporting_deadline__isnull=False,
+                    submission__reporting_deadline__lt=in_7_days,
                 )
             )
             .distinct()
@@ -66,7 +68,7 @@ class RefereeInvitationQuerySet(models.QuerySet):
         qs = self.in_process()
         pseudo_deadline = timezone.now() + datetime.timedelta(days)
         deadline = timezone.now()
-        qs = qs.filter(
+        qs = qs.exclude(submision__reporting_deadline__isnull=True).filter(
             submission__reporting_deadline__lte=pseudo_deadline,
             submission__reporting_deadline__gte=deadline,
         )
@@ -75,4 +77,8 @@ class RefereeInvitationQuerySet(models.QuerySet):
     def overdue(self):
         """Filter non-fulfilled invitations that are overdue."""
         now = timezone.now()
-        return self.in_process().filter(submission__reporting_deadline__lte=now)
+        return (
+            self.in_process()
+            .exclude(submision__reporting_deadline__isnull=True)
+            .filter(submission__reporting_deadline__lte=now)
+        )

@@ -57,7 +57,13 @@
                     <a class="text-nowrap"
                       href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Editorial page</a>
                 </td>
-                <td class="text-nowrap">{{ submission.reporting_deadline|date:"Y-m-d" }}</td>
+                <td class="text-nowrap">
+                  {% if submission.reporting_deadline %}
+                    {{ submission.reporting_deadline|date:"Y-m-d" }}
+                  {% else %}
+                    No deadline
+                  {% endif %}
+                </td>
                 <td>
                   <ul class="m-0">
 

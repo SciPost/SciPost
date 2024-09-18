@@ -151,7 +151,12 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def needs_fulfillment_reminder(self):
         """Check if isn't fullfilled but deadline is closing in."""
-        if self.accepted and not self.cancelled and not self.fulfilled:
+        if (
+            self.accepted
+            and not self.cancelled
+            and not self.fulfilled
+            and self.submission.reporting_deadline is not None
+        ):
             # Refereeing deadline closing in/overdue, but invitation isn't fulfilled yet.
             return (self.submission.reporting_deadline - timezone.now()).days < 7
         return False
@@ -159,7 +164,12 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def is_overdue(self):
         """Check if isn't fullfilled but deadline has expired."""
-        if self.accepted and not self.cancelled and not self.fulfilled:
+        if (
+            self.accepted
+            and not self.cancelled
+            and not self.fulfilled
+            and self.submission.reporting_deadline is not None
+        ):
             # Refereeing deadline closing in/overdue, but invitation isn't fulfilled yet.
             return (self.submission.reporting_deadline - timezone.now()).days < 0
         return False

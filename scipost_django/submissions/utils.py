@@ -124,10 +124,14 @@ class SubmissionUtils(BaseMailUtil):
             "\n\nA Submission Page has been activated at "
             f"https://{domain}/submission/"
             + cls.assignment.submission.preprint.identifier_w_vn_nr
-            + " and a refereeing round has been started, with deadline "
-            "currently set at "
-            + datetime.datetime.strftime(
-                cls.assignment.submission.reporting_deadline, "%Y-%m-%d"
+            + (
+                " and a refereeing round has been started, with deadline "
+                "currently set at "
+                + datetime.datetime.strftime(
+                    cls.assignment.submission.reporting_deadline, "%Y-%m-%d"
+                )
+                if cls.assignment.submission.reporting_deadline
+                else ""
             )
             + ".\n\n"
             "During the refereeing round, you are welcome to provide replies to any "
@@ -153,10 +157,14 @@ class SubmissionUtils(BaseMailUtil):
             "\n<p>has successfully passed the assignment stage.</p>"
             f'\n<p>A <a href="https://{domain}/submission/'
             + '{{ identifier_w_vn_nr }}">'
-            "Submission Page</a> has been activated "
-            "and a refereeing round has been started, with deadline "
-            "currently set at {{ deadline }}.</p>"
-            "<h3>Further procedure</h3>"
+            "Submission Page</a> has been activated"
+            + (
+                " and a refereeing round has been started, with deadline "
+                "currently set at {{ deadline }}.</p>"
+                if cls.assignment.submission.reporting_deadline
+                else ""
+            )
+            + "<h3>Further procedure</h3>"
             "<p>During the refereeing round, you are welcome to provide replies to any "
             "Report or Comment posted on your Submission (you can do so from the "
             "Submission Page; you will be informed by email of any such Report or "
@@ -180,8 +188,12 @@ class SubmissionUtils(BaseMailUtil):
             "sub_title": cls.assignment.submission.title,
             "author_list": cls.assignment.submission.author_list,
             "identifier_w_vn_nr": cls.assignment.submission.preprint.identifier_w_vn_nr,
-            "deadline": datetime.datetime.strftime(
-                cls.assignment.submission.reporting_deadline, "%Y-%m-%d"
+            "deadline": (
+                datetime.datetime.strftime(
+                    cls.assignment.submission.reporting_deadline, "%Y-%m-%d"
+                )
+                if cls.assignment.submission.reporting_deadline
+                else ""
             ),
         }
         email_text_html += "<br/>" + EMAIL_FOOTER
@@ -252,9 +264,13 @@ class SubmissionUtils(BaseMailUtil):
             'the "Contribute a Report" link at '
             f"https://{domain}/submission/"
             + cls.invitation.submission.preprint.identifier_w_vn_nr
-            + " before the reporting deadline (currently set at "
-            + datetime.datetime.strftime(
-                cls.invitation.submission.reporting_deadline, "%Y-%m-%d"
+            + (
+                " before the reporting deadline (currently set at "
+                + datetime.datetime.strftime(
+                    cls.invitation.submission.reporting_deadline, "%Y-%m-%d"
+                )
+                if cls.invitation.submission.reporting_deadline
+                else ""
             )
             + "; your report will be automatically recognized as an invited report). "
             "You might want to make sure you are familiar with our refereeing code of conduct "
@@ -285,8 +301,13 @@ class SubmissionUtils(BaseMailUtil):
             "Your report can thereafter be submitted by simply clicking on "
             'the "Contribute a Report" link at '
             f'the <a href="https://{domain}' + '/submission/{{ identifier_w_vn_nr }}">'
-            "Submission's page</a> before the reporting deadline (currently set at "
-            "{{ deadline }}; your report will be automatically recognized as an invited report).</p>"
+            "Submission's page</a>"
+            + (
+                " before the reporting deadline (currently set at " "{{ deadline }}"
+                if cls.invitation.submission.reporting_deadline
+                else ""
+            )
+            + "; your report will be automatically recognized as an invited report).</p>"
             "\n<p>You might want to make sure you are familiar with our "
             f'<a href="https://{domain}/journals/journals_terms_and_conditions">'
             "refereeing code of conduct</a> and with the "
@@ -305,8 +326,12 @@ class SubmissionUtils(BaseMailUtil):
             "sub_title": cls.invitation.submission.title,
             "author_list": cls.invitation.submission.author_list,
             "identifier_w_vn_nr": cls.invitation.submission.preprint.identifier_w_vn_nr,
-            "deadline": datetime.datetime.strftime(
-                cls.invitation.submission.reporting_deadline, "%Y-%m-%d"
+            "deadline": (
+                datetime.datetime.strftime(
+                    cls.invitation.submission.reporting_deadline, "%Y-%m-%d"
+                )
+                if cls.invitation.submission.reporting_deadline
+                else ""
             ),
             "invitation_key": cls.invitation.invitation_key,
         }
@@ -378,9 +403,13 @@ class SubmissionUtils(BaseMailUtil):
             'the "Contribute a Report" link at '
             f"https://{domain}/submission/"
             + cls.invitation.submission.preprint.identifier_w_vn_nr
-            + " before the reporting deadline (currently set at "
-            + datetime.datetime.strftime(
-                cls.invitation.submission.reporting_deadline, "%Y-%m-%d"
+            + (
+                " before the reporting deadline (currently set at "
+                + datetime.datetime.strftime(
+                    cls.invitation.submission.reporting_deadline, "%Y-%m-%d"
+                )
+                if cls.invitation.submission.reporting_deadline
+                else ""
             )
             + "; your report will be automatically recognized as an invited report). "
             "You might want to make sure you are familiar with our refereeing code of conduct "
@@ -414,7 +443,8 @@ class SubmissionUtils(BaseMailUtil):
             "author_list": cls.invitation.submission.author_list,
             "identifier_w_vn_nr": cls.invitation.submission.preprint.identifier_w_vn_nr,
             "deadline": datetime.datetime.strftime(
-                cls.invitation.submission.reporting_deadline, "%Y-%m-%d"
+                cls.invitation.submission.reporting_deadline,
+                "%Y-%m-%d" if cls.invitation.submission.reporting_deadline else "",
             ),
         }
         email_text_html += "<br/>" + EMAIL_FOOTER

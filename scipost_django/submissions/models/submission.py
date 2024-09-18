@@ -304,7 +304,7 @@ class Submission(models.Model):
     referees_flagged = models.TextField(blank=True)
     referees_suggested = models.TextField(blank=True)
     remarks_for_editors = models.TextField(blank=True)
-    reporting_deadline = models.DateTimeField(default=timezone.now)
+    reporting_deadline = models.DateTimeField(null=True, blank=True, default=None)
 
     # Submission status fields
     status = models.CharField(
@@ -626,7 +626,7 @@ class Submission(models.Model):
         return qs.distinct()
 
     @property
-    def cycle(self):
+    def cycle(self) -> ShortCycle | DirectCycle | RegularCycle:
         """Get cycle object relevant for the Submission."""
         if not hasattr(self, "_cycle"):
             self.set_cycle()
@@ -743,11 +743,16 @@ class Submission(models.Model):
     @property
     def reporting_deadline_has_passed(self):
         """Check if Submission has passed its reporting deadline."""
+        if self.reporting_deadline is None:
+            return False
         return timezone.now() > self.reporting_deadline
 
     @property
     def reporting_deadline_approaching(self):
         """Check if reporting deadline is within 7 days from now but not passed yet."""
+        if self.reporting_deadline is None:
+            return False
+
         if self.status != self.IN_REFEREEING:
             # These statuses do not have a deadline
             return False

@@ -24,7 +24,7 @@
 
         <div>
           Editor-in-charge: {{ submission.editor_in_charge }}<br>
-          Refereeing deadline: {{ submission.reporting_deadline }}<br>
+          Refereeing deadline: {% if submission.reporting_deadline %}{{ submission.reporting_deadline|date:"Y-m-d" }}{% else %}not set{% endif %}<br>
           <br>
           Refereeing status summary:<br>
           {% include 'submissions/pool/_referee_invitations_status.html' with submission=submission %}

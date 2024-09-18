@@ -20,9 +20,10 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 
     def refereeing_deadline_within(self, days=7):
         now = timezone.now()
-        return self.exclude(
-            submission__reporting_deadline__gt=now + timezone.timedelta(days=days)
-        ).exclude(submission__reporting_deadline__lt=now)
+        return self.exclude(submission__reporting_deadline__isnull=True).filter(
+            submission__reporting_deadline__lt=now + timezone.timedelta(days=days),
+            submission__reporting_deadline__gt=now,
+        )
 
     def next_invitation_to_be_sent(self, submission_id):
         """Return EditorialAssignment that needs to be sent next."""

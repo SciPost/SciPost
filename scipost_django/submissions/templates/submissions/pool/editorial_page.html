@@ -206,7 +206,7 @@ container border border-warning border-3
       <td>
         {% if submission.is_open_for_reporting_within_deadline %}
           <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
-          <span class="text-muted">Open for refereeing. Deadline: {{ submission.reporting_deadline|date:"SHORT_DATE_FORMAT" }}.</span>
+          <span class="text-muted">Open for refereeing.{% if submission.reporting_deadline %} Deadline: {{ submission.reporting_deadline|date:"SHORT_DATE_FORMAT" }}.{% endif %}</span>
         {% else %}
           <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
           <span class="text-muted">
@@ -232,7 +232,7 @@ container border border-warning border-3
         {% endif %}
 
         {% if submission.can_reset_reporting_deadline %}
-          {% if submission.is_open_for_reporting_within_deadline %}
+          {% if submission.is_open_for_reporting_within_deadline and submission.reporting_deadline is not None %}
             <div class="my-1">
               You may extend the refereeing deadline by
               <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
@@ -255,7 +255,7 @@ container border border-warning border-3
             </div>
           {% else %}
             <div class="mt-1">
-              Open the refereeing round by setting a refereeing deadline:
+              Set a refereeing deadline:
               <form class="d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
                 {% csrf_token %}
                 <div class="row mx-2">
@@ -338,11 +338,13 @@ container border border-warning border-3
                 <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite the first referee here</a>
               {% endif %}
             </li>
-            <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}{% if submission.reporting_deadline_has_passed %} <span class="ms-1 label label-sm label-outline-danger text-uppercase">The reporting deadline has passed</span>{% endif %}) by
-              <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
-              <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=7 %}">1 week</a> or
-              <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>
-            </li>
+            {% if submission.reporting_deadline %}
+              <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}{% if submission.reporting_deadline_has_passed %} <span class="ms-1 label label-sm label-outline-danger text-uppercase">The reporting deadline has passed</span>{% endif %}) by
+                <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
+                <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=7 %}">1 week</a> or
+                <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>
+              </li>
+            {% endif %}
           {% endif %}
           {% if submission.can_reset_reporting_deadline %}
             <li>

@@ -27,7 +27,7 @@
           {% if invitation.related_report.is_in_draft %}
             You have a Report in draft, <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">finish your Report</a>.
           {% else %}
-            <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">Submit your Report</a> due on {{ invitation.submission.reporting_deadline }}.
+            <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">Submit your Report</a>{% if invitation.submission.reporting_deadline %} due on {{ invitation.submission.reporting_deadline }}{% endif %}.
           {% endif %}
         {% endif %}
       </li>

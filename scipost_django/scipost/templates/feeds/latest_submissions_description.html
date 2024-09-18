@@ -1,1 +1,1 @@
-Submitted on {{ obj.submission_date|date:'Y-m-d' }}, refereeing deadline {{ obj.reporting_deadline|date:'Y-m-d' }}.
+Submitted on {{ obj.submission_date|date:'Y-m-d' }}{% if obj.reporting_deadline %}, refereeing deadline {{ obj.reporting_deadline|date:'Y-m-d' }}{% endif %}.
