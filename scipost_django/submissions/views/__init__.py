@@ -1325,8 +1325,9 @@ def select_referee(request, identifier_w_vn_nr):
         )
 
     # If an explicit refereeing deadline does not exist, assume the cycle's default deadline
-    refereeing_deadline = submission.reporting_deadline or (
-        timezone.now() + timedelta(days=submission.cycle.days_for_refereeing)
+    refereeing_deadline = (
+        submission.reporting_deadline
+        or submission.cycle.get_default_refereeing_deadline()
     )
 
     context = {
@@ -1828,11 +1829,13 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
                 ),
             )
 
-            # If this is the first report to be accepted,
-            # (re)set the refereeing cycle's deadline
-            if not invitation.submission.referee_invitations.accepted().exists():
-                if invitation.submission.cycle:
-                    invitation.submission.cycle.set_default_refereeing_deadline()
+            # Set the refereeing cycle's deadline to the cycle's default
+            # if it is not set yet.
+            if invitation.submission.reporting_deadline is None:
+                invitation.submission.reporting_deadline = (
+                    invitation.submission.cycle.get_default_refereeing_deadline()
+                )
+                invitation.submission.save()
 
         else:
             invitation.accepted = False

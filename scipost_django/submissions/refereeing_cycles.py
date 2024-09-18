@@ -405,20 +405,20 @@ class BaseCycle(abc.ABC):
 
     def reset_refereeing_round(self):
         """
-        Set the Submission status to IN_REFEREEING and reset the reporting deadline.
+        Set the Submission status to IN_REFEREEING and reset the reporting deadline to None.
         """
 
         self._submission.status = self._submission.IN_REFEREEING
-        self.set_default_refereeing_deadline()
+        self._submission.reporting_deadline = None
+        self._submission.save()
 
-    def set_default_refereeing_deadline(self):
+    def get_default_refereeing_deadline(self):
         """
-        Reset the reporting deadline to the default value.
+        Get the default refereeing deadline for the Submission.
         """
 
         deadline = timezone.now() + datetime.timedelta(days=self.days_for_refereeing)
-        self._submission.reporting_deadline = deadline
-        self._submission.save()
+        return deadline
 
     def reinvite_referees(self, referees):
         """
