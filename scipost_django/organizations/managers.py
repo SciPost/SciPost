@@ -5,9 +5,15 @@ __license__ = "AGPL v3"
 import datetime
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
+from django.utils import timezone
 
-from finances.constants import SUBSIDY_PROMISED, SUBSIDY_INVOICED, SUBSIDY_RECEIVED
+from finances.constants import (
+    SUBSIDY_PROMISED,
+    SUBSIDY_INVOICED,
+    SUBSIDY_RECEIVED,
+    SUBSIDY_WITHDRAWN,
+)
 from finances.models.subsidy import Subsidy
 
 
@@ -108,4 +114,39 @@ class OrganizationQuerySet(models.QuerySet):
             )
             .order_by(models.F("total_yearly_coverage").desc(nulls_last=True))
             .distinct()
+        )
+
+    def annot_has_current_subsidy(self):
+        """
+        Annotate with a boolean indicating whether the Organization has a current subsidy.
+        """
+        return self.annotate(
+            has_current_subsidy=Exists(
+                Subsidy.objects.filter(organization=OuterRef("pk"))
+                .obtained()
+                .filter(
+                    date_until__gte=timezone.now(),
+                )
+            )
+        )
+
+    def annot_has_children_with_current_subsidy(self):
+        """
+        Annotate with a boolean indicating whether the Organization has children with a current subsidy.
+        """
+        return self.annotate(
+            has_children_with_current_subsidy=Exists(
+                Subsidy.objects.filter(organization__in=models.OuterRef("children"))
+                .obtained()
+                .filter(
+                    date_until__gte=timezone.now(),
+                )
+            )
+        )
+
+    def annot_has_any_subsidy(self):
+        return self.annotate(
+            has_any_subsidy=Exists(
+                Subsidy.objects.all().obtained().filter(organization=OuterRef("pk"))
+            )
         )

@@ -14,6 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
 
+from django.utils.functional import cached_property
 from django_countries.fields import CountryField
 
 from scipost.constants import TITLE_CHOICES
@@ -402,7 +403,7 @@ class Organization(models.Model):
         """Whether this Organization is mentioned in any author affiliation."""
         return self.pubfracs.exists()
 
-    @property
+    @cached_property
     def has_current_subsidy(self):
         """
         Check if this organization has a Subsidy with a still-running validity period.
@@ -413,12 +414,19 @@ class Organization(models.Model):
             .exists()
         )
 
-    @property
+    @cached_property
     def has_children_with_current_subsidy(self):
         for child in self.children.all():
             if child.has_current_subsidy:
                 return True
         return False
+
+    @cached_property
+    def has_any_subsidy(self):
+        """
+        Check if this organization has any Subsidy.
+        """
+        return self.subsidy_set.obtained().exists()
 
     @property
     def latest_subsidy_date_until(self):

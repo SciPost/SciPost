@@ -11,7 +11,7 @@ from django.http import QueryDict
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef, Prefetch
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -22,6 +22,9 @@ from django.views.generic.list import ListView
 
 from dal import autocomplete
 from guardian.decorators import permission_required
+
+from finances.constants import SUBSIDY_WITHDRAWN
+from finances.models.subsidy import Subsidy
 
 from .constants import (
     ORGTYPE_PRIVATE_BENEFACTOR,
@@ -264,6 +267,14 @@ class OrganizationListView(PaginationMixin, ListView):
         country = self.request.GET.get("country")
         order_by = self.request.GET.get("order_by")
         ordering = self.request.GET.get("ordering")
+
+        qs = (
+            qs.annot_has_current_subsidy()
+            .annot_has_children_with_current_subsidy()
+            .annot_has_any_subsidy()
+            .prefetch_related("logos", "children")
+            .select_related("parent")
+        )
         if country:
             qs = qs.filter(country=country)
         if order_by == "country":
@@ -278,7 +289,7 @@ class OrganizationListView(PaginationMixin, ListView):
             qs = qs.order_by("cf_balance_info__cumulative__impact_on_reserves")
         if ordering == "desc":
             qs = qs.reverse()
-        return qs.prefetch_related("logos")
+        return qs.distinct()
 
 
 def get_organization_detail(request):
