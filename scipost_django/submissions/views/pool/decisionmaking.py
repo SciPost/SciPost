@@ -11,6 +11,7 @@ from colleges.permissions import (
     is_edadmin,
     is_edadmin_or_senior_fellow,
 )
+from scipost.permissions import HTMXResponse
 from submissions.forms import RecommendationRemarkForm
 
 from submissions.models import Submission, EICRecommendation
@@ -154,6 +155,14 @@ def _hx_recommendation_open_voting(
         Submission.objects.in_pool(request.user, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
+
+    # Guard against on-hold submissions
+    if submission.on_hold:
+        return HTMXResponse(
+            "The submission is on hold and cannot be put to voting.",
+            tag="danger",
+        )
+
     recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
     Submission.objects.filter(pk=submission.id).update(
         status=Submission.IN_VOTING,

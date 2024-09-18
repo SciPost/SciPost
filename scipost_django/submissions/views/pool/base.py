@@ -19,6 +19,7 @@ from colleges.permissions import (
     fellowship_or_admin_required,
 )
 from mails.utils import DirectMailUtil
+from scipost.permissions import HTMXResponse, permission_required_htmx
 from submissions.models import (
     EditorialAssignment,
     EICRecommendation,
@@ -110,6 +111,50 @@ def _hx_submission_tab(request, identifier_w_vn_nr, tab):
     if tab == "remarks":
         context["remark_form"] = RemarkForm()
     return render(request, "submissions/pool/_hx_submission_tab.html", context)
+
+
+@permission_required_htmx("scipost.can_mark_submission_on_hold")
+def _hx_submission_toggle_on_hold(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    # Guard against statuses which may not be put on hold
+    VALID_STATUSES = [
+        Submission.INCOMING,
+        Submission.ADMISSIBLE,
+        Submission.VOTING_IN_PREPARATION,
+    ]
+    if submission.status not in VALID_STATUSES:
+        return HTMXResponse(
+            "This Submission is not in a state where it can be put on hold.",
+            tag="danger",
+        )
+
+    submission.on_hold = not submission.on_hold
+    submission.save()
+
+    # Create a remark on this submission with the reason provided through HX-Prompt
+    if submission.on_hold:
+        remark = Remark(
+            contributor=request.user.contributor,
+            submission=submission,
+            remark=request.headers.get("HX-Prompt"),
+        )
+        remark.save()
+
+    message = "Submission has been {verb} hold.".format(
+        verb="put on" if submission.on_hold else "taken off"
+    )
+
+    submission.add_event_for_edadmin(message)
+    messages.success(request, message)
+
+    return render(
+        request,
+        "submissions/pool/_hx_submission_details.html",
+        {"submission": submission},
+    )
 
 
 @login_required

@@ -301,6 +301,11 @@ class Command(BaseCommand):
             name="Can manage Series and Collections",
             content_type=content_type,
         )
+        can_mark_submission_on_hold, created = Permission.objects.get_or_create(
+            codename="can_mark_submission_on_hold",
+            name="Can mark Submission on hold",
+            content_type=content_type,
+        )
 
         # Refereeing
         can_referee, created = Permission.objects.get_or_create(
@@ -588,6 +593,7 @@ class Command(BaseCommand):
                 can_view_internal_organization_notes,
                 can_manage_mailing_lists,
                 can_create_affiliate_journals,
+                can_mark_submission_on_hold,
             ]
         )
 
@@ -633,6 +639,7 @@ class Command(BaseCommand):
                 can_oversee_refereeing,
                 can_reassign_submissions,
                 can_run_preassignment,
+                can_mark_submission_on_hold,
                 can_manage_series,
                 can_prepare_recommendations_for_voting,
                 can_manage_college_composition,

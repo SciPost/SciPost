@@ -312,6 +312,7 @@ class Submission(models.Model):
     )
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
+    on_hold = models.BooleanField(default=False)
 
     # Link to previous Submission, or existing bundle member
     is_resubmission_of = models.ForeignKey["Submission"](

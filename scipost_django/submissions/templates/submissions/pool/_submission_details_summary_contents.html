@@ -53,11 +53,14 @@
       </div>
       <div class="col">
 	<small class="text-muted">Submission Status</small>
-	<br>
-	{{ submission.get_status_display }}</span>
+  <div class="d-flex justify-content-between align-items-center my-1">
+    <span>{{ submission.get_status_display }}</span>
+    {% if submission.on_hold %}
+	  <span class="badge bg-warning rounded-pill text-white">On hold</span>
+    {% endif %}
+  </div>
 	{% with recommendation=submission.recommendation %}
 	  {% if recommendation %}
-	    <br>
 	    <small class="text-muted">EIC Recommendation &amp; Status</small>
 	    <br>
 	    {{ recommendation.get_recommendation_short_display }}

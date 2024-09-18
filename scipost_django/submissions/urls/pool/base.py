@@ -48,6 +48,11 @@ urlpatterns = [  # building on /submissions/pool/
                     name="add_remark",
                 ),
                 path(
+                    "_hx_toggle_on_hold",
+                    views_base._hx_submission_toggle_on_hold,
+                    name="_hx_submission_toggle_on_hold",
+                ),
+                path(
                     "editorial_assignment/",
                     include(
                         [

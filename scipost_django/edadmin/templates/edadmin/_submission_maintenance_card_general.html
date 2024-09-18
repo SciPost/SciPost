@@ -10,6 +10,23 @@
       <li id="submission-{{ submission.id }}-update-collections">
         {% include "submissions/admin/_submission_update_collections.html" with submission=submission %}
       </li>
+      <li>
+        <button class="btn btn-sm btn-warning text-white" 
+                hx-get="{% url "submissions:pool:_hx_submission_toggle_on_hold" submission.preprint.identifier_w_vn_nr %}" 
+                hx-swap="outerHTML"
+                {% if submission.on_hold %}
+                hx-confirm="Are you sure you want to take the submission off hold?"
+                {% else %}
+                hx-prompt="What is the reason for putting the submission on hold? (will be added as an edadmin-level remark)"
+                {% endif %}
+                hx-target="#submission-{{ submission.id }}-details">
+                {% if submission.on_hold %}
+                Take off hold
+                {% else %}
+                Put on hold
+                {% endif %}
+        </button>
+      </li>
       {% if 'Proceedings' in submission.submitted_to.name %}
 	<li id="submission-{{ submission.id }}-update-target-proceedings">
 	  {% include "submissions/admin/_submission_update_target_proceedings.html" with submission=submission %}

@@ -12,6 +12,7 @@ from guardian.shortcuts import get_objects_for_user
 from colleges.permissions import is_edadmin
 from journals.models import Publication
 from mails.utils import DirectMailUtil
+from scipost.permissions import HTMXResponse
 from submissions.models import (
     Submission,
     InternalPlagiarismAssessment,
@@ -38,6 +39,13 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
+
+    if submission.on_hold:
+        return HTMXResponse(
+            "This submission is on hold and cannot be assessed for admissibility. Please take it off hold first.",
+            tag="danger",
+        )
+
     form = SubmissionAdmissibilityForm(request.POST or None)
     if form.is_valid():
         if form.cleaned_data["admissibility"] == "pass":
@@ -217,6 +225,13 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
+
+    if submission.on_hold:
+        return HTMXResponse(
+            "This submission is on hold and cannot be admitted. Please take it off hold first.",
+            tag="danger",
+        )
+
     form = SubmissionAdmissionForm(request.POST or None)
     if form.is_valid():
         if form.cleaned_data["choice"] == "pass":

@@ -78,18 +78,24 @@
 	    </a>
 	  {% endfor %}
 	</li>
-	{% if recommendation.voting_in_preparation %}
-	  {% if "edadmin" in user_roles %}
-	    <li>
-	      <a class="btn btn-sm btn-success text-white"
-		 hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_open_voting' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id %}"
-		 hx-target="#submission-{{ recommendation.submission.pk }}-tab-contents-recommendations-and-voting"
-		 hx-confirm="Confirm: open voting on this Recommendation?"
-		 hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
-	      >
-		Open voting on this Recommendation
-	      </a>
-	    </li>
+	{% if recommendation.voting_in_preparation and "edadmin" in user_roles %}
+    {% if recommendation.submission.on_hold %}
+      <li>
+        <span class="text-danger">{% include "bi/exclamation-triangle-fill.html" %}
+          The submission is on hold, voting cannot be opened. Please take it off hold first.
+        </span>
+      </li>
+    {% else %}
+      <li>
+        <a class="btn btn-sm btn-success text-white"
+          hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_open_voting' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id %}"
+          hx-target="#submission-{{ recommendation.submission.pk }}-tab-contents-recommendations-and-voting"
+          hx-confirm="Confirm: open voting on this Recommendation?"
+          hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
+        >
+          Open voting on this Recommendation
+        </a>
+      </li>
 	  {% endif %}
 	{% endif %}
       </ul>
