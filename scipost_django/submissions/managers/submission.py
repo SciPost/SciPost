@@ -4,11 +4,13 @@ __license__ = "AGPL v3"
 
 import datetime
 
+from django.contrib.postgres.lookups import Unaccent
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Value
 from django.utils import timezone
 
 from comments.models import Comment
+from common.utils.db import SplitString
 
 from .. import constants
 
@@ -419,6 +421,13 @@ class SubmissionQuerySet(models.QuerySet):
         from submissions.models import Report
 
         return Report.objects.filter(submission__in=self)
+
+    def author_full_name_in_list(self, author_full_name):
+        """Return Submissions where the full author name is in the list."""
+        return self.annotate(
+            author_name=Value(author_full_name),
+            authors_split=SplitString(Unaccent("author_list"), delimiter=", "),
+        ).filter(authors_split__contains=Unaccent("author_name"))
 
 
 class SubmissionEventQuerySet(models.QuerySet):
