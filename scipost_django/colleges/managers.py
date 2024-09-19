@@ -128,31 +128,15 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
         - Verified authors
         - Profiles added in preassignment
         - Personal contributor claims of authorship
-        - Potential authorship without false claims
         """
         preassigned_authors = Contributor.objects.filter(
             profile__in=submission.author_profiles.values("profile")
         )
         submission_authors = submission.authors.all()
-
-        false_claims = submission.authors_false_claims.all()
         author_claims = submission.authors_claims.all()
 
-        # Annotate the queryset with a constant value of the submission `author_list`
-        fellow_contributors = Contributor.objects.filter(
-            id__in=self.values("contributor")
-        ).annotate(author_list=Value(submission.author_list, output_field=CharField()))
-
-        # Use it for unaccenting and comparing to the profile's last name
-        potential_authors_without_false_claim = fellow_contributors.filter(
-            author_list__unaccent__icontains=F("profile__last_name")
-        ).exclude(id__in=false_claims)
-
         return self.exclude(
-            contributor__in=submission_authors
-            | preassigned_authors
-            | author_claims
-            | potential_authors_without_false_claim
+            contributor__in=submission_authors | preassigned_authors | author_claims
         )
 
 
