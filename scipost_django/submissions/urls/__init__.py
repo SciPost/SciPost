@@ -447,6 +447,11 @@ urlpatterns = [
         name="_hx_cancel_ref_invitation",
     ),
     path(
+        "_hx_report_intended_delivery_form/<int:invitation_id>",
+        views._hx_report_intended_delivery_form,
+        name="_hx_report_intended_delivery_form",
+    ),
+    path(
         "extend_refereeing_deadline/<identifier:identifier_w_vn_nr>/<int:days>",
         views.extend_refereeing_deadline,
         name="extend_refereeing_deadline",

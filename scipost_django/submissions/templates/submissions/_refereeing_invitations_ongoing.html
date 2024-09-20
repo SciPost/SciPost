@@ -45,16 +45,21 @@
 	    {% if invitation.accepted is not None %}
               <tr>
                 <th>{{ invitation.accepted|yesno:'Accepted,Declined' }}:</th>
-                <td>{{ invitation.date_responded }}</td>
+                <td>{{ invitation.date_responded|date:'d F Y' }}</td>
               </tr>
+              {% if invitation.accepted %}
+              <tr>
+                <th class="pe-2">Intended delivery:</th>
+                <td>{{ invitation.intended_delivery_date|date:'d F Y' }}</td>
+              </tr>
+              {% endif %}
 	    {% endif %}
-	    <tr>
-              <td colspan="2">
-                <a class="d-inline-block" href="{% url 'submissions:submit_report' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr %}">Submit your Report</a> <span class="text-blue">|</span>
-                <a class="d-inline-block" href="{% url 'submissions:communication' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr comtype='RtoE' referee_id=contributor.id %}">Write to the Editor-in-charge</a>
-              </td>
-	    </tr>
-          </table>
+    </table>
+        <ul class="list-unstyled d-flex gap-3 align-items-center">
+          <li><a class="d-inline-block" href="{% url 'submissions:submit_report' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr %}">Submit your Report</a></li>
+          <li><a class="d-inline-block" href="{% url 'submissions:communication' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr comtype='RtoE' referee_id=contributor.id %}">Write to the Editor-in-charge</a></li>
+          <li><a class="d-inline-block" hx-target="this" hx-swap="outerHTML" hx-get="{% url 'submissions:_hx_report_intended_delivery_form' invitation_id=invitation.id %}">Change intended delivery date</a></li>
+        </ul>
         </li>
       {% endfor %}
     </ul>

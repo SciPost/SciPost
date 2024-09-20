@@ -57,6 +57,9 @@
           {% elif invitation.accepted is not None %}
             {% if invitation.accepted %}
               <strong class="text-success">task accepted</strong>
+              {% if invitation.intended_delivery_date %}
+                <br><span class="text-muted">Expected by {{ invitation.intended_delivery_date }}</span>
+              {% endif %}
             {% else %}
               <strong class="text-danger">task declined</strong>
               {% if invitation.refusal_reason %}

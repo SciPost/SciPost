@@ -75,6 +75,7 @@ from ..mixins import SubmissionMixin, SubmissionAdminViewMixin
 from ..forms import (
     InviteRefereeSearchFrom,
     RefereeIndicationForm,
+    ReportIntendedDeliveryForm,
     SciPostPrefillForm,
     ArXivPrefillForm,
     ChemRxivPrefillForm,
@@ -1811,7 +1812,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         )
         return redirect(reverse("scipost:personal_page"))
 
-    form = ConsiderRefereeInvitationForm(request.POST or None)
+    form = ConsiderRefereeInvitationForm(request.POST or None, invitation=invitation)
     if form.is_valid():
         invitation.date_responded = timezone.now()
         if form.cleaned_data["accept"] == "True":
@@ -1880,7 +1881,6 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         if request.user.contributor.referee_invitations.awaiting_response().exists():
             return redirect("submissions:accept_or_decline_ref_invitations")
         return redirect(invitation.submission.get_absolute_url())
-    form = ConsiderRefereeInvitationForm()
     context = {"invitation": invitation, "form": form}
     return render(request, "submissions/referee_invitations_form.html", context)
 
@@ -1975,6 +1975,46 @@ def _hx_cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     )
 
     return HTMXResponse("Invitation cancelled", tag="success")
+
+
+def _hx_report_intended_delivery_form(request, invitation_id):
+    """
+    Render the form to edit the intended delivery date of a referee report.
+    Only invited referees and EIC can access this form.
+    """
+    invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
+
+    is_invited_referee = invitation.profile == request.user.contributor.profile
+    is_editor = invitation.submission.editor_in_charge == request.user.contributor
+    if not (is_invited_referee or is_editor):
+        return HTMXPermissionsDenied(
+            "You do not have permission to edit the intended delivery date."
+        )
+
+    if invitation.submission.reporting_deadline_has_passed:
+        return HTMXResponse(
+            "The refereeing deadline has passed. You cannot change the intended delivery date anymore.",
+            tag="danger",
+        )
+
+    form = ReportIntendedDeliveryForm(request.POST or None, instance=invitation)
+
+    if form.is_valid():
+        invitation = form.save()
+        messages.success(
+            request,
+            f"Intended delivery date updated to {invitation.intended_delivery_date}.",
+        )
+        return HttpResponse(
+            '<a class="d-inline-block" hx-get="{url}">Change intended delivery date</a>'.format(
+                url=reverse_lazy(
+                    "submissions:_hx_report_intended_delivery_form",
+                    kwargs={"invitation_id": invitation_id},
+                )
+            )
+        )
+    context = {"invitation": invitation, "form": form}
+    return render(request, "htmx/crispy_form.html", context)
 
 
 @login_required

@@ -2785,6 +2785,11 @@ class ConsiderRefereeInvitationForm(forms.Form):
         choices=((True, "Accept"), (False, "Decline")),
         label="Are you willing to referee this Submission?",
     )
+    intended_delivery_date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}),
+        label="Intended delivery date",
+        help_text=("The date by which you intend to deliver your report."),
+    )
     refusal_reason = forms.ChoiceField(
         choices=[(None, "")] + list(EditorialAssignment.REFUSAL_REASONS), required=False
     )
@@ -2798,8 +2803,19 @@ class ConsiderRefereeInvitationForm(forms.Form):
         max_length=255,
     )
 
+    def __init__(self, *args, **kwargs):
+        self.invitation: "RefereeInvitation" = kwargs.pop("invitation", None)
+        super().__init__(*args, **kwargs)
+
+        if self.invitation is not None:
+            self.fields["intended_delivery_date"].initial = (
+                self.invitation.submission.reporting_deadline.date()
+                or self.invitation.submission.cycle.get_default_refereeing_deadline().date()
+            )
+
     def clean(self):
         accepted = self.cleaned_data.get("accept", None)
+        intended_delivery_date = self.cleaned_data.get("intended_delivery_date", None)
         reason = self.cleaned_data.get("refusal_reason", "")
         other_refusal_reason = self.cleaned_data.get("other_refusal_reason", "")
 
@@ -2817,11 +2833,71 @@ class ConsiderRefereeInvitationForm(forms.Form):
                     "other_refusal_reason",
                     'Please select "Other" to specify your reason for declining.',
                 )
-        elif accepted == "True" and reason != "":
-            self.add_error(
-                "refusal_reason",
-                "You cannot select a refusal reason if you accept.",
+        elif accepted == "True":
+            if reason != "":
+                self.add_error(
+                    "refusal_reason",
+                    "You cannot select a refusal reason if you accept.",
+                )
+
+            if intended_delivery_date is None:
+                self.add_error(
+                    "intended_delivery_date",
+                    "Please select an intended delivery date for your report.",
+                )
+
+    def save(self):
+        super().save()
+
+        self.invitation.submission.add_event_for_eic(
+            f"Referee {self.invitation.profile} set intended report delivery date to {self.invitation.intended_delivery_date}."
+        )
+        self.invitation.submission.add_event_for_author(
+            f"A referee has set their intended report delivery date to {self.invitation.intended_delivery_date}."
+        )
+
+
+class ReportIntendedDeliveryForm(forms.ModelForm):
+    """
+    Contrary to what may be assumed by its name, this is a model form for RefereeInvitation.
+    It is used to set the intended delivery date for a referee's report, prior to the report being written.
+    """
+
+    class Meta:
+        model = RefereeInvitation()
+        fields = ["intended_delivery_date"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.attrs = {
+            "hx-post": reverse_lazy(
+                "submissions:_hx_report_intended_delivery_form",
+                kwargs={"invitation_id": self.instance.id},
+            ),
+            "hx-target": "this",
+        }
+        self.helper.layout = Layout(
+            Div(
+                Field("intended_delivery_date"),
+                ButtonHolder(
+                    Submit("submit", "Save", css_class="btn btn-primary ms-2 mb-3")
+                ),
+                css_class="d-flex flex-row align-items-end",
             )
+        )
+
+    def save(self):
+        super().save()
+
+        self.instance.submission.add_event_for_eic(
+            f"Referee {self.instance.profile} set intended report delivery date to {self.instance.intended_delivery_date}."
+        )
+        self.instance.submission.add_event_for_author(
+            f"A referee has set their intended report delivery date to {self.instance.intended_delivery_date}."
+        )
+
+        return self.instance
 
 
 class SetRefereeingDeadlineForm(forms.Form):

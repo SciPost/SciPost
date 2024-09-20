@@ -71,6 +71,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         default=None,
     )
     date_responded = models.DateTimeField(blank=True, null=True)
+    intended_delivery_date = models.DateField(blank=True, null=True)
     refusal_reason = models.CharField(
         max_length=3,
         choices=EditorialAssignment.REFUSAL_REASONS,
