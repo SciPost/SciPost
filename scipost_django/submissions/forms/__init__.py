@@ -2809,9 +2809,9 @@ class ConsiderRefereeInvitationForm(forms.Form):
 
         if self.invitation is not None:
             self.fields["intended_delivery_date"].initial = (
-                self.invitation.submission.reporting_deadline.date()
-                or self.invitation.submission.cycle.get_default_refereeing_deadline().date()
-            )
+                self.invitation.submission.reporting_deadline
+                or self.invitation.submission.cycle.get_default_refereeing_deadline()
+            ).date()
 
     def clean(self):
         accepted = self.cleaned_data.get("accept", None)
