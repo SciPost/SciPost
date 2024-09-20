@@ -157,7 +157,9 @@ class Contributor(models.Model):
         Checks if the Contributor is registered, vetted,
         and has not been deactivated for any reason.
         """
-        return self.user.is_active and self.status == NORMAL_CONTRIBUTOR
+        # [TypeHint] Coerce to bool since `is_active` is a property of the `AbstractBaseUser` class.
+        user_active: bool = self.user.is_active
+        return user_active and self.status == NORMAL_CONTRIBUTOR
 
     @property
     def is_duplicate(self):

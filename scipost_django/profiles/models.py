@@ -126,10 +126,17 @@ class Profile(models.Model):
 
     @property
     def full_name(self):
+        """The full name: first name + last name."""
         return f"{self.first_name} {self.last_name}"
 
     @property
+    def formal_name(self):
+        """The formal name: title + last name."""
+        return f"{self.get_title_display()} {self.last_name}"
+
+    @property
     def full_name_original(self):
+        """The full name in original script: first name + last name."""
         return f"{self.first_name_original} {self.last_name_original}"
 
     @property
@@ -154,14 +161,10 @@ class Profile(models.Model):
 
     @property
     def has_active_contributor(self):
-        has_active_contributor = False
         try:
-            has_active_contributor = (
-                self.contributor is not None and self.contributor.is_active
-            )
+            return self.contributor is not None and self.contributor.is_active
         except Contributor.DoesNotExist:
-            pass
-        return has_active_contributor
+            return False
 
     def get_absolute_url(self):
         return reverse("profiles:profile_detail", kwargs={"pk": self.id})
