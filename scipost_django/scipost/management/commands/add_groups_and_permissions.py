@@ -535,6 +535,11 @@ class Command(BaseCommand):
                 content_type=content_type,
             )
         )
+        can_view_internal_submission_notes, created = Permission.objects.get_or_create(
+            codename="can_view_internal_submission_notes",
+            name="Can view internal submissions notes",
+            content_type=content_type,
+        )
 
         # Affiliate Journals
         can_create_affiliate_journals, created = Permission.objects.get_or_create(
@@ -591,6 +596,7 @@ class Command(BaseCommand):
                 can_add_notes,
                 can_view_internal_subsidy_notes,
                 can_view_internal_organization_notes,
+                can_view_internal_submission_notes,
                 can_manage_mailing_lists,
                 can_create_affiliate_journals,
                 can_mark_submission_on_hold,
@@ -679,6 +685,7 @@ class Command(BaseCommand):
                 can_view_all_nomination_voting_rounds,
                 can_view_fellowships_monitor,
                 can_add_notes,
+                can_view_internal_submission_notes,
                 can_view_mailing_lists,
                 can_create_affiliate_journals,
             ]

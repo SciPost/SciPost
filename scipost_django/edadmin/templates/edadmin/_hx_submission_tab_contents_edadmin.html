@@ -16,6 +16,8 @@
   {% endif %}
 </div>
 
+  {% include "pins/_hx_notes_list.html" with object=submission %}
+
 {% if submission.in_stage_incoming %}
   {% include "edadmin/incoming/_submission_incoming.html" with submission=submission %}
 {% endif %}

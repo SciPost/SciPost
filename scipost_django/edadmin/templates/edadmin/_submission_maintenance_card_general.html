@@ -17,7 +17,7 @@
                 {% if submission.on_hold %}
                 hx-confirm="Are you sure you want to take the submission off hold?"
                 {% else %}
-                hx-prompt="What is the reason for putting the submission on hold? (will be added as an edadmin-level remark)"
+                hx-prompt="What is the reason for putting the submission on hold? (will be added as a submission internal note)"
                 {% endif %}
                 hx-target="#submission-{{ submission.id }}-details">
                 {% if submission.on_hold %}

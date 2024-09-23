@@ -4,11 +4,13 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
 from mails.views import MailView
+from pins.models import Note
 from scipost.mixins import PermissionsMixin
 
 from scipost.models import Remark
@@ -134,14 +136,17 @@ def _hx_submission_toggle_on_hold(request, identifier_w_vn_nr):
     submission.on_hold = not submission.on_hold
     submission.save()
 
-    # Create a remark on this submission with the reason provided through HX-Prompt
+    # Create an internal note on this submission with the reason provided through HX-Prompt
     if submission.on_hold:
-        remark = Remark(
-            contributor=request.user.contributor,
-            submission=submission,
-            remark=request.headers.get("HX-Prompt"),
+        note = Note(
+            visibility=Note.VISIBILITY_INTERNAL,
+            author=request.user.contributor,
+            regarding_content_type=ContentType.objects.get_for_model(Submission),
+            regarding_object_id=submission.id,
+            title="Submission put on hold",
+            description=request.headers.get("HX-Prompt"),
         )
-        remark.save()
+        note.save()
 
     message = "Submission has been {verb} hold.".format(
         verb="put on" if submission.on_hold else "taken off"
