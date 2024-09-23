@@ -1,0 +1,12 @@
+\section*{\color{scipostdeepblue}SciPost publications associated with {{ organization.name }}}
+{% regroup publications|dictsortreversed:'publication_year' by publication_year as publication_years %}
+{% for publication_year in publication_years %}
+    \subsection*{\color{scipostdeepblue} {{ publication_year.grouper }}} 
+    {{ publication_year.list|length }} publication{{ publication_year.list|pluralize }} 
+
+    \begin{itemize}{% for publication in publication_year.list %}
+        \item \href{https://{{ DOMAIN_HOST }}{{ publication.get_absolute_url }}}{{"{"}}{{ publication.title }}{{"}"}},\\
+        by {{ publication.author_list }}\\
+        {{ publication.citation }}, doi: {{ publication.doi_string }}. 
+    {% endfor %}\end{itemize}
+{% endfor %}

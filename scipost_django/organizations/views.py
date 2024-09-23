@@ -301,6 +301,44 @@ def get_organization_detail(request):
     return redirect(reverse("organizations:organizations"))
 
 
+def download_associated_publications_tex(request, pk):
+    """
+    Download a .tex file with the associated publications of an organization.
+    """
+    organization = get_object_or_404(Organization, pk=pk)
+    publications = organization.get_publications_with_year()
+    organization_filename = organization.name.replace(" ", "_")
+    response = render(
+        request,
+        "organizations/associated_publications.tex",
+        {"publications": publications, "organization": organization},
+        content_type="text/plain",
+    )
+    response["Content-Disposition"] = (
+        f'attachment; filename="{organization_filename}_associated_publications.tex"'
+    )
+    return response
+
+
+def download_associated_authors_tex(request, pk):
+    """
+    Download a .tex file with the associated authors of an organization.
+    """
+    organization = get_object_or_404(Organization, pk=pk)
+    authors = organization.get_author_profiles()
+    organization_filename = organization.name.replace(" ", "_")
+    response = render(
+        request,
+        "organizations/associated_authors.tex",
+        {"authors": authors, "organization": organization},
+        content_type="text/plain",
+    )
+    response["Content-Disposition"] = (
+        f'attachment; filename="{organization_filename}_associated_authors.tex"'
+    )
+    return response
+
+
 class OrganizationDetailView(DetailView):
     model = Organization
 

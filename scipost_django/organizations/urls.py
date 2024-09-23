@@ -30,6 +30,16 @@ urlpatterns = [
         "<int:pk>/", views.OrganizationDetailView.as_view(), name="organization_detail"
     ),
     path(
+        "<int:pk>/associated_authors_tex",
+        views.download_associated_authors_tex,
+        name="download_associated_authors_tex",
+    ),
+    path(
+        "<int:pk>/associated_publications_tex",
+        views.download_associated_publications_tex,
+        name="download_associated_publications_tex",
+    ),
+    path(
         "get_organization_detail",
         views.get_organization_detail,
         name="get_organization_detail",

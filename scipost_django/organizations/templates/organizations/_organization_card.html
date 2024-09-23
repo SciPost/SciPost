@@ -133,6 +133,12 @@
              id="publications-{{ org.id }}"
              role="tabpanel"
              aria-labelledby="publications-{{ org.id }}-tab">
+            
+          {% if perms.can_manage_organizations %}
+            <div class="row float-end">
+              <a href="{% url "organizations:download_associated_publications_tex" pk=org.id %}">Download associated publications as LaTeX</a>
+            </div>
+          {% endif %}
           <h3>
             {% if org.cf_nr_associated_publications %}{{ org.cf_nr_associated_publications }}{% else %}No{% endif %} 
             Publication{{ org.cf_nr_associated_publications|pluralize }} associated to this Organization
@@ -176,6 +182,11 @@
              id="authors-{{ org.id }}"
              role="tabpanel"
              aria-labelledby="authors-{{ org.id }}-tab">
+          {% if perms.can_manage_organizations %}
+            <div class="row float-end">
+              <a href="{% url "organizations:download_associated_authors_tex" pk=org.id %}">Download associated authors as LaTeX</a>
+            </div>
+          {% endif %}
           <div class="row">
             <div class="col-lg-6">
               <h3>Associated Authors:</h3>

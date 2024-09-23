@@ -1,0 +1,4 @@
+\section*{\color{scipostdeepblue}{{ organization.name }}-affiliated authors published by SciPost}
+\begin{itemize}
+{% for author in authors %}\item {{ author.get_title_display }} {{ author.full_name }}{% if loop.last %}{% else %}
+{% endif %}{% endfor %}\end{itemize}
