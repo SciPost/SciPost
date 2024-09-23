@@ -30,6 +30,10 @@
                         <volume>{{ publication.in_issue.in_volume.number }}</volume>
                     </journal_volume>
                     <issue>{{ publication.in_issue.number }}</issue>
+                    <doi_data>
+                        <doi>{{ publication.in_issue.doi_string }}</doi>
+                        <resource>https://{{ domain }}{{ publication.in_issue.get_absolute_url }}</resource>
+                    </doi_data>
                 </journal_issue>
             {% elif publication.in_issue.in_journal %}
                 <journal_metadata>
@@ -46,6 +50,10 @@
                         <year>{{ publication.publication_date|date:'Y' }}</year>
                     </publication_date>
                     <issue>{{ publication.in_issue.number }}</issue>
+                    <doi_data>
+                        <doi>{{ publication.in_issue.doi_string }}</doi>
+                        <resource>https://{{ domain }}{{ publication.in_issue.get_absolute_url }}</resource>
+                    </doi_data>
                 </journal_issue>
             {% else %}
                 <journal_metadata>
