@@ -2786,6 +2786,7 @@ class ConsiderRefereeInvitationForm(forms.Form):
         label="Are you willing to referee this Submission?",
     )
     intended_delivery_date = forms.DateField(
+        required=False,
         widget=forms.DateInput(attrs={"type": "date"}),
         label="Intended delivery date",
         help_text=("The date by which you intend to deliver your report."),
