@@ -28,15 +28,37 @@ class PlagiarismAssessmentForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["comments_for_edadmin"].widget.attrs.update({"rows": 5, "cols": 80})
         self.fields["comments_for_authors"].widget.attrs.update({"rows": 5, "cols": 80})
+        self.field_prefix = (
+            f"{self.instance.__class__.__name__.lower()}_{self.instance.submission.id}"
+        )
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(Field("status", css_class="d-flex gap-3"), css_class="col"),
+                Div(
+                    Field(
+                        "status",
+                        css_class="d-flex gap-3",
+                        id=f"{self.field_prefix}-status",
+                    ),
+                    css_class="col",
+                ),
                 css_class="row",
             ),
             Div(
-                Div(Field("comments_for_edadmin"), css_class="col col-lg-6"),
-                Div(Field("comments_for_authors"), css_class="col col-lg-6"),
+                Div(
+                    Field(
+                        "comments_for_edadmin",
+                        id=f"{self.field_prefix}-edadmin-comments",
+                    ),
+                    css_class="col col-lg-6",
+                ),
+                Div(
+                    Field(
+                        "comments_for_authors",
+                        id=f"{self.field_prefix}-author-comments",
+                    ),
+                    css_class="col col-lg-6",
+                ),
                 css_class="row",
             ),
             ButtonHolder(

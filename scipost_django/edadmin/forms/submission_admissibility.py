@@ -30,6 +30,7 @@ class SubmissionAdmissibilityForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop("submission", None)
         super().__init__(*args, **kwargs)
         self.fields["rejection_email_text"].initial = (
             "In view of this, we are unable to proceed further with the handling of your manuscript. "
@@ -42,18 +43,22 @@ class SubmissionAdmissibilityForm(forms.Form):
             'after "We regret to inform you that your recent submission has not passed the admission step." '
             "Do *NOT* change the default if you don't wish to make changes."
         )
+        self.field_prefix = self.submission.id
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
                 Div(
-                    Field("admissibility"),
+                    Field("admissibility", id=f"{self.field_prefix}-admissibility"),
                     ButtonHolder(
                         Submit("submit", "Submit", css_class="btn btn-primary")
                     ),
                     css_class="col col-lg-4",
                 ),
                 Div(
-                    Field("rejection_email_text"),
+                    Field(
+                        "rejection_email_text",
+                        id=f"{self.field_prefix}-rejection-email-text",
+                    ),
                     css_class="col col-lg-8",
                 ),
                 css_class="row",

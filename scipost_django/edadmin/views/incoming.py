@@ -46,7 +46,7 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
             tag="danger",
         )
 
-    form = SubmissionAdmissibilityForm(request.POST or None)
+    form = SubmissionAdmissibilityForm(request.POST or None, submission=submission)
     if form.is_valid():
         if form.cleaned_data["admissibility"] == "pass":
             Submission.objects.filter(pk=submission.id).update(
