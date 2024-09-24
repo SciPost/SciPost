@@ -221,7 +221,7 @@ def profile_match(request, profile_id, from_type, pk):
         )
         profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
     elif from_type == "refereeinvitation":
-        nr_rows = RefereeInvitation.objects.filter(pk=pk).update(profile=profile)
+        nr_rows = RefereeInvitation.objects.filter(pk=pk).update(referee=profile)
     elif from_type == "registrationinvitation":
         nr_rows = RegistrationInvitation.objects.filter(pk=pk).update(profile=profile)
     if nr_rows == 1:

@@ -92,7 +92,7 @@ class ProfileForm(forms.ModelForm):
             if self.cleaned_data["instance_from_type"] == "contributor":
                 Contributor.objects.filter(pk=instance_pk).update(profile=profile)
             elif self.cleaned_data["instance_from_type"] == "refereeinvitation":
-                RefereeInvitation.objects.filter(pk=instance_pk).update(profile=profile)
+                RefereeInvitation.objects.filter(pk=instance_pk).update(referee=profile)
             elif self.cleaned_data["instance_from_type"] == "registrationinvitation":
                 RegistrationInvitation.objects.filter(pk=instance_pk).update(
                     profile=profile

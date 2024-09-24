@@ -334,15 +334,6 @@ class RegistrationForm(forms.Form):
             contributor.user.is_active = True
             contributor.user.save()
 
-            # Update referee invitations to use the new Contributor
-            RefereeInvitation.objects.awaiting_response().filter(
-                Q(referee__isnull=True)
-                & (
-                    Q(email_address=contributor.user.email)
-                    | Q(invitation_key=contributor.invitation_key)
-                )
-            ).update(referee=contributor)
-
         return contributor
 
 
@@ -843,9 +834,6 @@ class ContributorMergeForm(forms.Form):
             submitted_by=contrib_into
         )
         EditorialAssignment.objects.filter(to=contrib_from).update(to=contrib_into)
-        RefereeInvitation.objects.filter(referee=contrib_from).update(
-            referee=contrib_into
-        )
         RefereeInvitation.objects.filter(invited_by=contrib_from).update(
             invited_by=contrib_into
         )

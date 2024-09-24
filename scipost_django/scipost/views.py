@@ -740,22 +740,6 @@ def vet_registration_request_ack(request, contributor_id):
             group = Group.objects.get(name="Registered Contributors")
             contributor.user.groups.add(group)
 
-            # Verify if there is a pending refereeing invitation using email and invitation key.
-            updated_rows = (
-                RefereeInvitation.objects.awaiting_response()
-                .filter(referee__isnull=True, email_address=contributor.user.email)
-                .update(referee=contributor)
-            )
-            if contributor.invitation_key:
-                updated_rows += (
-                    RefereeInvitation.objects.awaiting_response()
-                    .filter(
-                        referee__isnull=True, invitation_key=contributor.invitation_key
-                    )
-                    .update(referee=contributor)
-                )
-            pending_ref_inv_exists = updated_rows > 0
-
             email_text = (
                 "Dear "
                 + contributor.profile.get_title_display()
@@ -764,14 +748,6 @@ def vet_registration_request_ack(request, contributor_id):
                 + ", \n\nYour registration to the SciPost publication portal has been accepted. "
                 "You can now login at https://" + domain + " and contribute. \n\n"
             )
-            if pending_ref_inv_exists:
-                email_text += (
-                    "Note that you have pending refereeing invitations; please navigate to "
-                    "https://"
-                    + domain
-                    + "/submissions/accept_or_decline_ref_invitations "
-                    "(login required) to accept or decline them.\n\n"
-                )
             email_text += "Thank you very much in advance, \nThe SciPost Team."
             emailmessage = EmailMessage(
                 "SciPost registration accepted",
