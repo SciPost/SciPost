@@ -2548,7 +2548,9 @@ def vet_submitted_report(request, report_id):
         # Vetting Editors may vote on everything.
         report = get_object_or_404(Report.objects.awaiting_vetting(), id=report_id)
     else:
-        submissions = Submission.objects.in_pool_filter_for_eic(request.user)
+        submissions = Submission.objects.in_pool_filter_for_eic(
+            request.user, latest=False, historical=True
+        )
         report = get_object_or_404(
             Report.objects.filter(submission__in=submissions).awaiting_vetting(),
             id=report_id,
