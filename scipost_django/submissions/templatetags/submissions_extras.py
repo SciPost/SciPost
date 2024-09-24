@@ -70,7 +70,9 @@ def user_is_referee(submission, user):
     """Check if the User is invited to be Referee of the Submission."""
     if not user.is_authenticated:
         return False
-    return submission.referee_invitations.filter(referee__user=user).exists()
+    return submission.referee_invitations.filter(
+        referee=user.contributor.profile
+    ).exists()
 
 
 @register.filter

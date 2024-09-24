@@ -1,5 +1,5 @@
 <p>
-  Dear {% if invitation.referee %}{{ invitation.referee.profile.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.profile.get_title_display }} {{ invitation.profile.last_name }}{% endif %}
+  Dear {{ invitation.referee.formal_name }}
 </p>
 
 <p>

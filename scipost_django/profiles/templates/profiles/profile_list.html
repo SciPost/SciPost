@@ -102,19 +102,6 @@
  
                     {% endif %}
  
-                    {% if next_refinv_wo_profile %}
- 
-                        <li>
-                            <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)
-                        </li>
- 
-                    {% else %}
- 
-                        <li>
-                            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All Referee Invitations have a Profile
-                        </li>
- 
-                    {% endif %}
 	
                 {% endif %}
 	

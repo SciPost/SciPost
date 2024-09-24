@@ -1,7 +1,7 @@
 <h3>Re: refereeing invitation. First automatic reminder</h3>
-<p>Dear {{ invitation.get_title_display }} {{ invitation.last_name }},</p>
+<p>Dear {{ invitation.referee.formal_name }},</p>
 <p>
-  Recently, On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.first_name }} {{ invitation.submission.editor_in_charge.user.last_name }}, we invited you to consider refereeing a Submission to {{ invitation.submission.submitted_to }}, namely
+  Recently, On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we invited you to consider refereeing a Submission to {{ invitation.submission.submitted_to }}, namely
   <br />
   <br />
   <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>

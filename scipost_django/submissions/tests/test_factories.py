@@ -64,14 +64,11 @@ class TestReportFactory(TestCase):
 class TestRefereeInvitationFactory(TestCase):
     def test_can_create_unregistered_referee_invitations(self):
         referee_invitation = RefereeInvitationFactory()
-        self.assertIsNotNone(referee_invitation.profile)
         self.assertIsNone(referee_invitation.referee)
         self.assertIsNotNone(referee_invitation)
 
     def test_can_create_registered_referee_invitations(self):
         referee_invitation = RefereeInvitationFactory(registered=True)
-        self.assertIsNotNone(referee_invitation.referee)
-        self.assertIsNone(referee_invitation.profile)
         self.assertIsNotNone(referee_invitation)
 
 

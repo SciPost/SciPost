@@ -1,8 +1,8 @@
-{% if contributor.referee_invitations.awaiting_response %}
+{% if contributor.profile.referee_invitations.awaiting_response %}
   <div class="border border-2 border-danger m-2 mb-4">
     <h3 class="highlight mt-0">Refereeing invitations awaiting your response</h3>
     <ul>
-      <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ contributor.referee_invitations.awaiting_response|length }})</li>
+      <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ contributor.profile.referee_invitations.awaiting_response|length }})</li>
     </ul>
   </div>
 {% endif %}
@@ -22,11 +22,11 @@
   </div>
 {% endif %}
 
-{% if contributor.referee_invitations.in_process.all %}
+{% if contributor.profile.referee_invitations.in_process.all %}
   <div class="border border-2 border-warning m-2 mb-4">
     <h3 class="highlight mt-0">Your pending refereeing invitations</h3>
     <ul class="list-group m-2">
-      {% for invitation in contributor.referee_invitations.in_process.all %}
+      {% for invitation in contributor.profile.referee_invitations.in_process.all %}
         <li class="list-group-item p-2">
           {% include 'submissions/_submission_li.html' with submission=invitation.submission %}
           <table>

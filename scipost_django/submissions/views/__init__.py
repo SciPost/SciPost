@@ -722,7 +722,7 @@ def submission_detail(request, identifier_w_vn_nr):
             submission.reports.in_draft().filter(author__user=request.user).first()
         )
         context["invitations"] = submission.referee_invitations.non_cancelled().filter(
-            referee__user=request.user
+            referee=request.user.contributor.profile
         )
 
         if is_author or is_author_unchecked:
@@ -1476,7 +1476,7 @@ def invite_referee(
     # Guard against already invited referees
     if (
         RefereeInvitation.objects.filter(
-            profile=profile, submission=submission, cancelled=False
+            referee=profile, submission=submission, cancelled=False
         )
         .exclude(email_address=profile_email)
         .exists()
@@ -1520,12 +1520,8 @@ def invite_referee(
         contributor = profile.contributor
 
     referee_invitation, created = RefereeInvitation.objects.get_or_create(
-        profile=profile,
-        referee=contributor,
+        referee=profile,
         submission=submission,
-        title=profile.title if profile.title else TITLE_DR,
-        first_name=profile.first_name,
-        last_name=profile.last_name,
         email_address=profile_email.email,
         auto_reminders_allowed=auto_reminders_allowed,
         invited_by=request.user.contributor,
@@ -1542,7 +1538,7 @@ def invite_referee(
 
     registration_invitation = None
     has_agreed_to_previous_invitation = RefereeInvitation.objects.filter(
-        profile=profile, submission__thread_hash=submission.thread_hash, accepted=True
+        referee=profile, submission__thread_hash=submission.thread_hash, accepted=True
     ).exists()
 
     if contributor:
@@ -1628,7 +1624,7 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
 
     # Guard against already invited referees
     if RefereeInvitation.objects.filter(
-        profile=profile, submission=submission, cancelled=False
+        referee=profile, submission=submission, cancelled=False
     ).exists():
         return HTMXResponse(
             "This referee has already been invited.",
@@ -1652,12 +1648,8 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
 
     primary_or_first_email = profile.emails.order_by("-primary").first().email
     referee_invitation, created = RefereeInvitation.objects.get_or_create(
-        profile=profile,
-        referee=contributor,
+        referee=profile,
         submission=submission,
-        title=profile.title if profile.title else TITLE_DR,
-        first_name=profile.first_name,
-        last_name=profile.last_name,
         email_address=primary_or_first_email,
         auto_reminders_allowed=True,
         invited_by=request.user.contributor,
@@ -1674,7 +1666,7 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
 
     registration_invitation = None
     has_agreed_to_previous_invitation = RefereeInvitation.objects.filter(
-        profile=profile, submission__thread_hash=submission.thread_hash, accepted=True
+        referee=profile, submission__thread_hash=submission.thread_hash, accepted=True
     ).exists()
 
     if contributor:
@@ -1767,18 +1759,17 @@ def ref_invitation_reminder(request, identifier_w_vn_nr, invitation_id):
         Submission.objects.in_pool_filter_for_eic(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
-    invitation = get_object_or_404(
+    invitation: "RefereeInvitation" = get_object_or_404(
         submission.referee_invitations.all(), pk=invitation_id
     )
-    invitation.nr_reminders += 1
-    invitation.date_last_reminded = timezone.now()
-    invitation.save()
+    invitation.reminder_sent()
+
     SubmissionUtils.load({"invitation": invitation}, request)
-    if invitation.referee is not None:
+    if invitation.to_registered_referee:
         SubmissionUtils.send_ref_reminder_email()
     else:
         SubmissionUtils.send_unreg_ref_reminder_email()
-    messages.success(request, "Reminder sent succesfully.")
+    messages.success(request, "Reminder sent successfully.")
     return redirect(
         reverse(
             "submissions:editorial_page",
@@ -1796,7 +1787,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
     using this view. The decision will be taken one invitation at a time.
     """
     invitation = RefereeInvitation.objects.awaiting_response().filter(
-        referee__user=request.user
+        referee=request.user.contributor.profile
     )
     if invitation_id:
         try:
@@ -1875,10 +1866,12 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         )
         invitation.submission.add_event_for_eic(
             "Referee %s has %s the refereeing invitation."
-            % (invitation.referee.user.last_name, decision_string)
+            % (invitation.referee.full_name, decision_string)
         )
 
-        if request.user.contributor.referee_invitations.awaiting_response().exists():
+        if (
+            request.user.contributor.profile.referee_invitations.awaiting_response().exists()
+        ):
             return redirect("submissions:accept_or_decline_ref_invitations")
         return redirect(invitation.submission.get_absolute_url())
     context = {"invitation": invitation, "form": form}
@@ -1930,7 +1923,7 @@ def decline_ref_invitation(request, invitation_key):
         )
         invitation.submission.add_event_for_eic(
             "Referee %s has declined the refereeing "
-            "invitation." % invitation.last_name
+            "invitation." % invitation.referee.full_name
         )
 
         messages.success(
@@ -1971,7 +1964,7 @@ def _hx_cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
         "A referee invitation has been cancelled."
     )
     invitation.submission.add_event_for_eic(
-        "Referee invitation for %s has been cancelled." % invitation.last_name
+        "Referee invitation for %s has been cancelled." % invitation.referee.full_name
     )
 
     return HTMXResponse("Invitation cancelled", tag="success")
@@ -1984,7 +1977,7 @@ def _hx_report_intended_delivery_form(request, invitation_id):
     """
     invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
 
-    is_invited_referee = invitation.profile == request.user.contributor.profile
+    is_invited_referee = invitation.referee == request.user.contributor.profile
     is_editor = invitation.submission.editor_in_charge == request.user.contributor
     if not (is_invited_referee or is_editor):
         return HTMXPermissionsDenied(
@@ -2187,7 +2180,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
             raise PermissionDenied
 
         submissions_qs = Submission.objects.filter(
-            referee_invitations__referee__user=request.user
+            referee_invitations__referee=request.user.contributor.profile
         )
         referee = request.user.contributor
     elif author == "S":
@@ -2428,7 +2421,7 @@ def submit_report(request, identifier_w_vn_nr):
     is_author = check_verified_author(submission, request.user)
     is_author_unchecked = check_unverified_author(submission, request.user)
     invitation = submission.referee_invitations.filter(
-        fulfilled=False, cancelled=False, referee__user=request.user
+        fulfilled=False, cancelled=False, referee=request.user.contributor.profile
     ).first()
 
     errormessage = None

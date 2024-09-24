@@ -226,7 +226,7 @@ class ProfileMergeForm(forms.Form):
         profile_old.publicationauthorstable_set.all().update(profile=profile)
 
         # Move all invitations to the "new" profile
-        profile_old.refereeinvitation_set.all().update(
+        profile_old.referee_invitations.all().update(
             profile=profile,
             referee=getattr(profile, "contributor", None)
             or getattr(profile_old, "contributor", None),

@@ -5,11 +5,11 @@
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">Refereeing Invitations</h3>
-    {% if contributor.referee_invitations.all %}
+    {% if contributor.profile.referee_invitations.all %}
       <details class="p-2">
-	<summary>See all your refereeing invitations ({{ contributor.referee_invitations.all|length }})</summary>
+	<summary>See all your refereeing invitations ({{ contributor.profile.referee_invitations.all|length }})</summary>
 	<ul class="list-group list-group-flush ms-md-4">
-          {% for invitation in contributor.referee_invitations.all %}
+          {% for invitation in contributor.profile.referee_invitations.all %}
             <li class="list-group-item py-2">
               {% include 'submissions/_submission_li.html' with submission=invitation.submission %}
               <table>

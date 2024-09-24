@@ -69,7 +69,7 @@ class Command(BaseCommand):
                     f"Loaded {updated} AnonymizedReportContributors from {kwargs['backup_file']}."
                 )
             )
-            return
+
         else:
             reports_to_restore = [arc.report for arc in ARCs]
 
@@ -91,14 +91,7 @@ class Command(BaseCommand):
             Report.objects.bulk_update(reports, ["author"])
             RefereeInvitation.objects.bulk_update(
                 invitations,
-                [
-                    "referee",
-                    "profile",
-                    "title",
-                    "first_name",
-                    "last_name",
-                    "email_address",
-                ],
+                ["referee", "email_address"],
             )
 
             self.stdout.write(

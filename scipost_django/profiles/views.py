@@ -124,14 +124,16 @@ class ProfileCreateView(PermissionsMixin, CreateView):
         initial = super().get_initial()
         from_type = self.kwargs.get("from_type", None)
         pk = self.kwargs.get("pk", None)
-        
+
         # Build initial data from GET parameters of the name.
         first_name = self.request.GET.get("first_name", None)
         last_name = self.request.GET.get("last_name", None)
-        
-        if first_name: initial.update({"first_name": first_name})
-        if last_name: initial.update({"last_name": last_name})
-        
+
+        if first_name:
+            initial.update({"first_name": first_name})
+        if last_name:
+            initial.update({"last_name": last_name})
+
         if pk and from_type:
             pk = int(pk)
             if from_type == "contributor":
@@ -301,7 +303,7 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
             profile__isnull=True
         )
         nr_potential_duplicate_profiles = Profile.objects.potential_duplicates().count()
-        refinv_wo_profile = RefereeInvitation.objects.filter(profile__isnull=True)
+
         reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
 
         academic_fields = (
@@ -322,8 +324,6 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
                 "nr_contributors_wo_profile": contributors_wo_profile.count(),
                 "nr_potential_duplicate_profiles": nr_potential_duplicate_profiles,
                 "next_contributor_wo_profile": contributors_wo_profile.first(),
-                "nr_refinv_wo_profile": refinv_wo_profile.count(),
-                "next_refinv_wo_profile": refinv_wo_profile.first(),
                 "nr_reginv_wo_profile": reginv_wo_profile.count(),
                 "next_reginv_wo_profile": reginv_wo_profile.first(),
             }

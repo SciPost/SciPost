@@ -10,69 +10,69 @@ from mails.utils import DirectMailUtil
 
 from ...models import Submission
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ...models import RefereeInvitation
+
 
 class Command(BaseCommand):
     help = "Sends all email reminders needed for Submissions undergoing refereeing"
 
     def handle(self, *args, **options):
         for submission in Submission.objects.open_for_reporting():
-            # Send reminders to referees who have not responded:
-            for (
-                invitation
-            ) in (
-                submission.referee_invitations.awaiting_response().auto_reminders_allowed()
-            ):
-                # 2 days after ref invite sent out: first auto reminder
-                if workdays_between(invitation.date_invited, timezone.now()) == 2:
-                    if invitation.referee:
-                        mail_sender = DirectMailUtil(
-                            "referees/invite_contributor_to_referee_reminder1",
+
+            invitations_w_auto_reminders = (
+                submission.referee_invitations.auto_reminders_allowed()
+            )
+            invitation: "RefereeInvitation"
+
+            # Send automatic reminders to referees who have not responded
+            for invitation in invitations_w_auto_reminders.awaiting_response():
+                referee_registration_status = (
+                    "contributor"
+                    if invitation.to_registered_referee
+                    else "unregistered"
+                )
+                workdays_since_last_reminder = workdays_between(
+                    invitation.date_last_reminded, timezone.now()
+                )
+
+                # Send the appropriate reminder email based on the number of days since the last reminder
+                mail = None
+                match workdays_since_last_reminder:
+                    case 2:
+                        # First reminder according to the referee registration status
+                        mail = DirectMailUtil(
+                            f"referees/invite_{referee_registration_status}_to_referee_reminder1",
                             invitation=invitation,
                         )
-                        mail_sender.send_mail()
-                    else:
-                        mail_sender = DirectMailUtil(
-                            "referees/invite_unregistered_to_referee_reminder1",
+                        invitation.reminder_sent()
+                    case 4:
+                        # Second reminder according to the referee registration status
+                        mail = DirectMailUtil(
+                            f"referees/invite_{referee_registration_status}_to_referee_reminder2",
                             invitation=invitation,
                         )
-                        mail_sender.send_mail()
-                    invitation.nr_reminders += 1
-                    invitation.date_last_reminded = timezone.now()
-                    invitation.save()
-                # second (and final) reminder after 4 days
-                elif workdays_between(invitation.date_invited, timezone.now()) == 4:
-                    if invitation.referee:
-                        mail_sender = DirectMailUtil(
-                            "referees/invite_contributor_to_referee_reminder2",
-                            invitation=invitation,
+                        invitation.reminder_sent()
+                    case 6:
+                        # EIC is automatically emailed with the suggestion of removing and replacing this referee
+                        mail = DirectMailUtil(
+                            "eic/referee_unresponsive", invitation=invitation
                         )
-                        mail_sender.send_mail()
-                    else:
-                        mail_sender = DirectMailUtil(
-                            "referees/invite_unregistered_to_referee_reminder2",
-                            invitation=invitation,
-                        )
-                        mail_sender.send_mail()
-                    invitation.nr_reminders += 1
-                    invitation.date_last_reminded = timezone.now()
-                    invitation.save()
-                # after 6 days of no response, EIC is automatically emailed
-                # with the suggestion of removing and replacing this referee
-                elif workdays_between(invitation.date_invited, timezone.now()) == 6:
-                    mail_sender = DirectMailUtil(
-                        "eic/referee_unresponsive", invitation=invitation
-                    )
-                    mail_sender.send_mail()
-            # one week before refereeing deadline: auto email reminder to ref
+
+                if mail is not None:
+                    mail.send_mail()
+
+            # Send automatic reminder that the deadline is approaching (less than one week left)
+            workdays_until_deadline = workdays_between(
+                timezone.now(), submission.reporting_deadline
+            )
             if (
                 submission.reporting_deadline is not None
-                and workdays_between(timezone.now(), submission.reporting_deadline) == 5
+                and workdays_until_deadline == 5
             ):
-                for (
-                    invitation
-                ) in (
-                    submission.referee_invitations.in_process().auto_reminders_allowed()
-                ):
+                for invitation in invitations_w_auto_reminders.in_process():
                     mail_sender = DirectMailUtil(
                         "referees/remind_referee_deadline_1week", invitation=invitation
                     )

@@ -1,4 +1,4 @@
-<p>Dear {{ invitation.get_title_display }} {{ invitation.last_name }},</p>
+<p>Dear {{ invitation.referee.formal_name}},</p>
 
 <p>
   The authors of submission
@@ -11,7 +11,7 @@
   (<a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">see on SciPost.org</a>)
 </p>
 <p>
-  have submitted a new (revised) version of their manuscript to SciPost. On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.first_name }} {{ invitation.submission.editor_in_charge.user.last_name }}, we would like to invite you to review this new version.
+  have submitted a new (revised) version of their manuscript to SciPost. On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to invite you to review this new version.
 </p>
 <p>
   Your report can be submitted by clicking on the <a href="https://{{ domain }}{% url 'submissions:submit_report' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr %}">Contribute a Report</a> link on the <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">Submission's Page</a>{% if invitation.submission.reporting_deadline %} before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'N j, Y' }}){% endif %}.

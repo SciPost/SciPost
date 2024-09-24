@@ -2637,7 +2637,7 @@ class InviteRefereeSearchFrom(forms.Form):
             .annotate(
                 has_accepted_previous_invitation=Exists(
                     RefereeInvitation.objects.filter(
-                        profile=OuterRef("id"),
+                        referee=OuterRef("id"),
                         submission__thread_hash=self.submission.thread_hash,
                         accepted=True,
                     ).exclude(submission=self.submission)
@@ -2646,7 +2646,7 @@ class InviteRefereeSearchFrom(forms.Form):
             .annotate(
                 already_invited=Exists(
                     RefereeInvitation.objects.filter(
-                        profile=OuterRef("id"),
+                        referee=OuterRef("id"),
                         submission=self.submission,
                         cancelled=False,
                     )
@@ -2851,7 +2851,7 @@ class ConsiderRefereeInvitationForm(forms.Form):
         super().save()
 
         self.invitation.submission.add_event_for_eic(
-            f"Referee {self.invitation.profile} set intended report delivery date to {self.invitation.intended_delivery_date}."
+            f"Referee {self.invitation.referee.full_name} set intended report delivery date to {self.invitation.intended_delivery_date}."
         )
         self.invitation.submission.add_event_for_author(
             f"A referee has set their intended report delivery date to {self.invitation.intended_delivery_date}."
@@ -2892,7 +2892,7 @@ class ReportIntendedDeliveryForm(forms.ModelForm):
         super().save()
 
         self.instance.submission.add_event_for_eic(
-            f"Referee {self.instance.profile} set intended report delivery date to {self.instance.intended_delivery_date}."
+            f"Referee {self.referee.full_name} set intended report delivery date to {self.instance.intended_delivery_date}."
         )
         self.instance.submission.add_event_for_author(
             f"A referee has set their intended report delivery date to {self.instance.intended_delivery_date}."
@@ -3097,7 +3097,7 @@ class ReportForm(forms.ModelForm):
 
             # Update invitation and report meta data if exist
             invitations = self.submission.referee_invitations.filter(
-                referee=report.author
+                referee=report.author.profile
             )
             updated_invitations = invitations.update(fulfilled=True)
             invitations.filter(accepted=None).update(

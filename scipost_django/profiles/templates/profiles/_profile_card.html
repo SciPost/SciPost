@@ -194,7 +194,7 @@
 	</div>
 	<div class="card-body">
 	  <ul>
-	    {% for inv in profile.refereeinvitation_set.all %}
+	    {% for inv in profile.referee_invitations.all %}
 	      <li>{{ inv.submission.title }}<br/>(invited {{ inv.date_invited }}; fulfilled: {% if inv.fulfilled %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/x-circle-fill.html' %}{% endif %})</li>
 	    {% empty %}
 	      <li>No refereeing invitation found</li>

@@ -314,9 +314,8 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
         "submission__title",
         "submission__author_list",
         "submission__preprint__identifier_w_vn_nr",
-        "referee__user__last_name",
-        "first_name",
-        "last_name",
+        "referee__first_name",
+        "referee__last_name",
         "email_address",
     ]
     list_display = ("__str__", "accepted", "fulfilled", "cancelled")
@@ -327,7 +326,6 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
     )
     date_hierarchy = "date_invited"
     autocomplete_fields = [
-        "profile",
         "submission",
         "referee",
         "invited_by",

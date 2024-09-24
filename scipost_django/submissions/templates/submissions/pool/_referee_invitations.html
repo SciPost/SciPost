@@ -35,13 +35,13 @@
             <div class="badge bg-danger">overdue</div>
           {% endif %}
         </td>
-        <td class="py-3">{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }} <br /> <span class="text-muted text-truncate">{{invitation.email_address}}</span> </td>
+        <td class="py-3"><a href="{{ invitation.referee.get_absolute_url }}">{{ invitation.referee.full_name }}</a><div class="text-muted text-truncate">{{invitation.email_address}}</div> </td>
         <td>
 	  {% if not invitation.date_invited %}
       {% if not invitation.cancelled %}
         <span class="text-danger">Invitation email not sent!!</span>
         <br>
-        <a class="btn btn-sm btn-danger text-white" href="{% url 'submissions:invite_referee' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr profile_id=invitation.profile.id profile_email=invitation.email_address auto_reminders_allowed=invitation.auto_reminders_allowed %}">
+        <a class="btn btn-sm btn-danger text-white" href="{% url 'submissions:invite_referee' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr profile_id=invitation.referee.id profile_email=invitation.email_address auto_reminders_allowed=invitation.auto_reminders_allowed %}">
           {% include 'bi/arrow-right.html' %}&nbsp;Resend
         </a>
       {% endif %}
@@ -98,12 +98,12 @@
             {% endif %}
           </td>
           <td>
-            {% if invitation.referee %}
-              <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
-              {% if invitation.referee.editorial_communications|filter_for_submission:submission %}
+            {% if invitation.contributor %}
+              <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.contributor.id %}">Write a communication</a>
+              {% if invitation.contributor.editorial_communications|filter_for_submission:submission %}
                 <br>
                 <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
-                  <small>Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})</small>
+                  <small>Show communication ({{ invitation.contributor.editorial_communications|filter_for_submission:submission|length }})</small>
                 </button>
               {% endif %}
             {% else %}
@@ -128,19 +128,19 @@
         {% else %}
           <td colspan="3"></td>
           <td colspan="2">
-            {% if invitation.referee %}
+            {% if invitation.contributor %}
               <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
-                <small>Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})</small>
+                <small>Show communication ({{ invitation.contributor.editorial_communications|filter_for_submission:submission|length }})</small>
               </button>
             {% endif %}
           </td>
         {% endif %}
       </tr>
-      {% if invitation.referee %}
+      {% if invitation.contributor %}
         <tr style="display: none;" class="pt-1 table-info" id="comm-row-{{ invitation.id }}">
           <td></td>
           <td colspan="8">
-            {% include 'submissions/_communication_thread.html' with communication=invitation.referee.editorial_communications|filter_for_submission:submission css_class='wide' %}
+            {% include 'submissions/_communication_thread.html' with communication=invitation.contributor.editorial_communications|filter_for_submission:submission css_class='wide' %}
             <button type="button" class="btn btn-link p-0 d-inline-block mb-2" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}"><small>Hide communication</small></button>
           </td>
         </tr>

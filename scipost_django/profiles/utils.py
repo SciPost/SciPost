@@ -16,7 +16,7 @@ def resolve_profile(view):
             referee_invitation = RefereeInvitation.objects.filter(
                 invitation_key=invitation_key
             ).first()
-            profile = referee_invitation.profile if referee_invitation else None
+            profile = referee_invitation.referee if referee_invitation else None
         else:
             profile = None
 

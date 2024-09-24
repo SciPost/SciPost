@@ -32,6 +32,10 @@ from .constants import (
 )
 from .managers import ProfileManager, ProfileQuerySet, AffiliationQuerySet
 
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+    from submissions.models.referee_invitation import RefereeInvitation
+
 
 class Profile(models.Model):
     """
@@ -61,6 +65,7 @@ class Profile(models.Model):
     if TYPE_CHECKING:
         id: int
         contributor: Contributor | None
+        referee_invitations: "RelatedManager[RefereeInvitation]"
 
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, default=TITLE_DR)
     first_name = models.CharField(max_length=64)
@@ -190,9 +195,7 @@ class Profile(models.Model):
     @property
     def responsiveness_as_referee(self):
         """Simple stats on last 5 years' responsiveness as a referee."""
-        invitations = self.refereeinvitation_set.all()
-        if self.contributor:
-            invitations = invitations | self.contributor.referee_invitations.all()
+        invitations = self.referee_invitations.all()
 
         invitations = invitations.distinct().filter(
             date_invited__gt=timezone.now() - datetime.timedelta(days=1825)

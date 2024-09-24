@@ -123,14 +123,7 @@ class Command(BaseCommand):
         Report.objects.bulk_update(reports, ["author"])
         RefereeInvitation.objects.bulk_update(
             invitations,
-            [
-                "referee",
-                "profile",
-                "title",
-                "first_name",
-                "last_name",
-                "email_address",
-            ],
+            ["referee", "email_address"],
         )
 
         self.stdout.write(

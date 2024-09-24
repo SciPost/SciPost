@@ -9,7 +9,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from scipost.constants import TITLE_CHOICES
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..managers import RefereeInvitationQuerySet
@@ -17,38 +16,29 @@ from ..models import EditorialAssignment
 
 if TYPE_CHECKING:
     from profiles.models import Profile
-    from scipost.models import Contributor
     from submissions.models import Submission
 
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
-    """Invitation to an active professional scientist to referee a Submission.
+    """
+    Invitation to an active professional scientist to referee a Submission.
 
-    A RefereeInvitation represents an invitation to a Contributor
-    or a non-registered scientist to write a Report for a specific Submission.
+    A RefereeInvitation represents an invitation sent to a professional scientist
+    (modeled through their Profile) to write a Report for a specific Submission.
     The instance will register the response to the invitation and
     the current status of the refereeing duty if the invitation has been accepted.
-
     """
 
-    profile = models.ForeignKey["Profile"](
-        "profiles.Profile", on_delete=models.SET_NULL, blank=True, null=True
+    referee = models.ForeignKey["Profile"](
+        "profiles.Profile",
+        on_delete=models.CASCADE,
+        related_name="referee_invitations",
     )
     submission = models.ForeignKey["Submission"](
         "submissions.Submission",
         on_delete=models.CASCADE,
         related_name="referee_invitations",
     )
-    referee = models.ForeignKey["Contributor"](
-        "scipost.Contributor",
-        related_name="referee_invitations",
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-    )
-    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
     email_address = models.EmailField()
 
     # if Contributor not found, person is invited to register
@@ -96,7 +86,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     def __str__(self):
         """Summarize the RefereeInvitation's basic information."""
         value = (
-            self.referee_str
+            self.referee.full_name
             + " to referee "
             + self.submission.title[:30]
             + " by "
@@ -113,16 +103,22 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         return reverse("submissions:accept_or_decline_ref_invitations", args=(self.id,))
 
     @property
-    def referee_str(self):
-        """Return the most up-to-date name of the Referee."""
-        if self.referee:
-            return str(self.referee)
-        return self.last_name + ", " + self.first_name
+    def contributor(self):
+        """The Contributor of the associated Profile, if any."""
+        return getattr(self.referee, "contributor", None)
+
+    @property
+    def to_registered_referee(self):
+        """Check if the invitation is to a registered referee."""
+        return self.referee.has_active_contributor
 
     @property
     def related_report(self):
         """Return the Report that's been created for this invitation."""
-        return self.submission.reports.filter(author=self.referee).last()
+        if self.contributor is None:
+            return None
+
+        return self.submission.reports.filter(author=self.contributor).last()
 
     @property
     def needs_sending(self):
@@ -204,3 +200,9 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         self.refusal_reason = None
         self.fulfilled = False
         self.cancelled = False
+
+    def reminder_sent(self):
+        """Update the invitation's reminder count and date."""
+        self.nr_reminders += 1
+        self.date_last_reminded = timezone.now()
+        self.save()

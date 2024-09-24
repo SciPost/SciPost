@@ -1,11 +1,8 @@
 <p>Dear {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},</p>
 
 <p>
-    Referee {% if invitation.referee %}{{ invitation.referee.profile.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}{% endif %} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
+    Referee {{ invitation.referee.formal_name }} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{ invitation.get_refusal_reason_display }}{% if invitation.other_refusal_reason %}, {{ invitation.other_refusal_reason }}{% endif %}){% endif %} to referee Submission
 </p>
-{% if invitation.other_refusal_reason %}
-  <p>Their "other" refusal reason states: {{ invitation.other_refusal_reason }}</p>
-{% endif %}
 <p>
   {{ invitation.submission.title }}
   <br/>

@@ -17,20 +17,18 @@
           <label for="{{ widget.id_for_label }}" class="mb-0">
             {{ widget.tag }}
             {{ widget.choice_label }}
+            <p class="help-block text-muted">
+              {{ widget.help_text|safe }}
+              {% if widget.data.value == 'short' %}
+              Run a speedy refereeing round: two weeks, with option of reinviting previous referees
+              {% elif widget.data.value == 'direct_rec' %}
+              Immediately write an editorial recommendation.
+              {% else %}
+              Run a new full refereeing round: four weeks as usual, can invite previous referees and/or new ones.
+              {% endif %}
+            </p>
           </label>
         </div>
-        <p class="help-block text-muted">
-          {{ widget.help_text|safe }}
-          {% if widget.data.value == 'short' %}
-            Run a speedy refereeing round: two weeks, with option of reinviting previous referees
-          {% elif widget.data.value == 'direct_rec' %}
-            Immediately write an editorial recommendation.
-          {% else %}
-            Run a new full refereeing round: four weeks as usual, can invite previous referees and/or new ones.
-          {% endif %}
-        </p>
-
-
       {% endfor %}
       {% for error in form.refereeing_cycle.errors %}
         <span class="help-block {{ form.error_css_class }}">{{ error }}</span>
@@ -50,40 +48,39 @@
       <label class="col-form-label col-md-2 ">Reinvite referees</label>
       <div class="col-md-10">
         <ul class="list-group list-group-flush">
-          {% for referee in form.referees_reinvite.field.queryset %}
+          {% for invitation in form.referees_reinvite.field.queryset %}
             <li class="list-group-item py-1">
-              <div class="d-flex flex-row">
-                  <label for="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" class="mb-0"></label>
-                  <input class="me-2" checked="checked" id="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" name="{{ form.referees_reinvite.name }}" type="checkbox" value="{{referee.id}}">
-                  <div class="d-flex flex-column">
-                    <div>{{ referee.referee_str }} <span class="text-muted">({{ referee.email_address }})</span></div>
-                    <div><span class="text-muted">Originally invited on {{ referee.date_invited }}</span></div>
-                  </div>
-                  <div class="ms-auto d-flex flex-column align-items-end">
-                    <div>Response: 
-                      {% if referee.accepted %}
-                        <span title="Accepted" class="text-success">{% include "bi/check-circle-fill.html" %}</span>
-                      {% elif referee.cancelled %}
-                        <span title="Cancelled" class="text-black">{% include "bi/circle-fill.html" %}</span>
-                      {% elif referee.accepted == False %}
-                        <span title="Refused" class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
-                      {% elif not referee.accepted %}
-                        <span title="Pending" class="text-warning">{% include "bi/question-circle-fill.html" %}</span>
-                      {% endif %}
-                    </div>
-                    {% if referee.accepted %}
-                      <div>Fulfilled: 
-                        {% if not referee.fulfilled or referee.cancelled %}
-                          <span title="Undelivered" class="text-black">{% include "bi/circle-fill.html" %}</span>
-                        {% elif referee.fulfilled %}
-                          <span title="Fulfilled" class="text-success">{% include "bi/check-circle-fill.html" %}</span>
-                        {% endif %}
-                      </div>
-                    {% elif referee.accepted == False %}
-                      <span>{{ referee.get_refusal_reason_display }}</span>
+              <label for="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" class="mb-0 d-flex flex-row">
+                <input class="me-2" checked="checked" id="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" name="{{ form.referees_reinvite.name }}" type="checkbox" value="{{ invitation.id }}">
+                <div class="d-flex flex-column">
+                  <div><a href="{{ invitation.referee.get_absolute_url }}">{{ invitation.referee.full_name }}</a> <span class="text-muted">({{ invitation.email_address }})</span></div>
+                  <div><span class="text-muted">Originally invited on {{ invitation.date_invited }}</span></div>
+                </div>
+                <div class="ms-auto d-flex flex-column align-items-end">
+                  <div>Response: 
+                    {% if invitation.accepted %}
+                      <span title="Accepted" class="text-success">{% include "bi/check-circle-fill.html" %}</span>
+                    {% elif invitation.cancelled %}
+                      <span title="Cancelled" class="text-black">{% include "bi/circle-fill.html" %}</span>
+                    {% elif invitation.accepted == False %}
+                      <span title="Refused" class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
+                    {% elif not invitation.accepted %}
+                      <span title="Pending" class="text-warning">{% include "bi/question-circle-fill.html" %}</span>
                     {% endif %}
                   </div>
+                  {% if invitation.accepted %}
+                    <div>Fulfilled: 
+                      {% if not invitation.fulfilled or invitation.cancelled %}
+                        <span title="Undelivered" class="text-black">{% include "bi/circle-fill.html" %}</span>
+                      {% elif invitation.fulfilled %}
+                        <span title="Fulfilled" class="text-success">{% include "bi/check-circle-fill.html" %}</span>
+                      {% endif %}
+                    </div>
+                  {% elif invitation.accepted == False %}
+                    <span>{{ invitation.get_refusal_reason_display }}</span>
+                  {% endif %}
                 </div>
+              </label>
             </li>
           {% empty %}
             <li class="list-group-item py-1"><em>No former referees found</em></li>

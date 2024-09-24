@@ -352,8 +352,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
         # Get any referee invitations belonging to the author of this Report (anonymous or not)
         invitations = RefereeInvitation.objects.filter(
-            Q(submission=self.submission)
-            & (Q(referee=self.author) | Q(profile=self.author.profile))
+            submission=self.submission, referee=self.author.profile
         )
 
         arc, created = AnonymizedReportContributor.objects.get_or_create(report=self)
@@ -424,25 +423,14 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
         # Update the invitation with the new referee information (anonymous or not)
         for inv in invitations:
-            inv.referee = self.author
-            inv.profile = self.author.profile
-            inv.title = self.author.profile.title if self.author.profile else "MX"
-            inv.first_name = self.author.user.first_name if restore else ""
-            inv.last_name = self.author.user.last_name if restore else ""
+            inv.referee = self.author.profile
 
         if commit:
             arc.save()
             self.save()
             RefereeInvitation.objects.bulk_update(
                 invitations,
-                [
-                    "referee",
-                    "profile",
-                    "title",
-                    "first_name",
-                    "last_name",
-                    "email_address",
-                ],
+                ["referee", "email_address"],
             )
 
         return arc, self, invitations

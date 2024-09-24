@@ -22,10 +22,9 @@ class RefereeInvitationFactory(factory.django.DjangoModelFactory):
             profile_info=factory.SelfAttribute("referee.profile"),
         )
 
-    referee = None
-    profile = factory.SubFactory("profiles.factories.ProfileFactory")
+    referee = factory.SubFactory("profiles.factories.ProfileFactory")
 
-    profile_info = factory.SelfAttribute("profile")
+    profile_info = factory.SelfAttribute("referee")
     title = factory.SelfAttribute("profile_info.title")
     first_name = factory.SelfAttribute("profile_info.first_name")
     last_name = factory.SelfAttribute("profile_info.last_name")
@@ -55,7 +54,9 @@ class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
         if create:
             from submissions.factories import VettedReportFactory
 
-            VettedReportFactory(submission=self.submission, author=self.referee)
+            VettedReportFactory(
+                submission=self.submission, author=self.referee.contributor
+            )
 
 
 class FulfilledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
