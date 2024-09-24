@@ -52,6 +52,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 from dal import autocomplete
 
 from .constants import (
+    PUBLICATION_PUBLISHED,
     STATUS_DRAFT,
     ISSUES_AND_VOLUMES,
     ISSUES_ONLY,
@@ -1897,7 +1898,8 @@ def manage_report_metadata(request) -> HttpResponse:
                     Publication.objects.filter(
                         accepted_submission__thread_hash=OuterRef(
                             "submission__thread_hash"
-                        )
+                        ),
+                        status=PUBLICATION_PUBLISHED,
                     )
                 ),
                 successful_deposit=Exists(
