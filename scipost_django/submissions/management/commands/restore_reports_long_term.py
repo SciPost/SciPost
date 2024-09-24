@@ -73,6 +73,12 @@ class Command(BaseCommand):
         else:
             reports_to_restore = [arc.report for arc in ARCs]
 
+            # Bulk-update the ARCs before updating the reports
+            AnonymizedReportContributor.objects.bulk_update(
+                ARCs,
+                ["anonymized_author", "original_author", "invitation_email"],
+            )
+
             updated_objects = []
             for report in reports_to_restore:
                 updated_objects.append(
@@ -83,11 +89,7 @@ class Command(BaseCommand):
             ARCs, reports, invitations = zip(*updated_objects)
             invitations = list(itertools.chain.from_iterable(invitations))
 
-            # Bulk-update the ARCs, reports, and invitations since commit=False
-            AnonymizedReportContributor.objects.bulk_update(
-                ARCs,
-                ["anonymized_author", "original_author", "invitation_email"],
-            )
+            # Bulk-update the reports, and invitations since commit=False
             Report.objects.bulk_update(reports, ["author"])
             RefereeInvitation.objects.bulk_update(
                 invitations,
