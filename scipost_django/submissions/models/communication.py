@@ -66,6 +66,8 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     def _resolve_contributor_name(self, letter: str):
         if letter == "S":
             return "SciPost Editorial Administration"
+        elif letter == "E":
+            return "Editor in Charge"
         elif contributor := self._resolve_contributor_from_letter(letter):
             return f"{contributor.profile_title} {contributor.user.last_name}"
         return "Unknown"
