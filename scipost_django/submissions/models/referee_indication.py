@@ -93,7 +93,7 @@ class RefereeIndication(models.Model):
         ):
             return "author"
         elif self.indicated_by.id in self.submission.referee_invitations.values_list(
-            "profile__id", flat=True
+            "referee__id", flat=True
         ):
             return "referee"
         elif self.indicated_by in self.submission.fellows.values_list(
