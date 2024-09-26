@@ -244,6 +244,7 @@ MIDDLEWARE = [
     "django_referrer_policy.middleware.ReferrerPolicyMiddleware",
     "csp.middleware.CSPMiddleware",
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
+    "scipost.middleware.UsernameHeaderMiddleware",
 ]
 
 SECURE_BROWSER_XSS_FILTER = True
