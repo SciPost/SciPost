@@ -359,6 +359,16 @@ urlpatterns = [
         name="withdraw_manuscript",
     ),
     path(
+        "<identifier:identifier_w_vn_nr>/extend_assignment_deadline/<int:days>",
+        views.extend_assignment_deadline,
+        name="extend_assignment_deadline",
+    ),
+    path(
+        "<identifier:identifier_w_vn_nr>/extend_assignment_deadline",
+        views.extend_assignment_deadline,
+        name="extend_assignment_deadline",
+    ),
+    path(
         "update_authors_assignment/<identifier:identifier_w_vn_nr>/<int:nrweeks>",
         views.update_authors_assignment,
         name="update_authors_assignment",

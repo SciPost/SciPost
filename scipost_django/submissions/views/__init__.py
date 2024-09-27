@@ -610,6 +610,58 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
     return render(request, "submissions/withdraw_manuscript.html", context)
 
 
+@login_required
+def extend_assignment_deadline(
+    request, identifier_w_vn_nr: str, days: int | None = None
+):
+    """
+    Extend the assignment deadline date of a Submission.
+
+    Accessible to EdAdmin (always) or authors of the Submission (for first extension).
+    """
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    if submission.assignment_deadline is None:
+        raise PermissionDenied("This Submission has no assignment deadline.")
+
+    is_submission_author = request.user.contributor in submission.authors.all()
+    if not (is_edadmin(request.user) or is_submission_author):
+        raise PermissionDenied("You are not allowed to extend the assignment deadline.")
+
+    # Compute the new assignment deadline if days is given, otherwise use the default
+    # For authors, ignore the days even if given
+    extension_date = (
+        submission.assignment_deadline + timedelta(days=days)
+        if days is not None and is_edadmin(request.user)
+        else submission.assignment_deadline + submission.submitted_to.assignment_period
+    )
+
+    if extension_date < submission.assignment_deadline:
+        raise PermissionDenied("You cannot set an earlier date.")
+
+    if is_submission_author and submission.has_extended_assignment_deadline:
+        raise PermissionDenied(
+            "You are not allowed to extend the assignment deadline again."
+        )
+
+    submission.assignment_deadline = extension_date
+    submission.save()
+
+    submission.add_general_event(
+        f"The assignment deadline has been extended to {extension_date}."
+    )
+    messages.success(request, "The assignment deadline has been extended.")
+
+    return redirect(
+        reverse(
+            "submissions:submission",
+            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+        )
+    )
+
+
 # Marked for deprecation
 class SubmissionListView(PaginationMixin, ListView):
     """List all publicly available Submissions."""
@@ -882,9 +934,7 @@ def report_attachment(request, identifier_w_vn_nr, report_nr):
     if not report.is_vetted:
         # Only Admins and EICs are allowed to see non-vetted Report attachments.
         if (
-            not Submission.objects.in_pool_filter_for_eic(
-                request.user, historical=True, latest=False
-            )
+            not Submission.objects.in_pool_filter_for_eic(request.user)
             .filter(preprint__identifier_w_vn_nr=identifier_w_vn_nr)
             .exists()
         ):

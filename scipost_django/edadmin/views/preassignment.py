@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
+from django.utils import timezone
 
 from colleges.permissions import is_edadmin
 from mails.utils import DirectMailUtil
@@ -159,9 +160,11 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
     form = SubmissionPreassignmentDecisionForm(request.POST or None)
     if form.is_valid():
         if form.cleaned_data["choice"] == "pass":
-            Submission.objects.filter(pk=submission.id).update(
-                status=Submission.SEEKING_ASSIGNMENT
+            submission.status = Submission.SEEKING_ASSIGNMENT
+            submission.assignment_deadline = (
+                timezone.now() + submission.submitted_to.assignment_period
             )
+            submission.save()
             # send authors admission passed email
             mail_util = DirectMailUtil(
                 "authors/preassignment_completed",
@@ -174,9 +177,8 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
             submission.fellows.set(submission.get_default_fellowship())
 
         else:  # inadmissible, inform authors and set status to PREASSIGNMENT_FAILED
-            Submission.objects.filter(pk=submission.id).update(
-                status=Submission.PREASSIGNMENT_FAILED
-            )
+            submission.status = Submission.PREASSIGNMENT_FAILED
+            submission.save()
             # send authors admission failed email
             mail_util = DirectMailUtil(
                 "authors/preassignment_failed",
@@ -184,7 +186,6 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
                 comments_for_authors=form.cleaned_data["comments_for_authors"],
             )
         mail_util.send_mail()
-        submission.refresh_from_db()
         response = HttpResponse()
         # trigger refresh of pool listing
         response["HX-Trigger-After-Settle"] = "search-conditions-updated"

@@ -60,6 +60,14 @@
           <br />
           {{ submission.submission_date|date:'Y-m-d' }}
         </div>
+
+        {% if submission.assignment_deadline is not None %}
+          <div class="col">
+            <small class="text-muted">Assignment deadline</small>
+            <br />
+            in {{ submission.assignment_deadline|timeuntil }}
+          </div>
+        {% endif %}
       {% endif %}
 
       <div class="col">

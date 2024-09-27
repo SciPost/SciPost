@@ -226,6 +226,7 @@ class SubmissionPoolSearchForm(forms.Form):
     orderby = forms.ChoiceField(
         label="Order by",
         choices=(
+            ("assignment_deadline", "Assignment deadline"),
             ("submission_date", "Submission date"),
             ("latest_activity", "Latest activity"),
         ),
@@ -2324,6 +2325,7 @@ class WithdrawSubmissionForm(forms.Form):
                 open_for_commenting=False,
                 open_for_reporting=False,
                 status=Submission.WITHDRAWN,
+                assignment_deadline=None,
                 latest_activity=timezone.now(),
             )
             self.submission.get_other_versions().update(visible_public=False)
@@ -2423,6 +2425,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                     status=Submission.IN_REFEREEING,
                     editor_in_charge=self.request.user.contributor,
                     reporting_deadline=None,
+                    assignment_deadline=None,
                     open_for_reporting=True,
                     open_for_commenting=True,
                     visible_public=True,
@@ -2442,6 +2445,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                     status=Submission.REFEREEING_CLOSED,
                     editor_in_charge=self.request.user.contributor,
                     reporting_deadline=timezone.now(),
+                    assignment_deadline=None,
                     open_for_reporting=False,
                     open_for_commenting=True,
                     visible_public=visible_public,

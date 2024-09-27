@@ -430,6 +430,9 @@ class Submission(models.Model):
     completion_date = models.DateField(
         verbose_name="completion date", null=True, blank=True
     )
+    assignment_deadline = models.DateField(
+        verbose_name="assignment deadline", null=True, blank=True
+    )
     latest_activity = models.DateTimeField(auto_now=True)
     update_search_index = models.BooleanField(default=True)
 
@@ -739,6 +742,16 @@ class Submission(models.Model):
     def open_for_resubmission(self):
         """Check if Submission has fixed EICRecommendation asking for revision."""
         return self.status == self.AWAITING_RESUBMISSION
+
+    @property
+    def has_extended_assignment_deadline(self):
+        """
+        Check if Submission has had its assignment deadline extended, by looking for the corresponding event.
+        """
+        return self.events.filter(
+            text__icontains="assignment deadline",
+            text__contains="extended",
+        ).exists()
 
     @property
     def reporting_deadline_has_passed(self):

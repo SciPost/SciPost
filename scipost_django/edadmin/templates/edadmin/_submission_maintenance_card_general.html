@@ -20,25 +20,37 @@
                 hx-prompt="What is the reason for putting the submission on hold? (will be added as a submission internal note)"
                 {% endif %}
                 hx-target="#submission-{{ submission.id }}-details">
-                {% if submission.on_hold %}
-                Take off hold
-                {% else %}
-                Put on hold
-                {% endif %}
+            {% if submission.on_hold %}
+            Take off hold
+            {% else %}
+            Put on hold
+            {% endif %}
         </button>
       </li>
+      {% if submission.assignment_deadline %}
+        <li>
+          <div>
+            Extend assignment deadline by:
+          </div>
+          <ul role="menu" class="d-flex gap-3 list-unstyled">
+            <li role="menuitem"><a href="{% url 'submissions:extend_assignment_deadline' submission.preprint.identifier_w_vn_nr 7 %}">7 days</a></li>
+            <li role="menuitem"><a href="{% url 'submissions:extend_assignment_deadline' submission.preprint.identifier_w_vn_nr 14 %}">14 days</a></li>
+            <li role="menuitem"><a href="{% url 'submissions:extend_assignment_deadline' submission.preprint.identifier_w_vn_nr 28 %}">28 days</a></li>
+          </ul>
+        </li>
+      {% endif %}
       {% if 'Proceedings' in submission.submitted_to.name %}
-	<li id="submission-{{ submission.id }}-update-target-proceedings">
-	  {% include "submissions/admin/_submission_update_target_proceedings.html" with submission=submission %}
-	</li>
+        <li id="submission-{{ submission.id }}-update-target-proceedings">
+          {% include "submissions/admin/_submission_update_target_proceedings.html" with submission=submission %}
+        </li>
       {% endif %}
       {% if submission.preprint.has_file %}
-	<li id="submission-{{ submission.id }}-update-preprint-file">
-	  {% include "submissions/admin/_submission_update_preprint_file.html" with submission=submission %}
-	</li>
+        <li id="submission-{{ submission.id }}-update-preprint-file">
+          {% include "submissions/admin/_submission_update_preprint_file.html" with submission=submission %}
+        </li>
       {% endif %}
       {% if submission.editor_in_charge and perms.scipost.can_reassign_submissions %}
-	<li><a href="{% url 'submissions:reassign_submission' submission.preprint.identifier_w_vn_nr %}">Reassign Editor-in-charge</a></li>
+        <li><a href="{% url 'submissions:reassign_submission' submission.preprint.identifier_w_vn_nr %}">Reassign Editor-in-charge</a></li>
       {% endif %}
       {% if submission.editor_in_charge %}
         <li class="pb-2"><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></li>

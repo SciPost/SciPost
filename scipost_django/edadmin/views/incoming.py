@@ -236,7 +236,8 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
     if form.is_valid():
         if form.cleaned_data["choice"] == "pass":
             Submission.objects.filter(pk=submission.id).update(
-                status=Submission.PREASSIGNMENT
+                status=Submission.PREASSIGNMENT,
+                checks_cleared_date=timezone.now(),
             )
             # send authors admission passed email
             # mail_util = DirectMailUtil(

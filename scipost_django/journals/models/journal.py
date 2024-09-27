@@ -84,6 +84,7 @@ class Journal(models.Model):
     )
 
     refereeing_period = models.DurationField(default=datetime.timedelta(days=28))
+    assignment_period = models.DurationField(default=datetime.timedelta(days=28))
 
     style = models.TextField(
         blank=True,
