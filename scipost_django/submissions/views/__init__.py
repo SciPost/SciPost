@@ -882,7 +882,9 @@ def report_attachment(request, identifier_w_vn_nr, report_nr):
     if not report.is_vetted:
         # Only Admins and EICs are allowed to see non-vetted Report attachments.
         if (
-            not Submission.objects.in_pool_filter_for_eic(request.user)
+            not Submission.objects.in_pool_filter_for_eic(
+                request.user, historical=True, latest=False
+            )
             .filter(preprint__identifier_w_vn_nr=identifier_w_vn_nr)
             .exists()
         ):
