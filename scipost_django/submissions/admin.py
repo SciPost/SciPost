@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import admin
-from django.db.models import Q
 from django import forms
 
 from guardian.admin import GuardedModelAdmin
@@ -124,6 +123,17 @@ class CollectionInline(admin.StackedInline):
     ]
 
 
+class SubmissionEventInline(admin.TabularInline):
+    model = SubmissionEvent
+    extra = 0
+    autocomplete_fields = ["submission"]
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == "text":
+            kwargs["widget"] = forms.Textarea(attrs={"rows": 2, "cols": 80})
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+
 @admin.register(Submission)
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = "submission_date"
@@ -171,6 +181,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         ReadinessInline,
         SubmissionClearanceInline,
         SubmissionTieringInline,
+        SubmissionEventInline,
         CollectionInline,
         RedFlagInline,
     ]
@@ -264,6 +275,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                     ("visible_public", "visible_pool"),
                     "refereeing_cycle",
                     ("open_for_commenting", "open_for_reporting"),
+                    "autorejection_date",
                     "reporting_deadline",
                     "acceptance_date",
                     "referees_flagged",
