@@ -5,125 +5,161 @@
 {% get_profile_clearance submission.clearances request.user.contributor.profile as clearance %}
 
 {% if is_ed_admin %}
-    <div class="fs-5 float-start position-absolute top-0 start-0 translate-middle">
-      {% include "error_hover_explainer.html" with notes=submission.edadmin_notes %}
-    </div>
+  <div class="fs-5 float-start position-absolute top-0 start-0 translate-middle">
+    {% include "error_hover_explainer.html" with notes=submission.edadmin_notes %}
+  </div>
 {% endif %}
 
+<!-- Submission Info -->
 <div class="row mb-0">
   <div class="col col-md-9">
+
     <table>
       <tbody>
-	<tr>
-	  <td><strong class="text-primary">{{ submission.title }}</strong></td>
-	</tr>
-	<tr class="mt-1">
-	  <td><strong><em>by {{ submission.author_list }}</em></strong></td>
-	</tr>
+        <tr>
+          <td>
+            <strong class="text-primary">{{ submission.title }}</strong>
+          </td>
+        </tr>
+        <tr class="mt-1">
+          <td>
+            <strong><em>by {{ submission.author_list }}</em></strong>
+          </td>
+        </tr>
       </tbody>
     </table>
+
+    <!-- First info row -->
     <div class="row mt-2 mb-0">
       <div class="col">
-	<small class="text-muted">Submitted to</small><br>
-	{{ submission.submitted_to }}
+        <small class="text-muted">Submitted to</small>
+        <br />
+        {{ submission.submitted_to }}
       </div>
+
+      {% if submission.is_resubmission_of %}
+        <div class="col">
+          <table class="m-0 p-0">
+            <tr>
+              <td>
+                <small class="text-muted">Resubmission:</small>
+              </td>
+              <td class="ms-2">{{ submission.submission_date|date:"Y-m-d" }}</td>
+            </tr>
+            <tr>
+              <td>
+                <small class="text-muted">Original submission:</small>
+              </td>
+              <td class="ms-2">{{ submission.original_submission_date|date:'Y-m-d' }}</td>
+            </tr>
+          </table>
+        </div>
+      {% else %}
+        <div class="col">
+          <small class="text-muted">Submission date</small>
+          <br />
+          {{ submission.submission_date|date:'Y-m-d' }}
+        </div>
+      {% endif %}
+
       <div class="col">
-	{% if submission.is_resubmission_of %}
-	  <table class="m-0 p-0">
-	    <tr>
-	      <td>
-		<small class="text-muted">
-		  Resubmission:
-		</small>
-	      </td>
-	      <td class="ms-2">{{ submission.submission_date|date:"Y-m-d" }}</td>
-	    </tr>
-	    <tr>
-	      <td>
-		<small class="text-muted">Original submission:</small>
-	      </td>
-	      <td class="ms-2">{{ submission.original_submission_date|date:'Y-m-d' }}</td>
-	    </tr>
-	  </table>
-	{% else %}
-	  <small class="text-muted">Submission date</small>
-	  <br>
-	  {{ submission.submission_date|date:'Y-m-d' }}
-	{% endif %}
-      </div>
-      <div class="col">
-	<small class="text-muted">Submission Status</small>
-  <div class="d-flex justify-content-between align-items-center my-1">
-    <span>{{ submission.get_status_display }}</span>
-    {% if submission.on_hold %}
-	  <span class="badge bg-warning rounded-pill text-white">On hold</span>
-    {% endif %}
-  </div>
-	{% with recommendation=submission.recommendation %}
-	  {% if recommendation %}
-	    <small class="text-muted">EIC Recommendation &amp; Status</small>
-	    <br>
-	    {{ recommendation.get_recommendation_short_display }}
-      - {{ recommendation.get_for_journal_short_display }}
-	    <br>
-	    {{ recommendation.get_status_short_display }}
-	    <br>
-	    <small class="text-muted">{{ recommendation.eligible_to_vote.count }} voting: {{ recommendation.voted_for.count }} agreed, {{ recommendation.voted_against.count }} disagreed, {{ recommendation.voted_abstain.count }} abstained</small>
-	  {% endif %}
-	{% endwith %}
-	{% if submission.editorial_decision %}
-	  <br>
-	  <small class="text-muted">Editorial Decision Status</small>
-	  <br>
-	  {{ submission.editorial_decision.get_status_display }}
-	{% endif %}
+        <small class="text-muted">Submission Status</small>
+        <div class="d-flex justify-content-between align-items-center my-1">
+          <span>{{ submission.get_status_display }}</span>
+
+          {% if submission.on_hold %}<span class="badge bg-warning rounded-pill text-white">On hold</span>{% endif %}
+
+        </div>
+        {% with recommendation=submission.recommendation %}
+
+          {% if recommendation %}
+            <small class="text-muted">EIC Recommendation &amp; Status</small>
+            <br />
+            {{ recommendation.get_recommendation_short_display }}
+            - {{ recommendation.get_for_journal_short_display }}
+            <br />
+            {{ recommendation.get_status_short_display }}
+            <br />
+            <small class="text-muted">{{ recommendation.eligible_to_vote.count }} voting: {{ recommendation.voted_for.count }} agreed, {{ recommendation.voted_against.count }} disagreed, {{ recommendation.voted_abstain.count }} abstained</small>
+          {% endif %}
+
+        {% endwith %}
+
+        {% if submission.editorial_decision %}
+          <br />
+          <small class="text-muted">Editorial Decision Status</small>
+          <br />
+          {{ submission.editorial_decision.get_status_display }}
+        {% endif %}
+
       </div>
     </div>
+
+    <!-- Second info row -->
+
     {% if submission.stage_preassignment_completed %}
       <div class="row mt-2 mb-0">
-	{% if submission.editor_in_charge %}
-	  <div class="col-md-4">
-	    <small class="text-muted">Editor-in-charge</small>
-	    <br>
-	    {% if submission.editor_in_charge == request.user.contributor %}
-	      <strong>You are the EIC</strong>
-	    {% else %}
-	      <strong>{{ submission.editor_in_charge }}</strong>
-	    {% endif %}
-	  </div>
-	{% endif %}
+
+        {% if submission.editor_in_charge %}
+          <div class="col-md-4">
+            <small class="text-muted">Editor-in-charge</small>
+            <br />
+
+            {% if submission.editor_in_charge == request.user.contributor %}
+              <strong>You are the EIC</strong>
+            {% else %}
+              <strong>{{ submission.editor_in_charge }}</strong>
+            {% endif %}
+
+          </div>
+        {% endif %}
+
       </div>
     {% endif %}
+
   </div>
   <div class="col col-md-3 border-start">
     <ul class="ms-2 p-0">
+
       {% for specialty in submission.specialties.all %}
-	<li><small>{{ specialty }}</small></li>
+        <li>
+          <small>{{ specialty }}</small>
+        </li>
       {% endfor %}
+
     </ul>
     <ul class="ms-2 list list-unstyled">
-      <li class="mb-2"><a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">{% include "bi/arrow-right-square-fill.html" %}submission page</a></li>
+      <li class="mb-2">
+        <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+           target="_blank">
+          {% include "bi/arrow-right-square-fill.html" %}
+        submission page</a>
+      </li>
+
       {% if "edadmin" in user_roles or request.user.contributor == submission.editor_in_charge %}
-	<li class="mb-2"><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" target="_blank">
-	  <span class="text-danger">
-	    {% include "bi/arrow-right-square-fill.html" %}
-	    editorial page
-	  </span>
-	</a></li>
+        <li class="mb-2">
+          <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+             target="_blank">
+            <span class="text-danger">
+              {% include "bi/arrow-right-square-fill.html" %}
+              editorial page
+            </span>
+          </a>
+        </li>
       {% endif %}
+
     </ul>
+
     {% if submission.cycle.has_required_actions %}
+
       {% if "edadmin" in user_roles %}
-	<details class="bg-danger bg-opacity-10">
-	  <summary class="bg-danger bg-opacity-25 p-2">
-	    Required actions
-	  </summary>
-	  <div class="p-2">
-	    {% include 'submissions/pool/_required_actions_ul.html' with submission=submission %}
-	  </div>
-	</details>
+        <details class="bg-danger bg-opacity-10">
+          <summary class="bg-danger bg-opacity-25 p-2">Required actions</summary>
+          <div class="p-2">{% include 'submissions/pool/_required_actions_ul.html' with submission=submission %}</div>
+        </details>
       {% endif %}
     {% endif %}
+
   </div>
 </div>
 
@@ -137,8 +173,11 @@
 {% endif %}
 
 
+<!-- Editorial Assignment / Appraisal -->
+
 {% if submission.in_stage_assignment %}
   {% get_editor_invitations submission request.user as invitations %}
+
   {% if invitations %}
     <div class="border border-warning mt-1 py-1 px-2">
       <span class="mt-1 px-1 text-danger">{% include 'bi/exclamation.html' %}</span>
@@ -147,7 +186,8 @@
   {% endif %}
 
   {% if session_fellowship %}
-    <section id="submission-{{ submission.id }}-appraisal" class="row mb-0 border-top border-2 pt-2">
+    <section id="submission-{{ submission.id }}-appraisal"
+             class="row mb-0 border-top border-2 pt-2">
       <div hx-get="{% url "submissions:pool:_hx_radio_appraisal_form" submission.preprint.identifier_w_vn_nr %}"
            hx-trigger="intersect once"></div>
     </section>
