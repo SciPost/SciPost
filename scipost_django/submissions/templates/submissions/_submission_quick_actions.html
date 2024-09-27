@@ -4,95 +4,138 @@
   <div class="submission-quick-actions">
     <h3>Actions</h3>
     <ul class="my-2 ps-4">
+
       {% if unfinished_report_for_user %}
-	<li>{% include 'bi/exclamation-circle-fill.html' %} You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here</a>.</li>
+        <li>
+          {% include 'bi/exclamation-circle-fill.html' %}
+          You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here</a>.
+        </li>
       {% endif %}
+
       {% if submission.open_for_reporting and perms.scipost.can_referee %}
-	<li>
-	  <h4>
-	    {% if not is_author and not is_author_unchecked %}
+        <li>
+          <h4>
+
+            {% if not is_author and not is_author_unchecked %}
               <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/contributor_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@{{ request.get_host }}">Invite an expert you know to contribute a Report</a>
-	    {% else %}
+            {% else %}
               <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/author_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@{{ request.get_host }}">Invite an expert you know to contribute a Report</a>
-	    {% endif %}
-	  </h4>
-	</li>
-	{% if not is_author and not is_author_unchecked %}
-	  <li>
-	    <h4 class="mb-0">
-              <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a>
-	    </h4>
-      {% if submission.reporting_deadline %}
-	      <div class="text-danger mt-1 mb-3">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
-      {% endif %}
-	  </li>
-	{% elif is_author_unchecked %}
-	  <li>
-	    <h4>
+            {% endif %}
+
+          </h4>
+        </li>
+
+        {% if not is_author and not is_author_unchecked %}
+          <li>
+            <h4 class="mb-0">
+              <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">
+
+                {% if unfinished_report_for_user %}
+                  Finish your report
+                {% else %}
+                  Contribute a Report
+                {% endif %}
+
+              </a>
+            </h4>
+
+            {% if submission.reporting_deadline %}
+              <div class="text-danger mt-1 mb-3">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
+            {% endif %}
+
+          </li>
+        {% elif is_author_unchecked %}
+          <li>
+            <h4>
               <a href="javascript:;" class="disabled">Contribute a Report</a>
               <small class="text-danger">[deactivated]</small>
-	    </h4>
-	    {% if request.user.contributor in submission.authors_claims.all %}
-	      <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Authors are not allowed to submit a Report. Your authorship claim on this Submission is pending verification by our Editorial Administration.
-	    {% else %}
-	      <div class="border bg-light p-2 mb-2">
-		The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. You are not allowed to contribute a Report until your (non-)authorship has been verified.
-	      </div>
-	    {% endif %}
-	  </li>
-	{% elif is_author %}
-	  <li>
-	    <h4>
+            </h4>
+
+            {% if request.user.contributor in submission.authors_claims.all %}
+              <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Authors are not allowed to submit a Report. Your authorship claim on this Submission is pending verification by our Editorial Administration.
+            {% else %}
+              <div class="border bg-light p-2 mb-2">
+                The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. You are not allowed to contribute a Report until your (non-)authorship has been verified.
+              </div>
+            {% endif %}
+
+          </li>
+        {% elif is_author %}
+          <li>
+            <h4>
               <a href="javascript:;" class="disabled">Contribute a Report</a>
               <small class="text-danger">[deactivated]</small>
-	    </h4>
-	    <div class="border bg-white p-2 mb-2">
-              You are a verified author. Therefore, you can not submit a Report.
-	    </div>
-	  </li>
-	{% endif %}
+            </h4>
+            <div class="border bg-white p-2 mb-2">You are a verified author. Therefore, you can not submit a Report.</div>
+          </li>
+        {% endif %}
+
       {% else %}
-	<li class="py-1">Reporting for this Submission is closed.</li>
+        <li class="py-1">Reporting for this Submission is closed.</li>
       {% endif %}
 
       {% if submission.open_for_commenting %}
-	{% if perms.scipost.can_submit_comments and submission and not submission|user_is_referee:request.user  %}
-    <li class="pt-1">
-      <h4><a href="#contribute_comment">Contribute a Comment</a></h4>
-    </li>
-	{% endif %}
+
+        {% if perms.scipost.can_submit_comments and submission and not submission|user_is_referee:request.user %}
+          <li class="pt-1">
+            <h4>
+              <a href="#contribute_comment">Contribute a Comment</a>
+            </h4>
+          </li>
+        {% endif %}
+
       {% else %}
-	<li class="py-1">Commenting on this Submission is closed.</li>
+        <li class="py-1">Commenting on this Submission is closed.</li>
       {% endif %}
 
       <li class="pt-1">
-        <h4><a href="{% url "submissions:referee_indications" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{% if is_author or can_read_editorial_information %}Indicate{% else %}Suggest{% endif %} a Refereee</a></h4>
+        <h4>
+          <a href="{% url "submissions:referee_indications" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">
+
+            {% if is_author or can_read_editorial_information %}
+              Indicate
+            {% else %}
+              Suggest
+            {% endif %}
+
+          a Refereee</a>
+        </h4>
       </li>
 
       {% if submission.editor_in_charge == request.user.contributor %}
-	<li class="pt-1">
-	  <h4><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Editorial Page</a></h4>
-	</li>
+        <li class="pt-1">
+          <h4>
+            <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Editorial Page</a>
+          </h4>
+        </li>
       {% endif %}
+
     </ul>
 
     {% if perms.scipost.can_manage_reports %}
       <h3 class="mt-4">Administrative actions</h3>
       <ul class="ps-4">
-	<li>
-	  <a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
-	</li>
+        <li>
+          <a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
+        </li>
       </ul>
     {% endif %}
 
-    {% if perms.scipost.can_view_all_production_streams and submission.production_stream%}
+    {% if perms.scipost.can_view_all_production_streams and submission.production_stream %}
       <h3 class="mt-4">Production objects</h3>
       <ul class="ps-4">
-        <li><a href="{% url 'production:stream' stream_id=submission.production_stream.id %}">Production stream</a></li>
+        <li>
+          <a href="{% url 'production:stream' stream_id=submission.production_stream.id %}">Production stream</a>
+        </li>
+
         {% if submission.production_stream.proofs_repository %}
-          <li><a href="{{submission.production_stream.proofs_repository.git_url}}">Git repository</a></li>
+          <li>
+            <a href="{{ submission.production_stream.proofs_repository.git_url }}">Git repository</a>
+          </li>
         {% endif %}
+
       </ul>
-	{% endif %}
+    {% endif %}
+
   </div>
 {% endif %}
