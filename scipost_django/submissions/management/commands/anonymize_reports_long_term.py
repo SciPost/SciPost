@@ -11,6 +11,7 @@ from django.core.serializers import serialize
 from django.db.models import Q, Exists, OuterRef, Subquery
 from django.utils import timezone
 
+from common.utils.text import shift_month
 from journals.models.publication import Publication
 from mails.models import MailLog, MailLogRelation
 from submissions.models.referee_invitation import RefereeInvitation
@@ -65,7 +66,8 @@ class Command(BaseCommand):
             )
 
         else:
-            three_months_ago = timezone.datetime.now() - timezone.timedelta(days=90)
+            now = timezone.datetime.now()
+            three_months_ago = now.replace(month=shift_month(now.month, -3), day=1)
             report_anonymization_backup_filename = f"anonymized_reports_for_publications_before_{three_months_ago.strftime('%Y-%m-%d')}.json"
 
             reports_to_anonymize = reports_to_anonymize.annotate(
@@ -86,7 +88,7 @@ class Command(BaseCommand):
             return
 
         report_anonymization_backup_path = os.path.join(
-            BACKUPS_DIR, report_anonymization_backup_filename
+            BACKUPS_DIR, "anonymized_reports", report_anonymization_backup_filename
         )
         if os.path.exists(report_anonymization_backup_path):
             self.stdout.write(

@@ -24,6 +24,3 @@ python manage.py update_user_permission_groups --settings=SciPost_v1.settings.pr
 
 # Delete expired sessions (today's date implied)
 python manage.py delete_expired_sessions --settings=SciPost_v1.settings.production_do1
-
-# Anonymize and delete the reports of published papers
-python manage.py anonymize_reports_long_term --limit 500 --settings=SciPost_v1.settings.production_do1

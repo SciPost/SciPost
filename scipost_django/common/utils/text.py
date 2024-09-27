@@ -157,6 +157,15 @@ def workdays_between(date_from: date_or_time, date_until: date_or_time):
     return workdays
 
 
+def shift_month(month: int, shift: int) -> int:
+    """
+    Return the ordinal of the month shifted by a given number of months.
+    Months are numbered from 1 to 12.
+    Negative shifts are allowed to go back in time.
+    """
+    return (month - 1 + shift) % 12 + 1
+
+
 def jatsify_tags(text):
     """
     Adds the `jats:` prefix to basic HTML tags. Nilpotent.
