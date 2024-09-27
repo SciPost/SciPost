@@ -9,13 +9,13 @@
     <div class="col-12">
       <div style="text-align: center;">
         <img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="240" style="margin-top: 20px; margin-bottom: 20px" />
-        <h1>You are not authorized to view the requested page.</h1>
-          <h2>403</h2>
-          {% if request.user.is_anonymous %}
-            <p style="margin-top: 20px;">Please <a href="{% url 'scipost:login' %}">login</a> first, and try again.</p>
-          {% else %}
-            <p style="margin-top: 20px;">Continue to your <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
-          {% endif %}
+        <h1>Error 403: Forbidden</h1>
+        <h2>{{ exception|default:"You are not authorized to view the requested page." }}</h2>
+        {% if request.user.is_anonymous %}
+          <p style="margin-top: 20px;">Please <a href="{% url 'scipost:login' %}">login</a> first, and try again.</p>
+        {% else %}
+          <p style="margin-top: 20px;">Continue to your <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
+        {% endif %}
       </div>
     </div>
 </div>
