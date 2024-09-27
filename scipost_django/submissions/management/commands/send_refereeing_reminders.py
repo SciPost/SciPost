@@ -20,6 +20,7 @@ class Command(BaseCommand):
     help = "Sends all email reminders needed for Submissions undergoing refereeing"
 
     def handle(self, *args, **options):
+        submission: Submission
         for submission in Submission.objects.open_for_reporting():
 
             invitations_w_auto_reminders = (
@@ -34,8 +35,11 @@ class Command(BaseCommand):
                     if invitation.to_registered_referee
                     else "unregistered"
                 )
-                workdays_since_last_reminder = workdays_between(
-                    invitation.date_last_reminded, timezone.now()
+
+                workdays_since_last_reminder = (
+                    workdays_between(invitation.date_last_reminded, timezone.now())
+                    if invitation.date_last_reminded
+                    else 0
                 )
 
                 # Send the appropriate reminder email based on the number of days since the last reminder
@@ -65,15 +69,14 @@ class Command(BaseCommand):
                     mail.send_mail()
 
             # Send automatic reminder that the deadline is approaching (less than one week left)
-            workdays_until_deadline = workdays_between(
-                timezone.now(), submission.reporting_deadline
-            )
-            if (
-                submission.reporting_deadline is not None
-                and workdays_until_deadline == 5
-            ):
-                for invitation in invitations_w_auto_reminders.in_process():
-                    mail_sender = DirectMailUtil(
-                        "referees/remind_referee_deadline_1week", invitation=invitation
-                    )
-                    mail_sender.send_mail()
+            if submission.reporting_deadline is not None:
+                workdays_until_deadline = workdays_between(
+                    timezone.now(), submission.reporting_deadline
+                )
+                if workdays_until_deadline == 5:
+                    for invitation in invitations_w_auto_reminders.in_process():
+                        mail_sender = DirectMailUtil(
+                            "referees/remind_referee_deadline_1week",
+                            invitation=invitation,
+                        )
+                        mail_sender.send_mail()

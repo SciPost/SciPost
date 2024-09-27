@@ -134,7 +134,10 @@ def hslColorWheel(N=10, index=0, saturation=50, lightness=50):
     return "hsl(%s, %s%%, %s%%)" % (str(hue), str(saturation), str(lightness))
 
 
-def workdays_between(date_from, date_until):
+date_or_time = datetime.datetime | datetime.date
+
+
+def workdays_between(date_from: date_or_time, date_until: date_or_time):
     """Return number of complete workdays.
 
     Given two datetime parameters, this function returns the

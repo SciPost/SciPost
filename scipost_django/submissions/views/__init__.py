@@ -22,7 +22,7 @@ from django.contrib.auth.mixins import (
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction, IntegrityError
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, QuerySet
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
@@ -3615,7 +3615,7 @@ def submissions_versus_fellows(submissions):
     return sorted(stats, key=lambda tup: tup["ratio"], reverse=True)
 
 
-def submissions_processing_timescales(submissions, phase):
+def submissions_processing_timescales(submissions: QuerySet[Submission], phase):
     """
     Generate a tuple containing information about timescales on submissions.
 
@@ -3639,7 +3639,10 @@ def submissions_processing_timescales(submissions, phase):
                 for sub in submissions_in_spec.all():
                     if phase == "assignment":
                         waiting_days = workdays_between(sub.submission_date, now)
-                    elif phase == "original_submission_to_acceptance":
+                    elif (
+                        phase == "original_submission_to_acceptance"
+                        and sub.acceptance_date
+                    ):
                         waiting_days = workdays_between(
                             sub.original_submission_date, sub.acceptance_date
                         )
