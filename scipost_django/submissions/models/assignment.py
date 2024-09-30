@@ -193,6 +193,66 @@ class BaseAssignmentCondition(abc.ABC):
         )
 
 
+class JournalTransferCondition(BaseAssignmentCondition):
+    """
+    Condition that offers assignment if the submission is transferred to a different journal.
+
+    Needs to specify the alternative journal in the condition_details
+    - `alternative_journal_id`: the journal to which the submission should be transferred.
+    """
+
+    def __init__(self, alternative_journal_id: int):
+        self.alternative_journal_id = alternative_journal_id
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, JournalTransferCondition)
+            and self.alternative_journal_id == other.alternative_journal_id
+        )
+
+    def __hash__(self):
+        return hash(self.alternative_journal_id)
+
+    def __str__(self):
+        return f"Transfer to {self.alternative_journal}"
+
+    def __repr__(self):
+        return str(self)
+
+    @cached_property
+    def alternative_journal(self) -> Journal | None:
+        try:
+            return Journal.objects.get(id=self.alternative_journal_id)
+        except Journal.DoesNotExist:
+            return None
+
+    def is_met(self, offer: "ConditionalAssignmentOffer") -> bool:
+        """
+        Check if the submission is transferred to the alternative journal.
+        """
+        return offer.submission.submitted_to == self.alternative_journal
+
+    def accept(self, offer: "ConditionalAssignmentOffer"):
+        """
+        Accept the offer, transferring the submission to the alternative journal.
+        """
+        if self.alternative_journal is None:
+            raise ValueError("The journal for this transfer is not found.")
+
+        if (
+            self.alternative_journal
+            not in offer.submission.submitted_to.alternative_journals.all()
+        ):
+            raise ValueError(
+                "The alternative journal is not valid for the current journal."
+            )
+
+        offer.submission.submitted_to = self.alternative_journal
+        offer.submission.save()
+
+        super().accept(offer)
+
+
 class ConditionalAssignmentOffer(models.Model):
     """
     Represents an EditorialAssignment that is offered conditionally.
@@ -311,6 +371,7 @@ class ConditionalAssignmentOffer(models.Model):
         """
         Check if all conditions are met. If so:
         - Create the EditorialAssignment
+        - Set the submission's editor_in_charge to the offering fellow
         - Invalidate all other offers for this submission
 
         Returns the created EditorialAssignment or None if the conditions are not met.
