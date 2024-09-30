@@ -50,6 +50,19 @@
         {% endif %}
 		    <li><a href="{% url 'submissions:withdraw_manuscript' sub.preprint.identifier_w_vn_nr %}"><span class="text-danger">Withdraw</span> (leads to confirmation page)</a></li>
 		  {% endif %}
+      {% if sub.conditional_assignment_offers.offered.exists %}
+          {% regroup sub.conditional_assignment_offers.offered|dictsort:"offered_on" by condition_details as offers_by_type %}
+          <li><span>You have received some condtional offers for immediate editorial assignement:</span>
+            <ul>
+
+            {% for offers in offers_by_type %}
+              {% with offer=offers.list.0 %}
+                <li>{{ offers.list|length }} offer{{ offers.list|pluralize }} for {{ offer.condition }}: <a href="{% url 'submissions:accept_conditional_assignment_offer' sub.preprint.identifier_w_vn_nr offer.id %}">Accept</a> (direct link; no confirmation)</li>
+              {% endwith %}
+            {% endfor %}
+
+          </ul></li>
+      {% endif %}
 		</ul>
               </p>
             {% endif %}

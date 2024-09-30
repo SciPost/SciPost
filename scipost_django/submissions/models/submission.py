@@ -48,6 +48,7 @@ from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
     from submissions.models import EditorialDecision, RefereeInvitation, Report
+    from submissions.models.assignment import ConditionalAssignmentOffer
     from scipost.models import Contributor
     from journals.models import Journal, Publication
     from proceedings.models import Proceedings
@@ -258,6 +259,7 @@ class Submission(models.Model):
         collections: "RelatedManager[Collection]"
         editorial_assignments: "RelatedManager[EditorialAssignment]"
         reports: "RelatedManager[Report]"
+        conditional_assignment_offers: "RelatedManager[ConditionalAssignmentOffer]"
 
     # Fields
     preprint = models.OneToOneField(

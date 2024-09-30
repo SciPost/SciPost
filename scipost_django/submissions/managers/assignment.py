@@ -91,3 +91,8 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 
     def completed(self):
         return self.filter(status=self.model.STATUS_COMPLETED)
+
+
+class ConditionalAssignmentOfferQuerySet(models.QuerySet):
+    def offered(self):
+        return self.filter(status=self.model.STATUS_OFFERED)

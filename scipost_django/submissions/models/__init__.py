@@ -17,7 +17,7 @@ from .plagiarism_assessment import (
 
 from .iThenticate_report import iThenticateReport
 
-from .assignment import EditorialAssignment
+from .assignment import EditorialAssignment, ConditionalAssignmentOffer
 
 from .communication import EditorialCommunication
 

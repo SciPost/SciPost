@@ -46,6 +46,7 @@ from scipost.permissions import (
     HTMXResponse,
     permission_required_htmx,
 )
+from submissions.models.assignment import ConditionalAssignmentOffer
 
 from ..constants import (
     ED_COMM_CHOICES,
@@ -653,6 +654,48 @@ def extend_assignment_deadline(
         f"The assignment deadline has been extended to {extension_date}."
     )
     messages.success(request, "The assignment deadline has been extended.")
+
+    return redirect(
+        reverse(
+            "submissions:submission",
+            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+        )
+    )
+
+
+@login_required
+def accept_conditional_assignment_offer(request, identifier_w_vn_nr, offer_id):
+    """
+    Accept a conditional assignment offer and redirect to the Submission's detail page.
+    """
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+    offer = get_object_or_404(
+        ConditionalAssignmentOffer,
+        id=offer_id,
+        submission=submission,
+    )
+
+    # Guard against unauthorized access
+    if request.user.contributor not in submission.authors.all():
+        raise PermissionDenied("Only verified authors can accept conditional offers.")
+
+    try:
+        offer.accept(by=request.user.contributor)
+        offer.finalize()
+
+        messages.success(request, "The conditional assignment offer has been accepted.")
+
+        # Send email to EIC and authors
+        mail_sender_eic = DirectMailUtil(
+            "eic/inform_conditional_assignment_offer_accepted",
+            offer=offer,
+        )
+        mail_sender_eic.send_mail()
+
+    except Exception as e:
+        raise PermissionDenied(e)
 
     return redirect(
         reverse(

@@ -31,6 +31,7 @@ from submissions.models import (
 from scipost.models import Contributor
 from colleges.models import Fellowship
 from ethics.models import SubmissionClearance
+from submissions.models.assignment import ConditionalAssignmentOffer
 from submissions.models.report import AnonymizedReportContributor
 
 
@@ -134,6 +135,21 @@ class SubmissionEventInline(admin.TabularInline):
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
 
+class ConditionalAssignmentOfferInline(admin.TabularInline):
+    model = ConditionalAssignmentOffer
+    extra = 0
+    autocomplete_fields = [
+        "submission",
+        "offered_by",
+        "accepted_by",
+    ]
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == "condition_details":
+            kwargs["widget"] = forms.Textarea(attrs={"rows": 2, "cols": 40})
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+
 @admin.register(Submission)
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = "submission_date"
@@ -182,6 +198,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         SubmissionClearanceInline,
         SubmissionTieringInline,
         SubmissionEventInline,
+        ConditionalAssignmentOfferInline,
         CollectionInline,
         RedFlagInline,
     ]

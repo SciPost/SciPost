@@ -2,14 +2,26 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import abc
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 
+from common.utils.text import space_uppercase
+from journals.models.journal import Journal
 from mails.utils import DirectMailUtil
+from submissions.constants import CYCLE_DEFAULT
+from submissions.managers.assignment import ConditionalAssignmentOfferQuerySet
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..managers import EditorialAssignmentQuerySet
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from submissions.models import Submission
+    from scipost.models import Contributor
 
 
 class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
@@ -155,3 +167,186 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
         )
 
         return True
+
+
+class BaseAssignmentCondition(abc.ABC):
+    """
+    Base class for conditions that can be attached to ConditionalAssignments.
+    """
+
+    @abc.abstractmethod
+    def is_met(self, offer: "ConditionalAssignmentOffer") -> bool:
+        """
+        Check if the condition is met for the given offer.
+        """
+        raise NotImplementedError
+
+    def accept(self, offer: "ConditionalAssignmentOffer"):
+        """
+        Accept the offer, potentially modifying the offer in the process.
+        """
+        offer.submission.add_event_for_eic(
+            "Offer by " + str(offer.offered_by) + " accepted: " + str(self)
+        )
+        offer.submission.add_event_for_author(
+            "Accepted offer with condition: " + str(self)
+        )
+
+
+class ConditionalAssignmentOffer(models.Model):
+    """
+    Represents an EditorialAssignment that is offered conditionally.
+
+    Valid condition_type strings are the class names of the subclasses of AssignmentCondition.
+    """
+
+    STATUS_OFFERED = "offered"
+    STATUS_ACCEPTED = "accepted"
+    STATUS_DECLINED = "declined"
+    STATUS_FULFILLED = "fulfilled"
+    STATUS_CHOICES = (
+        (STATUS_OFFERED, "Offered"),
+        (STATUS_ACCEPTED, "Accepted"),
+        (STATUS_DECLINED, "Declined"),
+        (STATUS_FULFILLED, "Fulfilled"),
+    )
+
+    CONDITION_CHOICES = [
+        (condition, space_uppercase(condition))
+        for condition in [
+            cls.__name__.replace("Condition", "")
+            for cls in BaseAssignmentCondition.__subclasses__()
+        ]
+    ]
+
+    submission = models.ForeignKey["Submission"](
+        "submissions.Submission",
+        on_delete=models.CASCADE,
+    )
+    offered_by = models.ForeignKey["Contributor"](
+        "scipost.Contributor",
+        on_delete=models.CASCADE,
+        related_name="conditional_assignments_offered",
+    )
+    offered_on = models.DateTimeField(auto_now_add=True, editable=False)
+    offered_until = models.DateTimeField(blank=True, null=True)
+
+    accepted_by = models.ForeignKey["Contributor"](
+        "scipost.Contributor",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="conditional_assignments_accepted",
+    )
+    accepted_on = models.DateTimeField(blank=True, null=True)
+
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_OFFERED,
+    )
+
+    condition_type = models.CharField(
+        max_length=32,
+        choices=CONDITION_CHOICES,
+    )
+    condition_details = models.JSONField(default=dict)
+
+    objects = ConditionalAssignmentOfferQuerySet.as_manager()
+
+    class Meta:
+        default_related_name = "conditional_assignment_offers"
+        ordering = ["-offered_on"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["submission", "offered_by", "condition_type"],
+                name="unique_offer_type_per_submission_fellow",
+            )
+        ]
+
+    @cached_property
+    def condition(self) -> BaseAssignmentCondition:
+        """
+        Return the condition object for this offer.
+        """
+        try:
+            condition_class = globals()[self.condition_type + "Condition"]
+        except KeyError:
+            raise ValueError(f"Unknown condition type: {self.condition_type}")
+
+        return condition_class(**self.condition_details)
+
+    def accept(self, by: "Contributor"):
+        """
+        Accept the offer, potentially modifying the offer in the process.
+        """
+        if self.offered_until and timezone.now() > self.offered_until:
+            raise ValueError("The offer has expired.")
+
+        if by is None:
+            raise ValueError("The offer must be accepted by a Contributor.")
+
+        if self.status != self.STATUS_OFFERED:
+            raise ValueError("The offer has already been processed.")
+
+        # Guard that the current offer is the earliest instance of all identical offers
+        # for this submission. Only the offering person may be different.
+        identical_offers = ConditionalAssignmentOffer.objects.filter(
+            submission=self.submission,
+            condition_type=self.condition_type,
+            condition_details=self.condition_details,
+            status=self.STATUS_OFFERED,
+        )
+        if identical_offers.order_by("offered_on").first() != self:
+            raise ValueError("The offer is not the earliest instance of its kind.")
+
+        self.condition.accept(offer=self)
+
+        self.status = self.STATUS_ACCEPTED
+        self.accepted_by = by
+        self.accepted_on = timezone.now()
+        self.save()
+
+    def finalize(self) -> EditorialAssignment | None:
+        """
+        Check if all conditions are met. If so:
+        - Create the EditorialAssignment
+        - Invalidate all other offers for this submission
+
+        Returns the created EditorialAssignment or None if the conditions are not met.
+        """
+        from submissions.models import Submission
+
+        # Check that all conditions are met before finalizing
+        if not self.condition.is_met(offer=self):
+            return
+
+        assignment = EditorialAssignment.objects.create(
+            submission=self.submission,
+            to=self.offered_by,
+            status=EditorialAssignment.STATUS_ACCEPTED,
+        )
+
+        Submission.objects.filter(id=self.submission.id).update(
+            refereeing_cycle=CYCLE_DEFAULT,
+            status=Submission.IN_REFEREEING,
+            editor_in_charge=self.offered_by,
+            reporting_deadline=None,
+            assignment_deadline=None,
+            open_for_reporting=True,
+            open_for_commenting=True,
+            visible_public=True,
+            latest_activity=timezone.now(),
+        )
+
+        # Invalidate all other offers for this submission
+        self.submission.conditional_assignment_offers.exclude(id=self.id).update(
+            status=self.STATUS_DECLINED
+        )
+        self.status = self.STATUS_FULFILLED
+        self.save()
+
+        return assignment
+
+    def __str__(self):
+        return f"{self.offered_by} to be assigned for {self.submission} with condition: {self.condition}"

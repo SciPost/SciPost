@@ -369,9 +369,9 @@ urlpatterns = [
         name="extend_assignment_deadline",
     ),
     path(
-        "update_authors_assignment/<identifier:identifier_w_vn_nr>/<int:nrweeks>",
-        views.update_authors_assignment,
-        name="update_authors_assignment",
+        "<identifier:identifier_w_vn_nr>/conditional_assignment_offer/<int:offer_id>/accept",
+        views.accept_conditional_assignment_offer,
+        name="accept_conditional_assignment_offer",
     ),
     path(
         "assignment_failed/<identifier:identifier_w_vn_nr>",

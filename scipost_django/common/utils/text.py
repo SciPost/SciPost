@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import re
 
 from django.db.models import Q
 
@@ -191,3 +192,10 @@ def split_strip(text: str, delimiter=",") -> list[str]:
     Split a string by a delimiter and strip each part.
     """
     return [part.strip() for part in text.split(delimiter)]
+
+
+def space_uppercase(text: str) -> str:
+    """
+    Space out uppercase characters in a string.
+    """
+    return re.sub(r"(?<!^)(?=[A-Z])", " ", text)
