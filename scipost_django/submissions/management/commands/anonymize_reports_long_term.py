@@ -8,14 +8,17 @@ import os
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import BaseCommand
 from django.core.serializers import serialize
-from django.db.models import Q, Exists, OuterRef, Subquery
+from django.db.models import F, Q, Case, Exists, OuterRef, Subquery, When
 from django.utils import timezone
 
 from common.utils.text import shift_month
 from journals.models.publication import Publication
 from mails.models import MailLog, MailLogRelation
+from submissions.constants import EIC_REC_REJECT
+from submissions.models.decision import EditorialDecision
 from submissions.models.referee_invitation import RefereeInvitation
 from submissions.models.report import AnonymizedReportContributor, Report
+from submissions.models.submission import Submission
 
 
 class Command(BaseCommand):
@@ -71,14 +74,28 @@ class Command(BaseCommand):
             report_anonymization_backup_filename = f"anonymized_reports_for_publications_before_{three_months_ago.strftime('%Y-%m-%d')}.json"
 
             reports_to_anonymize = reports_to_anonymize.annotate(
-                publication_date=Subquery(
-                    Publication.objects.filter(
-                        accepted_submission__thread_hash=OuterRef(
-                            "submission__thread_hash"
-                        )
-                    ).values("publication_date")[:1]
+                processing_date=Case(
+                    When(
+                        submission__status=Submission.REJECTED,
+                        then=Subquery(
+                            EditorialDecision.objects.filter(
+                                submission=OuterRef("submission"),
+                            ).values("taken_on")[:1]
+                        ),
+                    ),
+                    When(
+                        submission__status=Submission.WITHDRAWN,
+                        then=F("submission__latest_activity"),
+                    ),
+                    default=Subquery(
+                        Publication.objects.filter(
+                            accepted_submission__thread_hash=OuterRef(
+                                "submission__thread_hash"
+                            )
+                        ).values("publication_date")[:1]
+                    ),
                 )
-            ).filter(publication_date__lte=three_months_ago)
+            ).filter(processing_date__lte=three_months_ago)
 
             if limit := kwargs.get("limit", 0):
                 reports_to_anonymize = reports_to_anonymize[:limit]
