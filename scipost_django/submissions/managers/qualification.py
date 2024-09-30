@@ -11,18 +11,18 @@ class QualificationQuerySet(models.QuerySet):
         Filter for Fellows which are at least marginally qualified.
         """
         return self.filter(
-            status__in=[
-                self.model.STATUS_EXPERT,
-                self.model.STATUS_VERY_KNOWLEDGEABLE,
-                self.model.STATUS_KNOWLEDGEABLE,
-                self.model.STATUS_MARGINALLY_QUALIFIED,
+            expertise_level__in=[
+                self.model.EXPERT,
+                self.model.VERY_KNOWLEDGEABLE,
+                self.model.KNOWLEDGEABLE,
+                self.model.MARGINALLY_QUALIFIED,
             ]
         )
 
     def not_qualified(self):
         return self.filter(
-            status__in=[
-                self.model.STATUS_NOT_REALLY_QUALIFIED,
-                self.model.STATUS_NOT_AT_ALL_QUALIFIED,
+            expertise_level__in=[
+                self.model.NOT_REALLY_QUALIFIED,
+                self.model.NOT_AT_ALL_QUALIFIED,
             ]
         )

@@ -1,0 +1,23 @@
+
+
+<ul>
+  <li>
+    Your submission has examined by {{ submission.qualification_set.all|length }} fellow{{ submission.qualification_set.all|pluralize }}, of which {{ submission.qualification_set.all|length }} are sufficiently qualified on the subject matter to take charge.
+  </li>
+</ul>
+
+
+
+{% regroup offers|dictsort:"offered_on" by condition_details as offers_by_type %}
+
+<ul>
+
+  {% for offers in offers_by_type %}
+    {% with offer=offers.list.0 %}
+      <li>
+        {{ offers.list|length }} offers for {{ offer.condition }}, accept first {{ offer.id }}
+      </li>
+    {% endwith %}
+  {% endfor %}
+
+</ul>
