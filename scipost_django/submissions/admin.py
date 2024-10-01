@@ -275,7 +275,6 @@ class SubmissionAdmin(GuardedModelAdmin):
                     ("visible_public", "visible_pool"),
                     "refereeing_cycle",
                     ("open_for_commenting", "open_for_reporting"),
-                    "autorejection_date",
                     "reporting_deadline",
                     "acceptance_date",
                     "referees_flagged",
