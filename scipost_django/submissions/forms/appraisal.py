@@ -5,10 +5,11 @@ __license__ = "AGPL v3"
 from django import forms
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, HTML, ButtonHolder, Button
+from crispy_forms.layout import Layout, Div, Field
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from ethics.models import SubmissionClearance
+from submissions.models.assignment import ConditionalAssignmentOffer
 
 from ..models import Qualification, Readiness
 
@@ -100,7 +101,8 @@ class RadioAppraisalForm(forms.Form):
         label="Readiness",
         choices=(("assign_now", "Ready to take charge now"),)
         + Readiness.STATUS_CHOICES[0:1]
-        + Readiness.STATUS_CHOICES[4:5],
+        + Readiness.STATUS_CHOICES[3:4]
+        + Readiness.STATUS_CHOICES[5:6],
         widget=forms.RadioSelect(),
         required=False,
         initial=None,
@@ -140,6 +142,12 @@ class RadioAppraisalForm(forms.Form):
 
             self.initial["readiness"] = readiness.status
 
+        # Disable the readiness field if the fellow made an assignment offer
+        if self.submission.conditional_assignment_offers.filter(
+            offered_by=self.fellow.contributor
+        ).exists():
+            self.fields["readiness"].disabled = True
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -169,6 +177,8 @@ class RadioAppraisalForm(forms.Form):
             action = "take charge"
         elif readiness == "desk_reject":
             action = "suggest a desk rejection"
+        elif readiness == Readiness.STATUS_CONDITIONAL:
+            action = "offer a conditional assignment"
 
         if action:  # If readiness is set to assign_now or desk_reject
             if reason:  # Both readiness and expertise_level are required
@@ -186,10 +196,8 @@ class RadioAppraisalForm(forms.Form):
             qualification, _ = Qualification.objects.get_or_create(
                 submission=self.submission, fellow=self.fellow
             )
-            print(expertise_level)
             qualification.expertise_level = expertise_level
             qualification.save()
-            print(qualification)
 
         if (
             readiness_status := self.cleaned_data["readiness"]
@@ -197,10 +205,8 @@ class RadioAppraisalForm(forms.Form):
             readiness, _ = Readiness.objects.get_or_create(
                 submission=self.submission, fellow=self.fellow
             )
-            print(readiness_status)
             readiness.status = readiness_status
             readiness.save()
-            print(readiness)
 
     @property
     def is_qualified(self):
@@ -235,3 +241,104 @@ class RadioAppraisalForm(forms.Form):
         """
         is_ready_to_take_charge = self.cleaned_data["readiness"] == "assign_now"
         return is_ready_to_take_charge and self.is_qualified and self.has_clearance
+
+
+class ConditionalAssignmentOfferInlineForm(forms.ModelForm):
+    class Meta:
+        model = ConditionalAssignmentOffer
+        fields = ["submission", "offered_by", "condition_type"]
+        widgets = {
+            "submission": forms.HiddenInput(),
+            "offered_by": forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop("submission")
+        self.offered_by = kwargs.pop("offered_by")
+        self.readonly = kwargs.pop("readonly", False)
+
+        # Create field depending on the type of condition
+        extra_fields = {}
+
+        condition_type = None
+        if args and (data := args[0]) and data.get("condition_type"):
+            condition_type = data.get("condition_type")
+        elif instance := kwargs.get("instance"):
+            condition_type = instance.condition_type
+        elif len(ConditionalAssignmentOffer.CONDITION_CHOICES) == 1:
+            condition_type = ConditionalAssignmentOffer.CONDITION_CHOICES[0][0]
+
+        if condition_type == "JournalTransfer":
+            alternative_journal_id = forms.ModelChoiceField(
+                label="Alternative journal",
+                queryset=self.submission.submitted_to.alternative_journals.all(),
+            )
+            extra_fields["alternative_journal_id"] = alternative_journal_id
+
+        self.base_fields.update(extra_fields)
+        super().__init__(*args, **kwargs)
+
+        self.initial["submission"] = self.submission
+        self.initial["offered_by"] = self.offered_by
+
+        self.fields["condition_type"].label = "Condition for assignment"
+        self.fields["condition_type"].choices = (
+            ConditionalAssignmentOffer.CONDITION_CHOICES
+        )
+
+        # If the form is readonly, disable all fields
+        for field in self.fields:
+            if self.readonly:
+                self.fields[field].disabled = True
+            if field in extra_fields:
+                self.initial[field] = self.instance.condition_details.get(field, None)
+            else:
+                self.initial[field] = getattr(self, field, None) or getattr(
+                    self.instance, field, None
+                )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("submission"),
+            Field("offered_by"),
+            Div(FloatingField("condition_type"), css_class="col"),
+            *[Div(FloatingField(field), css_class="col") for field in extra_fields],
+        )
+
+    def clean(self):
+        qualification = Qualification.objects.filter(
+            submission=self.submission, fellow__contributor=self.offered_by
+        ).first()
+        has_clearance = SubmissionClearance.objects.filter(
+            profile=self.offered_by.profile,
+            submission=self.submission,
+        ).exists()
+
+        if qualification is None:
+            self.add_error(
+                None,
+                "You must first declare your expertise level for this submission.",
+            )
+        elif not qualification.is_qualified:
+            self.add_error(
+                None,
+                "You must be at least marginally qualified to make an assignment offer.",
+            )
+        if not has_clearance:
+            self.add_error(
+                None,
+                "You must first declare no competing interests with this submission.",
+            )
+
+        return super().clean()
+
+    def save(self):
+        instance = super().save(commit=False)
+
+        if instance.condition_type == "JournalTransfer":
+            instance.condition_details = {
+                "alternative_journal_id": self.cleaned_data["alternative_journal_id"].id
+            }
+
+        instance.save()
+        return instance

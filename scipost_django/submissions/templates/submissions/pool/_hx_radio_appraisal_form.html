@@ -11,18 +11,26 @@
         hx-post="{{ request.path }}"
         hx-swap="outerHTML"
         hx-target="closest div"
-        hx-trigger="change delay:1s, CI-clearance-asserted from:closest div">
+        hx-sync="closest form:replace"
+        hx-trigger="change delay:500ms, CI-clearance-asserted from:closest div, conditional-assignment-offer-made from:closest div">
     {% crispy form %}
   </form>
 
   <div class="col-12 col-lg">{% include "ethics/_hx_submission_ethics.html" %}</div>
+
+  {% if readiness == 'conditional' %}
+    <div hx-get="{% url "submissions:pool:_hx_conditional_assignment_offer_form" submission.preprint.identifier_w_vn_nr %}"
+         hx-trigger="intersect once"></div>
+  {% endif %}
 
   {% if not clearance and readiness and readiness != "perhaps_later" %}
     <div id="submission-{{ submission.id }}-crossref-CI-audit"
          class="col-12"
          hx-get="{% url 'ethics:_hx_submission_competing_interest_crossref_audit' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
          hx-trigger="revealed once">
-      <div class="btn btn-secondary htmx-indicator">Searching CrossRef for common works ...</div>
+      <div class="btn btn-secondary htmx-indicator">
+        Searching CrossRef for common works ...
+      </div>
     </div>
   {% endif %}
 

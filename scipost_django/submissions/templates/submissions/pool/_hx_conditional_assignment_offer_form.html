@@ -1,0 +1,29 @@
+{% load crispy_forms_tags %}
+{% load ethics_extras %}
+
+<div class="row mb-0">
+
+ 
+ 
+  <form id="conditional-assignment-offer-pool-form-{{ submission.id }}"
+        class="col"
+        hx-post="{{ request.path }}"
+        hx-swap="outerHTML"
+        hx-target="closest div"
+        hx-trigger="change delay:250ms">
+    <div class="row mb-0 align-items-center">
+
+      {% crispy form %}
+
+      {% if request.method == "POST" %}
+        <div class="col-auto">
+          <button hx-vals='{"submit": "Make offer"}'
+                  hx-post="{{ request.path }}"
+                  hx-confirm="Are you sure you want to make this offer? You will not be able to change it later, and you will automatically become EIC of the submission if the offer is accepted."
+                  class="btn btn-primary btn-sm">Make offer</button>
+        </div>
+      {% endif %}
+
+    </div>
+  </form>
+</div>
