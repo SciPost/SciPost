@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.db import connection, models
+from django.db.models import Q
 from django.utils import timezone
 
 from .constants import (
@@ -28,6 +29,15 @@ class JournalQuerySet(models.QuerySet):
 
     def has_individual_publications(self):
         return self.filter(structure=INDIVIDUAL_PUBLICATIONS)
+
+    def get_publications(self):
+        from journals.models.publication import Publication
+
+        return Publication.objects.filter(
+            Q(in_journal__in=self)
+            | Q(in_issue__in_journal__in=self)
+            | Q(in_issue__in_volume__in_journal__in=self)
+        ).all()
 
 
 class IssueQuerySet(models.QuerySet):
