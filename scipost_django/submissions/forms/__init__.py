@@ -2892,7 +2892,7 @@ class ReportIntendedDeliveryForm(forms.ModelForm):
         super().save()
 
         self.instance.submission.add_event_for_eic(
-            f"Referee {self.referee.full_name} set intended report delivery date to {self.instance.intended_delivery_date}."
+            f"Referee {self.instance.referee.full_name} set intended report delivery date to {self.instance.intended_delivery_date}."
         )
         self.instance.submission.add_event_for_author(
             f"A referee has set their intended report delivery date to {self.instance.intended_delivery_date}."
