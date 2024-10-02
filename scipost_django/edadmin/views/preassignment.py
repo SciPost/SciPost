@@ -103,9 +103,9 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
         "edadmin/preassignment/_hx_author_profile_row.html",
         context,
     )
-    response[
-        "HX-Trigger-After-Settle"
-    ] = f"submission-{submission.pk}-author-profiles-details-updated"
+    response["HX-Trigger-After-Settle"] = (
+        f"submission-{submission.pk}-author-profiles-details-updated"
+    )
     return response
 
 
@@ -168,6 +168,11 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
                 submission=submission,
                 comments_for_authors=form.cleaned_data["comments_for_authors"],
             )
+
+            # Reset the fellowship for the submission
+            # This is done to remove authors matched during preassignment
+            submission.fellows.set(submission.get_default_fellowship())
+
         else:  # inadmissible, inform authors and set status to PREASSIGNMENT_FAILED
             Submission.objects.filter(pk=submission.id).update(
                 status=Submission.PREASSIGNMENT_FAILED
