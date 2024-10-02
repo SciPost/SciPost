@@ -138,9 +138,7 @@ class OrganizationQuerySet(models.QuerySet):
             has_children_with_current_subsidy=Exists(
                 Subsidy.objects.filter(organization__in=models.OuterRef("children"))
                 .obtained()
-                .filter(
-                    date_until__gte=timezone.now(),
-                )
+                .filter(date_until__gte=timezone.now())
             )
         )
 

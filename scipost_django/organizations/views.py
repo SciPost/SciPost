@@ -270,7 +270,6 @@ class OrganizationListView(PaginationMixin, ListView):
 
         qs = (
             qs.annot_has_current_subsidy()
-            .annot_has_children_with_current_subsidy()
             .annot_has_any_subsidy()
             .prefetch_related("logos", "children")
             .select_related("parent")
@@ -289,7 +288,8 @@ class OrganizationListView(PaginationMixin, ListView):
             qs = qs.order_by("cf_balance_info__cumulative__impact_on_reserves")
         if ordering == "desc":
             qs = qs.reverse()
-        return qs.distinct()
+
+        return qs
 
 
 def get_organization_detail(request):
