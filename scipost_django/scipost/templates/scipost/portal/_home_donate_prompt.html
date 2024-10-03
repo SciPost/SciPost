@@ -1,0 +1,52 @@
+{% load static %}
+
+<div class="card border border-2 rounded border-warning mb-3">
+  <div class="card-header bg-warning d-flex flex-row justify-content-between align-items-center">
+    <h2 class="mb-0 card-title text-white">We need your URGENT support</h2>
+    <span class="fs-2 text-white">{% include "bi/exclamation-triangle-fill.html" %}</span>
+  </div>
+
+  <div class="card-body">
+    <p>
+      SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. <a href="{% url "organizations:organizations" %}">Supporting organizations</a> provide <a href="{% url "finances:subsidies" %}">operating funds</a> to SciPost through a cost-slashing consortial model.
+    </p>
+    <p class="mb-0">
+      Scientists, please help us out: if it is not listed on our organization page, please encourage your institution (through a librarian, Open Access officer, director, ...) to join by personally emailing them directly.
+    </p>
+
+    <div class="d-flex flex-column gap-2 my-3">
+
+      <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org"
+         class="btn bg-primary text-white">Contact your institution
+        <span class="ms-2">{% include "bi/envelope-fill.html" %}</span>
+      </a>
+
+    </div>
+ 
+    <p>
+      Direct contributions from research budgets earmarked for open-access publishing are welcome.
+      Please use the buttons below to obtain a personalised invoice, or donate directly.
+    </p>
+
+    <div class="d-flex flex-column gap-2">
+      <a href="mailto:sponsors@scipost.org?subject=Direct donation to SciPost"
+         class="btn border border-2 border-primary">Direct contribution via invoice
+        <span class="ms-2">{% include "bi/envelope-fill.html" %}</span>
+      </a>
+
+      <form action="https://www.paypal.com/cgi-bin/webscr"
+            class="btn border border-2 border-primary p-0"
+            method="post"
+            target="_top">
+        <input type="hidden" name="cmd" value="_s-xclick" />
+        <input type="hidden" name="hosted_button_id" value="L58JMPWAXGUTW" />
+        <button class="btn w-100 d-flex flex-row gap-3 align-items-center justify-content-center">
+          Donate via
+          <img src="https://www.paypalobjects.com/webstatic/mktg/Logo/pp-logo-100px.png"
+               alt="PayPal - The safer, easier way to pay online!" />
+        </button>
+      </form>
+    </div>
+ 
+  </div>
+</div>

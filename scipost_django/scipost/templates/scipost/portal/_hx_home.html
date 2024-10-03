@@ -5,7 +5,9 @@
 
     {% include 'scipost/portal/_home_scipost_intro.html' %}
 
-    <div class="d-block d-md-none">{% include 'scipost/portal/_home_register_prompt.html' %}</div>
+    <div class="d-block d-md-none">
+      {% include 'scipost/portal/_home_register_prompt.html' %}
+    </div>
 
     <div hx-trigger="load once"
          hx-swap="outerHTML"
@@ -28,12 +30,18 @@
 
   <div class="col-md-4">
 
-    <div class="d-none d-md-block">{% include 'scipost/portal/_home_register_prompt.html' %}</div>
+    <div class="d-none d-md-block">
+      {% include 'scipost/portal/_home_donate_prompt.html' %}
+    </div>
+
+    <div class="d-none d-md-block">
+      {% include 'scipost/portal/_home_register_prompt.html' %}
+    </div>
 
     <!-- News -->
     <div class="news">
       <h2 class="highlight mt-0">
-        <a href="{% url "news:news" %}" class="text-body fs-2">News</a>
+        <a href="{% url "news:news" %}" class="text-body fs-2">Latest News</a>
       </h2>
       <ul>
 
@@ -136,7 +144,9 @@
         <p>
           Regarding our operations, we run them in the most efficient way possible, with <strong>complete transparency</strong>, for the benefit not only of scientists worldwide, but also of their supporting Organizations (and anybody else interested in science).
         </p>
-        <p>More information about our business model can be found <a href="{% url "finances:business_model" %}">here</a>.</p>
+        <p>
+          More information about our business model can be found <a href="{% url "finances:business_model" %}">here</a>.
+        </p>
       </div>
     </div>
 

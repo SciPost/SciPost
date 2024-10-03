@@ -213,7 +213,7 @@ def portal(request):
 def portal_hx_home(request):
     """Homepage view of SciPost."""
     if NewsItem.objects.homepage().exists():
-        news_items = NewsItem.objects.homepage().order_by("-date")[:3]
+        news_items = NewsItem.objects.homepage().order_by("-date")[:1]
     else:
         news_items = NewsItem.objects.none()
     latest_blogpost = BlogPost.objects.published().first()
