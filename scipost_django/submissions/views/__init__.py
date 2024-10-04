@@ -1145,39 +1145,6 @@ def editorial_workflow(request):
     """
     return render(request, "submissions/editorial_workflow.html")
 
-
-@login_required
-@permission_required("scipost.can_assign_submissions", raise_exception=True)
-def update_authors_assignment(request, identifier_w_vn_nr, nrweeks):
-    """
-    Send an email to the authors, informing them that assignment is still ongoing after one week.
-    """
-    submission = get_object_or_404(
-        Submission.objects.in_pool(request.user).seeking_assignment(),
-        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
-    )
-    if nrweeks == 1:
-        mail_code = "authors/update_authors_assignment_1week"
-    elif nrweeks == 2:
-        mail_code = "authors/update_authors_assignment_2weeks"
-    else:
-        raise Http404
-    mail_editor_view = MailEditorSubview(
-        request, mail_code=mail_code, instance=submission
-    )
-    if mail_editor_view.is_valid():
-        messages.success(
-            request,
-            "Authors of Submission {identifier} updated by email (assignment week {nrweeks}).".format(
-                identifier=submission.preprint.identifier_w_vn_nr, nrweeks=nrweeks
-            ),
-        )
-        messages.success(request, "Authors have been updated by email.")
-        mail_editor_view.send_mail()
-        return redirect(reverse("submissions:pool:pool"))
-    return mail_editor_view.interrupt()
-
-
 @login_required
 @permission_required("scipost.can_assign_submissions", raise_exception=True)
 @transaction.atomic

@@ -1,0 +1,22 @@
+<p>Dear {{ offer.offered_by.profile.formal_name }},</p>
+<p>
+  The authors of
+  <br />
+  <br />
+  {{ offer.submission.title }}
+  <br />
+  by {{ offer.submission.author_list }}
+  <br />
+  have accepted your conditional assignment offer for {{ offer.condition }}.
+</p>
+
+<p>
+  The conditions you requested have been automatically applied to the submission, and you have been assigned as the Editor-in-charge.
+  You can now proceed with editorial tasks, such as inviting referees, from the <a href="https://{{ domain }}{% url 'submissions:editorial_page' offer.submission.preprint.identifier_w_vn_nr %}">editorial page</a>.
+</p>
+
+<p>With many thanks,</p>
+<p>The SciPost Team</p>
+{% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid.html' with submission=offer.submission %}

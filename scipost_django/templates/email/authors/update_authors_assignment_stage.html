@@ -1,0 +1,82 @@
+<p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
+<p>We would hereby like to give you an update on your recent SciPost submission,</p>
+<p>
+  {{ submission.title }}
+  <br />
+  by {{ submission.author_list }}.
+</p>
+
+<p>
+  Your Submission is in the <em>seeking assignment</em> stage, where unfortunaely no Editor-in-charge has yet volunteered to take charge of your Submission. At SciPost, Editorial Fellows choose which Submissions they wish to handle according to their interests, expertise and availability. While in this stage, your Submission will be visible to all Fellows, who may choose to take charge at any time. If this occurs, you will be immediately informed and the refereeing process will begin. Otherwise, we will keep searching for an Editor-in-charge and keep you informed of any new developments.
+</p>
+
+{% if weeks_passed == 1 and submission.qualification_set.exists %}
+  <p>
+    Over the past week, your submission has been examined by {{ submission.qualification_set.all|length }} Fellow{{ submission.qualification_set.all|pluralize }}, of which {{ submission.qualification_set.qualified|length }} {{ submission.qualification_set.qualified|length_is:1|yesno:"is,are" }} sufficiently qualified to take charge.
+  </p>
+{% endif %}
+
+{% if submission.conditional_assignment_offers.offered.exists %}
+
+  <p>
+    However, some of our Fellows would be willing to immediately take charge of your Submission under certain conditions.
+    Please find a summary of these offers below:
+  </p>
+ 
+  {% regroup submission.conditional_assignment_offers.offered|dictsort:"offered_on" by condition_details as offers_by_type %}
+  <ul>
+
+    {% for offers in offers_by_type %}
+      {% with offer=offers.list.0 %}
+        <li>
+          {{ offers.list|length }} offers for {{ offer.condition }}: <a href="{% url 'submissions:accept_conditional_assignment_offer' pk=offer.id %}">accept first</a>
+        </li>
+      {% endwith %}
+    {% endfor %}
+
+  </ul>
+
+  <p>
+    Should you accept any such offer, the requested conditions will be applied, and the Fellow in question will immediately be notified and take charge of your Submission.
+    If you feel no offer is suitable, no further action is required from your side. Your Submission will then simply remain in the <em>seeking assignment</em> stage.
+  </p>
+{% endif %}
+
+{% if submission_nearning_deadline %}
+  <p>
+    We would like to inform you that the maximal duration of the assignment stage for submissions to {{ submission.submitted_to.name }} is {{ submission.submitted_to.assignment_period.days }} days. Since {{ weeks_passed }} week{{ weeks_passed|pluralize }} have already passed, we would like to further present you with the following options:
+    <ul>
+
+      <li>
+        Wait until the nominal duration of the assignment stage is reached ({{ weeks_until_assignment_deadline }} week{{ weeks_until_assignment_deadline|pluralize }} remaining), while we keep searching for an Editor-in-charge. Your submission will be readily visible to our Fellows where they can choose to volunteer at any time.
+        Furthermore, when the deadline is reached, your submission will be returned to you, freeing you to submit it elsewhere.
+      </li>
+
+      {% if weeks_until_assignment_deadline < submission.submitted_to.assignment_period.weeks %}
+        <li>
+          You may choose to have the <a href="">assignment stage deadline extended</a> by an additional {{ submission.submitted_to.assignment_period.days }} days. Note that this extension may only happen once.
+        </li>
+      {% else %}
+        <li>
+          You have already extended the assignment stage once, and no more extensions are permitted.
+          At this point, you may <a href="mailto:edadmin@{{ domain }}">contact Editorial Administration</a> to discuss the situation and determine if any additional extension can be granted.
+        </li>
+      {% endif %}
+
+      <li>
+        You may prematurely <a href="">withdraw your Submission</a> and seek an alternative venue. You can also do this at any time from your personal page, under the Submissions tab.
+      </li>
+
+    </ul>
+  </p>
+{% endif %}
+
+<p>
+  We thank you for your patience and understanding. Please do not hesitate to contact us if you have any questions or concerns at <a href="mailto:edadmin@{{ domain }}">edadmin@{{ domain }}</a>.
+</p>
+
+<p>Sincerely,</p>
+<p>The SciPost Team</p>
+{% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid.html' with submission=submission %}
