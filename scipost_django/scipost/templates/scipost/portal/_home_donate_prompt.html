@@ -8,13 +8,13 @@
 
   <div class="card-body">
     <p>
-      SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. <a href="{% url "organizations:organizations" %}">Supporting organizations</a> provide <a href="{% url 'finances:subsidies' %}">operating funds</a> to SciPost through a cost-slashing consortial model.
+      SciPost guarantees <a href="{% url "scipost:about" %}">free online access to all publications</a> in all its Journals and <a href="{% url "finances:business_model" %}">does not charge any article processing fees</a> for publishing. <a href="{% url "organizations:organizations" %}">Supporting organizations</a> provide <a href="{% url 'finances:subsidies' %}">operating funds</a> to SciPost through a <a href="{% url "finances:business_model" %}">cost-slashing consortial model</a>.
     </p>
 
     <h4>Scientists, please help us out!</h4>
 
     <p class="mb-0">
-      For each of your affiliated institutions, please encourage them to support us at an appropriate level by personally emailing them directly (through a librarian, Open Access officer, director, etc.).
+      Please encourage each of your affiliated institutions to support us by emailing a responsible person (e.g. librarian, Open Access officer, director, etc.) directly. Clicking any of the contact buttons will open your email client with a pre-filled message for your convenience.
     </p>
 
     <div class="d-flex flex-column gap-2 my-3">
@@ -76,10 +76,10 @@
 
           <details class="bg-light p-0" open>
             <summary class="list-triangle bg-danger bg-opacity-10 p-2">
-              <a href="{% url 'organizations:organization_detail' pk=organization.id %}"><strong>{{ organization.name }}</strong></a> does not support SciPost.
               <span class="text-danger float-end">
                 {% include "bi/exclamation-circle-fill.html" %}
               </span>
+              <a href="{% url 'organizations:organization_detail' pk=organization.id %}"><strong>{{ organization.name }}</strong></a> does not support SciPost.
             </summary>
             <div class="p-2">
               <p>
@@ -97,10 +97,10 @@
         {% if forloop.last %}
           <details class="bg-light">
             <summary class="list-triangle p-2">
-              Affiliated to an institution not in this list?
               <span class="text-primary float-end">
                 {% include "bi/question-circle-fill.html" %}
               </span>
+              Affiliated to an institution not in this list?
             </summary>
             <div class="p-2">
               <p>
