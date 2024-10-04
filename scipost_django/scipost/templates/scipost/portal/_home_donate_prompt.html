@@ -8,18 +8,120 @@
 
   <div class="card-body">
     <p>
-      SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. <a href="{% url "organizations:organizations" %}">Supporting organizations</a> provide <a href="{% url "finances:subsidies" %}">operating funds</a> to SciPost through a cost-slashing consortial model.
+      SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. <a href="{% url "organizations:organizations" %}">Supporting organizations</a> provide <a href="{% url 'finances:subsidies' %}">operating funds</a> to SciPost through a cost-slashing consortial model.
     </p>
+
+    <h4>Scientists, please help us out!</h4>
+
     <p class="mb-0">
-      Scientists, please help us out: if it is not listed on our organization page, please encourage your institution (through a librarian, Open Access officer, director, ...) to join by personally emailing them directly.
+      For each of your affiliated institutions, please encourage them to support us at an appropriate level by personally emailing them directly (through a librarian, Open Access officer, director, etc.).
     </p>
 
     <div class="d-flex flex-column gap-2 my-3">
 
-      <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org"
-         class="btn bg-primary text-white">Contact your institution
-        <span class="ms-2">{% include "bi/envelope-fill.html" %}</span>
-      </a>
+      {% for organization in currently_affiliated_orgs %}
+ 
+        <!-- Disabled for now, we don't have enough up-to-date information to display this confidently
+          <details class="bg-light" open>
+            <summary class="list-triangle bg-warning bg-opacity-10 p-2">
+              <a href="{% url 'organizations:organization_detail' pk=organization.id %}"><strong>{{ organization.name }}</strong></a> was a sponsor of SciPost, but is no longer.
+              <span class="text-warning float-end">
+                {% include "bi/exclamation-circle-fill.html" %}
+              </span>
+            </summary>
+            <div class="p-2">
+              <p>
+                <a href="{% url 'organizations:organization_detail' pk=organization.id %}">{{ organization.name }}</a> used to be a sponsor of SciPost, but <strong>has since stopped supporting us</strong>. Its support is still necessary to sustain SciPost's activities. Please encourage them to resume their support.
+              </p>
+              <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org" class="w-100 btn bg-primary text-white">Contact {{ organization.name }}
+                <span class="ms-2">{% include "bi/envelope-fill.html" %}</span>
+              </a>
+            </div>
+          </details> 
+        -->
+
+        {% if organization.has_any_subsidy or organization.has_contributing_parent %}
+
+          {% if organization.impact_on_reserves >= 0 %}
+            <details class="bg-light">
+              <summary class="list-triangle bg-success bg-opacity-10 p-2">
+                <span class="text-success float-end">{% include "bi/check-circle-fill.html" %}</span>
+                <a href="{% url 'organizations:organization_detail' pk=organization.id %}"><strong>{{ organization.name }}</strong></a> is already a generous sponsor of SciPost.
+              </summary>
+              <p class="mb-0 p-2">
+                <a href="{% url 'organizations:organization_detail' pk=organization.id %}">{{ organization.name }}</a> is already a generous sponsor of SciPost, fully covering the costs of publishing for its affiliated authors. Thank you for your support!
+              </p>
+            </details>
+          {% else %}
+            <details class="bg-light" open>
+              <summary class="list-triangle bg-primary bg-opacity-10 p-2">
+                <span class="text-primary float-end">
+                  {% include "bi/exclamation-circle-fill.html" %}
+                </span>
+                <a href="{% url 'organizations:organization_detail' pk=organization.id %}"><strong>{{ organization.name }}</strong></a> is already a sponsor of SciPost.
+              </summary>
+              <div class="p-2">
+                <p>
+                  <a href="{% url 'organizations:organization_detail' pk=organization.id %}">{{ organization.name }}</a> is already a sponsor of SciPost. However, <strong>its level of contribution is not sufficient</strong> to cover the costs of publishing for its affiliated authors. Please encourage them to increase their support and help sustain SciPost's activities.
+                </p>
+                <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org"
+                   class="w-100 btn bg-primary text-white">Contact {{ organization.name }}
+                  <span class="ms-2">{% include "bi/envelope-fill.html" %}</span>
+                </a>
+              </div>
+            </details>
+          {% endif %}
+
+        {% else %}
+
+          <details class="bg-light p-0" open>
+            <summary class="list-triangle bg-danger bg-opacity-10 p-2">
+              <a href="{% url 'organizations:organization_detail' pk=organization.id %}"><strong>{{ organization.name }}</strong></a> does not support SciPost.
+              <span class="text-danger float-end">
+                {% include "bi/exclamation-circle-fill.html" %}
+              </span>
+            </summary>
+            <div class="p-2">
+              <p>
+                <a href="{% url 'organizations:organization_detail' pk=organization.id %}">{{ organization.name }}</a> <strong>does not support SciPost</strong>. Its support is necessary to sustain SciPost's activities. Please encourage them to support us.
+              </p>
+              <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org"
+                 class="w-100 btn bg-primary text-white">Contact {{ organization.name }}
+                <span class="ms-2">{% include "bi/envelope-fill.html" %}</span>
+              </a>
+            </div>
+          </details>
+
+        {% endif %}
+
+        {% if forloop.last %}
+          <details class="bg-light">
+            <summary class="list-triangle p-2">
+              Affiliated to an institution not in this list?
+              <span class="text-primary float-end">
+                {% include "bi/question-circle-fill.html" %}
+              </span>
+            </summary>
+            <div class="p-2">
+              <p>
+                If you are affiliated with an organization that is not listed here, please check our <a href="{% url 'organizations:organizations' %}">full list of affiliated organizations</a> and encourage them to support us if they are not already doing so.
+              </p>
+              <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org"
+                 class="w-100 btn bg-primary text-white">Contact your institution
+                <span class="ms-2">{% include "bi/envelope-fill.html" %}</span>
+              </a>
+            </div>
+          </details>
+        {% endif %}
+
+      {% empty %}
+
+        <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org"
+           class="w-100 btn bg-primary text-white">Contact your institution
+          <span class="ms-2">{% include "bi/envelope-fill.html" %}</span>
+        </a>
+
+      {% endfor %}
 
     </div>
  

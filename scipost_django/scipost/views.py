@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import urllib
 
+from django.db.models.functions import Cast, Coalesce
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
@@ -29,11 +30,13 @@ from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import (
+    F,
     Q,
     Case,
     CharField,
     Count,
     Exists,
+    IntegerField,
     OuterRef,
     Subquery,
     Value,
@@ -217,9 +220,44 @@ def portal_hx_home(request):
     else:
         news_items = NewsItem.objects.none()
     latest_blogpost = BlogPost.objects.published().first()
+
+    if request.user.is_authenticated:
+        currently_affiliated_orgs = (
+            Organization.objects.filter(
+                id__in=request.user.contributor.profile.affiliations.all()
+                .current()
+                .values("organization")
+            )
+            # .annot_has_current_subsidy()
+            .annot_has_any_subsidy().annotate(
+                has_contributing_parent=Exists(
+                    Organization.objects.filter(
+                        children=OuterRef("pk"),
+                        subsidy__isnull=False,
+                    )
+                ),
+                impact_on_reserves=Coalesce(
+                    Cast(
+                        F(
+                            "parent__cf_balance_info__cumulative__impact_on_reserves",
+                        ),
+                        IntegerField(),
+                    ),
+                    0,
+                )
+                + Cast(
+                    F("cf_balance_info__cumulative__impact_on_reserves"),
+                    IntegerField(),
+                ),
+            )
+        )
+    else:
+        currently_affiliated_orgs = Organization.objects.none()
+
     context = {
         "news_items": news_items,
         "latest_blogpost": latest_blogpost,
+        "currently_affiliated_orgs": currently_affiliated_orgs,
     }
     return render(request, "scipost/portal/_hx_home.html", context)
 
