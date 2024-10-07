@@ -108,7 +108,7 @@ class BaseAction:
             count=len(self._objects),
             object=obj.__class__.__name__,
             author=obj.author.formal_str if getattr(obj, "author", None) else "",
-            referee=getattr(obj, "referee_str", ""),
+            referee=obj.referee.full_name if getattr(obj, "referee", None) else "",
             days=timedelta.days,
             deadline=deadline.days if deadline else "-",
             deadline_min=-deadline.days if deadline else "-",
