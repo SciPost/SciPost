@@ -1,14 +1,14 @@
-<p>Dear {{ invitation.referee.formal_name}},</p>
+<p>Dear {{ invitation.referee.formal_name }},</p>
 
 <p>
   The authors of submission
   <br />
   <br />
-  {{ invitation.submission.title }}
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
   <br />
   by {{ invitation.submission.author_list }}
   <br />
-  (<a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">see on SciPost.org</a>)
+  (see <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">https://{{ domain }}{{ invitation.submission.get_absolute_url }}</a> - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
   have submitted a new (revised) version of their manuscript to SciPost. On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to invite you to review this new version.
@@ -20,7 +20,7 @@
   You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:editorial_procedure' %}">editorial procedure</a>, <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
 </p>
 <p>
-  If you are unable to review this version, you may <a href="https://{{ domain }}{% url 'submissions:accept_or_decline_ref_invitations' %}">decline</a> this invitation (login required).
+  If you are unable to review this version, you may <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline</a>.
 </p>
 <p>
   We would be extremely grateful for your contribution, and thank you in advance for your consideration.
