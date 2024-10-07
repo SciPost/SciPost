@@ -1297,6 +1297,7 @@ class SubmissionForm(forms.ModelForm):
         choices=[(None, "None")]
         + list(
             Collection.objects.all()
+            .filter(is_active=True)
             .order_by("-event_start_date")
             # Short name is `event_suffix` if set, otherwise `event_name`
             .annotate(name_with_series=Concat("series__name", Value(" - "), "name"))

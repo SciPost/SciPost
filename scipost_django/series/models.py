@@ -72,6 +72,7 @@ class Collection(models.Model):
         ),
     )
     image = models.ImageField(upload_to="series/collections/images/", blank=True)
+    is_active = models.BooleanField(default=True)
 
     expected_authors = models.ManyToManyField(
         "profiles.Profile", blank=True, related_name="collections_authoring"
