@@ -6,10 +6,13 @@
     <span class="fs-2 text-white">{% include "bi/exclamation-triangle-fill.html" %}</span>
   </div>
 
-  <div class="card-body">
-    <p>
+  <div class="card-body d-flex flex-column">
+    <p class="m-0">
       SciPost guarantees <a href="{% url "scipost:about" %}">free online access to all publications</a> in all its Journals and <a href="{% url "finances:business_model" %}">does not charge any article processing fees</a> for publishing. <a href="{% url "organizations:organizations" %}">Supporting organizations</a> provide <a href="{% url 'finances:subsidies' %}">operating funds</a> to SciPost through a <a href="{% url "finances:business_model" %}">cost-slashing consortial model</a>.
     </p>
+
+    <a href="https://scipost.org/blog/post/2024-10-07/diamond-sustainability-requires-sustenance"
+       class="my-3 fs-5 mx-auto"> <span>{% include "bi/arrow-right.html" %}</span> Read our open letter to the community</a>
 
     <h4>Scientists, please help us out!</h4>
 
