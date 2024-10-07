@@ -7,15 +7,17 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.http import QueryDict
+from django.http import HttpResponse
+from django.db.models.functions import Lower
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.db import transaction
-from django.db.models import Q, Exists, OuterRef, Prefetch
+from django.db.models import Q, Count, Exists, OuterRef
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.timezone import timedelta
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -23,8 +25,9 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 
-from finances.constants import SUBSIDY_WITHDRAWN
-from finances.models.subsidy import Subsidy
+from journals.models.publication import PublicationAuthorsTable
+from profiles.models import Profile, ProfileEmail
+from submissions.models.submission import SubmissionAuthorProfile
 
 from .constants import (
     ORGTYPE_PRIVATE_BENEFACTOR,
@@ -301,6 +304,87 @@ def get_organization_detail(request):
     return redirect(reverse("organizations:organizations"))
 
 
+@permission_required_htmx("scipost.can_manage_organizations")
+def _hx_export_associated_profile_emails(request, pk):
+    """
+    Export a list of associated profile emails.
+    The list includes all non-deprecated emails of profiles that have:
+    - accepted (unsolicited) SciPost emails
+    - been active in the last year (logged in, published, submitted, or reported)
+    - are affiliated with the organization (via direct declaration or publication/submission metadata)
+    """
+    organization = get_object_or_404(Organization, pk=pk)
+
+    year_ago = timezone.now() - timedelta(days=365)
+    recently_active_profiles = (
+        Profile.objects.all()
+        .annotate(
+            nr_publications=Count(
+                "publicationauthorstable",
+                distinct=True,
+                filter=Q(
+                    publicationauthorstable__publication__publication_date__gte=year_ago
+                ),
+            ),
+            nr_submissions=Count(
+                "contributor__submissions",
+                distinct=True,
+                filter=Q(contributor__submissions__submission_date__gte=year_ago),
+            ),
+            nr_reports=Count(
+                "contributor__reports",
+                distinct=True,
+                filter=Q(contributor__reports__created__gte=year_ago),
+            ),
+            has_published_with_organization=Exists(
+                PublicationAuthorsTable.objects.filter(
+                    profile=OuterRef("pk"),
+                    affiliations__organization=organization,
+                )
+            ),
+            has_submitted_with_organization=Exists(
+                SubmissionAuthorProfile.objects.filter(
+                    profile=OuterRef("pk"),
+                    affiliations__organization=organization,
+                )
+            ),
+            logged_in=Q(contributor__user__last_login__gte=year_ago),
+        )
+        .filter(
+            Q(accepts_SciPost_emails=True)
+            & (
+                Q(nr_publications__gt=0)
+                | Q(nr_submissions__gt=0)
+                | Q(nr_reports__gt=0)
+                | Q(logged_in=True)
+            )
+            & (
+                Q(affiliations__organization=organization)
+                | Q(has_published_with_organization=True)
+                | Q(has_submitted_with_organization=True)
+            ),
+        )
+        .order_by()
+        .distinct()
+    )
+
+    # Remove duplicate emails before exporting
+    profile_emails = (
+        ProfileEmail.objects.filter(
+            profile__in=recently_active_profiles, still_valid=True
+        )
+        .annotate(lower_email=Lower("email"))
+        .values_list("lower_email", flat=True)
+        .order_by("lower_email")
+        .distinct()
+    )
+
+    return HttpResponse(
+        f'<textarea rows="5" style="width: 300px;">{", ".join(profile_emails)}</textarea>'
+    )
+
+
+@permission_required_htmx("scipost.can_manage_organizations")
 def download_associated_publications_tex(request, pk):
     """
     Download a .tex file with the associated publications of an organization.
@@ -320,6 +404,7 @@ def download_associated_publications_tex(request, pk):
     return response
 
 
+@permission_required_htmx("scipost.can_manage_organizations")
 def download_associated_authors_tex(request, pk):
     """
     Download a .tex file with the associated authors of an organization.

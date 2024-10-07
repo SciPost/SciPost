@@ -40,6 +40,11 @@ urlpatterns = [
         name="download_associated_publications_tex",
     ),
     path(
+        "<int:pk>/_hx_associated_profile_emails",
+        views._hx_export_associated_profile_emails,
+        name="_hx_export_associated_profile_emails",
+    ),
+    path(
         "get_organization_detail",
         views.get_organization_detail,
         name="get_organization_detail",

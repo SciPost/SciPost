@@ -135,9 +135,10 @@
              aria-labelledby="publications-{{ org.id }}-tab">
             
           {% if perms.can_manage_organizations %}
-            <div class="row float-end">
-              <a href="{% url "organizations:download_associated_publications_tex" pk=org.id %}">Download associated publications as LaTeX</a>
-            </div>
+            <ul class="p-0 list-unstyled float-end">
+              <li><a href="{% url "organizations:download_associated_publications_tex" pk=org.id %}">Download associated publications as LaTeX</a></li>
+              <li><a href="#" hx-swap="outerHTML" hx-get="{% url "organizations:_hx_export_associated_profile_emails" pk=org.id %}">Export associated profile emails</a></li>
+            </ul>
           {% endif %}
           <h3>
             {% if org.cf_nr_associated_publications %}{{ org.cf_nr_associated_publications }}{% else %}No{% endif %} 
