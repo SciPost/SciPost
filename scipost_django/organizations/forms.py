@@ -165,6 +165,21 @@ class ContactPersonForm(forms.ModelForm):
     class Meta:
         model = ContactPerson
         fields = "__all__"
+        widgets = {
+            "date_deprecated": forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        date_deprecated = cleaned_data.get("date_deprecated")
+        status = cleaned_data.get("status")
+
+        if status == ContactPerson.STATUS_DEPRECATED and not date_deprecated:
+            self.add_error("date_deprecated", "A deprecation date is required.")
+        elif status != ContactPerson.STATUS_DEPRECATED and date_deprecated:
+            self.add_error("status", "Status must be set to 'Deprecated'.")
+
+        return cleaned_data
 
     def clean_email(self):
         """
@@ -219,6 +234,12 @@ class NewContactForm(ContactForm):
     first_name = forms.CharField()
     last_name = forms.CharField()
     email = forms.CharField()
+    status = forms.ChoiceField(
+        choices=ContactPerson.STATUS_CHOICES, initial=ContactPerson.STATUS_UNKNOWN
+    )
+    date_deprecated = forms.DateField(
+        required=False, widget=forms.DateInput(attrs={"type": "date"})
+    )
     existing_user = None
 
     def __init__(self, *args, **kwargs):

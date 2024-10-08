@@ -769,12 +769,27 @@
           {% endif %}
 
           <table class="table">
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+
+              {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+                <th>Actions</th>
+              {% endif %}
+            </tr>
 
             {% for contactperson in org.contactperson_set.all %}
               <tr>
                 <td>{{ contactperson }}</td>
                 <td>{{ contactperson.email }}</td>
                 <td>{{ contactperson.role }}</td>
+                <td>{{ contactperson.get_status_display }}
+                  {% if contactperson.status == 'deprecated' %}
+                    <div class="text-muted">{{ contactperson.date_deprecated|date:"Y-m-d" }}</div>
+                  {% endif %}
+                </td>
 
                 {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
                   <td>

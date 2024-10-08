@@ -693,6 +693,15 @@ class ContactPerson(models.Model):
     Instances can be promoted to Contact instances, which possess login credentials.
     """
 
+    STATUS_UNKNOWN = "unknown"
+    STATUS_ACTIVE = "active"
+    STATUS_DEPRECATED = "deprecated"
+    STATUS_CHOICES = (
+        (STATUS_UNKNOWN, "Unknown"),
+        (STATUS_ACTIVE, "Active"),
+        (STATUS_DEPRECATED, "Deprecated"),
+    )
+
     organization = models.ForeignKey(
         "organizations.Organization", on_delete=models.CASCADE
     )
@@ -701,6 +710,10 @@ class ContactPerson(models.Model):
     last_name = models.CharField(max_length=64)
     email = models.EmailField()
     role = models.CharField(max_length=128)
+    status = models.CharField(
+        max_length=16, choices=STATUS_CHOICES, default=STATUS_UNKNOWN
+    )
+    date_deprecated = models.DateField(blank=True, null=True)
 
     class Meta:
         ordering = ["last_name", "first_name", "organization"]
