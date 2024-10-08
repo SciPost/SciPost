@@ -709,7 +709,7 @@ class ContactPerson(models.Model):
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
     email = models.EmailField()
-    role = models.CharField(max_length=128)
+    role = models.CharField(max_length=128, blank=True, null=True)
     status = models.CharField(
         max_length=16, choices=STATUS_CHOICES, default=STATUS_UNKNOWN
     )
