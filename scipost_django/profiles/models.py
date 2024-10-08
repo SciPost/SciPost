@@ -63,9 +63,20 @@ class Profile(models.Model):
     """
 
     if TYPE_CHECKING:
+        from submissions.models.submission import SubmissionAuthorProfile
+        from invitations.models import RegistrationInvitation
+        from colleges.models import FellowshipNomination, PotentialFellowship
+
         id: int
         contributor: Contributor | None
         referee_invitations: "RelatedManager[RefereeInvitation]"
+        emails: "RelatedManager[ProfileEmail]"
+        affiliations: "RelatedManager[Affiliation]"
+        submissionauthorprofile_set: "RelatedManager[SubmissionAuthorProfile]"
+        publicationauthorstable_set: "RelatedManager[PublicationAuthorsTable]"
+        registrationinvitation_set: "RelatedManager[RegistrationInvitation]"
+        potentialfellowship_set: "RelatedManager[PotentialFellowship]"
+        fellowship_nominations: "RelatedManager[FellowshipNomination]"
 
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, default=TITLE_DR)
     first_name = models.CharField(max_length=64)

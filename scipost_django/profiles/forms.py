@@ -194,8 +194,8 @@ class ProfileMergeForm(forms.Form):
         Perform the actual merge: save all data from to-be-deleted profile
         into the one to be kept.
         """
-        profile = self.cleaned_data["to_merge_into"]
-        profile_old = self.cleaned_data["to_merge"]
+        profile: "Profile" = self.cleaned_data["to_merge_into"]
+        profile_old: "Profile" = self.cleaned_data["to_merge"]
 
         # Merge information from old to new Profile.
         if profile.orcid_id is None:
@@ -226,11 +226,7 @@ class ProfileMergeForm(forms.Form):
         profile_old.publicationauthorstable_set.all().update(profile=profile)
 
         # Move all invitations to the "new" profile
-        profile_old.referee_invitations.all().update(
-            profile=profile,
-            referee=getattr(profile, "contributor", None)
-            or getattr(profile_old, "contributor", None),
-        )
+        profile_old.referee_invitations.all().update(referee=profile)
         profile_old.registrationinvitation_set.all().update(profile=profile)
 
         # Move all PotentialFellowships to the "new" profile
