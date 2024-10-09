@@ -773,6 +773,7 @@
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
+              <th>Source</th>
               <th>Status</th>
 
               {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
@@ -785,6 +786,7 @@
                 <td>{{ contactperson }}</td>
                 <td>{{ contactperson.email }}</td>
                 <td>{{ contactperson.role }}</td>
+                <td>{{ contactperson.info_source }}</td>
                 <td>{{ contactperson.get_status_display }}
                   {% if contactperson.status == 'deprecated' %}
                     <div class="text-muted">{{ contactperson.date_deprecated|date:"Y-m-d" }}</div>

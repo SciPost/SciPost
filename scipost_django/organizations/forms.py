@@ -167,6 +167,7 @@ class ContactPersonForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             "date_deprecated": forms.DateInput(attrs={"type": "date"}),
+            "info_source": forms.Textarea(attrs={"rows": 2}),
         }
 
     def clean(self):

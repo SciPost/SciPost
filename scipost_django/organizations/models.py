@@ -710,6 +710,7 @@ class ContactPerson(models.Model):
     last_name = models.CharField(max_length=64)
     email = models.EmailField()
     role = models.CharField(max_length=128, blank=True, null=True)
+    info_source = models.TextField(blank=True, verbose_name="Information source")
     status = models.CharField(
         max_length=16, choices=STATUS_CHOICES, default=STATUS_UNKNOWN
     )
