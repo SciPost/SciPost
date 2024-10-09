@@ -42,15 +42,27 @@ class Command(BaseCommand):
             if weeks_passed <= 0 or days_passed % 7 != 0:
                 continue
 
-            # Skip if just passed preassignment or just expired
-            if (weeks_passed == 0) or (weeks_until_assignment_deadline <= 0):
-                continue
+            # Send regular reminders if assignment deadline is not passed
+            if weeks_until_assignment_deadline > 0:
+                mail = DirectMailUtil(
+                    f"authors/update_authors_assignment_stage",
+                    submission=submission,
+                    weeks_passed=weeks_passed,
+                    submission_nearning_deadline=weeks_until_assignment_deadline <= 2,
+                    weeks_until_assignment_deadline=weeks_until_assignment_deadline,
+                    default_assignment_period_weeks=default_assignment_period_weeks,
+                )
 
-            mail = DirectMailUtil(
-                f"authors/update_authors_assignment_stage",
-                submission=submission,
-                weeks_until_assignment_deadline=weeks_until_assignment_deadline,
-                weeks_passed=weeks_passed,
-                default_assignment_period_weeks=default_assignment_period_weeks,
-            )
+            # Automatically fail assignment if the deadline is passed
+            else:
+                submission.status = Submission.ASSIGNMENT_FAILED
+                submission.visible_pool = False
+                submission.visible_public = False
+                submission.save()
+
+                mail = DirectMailUtil(
+                    "authors/submissions_assignment_failed",
+                    submission=submission,
+                )
+
             mail.send_mail()
