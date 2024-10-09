@@ -117,6 +117,10 @@ class JournalFactory(factory.django.DjangoModelFactory):
             )
             self.specialties.add(*specialties)
 
+    @factory.post_generation
+    def journal_alternatives(self, create, extracted, **kwargs):
+        self.alternative_journals.add(*fake.random_instance(Journal, 3))
+
 
 class VolumeFactory(factory.django.DjangoModelFactory):
     in_journal = factory.SubFactory(JournalFactory)

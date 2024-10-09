@@ -10,8 +10,11 @@ from .models import Preprint
 
 
 class PreprintFactory(factory.django.DjangoModelFactory):
+    identifier_w_vn_nr = factory.Faker("numerify", text="####.####")
+
     class Meta:
         model = Preprint
+        django_get_or_create = ("identifier_w_vn_nr",)
 
     class Params:
         arXiv = factory.Trait(

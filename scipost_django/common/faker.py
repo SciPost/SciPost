@@ -3,6 +3,8 @@ __license__ = "AGPL v3"
 
 import random
 from datetime import datetime, timedelta
+from django.db.models import QuerySet
+from django.db.models.base import ModelBase
 from django.utils.timezone import make_aware
 
 import factory
@@ -29,6 +31,25 @@ class LazyRandEnum(factory.LazyAttribute):
             return random.choice(self.enum)[0]
         else:
             return [random.choice(self.enum)[0] for _ in range(self.repeat)]
+
+
+class LazyRandInstance(factory.LazyAttribute):
+    """
+    Define a lazy attribute that takes a random instance from a Django model.
+    The first argument can be either the model class or a query set.
+    The second argument is the number of instances to return.
+    """
+
+    def __init__(self, model_qs: ModelBase | QuerySet, repeat=1, *args, **kwargs):
+        self.qs = model_qs if isinstance(model_qs, QuerySet) else model_qs.objects.all()
+        self.repeat = repeat
+        super().__init__(function=self._random_instance, *args, **kwargs)
+
+    def _random_instance(self, _):
+        if self.repeat == 1:
+            return self.qs.order_by("?").first()
+        else:
+            return self.qs.order_by("?")[: self.repeat]
 
 
 class LazyObjectCount(factory.LazyAttribute):
@@ -97,8 +118,18 @@ class TZAwareDateAccessor:
                 setattr(self, attr, aware_wrapper(func=getattr(parent_obj, attr)))
 
 
+def _get_random_instance(model_qs: ModelBase | QuerySet, repeat=1):
+    qs = model_qs if isinstance(model_qs, QuerySet) else model_qs.objects.all()
+    if repeat == 1:
+        return qs.order_by("?").first()
+    else:
+        return qs.order_by("?")[:repeat]
+
+
 fake = Faker()
 fake.add_provider(DurationProvider)
 
 aware_date_accessor = TZAwareDateAccessor(fake)
 fake.aware = aware_date_accessor
+
+fake.random_instance = _get_random_instance

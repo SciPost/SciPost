@@ -111,3 +111,16 @@ class TestiThenticateReportFactory(TestCase):
     def test_can_create_ithenticate_reports(self):
         ithenticate_report = iThenticateReportFactory()
         self.assertIsNotNone(ithenticate_report)
+
+
+# Conditional Assignment Offer
+class TestConditionalAssignmentOfferFactory(TestCase):
+    def test_can_create_offers(self):
+        offer = ConditionalAssignmentOfferFactory()
+        self.assertIsNotNone(offer)
+
+
+class TestJournalTransferOfferFactory(TestCase):
+    def test_can_create_offers(self):
+        offer = JournalTransferOfferFactory()
+        self.assertIsNotNone(offer)

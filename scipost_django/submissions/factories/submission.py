@@ -60,6 +60,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Submission
+        django_get_or_create = ("preprint",)
 
     @factory.post_generation
     def add_specialties(self, create, extracted, **kwargs):
