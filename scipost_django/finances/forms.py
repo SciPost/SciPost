@@ -219,7 +219,7 @@ class SubsidySearchForm(forms.Form):
                 ]
             )
 
-        return subsidies
+        return subsidies.distinct()
 
 
 class SubsidyPaymentForm(forms.ModelForm):

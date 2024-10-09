@@ -78,11 +78,14 @@
       </div>
 
 
-      <table class="table">
-        <thead class="table-light">
+      <table class="table table-hover position-relative">
+        <thead class="table-light position-sticky top-0">
           <tr>
             <th>From Organization</th>
             <th>Type</th>
+            {% if perms.scipost.can_manage_subsidies %}
+            <th><span class="small" style="writing-mode: vertical-rl;">Payments<br />Scheduled?</span></th>
+            {% endif %}
             <th>Amount</th>
             <th>From</th>
             <th>Until</th>
