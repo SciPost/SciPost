@@ -24,3 +24,6 @@ python manage.py update_user_permission_groups --settings=SciPost_v1.settings.pr
 
 # Delete expired sessions (today's date implied)
 python manage.py delete_expired_sessions --settings=SciPost_v1.settings.production_do1
+
+# Update authors about their submissions in the assignment stage
+python manage.py send_assignment_stage_update --settings=SciPost_v1.settings.production_do1
