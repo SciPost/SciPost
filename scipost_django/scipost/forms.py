@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import bleach
 from django.db.models import Q
 import pyotp
 import re
@@ -22,6 +23,8 @@ from django.utils.dates import MONTHS
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from dal import autocomplete
+
+from markup.constants import BLEACH_ALLOWED_ATTRIBUTES, BLEACH_ALLOWED_TAGS
 
 from .behaviors import orcid_validator
 from .constants import (
@@ -1075,23 +1078,24 @@ class EmailUsersForm(forms.Form):
                 email_text = ""
                 email_text_html = ""
                 if self.cleaned_data["personalize"]:
-                    email_text = (
-                        "Dear "
-                        + user.contributor.profile.get_title_display()
-                        + " "
-                        + user.last_name
-                        + ", \n\n"
-                    )
-                email_text_html = "Dear {{ title }} {{ last_name }},<br/>"
-                email_text += self.cleaned_data["email_text"]
-                email_text_html += "{{ email_text|linebreaks }}"
+                    email_text = f"Dear {user.contributor.profile.formal_name}, \n\n"
+                    email_text_html = "Dear {{ formal_name }},<br/>"
+
+                bleached_email_text = bleach.clean(
+                    self.cleaned_data["email_text"],
+                    tags=BLEACH_ALLOWED_TAGS,
+                    attributes=BLEACH_ALLOWED_ATTRIBUTES,
+                )
+                email_text += bleached_email_text
+                email_text_html += "{{ bleached_email_text|safe|linebreaksbr }}"
+
                 email_context = {
-                    "title": user.contributor.profile.get_title_display(),
-                    "last_name": user.last_name,
-                    "email_text": self.cleaned_data["email_text"],
+                    "formal_name": user.contributor.profile.formal_name,
+                    "bleached_email_text": bleached_email_text,
                 }
                 html_template = Template(email_text_html)
                 html_version = html_template.render(Context(email_context))
+
                 message = mail.EmailMultiAlternatives(
                     self.cleaned_data["email_subject"],
                     email_text,
