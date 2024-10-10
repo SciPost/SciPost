@@ -6,13 +6,13 @@
     <div class="col-12">
       <div class="reportid">
         <h3>
+          Report #{{ report.report_nr }} by 
           {% if report.anonymous %}
-            Anonymous Report {{ report.report_nr }}
+            Anonymous 
           {% else %}
-            Report {{ report.report_nr }} by <a href="{{ report.author.get_absolute_url }}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
+            <a href="{{ report.author.get_absolute_url }}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
           {% endif %}
-
-          on {{ report.date_submitted|date:'Y-n-j' }}
+          (Referee {{ report.referee_nr_in_thread }}) on {{ report.date_submitted|date:'Y-n-j' }}
           {% if report.report_type == 'report_post_edrec' %}
             <small><label class="label label-outline-primary ms-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-bs-toggle="tooltip" data-bs-placement="auto" data-bs-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
           {% endif %}

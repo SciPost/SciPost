@@ -320,6 +320,18 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             citation += "doi: %s" % self.doi_string
         return citation
 
+    @cached_property
+    def referee_nr_in_thread(self):
+        """Return the number of the referee in the thread."""
+        ordered_reports = list(
+            Report.objects.filter(
+                submission__thread_hash=self.submission.thread_hash,
+            )
+            .order_by("date_submitted")
+            .values_list("author__id", flat=True)
+        )
+        return ordered_reports.index(self.author.id) + 1
+
     def create_doi_label(self):
         """Create a doi in the default format."""
         Report.objects.filter(id=self.id).update(
