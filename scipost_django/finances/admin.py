@@ -66,6 +66,17 @@ class SubsidyAdmin(admin.ModelAdmin):
         return obj.organization.get_orgtype_display()
 
 
+@admin.action(description="Detach from all schedules")
+def detach(modeladmin, request, queryset):
+    for obj in queryset:
+        if (payment_proof := getattr(obj, "proof_of_payment_for", None)) is not None:
+            payment_proof.proof_of_payment = None
+            payment_proof.save()
+        if (invoice_proof := getattr(obj, "invoice_for", None)) is not None:
+            invoice_proof.invoice = None
+            invoice_proof.save()
+
+
 @admin.register(SubsidyAttachment)
 class SubsidyAttachmentAdmin(admin.ModelAdmin):
     list_display = [
@@ -86,6 +97,7 @@ class SubsidyAttachmentAdmin(admin.ModelAdmin):
         "subsidy__organization__name_original",
         "subsidy__organization__acronym",
     ]
+    actions = [detach]
 
 
 @admin.register(SubsidyPayment)
