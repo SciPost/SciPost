@@ -42,7 +42,7 @@
   </p>
 {% endif %}
 
-{% if submission_nearning_deadline %}
+{% if submission.nearing_assignment_deadline %}
   <p>
     We would like to inform you that the maximal duration of the assignment stage for submissions to {{ submission.submitted_to.name }} is {{ default_assignment_period_weeks }} weeks. Since {{ weeks_passed }} week{{ weeks_passed|pluralize }} {{ weeks_passed|pluralize:"has,have" }} already passed, we would like to further present you with the following options:
     <ul>

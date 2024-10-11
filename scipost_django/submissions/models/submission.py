@@ -756,6 +756,19 @@ class Submission(models.Model):
         ).exists()
 
     @property
+    def nearing_assignment_deadline(self):
+        """
+        Check if Submission is nearing its assignment deadline.
+        Returns True if more than half of the default assignment period has elapsed.
+        """
+        if self.assignment_deadline is None:
+            return False
+
+        today = timezone.now().date()
+        days_remaining = (self.assignment_deadline - today).days
+        return days_remaining <= (self.submitted_to.assignment_period.days // 2)
+
+    @property
     def reporting_deadline_has_passed(self):
         """Check if Submission has passed its reporting deadline."""
         if self.reporting_deadline is None:
