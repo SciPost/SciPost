@@ -560,7 +560,7 @@ class ProofsRepository(models.Model):
 
         # Attempt to fetch the publication file
         try:
-            publication_filename = [file["name"] for file in project.repository_tree() if re.findall("\d+(_\d+)*.tex", file["name"])][0]
+            publication_filename = [file["name"] for file in project.repository_tree() if re.findall("SciPost\w+(?:_\d+)+.tex", file["name"])][0]
             publication_file = project.files.get(
                 file_path=publication_filename, ref="main"
             )
