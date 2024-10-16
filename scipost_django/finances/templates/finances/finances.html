@@ -78,6 +78,8 @@
 	      </th>
 	      <th class="text-end">Sustainable months<br><small>(if no additional subsidy comes in,<br>that's when our resources run out)</small></th>
 	      <th class="text-end">Corresponding number of publications<br><small>(based on a weighted average of<br>per-publication expenditures)</small></th>
+        <th class="bg-danger bg-opacity-10 text-end">Liquidities<br><small>(current balance <br>in our account)</small></th>
+	      <th class="bg-danger bg-opacity-10  text-end">Liquidities <br>depletion date</th>
 	    </tr>
 	  </thead>
 	  <tbody>
@@ -86,6 +88,8 @@
 	      <td class="text-end">&euro;{{ resources.expenditures_mo|floatformat:"0" }}</td>
 	      <td class="text-end">{{ resources.sustainable_months|floatformat:"0" }}<br><span class="text-danger">&#10140;</span>&nbsp;{{ resources.sustainable_until|date:'Y-m' }}</td>
 	      <td class="text-end">{{ resources.npub|floatformat:"0" }}</td>
+	      <td class="bg-danger bg-opacity-10 text-end">&euro;{{ resources.liquidities|floatformat:"0" }}</td>
+	      <td class="bg-danger bg-opacity-10 text-end">{{ resources.account_zero_date|timeuntil }}</td>
 	    </tr>
 	  </tbody>
 	</table>

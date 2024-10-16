@@ -17,6 +17,7 @@ import matplotlib
 
 from common.views import HXDynselAutocomplete, HXDynselSelectOptionView
 from finances.constants import SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_PROMISED
+from finances.models.account import Account
 from journals.models.publication import PublicationAuthorsTable
 
 matplotlib.use("Agg")
@@ -207,8 +208,11 @@ def finances(request):
         "npub": recent_exp["npub"] * resources / recent_exp["expenditures"],
         "sustainable_until": now
         + datetime.timedelta(days=30.5 * resources * 6 / recent_exp["expenditures"]),
+        "liquidities": Account.objects.all().first().balance.amount,
+        "account_zero_date": Account.objects.all().first().zero_balance_projection,
     }
     context["periodic_reports"] = PeriodicReport.objects.all()
+
     return render(request, "finances/finances.html", context)
 
 
