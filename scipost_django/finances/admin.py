@@ -4,6 +4,10 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
+from finances.models.account import Account
+from finances.models.balance import Balance
+from finances.models.transaction import FuturePeriodicTransaction
+
 from .models import (
     Subsidy,
     SubsidyPayment,
@@ -160,3 +164,23 @@ class WorkLogAdmin(admin.ModelAdmin):
 admin.site.register(PeriodicReportType)
 
 admin.site.register(PeriodicReport)
+
+
+class BalanceInline(admin.TabularInline):
+    model = Balance
+    extra = 0
+
+
+class FuturePeriodicTransactionInline(admin.TabularInline):
+    model = FuturePeriodicTransaction
+    extra = 0
+
+
+@admin.register(Account)
+class AccountAdmin(admin.ModelAdmin):
+    list_display = ["number", "name", "description"]
+    search_fields = ["number", "name"]
+    inlines = [
+        FuturePeriodicTransactionInline,
+        BalanceInline,
+    ]
