@@ -3,13 +3,13 @@ __license__ = "AGPL v3"
 
 
 import datetime
-from itertools import accumulate
+from itertools import accumulate, chain
 import mimetypes
 from dal import autocomplete
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Q, Count, OuterRef, Subquery
+from django.db.models import Q, Count, Exists, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.template.response import TemplateResponse
 from django.utils.html import format_html
@@ -17,6 +17,7 @@ import matplotlib
 
 from common.views import HXDynselAutocomplete, HXDynselSelectOptionView
 from finances.constants import SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_PROMISED
+from journals.models.publication import PublicationAuthorsTable
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -281,14 +282,40 @@ def _hx_country_level_data(request, country):
     context = {
         "country": country,
         "organizations": organizations,
-        "cumulative": {"subsidy_income": 0, "expenditures": 0, "impact_on_reserves": 0},
+        "cumulative": {
+            "subsidy_income": 0,
+            "expenditures": 0,
+            "impact_on_reserves": 0,
+            "nap": len(
+                set(chain.from_iterable([o.get_publications() for o in organizations]))
+            ),
+        },
         "per_year": {},
     }
+
+    def get_yearly_nap_of_country(country: str) -> dict[int, int]:
+        return dict(
+            Publication.objects.annotate(
+                has_author_of_country=Exists(
+                    PublicationAuthorsTable.objects.filter(
+                        publication=OuterRef("pk"), affiliations__country=country
+                    )
+                )
+            )
+            .filter(has_author_of_country=True)
+            .values("publication_date__year")
+            .annotate(nr=Count("publication_date__year"))
+            .order_by("publication_date__year")
+            .values_list("publication_date__year", "nr")
+        )
+
+    country_yearly_nap = get_yearly_nap_of_country(country)
     for year in pubyears:
         context["per_year"][year] = {
             "subsidy_income": 0,
             "expenditures": 0,
             "impact_on_reserves": 0,
+            "nap": country_yearly_nap.get(int(year), 0),
         }
     for organization in organizations.all():
         for key in ("subsidy_income", "expenditures", "impact_on_reserves"):

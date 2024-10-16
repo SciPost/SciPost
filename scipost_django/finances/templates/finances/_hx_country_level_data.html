@@ -7,6 +7,7 @@
   <thead>
     <tr>
       <th></th>
+      <th style="text-align: right;">NAP</th>
       <th style="text-align: right;">Expenditures</th>
       <th style="text-align: right;">Subsidy income</th>
       <th style="text-align: right;">Impact on reserves</th>
@@ -15,6 +16,7 @@
   <tbody>
     <tr class="bg-light">
       <td>Cumulative</td>
+      <td style="text-align: right;">{{ cumulative.nap }}</td>
       <td style="text-align: right;">&euro;{{ cumulative.expenditures }}</td>
       <td style="text-align: right;">&euro;{{ cumulative.subsidy_income }}</td>
       <td style="text-align: right;">&euro;{{ cumulative.impact_on_reserves }}</td>
@@ -22,6 +24,7 @@
     {% for year, val in per_year.items %}
       <tr>
 	<td>{{ year }}</td>
+	<td style="text-align: right;">{{ val.nap }}</td>
 	<td style="text-align: right;">&euro;{{ val.expenditures }}</td>
 	<td style="text-align: right;">&euro;{{ val.subsidy_income }}</td>
 	<td style="text-align: right;">&euro;{{ val.impact_on_reserves }}</td>
@@ -42,6 +45,7 @@
 	<tr>
 	  <th></th>
 	  <th></th>
+	  <th style="text-align: right;">NAP</th>
 	  <th style="text-align: right;">Expenditures</th>
 	  <th style="text-align: right;">Subsidy Income</th>
 	  <th style="text-align: right;">Impact on reserves</th>
@@ -51,6 +55,7 @@
 	<tr class="bg-light">
 	  <td>Total</td>
 	  <td></td>
+	  <td style="text-align: right;">{{ cumulative.nap }}</td>
 	  <td style="text-align: right;">{{ cumulative.expenditures }}</td>
 	  <td style="text-align: right;">{{ cumulative.subsidy_income }}</td>
 	  <td style="text-align: right;">{{ cumulative.impact_on_reserves }}</td>
@@ -60,6 +65,7 @@
 	    <tr>
 	      <td><a href="https://{{ request.get_host }}{{ organization.get_absolute_url }}">{{ organization }}</a></td>
 	      <td>{{ organization.get_orgtype_display }}</td>
+	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.nap }}</td>
 	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.expenditures }}</td>
 	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.subsidy_income }}</td>
 	      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.impact_on_reserves }}</td>
