@@ -250,32 +250,30 @@ def country_level_data(request):
         countrydatalist += [
             countrydata,
         ]
-    if request.user.has_perm("scipost.can_manage_subsidies"):
-        # Determine the ranks
-        countrydatalist.sort(key=lambda country: country["expenditures"], reverse=True)
-        for idx, c in enumerate(countrydatalist):
-            c["expenditures_rank"] = idx + 1
-        countrydatalist.sort(
-            key=lambda country: country["subsidy_income"], reverse=True
-        )
-        for idx, c in enumerate(countrydatalist):
-            c["subsidy_income_rank"] = idx + 1
-        countrydatalist.sort(
-            key=lambda country: country["impact_on_reserves"], reverse=True
-        )
-        for idx, c in enumerate(countrydatalist):
-            c["impact_on_reserves_rank"] = idx + 1
 
-        ordering = request.GET.get("ordering", None)
-        reverse_ordering = request.GET.get("reverse", None)
-        if ordering == "expenditures":
-            countrydatalist.sort(key=lambda country: country["expenditures"])
-        elif ordering == "subsidy_income":
-            countrydatalist.sort(key=lambda country: country["subsidy_income"])
-        elif ordering == "impact":
-            countrydatalist.sort(key=lambda country: country["impact_on_reserves"])
-        if reverse_ordering == "true":
-            countrydatalist.reverse()
+    # Determine the ranks
+    countrydatalist.sort(key=lambda country: country["expenditures"], reverse=True)
+    for idx, c in enumerate(countrydatalist):
+        c["expenditures_rank"] = idx + 1
+    countrydatalist.sort(key=lambda country: country["subsidy_income"], reverse=True)
+    for idx, c in enumerate(countrydatalist):
+        c["subsidy_income_rank"] = idx + 1
+    countrydatalist.sort(
+        key=lambda country: country["impact_on_reserves"], reverse=True
+    )
+    for idx, c in enumerate(countrydatalist):
+        c["impact_on_reserves_rank"] = idx + 1
+    ordering = request.GET.get("ordering", None)
+    reverse_ordering = request.GET.get("reverse", None)
+    if ordering == "expenditures":
+        countrydatalist.sort(key=lambda country: country["expenditures"])
+    elif ordering == "subsidy_income":
+        countrydatalist.sort(key=lambda country: country["subsidy_income"])
+    elif ordering == "impact":
+        countrydatalist.sort(key=lambda country: country["impact_on_reserves"])
+    if reverse_ordering == "true":
+        countrydatalist.reverse()
+
     context["countrydata"] = countrydatalist
     return render(request, "finances/country_level_data.html", context)
 

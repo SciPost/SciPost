@@ -25,25 +25,23 @@
 
 	<p>This table presents our cumulative financial balance information, broken down per country. Top of the list are our champions; those at the bottom of the list threaten our sustainability.</p>
 
-	<p>Click on flag to view that country's data
-	  {% if 'finadmin' in user_roles %}&emsp;<span class="ms-4 p-1 text-danger bg-danger bg-opacity-10">[FinAdmin] Ranks and ordering buttons available</span>{% endif %}
-	</p>
+	<p>Click on flag to view that country's data</p>
 
 	<table class="table">
 	  <thead>
 	    <tr>
 	      <th colspan="3">Country</th>
-	      <th style="text-align: right;">Expenditures{% if 'finadmin' in user_roles %}&emsp;[rank]<br>
+	      <th style="text-align: right;">Expenditures &emsp;[rank]<br>
 		<a href="{% url 'finances:country_level_data' %}?ordering=expenditures&reverse=true">{% include 'bi/sort-up.html' %}</a>
-		<a href="{% url 'finances:country_level_data' %}?ordering=expenditures">{% include 'bi/sort-down.html' %}</a>{% endif %}
+		<a href="{% url 'finances:country_level_data' %}?ordering=expenditures">{% include 'bi/sort-down.html' %}</a>
 	      </th>
-	      <th style="text-align: right;">Subsidy income{% if 'finadmin' in user_roles %}&emsp;[rank]<br>
+	      <th style="text-align: right;">Subsidy income &emsp;[rank]<br>
 		<a href="{% url 'finances:country_level_data' %}?ordering=subsidy_income&reverse=true">{% include 'bi/sort-up.html' %}</a>
-		<a href="{% url 'finances:country_level_data' %}?ordering=subsidy_income">{% include 'bi/sort-down.html' %}</a>{% endif %}
+		<a href="{% url 'finances:country_level_data' %}?ordering=subsidy_income">{% include 'bi/sort-down.html' %}</a>
 	      </th>
-	      <th style="text-align: right;">Impact on reserves{% if 'finadmin' in user_roles %}&emsp;[rank]<br>
+	      <th style="text-align: right;">Impact on reserves &emsp;[rank]<br>
 		<a href="{% url 'finances:country_level_data' %}?ordering=impact&reverse=true">{% include 'bi/sort-up.html' %}</a>
-		<a href="{% url 'finances:country_level_data' %}?ordering=impact">{% include 'bi/sort-down.html' %}</a>{% endif %}
+		<a href="{% url 'finances:country_level_data' %}?ordering=impact">{% include 'bi/sort-down.html' %}</a>
 	      </th>
 	    </tr>
 	  </thead>
@@ -62,9 +60,9 @@
 		    </td>
 		    <td>{{ country_obj.code }}</td>
 		    <td>{{ country_obj.name }}</td>
-		    <td style="text-align: right;">&euro;{{ item.expenditures }}{% if 'finadmin' in user_roles %}&emsp;[{{ item.expenditures_rank }}/{{ nr }}]{% endif %}</td>
-		    <td style="text-align: right;">&euro;{{ item.subsidy_income }}{% if 'finadmin' in user_roles %}&emsp;[{{ item.subsidy_income_rank }}/{{ nr }}]{% endif %}</td>
-		    <td style="text-align: right;">&euro;{{ item.impact_on_reserves }}{% if 'finadmin' in user_roles %}&emsp;[{{ item.impact_on_reserves_rank }}/{{ nr }}]{% endif %}</td>
+		    <td style="text-align: right;">&euro;{{ item.expenditures }} &emsp;[{{ item.expenditures_rank }}/{{ nr }}]</td>
+		    <td style="text-align: right;">&euro;{{ item.subsidy_income }} &emsp;[{{ item.subsidy_income_rank }}/{{ nr }}]</td>
+		    <td style="text-align: right;">&euro;{{ item.impact_on_reserves }} &emsp;[{{ item.impact_on_reserves_rank }}/{{ nr }}]</td>
 		  </tr>
 		  <tr class="bg-light">
 		    <td colspan="6">
