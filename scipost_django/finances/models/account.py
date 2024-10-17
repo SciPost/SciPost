@@ -72,7 +72,7 @@ class Account(models.Model):
         will never be zero, e.g. if the balance is positive and no future transactions.
         """
 
-        if not self.future_transactions:
+        if self.balance is None or not self.future_transactions.exists():
             return None
 
         future_transactions = self.future_transactions.values_list(
@@ -82,16 +82,18 @@ class Account(models.Model):
         # Define linearly changing daily rate ranges by aggregating the future transactions
         # The date specifies the start of the period for which the rate is valid until the next entry
         daily_change: dict[date, float] = {}
+        previous_date = date.today()
         for period, transition_start, amount in future_transactions:
             daily_rate = amount / period.days
 
             if transition_start not in daily_change:
-                daily_change[transition_start] = 0
+                daily_change[transition_start] = daily_change.get(previous_date, 0)
             daily_change[transition_start] += float(daily_rate)
 
-        balance = float(self.balance.amount if self.balance else 0)
+            previous_date = transition_start
 
-        start_date = datetime.date.today()
+        start_date = self.balance.date
+        resources = float(self.balance.amount)
         for (rate_start, rate), rate_end in zip(
             daily_change.items(), list(daily_change.keys())[1:] + [datetime.date.max]
         ):
@@ -101,11 +103,11 @@ class Account(models.Model):
 
             # A root exists only if the daily rate is negative
             if rate < 0:
-                zero_date = start_date + datetime.timedelta(days=balance / -rate)
+                zero_date = start_date + datetime.timedelta(days=resources / -rate)
 
                 # Return the first root if it is before the next change in daily rate
                 if zero_date < rate_end:
                     return zero_date
 
-            balance += rate * (rate_end - start_date).days
+            resources += rate * (rate_end - start_date).days
             start_date = rate_start
