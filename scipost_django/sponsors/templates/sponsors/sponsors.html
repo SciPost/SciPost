@@ -105,6 +105,28 @@
     </div>
   </div>
 
+  {% if 'finadmin' in user_roles %}
+  <div class="bg-danger bg-opacity-10 p-3">
+    <h3>Number of sponsorships by year</h3>
+    <table class="table">
+      <th>Current</th>
+      <th>Last year</th>
+      <th>2 years ago</th>
+      <th>Older</th>
+      <th>Total</th>
+      <th>Never</th>
+      <tbody>
+        <td>{{ last_sponsorship_counts.current }}</td>
+        <td>{{ last_sponsorship_counts.last_year }}</td>
+        <td>{{ last_sponsorship_counts.2_years_ago }}</td>
+        <td>{{ last_sponsorship_counts.more_than_2_years_ago }}</td>
+        <td>{{ last_sponsorship_counts.total }}</td>
+        <td>{{ last_sponsorship_counts.never }}</td>
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
   <div class="row" hx-boost="true">
     <div class="col-12">
       <h1 class="highlight">Our recent Sponsors</h1>
