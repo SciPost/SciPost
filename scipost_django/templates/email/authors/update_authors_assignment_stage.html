@@ -10,9 +10,9 @@
   Your Submission is in the "seeking assignment" stage, where unfortunately no Editor-in-charge has yet volunteered to take charge of your Submission. At SciPost, Editorial Fellows choose which Submissions they wish to handle according to their interests, expertise and availability. While in this stage, your Submission will be visible to all Fellows, who may choose to take charge at any time. If this occurs, you will be immediately informed and the refereeing process will begin. Otherwise, we will keep searching for an Editor-in-charge and keep you informed of any new developments.
 </p>
 
-{% if weeks_passed == 1 and submission.qualification_set.exists %}
+{% if should_include_appraisals and submission.qualification_set.exists %}
   <p>
-    Over the past week, your submission has been examined by {{ submission.qualification_set.all|length }} Fellow{{ submission.qualification_set.all|pluralize }}, of which {{ submission.qualification_set.qualified|length }} {{ submission.qualification_set.qualified|pluralize:"is,are" }} sufficiently qualified to take charge.
+    Over the past week, your submission has been examined by {{ submission.qualification_set.all|length }} Fellow{{ submission.qualification_set.all|pluralize }}, but there was no volunteer among them willing to take charge.
   </p>
 {% endif %}
 

@@ -43,8 +43,10 @@ from conflicts.models import ConflictOfInterest
 today = timezone.now().date()
 
 if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
     from django.contrib.auth.models import User
     from profiles.models import Profile
+    from colleges.models.fellowship import Fellowship
 
 
 def get_sentinel_user():
@@ -118,6 +120,9 @@ class Contributor(models.Model):
     )
 
     objects = ContributorQuerySet.as_manager()
+
+    if TYPE_CHECKING:
+        fellowships: "RelatedManager[Fellowship]"
 
     class Meta:
         ordering = ["user__last_name", "user__first_name"]

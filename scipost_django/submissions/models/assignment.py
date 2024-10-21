@@ -349,17 +349,6 @@ class ConditionalAssignmentOffer(models.Model):
         if self.status != self.STATUS_OFFERED:
             raise ValueError("The offer has already been processed.")
 
-        # Guard that the current offer is the earliest instance of all identical offers
-        # for this submission. Only the offering person may be different.
-        identical_offers = ConditionalAssignmentOffer.objects.filter(
-            submission=self.submission,
-            condition_type=self.condition_type,
-            condition_details=self.condition_details,
-            status=self.STATUS_OFFERED,
-        )
-        if identical_offers.order_by("offered_on").first() != self:
-            raise ValueError("The offer is not the earliest instance of its kind.")
-
         self.condition.accept(offer=self)
 
         self.status = self.STATUS_ACCEPTED

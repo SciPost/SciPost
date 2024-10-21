@@ -667,6 +667,9 @@ def extend_assignment_deadline(
 def accept_conditional_assignment_offer(request, identifier_w_vn_nr, offer_id):
     """
     Accept a conditional assignment offer and redirect to the Submission's detail page.
+
+    The offer_id is used to determine the TYPE of offer to accept.
+    The accepted offer may actually be different in order to balance the load of the referees.
     """
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
@@ -680,6 +683,20 @@ def accept_conditional_assignment_offer(request, identifier_w_vn_nr, offer_id):
     # Guard against unauthorized access
     if request.user.contributor not in submission.authors.all():
         raise PermissionDenied("Only verified authors can accept conditional offers.")
+
+    # Find all identical offers and sort them by the fellow's ongoing assignments
+    # Select the offer with the least ongoing assignments, or the oldest if equal
+    identical_offers = ConditionalAssignmentOffer.objects.filter(
+        submission=submission,
+        condition_type=offer.condition_type,
+        condition_details=offer.condition_details,
+        status=ConditionalAssignmentOffer.STATUS_OFFERED,
+    ).order_by("offered_on")
+    sorted_offers = sorted(
+        identical_offers,
+        key=lambda x: x.offered_by.editorial_assignments.ongoing().count(),
+    )
+    offer = sorted_offers[0]
 
     try:
         offer.accept(by=request.user.contributor)
@@ -1144,6 +1161,7 @@ def editorial_workflow(request):
     of the actions to take to handle Submissions.
     """
     return render(request, "submissions/editorial_workflow.html")
+
 
 @login_required
 @permission_required("scipost.can_assign_submissions", raise_exception=True)

@@ -48,6 +48,7 @@ class Command(BaseCommand):
                     f"authors/update_authors_assignment_stage",
                     submission=submission,
                     weeks_passed=weeks_passed,
+                    should_include_appraisals=weeks_passed == 1,
                     weeks_until_assignment_deadline=weeks_until_assignment_deadline,
                     default_assignment_period_weeks=default_assignment_period_weeks,
                 )

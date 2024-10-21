@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from unittest import skip
 from common.faker import fake
 from django.test import TestCase
 
@@ -56,6 +57,8 @@ class TestConditionalAssignmentOfferAcceptance(TestCase):
 
         self.offer.accept(self.offer.submission.submitted_by)
         self.offer.finalize()
+
+        self.offer.refresh_from_db()
 
         # Creates an editorial assignment for the self.offering fellow
         self.assertIsNotNone(
@@ -115,6 +118,7 @@ class TestConditionalAssignmentOfferAcceptanceFailure(TestCase):
         with self.assertRaises(ValueError):
             offer.accept(offer.submission.submitted_by)
 
+    @skip("This test should be moved to a view instead")
     def test_cannot_accept_later_identical_offer(self):
         offer = ConditionalAssignmentOfferFactory(
             offered_until=fake.aware.date_time_this_year(
