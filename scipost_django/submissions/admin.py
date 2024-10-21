@@ -57,35 +57,31 @@ class iThenticateReportAdmin(admin.ModelAdmin):
     ]
 
 
-class InternalPlagiarismAssessmentInline(admin.StackedInline):
+class InternalPlagiarismAssessmentInline(admin.TabularInline):
     model = InternalPlagiarismAssessment
 
 
-class iThenticatePlagiarismAssessmentInline(admin.StackedInline):
+class iThenticatePlagiarismAssessmentInline(admin.TabularInline):
     model = iThenticatePlagiarismAssessment
 
 
-class QualificationInline(admin.StackedInline):
+class QualificationInline(admin.TabularInline):
     model = Qualification
     extra = 0
     min_num = 0
-    autocomplete_fields = [
-        "submission",
-        "fellow",
-    ]
+    autocomplete_fields = ["submission", "fellow"]
+    fields = ["submission", "fellow", "expertise_level", "datetime"]
 
 
-class ReadinessInline(admin.StackedInline):
+class ReadinessInline(admin.TabularInline):
     model = Readiness
     extra = 0
     min_num = 0
-    autocomplete_fields = [
-        "submission",
-        "fellow",
-    ]
+    autocomplete_fields = ["submission", "fellow"]
+    fields = ["submission", "fellow", "status", "datetime"]
 
 
-class SubmissionClearanceInline(admin.StackedInline):
+class SubmissionClearanceInline(admin.TabularInline):
     model = SubmissionClearance
     extra = 0
     min_num = 0
@@ -94,6 +90,7 @@ class SubmissionClearanceInline(admin.StackedInline):
         "submission",
         "asserted_by",
     ]
+    fields = ["profile", "submission", "asserted_by", "asserted_on"]
 
 
 class SubmissionAuthorProfileInline(admin.TabularInline):
