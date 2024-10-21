@@ -1201,7 +1201,18 @@ def _hx_citation_list_item_delete(request, doi_label, index: int):
             "You do not have permission to delete a citation in this non-draft Publication"
         )
 
-    publication.metadata["citation_list"].pop(index)
+    if publication.metadata is None:
+        return HTMXResponse("No metadata found", tag="danger")
+    elif "citation_list" not in publication.metadata:
+        return HTMXResponse("No citation list found", tag="danger")
+
+    try:
+        publication.metadata["citation_list"].pop(index)
+    except IndexError:
+        return HTMXResponse(
+            f"Index {index} out of range ({len(publication.metadata['citation_list'])})",
+            tag="danger",
+        )
     publication.save()
 
     return HttpResponse("")
