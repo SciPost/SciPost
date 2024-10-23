@@ -231,6 +231,7 @@ class SubmissionPoolSearchForm(forms.Form):
             ("latest_activity", "Latest activity"),
         ),
         required=False,
+        initial="assignment_deadline",
     )
     ordering = forms.ChoiceField(
         label="Ordering",
@@ -239,7 +240,7 @@ class SubmissionPoolSearchForm(forms.Form):
             ("-", "Descending"),
         ),
         required=False,
-        initial="-",
+        initial="+",
     )
 
     versions = forms.ChoiceField(
