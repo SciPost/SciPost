@@ -36,15 +36,15 @@ class Command(BaseCommand):
                     else "unregistered"
                 )
 
-                workdays_since_last_reminder = (
-                    workdays_between(invitation.date_last_reminded, timezone.now())
-                    if invitation.date_last_reminded
+                workdays_since_invitation = (
+                    workdays_between(invitation.date_invited, timezone.now())
+                    if invitation.date_invited
                     else 0
                 )
 
-                # Send the appropriate reminder email based on the number of days since the last reminder
+                # Send the appropriate reminder email based on the number of days since the invitation
                 mail = None
-                match workdays_since_last_reminder:
+                match workdays_since_invitation:
                     case 2:
                         # First reminder according to the referee registration status
                         mail = DirectMailUtil(
