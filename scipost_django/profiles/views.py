@@ -580,13 +580,20 @@ def _hx_profile_email_toggle_valid(request, email_id):
     )
 
 
-@permission_required_htmx("scipost.can_verify_profile_emails")
 def _hx_profile_email_request_verification(request, email_id):
     """Toggle verified/unverified status of ProfileEmail."""
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
 
     if not request.method == "PATCH":
         raise BadRequest("Invalid request method")
+
+    is_mail_owner = request.user.contributor.profile == profile_email.profile
+    can_verify_emails = request.user.has_perm("scipost.can_verify_profile_emails")
+    if not (is_mail_owner or can_verify_emails):
+        return HTMXResponse(
+            "You do not have the required permissions to verify this email.",
+            tag="danger",
+        )
 
     if not profile_email.verified:
         profile_email.send_verification_email()
