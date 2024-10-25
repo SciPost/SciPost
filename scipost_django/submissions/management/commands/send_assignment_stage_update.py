@@ -13,14 +13,20 @@ from ...models import Submission
 class Command(BaseCommand):
     help = "Sends all email reminders needed for Submissions in the assignment stage"
 
+    # Skip some weeks to avoid sending too many reminders
+    WEEKS_TO_SKIP = [3, 5, 8, 10]
+
     def handle(self, *args, **options):
         submission: Submission
         for submission in Submission.objects.seeking_assignment():
             now = timezone.now()
             today = now.date()
 
-            # Skip if assignment deadline is not set
-            if submission.assignment_deadline is None:
+            # Skip if assignment deadline is not set or in the past
+            if (
+                submission.assignment_deadline is None
+                or submission.assignment_deadline < today
+            ):
                 continue
 
             # If the date of passing preassignment checks is not set, set it to now
@@ -39,7 +45,11 @@ class Command(BaseCommand):
             weeks_until_assignment_deadline = days_remaining // 7
 
             # Send reminders after preassignment checks are cleared and only at 7-day intervals
-            if weeks_passed <= 0 or days_passed % 7 != 0:
+            if (
+                weeks_passed <= 0
+                or weeks_passed in self.WEEKS_TO_SKIP
+                or days_passed % 7 != 0
+            ):
                 continue
 
             # Send regular reminders if assignment deadline is not passed
@@ -48,21 +58,20 @@ class Command(BaseCommand):
                     f"authors/update_authors_assignment_stage",
                     submission=submission,
                     weeks_passed=weeks_passed,
-                    should_include_appraisals=weeks_passed == 1,
                     weeks_until_assignment_deadline=weeks_until_assignment_deadline,
                     default_assignment_period_weeks=default_assignment_period_weeks,
                 )
 
             # Automatically fail assignment if the deadline is passed
-            else:
-                submission.status = Submission.ASSIGNMENT_FAILED
-                submission.visible_pool = False
-                submission.visible_public = False
-                submission.save()
+            # else:
+            #     submission.status = Submission.ASSIGNMENT_FAILED
+            #     submission.visible_pool = False
+            #     submission.visible_public = False
+            #     submission.save()
 
-                mail = DirectMailUtil(
-                    "authors/submissions_assignment_failed",
-                    submission=submission,
-                )
+            #     mail = DirectMailUtil(
+            #         "authors/submissions_assignment_failed",
+            #         submission=submission,
+            #     )
 
             mail.send_mail()

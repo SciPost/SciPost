@@ -636,7 +636,8 @@ def extend_assignment_deadline(
     extension_date = (
         submission.assignment_deadline + timedelta(days=days)
         if days is not None and is_edadmin(request.user)
-        else submission.assignment_deadline + submission.submitted_to.assignment_period
+        else submission.assignment_deadline
+        + (submission.submitted_to.assignment_period // 2)
     )
 
     if extension_date < submission.assignment_deadline:

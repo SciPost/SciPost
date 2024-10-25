@@ -41,6 +41,10 @@ def equal(a, b):
 # Math
 @register.filter
 def int_divide(a, b):
+    if b == 0:
+        return 0
+    if isinstance(a, str):
+        a = int(a)
     return a // b
 
 

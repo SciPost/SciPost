@@ -1,5 +1,6 @@
-{% include 'scipost/personal_page/_hx_tablist.html' with selected='submissions' %}
+{% load common_extras %}
 
+{% include 'scipost/personal_page/_hx_tablist.html' with selected='submissions' %}
 
 <div class="row">
   <div class="col-12">
@@ -45,8 +46,8 @@
 			<li><a class="btn btn-primary my-1 px-1 py-0" href="{% url 'submissions:accept_puboffer' sub.preprint.identifier_w_vn_nr %}">Accept offer for publication in {{ sub.editorial_decision.for_journal }} (one-click action)</a></li>
 		      {% endif %}
 		    {% endif %}
-        {% if sub.editor_in_charge is None and sub.nearing_assignment_deadline and not sub.has_extended_assignment_deadline %}
-          <li><a href="{% url 'submissions:extend_assignment_deadline' sub.preprint.identifier_w_vn_nr %}">Extend assignment deadline (by {{ sub.submitted_to.assignment_period.days }} days)</a></li>
+        {% if sub.editor_in_charge is None and sub.nearing_default_assignment_deadline and not sub.has_extended_assignment_deadline %}
+          <li><a href="{% url 'submissions:extend_assignment_deadline' sub.preprint.identifier_w_vn_nr %}">Extend assignment deadline (by {{ sub.submitted_to.assignment_period.days|int_divide:2 }} days)</a></li>
         {% endif %}
 		    <li><a href="{% url 'submissions:withdraw_manuscript' sub.preprint.identifier_w_vn_nr %}"><span class="text-danger">Withdraw</span> (leads to confirmation page)</a></li>
 		  {% endif %}

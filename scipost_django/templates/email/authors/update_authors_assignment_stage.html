@@ -1,3 +1,5 @@
+{% load common_extras %}
+
 <p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
 <p>We would hereby like to give you an update on your recent SciPost submission,</p>
 <p>
@@ -7,10 +9,10 @@
 </p>
 
 <p>
-  Your Submission is in the "seeking assignment" stage, where unfortunately no Editor-in-charge has yet volunteered to take charge of your Submission. At SciPost, Editorial Fellows choose which Submissions they wish to handle according to their interests, expertise and availability. While in this stage, your Submission will be visible to all Fellows, who may choose to take charge at any time. If this occurs, you will be immediately informed and the refereeing process will begin. Otherwise, we will keep searching for an Editor-in-charge and keep you informed of any new developments.
+  Your Submission is in the "seeking assignment" stage, where unfortunately no Editor-in-charge has yet volunteered to take charge of your Submission. At SciPost, Editorial Fellows choose which Submissions they wish to handle according to their interests, expertise and availability. While in this stage, your Submission will be visible to all Fellows with a matching specialty, who may choose to take charge at any time. When this occurs, you will be immediately informed and the refereeing process will begin.
 </p>
 
-{% if should_include_appraisals and submission.qualification_set.exists %}
+{% if weeks_passed == "1" and submission.qualification_set.exists %}
   <p>
     Over the past week, your submission has been examined by {{ submission.qualification_set.all|length }} Fellow{{ submission.qualification_set.all|pluralize }}, but there was no volunteer among them willing to take charge.
   </p>
@@ -42,31 +44,29 @@
   </p>
 {% endif %}
 
-{% if submission.nearing_assignment_deadline %}
+{% if submission.nearing_default_assignment_deadline %}
   <p>
-    We would like to inform you that the maximal duration of the assignment stage for submissions to {{ submission.submitted_to.name }} is {{ default_assignment_period_weeks }} weeks. Since {{ weeks_passed }} week{{ weeks_passed|pluralize }} {{ weeks_passed|pluralize:"has,have" }} already passed, we would like to further present you with the following options:
+    We strive to assign an Editor in Charge within a week of submission. If that is not possible, we continue searching for an appropriate and available editor for up to {{ default_assignment_period_weeks }} weeks for submissions to {{ submission.submitted_to.name }}. Since {{ weeks_passed }} week{{ weeks_passed|pluralize }} {{ weeks_passed|pluralize:"has,have" }} already passed, we would like to further present you with the following options:
     <ul>
 
       <li>
-        Wait until the nominal duration of the assignment stage is reached ({{ weeks_until_assignment_deadline }} week{{ weeks_until_assignment_deadline|pluralize }} remaining), while we keep searching for an Editor-in-charge. Your submission will be readily visible to our Fellows where they can choose to volunteer at any time.
-        Furthermore, when the deadline is reached, your submission will be returned to you, freeing you to submit it elsewhere.
+        You can wait until the nominal duration of the assignment stage is reached ({{ weeks_until_assignment_deadline }} week{{ weeks_until_assignment_deadline|pluralize }} remaining), while we keep searching for an Editor-in-charge. Your submission will be readily visible to our Fellows where they can choose to volunteer at any time. When the deadline is reached, your submission will be returned to you, freeing you to submit it elsewhere.
       </li>
 
       <!-- Deadline extension option, only if not already extended -->
 
       {% if not submission.has_extended_assignment_deadline %}
         <li>
-          You may choose to have the <a href="https://{{ domain }}{% url 'submissions:extend_assignment_deadline' submission.preprint.identifier_w_vn_nr %}">assignment stage deadline extended</a> by an additional {{ default_assignment_period_weeks }} weeks. Note that this extension may only happen once.
+          You can <a href="https://{{ domain }}{% url 'submissions:extend_assignment_deadline' submission.preprint.identifier_w_vn_nr %}">extend the assignment stage deadline</a> by an additional {{ default_assignment_period_weeks|int_divide:2 }} weeks. Note that this extension may only happen once.
         </li>
       {% else %}
         <li>
-          You have already extended the assignment stage once, and no more extensions are permitted.
-          At this point, you may <a href="mailto:edadmin@{{ domain }}">contact Editorial Administration</a> to discuss the situation and determine if any additional extension can be granted.
+          You have already extended the assignment stage once. If you would like to request a further extension, please <a href="https://{{ domain }}{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoS' %}">contact Editorial Administration</a> (login required) to discuss this possibility.
         </li>
       {% endif %}
 
       <li>
-        You may prematurely <a href="https://{{ domain }}{% url 'submissions:withdraw_manuscript' submission.preprint.identifier_w_vn_nr %}">withdraw your Submission</a> and seek an alternative venue. You can also do this at any time from your personal page, under the Submissions tab.
+        You can elect to <a href="https://{{ domain }}{% url 'submissions:withdraw_manuscript' submission.preprint.identifier_w_vn_nr %}">withdraw your Submission</a> (e.g. if you wish to seek an alternative venue). This action can be performed at any time from your personal page, under the Submissions tab.
       </li>
 
     </ul>
@@ -74,7 +74,7 @@
 {% endif %}
 
 <p>
-  We thank you for your patience and understanding. Please do not hesitate to contact us if you have any questions or concerns at <a href="mailto:edadmin@{{ domain }}">edadmin@{{ domain }}</a>.
+  We thank you for your patience and understanding. If you have any questions or concerns, please do not hesitate to <a href="https://{{ domain }}{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoS' %}">contact Editorial Administration</a> (login required).
 </p>
 
 <p>Sincerely,</p>
