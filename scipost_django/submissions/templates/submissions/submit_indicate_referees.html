@@ -57,6 +57,13 @@
         <p>
           Click <kbd>Add</kbd> to create a new referee indication and fill out the appropriate fields for as many referees as you want. Finally, click <kbd>Save</kbd> to submit your indications.
         </p>
+
+        <div>
+          <p class="float-end fs-6 bg-warning bg-opacity-10 p-2">
+            <span class="text-warning me-2">{% include "bi/exclamation-triangle-fill.html" %}</span>Please check our <a href="{% url "journal:refereeing" submission.submitted_to.doi_label %}#refereeCOIrules">conflict-of-interest rules</a> before filling in this form.
+          </p>
+        </div>
+
         <div hx-get="{% url "submissions:_hx_referee_indication_formset" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
              hx-trigger="load once, referee-indications-updated from:body delay:1s"></div>
 
