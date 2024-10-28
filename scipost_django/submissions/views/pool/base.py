@@ -332,3 +332,9 @@ class EICManualEICInvitationEmailView(PermissionsMixin, MailView):
         config["signee"] = self.request.user.contributor.profile
 
         return config
+
+    def form_valid(self, form):
+        self.submission.add_event_for_edadmin(
+            f"A manual EIC invitation email has been sent to {self.fellowship.contributor.profile.full_name}."
+        )
+        return super().form_valid(form)

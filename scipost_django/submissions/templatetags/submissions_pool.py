@@ -3,10 +3,22 @@ __license__ = "AGPL v3"
 
 
 from django import template
+from django.db.models import Q, Count, Exists, OuterRef, Prefetch, Subquery
+from django.utils import timezone
+
+from ethics.models import SubmissionClearance
+from scipost.models import UnavailabilityPeriod
+from submissions.constants import EVENT_FOR_EDADMIN
+from submissions.models.submission import SubmissionEvent
 
 from ..models import EditorialAssignment, Qualification, Readiness
 
 register = template.Library()
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from submissions.models.submission import Submission
 
 
 @register.simple_tag
@@ -77,3 +89,67 @@ def get_fellow_readiness_status_display(submission, fellow):
             return q.get_status_display() + " (previous submission)"
         except Readiness.DoesNotExist:
             return ""
+
+
+@register.simple_tag
+def get_annotated_submission_fellows_queryset(submission: "Submission"):
+    """
+    Return the fellowship of the submission with additional pool-tab-related annotations.
+    """
+    fellows_qs = submission.fellows.select_related_contributor__user_and_profile()
+
+    manual_eic_invitation_events = SubmissionEvent.objects.filter(
+        submission=submission,
+        event=EVENT_FOR_EDADMIN,
+        text__contains=OuterRef("contributor__profile__last_name"),
+    )
+
+    nr_manual_eic_invitations = (
+        manual_eic_invitation_events.values("submission")
+        .annotate(count=Count("id"))
+        .values("count")[:1]
+    )
+    latest_manual_eic_invitation = manual_eic_invitation_events.order_by(
+        "-created"
+    ).values("created")[:1]
+
+    today = timezone.now().date()
+    fellows_qs = (
+        fellows_qs.annotate(
+            nr_manual_eic_invitations=Subquery(nr_manual_eic_invitations),
+            latest_manual_eic_invitation=Subquery(latest_manual_eic_invitation),
+            is_currently_available=~Exists(
+                UnavailabilityPeriod.objects.filter(
+                    contributor=OuterRef("contributor"),
+                    start__lte=today,
+                    end__gte=today,
+                )
+            ),
+            nr_ongoing_editorial_assignments=Count(
+                "contributor__editorial_assignments",
+                filter=Q(
+                    contributor__editorial_assignments__status=EditorialAssignment.STATUS_ACCEPTED,
+                ),
+            ),
+        )
+        .prefetch_related(
+            Prefetch(
+                "qualification_set",
+                queryset=Qualification.objects.filter(submission=submission)[:1],
+                to_attr="submission_qualification",
+            ),
+            Prefetch(
+                "readiness_set",
+                queryset=Readiness.objects.filter(submission=submission)[:1],
+                to_attr="submission_readiness",
+            ),
+            Prefetch(
+                "contributor__profile__submission_clearances",
+                queryset=SubmissionClearance.objects.filter(submission=submission),
+                to_attr="submission_clearance",
+            ),
+        )
+        .order_by("contributor__profile__last_name")
+    )
+
+    return fellows_qs
