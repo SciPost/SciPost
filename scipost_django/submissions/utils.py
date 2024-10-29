@@ -404,8 +404,13 @@ class SubmissionUtils(BaseMailUtil):
             "\n<p>Your report can be submitted by simply clicking on "
             'the "Contribute a Report" link at '
             f'the <a href="https://{domain}' + '/submission/{{ identifier_w_vn_nr }}">'
-            "Submission's page</a> before the reporting deadline (currently set at "
-            "{{ deadline }}; your report will be automatically recognized as an invited report).</p>"
+            "Submission's page</a>"
+            + (
+                " before the reporting deadline (currently set at {{ deadline }})"
+                if cls.invitation.submission.reporting_deadline
+                else ""
+            )
+            + "; your report will be automatically recognized as an invited report).</p>"
             "\n<p>You might want to make sure you are familiar with our "
             f'<a href="https://{domain}/journals/journals_terms_and_conditions">'
             "refereeing code of conduct</a> and with the "
@@ -421,9 +426,13 @@ class SubmissionUtils(BaseMailUtil):
             "sub_title": cls.invitation.submission.title,
             "author_list": cls.invitation.submission.author_list,
             "identifier_w_vn_nr": cls.invitation.submission.preprint.identifier_w_vn_nr,
-            "deadline": datetime.datetime.strftime(
-                cls.invitation.submission.reporting_deadline,
-                "%Y-%m-%d" if cls.invitation.submission.reporting_deadline else "",
+            "deadline": (
+                datetime.datetime.strftime(
+                    cls.invitation.submission.reporting_deadline,
+                    "%Y-%m-%d",
+                )
+                if cls.invitation.submission.reporting_deadline
+                else ""
             ),
         }
         email_text_html += "<br/>" + EMAIL_FOOTER
