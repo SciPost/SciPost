@@ -132,6 +132,7 @@ INSTALLED_APPS = [
     "finances",
     "forums",
     "funders",
+    "graphs",
     "guides",
     "helpdesk",
     "invitations",

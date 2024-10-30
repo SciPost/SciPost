@@ -99,6 +99,7 @@ urlpatterns = [
     path("forums/", include("forums.urls", namespace="forums")),
     path("funders/", include("funders.urls", namespace="funders")),
     path("finances/", include("finances.urls", namespace="finances")),
+    path("graphs/", include("graphs.urls", namespace="graphs")),
     path("guides/", include("guides.urls", namespace="guides")),
     path("helpdesk/", include("helpdesk.urls", namespace="helpdesk")),
     path("invitations/", include("invitations.urls", namespace="invitations")),
