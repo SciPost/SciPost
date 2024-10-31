@@ -1,0 +1,15 @@
+{% extends "scipost/base.html" %}
+
+{% block content %}
+  <h1>SciPost Graphs</h1>
+
+  <div id="plot-container" class="row" hx-include="this">
+    <div class="col-auto d-flex flex-column"
+         hx-post="{% url "graphs:plot_options_form" %}"
+         hx-trigger="load, change from:#plot-container"></div>
+    <div id="plot"
+         class="col d-flex flex-column align-items-center"
+         hx-get="{% url "graphs:plot" %}"
+         hx-trigger="change from:#plot-container"></div>
+  </div>
+{% endblock content %}
