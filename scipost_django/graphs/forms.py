@@ -6,7 +6,7 @@ from django import forms
 from graphs.graphs.plotkind import PlotKind
 from graphs.graphs.plotter import ModelFieldPlotter
 
-from .graphs import ALL_PLOTTERS, ALL_PLOT_KINDS, ALL_MPL_THEMES
+from .graphs import ALL_PLOTTERS, ALL_PLOT_KINDS, AVAILABLE_MPL_THEMES
 
 import matplotlib.pyplot as plt
 
@@ -65,7 +65,7 @@ class PlotKindSelectForm(forms.Form):
 
 class GenericPlotOptionsForm(forms.Form):
     theme = forms.ChoiceField(
-        choices=[(path, name.title()) for name, path in ALL_MPL_THEMES.items()],
+        choices=[(path, name.title()) for name, path in AVAILABLE_MPL_THEMES.items()],
         label="Theme",
         required=False,
     )

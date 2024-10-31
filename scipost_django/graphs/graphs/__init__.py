@@ -25,3 +25,6 @@ GRAPHS_APP_DIR = Path(__file__).resolve().parent.parent
 ALL_MPL_THEMES = {
     theme.stem: theme for theme in Path(GRAPHS_APP_DIR, "mpl_themes").iterdir()
 }
+AVAILABLE_MPL_THEMES = {
+    k: v for k, v in ALL_MPL_THEMES.items() if not k.startswith("_")
+}

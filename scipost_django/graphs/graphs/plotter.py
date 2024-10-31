@@ -69,7 +69,7 @@ class ModelFieldPlotter(ABC):
 
         plt.style.use(
             [
-                ALL_MPL_THEMES.get("base", ""),
+                ALL_MPL_THEMES.get("_base", ""),
                 options.get("theme", "default"),
             ]
         )
