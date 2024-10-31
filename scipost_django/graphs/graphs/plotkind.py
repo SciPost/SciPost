@@ -81,10 +81,32 @@ class TimelinePlot(PlotKind):
 
     def get_data(self, plotter: "ModelFieldPlotter", **kwargs):
         y_key = self.options.get("y_key", "id")
-        x, y = zip(*plotter.get_queryset().values_list(plotter.date_key, y_key))
+
+        # Filter the queryset according to the date limits if they are set
+        query_filters = Q()
+        if x_lim_min := self.options.get("x_lim_min", None):
+            query_filters &= Q(**{plotter.date_key + "__gte": x_lim_min})
+        if x_lim_max := self.options.get("x_lim_max", None):
+            query_filters &= Q(**{plotter.date_key + "__lte": x_lim_max})
+
+        qs = plotter.get_queryset()
+        qs = qs.filter(query_filters)
+
+        x, y = zip(*qs.values_list(plotter.date_key, y_key))
 
         return x, y
 
     class Options(BaseOptions):
         prefix = PlotKind.Options.prefix
         y_key = forms.CharField(label="Y-axis key", required=False, initial="id")
+        x_lim_min = forms.DateTimeField(
+            label="X min",
+            required=False,
+            widget=forms.DateTimeInput(attrs={"type": "date"}),
+        )
+        x_lim_max = forms.DateTimeField(
+            label="X max",
+            required=False,
+            widget=forms.DateTimeInput(attrs={"type": "date"}),
+        )
+
