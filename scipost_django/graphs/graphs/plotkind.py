@@ -1,7 +1,10 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from django import forms
+from django.db.models import Q, Count
 from matplotlib.figure import Figure
+import pandas as pd
 
 from .options import BaseOptions
 
@@ -109,4 +112,85 @@ class TimelinePlot(PlotKind):
             required=False,
             widget=forms.DateTimeInput(attrs={"type": "date"}),
         )
+
+
+class MapPlot(PlotKind):
+    name = "map"
+
+    def get_figure(self, **kwargs) -> Figure:
+        from graphs.graphs import BASE_WORLD
+
+        # Draw the world map
+        fig = super().get_figure(**kwargs)
+        ax = fig.add_subplot(111)
+        BASE_WORLD.plot(
+            ax=ax,
+            color="#4161a4",
+            edgecolor=ax.get_facecolor(),
+            linewidth=0.25,
+        )
+
+        return fig
+
+    def draw_colorbar(self, fig: Figure, **kwargs):
+        cax = fig.add_axes([0.385, 0.2, 0.45, 0.02])
+        cax.set_title("Counts", fontsize="small")
+        cax.tick_params(axis="x", length=2, direction="out", which="major")
+        cax.tick_params(axis="x", length=1.5, direction="out", which="minor")
+        cax.grid(False)
+
+        # rectangle below the colormap with a color of `dark_blue` and a white border
+        cax0 = cax.get_position()
+        cax0 = fig.add_axes([cax0.x0 - 0.02, cax0.y0, 0.02 * 7 / 15, 0.02])
+        cax0.set_facecolor(color="#4161a4")
+        cax0.set_xlim(-1 / 2, 1 / 2)
+        cax0.set_xticks([0])
+        cax0.yaxis.set_visible(False)
+        cax0.tick_params(axis="x", length=2, direction="out", which="major")
+        cax0.tick_params(axis="x", length=1.5, direction="out", which="minor")
+        cax0.grid(False)
+
+    def plot(self, plotter: "ModelFieldPlotter"):
+        from graphs.graphs import BASE_WORLD, OKLCH
+        from matplotlib.colors import LinearSegmentedColormap, LogNorm
+
+        fig = self.get_figure()
+        self.draw_colorbar(fig)
+        ax, cax, _ = fig.get_axes()
+
+        countries, count = self.get_data(plotter)
+        df_counts = pd.DataFrame({"ISO_A2_EH": countries, "count": count})
+        vmax = df_counts["count"].max()
+        BASE_WORLD.merge(df_counts, left_on="ISO_A2_EH", right_on="ISO_A2_EH").plot(
+            ax=ax,
+            column="count",
+            legend=True,
+            legend_kwds={"orientation": "horizontal"},
+            cmap=LinearSegmentedColormap.from_list("custom", OKLCH),
+            edgecolor=ax.get_facecolor(),
+            linewidth=0.25,
+            cax=cax,
+            norm=LogNorm(vmax=vmax, vmin=1),
+        )
+
+        ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
+
+        cax.xaxis.set_ticklabels(f"{int(x)}" for x in cax.xaxis.get_ticklocs())
+
+        return fig
+
+    def get_data(self, plotter: "ModelFieldPlotter", **kwargs):
+        qs = plotter.get_queryset()
+        count_key = self.options.get("count_key", "id")
+        group_by_country_count = (
+            qs.filter(Q(**{plotter.country_key + "__isnull": False}))
+            .values(plotter.country_key)
+            .annotate(count=Count(count_key))
+        )
+
+        countries, count = zip(
+            *group_by_country_count.values_list(plotter.country_key, "count")
+        )
+        return countries, count
 

@@ -5,13 +5,17 @@ from abc import ABC
 from typing import TYPE_CHECKING, Any
 
 from django import forms
+from django.db import models
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-from journals.models.journal import Journal
-from journals.models.publication import Publication
-from profiles.models import Profile
+from colleges.models import Fellowship
+from finances.models import PubFrac, Subsidy
+from journals.models import Journal, Publication, PublicationAuthorsTable
+from organizations.models import Organization
+from profiles.models import Affiliation, Profile
 from series.models import Collection
+from submissions.models import Report, Submission
 
 from .options import BaseOptions
 
@@ -48,7 +52,8 @@ class ModelFieldPlotter(ABC):
         return self.get_name()
 
     def get_queryset(self):
-        return self.model.objects.all()
+        qs = self.model.objects.all()
+        return qs
 
     def get_available_plot_kinds(self):
         """Returns the plot kinds that can be used with this model field."""
@@ -80,9 +85,9 @@ class ModelFieldPlotter(ABC):
         return fig
 
 
-class PublicationDatePlotter(ModelFieldPlotter):
+class PublicationPlotter(ModelFieldPlotter):
     model = Publication
-    name = "Publication Date"
+    name = "Publication"
     date_key = "publication_date"
 
     class Options(BaseOptions):
@@ -104,7 +109,142 @@ class PublicationDatePlotter(ModelFieldPlotter):
         return qs
 
 
+class SubmissionsPlotter(ModelFieldPlotter):
+    model = Submission
+    date_key = "submission_date"
+
+
 class ProfilePlotter(ModelFieldPlotter):
     model = Profile
     date_key = "contributor__user__date_joined"
-    country_key = "id"
+    country_key = "latest_affiliation_country"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(
+            latest_affiliation_country=models.Subquery(
+                Affiliation.objects.filter(
+                    profile=models.OuterRef("id"),
+                )
+                .order_by("-date_from")[:1]
+                .values("organization__country")
+            )
+        )
+
+
+class FellowshipPlotter(ModelFieldPlotter):
+    model = Fellowship
+    date_key = "start_date"
+    country_key = "latest_affiliation_country"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        return qs.annotate(
+            latest_affiliation_country=models.Subquery(
+                Affiliation.objects.filter(
+                    profile=models.OuterRef("contributor__profile")
+                )
+                .order_by("-date_from")
+                .values("organization__country")[:1]
+            )
+        )
+
+
+class PubFracPlotter(ModelFieldPlotter):
+    model = PubFrac
+    country_key = "organization__country"
+
+
+class RefereePlotter(ModelFieldPlotter):
+    model = Profile
+    name = "Referees"
+    date_key = "latest_report_date"
+    country_key = "referee_country"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(
+            latest_report_date=models.Subquery(
+                Report.objects.filter(author=models.OuterRef("contributor"))
+                .order_by("-created")[:1]
+                .values("created")
+            ),
+            referee_country=models.Case(
+                models.When(
+                    latest_report_date__isnull=False,
+                    then=models.Subquery(
+                        Affiliation.objects.filter(
+                            profile=models.OuterRef("id"),
+                        )
+                        .order_by("-date_from")[:1]
+                        .values("organization__country")
+                    ),
+                ),
+                default=None,
+            ),
+        )
+
+
+class AuthorPlotter(ModelFieldPlotter):
+    model = Profile
+    name = "Published Authors"
+    date_key = "first_authorship_date"
+    country_key = "author_country"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(
+            first_authorship_date=models.Subquery(
+                PublicationAuthorsTable.objects.filter(profile=models.OuterRef("id"))
+                .order_by("publication__publication_date")[:1]
+                .values("publication__publication_date")
+            ),
+            author_country=models.Case(
+                models.When(
+                    first_authorship_date__isnull=False,
+                    then=models.Subquery(
+                        Affiliation.objects.filter(
+                            profile=models.OuterRef("id"),
+                        )
+                        .order_by("-date_from")[:1]
+                        .values("organization__country")
+                    ),
+                ),
+                default=None,
+            ),
+        )
+
+
+class SponsorPlotter(ModelFieldPlotter):
+    model = Organization
+    name = "Sponsors"
+    date_key = "latest_subsidy"
+    country_key = "country"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(
+            latest_subsidy=models.Subquery(
+                Subsidy.objects.filter(organization=models.OuterRef("id"))
+                .order_by("-date_from")[:1]
+                .values("date_from")
+            ),
+        ).filter(latest_subsidy__isnull=False)
+
+
+class ReportPlotter(ModelFieldPlotter):
+    model = Report
+    date_key = "created"
+    country_key = "latest_affiliation_country"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        return qs.annotate(
+            latest_affiliation_country=models.Subquery(
+                Affiliation.objects.filter(profile=models.OuterRef("author"))
+                .order_by("-date_from")
+                .values("organization__country")[:1]
+            )
+        )

@@ -37,6 +37,8 @@ django-stubs-ext==4.2.2
 # Plotting
 plotly==4.6.0			# 2020-05-05
 matplotlib==3.9.2		# 2024-08-19
+pandas==2.2.2			# 2024-11-01
+geopandas==1.0.1		# 2024-11-01
 
 # Documentation Packages
 docutils==0.16			# 2020-02-21

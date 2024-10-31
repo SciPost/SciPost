@@ -28,3 +28,26 @@ ALL_MPL_THEMES = {
 AVAILABLE_MPL_THEMES = {
     k: v for k, v in ALL_MPL_THEMES.items() if not k.startswith("_")
 }
+
+
+import geopandas as gpd
+
+world_map_file_URL = (
+    "http://naturalearth.s3.amazonaws.com/50m_cultural/ne_50m_admin_0_countries.zip"
+)
+BASE_WORLD = gpd.read_file(world_map_file_URL)
+
+columns_to_keep = ["NAME", "CONTINENT", "TYPE", "LEVEL", "ISO_A2_EH", "geometry"]
+BASE_WORLD = BASE_WORLD[columns_to_keep]
+BASE_WORLD = BASE_WORLD[BASE_WORLD["CONTINENT"] != "Antarctica"]
+
+OKLCH = [
+    "#6783c1",
+    "#8980c9",
+    "#ab7cc6",
+    "#ca79b7",
+    "#e37a9d",
+    "#f47f7b",
+    "#fb8d52",
+    "#f5a119",
+]
