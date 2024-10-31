@@ -6,8 +6,11 @@ from typing import TYPE_CHECKING, Any
 
 from django import forms
 from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+
 from journals.models.journal import Journal
 from journals.models.publication import Publication
+from profiles.models import Profile
 from series.models import Collection
 
 from .options import BaseOptions
@@ -100,3 +103,8 @@ class PublicationDatePlotter(ModelFieldPlotter):
 
         return qs
 
+
+class ProfilePlotter(ModelFieldPlotter):
+    model = Profile
+    date_key = "contributor__user__date_joined"
+    country_key = "id"

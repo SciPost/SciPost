@@ -64,12 +64,18 @@ class PlotView(View):
         return self.plotter.plot(self.kind, options=self.plot_options["generic"])
 
     def get_context_data(self, **kwargs):
+        plot_svg = None
         if figure := self.render_figure():
             plot_svg = io.StringIO()
             figure.savefig(plot_svg, format="svg")
+            plot_svg = plot_svg.getvalue()
+
+            # Manipulate the SVG to make it display properly in the browser
+            # Add the classes `w-100` and `h-100` to make the SVG responsive
+            plot_svg = plot_svg.replace("<svg ", '<svg class="w-100 h-100" ')
 
         return {
-            "plot_svg": plot_svg.getvalue() if figure else None,
+            "plot_svg": plot_svg,
             "plotter": self.plotter,
             "kind": self.kind,
             "request": self.request,
