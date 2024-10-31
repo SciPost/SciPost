@@ -65,3 +65,26 @@ class PlotKind:
         x, y = self.get_data(plotter)
         ax.plot(x, y)
         return fig
+
+
+class TimelinePlot(PlotKind):
+    name = "timeline"
+
+    def plot(self, plotter: "ModelFieldPlotter"):
+        fig = super().plot(plotter)
+        ax = fig.get_axes()[0]
+
+        ax.set_xlabel(plotter.date_key)
+        ax.set_ylabel(self.options.get("y_key", "id"))
+
+        return fig
+
+    def get_data(self, plotter: "ModelFieldPlotter", **kwargs):
+        y_key = self.options.get("y_key", "id")
+        x, y = zip(*plotter.get_queryset().values_list(plotter.date_key, y_key))
+
+        return x, y
+
+    class Options(BaseOptions):
+        prefix = PlotKind.Options.prefix
+        y_key = forms.CharField(label="Y-axis key", required=False, initial="id")

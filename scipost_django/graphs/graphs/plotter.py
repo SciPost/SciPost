@@ -4,7 +4,11 @@ __license__ = "AGPL v3"
 from abc import ABC
 from typing import TYPE_CHECKING, Any
 
+from django import forms
 from matplotlib.figure import Figure
+from journals.models.journal import Journal
+from journals.models.publication import Publication
+from series.models import Collection
 
 from .options import BaseOptions
 
@@ -71,3 +75,28 @@ class ModelFieldPlotter(ABC):
         fig.suptitle(options.get("title", None))
 
         return fig
+
+
+class PublicationDatePlotter(ModelFieldPlotter):
+    model = Publication
+    name = "Publication Date"
+    date_key = "publication_date"
+
+    class Options(BaseOptions):
+        prefix = ModelFieldPlotter.Options.prefix
+        journals = forms.ModelChoiceField(
+            queryset=Journal.objects.all().active(), required=False
+        )
+        collections = forms.ModelChoiceField(
+            queryset=Collection.objects.all(), required=False
+        )
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if journal := self.options.get("journals", None):
+            qs = qs.for_journal(journal.name)
+        if collections := self.options.get("collections", None):
+            qs = qs.filter(collections__in=[collections])
+
+        return qs
+
