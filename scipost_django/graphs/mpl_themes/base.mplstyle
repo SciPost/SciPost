@@ -1,0 +1,53 @@
+xtick.labelsize: x-small
+xtick.direction: in
+xtick.major.size: 6
+xtick.major.width: 1.2
+xtick.minor.size: 3
+
+ytick.labelsize: x-small
+ytick.direction: in
+ytick.major.size: 6
+ytick.major.width: 1.2
+ytick.minor.size: 3
+
+axes.edgecolor: none
+axes.labelsize: small
+axes.labelpad: 4
+axes.titlesize: large
+
+axes.grid: True
+axes.axisbelow: True
+grid.linestyle: dashed
+grid.alpha: 0.15
+grid.linewidth: 0.8
+
+figure.figsize: 6, 3.5
+figure.dpi: 200
+figure.titlesize: x-large
+figure.autolayout: True
+
+lines.linewidth: 2
+lines.marker: o
+lines.markersize: 2.5
+lines.dash_capstyle: round
+lines.dash_joinstyle: round
+lines.solid_capstyle: round
+lines.solid_joinstyle: round
+
+savefig.bbox: tight
+savefig.format: svg
+
+errorbar.capsize: 2
+
+legend.edgecolor: inherit
+legend.fontsize: xx-small
+legend.scatterpoints: 1
+legend.fancybox: True
+legend.markerscale: 1.4
+legend.framealpha: 0.8
+legend.columnspacing: 0.8
+legend.handletextpad: 0.2 
+
+font.family: sans-serif
+font.sans-serif: Merriweather Sans
+mathtext.fontset: stixsans

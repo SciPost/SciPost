@@ -1,0 +1,14 @@
+xtick.labelsize: medium
+ytick.labelsize: medium
+
+axes.labelsize: large
+axes.titlesize: xx-large
+
+figure.titlesize: xx-large
+
+lines.linestyle: -
+lines.marker: None
+lines.markersize: 3
+lines.linewidth: 3
+
+legend.fontsize: medium

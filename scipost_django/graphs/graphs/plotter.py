@@ -57,19 +57,19 @@ class ModelFieldPlotter(ABC):
 
         return plot_kinds
 
-    @staticmethod
-    def set_theme(theme: str):
-        import matplotlib.pyplot as plt
-
-        if theme in plt.style.available:
-            plt.style.use([theme])
-
     def plot(self, kind: "PlotKind", options: OptionDict) -> Figure:
         """
         Create a plot of the model field according to the given kind.
         Further modify the plot according to the given options.
         """
-        self.set_theme(options.get("theme", "default"))
+        from graphs.graphs import ALL_MPL_THEMES
+
+        plt.style.use(
+            [
+                ALL_MPL_THEMES.get("base", ""),
+                options.get("theme", "default"),
+            ]
+        )
 
         fig = kind.plot(plotter=self)
         fig.suptitle(options.get("title", None))

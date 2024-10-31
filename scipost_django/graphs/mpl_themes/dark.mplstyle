@@ -1,0 +1,16 @@
+figure.facecolor: 002b49
+axes.facecolor: 002b49
+savefig.facecolor: 002b49
+
+grid.color: white
+
+text.color: white
+axes.labelcolor: white
+xtick.color: white
+ytick.color: white
+
+axes.prop_cycle: cycler('color', ['6884c2', 'f6a11a', '3bc736', 'f44a30', 'a855f7', 'f7cf3c', 'ec4899', 'd4d4d4', '8fd312', '06b6d4'])
+
+legend.facecolor: 002b49
+legend.edgecolor: white
+

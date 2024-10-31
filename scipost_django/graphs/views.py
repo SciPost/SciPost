@@ -1,7 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-import base64
+
 import io
 from django.shortcuts import render
 from django.template.response import TemplateResponse
@@ -64,14 +64,12 @@ class PlotView(View):
         return self.plotter.plot(self.kind, options=self.plot_options["generic"])
 
     def get_context_data(self, **kwargs):
-        plot_base64 = None
         if figure := self.render_figure():
-            temp_file_bytes = io.BytesIO()
-            figure.savefig(temp_file_bytes)
-            plot_base64 = base64.b64encode(temp_file_bytes.getvalue()).decode()
+            plot_svg = io.StringIO()
+            figure.savefig(plot_svg, format="svg")
 
         return {
-            "plot_base64": plot_base64,
+            "plot_svg": plot_svg.getvalue() if figure else None,
             "plotter": self.plotter,
             "kind": self.kind,
             "request": self.request,
