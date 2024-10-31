@@ -64,7 +64,12 @@ class PlotKindSelectForm(forms.Form):
 
 
 class GenericPlotOptionsForm(forms.Form):
-    pass
+    theme = forms.ChoiceField(
+        choices=[(t, t.title()) for t in plt.style.available],
+        label="Theme",
+        required=False,
+    )
+    title = forms.CharField(label="Title", required=False)
 
 
 class PlotOptionsForm(forms.Form):
