@@ -3,15 +3,19 @@ __license__ = "AGPL v3"
 
 
 import io
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
 from django.template.response import TemplateResponse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_page
 
 from graphs.forms import PlotOptionsForm
 from scipost.permissions import HTMXResponse
 
 
-# Create your views here.
+@login_required
+@permission_required("scipost.can_preview_new_features", raise_exception=True)
 def graphs(request):
 
     form = PlotOptionsForm(request.POST or None)
@@ -22,6 +26,11 @@ def graphs(request):
     )
 
 
+@method_decorator(
+    permission_required("scipost.can_preview_new_features", raise_exception=True),
+    name="dispatch",
+)
+@method_decorator(cache_page(60 * 15), name="dispatch")
 class PlotView(View):
     """
     A view that renders a plot of a model.
