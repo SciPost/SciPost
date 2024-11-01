@@ -65,7 +65,7 @@ class PlotKindSelectForm(forms.Form):
 
 class GenericPlotOptionsForm(forms.Form):
     theme = forms.ChoiceField(
-        choices=[(path, name.title()) for name, path in AVAILABLE_MPL_THEMES.items()],
+        choices=[(name, name.title()) for name in AVAILABLE_MPL_THEMES],
         label="Theme",
         required=False,
     )
