@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 class ModelFieldPlotterSelectForm(forms.Form):
     model_field_plotter = forms.ChoiceField(
-        choices=[(key, key.title()) for key in ALL_PLOTTERS],
+        choices=[(None, "-" * 9)] + [(key, key.title()) for key in ALL_PLOTTERS],
         label="Model Field",
         required=False,
     )
@@ -41,7 +41,7 @@ class ModelFieldPlotterSelectForm(forms.Form):
 
 class PlotKindSelectForm(forms.Form):
     plot_kind = forms.ChoiceField(
-        choices=[(key, key.title()) for key in ALL_PLOT_KINDS],
+        choices=[(None, "-" * 9)] + [(key, key.title()) for key in ALL_PLOT_KINDS],
         label="Plot kind",
         required=False,
     )
@@ -94,8 +94,9 @@ class PlotOptionsForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields.update(self.model_field_select_form.fields)
-        self.fields.update(self.plot_kind_select_form.fields)
-        self.fields.update(self.generic_plot_options_form.fields)
+        if plotter:
+            self.fields.update(self.plot_kind_select_form.fields)
+            self.fields.update(self.generic_plot_options_form.fields)
 
     def clean(self):
         cleaned_data = super().clean()

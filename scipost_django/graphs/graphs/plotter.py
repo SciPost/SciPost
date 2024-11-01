@@ -57,7 +57,7 @@ class ModelFieldPlotter(ABC):
 
     def get_available_plot_kinds(self):
         """Returns the plot kinds that can be used with this model field."""
-        plot_kinds = []
+        plot_kinds: list[str | None] = [None]
         if self.date_key:
             plot_kinds.append("timeline")
         if self.country_key:
