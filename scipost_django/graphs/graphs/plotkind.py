@@ -83,10 +83,16 @@ class TimelinePlot(PlotKind):
         return fig
 
     def get_data(self, plotter: "ModelFieldPlotter", **kwargs):
-        y_key = self.options.get("y_key", "id")
+        y_key = self.options.get("y_key", "id") or "id"
 
+        # Filter the queryset to only include entries with a date and a y value
+        query_filters = Q(
+            **{
+                plotter.date_key + "__isnull": False,
+                y_key + "__isnull": False,
+            }
+        )
         # Filter the queryset according to the date limits if they are set
-        query_filters = Q()
         if x_lim_min := self.options.get("x_lim_min", None):
             query_filters &= Q(**{plotter.date_key + "__gte": x_lim_min})
         if x_lim_max := self.options.get("x_lim_max", None):
@@ -94,6 +100,7 @@ class TimelinePlot(PlotKind):
 
         qs = plotter.get_queryset()
         qs = qs.filter(query_filters)
+        qs = qs.order_by(plotter.date_key)
 
         x, y = zip(*qs.values_list(plotter.date_key, y_key))
 
