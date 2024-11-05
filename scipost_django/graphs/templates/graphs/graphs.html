@@ -10,6 +10,7 @@
     <div id="plot"
          class="col d-flex flex-column align-items-center"
          hx-get="{% url "graphs:plot" %}"
+         hx-params="not csrfmiddlewaretoken"
          hx-trigger="change from:#plot-container"></div>
   </div>
 {% endblock content %}
