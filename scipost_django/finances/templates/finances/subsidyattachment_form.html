@@ -7,82 +7,115 @@
 {% block breadcrumb_items %}
   {{ block.super }}
   <span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
-  <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Subsidy Attachment{% endif %}</span>
-{% endblock %}
+  <span class="breadcrumb-item">
 
-{% block pagetitle %}: SubsidyAttachments{% endblock pagetitle %}
+    {% if form.instance.id %}
+      Update {{ form.instance }}
+    {% else %}
+      Add new Subsidy Attachment
+    {% endif %}
+
+  </span>
+{% endblock breadcrumb_items %}
+
+{% block pagetitle %}
+  : SubsidyAttachments
+{% endblock pagetitle %}
 
 {% block headsup %}
-  <link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
+  <link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}" />
 {% endblock headsup %}
 
 {% block content %}
-  <div class="row">
-    <div class="col-12">
-      <p><strong>N.B.:</strong> for attachments, please adopt the following format for the file names:</p>
-      <p>
-	<em>SciPost
-	  _<span class="text-muted">[year|yearstart-yearend]</span>
-	  _<span class="text-muted">[2-letter country code]</span>
-	  _<span class="text-muted">[Organization acronym or short name]</span>
-	  _<span class="text-muted">[document type]</span>
-	  <span class="text-muted">(-##)</span>
-	  <span class="text-muted">_(extra info)
-	  .<span class="text-muted">[filetype]</span>
-	</em>&emsp;<span class="text-danger">NOTE: careful with hyphens and underscores!</span>
-	<br/>in which:
-	<ul>
-	  <li><span class="text-muted">[year]</span> is the year or year range of validity of the Agreement</li>
-	  <li><span class="text-muted">[document type]</span> can be <em>Agreement</em>, <em>Invoice</em>, <em>ProofOfPayment</em> or <em>Other</em> (the last case should be explicited in the attachment's description)</li>
-	  <li>(-##) represents a two-digit number obligatory for invoices, but optional for other types</li>
-	  <li>_(extra info) is an optional suffix, e.g. <em>_Collaboration</em>
-	</ul>
-      </p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-2">
-      <p>Examples:</p>
-    </div>
-    <div class="col-1">
-    </div>
-    <div class="col-9">
-      <ul class="list-unstyled">
-	<li><em>SciPost_2023-2027_NL_UvA_Agreement.pdf</em>
-	</li>
-	<li><em>SciPost_2019_DE_MPDL_Invoice-01.pdf</em></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-3">
-      <h4>Hover on flag to view country code</h4>
-      <p class="small text-muted">[only countries with at least one Organization are listed]</p>
-    </div>
-    <div class="col-8">
-      <ul>
-	{% for code in countrycodes %}
-	  {% get_country code as country_obj %}
-	  <li style="display: inline-block;">
-	    <i class="{{ country_obj.flag_css }}" aria-label="{{ country_obj.code }}" data-bs-toggle="tooltip" title="{{ country_obj.name }}: {{ country_obj.code }}"></i>
-	  </li>
-	{% endfor %}
-      </ul>
-    </div>
-  </div>
-
 
   <div class="row">
     <div class="col-12">
-      <form enctype="multipart/form-data" action="" method="post">
-	{% csrf_token %}
-	{{ form|bootstrap }}
-	<input type="submit" value="Submit" class="btn btn-primary">
-      </form>
-    </div>
+      <details class="hcard hcard-secondary bg-opacity-25">
+        <summary class="list-triangle">
+          <h3>File naming conventions</h3>
+        </summary>
+        <h4>File name</h4>
+        <p>
+          <em>SciPost
+            _<span class="text-muted">[year|yearstart-yearend]</span>
+            _<span class="text-muted">[2-letter country code]</span>
+            _<span class="text-muted">[Organization acronym or short name]</span>
+            _<span class="text-muted">[document type]</span>
+            <span class="text-muted">(-##)</span>
+            <span class="text-muted">_(extra info)</span>
+            .<span class="text-muted">[filetype]</span>
+          </em>
+        </p>
+        in which:
+        <ul class="mt-1">
+          <li>
+            <span class="text-muted">[year]</span> is the year or year range of validity of the Agreement
+          </li>
+          <li>
+            <span class="text-muted">[document type]</span> can be <em>Agreement</em>, <em>Invoice</em>, <em>ProofOfPayment</em> or <em>Other</em> (the last case should be explicited in the attachment's description)
+          </li>
+          <li>
+            (-##) represents a two-digit number obligatory for invoices, but optional for other types
+          </li>
+          <li>
+            _(extra info) is an optional suffix, e.g. <em>_Collaboration</em>
+          </ul>
+
+          <div class="row">
+            <div class="col-2">
+              <p>Examples:</p>
+            </div>
+            <div class="col-1"></div>
+            <div class="col-9">
+              <ul class="list-unstyled">
+                <li>
+                  <em>SciPost_2023-2027_NL_UvA_Agreement.pdf</em>
+                </li>
+                <li>
+                  <em>SciPost_2019_DE_MPDL_Invoice-01.pdf</em>
+                </li>
+              </ul>
+            </div>
+
+            <div class="text-danger">NOTE: careful with hyphens and underscores!</div>
+          </div>
+ 
+          <h4>Country codes</h4>
+          <p>
+            Hover on flag to view country code <span class="small text-muted">
+            [only countries with at least one Organization are listed]
+          </span>
+        </p>
+        <ul class="list-unstyled">
+
+          {% for code in countrycodes %}
+            {% get_country code as country_obj %}
+            <li class="d-inline-block">
+              <i class="{{ country_obj.flag_css }}"
+                 aria-label="{{ country_obj.code }}"
+                 data-bs-toggle="tooltip"
+                 title="{{ country_obj.name }}: {{ country_obj.code }}"></i>
+            </li>
+          {% endfor %}
+
+        </ul>
+      </div>
+    </details>
   </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <form enctype="multipart/form-data" action="" method="post">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+	
+      <input type="submit" value="Submit" class="btn btn-primary" />
+    </form>
+  </div>
+</div>
 {% endblock content %}
+
 
 {% block footer_script %}
   {{ block.super }}

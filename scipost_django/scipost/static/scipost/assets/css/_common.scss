@@ -129,9 +129,12 @@
     --sp-hcard-outline-color: #{$body-color};
 
     border: 1px solid var(--sp-hcard-outline-color);
+    padding: 0 0.5rem;
 
     >*:first-child {
         padding: 0.25rem;
+        margin: 0 -0.5rem;
+        width: auto;
         // It would have been background-color: var(--sp-hcard-bg-color), 
         // but I need components to be separated for the opacity to work
         background-color: rgba(var(--sp-hcard-bg-color-r), var(--sp-hcard-bg-color-g), var(--sp-hcard-bg-color-b), var(--#{$prefix}bg-opacity, 1));
@@ -141,9 +144,8 @@
         }
     }
 
-    >*:not(:first-child) {
-        margin: 0;
-        padding: 0.25rem 0.5rem 0.5rem 0.5rem;
+    >*:nth-child(2) {
+        margin-top: 0.5rem;
     }
 }
 
