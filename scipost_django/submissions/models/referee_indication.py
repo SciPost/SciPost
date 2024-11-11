@@ -64,7 +64,12 @@ class RefereeIndication(models.Model):
     objects = RefereeIndicationQuerySet.as_manager()
 
     class Meta:
-        unique_together = ("submission", "referee")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["submission", "indicated_by", "referee"],
+                name="unique_referee_indication",
+            )
+        ]
 
     def __str__(self):
         referee_name = (
