@@ -211,7 +211,7 @@ class SubmissionQuerySet(models.QuerySet):
         # for non-EdAdmin, filter: in Submission's Fellowship
         if not user.contributor.is_ed_admin:
             f_ids = user.contributor.fellowships.active()
-            qs = qs.filter(fellows__in=f_ids)
+            qs = qs.filter(fellows__in=f_ids).distinct()
 
         if user.contributor.is_scipost_admin:
             pass
