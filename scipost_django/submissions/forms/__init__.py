@@ -3074,6 +3074,7 @@ class ReportForm(forms.ModelForm):
         if "save_draft" in self.data:
             self.fields["report"].required = False
             self.fields["recommendation"].required = False
+            self.fields["license_agreement"].required = False
 
         #! Temporary annotation this field was made public:
         self.fields["recommendation"].help_text = (
