@@ -395,12 +395,12 @@ class ProductionStreamSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Set the initial values of the form fields from the session data
-        if self.session_key:
-            session = SessionStore(session_key=self.session_key)
+        # if self.session_key:
+        #     session = SessionStore(session_key=self.session_key)
 
-            for field in self.fields:
-                if field in session:
-                    self.fields[field].initial = session[field]
+        #     for field in self.fields:
+        #         if field in session:
+        #             self.fields[field].initial = session[field]
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -450,13 +450,13 @@ class ProductionStreamSearchForm(forms.Form):
 
     def search_results(self):
         # Save the form data to the session
-        if self.session_key is not None:
-            session = SessionStore(session_key=self.session_key)
+        # if self.session_key is not None:
+        #     session = SessionStore(session_key=self.session_key)
 
-            for key in self.cleaned_data:
-                session[key] = self.cleaned_data.get(key)
+        #     for key in self.cleaned_data:
+        #         session[key] = self.cleaned_data.get(key)
 
-            session.save()
+        #     session.save()
 
         streams = ProductionStream.objects.ongoing()
 

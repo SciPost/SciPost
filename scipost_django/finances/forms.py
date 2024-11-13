@@ -506,18 +506,18 @@ class SubsidyAttachmentSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Set the initial values of the form fields from the session data
-        if self.session_key:
-            session = SessionStore(session_key=self.session_key)
+        # if self.session_key:
+        #     session = SessionStore(session_key=self.session_key)
 
-            for field_key in self.fields:
-                session_key = (
-                    f"{self.form_id}_{field_key}"
-                    if hasattr(self, "form_id")
-                    else field_key
-                )
+        #     for field_key in self.fields:
+        #         session_key = (
+        #             f"{self.form_id}_{field_key}"
+        #             if hasattr(self, "form_id")
+        #             else field_key
+        #         )
 
-                if session_value := session.get(session_key):
-                    self.fields[field_key].initial = session_value
+        #         if session_value := session.get(session_key):
+        #             self.fields[field_key].initial = session_value
 
         self.helper = FormHelper()
 
@@ -593,7 +593,7 @@ class SubsidyAttachmentSearchForm(forms.Form):
                     self.fields[key].initial = None
 
     def search_results(self):
-        self.save_fields_to_session()
+        # self.save_fields_to_session()
 
         subsidy_attachments = SubsidyAttachment.objects.orphaned().distinct()
 

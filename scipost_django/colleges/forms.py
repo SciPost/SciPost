@@ -664,12 +664,12 @@ class FellowshipNominationSearchForm(forms.Form):
         )
 
         # Set the initial values of the form fields from the session data
-        if self.session_key:
-            session = SessionStore(session_key=self.session_key)
+        # if self.session_key:
+        #     session = SessionStore(session_key=self.session_key)
 
-            for field in self.fields:
-                if field in session:
-                    self.fields[field].initial = session[field]
+        #     for field in self.fields:
+        #         if field in session:
+        #             self.fields[field].initial = session[field]
 
         self.helper = FormHelper()
 
@@ -734,13 +734,13 @@ class FellowshipNominationSearchForm(forms.Form):
 
     def search_results(self):
         # Save the form data to the session
-        if self.session_key is not None:
-            session = SessionStore(session_key=self.session_key)
+        # if self.session_key is not None:
+        #     session = SessionStore(session_key=self.session_key)
 
-            for key in self.cleaned_data:
-                session[key] = self.cleaned_data.get(key)
+        #     for key in self.cleaned_data:
+        #         session[key] = self.cleaned_data.get(key)
 
-            session.save()
+        #     session.save()
 
         def latest_round_subquery(key):
             return Subquery(
@@ -974,12 +974,12 @@ class FellowshipNominationVotingRoundSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Set the initial values of the form fields from the session data
-        if self.session_key:
-            session = SessionStore(session_key=self.session_key)
+        # if self.session_key:
+        #     session = SessionStore(session_key=self.session_key)
 
-            for field in self.fields:
-                if field in session:
-                    self.fields[field].initial = session[field]
+        #     for field in self.fields:
+        #         if field in session:
+        #             self.fields[field].initial = session[field]
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -1023,13 +1023,13 @@ class FellowshipNominationVotingRoundSearchForm(forms.Form):
 
     def search_results(self):
         # Save the form data to the session
-        if self.session_key is not None:
-            session = SessionStore(session_key=self.session_key)
+        # if self.session_key is not None:
+        #     session = SessionStore(session_key=self.session_key)
 
-            for key in self.cleaned_data:
-                session[key] = self.cleaned_data.get(key)
+        #     for key in self.cleaned_data:
+        #         session[key] = self.cleaned_data.get(key)
 
-            session.save()
+        #     session.save()
 
         rounds = FellowshipNominationVotingRound.objects.all()
 
@@ -1404,18 +1404,18 @@ class FellowshipsMonitorSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Set the initial values of the form fields from the session data
-        if self.session_key:
-            session = SessionStore(session_key=self.session_key)
+        # if self.session_key:
+        #     session = SessionStore(session_key=self.session_key)
 
-            for field_key in self.fields:
-                session_key = (
-                    f"{self.form_id}_{field_key}"
-                    if hasattr(self, "form_id")
-                    else field_key
-                )
+        #     for field_key in self.fields:
+        #         session_key = (
+        #             f"{self.form_id}_{field_key}"
+        #             if hasattr(self, "form_id")
+        #             else field_key
+        #         )
 
-                if session_value := session.get(session_key):
-                    self.fields[field_key].initial = session_value
+        #         if session_value := session.get(session_key):
+        #             self.fields[field_key].initial = session_value
 
         self.helper = FormHelper()
 
@@ -1521,7 +1521,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
                     self.fields[key].initial = None
 
     def search_results(self):
-        self.save_fields_to_session()
+        # self.save_fields_to_session()
 
         fellowships = Fellowship.objects.all().distinct()
 

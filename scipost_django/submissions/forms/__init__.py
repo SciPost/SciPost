@@ -2524,20 +2524,20 @@ class InviteRefereeSearchFrom(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Set the initial values of the form fields from the session data
-        if self.session_key:
-            session = SessionStore(session_key=self.session_key)
+        # if self.session_key:
+        #     session = SessionStore(session_key=self.session_key)
 
-            for field_key in self.fields:
-                session_key = (
-                    f"{self.form_id}_{field_key}"
-                    if hasattr(self, "form_id")
-                    else field_key
-                )
+        #     for field_key in self.fields:
+        #         session_key = (
+        #             f"{self.form_id}_{field_key}"
+        #             if hasattr(self, "form_id")
+        #             else field_key
+        #         )
 
-                if (session_value := session.get(session_key)) or (
-                    isinstance(session_value, bool)
-                ):
-                    self.fields[field_key].initial = session_value
+        #         if (session_value := session.get(session_key)) or (
+        #             isinstance(session_value, bool)
+        #         ):
+        #             self.fields[field_key].initial = session_value
 
         self.fields["specialties"].choices = (
             self.submission.specialties.all().values_list("id", "name")
