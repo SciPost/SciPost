@@ -117,5 +117,6 @@ urlpatterns = [
     path(  # /mail/attachment_file/<uuid>
         "attachment_file/<uuid:uuid>", views.attachment_file, name="attachment_file"
     ),
+    path("mailgun_webhook", apiviews.mailgun_webhook, name="mailgun_webhook"),
     path("", views.mail, name="mail"),  # /mail
 ]

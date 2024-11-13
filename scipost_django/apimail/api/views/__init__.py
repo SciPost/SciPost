@@ -25,3 +25,5 @@ from .stored_message import (
     StoredMessageUpdateReadAPIView,
     StoredMessageUpdateTagAPIView,
 )
+
+from .integrations import mailgun_webhook
