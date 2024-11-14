@@ -33,8 +33,13 @@ def send_mailgun_alert_slack_message(event_data: dict):
     recipient = event_data.get("message", {}).get("headers", {}).get("to", "unknown")
     sender = event_data.get("message", {}).get("headers", {}).get("from", "unknown")
     subject = event_data.get("message", {}).get("headers", {}).get("subject", "unknown")
+    error_description = event_data.get("delivery-status", {}).get("message", "unknown")
 
-    message = f"[{event.upper()}] {recipient} -> {sender}\nSubject: {subject}\nReason: {reason}"
+    # Ignore spam email directed to SciPost
+    if "spam" in error_description and "scipost" in recipient:
+        return
+
+    message = f"[{event.upper()} / {reason}] {subject}\n{sender} -> {recipient}\nError: {error_description}"
 
     response = requests.post(
         settings.SLACK_WEBHOOK_URL_MAILGUN_ALERTS,
