@@ -18,8 +18,10 @@
   </td>
   <td>
 
-    {% if profile_mail.verified %}
+    {% if profile_mail.verified and profile_mail.verification_token %}
       <span class="text-success">{% include "bi/check-circle-fill.html" %}</span>
+    {% elif profile_mail.verified and not profile_mail.verification_token %}
+      <span class="text-warning">{% include "bi/question-circle-fill.html" %}</span>
     {% elif not profile_mail.has_token_expired %}
       <span class="text-warning">{% include "bi/clock-fill.html" %}</span>
     {% else %}
@@ -56,7 +58,7 @@
                 {% if not profile_mail.has_token_expired %}hx-confirm="Your previous verification code has not expired yet. Are you sure you want to resend the verification email?"{% endif %}
                 hx-confirm="This will send a verification email to the address. Are you sure?"
                 hx-patch="{% url 'profiles:_hx_profile_email_request_verification' profile_mail.id %}"
-                {% if profile_mail.verified %}disabled{% endif %}
+                {% if profile_mail.verified and profile_mail.verification_token %}disabled{% endif %}
                 >Verify</button>
       {% endif %}
 

@@ -595,7 +595,7 @@ def _hx_profile_email_request_verification(request, email_id):
             tag="danger",
         )
 
-    if not profile_email.verified:
+    if not (profile_email.verified and profile_email.verification_token is not None):
         profile_email.send_verification_email()
         messages.success(
             request,

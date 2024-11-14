@@ -272,6 +272,7 @@ class ProfileEmail(models.Model):
         return self.email
 
     def reset_verification_token(self):
+        self.verified = False
         self.verification_token = secrets.token_urlsafe(40)
         self.token_expiration = timezone.now() + datetime.timedelta(hours=48)
         self.save()
