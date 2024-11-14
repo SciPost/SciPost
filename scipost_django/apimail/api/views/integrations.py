@@ -36,7 +36,9 @@ def send_mailgun_alert_slack_message(event_data: dict):
     error_description = event_data.get("delivery-status", {}).get("message", "unknown")
 
     # Ignore spam email directed to SciPost
-    if "spam" in error_description and "scipost" in recipient:
+    bad_keywords = ["spam", "scam", "phishing", "fraud", "viral"]
+    error_contains_keyword = any(k in error_description.lower() for k in bad_keywords)
+    if "scipost" in recipient and error_contains_keyword:
         return
 
     message = f"[{event.upper()} / {reason}] {subject}\n{sender} -> {recipient}\nError: {error_description}"
