@@ -162,6 +162,7 @@
       </table>
       <a href="{% url 'colleges:fellowship_create' contributor_id=fellowship.contributor.id %}">Add new Fellowship for {{ fellowship.contributor }}</a>
     </div>
+    {% include "pins/_hx_notes_list.html" with object=fellowship %}
   </div>
 
   {% if fellowship.guest %}
