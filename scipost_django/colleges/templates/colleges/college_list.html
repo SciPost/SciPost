@@ -50,37 +50,46 @@
     <div class="col-12">
 
       <table class="table table-bordered table-secondary">
-	<thead class="table-dark">
-	  <tr>
-	    <th><h3>Branch of Science</h3></th>
-	    <th><h3>Fields<br><small><em>(click to see list of Fellows)</em></small></h3></th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for branch in branches %}
-	    {% if branch.name != 'Multidisciplinary' %}
-	      <tr>
-		<td class="align-middle">
-		  {{ branch.name }}
-		</td>
-		<td>
-		  {% for acad_field in branch.academic_fields.all %}
-		    {% if acad_field.colleges.all|length > 0 %}
-		      {% for college in acad_field.colleges.all %}
-			{% if college.fellowships.all|length > 0 %}
-			  <a href={% url 'colleges:college_detail' college=college.slug %}><button type="button" class="btn btn-primary btn-sm m-1"><small>{{ college.name }}</small></button></a>
-			{% else %}
-			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ acad_field }}</em></small></button>
-			{% endif %}
-		      {% endfor %}
-		    {% endif %}
-		  {% endfor %}
-		</td>
-	      </tr>
-	    {% endif %}
-	  {% endfor %}
-	</tbody>
+        <thead class="table-dark">
+          <tr>
+            <th><h3>Branch of Science</h3></th>
+            <th><h3>Fields<br /><small><em>(click to see list of Fellows)</em></small></h3></th>
+          </tr>
+        </thead>
+        <tbody>
+      
+          {% for branch in branches %}
+              <tr>
+                <td class="align-middle">{{ branch.name }}</td>
+                <td>
+      
+                  {% for acad_field in branch.academic_fields.all %}
+                    {% if acad_field.colleges.all|length > 0 %}
+                      {% for college in acad_field.colleges.all %}
+                        {% if college.name != 'Multidisciplinary' %}
+                          {% if college.fellowships.all|length > 0 %}
+                          <a href={% url 'colleges:college_detail' college=college.slug %}>
+                            <button type="button" class="btn btn-primary btn-sm m-1">
+                              <small>{{ college.name }}</small>
+                            </button>
+                          </a>
+                          {% else %}
+                          <button type="button" class="btn btn-sm btn-outline-secondary m-1">
+                            <small><em>{{ college.name }}</em></small>
+                          </button>
+                          {% endif %}
+                        {% endif %}
+                      {% endfor %}
+                    {% endif %}
+                  {% endfor %}
+      
+                </td>
+              </tr>
+          {% endfor %}
+      
+        </tbody>
       </table>
+      
 
       <p>
 	Does your field not have a College yet? Help us to form one by
