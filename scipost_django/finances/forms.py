@@ -25,6 +25,7 @@ from finances.constants import (
     SUBSIDY_TYPES,
 )
 
+from finances.models.subsidy import SubsidyCollective
 from organizations.models import Organization
 from scipost.fields import UserModelChoiceField
 
@@ -71,12 +72,20 @@ class SubsidyForm(forms.ModelForm):
             "date_until",
             "renewable",
             "renewal_of",
+            "collective",
         ]
         widgets = {
             "paid_on": forms.DateInput(attrs={"type": "date"}),
             "date_from": forms.DateInput(attrs={"type": "date"}),
             "date_until": forms.DateInput(attrs={"type": "date"}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        subsidy_collective_create = reverse_lazy("finances:subsidy_collective_create")
+        self.fields["collective"].help_text = (
+            f"If missing, <a href='{subsidy_collective_create}'>create a new one</a>."
+        )
 
 
 class SubsidySearchForm(forms.Form):
@@ -812,3 +821,141 @@ class LogsFilterForm(forms.Form):
                 )
 
         return output
+
+
+class SubsidyCollectiveForm(forms.ModelForm):
+    required_css_class = "required-asterisk"
+
+    subsidies = forms.ModelMultipleChoiceField(
+        queryset=Subsidy.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url=reverse_lazy("finances:subsidy_autocomplete"),
+            attrs={
+                "data-html": True,
+                "style": "width: 100%",
+            },
+        ),
+        required=False,
+    )
+
+    class Meta:
+        model = SubsidyCollective
+        fields = ["name", "description", "coordinator"]
+        widgets = {
+            "coordinator": autocomplete.ModelSelect2(
+                url=reverse_lazy("organizations:organization-autocomplete"),
+                attrs={
+                    "data-html": True,
+                    "style": "width: 100%",
+                },
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance.pk:
+            self.fields["subsidies"].initial = self.instance.subsidies.all()
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("name"),
+            Field("description"),
+            Field("coordinator"),
+            Field("subsidies"),
+            ButtonHolder(Submit("submit", "Submit", css_class="btn-sm")),
+        )
+
+    def save(self, commit: bool = True):
+        collective = super().save(commit)
+
+        collective.subsidies.set(self.cleaned_data["subsidies"])
+        return collective
+
+
+class SubsidyCollectiveRenewForm(forms.Form):
+    subsidies = forms.ModelMultipleChoiceField(
+        queryset=Subsidy.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    start_date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}),
+        required=False,
+    )
+    end_date = forms.DateField(
+        widget=forms.DateInput(attrs={"type": "date"}),
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.collective = kwargs.pop("collective")
+        super().__init__(*args, **kwargs)
+        self.fields["subsidies"].queryset = self.collective.subsidies.all()
+        self.fields["subsidies"].initial = self.fields["subsidies"].queryset
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Field("subsidies", css_class="col-12"),
+                Div(FloatingField("start_date"), css_class="col-6"),
+                Div(FloatingField("end_date"), css_class="col-6"),
+                css_class="row mb-0",
+            ),
+            ButtonHolder(Submit("submit", "Renew", css_class="btn-sm")),
+        )
+
+    def clean(self):
+        valid = self.is_valid()
+        if not (data := self.cleaned_data):
+            raise forms.ValidationError("No data was submitted")
+        elif not valid:
+            raise forms.ValidationError("Invalid form data")
+
+        start = data.get("start_date")
+        end = data.get("end_date")
+
+        if start > end:
+            self.add_error("end_date", "End date must be after start date")
+
+        return data
+
+    def save(self):
+        start_date = self.cleaned_data["start_date"]
+        end_date = self.cleaned_data["end_date"]
+
+        new_subsidies = [
+            Subsidy(
+                organization=subsidy.organization,
+                subsidy_type=subsidy.subsidy_type,
+                description=subsidy.description,
+                amount=subsidy.amount,
+                amount_publicly_shown=subsidy.amount_publicly_shown,
+                status=subsidy.status,
+                paid_on=subsidy.paid_on,
+                renewable=subsidy.renewable,
+                # Renewal dates are optional
+                date_from=start_date or subsidy.date_from,
+                date_until=end_date or subsidy.date_until,
+            )
+            for subsidy in self.cleaned_data["subsidies"]
+        ]
+
+        # Create new subsidies
+        Subsidy.objects.bulk_create(new_subsidies)
+
+        # Update `renewal_of` field to point to the original subsidy
+        for new, old in zip(new_subsidies, self.cleaned_data["subsidies"]):
+            new.renewal_of.add(old)
+            new.save()
+
+        # Create new collective
+        new_collective = SubsidyCollective.objects.create(
+            name=f"{self.collective.name} - Renewal {start_date} - {end_date}",
+            description=f"{self.collective.description}\n Renewal {start_date} - {end_date}",
+            coordinator=self.collective.coordinator,
+        )
+        new_collective.subsidies.set(new_subsidies)
+        new_collective.save()
+
+        return new_collective

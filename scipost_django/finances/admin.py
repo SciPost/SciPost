@@ -2,10 +2,12 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django import forms
 from django.contrib import admin
 
 from finances.models.account import Account
 from finances.models.balance import Balance
+from finances.models.subsidy import SubsidyCollective
 from finances.models.transaction import FuturePeriodicTransaction
 
 from .models import (
@@ -79,6 +81,23 @@ def detach(modeladmin, request, queryset):
         if (invoice_proof := getattr(obj, "invoice_for", None)) is not None:
             invoice_proof.invoice = None
             invoice_proof.save()
+
+
+class SubsidyInline(admin.TabularInline):
+    model = Subsidy
+    autocomplete_fields = [
+        "organization",
+        "renewal_of",
+        "individual_budget",
+        "collective",
+    ]
+    extra = 0
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == "description":
+            kwargs["widget"] = forms.Textarea(attrs={"rows": 1, "cols": 20})
+            return db_field.formfield(**kwargs)
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
 
 
 @admin.register(SubsidyAttachment)
@@ -184,3 +203,32 @@ class AccountAdmin(admin.ModelAdmin):
         FuturePeriodicTransactionInline,
         BalanceInline,
     ]
+
+
+@admin.register(SubsidyCollective)
+class SubsidyCollectiveAdmin(admin.ModelAdmin):
+    list_display = [
+        "str",
+        "coordinator",
+        "subsidy_count",
+    ]
+    autocomplete_fields = [
+        "coordinator",
+    ]
+    search_fields = [
+        "str",
+        "description",
+        "coordinator__name",
+        "coordinator__name_original",
+        "coordinator__acronym",
+        "subsidies__organization__name",
+    ]
+    inlines = [SubsidyInline]
+
+    @admin.display(description="str")
+    def str(self, obj):
+        return str(obj)
+
+    @admin.display(description="subsidy count")
+    def subsidy_count(self, obj):
+        return obj.subsidies.count()

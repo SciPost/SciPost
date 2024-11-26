@@ -1,0 +1,48 @@
+{% extends 'finances/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
+  <span class="breadcrumb-item">Collectives</span>
+  <span class="breadcrumb-item"><a href="{{ object.get_absolute_url }}">{{ object }}</a></span>
+  <span class="breadcrumb-item"><a href="#" class="active">Delete</a></span>
+{% endblock %}
+
+{% block pagetitle %}
+  : Delete Subsidy Collective
+{% endblock pagetitle %}
+
+{% block content %}
+
+  <hgroup class="highlight p-3 mb-3">
+    <h1>Delete Subsidy Collective</h1>
+    <p class="m-0 fs-4"><a href="{{ collective.get_absolute_url }}">{{ collective }}</a></p>
+  </hgroup>
+
+  <div class="row">
+    <div class="col-12">
+      <h2><a href="{{ collective.get_absolute_url }}">{{ collective }}</a></h2>
+      <p>The collective is coordinated by <a href="{{ collective.coordinator.get_absolute_url }}">{{ collective.coordinator }}</a>.</p>
+      <p>{{ collective.description }}</p>
+
+      <h2>Subsidies part of this Collective</h2>
+      <ul class="list-unstyled">
+        {% for subsidy in collective.subsidies.all %}
+          <li><a href="{{ subsidy.get_absolute_url }}">{{ subsidy }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+      
+    <div class="col-12">
+      <form method="post">
+        {% csrf_token %}
+        <div class="fs-5 mb-2">Are you sure you want to delete this Subsidy Collective?</div>
+        <p>Deleting this collective will <strong>not</strong> delete the subsidies associated with it.</p>
+        <input type="submit" class="btn btn-danger" value="Yes, delete it" />
+      </form>
+    </div>
+  </div>
+
+{% endblock content %}
