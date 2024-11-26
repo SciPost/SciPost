@@ -5,7 +5,7 @@
 {% get_obj_perms request.user for subsidy.organization as "user_org_perms" %}
 
 <div class="row">
-  <div class="col-12">
+  <div class="col">
     {% if perms.scipost.can_manage_subsidies %}
       <ul class="list-inline"><li class="list-inline-item"><strong>Admin actions:</strong></li>
 	<li class="list-inline-item"><a href="{% url 'finances:subsidy_update' pk=subsidy.id %}"><span class="text-warning">Update</span></a></li>
@@ -65,6 +65,18 @@
     {% endif %}
 
   </div>
+
+  {% if subsidy.collective %}
+    <div class="col-12 col-sm-6 col-md-3">
+      <h4>Subsidies of the same Collective</h4>
+      <nav class="nav nav-pills flex-column">
+        
+        {% include "finances/_subsidy_collective_nav_links_list.html" with collective=subsidy.collective %}
+
+      </nav>
+    </div>
+  {% endif %}
+
 </div>
 
 {% if "finadmin" in user_roles %}

@@ -88,7 +88,44 @@ urlpatterns = [
                         ]
                     ),
                 ),
-            ]
+                path(
+                    "collectives/<int:collective_id>/",
+                    include(
+                        [
+                            path(
+                                "",
+                                views.SubsidyCollectiveDetailView.as_view(),
+                                name="subsidy_collective_details",
+                            ),
+                            path(
+                                "delete/",
+                                views.SubsidyCollectiveDeleteView.as_view(),
+                                name="subsidy_collective_delete",
+                            ),
+                            path(
+                                "update/",
+                                views.SubsidyCollectiveUpdateView.as_view(),
+                                name="subsidy_collective_update",
+                            ),
+                            path(
+                                "renew/",
+                                views.SubsidyCollectiveRenewFormView.as_view(),
+                                name="subsidy_collective_renew",
+                            ),
+                        ]
+                    ),
+                ),
+                path(
+                    "collectives/create/",
+                    views.SubsidyCollectiveCreateView.as_view(),
+                    name="subsidy_collective_create",
+                ),
+                path(
+                    "collectives/",
+                    views.SubsidyCollectiveListView.as_view(),
+                    name="subsidy_collectives",
+                ),
+            ],
         ),
     ),
     path("subsidies/", views.subsidy_list, name="subsidies"),

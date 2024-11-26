@@ -5,19 +5,23 @@ __license__ = "AGPL v3"
 import datetime
 from itertools import accumulate, chain
 import mimetypes
+from typing import Any
 from dal import autocomplete
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.handlers.asgi import HttpRequest
 from django.db import models
 from django.db.models import Q, Count, Exists, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.template.response import TemplateResponse
 from django.utils.html import format_html
+from django.views.generic import FormView
 import matplotlib
 
 from common.views import HXDynselAutocomplete, HXDynselSelectOptionView
 from finances.constants import SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_PROMISED
 from finances.models.account import Account
+from finances.models.subsidy import SubsidyCollective
 from journals.models.publication import PublicationAuthorsTable
 
 matplotlib.use("Agg")
@@ -40,6 +44,8 @@ from django.views.generic.list import ListView
 from .forms import (
     SubsidyAttachmentInlineLinkForm,
     SubsidyAttachmentSearchForm,
+    SubsidyCollectiveForm,
+    SubsidyCollectiveRenewForm,
     SubsidyForm,
     SubsidySearchForm,
     SubsidyPaymentForm,
@@ -882,3 +888,95 @@ def periodicreport_file(request, pk):
     filename = periodicreport._file.name
     response["Content-Disposition"] = f"filename={filename}"
     return response
+
+
+#######################
+# Subsidy Collectives #
+#######################
+
+
+class SubsidyCollectiveListView(PermissionsMixin, ListView):
+    model = SubsidyCollective
+    template_name = "finances/subsidy_collective_list.html"
+    permission_required = "scipost.can_manage_subsidies"
+    context_object_name = "collectives"
+
+
+class SubsidyCollectiveDetailView(PermissionsMixin, DetailView):
+    model = SubsidyCollective
+    template_name = "finances/subsidy_collective_detail.html"
+    permission_required = "scipost.can_manage_subsidies"
+    pk_url_kwarg = "collective_id"
+    context_object_name = "collective"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page_encapsulated_subsidies"] = Paginator(
+            self.object.subsidies.all(),
+            1000,
+        ).get_page(self.request.GET.get("page"))
+        return context
+
+
+class SubsidyCollectiveDeleteView(PermissionsMixin, DeleteView):
+    model = SubsidyCollective
+    template_name = "finances/subsidy_collective_delete.html"
+    success_url = reverse_lazy("finances:subsidy_collectives")
+    permission_required = "scipost.can_manage_subsidies"
+    pk_url_kwarg = "collective_id"
+    context_object_name = "collective"
+
+
+class SubsidyCollectiveCreateView(PermissionsMixin, CreateView):
+    model = SubsidyCollective
+    form_class = SubsidyCollectiveForm
+    template_name = "finances/subsidy_collective_form.html"
+    permission_required = "scipost.can_manage_subsidies"
+    pk_url_kwarg = "collective_id"
+    context_object_name = "collective"
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+
+class SubsidyCollectiveUpdateView(PermissionsMixin, UpdateView):
+    model = SubsidyCollective
+    form_class = SubsidyCollectiveForm
+    template_name = "finances/subsidy_collective_form.html"
+    permission_required = "scipost.can_manage_subsidies"
+    pk_url_kwarg = "collective_id"
+    context_object_name = "collective"
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+
+class SubsidyCollectiveRenewFormView(FormView):
+    template_name = "finances/subsidy_collective_renew_form.html"
+    form_class = SubsidyCollectiveRenewForm
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs):
+        self.collective = get_object_or_404(
+            SubsidyCollective, pk=kwargs.get("collective_id", None)
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self) -> dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs["collective"] = self.collective
+        return kwargs
+
+    def get_initial(self):
+        return {"collective": self.collective}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["collective"] = self.collective
+        return context
+
+    def get_success_url(self):
+        return self.new_collective.get_absolute_url()
+
+    def form_valid(self, form):
+        self.new_collective = form.save()
+        return super().form_valid(form)

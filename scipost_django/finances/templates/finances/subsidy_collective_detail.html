@@ -1,0 +1,89 @@
+{% extends 'finances/base.html' %}
+
+{% load bootstrap %}
+
+{% block meta_description %}
+  {{ block.super }} Subsidy Collective Detail
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Subsidy Collective details
+{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
+  <span class="breadcrumb-item"><a href="{% url 'finances:subsidy_collectives' %}">Collectives</a></span>
+  <span class="breadcrumb-item"><a href="#" class="active">{{ collective }}</a></span>
+{% endblock %}
+
+{% block content %}
+
+  <div class="highlight p-3 d-flex flex-row justify-content-between align-items-center mb-3">
+    <hgroup>
+      <h1>{{ collective }}</h1>
+      <p class="m-0 fs-4">(Coordinated by <a href="{{ collective.coordinator.get_absolute_url }}">{{ collective.coordinator }}</a>)</p>
+    </hgroup>
+    <div class="dropdown">
+      <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span>Actions</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a href="{% url 'finances:subsidy_collective_renew' collective_id=collective.id %}" class="dropdown-item">Renew</a></li>
+        <li><hr class="dropdown-divider" /></li>
+        <li><a href="{% url 'finances:subsidy_collective_update' collective_id=collective.id %}" class="dropdown-item">Edit</a></li>
+        <li><a href="{% url 'finances:subsidy_collective_delete' collective_id=collective.id %}" class="dropdown-item">Delete</a></li>
+      </ul>
+    </div>
+  </div>
+    
+  {% if collective.description %}
+  <div class="fs-5 fw-bold">Description</div>
+  <p>{{ collective.description }}</p>
+  {% endif %}
+
+  <h2>Subsidies part of this Collective</h2>
+  <table class="table table-hover position-relative">
+    <thead class="table-light position-sticky top-0">
+      <tr>
+        <th>From Organization</th>
+        <th>Type</th>
+
+        {% if perms.scipost.can_manage_subsidies %}
+          <th>
+            <span class="small" style="writing-mode: vertical-rl;">Payments
+              <br />
+            Scheduled?</span>
+          </th>
+        {% endif %}
+
+        <th>Amount</th>
+        <th>From</th>
+        <th>Until</th>
+
+        {% if perms.scipost.can_manage_subsidies %}
+
+          <th>Status</th>
+          <th>
+            <span class="small" style="writing-mode: vertical-lr;">Renewable?</span>
+          </th>
+          <th>
+            <span class="small" style="writing-mode: vertical-lr;">Renewed?</span>
+          </th>
+          <th>
+            Renewal
+            <br />
+            action date
+          </th>
+        {% endif %}
+
+
+      </tr>
+
+      <tbody id="subsidy-table-tbody">
+        {% include "finances/_hx_subsidy_list.html" with page_obj=page_encapsulated_subsidies %}
+      </tbody>
+    </table>
+
+
+  {% endblock content %}

@@ -1,0 +1,37 @@
+{% extends 'finances/base.html' %}
+
+{% load bootstrap %}
+{% load crispy_forms_tags %}
+
+{% block meta_description %}
+  {{ block.super }} Subsidy Collective Renewal Form
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Subsidy Collective Renewal Form
+{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
+  <span class="breadcrumb-item">Collectives</span>
+  <span class="breadcrumb-item"><a href="{{ collective.get_absolute_url }}">{{ collective }}</a></span>
+  <span class="breadcrumb-item"><a href="#" class="active">Renewal Form</a></span>
+{% endblock %}
+
+{% block content %}
+
+  <hgroup class="highlight p-3 mb-3">
+    <h1>Renewal Form</h1>
+    <p class="m-0 fs-4"><a href="{{ collective.get_absolute_url }}">{{ collective }}</a></p>
+  </hgroup>
+ 
+  <h2>Renew Subsidies of this Collective</h2>
+  <p>
+    Submitting this form will create new subsidies for all selected organizations, keeping the same details as the current subsidy.
+    If provided, the start and end dates will be overridden by the values in the form.
+  </p>
+
+  {% crispy form %}
+
+  {% endblock content %}

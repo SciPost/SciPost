@@ -1,0 +1,14 @@
+<h5>
+  <a href="{{ collective.get_absolute_url }}">{{ collective }}</a>
+</h5>
+
+  <ul class="list-unstyled">
+    {% for sub in collective.subsidies.all %}
+    <li class="nav-item">
+      <a href="{{ sub.get_absolute_url }}" class="nav-link {% if sub.id == subsidy.id %}active{% endif %}">
+        {{ sub.organization }}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+

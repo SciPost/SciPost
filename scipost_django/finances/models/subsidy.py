@@ -7,6 +7,7 @@ import datetime
 
 from django.db import models
 from django.db.models import Sum
+from django.db.models.functions import ExtractYear
 from django.urls import reverse
 from django.utils.html import format_html
 
@@ -17,6 +18,12 @@ from ..constants import (
     SUBSIDY_WITHDRAWN,
 )
 from ..managers import SubsidyQuerySet, PubFracQuerySet
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+    from organizations.models import Organization
 
 
 class Subsidy(models.Model):
@@ -54,6 +61,16 @@ class Subsidy(models.Model):
     renewal_of = models.ManyToManyField(
         "self", related_name="renewed_by", symmetrical=False, blank=True
     )
+    collective = models.ForeignKey["SubsidyCollective"](
+        "SubsidyCollective",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="subsidies",
+    )
+
+    if TYPE_CHECKING:
+        collectives: RelatedManager["SubsidyCollective"]
 
     objects = SubsidyQuerySet.as_manager()
 
@@ -189,3 +206,57 @@ class Subsidy(models.Model):
             compensated[pubfrac.publication.doi_label]["fraction"] += pubfrac.fraction
             compensated[pubfrac.publication.doi_label]["value"] += pubfrac.cf_value
         return compensated
+
+
+class SubsidyCollective(models.Model):
+    """
+    A collective of Subsidies, which can be used to group together relevant subsidies.
+    Primarily used to group together all subsidies from a single collective agreement,
+    as coordinated by a "parent" Organization.
+    """
+
+    coordinator = models.ForeignKey["Organization"](
+        "organizations.Organization", on_delete=models.CASCADE
+    )
+    name = models.CharField(max_length=256, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+
+    if TYPE_CHECKING:
+        subsidies: RelatedManager[Subsidy]
+
+    class Meta:
+        verbose_name_plural = "subsidy collectives"
+        default_related_name = "collectives"
+        ordering = ["coordinator__name"]
+
+    @property
+    def year_str(self):
+        min_year = (
+            self.subsidies.annotate(year=ExtractYear("date_from"))
+            .values_list("year", flat=True)
+            .order_by("year")
+            .first()
+        )
+        max_year = (
+            self.subsidies.annotate(year=ExtractYear("date_until"))
+            .values_list("year", flat=True)
+            .order_by("year")
+            .last()
+        )
+        if min_year and max_year:
+            if min_year == max_year:
+                return str(min_year)
+            return f"{min_year}-{max_year}"
+
+    def __str__(self):
+        if self.name:
+            return self.name
+
+        str_rep = f"Collective by {self.coordinator}"
+        if self.year_str:
+            str_rep += f" for {self.year_str}"
+
+        return str_rep
+
+    def get_absolute_url(self):
+        return reverse("finances:subsidy_collective_details", args=(self.id,))

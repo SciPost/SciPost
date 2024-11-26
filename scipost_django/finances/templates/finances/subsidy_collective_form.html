@@ -1,0 +1,47 @@
+{% extends 'finances/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
+  <span class="breadcrumb-item"><a href="{% url 'finances:subsidy_collectives' %}">Collectives</a></span>
+  {% if form.instance.id %}
+    <span class="breadcrumb-item"><a href="{{ form.instance.get_absolute_url }}">{{ form.instance }}</a></span>
+    <span class="breadcrumb-item"><a href="#" class="active">Update</a></span>
+  {% else %}
+    <span class="breadcrumb-item"><a href="#" class="active">Create</a></span>
+  {% endif %}
+
+{% endblock %}
+
+{% block pagetitle %}
+  : Subsidies
+{% endblock pagetitle %}
+
+
+{% block content %}
+<hgroup class="highlight p-3 mb-3">
+  <h1>{% if form.instance.id %}Update{% else %}Create Subsidy Collective{% endif %} Form</h1>
+  {% if form.instance.id %}
+    <p class="m-0 fs-4"><a href="{{ form.instance.get_absolute_url }}">{{ form.instance }}</a></p>
+  {% endif %}
+</hgroup>
+
+  <div class="row">
+    <form action="" method="post">
+      <div class="col-12">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+	
+        <input type="submit" value="Submit" class="btn btn-primary" />
+      </div>
+    </form>
+  </div>
+{% endblock content %}
+
+
+{% block footer_script %}
+  {{ block.super }}
+  {{ form.media }}
+{% endblock footer_script %}
