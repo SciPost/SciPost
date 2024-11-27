@@ -37,6 +37,7 @@ class PlotKind:
 
     @classmethod
     def get_name(cls) -> str:
+        """Get the name of the plot kind in title case"""
         return cls.name.title()
 
     def __str__(self):
@@ -63,7 +64,7 @@ class PlotKind:
         """
         fig = self.get_figure()
         ax = fig.add_subplot(111)
-        ax.set_title(f"{self.get_name().title()} plot of {plotter.model.__name__}")
+        ax.set_title(f"{self.get_name()} plot of {plotter.model.__name__}")
 
         x, y = self.get_data(plotter)
         ax.plot(x, y)
@@ -200,4 +201,3 @@ class MapPlot(PlotKind):
             *group_by_country_count.values_list(plotter.country_key, "count")
         )
         return countries, count
-

@@ -7,7 +7,7 @@ from django.forms import Field
 
 
 T = TypeVar("T")
-Option = dict[str, T]
+Options = dict[str, T]
 
 
 class BaseOptions:
@@ -22,20 +22,25 @@ class BaseOptions:
         return [key for key in cls.__dict__.keys() if not key.startswith("__")]
 
     @classmethod
-    def get_option_fields(cls) -> Option[Field]:
-        option_fields: Option[Field] = {}
-        for option in dir(cls):
-            if option.startswith("__"):
+    def get_option_fields(cls) -> Options[Field]:
+        """
+        Returns a dictionary of string keys and Field values,
+        mapping the options to their respective fields.
+        The keys are prefixed with the class prefix.
+        """
+        options: Options[Field] = {}
+        for option_key in dir(cls):
+            if option_key.startswith("__"):
                 continue
 
-            option_value = getattr(cls, option)
+            option_value = getattr(cls, option_key)
             if isinstance(option_value, Field):
                 # Try to remove the prefix from the label if it is present
                 if option_value.label is None:
-                    option_value.label = cls.unprefixed(option).title()
-                option_fields[cls.prefix + option] = option_value
+                    option_value.label = cls.unprefixed(option_key).title()
+                options[cls.prefix + option_key] = option_value
 
-        return option_fields
+        return options
 
     @classmethod
     def unprefixed(cls, key: str) -> str:
@@ -44,7 +49,7 @@ class BaseOptions:
         return key
 
     @classmethod
-    def parse_prefixed_options(cls, options: Option[T]) -> Option[T]:
+    def parse_prefixed_options(cls, options: Options[T]) -> Options[T]:
         """
         Returns a dictionary with only unprefixed and valid options.
         """

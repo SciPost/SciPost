@@ -33,7 +33,7 @@ AVAILABLE_MPL_THEMES = {
 import geopandas as gpd
 
 world_map_file_URL = (
-    "http://naturalearth.s3.amazonaws.com/50m_cultural/ne_50m_admin_0_countries.zip"
+    "http://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip"
 )
 BASE_WORLD = gpd.read_file(world_map_file_URL)
 
