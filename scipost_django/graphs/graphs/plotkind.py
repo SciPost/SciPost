@@ -125,7 +125,7 @@ class TimelinePlot(PlotKind):
         return x, y
 
     class Options(BaseOptions):
-        prefix = PlotKind.Options.prefix
+        prefix = "timeline_plot_"
         y_key = forms.CharField(label="Y-axis key", required=False, initial="id")
         x_lim_min = forms.DateTimeField(
             label="X min",
@@ -242,11 +242,13 @@ class MapPlot(PlotKind):
         Return the a tuple of lists of countries and their counts.
         """
         qs = self.plotter.get_queryset()
+        prefix = "map_plot_"
         count_key = self.options.get("count_key", "id")
         group_by_country_count = (
             qs.filter(Q(**{self.plotter.country_key + "__isnull": False}))
             .values(self.plotter.country_key)
             .annotate(count=Count(count_key))
+        prefix = "map_plot_"
         )
 
         countries, count = zip(
