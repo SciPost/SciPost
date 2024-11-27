@@ -3,8 +3,7 @@ import urllib
 
 
 class RORAPIHandler:
-    API_URL = "https://api.dev.ror.org/v2/organizations"
-    #  "https://api.ror.org/organizations" ... for v1
+    API_URL = "https://api.ror.org/v2/organizations"
 
     def query(self, query_string, all_status=True):
         # URL-encode query_string to make it safe for use in a URL
