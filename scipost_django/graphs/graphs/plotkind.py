@@ -233,7 +233,15 @@ class MapPlot(PlotKind):
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
 
-        cax.xaxis.set_ticklabels(f"{int(x)}" for x in cax.xaxis.get_ticklocs())
+        # Set the colorbar ticks to integers if < 1000, else leave intact
+        labels = []
+        for label, loc in zip(cax.get_xticklabels(), cax.get_xticks()):
+            if loc < 1000:
+                labels.append(int(loc))
+            else:
+                labels.append(label)
+
+        cax.set_xticklabels(labels)
 
         return fig
 
