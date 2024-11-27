@@ -50,17 +50,11 @@ class PlotKindSelectForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # If a plot kind is already selected, populate the form with its options
-        if plot_kind := PlotKind.from_name(self.data.get("plot_kind", None), self.data):
-            self.fields.update(plot_kind.Options.get_option_fields())
+        plot_kind_class_name = self.data.get("plot_kind", None)
+        if plot_kind_class := PlotKind.class_from_name(plot_kind_class_name):
+            self.fields.update(plot_kind_class.Options.get_option_fields())
 
-        self.kind = plot_kind
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        # Recreate plot kind with cleaned data
-        self.kind = PlotKind.from_name(self.data.get("plot_kind", None), cleaned_data)
-        return cleaned_data
+        self.kind_class = plot_kind_class
 
 
 class GenericPlotOptionsForm(forms.Form):

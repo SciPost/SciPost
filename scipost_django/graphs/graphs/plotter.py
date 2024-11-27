@@ -79,7 +79,7 @@ class ModelFieldPlotter(ABC):
             ]
         )
 
-        fig = kind.plot(plotter=self)
+        fig = kind.plot()
         fig.suptitle(options.get("title", None))
 
         return fig

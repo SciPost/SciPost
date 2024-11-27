@@ -50,7 +50,10 @@ class PlotView(View):
         cleaned_data = form.clean()
 
         self.plotter = form.model_field_select_form.plotter
-        self.kind = form.plot_kind_select_form.kind
+        self.kind = form.plot_kind_select_form.kind_class(
+            options=form.plot_kind_select_form.cleaned_data,
+            plotter=self.plotter,
+        )
 
         self.plot_options = {
             "plot_kind": {},
