@@ -95,18 +95,24 @@
       </h2>
       {% automarkup journal.scope %}
       <br><br>
-      <h4>Specialties covered by this Journal</h4>
-      <ul>
-	{% if journal.specialties.length > 0 %}
-	  {% for spec in journal.specialties.all %}
-	    <li>{{ spec }}</li>
-	  {% endfor %}
-	{% elif journal.college %}
-	  {% for spec in journal.college.acad_field.specialties.all %}
-	    <li>{{ spec }}</li>
-	  {% endfor %}
-	{% endif %}
-      </ul>
+      {% if journal.specialties.exists or journal.college.acad_field.specialties.exists %}
+        <h4>Specialties covered by this Journal</h4>
+        <ul>
+
+          {% for spec in journal.specialties.all %}
+            <li>{{ spec }}</li>
+          {% empty %}
+            {% if journal.college %}
+
+              {% for spec in journal.college.acad_field.specialties.all %}
+                <li>{{ spec }}</li>
+              {% endfor %}
+
+            {% endif %}
+          {% endfor %}
+
+        </ul>
+      {% endif %}
 
       <h2 class="highlight" id="content">
 	Content
