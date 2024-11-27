@@ -3,14 +3,18 @@
 {% block content %}
   <h1>SciPost Graphs</h1>
 
-  <div id="plot-container" class="row" hx-include="this">
+  <div id="plot-container" class="row h-100" hx-include="this">
     <div class="col-12 col-lg-3 d-flex flex-column"
          hx-post="{% url "graphs:plot_options_form" %}"
-         hx-trigger="load, change from:#plot-container"></div>
-    <div id="plot"
-         class="col d-flex flex-column align-items-center"
-         hx-get="{% url "graphs:plot" %}"
-         hx-params="not csrfmiddlewaretoken"
-         hx-trigger="change from:#plot-container"></div>
+         hx-trigger="load, change from:#plot-container, click from:#plot-refresh">
+    </div>
+
+    <div class="col d-flex flex-column">
+      <div id="plot"
+           class="h-100 w-100"
+           hx-get="{% url "graphs:plot" %}"
+           hx-params="not csrfmiddlewaretoken"
+           hx-trigger="change from:#plot-container"></div>
+    </div>
   </div>
 {% endblock content %}

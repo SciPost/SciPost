@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 import io
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render
+from django.shortcuts import HttpResponse, render
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -42,7 +42,7 @@ class PlotView(View):
     def get(self, request):
         form = PlotOptionsForm(request.GET)
 
-        if not form.is_valid():
+        if not form.is_valid() and request.GET.get("widget"):
             return HTMXResponse(
                 "Invalid plot options: " + str(form.errors), tag="danger"
             )
@@ -67,7 +67,54 @@ class PlotView(View):
                 else:
                     self.plot_options["generic"][option] = value
 
+        if request.GET.get("download"):
+            return self.download(request.GET.get("download", "svg"))
+
         return self.render_to_response(self.get_context_data())
+
+    def download(self, file_type):
+
+        figure = self.render_figure()
+        bytes_io = io.BytesIO()
+
+        match file_type:
+            case "svg":
+                figure.savefig(bytes_io, format="svg")
+                response = HttpResponse(
+                    bytes_io.getvalue(), content_type="image/svg+xml"
+                )
+
+            case "png":
+                figure.savefig(bytes_io, format="png", dpi=300)
+                response = HttpResponse(bytes_io.getvalue(), content_type="image/png")
+
+            case "pdf":
+                figure.savefig(bytes_io, format="pdf")
+                response = HttpResponse(
+                    bytes_io.getvalue(), content_type="application/pdf"
+                )
+
+            case "jpg":
+                figure.savefig(bytes_io, format="jpg", dpi=300)
+                response = HttpResponse(bytes_io.getvalue(), content_type="image/jpg")
+
+            case "csv":
+                x, y = self.kind.get_data()
+
+                # Write the data to a CSV file
+                csv = io.StringIO()
+                csv.write("x,y\n")
+                for i in range(len(x)):
+                    csv.write(f"{x[i]},{y[i]}\n")
+                csv.seek(0)
+                response = HttpResponse(csv, content_type="text/csv")
+
+            case _:
+                raise ValueError(f"Invalid file type: {file_type}")
+
+        response["Content-Disposition"] = f"attachment; filename=plot.{file_type}"
+
+        return response
 
     def render_figure(self):
         if not self.plotter or not self.kind:
