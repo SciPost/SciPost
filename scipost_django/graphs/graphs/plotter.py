@@ -19,6 +19,8 @@ from submissions.models import Report, Submission
 
 from .options import BaseOptions
 
+from crispy_forms.layout import Div
+
 OptionDict = dict[str, Any]
 
 if TYPE_CHECKING:
@@ -80,9 +82,14 @@ class ModelFieldPlotter(ABC):
         )
 
         fig = kind.plot()
-        fig.suptitle(options.get("title", None))
+        if title := options.get("title", None):
+            fig.axes[0].set_title(title)
 
         return fig
+
+    @classmethod
+    def get_plot_options_form_layout_row_content(cls):
+        return Div()
 
 
 class PublicationPlotter(ModelFieldPlotter):

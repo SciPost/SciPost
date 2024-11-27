@@ -8,7 +8,8 @@ from graphs.graphs.plotter import ModelFieldPlotter
 
 from .graphs import ALL_PLOTTERS, ALL_PLOT_KINDS, AVAILABLE_MPL_THEMES
 
-import matplotlib.pyplot as plt
+from crispy_forms.helper import FormHelper, Layout
+from crispy_forms.layout import Div, Field
 
 
 class ModelFieldPlotterSelectForm(forms.Form):
@@ -91,6 +92,51 @@ class PlotOptionsForm(forms.Form):
         if plotter:
             self.fields.update(self.plot_kind_select_form.fields)
             self.fields.update(self.generic_plot_options_form.fields)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout()
+
+        def get_layout_field_names(layout):
+            """Recurse through a layout to get all field names."""
+            field_names = []
+            for field in layout:
+                if isinstance(field, str):
+                    field_names.append(field)
+                else:
+                    field_names.extend(get_layout_field_names(field.fields))
+            return field_names
+
+        # Iterate over all forms and construct the form layout
+        # either by extending the layout with the preferred layout from the object class
+        # or by creating a row with all fields that are not already in the layout
+        for form, object_class in {
+            self.model_field_select_form: self.model_field_select_form.plotter.__class__,
+            self.plot_kind_select_form: self.plot_kind_select_form.kind_class,
+            self.generic_plot_options_form: None,
+        }.items():
+
+            layout = Layout()
+            if object_class not in (None, None.__class__):
+                principal_field_name = next(iter(form.fields.keys()))
+                layout.append(Div(Field(principal_field_name), css_class="col-12"))
+
+                row_constructor = getattr(
+                    object_class, "get_plot_options_form_layout_row_content"
+                )
+                if row_constructor:
+                    layout.extend(row_constructor())
+
+            layout.extend(
+                [
+                    Div(Field(field_name), css_class="col-12")
+                    for field_name in form.fields.keys()
+                    if field_name not in get_layout_field_names(layout)
+                ],
+            )
+
+            self.helper.layout.append(layout)
+
+        self.helper.all().wrap(Div, css_class="row")
 
     def clean(self):
         cleaned_data = super().clean()
