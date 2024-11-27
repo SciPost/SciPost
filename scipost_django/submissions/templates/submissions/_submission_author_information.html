@@ -93,10 +93,12 @@
   <div class="mb-4">
     <h4>Communications</h4>
     <div id="communications">
-      {% if submission.editor_in_charge %}
-        <a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>
-      {% endif %}
-      <a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoS' %}">Write to the SciPost Editorial Administration</a>
+      <ul>
+        {% if submission.editor_in_charge %}
+          <li><a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a></li>
+        {% endif %}
+        <li><a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoS' %}">Write to the SciPost Editorial Administration</a></li>
+      </ul>
       {% include 'submissions/_communication_thread.html' with communication=submission.editorial_communications.for_authors css_class='wide' %}
     </div>
   </div>
