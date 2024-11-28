@@ -2897,7 +2897,7 @@ class SubmissionReassignmentView(
     queryset = Submission.objects.assigned()
     template_name = "submissions/admin/submission_reassign.html"
     form_class = SubmissionReassignmentForm
-    editorial_page = True
+    editorial_page = False
     success_url = reverse_lazy("submissions:pool:pool")
     success_message = "Editor successfully replaced."
 

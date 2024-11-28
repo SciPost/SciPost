@@ -100,7 +100,7 @@ class SubmissionAdminViewMixin(FriendlyPermissionMixin, SubmissionFormViewMixin)
         """
         qs = super().get_queryset()
         if self.pool:
-            return qs.pool(self.request.user)
+            return qs.in_pool(self.request.user)
         return qs.in_pool_filter_for_eic(self.request.user)
 
     def get_object(self):
