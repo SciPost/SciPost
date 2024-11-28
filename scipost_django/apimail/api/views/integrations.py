@@ -41,15 +41,16 @@ def send_mailgun_alert_slack_message(event_data: dict):
     if "scipost" in recipient and error_contains_keyword:
         return
 
-    message = f"[{event.upper()} / {reason}] {subject}\n{sender} -> {recipient}\nError: {error_description}"
+    if event == "failed" and (event_data.get("severity", "unknown") == "permanent"):
+        message = f"[{event.upper()} / {reason}] {subject}\n{sender} -> {recipient}\nError: {error_description}"
 
-    response = requests.post(
-        settings.SLACK_WEBHOOK_URL_MAILGUN_ALERTS,
-        json={"text": message},
-        headers={"Content-type": "application/json"},
-    )
+        response = requests.post(
+            settings.SLACK_WEBHOOK_URL_MAILGUN_ALERTS,
+            json={"text": message},
+            headers={"Content-type": "application/json"},
+        )
 
-    return response
+        return response
 
 
 @csrf_exempt
