@@ -178,12 +178,12 @@ class ProfileQuerySet(QuerySet):
             submission
         ).filter(has_any_competing_interest_with_submission=False)
 
-    def search(self, query):
+    def search(self, query: str):
         """
         Returns all Profiles matching the query for first name, last name, email, or ORCID.
         Exact matches are returned first, then partial matches.
         """
-        terms = query.replace(",", "").replace(".", "").split(" ")
+        terms = query.replace(",", "").split(" ")
 
         # Get ORCID term.
         orcid_term = Q()
@@ -199,7 +199,8 @@ class ProfileQuerySet(QuerySet):
                 terms.pop(i)  # Remove mail from further processing.
                 mail_term |= Q(emails__email__icontains=term)
 
-        name_terms = terms
+        # Remove dots from names to allow for matching initials
+        name_terms = list(map(lambda x: x.replace(".", ""), terms))
 
         base_query = mail_term & orcid_term
 
