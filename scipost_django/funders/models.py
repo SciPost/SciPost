@@ -127,6 +127,11 @@ class IndividualBudget(models.Model):
             ),
         ]
 
+    def get_absolute_url(self):
+        return reverse(
+            "funders:individual_budget_details", kwargs={"budget_id": self.id}
+        )
+
     @property
     def name(self):
         if self.budget_number:

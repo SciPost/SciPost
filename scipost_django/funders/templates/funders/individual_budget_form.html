@@ -1,0 +1,40 @@
+{% extends 'finances/base.html' %}
+
+{% load bootstrap %}
+{% load scipost_extras %}
+{% load crispy_forms_tags %}
+
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'funders:individual_budgets' %}">Individual Budgets</a></span>
+  {% if form.instance.id %}
+    <span class="breadcrumb-item"><a href="{{ form.instance.get_absolute_url }}">{{ form.instance }}</a></span>
+    <span class="breadcrumb-item"><a href="#" class="active">Update</a></span>
+  {% else %}
+    <span class="breadcrumb-item"><a href="#" class="active">Create</a></span>
+  {% endif %}
+
+{% endblock %}
+
+{% block pagetitle %}
+  : Individual Budgets
+{% endblock pagetitle %}
+
+
+{% block content %}
+<hgroup class="highlight p-3 mb-3">
+  <h1>{% if form.instance.id %}Update{% else %}Create {{ form.instance|object_name }}{% endif %} Form</h1>
+  {% if form.instance.id %}
+    <p class="m-0 fs-4"><a href="{{ form.instance.get_absolute_url }}">{{ form.instance }}</a></p>
+  {% endif %}
+</hgroup>
+
+  {% crispy form %}
+{% endblock content %}
+
+
+{% block footer_script %}
+  {{ block.super }}
+  {{ form.media }}
+{% endblock footer_script %}

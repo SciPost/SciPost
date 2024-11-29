@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import path
+from django.urls import include, path
 
 from . import views
 
@@ -33,5 +33,37 @@ urlpatterns = [
         "<int:pk>/link_to_organization/",
         views.LinkFunderToOrganizationView.as_view(),
         name="link_to_organization",
+    ),
+    path(
+        "budgets/<int:budget_id>/",
+        include(
+            [
+                path(
+                    "",
+                    views.IndividualBudgetDetailView.as_view(),
+                    name="individual_budget_details",
+                ),
+                path(
+                    "delete/",
+                    views.IndividualBudgetDeleteView.as_view(),
+                    name="individual_budget_delete",
+                ),
+                path(
+                    "update/",
+                    views.IndividualBudgetUpdateView.as_view(),
+                    name="individual_budget_update",
+                ),
+            ]
+        ),
+    ),
+    path(
+        "budgets/create/",
+        views.IndividualBudgetCreateView.as_view(),
+        name="individual_budget_create",
+    ),
+    path(
+        "budgets/",
+        views.IndividualBudgetListView.as_view(),
+        name="individual_budgets",
     ),
 ]

@@ -3,10 +3,14 @@ __license__ = "AGPL v3"
 
 
 from django import forms
+from django.urls import reverse_lazy
 
 from common.forms import HTMXDynSelWidget
 
-from .models import Funder, Grant
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
+
+from .models import Funder, Grant, IndividualBudget
 
 from dal import autocomplete
 
@@ -73,3 +77,48 @@ class GrantSelectForm(forms.Form):
         queryset=Grant.objects.all(),
         widget=HTMXDynSelWidget(url="/funders/grant-autocomplete"),
     )
+
+
+class IndividualBudgetForm(forms.ModelForm):
+    required_css_class = "required-asterisk"
+
+    class Meta:
+        model = IndividualBudget
+        fields = [
+            "organization",
+            "description",
+            "holder",
+            "budget_number",
+            "fundref_id",
+        ]
+        widgets = {
+            "organization": autocomplete.ModelSelect2(
+                url=reverse_lazy("organizations:organization-autocomplete"),
+                attrs={
+                    "data-html": True,
+                    "style": "width: 100%",
+                },
+            ),
+            "holder": autocomplete.ModelSelect2(
+                url=reverse_lazy("profiles:profile-autocomplete"),
+                attrs={
+                    "data-html": True,
+                    "style": "width: 100%",
+                },
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("organization"), css_class="col-12 col-md-6"),
+                Div(Field("holder"), css_class="col-12 col-md-6"),
+                Div(Field("description"), css_class="col-12"),
+                Div(Field("budget_number"), css_class="col-12 col-md"),
+                Div(Field("fundref_id"), css_class="col-12 col-md"),
+                css_class="row",
+            ),
+            ButtonHolder(Submit("submit", "Submit", css_class="btn-sm")),
+        )
