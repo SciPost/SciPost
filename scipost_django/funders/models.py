@@ -14,6 +14,12 @@ from scipost.models import Contributor
 
 from .managers import FunderQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+    from finances.models.subsidy import Subsidy
+
 
 class Funder(models.Model):
     """
@@ -101,6 +107,9 @@ class IndividualBudget(models.Model):
     )
     budget_number = models.CharField(max_length=64, blank=True, null=True)
     fundref_id = models.CharField(max_length=64, blank=True, null=True)
+
+    if TYPE_CHECKING:
+        subsidies_funded: "RelatedManager[Subsidy]"
 
     class Meta:
         default_related_name = "individual_budgets"
