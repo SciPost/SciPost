@@ -4,7 +4,9 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Funder, Grant
+from finances.admin import SubsidyInline
+
+from .models import Funder, Grant, IndividualBudget
 
 
 @admin.register(Funder)
@@ -21,8 +23,6 @@ class FunderAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 @admin.register(Grant)
 class GrantAdmin(admin.ModelAdmin):
     search_fields = [
@@ -37,3 +37,18 @@ class GrantAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(IndividualBudget)
+class IndividualBudgetAdmin(admin.ModelAdmin):
+    search_fields = [
+        "organization__name",
+        "organization__acronym",
+        "holder__first_name",
+        "holder__last_name",
+    ]
+    autocomplete_fields = [
+        "organization",
+        "holder",
+    ]
+    inlines = [
+        SubsidyInline,
+    ]
