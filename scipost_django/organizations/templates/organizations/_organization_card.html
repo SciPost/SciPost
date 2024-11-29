@@ -140,14 +140,16 @@
               <li><a href="#" hx-swap="outerHTML" hx-get="{% url "organizations:_hx_export_associated_profile_emails" pk=org.id %}">Export associated profile emails</a></li>
             </ul>
           {% endif %}
-          <h3>
-            {% if org.cf_nr_associated_publications %}{{ org.cf_nr_associated_publications }}{% else %}No{% endif %} 
-            Publication{{ org.cf_nr_associated_publications|pluralize }} associated to this Organization
-
-            {% if perms.scipost.can_manage_organizations %}
+          <hgroup>
+            <h3>
+              Associated Publications
+              
+              {% if perms.scipost.can_manage_organizations %}
               <span class="text-muted small">(with PubFracs <span data-bs-toggle="tooltip" data-bs-html="true" title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>
-            {% endif %}:
-          </h3>
+              {% endif %}:
+            </h3>
+            <p class="text-muted">{{ org.cf_nr_associated_publications }} total publication{{ org.cf_nr_associated_publications|pluralize }}</p>
+          </hgroup>
 
           {% regroup org.get_publications_with_year|dictsortreversed:'publication_year' by publication_year as publication_years %}
 
@@ -190,7 +192,10 @@
           {% endif %}
           <div class="row">
             <div class="col-lg-6">
-              <h3>Associated Authors:</h3>
+              <hgroup>
+                <h3>Associated Authors</h3>
+                <p class="text-muted">{{ org.get_author_profiles|length }} author{{ org.get_author_profiles|length|pluralize }}</p>
+              </hgroup>
               <ul>
 
                 {% for profile in org.get_author_profiles %}
@@ -245,10 +250,13 @@
              id="fellows-{{ org.id }}"
              role="tabpanel"
              aria-labelledby="fellows-{{ org.id }}-tab">
-          <h3 class="highlight">Fellows affiliated to this Organization</h3>
+          <h3>Affiliated Fellows</h3>
           <div class="row">
             <div class="col-lg-6">
-              <h4>Currently active</h4>
+              <hgroup>
+                <h4>Currently active</h4>
+                <p class="text-muted">{{ org.fellowships.active|length }} fellow{{ org.fellowships.active|length|pluralize }}</p>
+              </hgroup>
               <ul>
 
                 {% for fellow in org.fellowships.active %}
@@ -260,7 +268,10 @@
               </ul>
             </div>
             <div class="col-lg-6">
-              <h4>Former</h4>
+              <hgroup>
+                <h4>Former</h4>
+                <p class="text-muted">{{ org.fellowships.former|length }} fellow{{ org.fellowships.former|length|pluralize }}</p>
+              </hgroup>
               <ul>
 
                 {% for fellow in org.fellowships.former %}
