@@ -68,7 +68,17 @@ def object_name(obj):
         return None
     else:
         # Add spaces before capital letters in the object name to make it more readable
-        return re.sub(r"[^\s]([A-Z])", r" \1", obj._meta.object_name)
+        return re.sub(r"([^\s])([A-Z])", r"\1 \2", obj._meta.object_name)
+
+
+@register.filter(name="get_fields")
+def get_fields(obj):
+    return obj._meta.get_fields()
+
+
+@register.filter(name="get_field_value")
+def get_field_value(obj, field_name):
+    return getattr(obj, field_name)
 
 
 @register.filter
