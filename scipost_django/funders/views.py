@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.views.generic import DeleteView, DetailView, ListView
 import requests
 import json
 
@@ -17,12 +18,13 @@ from django.shortcuts import get_object_or_404, render, redirect
 
 from common.views import HXDynselAutocomplete
 
-from .models import Funder, Grant
+from .models import Funder, Grant, IndividualBudget
 from .forms import (
     FunderRegistrySearchForm,
     FunderForm,
     FunderOrganizationSelectForm,
     GrantForm,
+    IndividualBudgetForm,
 )
 
 from scipost.mixins import PermissionsMixin
@@ -163,3 +165,50 @@ class CreateGrantView(PermissionsMixin, HttpRefererMixin, CreateView):
     model = Grant
     form_class = GrantForm
     success_url = reverse_lazy("funders:funders_dashboard")
+
+
+#######################
+# Individual Budgets #
+#######################
+
+
+class IndividualBudgetListView(PermissionsMixin, ListView):
+    model = IndividualBudget
+    template_name = "funders/individual_budget_list.html"
+    permission_required = "scipost.can_manage_subsidies"
+    context_object_name = "budgets"
+
+
+class IndividualBudgetDetailView(PermissionsMixin, DetailView):
+    model = IndividualBudget
+    template_name = "funders/individual_budget_detail.html"
+    permission_required = "scipost.can_manage_subsidies"
+    pk_url_kwarg = "budget_id"
+    context_object_name = "budget"
+
+
+class IndividualBudgetDeleteView(PermissionsMixin, DeleteView):
+    model = IndividualBudget
+    template_name = "funders/individual_budget_delete.html"
+    success_url = reverse_lazy("finances:subsidies")
+    permission_required = "scipost.can_manage_subsidies"
+    pk_url_kwarg = "budget_id"
+    context_object_name = "budget"
+
+
+class IndividualBudgetCreateView(PermissionsMixin, CreateView):
+    model = IndividualBudget
+    form_class = IndividualBudgetForm
+    template_name = "funders/individual_budget_form.html"
+    permission_required = "scipost.can_manage_subsidies"
+    pk_url_kwarg = "budget_id"
+    context_object_name = "budget"
+
+
+class IndividualBudgetUpdateView(PermissionsMixin, UpdateView):
+    model = IndividualBudget
+    form_class = IndividualBudgetForm
+    template_name = "funders/individual_budget_form.html"
+    permission_required = "scipost.can_manage_subsidies"
+    pk_url_kwarg = "budget_id"
+    context_object_name = "budget"

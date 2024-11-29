@@ -1,0 +1,80 @@
+{% extends 'funders/base.html' %}
+
+{% load bootstrap %}
+{% load scipost_extras %}
+
+{% block meta_description %}
+  {{ block.super }} {{ object|object_name }} Detail
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : {{ object|object_name }} details
+{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'funders:individual_budgets' %}">Individual Budgets</a></span>
+  <span class="breadcrumb-item"><a href="#" class="active">{{ object }}</a></span>
+{% endblock %}
+
+{% block content %}
+
+  <div class="highlight p-3 d-flex flex-row justify-content-between align-items-center mb-3">
+    <h1>{{ object }}</h1>
+    <div class="dropdown">
+      <button class="btn btn-sm btn-light dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false">
+        <span>Actions</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <a href="{% url 'funders:individual_budget_update' budget_id=object.id %}"
+             class="dropdown-item">Edit</a>
+        </li>
+        <li>
+          <a href="{% url 'funders:individual_budget_delete' budget_id=object.id %}"
+             class="dropdown-item">Delete</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+ 
+
+  {% for field in object|get_fields %}
+    {% with object|get_field_value:field.name as field_value %}
+
+      {% if not field_value or field.name == 'id' or field.name == 'subsidies_funded' %}
+      {% else %}
+        <div class="fs-5 fw-bold">{{ field.verbose_name|title }}</div>
+        <p>
+
+          {% if field.is_relation %}
+            <a href="{{ field_value.get_absolute_url }}">{{ field_value }}</a>
+          {% else %}
+            {{ field_value }}
+          {% endif %}
+
+        </p>
+      {% endif %}
+
+    {% endwith %}
+  {% endfor %}
+
+  <h2>Subsidies funded from this {{ object|object_name }}</h2>
+  <ul class="list-unstyled">
+
+    {% for subsidy in object.subsidies_funded.all %}
+      <li>
+        <a href="{{ subsidy.get_absolute_url }}">{{ subsidy }}</a>
+      </li>
+    {% empty %}
+      <li>No subsidies funded.</li>
+    {% endfor %}
+
+
+
+  </ul>
+
+{% endblock content %}

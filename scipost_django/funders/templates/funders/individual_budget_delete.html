@@ -1,0 +1,69 @@
+{% extends 'finances/base.html' %}
+
+{% load bootstrap %}
+{% load scipost_extras %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Individual Budgets</span>
+  <span class="breadcrumb-item"><a href="{{ object.get_absolute_url }}">{{ object }}</a></span>
+  <span class="breadcrumb-item"><a href="#" class="active">Delete</a></span>
+{% endblock %}
+
+{% block pagetitle %}
+  : Delete Individual Budget
+{% endblock pagetitle %}
+
+{% block content %}
+
+  <hgroup class="highlight p-3 mb-3">
+    <h1>Delete {{ object|object_name }}</h1>
+    <p class="m-0 fs-4">
+      <a href="{{ object.get_absolute_url }}">{{ object }}</a>
+    </p>
+  </hgroup>
+
+  <div class="row">
+    <div class="col-12">
+      <h2>
+        <a href="{{ object.get_absolute_url }}">{{ object }}</a>
+      </h2>
+ 
+
+      {% for field in object|get_fields %}
+        {% with object|get_field_value:field.name as field_value %}
+
+          {% if not field_value or field.name == 'id' or field.name == 'subsidies_funded' %}
+          {% else %}
+            <div class="fs-5 fw-bold">{{ field.verbose_name|title }}</div>
+            <p>
+
+              {% if field.is_relation %}
+                <a href="{{ field_value.get_absolute_url }}">{{ field_value }}</a>
+              {% else %}
+                {{ field_value }}
+              {% endif %}
+
+            </p>
+          {% endif %}
+
+        {% endwith %}
+      {% endfor %}
+
+ 
+      <div class="col-12">
+        <form method="post">
+          {% csrf_token %}
+          <div class="fs-5 mb-2">
+            Are you sure you want to delete this {{ object|object_name }}?
+          </div>
+          <p>
+            Deleting this {{ object|object_name }} will <strong>not</strong> delete the subsidies associated with it.
+          </p>
+          <input type="submit" class="btn btn-danger" value="Yes, delete it" />
+          <a href="{{ object.get_absolute_url }}" class="btn btn-secondary">Cancel</a>
+        </form>
+      </div>
+    </div>
+
+  {% endblock content %}

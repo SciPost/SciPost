@@ -89,6 +89,10 @@ class SubsidyForm(forms.ModelForm):
         self.fields["collective"].help_text = (
             f"If missing, <a href='{subsidy_collective_create}'>create a new one</a>."
         )
+        individual_budget_create = reverse_lazy("funders:individual_budget_create")
+        self.fields["individual_budget"].help_text = (
+            f"If missing, <a href='{individual_budget_create}'>create a new one</a>."
+        )
 
     def clean(self):
         cleaned_data = super().clean()

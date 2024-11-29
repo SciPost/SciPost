@@ -1,0 +1,44 @@
+{% extends 'funders/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block meta_description %}
+  {{ block.super }} Individual Budget List
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Individual Budget
+{% endblock pagetitle %}
+
+{% load static %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="#" class="active">Individual Budgets</a></span>
+{% endblock %}
+
+{% block content %}
+ 
+  <div class="highlight p-3 d-flex flex-row justify-content-between align-items-center mb-3">
+    <h1>Individual Budgets</h1>
+    <a href="{% url 'funders:individual_budget_create' %}"
+       class="btn btn-primary">Create</a>
+  </div>
+ 
+  <div class="row">
+    <div class="col">
+      <ul class="list-unstyled">
+
+        {% for budget in budgets %}
+          <li>
+            <a href="{{ budget.get_absolute_url }}">{{ budget }}</a>
+          </li>
+        {% empty %}
+          <li>No Individual Budgets</li>
+        {% endfor %}
+
+      </ul>
+    </div>
+  </div>
+
+{% endblock content %}
