@@ -23,9 +23,11 @@ from finances.constants import (
     SUBSIDY_STATUS,
     SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
     SUBSIDY_TYPES,
+    SUBSIDY_TYPE_INDIVIDUAL_BUDGET,
 )
 
 from finances.models.subsidy import SubsidyCollective
+from funders.models import IndividualBudget
 from organizations.models import Organization
 from scipost.fields import UserModelChoiceField
 
@@ -73,6 +75,7 @@ class SubsidyForm(forms.ModelForm):
             "renewable",
             "renewal_of",
             "collective",
+            "individual_budget",
         ]
         widgets = {
             "paid_on": forms.DateInput(attrs={"type": "date"}),
@@ -86,6 +89,42 @@ class SubsidyForm(forms.ModelForm):
         self.fields["collective"].help_text = (
             f"If missing, <a href='{subsidy_collective_create}'>create a new one</a>."
         )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        individual_budget: "IndividualBudget | None" = cleaned_data.get(
+            "individual_budget", None
+        )
+
+        # Validate individual budget subsidies
+        if cleaned_data.get("subsidy_type") == SUBSIDY_TYPE_INDIVIDUAL_BUDGET:
+            if cleaned_data.get("renewable"):
+                self.add_error(
+                    "renewable",
+                    "Individual budget subsidies are not renewable",
+                )
+
+            if not individual_budget:
+                self.add_error(
+                    "individual_budget",
+                    "An individual budget must be selected",
+                )
+            elif individual_budget.organization and (
+                individual_budget.organization != cleaned_data.get("organization")
+            ):
+                self.add_error(
+                    "organization",
+                    "The selected Organization does not match the one providing the individual budget",
+                )
+
+            if cleaned_data.get("date_from") != cleaned_data.get("date_until"):
+                self.add_error(
+                    "date_until",
+                    "Individual budget subsidies must have the same from and until date",
+                )
+
+        return cleaned_data
 
 
 class SubsidySearchForm(forms.Form):

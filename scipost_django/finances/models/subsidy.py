@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
     from organizations.models import Organization
+    from funders.models import IndividualBudget
 
 
 class Subsidy(models.Model):
@@ -67,6 +68,13 @@ class Subsidy(models.Model):
         blank=True,
         null=True,
         related_name="subsidies",
+    )
+    individual_budget = models.ForeignKey["IndividualBudget"](
+        "funders.IndividualBudget",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="subsidies_funded",
     )
 
     if TYPE_CHECKING:
