@@ -327,7 +327,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             Report.objects.filter(
                 submission__thread_hash=self.submission.thread_hash,
             )
-            .order_by("date_submitted")
+            .order_by("author__id", "date_submitted")
+            .distinct("author__id")
             .values_list("author__id", flat=True)
         )
         return ordered_reports.index(self.author.id) + 1
