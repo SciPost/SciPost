@@ -4018,13 +4018,14 @@ class RefereeIndicationForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
+        referee = cleaned_data.get("referee")
         referee_info_fields = [
             cleaned_data.get("first_name"),
             cleaned_data.get("last_name"),
             cleaned_data.get("email_address"),
         ]
 
-        if cleaned_data.get("referee") is None and not all(referee_info_fields):
+        if referee is None and not all(referee_info_fields):
             self.add_error(
                 None,
                 "If you don't select a referee, you must provide all the necessary information.",
@@ -4042,6 +4043,17 @@ class RefereeIndicationForm(forms.ModelForm):
                     "reason",
                     "The reason is too short, please provide a more detailed explanation.",
                 )
+
+        # Check if the referee has already been indicated by the user
+        if RefereeIndication.objects.filter(
+            submission=self.submission,
+            referee=referee,
+            indicated_by=self.profile,
+        ).exists():
+            self.add_error(
+                "referee",
+                "You have already indicated this referee for this submission.",
+            )
 
         return cleaned_data
 
