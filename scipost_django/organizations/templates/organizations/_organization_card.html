@@ -343,14 +343,15 @@
              role="tabpanel"
              aria-labelledby="support-{{ org.id }}-tab">
           <h3 class="highlight">Support history</h3>
-
           {% if 'finadmin' in user_roles %}
-            <a href="{% url "finances:subsidy_sponsorship_create" organization_id=org.id %}">Create a new subsidy from this Organization</a>
+            <p><a href="{% url "finances:subsidy_sponsorship_create" organization_id=org.id %}">Create a new subsidy from this Organization</a></p>
           {% endif %}
 
-          {% if org.subsidy_set.obtained|length > 0 or org.children.all|length > 0 %}
+          <h4>Direct support</h4>
 
-            {% if org.subsidy_set.obtained|length > 0 %}
+          {% if org.subsidy_set.direct.obtained|length > 0 or org.children.all|length > 0 %}
+
+            {% if org.subsidy_set.direct.obtained|length > 0 %}
               <table class="table table-hover mb-5 caption-top">
                 <caption>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</caption>
                 <thead class="table-light">
@@ -362,7 +363,7 @@
                 </thead>
                 <tbody>
 
-                  {% for subsidy in org.subsidy_set.obtained %}
+                  {% for subsidy in org.subsidy_set.direct.obtained %}
                     <tr class="table-row"
                         data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}"
                         style="cursor: pointer">
@@ -416,8 +417,60 @@
             {% endif %}
 
           {% else %}
-            <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
+            <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost directly.</strong></p>
           {% endif %}
+
+         {% if org.subsidy_set.through_individual_budget.exists %}
+
+              <h4>Support through Individual budgets</h3>
+              <table class="table table-hover mb-5 caption-top">
+                <caption>List of Subsidies funded through individual budgets provided by this Organization. Click on a row to see more details.</caption>
+                <thead class="table-light">
+                  <tr>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    {% if "can_manage_subsidies" in perms %}
+                      <th class="border border-danger bg-danger bg-opacity-10">Individual Budget</th>
+                    {% endif %}
+                  </tr>
+                </thead>
+                <tbody>
+
+                  {% for subsidy in org.subsidy_set.through_individual_budget.all %}
+                      <tr class="table-row"
+                          data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}"
+                          style="cursor: pointer">
+                        <td>{{ subsidy.get_subsidy_type_display }}</td>
+                        <td>
+
+                          {% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}
+                            &euro;{{ subsidy.amount }}
+                          {% else %}
+                            -
+                          {% endif %}
+
+                        </td>
+                        <td>
+                          {{ subsidy.date_from }}
+
+                          {% if subsidy.date_until %}until {{ subsidy.date_until }}{% endif %}
+
+                        </td>
+                        {% if "can_manage_subsidies" in perms %}
+                          <td class="border border-danger bg-danger bg-opacity-10">
+                            {% if subsidy.individual_budget.budget_number %}
+                              <span class="me-2">{{ subsidy.individual_budget.budget_number }}</span>
+                            {% endif %}
+                            <a href="{% url 'funders:individual_budget_details' budget_id=subsidy.individual_budget.id %}" class="ms-auto">View</a>
+                          </td>
+                        {% endif %}
+                      </tr>
+                  {% endfor %}
+
+                </tbody>
+              </table>
+          {%endif %}
 
           {% if org.parent %}
             <h4>See also the subsidies from this parent organization:</h4>
