@@ -4,12 +4,18 @@ __license__ = "AGPL v3"
 
 from django.db import models
 
-from .constants import SUBSIDY_WITHDRAWN
+from .constants import SUBSIDY_WITHDRAWN, SUBSIDY_TYPE_INDIVIDUAL_BUDGET
 
 
 class SubsidyQuerySet(models.QuerySet):
     def obtained(self):
         return self.exclude(status=SUBSIDY_WITHDRAWN)
+
+    def direct(self):
+        return self.exclude(subsidy_type=SUBSIDY_TYPE_INDIVIDUAL_BUDGET)
+
+    def through_individual_budget(self):
+        return self.filter(subsidy_type=SUBSIDY_TYPE_INDIVIDUAL_BUDGET)
 
 
 class SubsidyPaymentQuerySet(models.QuerySet):
