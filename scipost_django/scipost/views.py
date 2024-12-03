@@ -274,10 +274,8 @@ def portal_hx_recent_publications(request):
     if specialty and specialty != "all":
         filter_q &= Q(specialties__slug=specialty)
 
-    publications = (
-        publications.filter(filter_q)
-        .order_by("-publication_date")
-        .prefetch_related("in_issue__in_journal", "specialties", "collections__series")
+    publications = publications.filter(filter_q).prefetch_related(
+        "in_issue__in_journal", "specialties", "collections__series"
     )
     context = {"publications": publications[:5], "form": form}
     return render(request, "scipost/portal/_hx_recent_publications.html", context)
