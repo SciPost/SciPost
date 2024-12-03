@@ -3612,19 +3612,35 @@ class RecommendationVoteForm(forms.Form):
         self.recommendation: "EICRecommendation" = kwargs.pop("recommendation")
         super().__init__(*args, **kwargs)
 
-        self.fields["alternative_for_journal"].queryset = (
-            self.recommendation.submission.submitted_to.alternative_journals.all()
+        alt_journal_ids = list(
+            self.recommendation.for_journal.alternative_journals.active().values_list(
+                "id", flat=True
+            )
+        )
+        self.fields["alternative_for_journal"].queryset = Journal.objects.filter(
+            id__in=[self.recommendation.for_journal.id] + alt_journal_ids
         )
 
     def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data["vote"] == "disagree" and (
-            cleaned_data["alternative_for_journal"] is None
-            or cleaned_data["alternative_recommendation"] == ""
-        ):
+        vote = cleaned_data.get("vote", None)
+        alt_recommendation = int(cleaned_data.get("alternative_recommendation", 0))
+        alt_journal = cleaned_data.get("alternative_for_journal", None)
+
+        if vote == "disagree" and (alt_journal is None or alt_recommendation == ""):
             raise forms.ValidationError(
                 "If you disagree, you must provide an alternative recommendation "
                 "(by filling both the for journal and recommendation fields)."
+            )
+
+        is_same_journal = alt_journal == self.recommendation.for_journal
+        is_same_recommendation = (
+            alt_recommendation == self.recommendation.recommendation
+        )
+        if is_same_journal and is_same_recommendation:
+            raise forms.ValidationError(
+                "The alternative recommendation must differ from the original recommendation "
+                "in either the Journal or the kind of recommendation."
             )
 
 
