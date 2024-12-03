@@ -397,7 +397,12 @@ class AlternativeRecommendationInline(admin.StackedInline):
 
 @admin.register(EICRecommendation)
 class EICRecommendationAdmin(admin.ModelAdmin):
-    search_fields = ["submission__title"]
+    search_fields = [
+        "submission__title",
+        "submission__preprint__identifier_w_vn_nr",
+        "formulated_by__profile__last_name",
+        "formulated_by__profile__first_name",
+    ]
     list_filter = ("status",)
     list_display = (
         submission_short_title,
