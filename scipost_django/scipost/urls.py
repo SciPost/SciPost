@@ -190,6 +190,11 @@ urlpatterns = [
         name="PlanSciPost",
     ),
     path(
+        "roadmap",
+        TemplateView.as_view(template_name="scipost/roadmap.html"),
+        name="roadmap",
+    ),
+    path(
         "foundation",
         TemplateView.as_view(template_name="scipost/foundation.html"),
         name="foundation",

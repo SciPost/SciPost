@@ -15,23 +15,18 @@
 {% block content %}
 
 
-  <div class="row">
-    <div class="col">
-      <h1 class="highlight">About SciPost</h1>
-      <p>SciPost is a complete scientific publication portal managed by the <a href="{% url 'scipost:foundation' %}">SciPost Foundation</a>.</p>
-      <p>It is purely online-based, and offers freely, openly, globally and perpetually accessible science.</p>
-      <p>Being managed by professional scientists, and making use of editor-solicited and contributed reviews, its Journals aim at the highest achievable standards of refereeing.</p>
-      <p>Our <a href="{% url 'finances:business_model' %}">business model</a> offers an affordable and equitable alternative to other systems.</p>
-      <h4><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h4>
-    </div>
-  </div>
+  <h1 class="highlight">About SciPost</h1>
 
-  <hr>
-  <div class="row">
-    <div class="col-12">
-      <h2 class="highlight" id="guiding_principles">Guiding principles</h2>
-    </div>
-  </div>
+  <img class="p-2" style="max-width: 600px;" src="{% static 'scipost/scipost_diamond_circle.jpg' %}"></img>
+
+  <p>SciPost is a complete online scientific publication portal managed by the <a href="{% url 'scipost:foundation' %}">SciPost Foundation</a>.</p>
+  <p>Being managed by professional scientists, its Journals aim at the highest achievable editorial quality standards and provide freely, openly, globally and perpetually accessible science.</p>
+  <p>Our <a href="{% url 'finances:business_model' %}">business model</a> offers an affordable and equitable antidote to profitmaking alternatives.</p>
+  <h4><a href="{% url 'scipost:FAQ' %}">Frequently asked questions</a></h4>
+
+
+  <h2 class="highlight mt-5" id="guiding_principles">Guiding principles</h2>
+  <img class="p-2" style="max-width: 600px;" src="{% static 'scipost/scipost_built_genuine_OA.jpg' %}"></img>
 
   <div class="row">
     <div class="col-md-6">
@@ -53,65 +48,142 @@
     </div>
   </div>
 
-  <div class="row">
-    <p>As an organization, and for all its Journals, SciPost follows the <a href="https://jscaux.org/blog/post/2018/05/05/genuine-open-access/">Genuine Open Access Principles:</a></p>
-    <table class="table table-bordered table-responsive" id="GOA">
-      <tr>
-	<td>[CO]</td>
-	<td style="width: 30%;"><strong>Community Ownership</strong> </td>
-	<td>The Journal has a transparent community-anchored ownership structure, and is controlled by and responsive to the scholarly community.</td>
-      </tr>
-      <tr>
-	<td>[OI]</td>
-	<td><strong>Open Infrastructure</strong></td>
-	<td>The infrastructure for operating the Journal belongs to, and is open sourced to the community. The entire technological stack and all operating protocols are documented and made easily transferable between community owners.</td>
-      </tr>
-      <tr>
-	<td>[CA]</td>
-	<td><strong>Copyright to authors</strong></td>
-	<td>Authors of articles in the Journal retain copyright. The Journal assists authors in protecting their rights in case of infringement.</td>
-      </tr>
-      <tr>
-	<td>[OA]</td>
-	<td><strong>Open Access</strong></td>
-	<td>All articles are published open access and an explicit open access licence is used which is preferably <a href="https://creativecommons.org/share-your-work/public-domain/freeworks/" target="_blank" rel="noopener">Approved for Free Cultural Works</a>.</td>
-      </tr>
-      <tr>
-	<td>[OC]</td>
-	<td><strong>Open Citations</strong></td>
-	<td>The Journal makes its citation metadata openly accessibly by actively participating in the <a href="https://i4oc.org" target="_blank" rel="noopener">Initiative for Open Citations.</a></td>
-      </tr>
-      <tr>
-	<td>[FF]</td>
-	<td><strong>Fee Free</strong></td>
-	<td>Submission, peer evaluation and publication are not conditional in any way on the payment of a fee from authors or their employing institution, or on membership of an institution or society.</td>
-      </tr>
-      <tr>
-	<td>[NP]</td>
-	<td><strong>Non Profit</strong></td>
-	<td>The Journal publisher's operations are entirely non profit.</td>
-      </tr>
-      <tr>
-	<td>[OF]</td>
-	<td><strong>Open Finances</strong></td>
-	<td>The Journal's finances are openly published and available for public scrutiny.</td>
-      </tr>
-      <tr>
-	<td>[AE]</td>
-	<td><strong>Academic Editing</strong></td>
-	<td>The editorial processes of the Journal are run by the community, and all editorial decisions are taken by active professional scientists, using exclusively academic scholarship-based criteria.</td>
-      </tr>
-    </table>
-    <p>These principles are an extension and sharpening up of the Fair Open Access Principles, the most important difference being the insistence on the non profit business model.</p>
-  </div>
+  <p>As an organization, and for all its Journals, SciPost follows the <a href="https://jscaux.org/blog/post/2018/05/05/genuine-open-access/">Genuine Open Access Principles:</a></p>
+  <table class="table table-bordered table-responsive" id="GOA">
+    <tr>
+      <td>[CO]</td>
+      <td style="width: 30%;"><strong>Community Ownership</strong> </td>
+      <td>The Journal has a transparent community-anchored ownership structure, and is controlled by and responsive to the scholarly community.</td>
+    </tr>
+    <tr>
+      <td>[OI]</td>
+      <td><strong>Open Infrastructure</strong></td>
+      <td>The infrastructure for operating the Journal belongs to, and is open sourced to the community. The entire technological stack and all operating protocols are documented and made easily transferable between community owners.</td>
+    </tr>
+    <tr>
+      <td>[CA]</td>
+      <td><strong>Copyright to authors</strong></td>
+      <td>Authors of articles in the Journal retain copyright. The Journal assists authors in protecting their rights in case of infringement.</td>
+    </tr>
+    <tr>
+      <td>[OA]</td>
+      <td><strong>Open Access</strong></td>
+      <td>All articles are published open access and an explicit open access licence is used which is preferably <a href="https://creativecommons.org/share-your-work/public-domain/freeworks/" target="_blank" rel="noopener">Approved for Free Cultural Works</a>.</td>
+    </tr>
+    <tr>
+      <td>[OC]</td>
+      <td><strong>Open Citations</strong></td>
+      <td>The Journal makes its citation metadata openly accessibly by actively participating in the <a href="https://i4oc.org" target="_blank" rel="noopener">Initiative for Open Citations.</a></td>
+    </tr>
+    <tr>
+      <td>[FF]</td>
+      <td><strong>Fee Free</strong></td>
+      <td>Submission, peer evaluation and publication are not conditional in any way on the payment of a fee from authors or their employing institution, or on membership of an institution or society.</td>
+    </tr>
+    <tr>
+      <td>[NP]</td>
+      <td><strong>Non Profit</strong></td>
+      <td>The Journal publisher's operations are entirely non profit.</td>
+    </tr>
+    <tr>
+      <td>[OF]</td>
+      <td><strong>Open Finances</strong></td>
+      <td>The Journal's finances are openly published and available for public scrutiny.</td>
+    </tr>
+    <tr>
+      <td>[AE]</td>
+      <td><strong>Academic Editing</strong></td>
+      <td>The editorial processes of the Journal are run by the community, and all editorial decisions are taken by active professional scientists, using exclusively academic scholarship-based criteria.</td>
+    </tr>
+  </table>
 
-  <hr>
+  <p>These principles are an extension and sharpening up of the Fair Open Access Principles, the most important difference being the insistence on the non profit business model.</p>
 
+
+  <h2 class="highlight mt-5" id="aboutThreePillars">Our Infrastructure: 3 Pillars</h2>
   <div class="row">
-    <div class="col-12">
-      <h2 class="highlight" id="team">The SciPost Team</h2>
+    <div class="col-lg-6">
+      <p>
+	At SciPost, we believe that the only realistic way to reform publishing is to build new infrastructure implementing things as academics, not corporations, want them. In this day and high-tech age, communities equipped with purpose-built systems and workflows are entirely able to independently take care of all their publishing needs. Our purpose is to empower such communities.
+      </p>
+      <p>
+	We implement this through a triad of pillars, each providing a different level of support:
+      </p>
+      </p>
+      <ul>
+	<li>
+	  <p class="mb-0"><strong>In-house Journals</strong></p>
+	  <p>The first pillar consists of field-scoped journals implementing SciPost's <a href="{% url 'submissions:editorial_procedure' %}">open editorial procedure</a> and run by <a href="{% url 'colleges:colleges' %}">Editorial Colleges</a> of reputed specialists. Building up on our template in Physics, our vision is to extend our Genuine Open Access services to many other fields (with a portfolio of field-scoped Journals) and install a multi-field overarching journal called <a href="{% url 'scipost:journal_detail' doi_label='SciPostSelect' %}">Selections</a> highlighting the very best science from all fields and targeted towards a much broader readership (from non-specialists to journalists/press agencies all the way to the general public).
+	  </p>
+	</li>
+	<li>
+	  <p class="mb-0"><strong>Hosted Journals</strong></p>
+	  <p>The second pillar complements the field-scoped in-house journals by providing more specialized field/specialty-targeted publishing venues run by independent Editorial Colleges. These journals make full use of SciPost's editorial, publishing, production and maintenance systems, and are fully embedded into (and thus supported by) SciPost's <a href="{% url 'finances:business_model' %}">business model</a>. An example of Hosted Journal is <a href="{% url 'scipost:journal_detail' doi_label='MigPol' %}">Migration Politics</a>. Our vision is to upscale use of these facilities by supporting the creation and maintenance of a large portfolio of community-run but SciPost-hosted specialized journals (and thus naturally complementing the field-scope in-house journals of the first pillar).
+	  </p>
+	</li>
+	<li>
+	  <p class="mb-0"><strong>Affiliate Journals</strong></p>
+	  <p>
+	    The third pillar empowers independently-run Diamond-class journals to make use of our financial <a href="{% url 'organizations:organizations' %}">information system for organizations</a> linking publishing activities (via authors and their affiliations) with institutional support, enabling complete transparency in expenditures and returns on investment using our business model's PubFracs concept. Our vision is to upscale use of these <a href="{% url 'affiliates:journals' %}">facilities</a> by onboarding a large family of existing Diamond journals, and by extension to effectively form a strong federation able to act synergetically as lobbying group for Diamond sustainability.
+	  </p>
+	</li>
+      </ul>
+    </div>
+    <div class="col-lg-6">
+      <img style="width: 90%; max-width: 500px;" src="{% static 'scipost/scipost_diamond_journal_pillars.jpg' %}"></img>
     </div>
   </div>
+
+
+  <h2 class="highlight mt-5" id="aboutPubFracs">Our Business Model: PubFracs</h2>
+  <div class="row">
+    <div class="col-lg-6">
+      <p>
+	Open Access has led to the burgeoning of a plethora of different business models, all too often characterized by inflated costs, inequity and lack of financial transparency. Few knowledgeable people doubt that researchers and academic institutions are currently being fleeced by publishers. The only way to stop this is to provide an alternative.
+      </p>
+      <p>
+	We propose a business model which is cost-slashing, equitable, and completely transparent.
+	You will find a detailed explanation at our <a href="{% url 'finances:business_model' %}">business model</a> page, but the idea is rather simple to understand.
+      </p>
+      <ul>
+	<li class="m-2">
+	  <strong>Publishing and interlinking</strong><br>
+	  Organizations (author affiliations, funding agencies, ...)
+	  are interlinked with each Publication to which they are associated.
+	</li>
+	<li class="m-2">
+	  <strong>Determining PubFracs</strong><br>
+	  Upon publication, we compute our PubFracs (a fraction of a unit representing an Organization's "affiliations weight" for a given Publication).
+	</li>
+	<li class="m-2">
+	  <strong>Compiling operational costs</strong><br>
+	  On a yearly basis, we determine and make publicly known:
+	  our total expenditures, and an average expenditure per publication (<a href="{% url 'finances:apex' %}">APEX</a>)
+	</li>
+	<li class="m-2">
+	  <strong>Information display</strong><br>
+	  We publicly display relevant information on expenditures and support received:
+	  <ul>
+	    <li><a href="{% url 'finances:subsidies' %}">subsidies we have received</a></li>
+	    <li><a href="{% url 'organizations:organizations' %}">organizations</a> listing and
+	      <a href="{% url 'finances:country_level_data' %}">country-level</a> summaries</li>
+	    <li>an assessment of our <a href="{% url 'finances:finances' %}#current">current state of viability</a></li>
+	  </ul>
+	</li>
+	<li class="m-2">
+	  <strong>Sustaining</strong><br>
+	  We liaise with Organizations benefitting from our activities, who can inspect all the data and independently determine to which level they choose to support our activities. Generosity is appreciated, bearing in mind the proportion of non-supporting bystanders. We scale up, maintain or wind down our operations depending on how much support we can gather.
+	</li>
+      </ul>
+      <p><em><strong>See full details at our <a href="{% url 'finances:business_model' %}">business model</a> page</strong></em></p>
+    </div>
+    <div class="col-lg-6">
+      <img style="width: 90%; max-width: 500px;" src="{% static 'scipost/pubfracs_model_calculation.jpg' %}"></img>
+    </div>
+  </div>
+
+
+  <h2 class="highlight mt-5" id="team">The SciPost Team</h2>
 
   <div class="card m-2 border-0">
     <div class="card-body">
@@ -187,12 +259,8 @@
     </div>
   </div>
 
-  <hr>
-  <div class="row">
-    <div class="col">
-      <h2 class="highlight" id="advisory_board">Advisory Board</h2>
-    </div>
-  </div>
+
+  <h2 class="highlight mt-5" id="advisory_board">Advisory Board</h2>
 
   <div class="card m-2">
     <div class="card-header text-center">Astronomy</div>
@@ -332,15 +400,11 @@
     </div>
   </div>
 
-  <hr>
-  <div class="row">
-    <div class="col">
-      <h2 class="highlight" id="editorial_colleges">Editorial Colleges</h2>
-      <p>
-	Please visit our <a href="{% url 'colleges:colleges' %}">Editorial Colleges page</a>
-	to view the list of our current Editorial Fellows in all our fields of activity.
-      </p>
-    </div>
-  </div>
+
+  <h2 class="highlight mt-5" id="editorial_colleges">Editorial Colleges</h2>
+  <p>
+    Please visit our <a href="{% url 'colleges:colleges' %}">Editorial Colleges page</a>
+    to view the list of our current Editorial Fellows in all our fields of activity.
+  </p>
 
 {% endblock content %}
