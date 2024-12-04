@@ -1,0 +1,129 @@
+{% extends 'scipost/base.html' %}
+
+{% block meta_description %}{{ block.super }} Roadmap{% endblock meta_description %}
+{% block pagetitle %}: roadmap{% endblock pagetitle %}
+
+{% load static %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+
+      <h1 class="highlight">Roadmap</h1>
+
+      <p>
+	At SciPost, we practice complete openness and transparency for all our operations.
+	This means that you can easily peruse all our <a href="{% url 'journals:publications' %}">publications</a>,
+	examine the list of <a href="{% url 'organizations:organizations' %}">benefitting organizations</a>,
+	see which ones are <a href="{% url 'finances:subsidies' %}">supporting us</a>,
+	and what that means for our <a href="{% url 'finances:finances' %}">finances</a>
+	and  <a href="{% url 'finances:finances' %}#current">sustainability</a>.
+      </p>
+
+      <p>
+	This however only highlights our <em><strong>past</strong></em> activities.
+	What about our <em><strong>future</strong></em> ones?
+      </p>
+
+      <h2 class="highlight mt-5">Our Plans</h2>
+
+      <div class="row">
+	<div class="col-lg-6">
+	  <p class="text-center mx-auto border border-primary" style="width: 80%;">
+	    <em><strong>
+	      Transform SciPost into a large-scale, multi-field, multi-level <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a> publishing infrastructure by upscaling the implementation of our three pillars:<br>
+	      In-house Journals, Hosted Journals and Affiliate Journals
+	    </strong></em>
+	  </p>
+	  <p>If you are not yet familiar with our three pillars, see <a href="{% url 'scipost:about' %}#aboutThreePillars">this link</a>. Our plans for each can be summarized as follows.</p>
+
+	  <p class="mt-4 mb-0">In-house Journals:</p>
+	  <ul>
+	    <li>upscale existing <a href="{% url 'colleges:colleges' %}">Colleges</a>;</li>
+	    <li>expand the portfolio of Journals in existing fields;</li>
+	    <li>establish new Colleges and launch field-specific in-house journals in further fields.</li>
+	  </ul>
+	  <p class="ms-4">{% include 'bi/arrow-return-right.html' %}<em>Interested in helping or suggesting somebody who can? Email us at <a href="mailto:edadmin@{{ request.get_host }}">edadmin@{{ request.get_host }}</a></em>.
+	  <p class="mt-4 mb-0">Hosted Journals:</p>
+	  <ul>
+	    <li>support communities wishing to launch a specialized hosted journal using our editorial and financial infrastructure;</li>
+	    <li>support communities wishing to shift their existing venue to Diamond publishing (e.g. through the <a href="https://www.nwo.nl/en/calls/diamond-open-access">NWO Diamond Open Access Fund</a>) using our infrastructure.</li>
+	  </ul>
+	  <p class="ms-4">{% include 'bi/arrow-return-right.html' %}<em>Interested in launching or flipping? Email us at <a href="mailto:edadmin@{{ request.get_host }}">edadmin@{{ request.get_host }}</a></em>.</p>
+	  <p class="mt-4 mb-0">Affiliate Journals:</p>
+	  <ul>
+	    <li>support independent journals who wish to use our PubFracs business model and use our financial information and reporting facilities.</li>
+	  </ul>
+	  <p class="ms-4">{% include 'bi/arrow-return-right.html' %}<em>Interested in your journal (Diamond-style only!) becoming one of our affiliates? Email us at <a href="mailto:edadmin@{{ request.get_host }}">edadmin@{{ request.get_host }}</a></em>.</p>
+	  </ul>
+	</div>
+	<div class="col-lg-6">
+	  <img style="width: 90%; margin: auto; display: block; max-width: 400px;" src="{% static 'scipost/scipost_diamond_journal_pillars.jpg' %}"></img>
+	</div>
+      </div>
+
+      <div class="row mt-5">
+	<div class="col-lg-6">
+	  <p class="text-center mx-auto border border-primary" style="width: 80%;">
+	    <em><strong>
+	      Ensure our sustainability, by
+	      promoting understanding of and support for our <a href="{% url 'finances:business_model' %}">PubFracs business model</a>
+	    </strong></em>
+	  </p>
+	  <p>We believe this model to be the best antidote to profitmaking and financial obfuscation in publishing. We strive to</p>
+	  <ul>
+	    <li>liaise with academic organizations to ensure familiarity with our business model and increase its levels of adoption;</li>
+	    <li>set up long-term agreements to ensure sustainability of our operations;</li>
+	    <li>advocate for the installation of proper sustainable funding mechanisms for Diamond;</li>
+	    <li>support the sustainability of other Diamond initiatives through our Affiliate Journals network.</li>
+	  </ul>
+	  <p class="ms-4">{% include 'bi/arrow-return-right.html' %}<em>Are you an institutional Open Access officer, Library representative or similar, and are you interested in helping us set up a sustainably funding structure for Diamond? Get in touch with us at <a href="mailto:sponsors@{{ request.get_host }}">sponsors@{{ request.get_host }}</a></em>.</p>
+	</div>
+	<div class="col-lg-6">
+	  <img style="width: 90%; margin: auto; display: block; max-width: 400px;" src="{% static 'scipost/pubfracs_model_calculation.jpg' %}"></img>
+	</div>
+      </div>
+
+
+      <h2 class="highlight mt-5">Triggers for Upscaling</h2>
+
+      <p class="ms-2 me-2">
+	We are technically ready to launch operations in other fields; for any given field, we however require that two external preconditions (triggers) be met:
+      </p>
+      <div class="row">
+	<div class="col-md-6">
+	  <div class="card">
+	    <div class="card-header"><strong>Academic involvement</strong></div>
+	    <div class="card-body">
+	      <ul>
+		<li>At least 3 field-specific Advisory Board members</li>
+		<li>A field-specific Editorial College with at least 25 committed Fellows</li>
+	      </ul>
+	      Volunteer, or send us your suggestions at <a href="mailto:edadmin@{{ request.get_host }}">edadmin@{{ request.get_host }}</a>.
+	    </div>
+	  </div>
+	</div>
+	<div class="col-md-6">
+	  <div class="card">
+	    <div class="card-header"><strong>Support</strong></div>
+	    <div class="card-body">
+	      <ul>
+		<li>Sufficient <a href="{% url 'sponsors:sponsors' %}">Sponsorships</a> to cover the expected workflow (at first, a minimum of one more full-time editorial staff per new field)</li>
+	      </ul>
+	      We invite <a href="{% url 'organizations:organizations' %}">organizations</a> who are interested in facilitating our growth to contact us at <a href="mailto:sponsors@{{ request.get_host }}">sponsors@{{ request.get_host }}</a>.
+	    </div>
+	  </div>
+	</div>
+      </div>
+
+    </div>
+  </div>
+
+
+
+{% endblock content %}

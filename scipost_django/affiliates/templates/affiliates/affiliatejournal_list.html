@@ -11,7 +11,9 @@
 
   <div class="d-flex flex-row justify-content-between align-items-center highlight p-2">
     <h2 class="m-0">Affiliate Journals</h2>
-    <a href="{% url 'affiliates:journal_create' %}" class="btn btn-primary">Create Affiliate Journal</a>
+    {% if perms.can_create_affiliate_journals %}
+      <a href="{% url 'affiliates:journal_create' %}" class="btn btn-primary">Create Affiliate Journal</a>
+    {% endif %}
   </div>
 
   <table class="table align-middle">
