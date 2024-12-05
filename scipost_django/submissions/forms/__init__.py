@@ -1882,7 +1882,7 @@ class SubmissionForm(forms.ModelForm):
         submission.refresh_from_db()
         return submission
 
-    def process_resubmission(self, submission):
+    def process_resubmission(self, submission: Submission):
         """
         Update all fields for new and old Submission and EditorialAssignments.
 
@@ -1926,17 +1926,13 @@ class SubmissionForm(forms.ModelForm):
             status=EditorialAssignment.STATUS_ACCEPTED,
         )
 
-        # Add author-profile relations from previous submission
-        SubmissionAuthorProfile.objects.bulk_create(
-            [
-                SubmissionAuthorProfile(
-                    submission=submission,
-                    profile=author_profile.profile,
-                    order=author_profile.order,
-                )
-                for author_profile in previous_submission.author_profiles.all()
-            ]
-        )
+        # Set author-profile relations to those of the previous submission
+        submission.author_profiles.all().delete()
+        previous_profiles = list(previous_submission.author_profiles.all())
+        for author_profile in previous_profiles:
+            author_profile.pk = None
+            author_profile.submission = submission
+        SubmissionAuthorProfile.objects.bulk_create(previous_profiles)
 
         # Add competing interests from previous submission
         submission.competing_interests.add(
