@@ -216,7 +216,7 @@ def portal(request):
 def portal_hx_home(request):
     """Homepage view of SciPost."""
     if NewsItem.objects.homepage().exists():
-        news_items = NewsItem.objects.homepage().order_by("-date")[:1]
+        news_items = NewsItem.objects.homepage().order_by("-date")[:2]
     else:
         news_items = NewsItem.objects.none()
     latest_blogpost = BlogPost.objects.published().first()
@@ -277,7 +277,7 @@ def portal_hx_recent_publications(request):
     publications = publications.filter(filter_q).prefetch_related(
         "in_issue__in_journal", "specialties", "collections__series"
     )
-    context = {"publications": publications[:5], "form": form}
+    context = {"publications": publications[:10], "form": form}
     return render(request, "scipost/portal/_hx_recent_publications.html", context)
 
 
