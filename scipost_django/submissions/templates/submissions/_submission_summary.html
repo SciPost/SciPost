@@ -51,6 +51,18 @@
                         </td>
                     </tr>
                 {% endif %}
+                {% if submission.code_metadata.code_version %}
+                    <tr>
+                        <td>Code version:</td>
+                        <td>{{ submission.code_metadata.code_version }}</td>
+                    </tr>
+                {% endif %}
+                {% if submission.code_metadata.code_license %}
+                    <tr>
+                        <td>Code license:</td>
+                        <td>{{ submission.code_metadata.code_license }}</td>
+                    </tr>
+                {% endif %}
                 {% if submission.data_repository_url %}
                     <tr>
                         <td>Data repository:</td>
