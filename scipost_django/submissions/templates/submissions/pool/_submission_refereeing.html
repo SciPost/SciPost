@@ -20,13 +20,21 @@
     </div>
   {% endif %}
 
-  {% if submission.referee_indications.all %}
-    <div class="col-12">
-      <h4>Refereeing indications</h4>
+  <div class="col-12">
+    <h4 class="d-flex justify-content-between">
+      <span>Refereeing indications</span>
+      <a class="btn btn-primary btn-sm" href="{% url "submissions:referee_indications" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">
+        <span class="me-2">{% include "bi/plus-square-fill.html" %}</span>
+        <span>Add indication</span>
+      </a>
+    </h4>
+    {% if submission.referee_indications.exists %}
       <div hx-get="{% url "submissions:_hx_referee_indication_table" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
            hx-trigger="load once, referee-indications-updated from:body delay:1s"></div>
-    </div>
-  {% endif %}
+    {% else %}
+      <p>No referee indications yet.</p>
+    {% endif %}
+  </div>
 
   <div class="col-12 col-md-6 d-flex flex-column gap-2">
     <div>{% include "submissions/pool/_submission_recommendation_card.html" %}</div>
