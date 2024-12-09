@@ -2086,40 +2086,26 @@ class SubmissionReassignmentForm(forms.ModelForm):
 
     def save(self):
         """Update old/create new Assignment and send mails."""
-        old_editor = self.submission.editor_in_charge
-        old_assignment = (
-            self.submission.editorial_assignments.ongoing()
-            .filter(to=old_editor)
-            .first()
-        )
-        if old_assignment:
-            EditorialAssignment.objects.filter(id=old_assignment.id).update(
-                status=EditorialAssignment.STATUS_REPLACED
-            )
-
-        # Update Submission and update/create Editorial Assignments
-        now = timezone.now()
-        assignment = EditorialAssignment.objects.create(
-            submission=self.submission,
-            to=self.cleaned_data["new_editor"],
-            status=EditorialAssignment.STATUS_ACCEPTED,
-            date_invited=now,
-            date_answered=now,
+        assignment, old_assignment = self.submission.set_editor_in_charge(
+            self.cleaned_data["new_editor"]
         )
 
-        self.submission.set_editor_in_charge(self.cleaned_data["new_editor"])
-
-        # Email old and new editor
+        # Email old and new editor for the change in the latest submission
         if old_assignment and self.cleaned_data["email_old_eic"]:
             mail_sender = DirectMailUtil(
                 "fellows/email_fellow_replaced_by_other", assignment=old_assignment
             )
             mail_sender.send_mail()
 
-        mail_sender = DirectMailUtil(
-            "fellows/email_fellow_assigned_submission", assignment=assignment
-        )
-        mail_sender.send_mail()
+        if assignment:
+            mail_sender = DirectMailUtil(
+                "fellows/email_fellow_assigned_submission", assignment=assignment
+            )
+            mail_sender.send_mail()
+
+        # Also update the editor for all other versions without sending mails
+        for submission in self.submission.get_other_versions():
+            submission.set_editor_in_charge(self.cleaned_data["new_editor"])
 
 
 class SubmissionTargetJournalForm(forms.ModelForm):

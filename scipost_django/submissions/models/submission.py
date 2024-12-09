@@ -965,7 +965,7 @@ class Submission(models.Model):
 
     def set_editor_in_charge(
         self, eic: Contributor | None, commit: bool = True
-    ) -> None:
+    ) -> tuple[EditorialAssignment | None, EditorialAssignment | None]:
         """
         Set the Editor-in-Charge of the Submission.
         If `eic` is `None`, the EIC will be removed.
@@ -981,7 +981,26 @@ class Submission(models.Model):
 
         # If the EIC has not changed, return early
         if not editor_changed:
-            return
+            return None, None
+
+        # Create assignment and update old one
+        now = timezone.now()
+        assignment = None
+        if isinstance(eic, Contributor):
+            assignment = EditorialAssignment.objects.create(
+                submission=self,
+                to=eic,
+                status=EditorialAssignment.STATUS_ACCEPTED,
+                date_invited=now,
+                date_answered=now,
+            )
+        if old_editor is not None and (
+            old_assignment := EditorialAssignment.objects.filter(
+                submission=self, to=old_editor
+            ).first()
+        ):
+            old_assignment.status = EditorialAssignment.STATUS_REPLACED
+            old_assignment.save()
 
         # Add permission to new EIC, remove from old EIC if replaced
         if isinstance(eic, Contributor):
@@ -1008,6 +1027,8 @@ class Submission(models.Model):
 
         if commit:
             self.save()
+
+        return assignment, old_assignment
 
     def get_default_fellowship(self):
         """
