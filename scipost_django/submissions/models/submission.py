@@ -1004,10 +1004,16 @@ class Submission(models.Model):
 
         # Add permission to new EIC, remove from old EIC if replaced
         if isinstance(eic, Contributor):
-            assign_perm("comments.can_vet_comments", eic.user, self.comments.all())
+            assign_perm(
+                "comments.can_vet_comments",
+                eic.user,
+                self.comments_set_complete(),
+            )
         if old_editor:
             remove_perm(
-                "comments.can_vet_comments", old_editor.user, self.comments.all()
+                "comments.can_vet_comments",
+                old_editor.user,
+                self.comments_set_complete(),
             )
 
         self.editor_in_charge = eic
