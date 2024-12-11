@@ -154,6 +154,7 @@ INSTALLED_APPS = [
     "series",
     "sponsors",
     "stats",
+    "tasks",
     "submissions",
     "theses",
     "webinars",
