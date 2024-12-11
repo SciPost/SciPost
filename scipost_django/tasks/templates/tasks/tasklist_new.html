@@ -29,11 +29,17 @@
         <div class="p-3">
           <ul class="list-unstyled d-flex flex-column align-items-stretch gap-4 m-0">
 
-            {% for task in tasks %}<li>{{ task.as_html|safe }}</li>{% endfor %}
+            {% for task in tasks %}
+              <li>{{ task.as_html|safe }}</li>
+            {% empty %}
+              <li class="text-muted text-center fs-4">No tasks of this type</li>
+            {% endfor %}
 
           </ul>
         </div>
       </details>
+    {% empty %}
+      <p class="text-muted text-center fs-4">No tasks found</p>
     {% endfor %}
 
   </div>
