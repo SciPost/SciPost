@@ -54,8 +54,8 @@ class ScheduleSubsidyPayments(TaskKind):
     def is_user_eligible(user):
         return is_financial_admin(user)
 
-    @staticmethod
-    def get_queryset() -> "QuerySet":
+    @classmethod
+    def get_queryset(cls) -> "QuerySet":
         from finances.models import Subsidy, SubsidyPayment
 
         return (
@@ -104,8 +104,8 @@ class ScheduleSubsidyCollectivePayments(TaskKind):
     def is_user_eligible(user):
         return is_financial_admin(user)
 
-    @staticmethod
-    def get_queryset() -> "QuerySet":
+    @classmethod
+    def get_queryset(cls) -> "QuerySet":
         from finances.models.subsidy import SubsidyCollective
 
         return (
@@ -143,8 +143,8 @@ class SendSubsidyInvoiceTask(TaskKind):
     def get_task_data(cls) -> Collection[dict]:
         return [{"object": obj, "due_date": obj.due_date} for obj in cls.get_queryset()]
 
-    @staticmethod
-    def get_queryset() -> "QuerySet":
+    @classmethod
+    def get_queryset(cls) -> "QuerySet":
         from finances.models import Subsidy, SubsidyPayment
         from finances.constants import SUBSIDY_PROMISED, SUBSIDY_UPTODATE
 
@@ -183,8 +183,8 @@ class CheckSubsidyPaymentTask(TaskKind):
     def get_task_data(cls) -> Collection[dict]:
         return [{"object": obj, "due_date": obj.due_date} for obj in cls.get_queryset()]
 
-    @staticmethod
-    def get_queryset() -> "QuerySet":
+    @classmethod
+    def get_queryset(cls) -> "QuerySet":
         from finances.models import Subsidy, SubsidyPayment
         from finances.constants import SUBSIDY_INVOICED
 
