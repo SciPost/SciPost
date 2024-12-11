@@ -8,3 +8,7 @@ from django.views.generic import TemplateView
 from . import views
 
 app_name = "tasks"
+
+urlpatterns = [
+    path("list", views.tasklist, name="tasklist"),
+]

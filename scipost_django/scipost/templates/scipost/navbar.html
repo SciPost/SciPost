@@ -36,17 +36,13 @@
         {% if is_active_fellow %}
           <li class="nav-item" role="presentation">
 
-            {% if request.path == '/' %}
+            {% if request.path == '/tasks/list' %}
               <button id="tasklist-tab"
-                      class="nav-link {% if request.GET.tab == 'tasklist' %}active{% endif %} border border-warning"
-                      data-bs-toggle="tab"
-                      data-bs-target="#tasklist"
+                      class="nav-link active border border-warning"
                       type="button"
-                      role="tab"
-                      aria-controls="tasklist"
                       aria-selected="true">Tasklist</button>
             {% else %}
-              <a href="{% url 'scipost:index' %}?tab=tasklist">Tasklist</a>
+              <a href="{% url 'tasks:tasklist' %}">Tasklist</a>
             {% endif %}
 
           </li>

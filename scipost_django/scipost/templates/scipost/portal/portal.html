@@ -115,18 +115,6 @@
       </div>
     </div>
 
-    {% if is_active_fellow %}
-      <div class="tab-pane portal-tab fade{% if request.GET.tab == 'tasklist' %} show active{% endif %}"
-	id="tasklist"
-	role="tabpanel" aria-labelledby="tasklist-tab">
-	<div hx-get="{% url 'scipost:portal_hx_tasklist' %}"
-	     hx-trigger="{% if request.GET.tab == 'tasklist' %}load, {% endif %}click delay:200ms from:#tasklist-tab"
-	     hx-push-url="{% url 'scipost:index' %}?tab=tasklist"
-	>
-	</div>
-      </div>
-    {% endif %}
-
   </div>
 
 {% endblock %}

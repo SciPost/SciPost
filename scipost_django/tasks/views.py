@@ -1,3 +1,26 @@
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 
-# Create your views here.
+from colleges.permissions import is_edadmin_or_active_fellow
+from submissions.models.assignment import EditorialAssignment
+from submissions.models.recommendation import EICRecommendation
+
+
+@login_required
+@user_passes_test(is_edadmin_or_active_fellow)
+def tasklist(request):
+    """Displays list of tasks for Fellows."""
+    context = {
+        "assignments_to_consider": EditorialAssignment.objects.invited().filter(
+            to=request.user.contributor
+        ),
+        "assignments_ongoing": request.user.contributor.editorial_assignments.ongoing(),
+        "recs_to_vote_on": EICRecommendation.objects.user_must_vote_on(request.user),
+        "recs_current_voted": EICRecommendation.objects.user_current_voted(
+            request.user
+        ),
+    }
+    return render(request, "tasks/tasklist.html", context)
