@@ -281,23 +281,6 @@ def portal_hx_recent_publications(request):
     return render(request, "scipost/portal/_hx_recent_publications.html", context)
 
 
-@login_required
-@user_passes_test(is_edadmin_or_active_fellow)
-def portal_hx_tasklist(request):
-    """Displays list of tasks for Fellows."""
-    context = {
-        "assignments_to_consider": EditorialAssignment.objects.invited().filter(
-            to=request.user.contributor
-        ),
-        "assignments_ongoing": request.user.contributor.editorial_assignments.ongoing(),
-        "recs_to_vote_on": EICRecommendation.objects.user_must_vote_on(request.user),
-        "recs_current_voted": EICRecommendation.objects.user_current_voted(
-            request.user
-        ),
-    }
-    return render(request, "scipost/portal/_hx_tasklist.html", context)
-
-
 def portal_hx_journals(request):
     session_acad_field_slug = request.session.get("session_acad_field_slug", None)
     journals = Journal.objects.active().select_related("college__acad_field__branch")

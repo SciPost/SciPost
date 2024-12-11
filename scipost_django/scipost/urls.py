@@ -139,7 +139,6 @@ urlpatterns = [
         views.portal_hx_theses_page,
         name="portal_hx_theses_page",
     ),
-    path("portal/_hx_tasklist", views.portal_hx_tasklist, name="portal_hx_tasklist"),
     path("_hx_news", views._hx_news, name="_hx_news"),
     path(
         "_hx_participates_in",
