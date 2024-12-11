@@ -1,0 +1,39 @@
+<div class="d-flex">
+  <div class="flex-grow-1">
+    <h3 class="fs-5">{{ task.title }}</h3>
+
+    {% if task.due_date %}
+      <span class="badge rounded-pill bg-primary bg-opacity-75">Due: {{ task.due_date|timeuntil }}</span>
+    {% endif %}
+
+  </div>
+
+  <div class="btn-group"
+       role="group"
+       aria-label="Button group with nested dropdown">
+
+    {% for action in task.actions|slice:":2" %}{{ action.as_html|safe }}{% endfor %}
+
+
+    {% if task.actions|length > 2 %}
+      <div class="btn-group" role="group">
+        <button class="btn btn-sm btn-light dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+          <span>More</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+
+          {% for action in task.actions|slice:"2:" %}
+            <li class="dropdown-item">{{ action.element|safe }}</li>
+          {% endfor %}
+
+
+        </ul>
+      </div>
+    {% endif %}
+
+  </div>
+
+</div>
