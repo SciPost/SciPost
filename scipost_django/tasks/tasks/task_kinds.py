@@ -87,6 +87,7 @@ class ScheduleSubsidyPayments(TaskKind):
                 Q(collective__isnull=True)
                 & (Q(schedule_blank=True) | Q(schedule_complete=False))
             )
+            .prefetch_related("organization")
         )
 
 
@@ -131,6 +132,7 @@ class ScheduleSubsidyCollectivePayments(TaskKind):
                 ),
             )
             .filter(Q(schedule_complete=False))
+            .prefetch_related("coordinator")
         )
 
 
@@ -173,6 +175,7 @@ class SendSubsidyInvoiceTask(TaskKind):
                 Q(due_date__isnull=False)
                 & (Q(status=SUBSIDY_PROMISED) | Q(status=SUBSIDY_UPTODATE))
             )
+            .prefetch_related("organization")
         )
 
 
@@ -216,6 +219,7 @@ class CheckSubsidyPaymentTask(TaskKind):
                 ),
             )
             .filter(Q(status=SUBSIDY_INVOICED))
+            .prefetch_related("organization")
         )
 
 
@@ -283,9 +287,11 @@ class VetCommentTask(TaskKind):
 
     @classmethod
     def get_queryset(cls) -> "QuerySet":
-        return get_objects_for_user(
-            cls.user, "comments.can_vet_comments"
-        ).awaiting_vetting()
+        return (
+            get_objects_for_user(cls.user, "comments.can_vet_comments")
+            .awaiting_vetting()
+            .prefetch_related("author__user")
+        )
 
 
 class VetReportTask(TaskKind):
@@ -320,19 +326,20 @@ class VetReportTask(TaskKind):
         if cls.user is None:
             return Report.objects.none()
 
-        if cls.user.has_perm("scipost.can_vet_submitted_reports"):
-            return Report.objects.awaiting_vetting()
-
-        return Report.objects.filter(
-            submission__in=Submission.objects.in_pool_filter_for_eic(
-                cls.user, latest=False, historical=True
+        qs = Report.objects.all()
+        if not cls.user.has_perm("scipost.can_vet_submitted_reports"):
+            qs = qs.filter(
+                submission__in=Submission.objects.in_pool_filter_for_eic(
+                    cls.user, latest=False, historical=True
+                )
             )
-        ).awaiting_vetting()
+
+        return qs.awaiting_vetting().prefetch_related("submission")
 
 
 class SelectRefereeingCycleTask(TaskKind):
     name = "Select Refereeing Cycle"
-    task_title = "Select Refereeing Cycle for {object}"
+    task_title = "Select Refereeing Cycle for {object.title}"
     description = "Select the refereeing cycle for a submission."
     actions = [
         lambda task: ViewAction(
@@ -361,5 +368,5 @@ class SelectRefereeingCycleTask(TaskKind):
 
         return Submission.objects.filter(
             editor_in_charge=cls.user.contributor,
-            refereeing_cycle__isnull=True,
+            refereeing_cycle__isnull=False,
         )
