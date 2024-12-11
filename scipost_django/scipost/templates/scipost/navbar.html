@@ -33,7 +33,7 @@
 
  
 
-        {% if is_active_fellow or "perms.scipost.can_preview_new_features" %}
+        {% if is_active_fellow or perms.scipost.can_preview_new_features %}
           <li class="nav-item" role="presentation">
 
             {% if request.path == '/tasks/list' %}
