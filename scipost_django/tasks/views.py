@@ -1,14 +1,13 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-import importlib
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
 
 from colleges.permissions import is_edadmin_or_active_fellow
 from submissions.models.assignment import EditorialAssignment
 from submissions.models.recommendation import EICRecommendation
-from tasks.tasks.task import TaskKind
+from tasks.tasks.task_kinds import get_all_task_kinds
 
 
 @login_required
@@ -32,14 +31,11 @@ def tasklist(request):
 @user_passes_test(is_edadmin_or_active_fellow)
 def tasklist_new(request):
     """Displays a grouped list of tasks"""
-    # `task_types` should be the * import of task_kinds.py
-    task_types = importlib.import_module("tasks.tasks.task_kinds").__all__
+
     context = {
         "kinds_with_tasks": {
             task_type: task_type.get_tasks()
-            for task_type in task_types
-            if issubclass(task_type, TaskKind)
-            and task_type.is_user_eligible(request.user)
+            for task_type in get_all_task_kinds(request.user)
         }
     }
     return render(request, "tasks/tasklist_new.html", context)

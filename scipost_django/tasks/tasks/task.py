@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class Task:
-    user: int
+    user: "User | None"
     kind: "type[TaskKind]"
     data: dict = field(default_factory=dict)
 
@@ -46,6 +46,7 @@ class TaskKind:
     task_title: str
     description: str = ""
     actions: Collection[Callable[[Task], "TaskAction"]]
+    user: "User | None" = None
     template_name: str = "tasks/task.html"
 
     @staticmethod
@@ -68,7 +69,9 @@ class TaskKind:
 
     @classmethod
     def get_tasks(cls) -> Collection[Task]:
-        return [Task(user=1, kind=cls, data=data) for data in cls.get_task_data()]
+        return [
+            Task(user=cls.user, kind=cls, data=data) for data in cls.get_task_data()
+        ]
 
     @classmethod
     def get_task_data(cls) -> Collection[dict]:

@@ -20,6 +20,26 @@ from scipost.templatetags.user_groups import is_financial_admin
 from tasks.tasks.task import TaskKind
 from tasks.tasks.task_action import ViewAction
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import User
+
+
+def get_all_task_kinds(user: "User | None" = None) -> Collection[type[TaskKind]]:
+    """Return all TaskKind classes, optionally filtered by user eligibility."""
+    classes: list[type[TaskKind]] = []
+    for cls in globals().values():
+        if isinstance(cls, type) and issubclass(cls, TaskKind) and cls != TaskKind:
+            cls.user = user
+            classes.append(cls)
+
+    # Filter the classes based on user eligibility
+    if user is not None:
+        classes = [cls for cls in classes if cls.is_user_eligible(user)]
+
+    return classes
+
 
 class ScheduleSubsidyPayments(TaskKind):
     name = "Schedule Subsidy Payments"
@@ -187,11 +207,3 @@ class CheckSubsidyPaymentTask(TaskKind):
             )
             .filter(Q(status=SUBSIDY_INVOICED))
         )
-
-
-__all__ = [
-    ScheduleSubsidyPayments,
-    ScheduleSubsidyCollectivePayments,
-    SendSubsidyInvoiceTask,
-    CheckSubsidyPaymentTask,
-]
