@@ -1,0 +1,45 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Type</th>
+      <th scope="col">Name</th>
+      <th scope="col">Due</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    {% for task in tasks %}
+      <tr>
+        <td>{{ task.kind.name }}</td>
+        <td>{{ task.title }}</td>
+        <td>{{ task.due_date }}</td>
+        <td>
+
+          {% for action in task.actions|slice:":2" %}{{ action.as_html|safe }}{% endfor %}
+
+          {% if task.actions|length > 2 %}
+            <div class="btn-group" role="group">
+              <button class="btn btn-sm btn-light dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false">
+                <span>More</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+
+                {% for action in task.actions|slice:"2:" %}
+                  <li class="dropdown-item">{{ action.element|safe }}</li>
+                {% endfor %}
+
+
+              </ul>
+            </div>
+          {% endif %}
+
+        </td>
+      </tr>
+    {% endfor %}
+
+  </tbody>
+</table>

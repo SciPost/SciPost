@@ -90,6 +90,12 @@ class ScheduleSubsidyPayments(TaskKind):
             .prefetch_related("organization")
         )
 
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return Q(organization__name__icontains=text) | Q(
+            organization__acronym__icontains=text
+        )
+
 
 class ScheduleSubsidyCollectivePayments(TaskKind):
     name = "Schedule Subsidy Collective Payments"
@@ -135,6 +141,12 @@ class ScheduleSubsidyCollectivePayments(TaskKind):
             .prefetch_related("coordinator")
         )
 
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return Q(coordinator__name__icontains=text) | Q(
+            coordinator__acronym__icontains=text
+        )
+
 
 class SendSubsidyInvoiceTask(TaskKind):
     name = "Send Invoice"
@@ -176,6 +188,12 @@ class SendSubsidyInvoiceTask(TaskKind):
                 & (Q(status=SUBSIDY_PROMISED) | Q(status=SUBSIDY_UPTODATE))
             )
             .prefetch_related("organization")
+        )
+
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return Q(organization__name__icontains=text) | Q(
+            organization__acronym__icontains=text
         )
 
 
@@ -222,6 +240,12 @@ class CheckSubsidyPaymentTask(TaskKind):
             .prefetch_related("organization")
         )
 
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return Q(organization__name__icontains=text) | Q(
+            organization__acronym__icontains=text
+        )
+
 
 #####################
 ## Fellow Tasks
@@ -264,6 +288,14 @@ class TreatOngoingAssignmentsTask(TaskKind):
             .prefetch_related("submission")
         )
 
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return (
+            Q(submission__title__icontains=text)
+            | Q(submission__preprint__identifier_w_vn_nr__icontains=text)
+            | Q(submission__author_list__unaccent__icontains=text)
+        )
+
 
 class VetCommentTask(TaskKind):
     name = "Vet Comment"
@@ -291,6 +323,14 @@ class VetCommentTask(TaskKind):
             get_objects_for_user(cls.user, "comments.can_vet_comments")
             .awaiting_vetting()
             .prefetch_related("author__user")
+        )
+
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return (
+            Q(author__profile__last_name__unaccent__icontains=text)
+            | Q(author__profile__first_name__unaccent__icontains=text)
+            | Q(comment_text__icontains=text)
         )
 
 
@@ -336,6 +376,14 @@ class VetReportTask(TaskKind):
 
         return qs.awaiting_vetting().prefetch_related("submission")
 
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return (
+            Q(submission__title__icontains=text)
+            | Q(submission__preprint__identifier_w_vn_nr__icontains=text)
+            | Q(submission__author_list__unaccent__icontains=text)
+        )
+
 
 class SelectRefereeingCycleTask(TaskKind):
     name = "Select Refereeing Cycle"
@@ -369,4 +417,12 @@ class SelectRefereeingCycleTask(TaskKind):
         return Submission.objects.filter(
             editor_in_charge=cls.user.contributor,
             refereeing_cycle__isnull=False,
+        )
+
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return (
+            Q(title__icontains=text)
+            | Q(preprint__identifier_w_vn_nr__icontains=text)
+            | Q(author_list__unaccent__icontains=text)
         )

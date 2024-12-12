@@ -1,5 +1,7 @@
 {% extends "scipost/base.html" %}
 
+{% load crispy_forms_tags %}
+
 {% block pagetitle %}: Tasklist{% endblock %}
 
 {% block content %}
@@ -13,57 +15,19 @@
     <h1>Tasklist</h1>
   </div>
 
-  <div class="d-flex flex-column gap-3">
+  <section aria-label="Search and filter tasks">
+    <form hx-get="{% url 'tasks:tasklist_new' %}"
+          hx-target="#tasklist-table"
+          hx-push-url="true"
+          hx-params="not csrfmiddlewaretoken"
+          hx-trigger="change delay:500ms">
+      {% crispy form %}
+    </form>
+  </section>
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Type</th>
-          <th scope="col">Name</th>
-          <th scope="col">Due</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
+  <div id="tasklist-table" class="d-flex flex-column gap-3">
 
-        {% for task_type, tasks in kinds_with_tasks.items %}
-
-          {% for task in tasks %}
-            <tr>
-              <td>{{ task.kind.name }}</td>
-              <td>{{ task.title }}</td>
-              <td>{{ task.due_date }}</td>
-              <td>
-
-                {% for action in task.actions|slice:":2" %}{{ action.as_html|safe }}{% endfor %}
-
-                {% if task.actions|length > 2 %}
-                  <div class="btn-group" role="group">
-                    <button class="btn btn-sm btn-light dropdown-toggle"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                      <span>More</span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-
-                      {% for action in task.actions|slice:"2:" %}
-                        <li class="dropdown-item">{{ action.element|safe }}</li>
-                      {% endfor %}
-
-
-                    </ul>
-                  </div>
-                {% endif %}
-
-              </td>
-            </tr>
-          {% endfor %}
-        {% endfor %}
-
-      </tbody>
-
-    </table>
+    {% include "tasks/_hx_task_table.html" %}
 
   </div>
 {% endblock %}

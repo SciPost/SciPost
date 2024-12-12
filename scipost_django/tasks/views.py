@@ -8,6 +8,7 @@ from django.shortcuts import render
 from colleges.permissions import is_edadmin_or_active_fellow
 from submissions.models.assignment import EditorialAssignment
 from submissions.models.recommendation import EICRecommendation
+from tasks.forms import TaskListSearchForm
 from tasks.tasks.task_kinds import get_all_task_kinds
 
 
@@ -45,10 +46,19 @@ def tasklist_new_grouped(request):
 @login_required
 @user_passes_test(is_edadmin_or_active_fellow)
 def tasklist_new(request):
+    form = TaskListSearchForm(request.GET, user=request.user)
+
+    tasks = []
+    if form.is_valid():
+        tasks = form.search_results()
+
     context = {
-        "kinds_with_tasks": {
-            task_type: task_type.get_tasks()
-            for task_type in get_all_task_kinds(request.user)
-        }
+        "form": form,
+        "tasks": tasks,
     }
+
+    # If htmx request, return only the task list
+    if request.headers.get("HX-Request") == "true":
+        return render(request, "tasks/_hx_task_table.html", context)
+
     return render(request, "tasks/tasklist_new.html", context)
