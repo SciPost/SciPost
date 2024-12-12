@@ -7,6 +7,7 @@ from typing import Dict
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Div, Field
+from crispy_bootstrap5.bootstrap5 import FloatingField
 from tasks.tasks.task import Task
 from tasks.tasks.task_kinds import get_all_task_kinds
 
@@ -48,7 +49,7 @@ class TaskListSearchForm(forms.Form):
         )
 
         self.helper.layout = Div(
-            Div(Field("search"), css_class="col-12"),
+            Div(FloatingField("search"), css_class="col-12"),
             div_block_ordering,
         )
 

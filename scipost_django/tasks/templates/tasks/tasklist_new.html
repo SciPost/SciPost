@@ -20,7 +20,8 @@
           hx-target="#tasklist-table"
           hx-push-url="true"
           hx-params="not csrfmiddlewaretoken"
-          hx-trigger="change delay:500ms">
+          hx-indicator="#tasks-table-load-indicator"
+          hx-trigger="keyup delay:500ms, change delay:500ms">
       {% crispy form %}
     </form>
   </section>

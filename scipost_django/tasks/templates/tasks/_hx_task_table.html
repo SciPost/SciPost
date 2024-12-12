@@ -1,6 +1,16 @@
-<table class="table">
+<table class="table position-relative">
   <thead>
-    <tr>
+    <tr id="tasks-table-load-indicator" class="htmx-indicator">
+      <td colspan="4" class="text-center p-0">
+        <div class="p-2 bg-primary bg-opacity-25 d-flex justify-content-center">
+          Loading
+          <div class="spinner-grow spinner-grow-sm ms-2"
+               role="status"
+               aria-hidden="true"></div>
+        </div>
+      </td>
+    </tr>
+    <tr class="position-sticky top-0 bg-light">
       <th scope="col">Type</th>
       <th scope="col">Name</th>
       <th scope="col">Due</th>
