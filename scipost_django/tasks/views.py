@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponse
 from django.shortcuts import render
 
 from colleges.permissions import is_edadmin_or_active_fellow
@@ -29,7 +30,7 @@ def tasklist(request):
 
 @login_required
 @user_passes_test(is_edadmin_or_active_fellow)
-def tasklist_new(request):
+def tasklist_new_grouped(request):
     """Displays a grouped list of tasks"""
 
     context = {
@@ -38,4 +39,10 @@ def tasklist_new(request):
             for task_type in get_all_task_kinds(request.user)
         }
     }
-    return render(request, "tasks/tasklist_new.html", context)
+    return render(request, "tasks/tasklist_new_grouped.html", context)
+
+
+@login_required
+@user_passes_test(is_edadmin_or_active_fellow)
+def tasklist_new(request):
+    return HttpResponse("")

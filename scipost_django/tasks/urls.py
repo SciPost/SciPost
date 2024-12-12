@@ -11,5 +11,6 @@ app_name = "tasks"
 
 urlpatterns = [
     path("list", views.tasklist, name="tasklist"),
+    path("list/new/grouped", views.tasklist_new_grouped, name="tasklist_new_grouped"),
     path("list/new", views.tasklist_new, name="tasklist_new"),
 ]

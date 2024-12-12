@@ -1,0 +1,46 @@
+{% extends "scipost/base.html" %}
+
+{% block pagetitle %}: Tasklist{% endblock %}
+
+{% block content %}
+  <div class="bg-warning bg-opacity-10 border border-warning border-1 p-2 mb-4">
+    <span class="text-warning">{% include 'bi/cone-striped.html' %}</span>
+    This page is under construction.
+    It might not contain all your todo items.
+  </div>
+ 
+  <div class="d-flex gap-2 justify-content-between align-items-center">
+    <h1>Tasklist</h1>
+  </div>
+
+  <div class="d-flex flex-column gap-3">
+
+    {% for task_type, tasks in kinds_with_tasks.items %}
+      <details name="task-type" class="border border-primary border-1 rounded">
+        <summary class="p-2 bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
+          <div>
+            <h2>{{ task_type.name }}</h2>
+            <p class="m-0">{{ task_type.description }}</p>
+          </div>
+          <div class="d-flex flex-column">
+            <span class="fs-4">{{ tasks|length }}</span>
+          </div>
+        </summary>
+        <div class="p-3">
+          <ul class="list-unstyled d-flex flex-column align-items-stretch gap-4 m-0">
+
+            {% for task in tasks %}
+              <li>{{ task.as_html|safe }}</li>
+            {% empty %}
+              <li class="text-muted text-center fs-4">No tasks of this type</li>
+            {% endfor %}
+
+          </ul>
+        </div>
+      </details>
+    {% empty %}
+      <p class="text-muted text-center fs-4">No tasks found</p>
+    {% endfor %}
+
+  </div>
+{% endblock %}
