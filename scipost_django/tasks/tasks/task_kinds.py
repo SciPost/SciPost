@@ -151,9 +151,9 @@ class SendSubsidyInvoiceTask(TaskKind):
     def is_user_eligible(user):
         return is_financial_admin(user)
 
-    @classmethod
-    def get_task_data(cls) -> Collection[dict]:
-        return [{"object": obj, "due_date": obj.due_date} for obj in cls.get_queryset()]
+    @staticmethod
+    def get_task_map(obj) -> dict:
+        return {"object": obj, "due_date": obj.due_date}
 
     @classmethod
     def get_queryset(cls) -> "QuerySet":
@@ -192,9 +192,9 @@ class CheckSubsidyPaymentTask(TaskKind):
     def is_user_eligible(user):
         return is_financial_admin(user)
 
-    @classmethod
-    def get_task_data(cls) -> Collection[dict]:
-        return [{"object": obj, "due_date": obj.due_date} for obj in cls.get_queryset()]
+    @staticmethod
+    def get_task_map(obj) -> dict:
+        return {"object": obj, "due_date": obj.due_date}
 
     @classmethod
     def get_queryset(cls) -> "QuerySet":

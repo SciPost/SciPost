@@ -68,15 +68,21 @@ class TaskKind:
         return cls.get_queryset().filter(search_query)
 
     @classmethod
-    def get_tasks(cls) -> Collection[Task]:
+    def get_tasks(cls, text: str | None = None) -> Collection[Task]:
         return [
-            Task(user=cls.user, kind=cls, data=data) for data in cls.get_task_data()
+            Task(user=cls.user, kind=cls, data=data) for data in cls.get_task_data(text)
         ]
 
     @classmethod
-    def get_task_data(cls) -> Collection[dict]:
+    def get_task_data(cls, text: str | None = None) -> Collection[dict]:
+        """Return a collection of dictionaries to be used as task data."""
+        qs = cls.search(text) if text else cls.get_queryset()
+        return [cls.get_task_map(obj) for obj in qs]
+
+    @staticmethod
+    def get_task_map(obj) -> dict:
         """Maps the queryset to a collection of dictionaries to be used as task data."""
-        return [{"object": obj} for obj in cls.get_queryset()]
+        return {"object": obj}
 
     @classmethod
     def template(cls) -> Template:
