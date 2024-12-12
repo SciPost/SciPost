@@ -19,7 +19,7 @@ class TaskListSearchForm(forms.Form):
         label="Order by",
         choices=[
             ("", "-----"),
-            ("kind__name", "Type"),
+            ("kind.name", "Kind"),
             ("title", "Title"),
             ("due_date", "Due date"),
         ],
@@ -65,6 +65,16 @@ class TaskListSearchForm(forms.Form):
                     self.fields[key].initial = None
 
     def search_results(self) -> Collection[Task]:
+        def recursive_get_attr(obj, attr):
+            """
+            Recursively get attributes from an object.
+            e.g. recursive_get_attr(obj, "a.b.c") is equivalent to obj.a.b.c
+            """
+            if "." in attr:
+                first, rest = attr.split(".", 1)
+                return recursive_get_attr(getattr(obj, first), rest)
+            return getattr(obj, attr)
+
         search_text = self.cleaned_data.get("search", "")
         orderby = self.cleaned_data.get("orderby", "")
         ordering = self.cleaned_data.get("ordering", "-")
@@ -74,5 +84,13 @@ class TaskListSearchForm(forms.Form):
             for task_kind in self.task_kinds
             for task in task_kind.get_tasks(search_text)
         ]
+
+        reverse_ordering = ordering == "-"
+        if orderby:
+            tasks = sorted(
+                tasks,
+                key=lambda x: recursive_get_attr(x, orderby),
+                reverse=reverse_ordering,
+            )
 
         return tasks

@@ -175,12 +175,15 @@ class SendSubsidyInvoiceTask(TaskKind):
         return (
             Subsidy.objects.all()
             .annotate(
-                due_date=Subquery(
-                    SubsidyPayment.objects.filter(
-                        subsidy=OuterRef("id"), proof_of_payment__isnull=True
-                    )
-                    .order_by("date_scheduled")
-                    .values("date_scheduled")[:1]
+                due_date=Cast(
+                    Subquery(
+                        SubsidyPayment.objects.filter(
+                            subsidy=OuterRef("id"), proof_of_payment__isnull=True
+                        )
+                        .order_by("date_scheduled")
+                        .values("date_scheduled")[:1]
+                    ),
+                    DateTimeField(),
                 )
             )
             .filter(
