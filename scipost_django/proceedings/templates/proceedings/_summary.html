@@ -4,6 +4,10 @@
     <td>{{ proceedings.event_name }}</td>
   </tr>
   <tr>
+    <th>Issue</th>
+    <td><a href="{{ proceedings.issue.get_absolute_url }}">{{ proceedings.issue }}</a></td>
+  </tr>
+  <tr>
     <th>Description</th>
     <td>{{ proceedings.event_description|safe|default:'-'|linebreaksbr }}</td>
   </tr>
