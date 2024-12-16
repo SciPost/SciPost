@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from decimal import Decimal, getcontext
+from datetime import timedelta
 import hashlib
 import json
 import os
@@ -2389,27 +2389,41 @@ def publication_update_detail(request, doi_label, update_nr):
 ######################
 
 
-def arxiv_doi_feed(request, doi_label):
+def arxiv_doi_feed(request, doi_label=None):
     """
     This method provides arXiv with the doi and journal ref of the 100 most recent
     publications in the journal specified by doi_label.
     """
-    journal = get_object_or_404(Journal, doi_label=doi_label)
+    identifier = "SciPost.org arXiv.org DOI feed"
+
+    if doi_label is not None:
+        journal = get_object_or_404(Journal, doi_label=doi_label)
+        publications = journal.get_publications().order_by("-publication_date")[:100]
+        identifier += f" for {doi_label}"
+    else:
+        publications = Publication.objects.filter(
+            status=PUBLICATION_PUBLISHED,
+            pubtype=Publication.PUBTYPE_ARTICLE,
+            publication_date__gte=timezone.now() - timedelta(days=365),
+            # Two months are suggested by arxiv https://info.arxiv.org/help/bib_feed.html
+            # For now set to a whole year to cover missing items
+        )
+
     feedxml = (
         '<preprint xmlns="http://arxiv.org/doi_feed" '
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        'identifier="SciPost.org ' + doi_label + ' arXiv.org DOI feed" '
+        f'identifier="{identifier}" '
         'version="DOI SnappyFeed v1.0" '
         'xsi:schemaLocation="http://arxiv.org/doi_feed '
         'http://arxiv.org/schemas/doi_feed.xsd">'
     )
+
     now = timezone.now()
     feedxml += '<date year="%s" month="%s" day="%s" />' % (
         now.strftime("%Y"),
         now.strftime("%m"),
         now.strftime("%d"),
     )
-    publications = journal.get_publications().order_by("-publication_date")[:100]
     for publication in publications:
         # Determine if any of the preprints in thread were on arXiv
         for sub in publication.accepted_submission.thread:

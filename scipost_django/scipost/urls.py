@@ -664,6 +664,11 @@ urlpatterns = [
         journals_views.arxiv_doi_feed,
         name="arxiv_doi_feed",
     ),
+    path(
+        "arxiv_doi_feed",
+        journals_views.arxiv_doi_feed,
+        name="arxiv_doi_feed",
+    ),
     #
     ###############
     # Howto guides
