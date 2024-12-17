@@ -198,9 +198,9 @@ class ProfileMergeForm(forms.Form):
         profile_old: "Profile" = self.cleaned_data["to_merge"]
 
         # Merge information from old to new Profile.
-        if profile.orcid_id is None:
+        if profile.orcid_id == "":
             profile.orcid_id = profile_old.orcid_id
-        if profile.webpage is None:
+        if profile.webpage == "":
             profile.webpage = profile_old.webpage
         if profile.acad_field is None:
             profile.acad_field = profile_old.acad_field
