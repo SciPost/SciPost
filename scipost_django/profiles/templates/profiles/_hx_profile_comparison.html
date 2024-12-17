@@ -3,11 +3,11 @@
 
 <div class="row">
   <div class="col-12 col-md-6">
-    <h3 class="highlight">Merge Profile {{ profile_to_merge.id }}</h3>
+    <h3 class="highlight">Merge <a href="{% url "profiles:profile_detail" profile_to_merge.id %}">Profile {{ profile_to_merge.id }}</a></h3>
     {% include "profiles/_profile_card_narrow.html" with profile=profile_to_merge %}
   </div>
   <div class="col-12 col-md-6">
-    <h3 class="highlight">into Profile {{ profile_to_merge_into.id }}</h3>
+    <h3 class="highlight">into <a href="{% url "profiles:profile_detail" profile_to_merge_into.id %}">Profile {{ profile_to_merge_into.id }}</a></h3>
     {% include "profiles/_profile_card_narrow.html" with profile=profile_to_merge_into %}
   </div>
 </div>
