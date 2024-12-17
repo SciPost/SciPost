@@ -243,6 +243,8 @@ class UserToOfficerForm(forms.ModelForm):
                 )
                 production_user.save()
 
+            return existing_production_user or production_user
+
 
 class ProofsUploadForm(forms.ModelForm):
     class Meta:
