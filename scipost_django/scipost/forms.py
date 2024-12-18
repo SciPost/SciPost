@@ -1000,7 +1000,12 @@ class SearchTextForm(forms.Form):
     Simple text-based search form.
     """
 
-    text = forms.CharField(label="")
+    text = forms.CharField(
+        label="",
+        widget=forms.TextInput(
+            attrs={"placeholder": "Search", "type": "search", "class": "form-control"}
+        ),
+    )
 
 
 class EmailGroupMembersForm(forms.Form):

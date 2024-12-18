@@ -222,53 +222,15 @@
                         View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor
                     </li>
 	
-                    <li>
- 
-                        <ul class="list-inline">
- 
-                            <li class="list-inline-item">Last name contains:</li>
- 
-                            <li class="list-inline-item">
- 
-                                <form action="" method="get">
-                                    {{ searchform }}
-	
-                                    {% if request.GET.field %}
- 
-                                        <input type="hidden" name="field" value="{{ request.GET.field }}">
- 
-                                        {% if request.GET.specialty %}<input type="hidden" name="specialty" value="{{ request.GET.specialty }}">{% endif %}
-	
-                                    {% endif %}
-	
-                                    {% if request.GET.contributor %}
- 
-                                        <input type="hidden"
-                                               name="contributor"
-                                               value="{{ request.GET.contributor }}">
-	
-                                    {% endif %}
- 
-                                </li>
- 
-                                <li class="list-inline-item">
-                                    <input class="btn btn-outline-secondary" type="submit" value="Search">
-                                </form>
- 
-                            </li>
- 
-                        </ul>
-	
-                    </li>
                 </ul>
             </div>
         </div>
+
 
         <div class="row">
             <div class="col-12">
                 <h3>
                     Profiles
-                    {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %}
  
                     {% if request.GET.field %}
                         in {{ request.GET.field }}
@@ -284,7 +246,37 @@
                     {% endif %}
                     ): {{ page_obj.paginator.count }} found
                 </h3>
-                <br />
+                
+                <section aria-label="Search">
+                  <form action="" method="get">
+                    <div class="row">
+                        
+                      <div class="col">
+                        {{ searchform }}
+                      </div>
+        
+                      {% if request.GET.field %}
+        
+                          <input type="hidden" name="field" value="{{ request.GET.field }}">
+        
+                          {% if request.GET.specialty %}<input type="hidden" name="specialty" value="{{ request.GET.specialty }}">{% endif %}
+        
+                      {% endif %}
+        
+                      {% if request.GET.contributor %}
+        
+                          <input type="hidden"
+                                name="contributor"
+                                value="{{ request.GET.contributor }}">
+        
+                      {% endif %}
+        
+                      <div class="col-auto">
+                        <input class="btn btn-outline-secondary" type="submit" value="Search">
+                      </div>
+                    </div>
+                </form>
+                </section>
 
                 <table class="table table-hover mb-5">
 	
