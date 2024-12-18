@@ -2,20 +2,23 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from itertools import chain
 import re
 from django.contrib.postgres.lookups import Unaccent
 from django.db import models
 from django.db.models import (
+    F,
     Count,
     Q,
     Exists,
     ExpressionWrapper,
+    IntegerField,
     OuterRef,
     QuerySet,
     Subquery,
     Value,
 )
-from django.db.models.functions import Concat, Lower
+from django.db.models.functions import Cast, Concat
 from django.utils import timezone
 
 from ethics.models import CompetingInterest
@@ -183,36 +186,39 @@ class ProfileQuerySet(QuerySet):
         Returns all Profiles matching the query for first name, last name, email, or ORCID.
         Exact matches are returned first, then partial matches.
         """
-        terms = query.replace(",", "").split(" ")
+        from profiles.models import ProfileEmail
+
+        terms = [
+            t
+            for term in query.replace(",", " ").replace(";", " ").split()
+            if (t := term.strip())
+        ]
 
         # Get ORCID term.
-        orcid_term = Q()
+        orcid_term = Q(pk__isnull=True)
         for i, term in enumerate(terms):
             if re.match(r"[\d-]+", term):
                 terms.pop(i)
-                orcid_term |= Q(orcid_id__icontains=term)
-
-        # Get mail term.
-        mail_term = Q()
-        for i, term in enumerate(terms):
-            if "@" in term:
-                terms.pop(i)  # Remove mail from further processing.
-                mail_term |= Q(emails__email__icontains=term)
+                orcid_term = Q(orcid_id__contains=term)
 
         # Remove dots from names to allow for matching initials
-        name_terms = list(map(lambda x: x.replace(".", ""), terms))
+        name_terms = list(chain.from_iterable(term.split(".") for term in terms))
+        name_terms = [t for term in name_terms if (t := term.strip())]
 
-        base_query = mail_term & orcid_term
+        # Set to impossible query if no name terms are present.
+        base_query = Q() if len(name_terms) > 0 else Q(pk__isnull=True)
 
         exact_query = base_query
         exact_last_query = base_query
         exact_first_query = base_query
         contains_query = base_query
+        mail_query = base_query
 
         exact_first = lambda name: Q(first_name__unaccent__iexact=name)
         exact_last = lambda name: Q(last_name__unaccent__iexact=name)
         contains_first = lambda name: Q(first_name__unaccent__icontains=name)
         contains_last = lambda name: Q(last_name__unaccent__icontains=name)
+        contains_mail = lambda name: Q(email__icontains=name)
 
         for name in name_terms:
             # Find exact matches first where every word matches either first or last name.
@@ -227,21 +233,29 @@ class ProfileQuerySet(QuerySet):
             # Find a contains match for the either name.
             contains_query &= contains_first(name) | contains_last(name)
 
-        # If there are exact matches, do not include other matches.
-        exact_profiles = self.filter(exact_query).distinct()
-        if exact_profiles.count() > 0:
-            return exact_profiles
+            # Find a contains match for the email.
+            mail_query &= contains_mail(name)
 
-        # If there are partial exact matches, do not include other matches.
-        exact_first_profiles = self.filter(exact_first_query)
-        exact_last_profiles = self.filter(exact_last_query)
-        partial_exact_profiles = (exact_first_profiles | exact_last_profiles).distinct()
-        if partial_exact_profiles.count() > 0:
-            return partial_exact_profiles
-
-        # Include profiles matching all (partial) words in either first or last name.
-        contains_profiles = self.filter(contains_query).distinct()
-        return contains_profiles
+        return (
+            self.annotate(
+                exact_both=exact_query,
+                exact_first=exact_first_query,
+                exact_last=exact_last_query,
+                contains=contains_query,
+                matches_orcid=orcid_term,
+                matches_email=Exists(
+                    ProfileEmail.objects.filter(Q(profile=OuterRef("pk")) & mail_query)
+                ),
+                points=8 * Cast(F("exact_both"), output_field=IntegerField())
+                + 3 * Cast(F("exact_first"), output_field=IntegerField())
+                + 3 * Cast(F("exact_last"), output_field=IntegerField())
+                + 1 * Cast(F("contains"), output_field=IntegerField())
+                + 2 * Cast(F("matches_orcid"), output_field=IntegerField())
+                + 2 * Cast(F("matches_email"), output_field=IntegerField()),
+            )
+            .filter(points__gt=0)
+            .order_by("-points", "last_name", "first_name")
+        )
 
 
 class AffiliationQuerySet(QuerySet):
