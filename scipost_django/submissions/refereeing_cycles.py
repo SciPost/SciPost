@@ -317,9 +317,21 @@ class BaseCycle(abc.ABC):
 
             # The current number of referees does not meet the minimum number of referees yet
             # Except if the submission is a resubmission with vetted reports
-            if (referee_invitations_count < self.minimum_number_of_referees) and (
-                self._submission.nr_unique_thread_vetted_reports == 0
-                or not self._submission.is_resubmission
+            # or if the number of reports is sufficient
+            not_enough_invitations = (
+                referee_invitations_count < self.minimum_number_of_referees
+            )
+            is_resubmission_with_vetted_reports = (
+                self._submission.nr_unique_thread_vetted_reports > 0
+                and self._submission.is_resubmission
+            )
+            reports_suffice = (
+                self._submission.submitted_to.minimal_nr_of_reports > 0
+                and self._submission.nr_unique_thread_vetted_reports
+                >= self._submission.submitted_to.minimal_nr_of_reports
+            )
+            if not_enough_invitations and not (
+                is_resubmission_with_vetted_reports or reports_suffice
             ):
                 self.add_action(
                     NeedRefereesAction(

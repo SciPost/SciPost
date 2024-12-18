@@ -204,6 +204,14 @@ class Journal(models.Model):
         """
         return self.name == "SciPost " + self.college.acad_field.name
 
+    @property
+    def is_proceedings(self):
+        """
+        Return True if this Journal is a Proceedings Journal.
+        i.e. if its name contains "Proceedings" and it has no volumes.
+        """
+        return self.structure == ISSUES_ONLY and "Proceedings" in self.name
+
     def get_issues(self):
         from journals.models import Issue
 

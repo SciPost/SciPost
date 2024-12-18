@@ -61,9 +61,14 @@ class SubmissionUtils(BaseMailUtil):
             + " (also accessible from your personal page "
             f"https://{domain}/personal_page under the Editorial Actions tab). "
             "In particular, unless you choose to directly formulate a Recommendation, "
-            "you should now start a refereeing round and invite at least 3 referees; "
-            "you might want to make sure you are aware of the "
-            "detailed procedure described in the Editorial College by-laws at "
+            "you should now start a refereeing round. We highly recommend you invite at least "
+            + str(cls.assignment.submission.cycle.minimum_number_of_referees)
+            + " referees. We also remind you that publication in "
+            + cls.assignment.submission.submitted_to.name
+            + " requires reports from at least "
+            + str(cls.assignment.submission.submitted_to.minimal_nr_of_reports)
+            + " individual referees; you might want to make sure you are aware of the detailed "
+            "procedure described in the Editorial College by-laws at "
             f"https://{domain}/EdCol_by-laws."
             "\n\nMany thanks in advance for your collaboration,"
             "\n\nThe SciPost Team."
@@ -81,9 +86,9 @@ class SubmissionUtils(BaseMailUtil):
             f'<a href="https://{domain}/personal_page">personal page</a> '
             "under the Editorial Actions tab).</p>"
             "\n<p>In particular, unless you choose to directly formulate a Recommendation, "
-            "you should now start a refereeing round and invite at least 3 referees; "
-            "you might want to make sure you are aware of the "
-            "detailed procedure described in the "
+            "you should now start a refereeing round. We highly recommend you invite at least {{ minimum_number_of_referees }} referees. "
+            "We also remind you that publication in {{ journal_name }} requires reports from at least {{ min_nr_reports }} individual referees; "
+            "you might want to make sure you are aware of the detailed procedure described in the "
             f'<a href="https://{domain}/EdCol_by-laws">Editorial College by-laws</a>.</p>'
             "<p>Many thanks in advance for your collaboration,</p>"
             "<p>The SciPost Team.</p>"
@@ -94,6 +99,9 @@ class SubmissionUtils(BaseMailUtil):
             "sub_title": cls.assignment.submission.title,
             "author_list": cls.assignment.submission.author_list,
             "identifier_w_vn_nr": cls.assignment.submission.preprint.identifier_w_vn_nr,
+            "minimum_number_of_referees": cls.assignment.submission.cycle.minimum_number_of_referees,
+            "journal_name": cls.assignment.submission.submitted_to.name,
+            "min_nr_reports": cls.assignment.submission.submitted_to.minimal_nr_of_reports,
         }
         email_text_html += "<br/>" + EMAIL_FOOTER
         html_template = Template(email_text_html)
