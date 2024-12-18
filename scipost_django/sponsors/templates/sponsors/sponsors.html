@@ -107,21 +107,38 @@
 
   {% if 'finadmin' in user_roles %}
   <div class="bg-danger bg-opacity-10 p-3">
-    <h3>Number of sponsorships by year</h3>
+    <h3>Number of sponsorships by period</h3>
     <table class="table">
-      <th>Current</th>
-      <th>Last year</th>
-      <th>2 years ago</th>
-      <th>Older</th>
-      <th>Total</th>
-      <th>Never</th>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Current</th>
+          <th>Last year</th>
+          <th>2 years ago</th>
+          <th>Older</th>
+          <th>Total</th>
+          <th>Never</th>
+        </tr>
+      </thead>
       <tbody>
-        <td>{{ last_sponsorship_counts.current }}</td>
-        <td>{{ last_sponsorship_counts.last_year }}</td>
-        <td>{{ last_sponsorship_counts.2_years_ago }}</td>
-        <td>{{ last_sponsorship_counts.more_than_2_years_ago }}</td>
-        <td>{{ last_sponsorship_counts.total }}</td>
-        <td>{{ last_sponsorship_counts.never }}</td>
+        <tr>
+          <td>Organizations sponsoring per period</td>
+          <td>{{ any_sponsorship_counts.current }}</td>
+          <td>{{ any_sponsorship_counts.last_year }}</td>
+          <td>{{ any_sponsorship_counts.2_years_ago }}</td>
+          <td>{{ any_sponsorship_counts.gt_2_years_ago }}</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>Organization's latest sponsorship</td>
+          <td>{{ last_sponsorship_counts.current }}</td>
+          <td>{{ last_sponsorship_counts.last_year }}</td>
+          <td>{{ last_sponsorship_counts.2_years_ago }}</td>
+          <td>{{ last_sponsorship_counts.gt_2_years_ago }}</td>
+          <td>{{ last_sponsorship_counts.total }}</td>
+          <td>{{ last_sponsorship_counts.never }}</td>
+        </tr>
       </tbody>
     </table>
   </div>

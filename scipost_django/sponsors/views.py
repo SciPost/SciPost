@@ -6,13 +6,14 @@ import datetime
 from django.db.models import F, Q, Case, Count, OuterRef, Subquery, Value, When
 from django.db.models.functions import Extract
 from django.shortcuts import render
+from django.utils import timezone
 
 from finances.models.subsidy import Subsidy
 from organizations.models import Organization
 
 
 def sponsors(request):
-    year = datetime.date.today().year
+    year = timezone.now().year
 
     current_sponsors = Organization.objects.current_sponsors()
     last_year_sponsors = (
@@ -29,7 +30,6 @@ def sponsors(request):
         .exclude(id__in=last_year_sponsors.values_list("id", flat=True))
     )
 
-    today_year = datetime.date.today().year
     last_sponsorship_counts = dict(
         Organization.objects.annotate(
             last_subsidy_until=Subquery(
@@ -37,37 +37,37 @@ def sponsors(request):
                 .order_by("-date_until")
                 .values("date_until")[:1]
             ),
-            years_since_last_subsidy=Extract(F("last_subsidy_until"), "year")
-            - today_year,
+            last_subsidy_year=Extract(F("last_subsidy_until"), "year"),
             last_sponsorship=Case(
-                When(
-                    Q(years_since_last_subsidy__isnull=True),
-                    then=Value("never"),
-                ),
-                When(
-                    Q(years_since_last_subsidy__lte=0),
-                    then=Value("current"),
-                ),
-                When(
-                    Q(years_since_last_subsidy=1),
-                    then=Value("last_year"),
-                ),
-                When(
-                    Q(years_since_last_subsidy=2),
-                    then=Value("2_years_ago"),
-                ),
-                When(
-                    Q(years_since_last_subsidy__gt=2),
-                    then=Value("more_than_2_years_ago"),
-                ),
+                When(Q(last_subsidy_year__isnull=True), then=Value("never")),
+                When(Q(last_subsidy_year__gte=year), then=Value("current")),
+                When(Q(last_subsidy_year=year - 1), then=Value("last_year")),
+                When(Q(last_subsidy_year=year - 2), then=Value("2_years_ago")),
+                When(Q(last_subsidy_year__lt=year - 2), then=Value("gt_2_years_ago")),
             ),
         )
         .values("last_sponsorship")
-        .annotate(nr=Count("last_sponsorship"))
-        .values_list("last_sponsorship", "nr")
+        .annotate(n=Count("pk", distinct=True))
+        .values_list("last_sponsorship", "n")
     )
     last_sponsorship_counts["total"] = sum(
         count for k, count in last_sponsorship_counts.items() if k != "never"
+    )
+
+    any_sponsorship_counts = dict(
+        Subsidy.objects.annotate(
+            year=Extract("date_until", "year"),
+            period=Case(
+                When(Q(year__isnull=True), then=Value("never")),
+                When(Q(year__gte=year), then=Value("current")),
+                When(Q(year=year - 1), then=Value("last_year")),
+                When(Q(year=year - 2), then=Value("2_years_ago")),
+                When(Q(year__lt=year - 2), then=Value("gt_2_years_ago")),
+            ),
+        )
+        .values("period")
+        .annotate(n=Count("organization_id", distinct=True))
+        .values_list("period", "n")
     )
 
     context = {
@@ -77,5 +77,6 @@ def sponsors(request):
         ),
         "past_sponsors": past_sponsors.order_by_yearly_coverage(None, year - 2),
         "last_sponsorship_counts": last_sponsorship_counts,
+        "any_sponsorship_counts": any_sponsorship_counts,
     }
     return render(request, "sponsors/sponsors.html", context)
