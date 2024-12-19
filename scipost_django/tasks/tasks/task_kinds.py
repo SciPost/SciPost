@@ -250,6 +250,61 @@ class CheckSubsidyPaymentTask(TaskKind):
         )
 
 
+class RenewSponsorshipTask(TaskKind):
+    name = "Renew Sponsorship"
+    task_title = "Renew Sponsorship for {object}"
+    description = "Renew the sponsorship for an organization."
+    actions = [
+        ViewAction.default_builder("organizations:organization_detail"),
+        lambda task: ViewAction(
+            url=reverse_lazy(
+                "finances:subsidy_sponsorship_create",
+                kwargs={"organization_id": task.data["object"].pk},
+            ),
+            content="Renew",
+        ),
+    ]
+
+    @staticmethod
+    def is_user_eligible(user):
+        return is_financial_admin(user)
+
+    @classmethod
+    def get_queryset(cls) -> "QuerySet":
+        from organizations.models import Organization
+        from finances.models import Subsidy
+
+        return (
+            Organization.objects.all()
+            .annotate(
+                has_older_renewable_subsidy=Exists(
+                    Subsidy.objects.annotate(
+                        renewal_action_date=F("date_from")
+                        - timezone.timedelta(days=122)
+                    ).filter(
+                        Q(organization=OuterRef("id"))
+                        & (
+                            Q(date_until__lt=timezone.now())
+                            | Q(renewal_action_date__lt=timezone.now())
+                        )
+                    )
+                ),
+                is_current_sponsor=Exists(
+                    Subsidy.objects.filter(
+                        organization=OuterRef("id"),
+                        date_from__lte=timezone.now(),
+                        date_until__gte=timezone.now(),
+                    )
+                ),
+            )
+            .filter(Q(has_older_renewable_subsidy=True) & Q(is_current_sponsor=False))
+        )
+
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return Q(name__icontains=text) | Q(acronym__icontains=text)
+
+
 #####################
 ## Fellow Tasks
 #####################
