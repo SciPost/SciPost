@@ -54,29 +54,22 @@ def sponsors(request):
         count for k, count in last_sponsorship_counts.items() if k != "never"
     )
 
-    any_sponsorship_counts = dict(
-        Subsidy.objects.annotate(
-            year=Extract("date_until", "year"),
-            period=Case(
-                When(Q(year__isnull=True), then=Value("never")),
-                When(Q(year__gte=year), then=Value("current")),
-                When(Q(year=year - 1), then=Value("last_year")),
-                When(Q(year=year - 2), then=Value("2_years_ago")),
-                When(Q(year__lt=year - 2), then=Value("gt_2_years_ago")),
-            ),
-        )
-        .values("period")
-        .annotate(n=Count("organization_id", distinct=True))
-        .values_list("period", "n")
-    )
+    sponsorships_by_year = {
+        y: Subsidy.objects.filter(date_from__year__lte=y, date_until__year__gte=y)
+        .order_by("organization_id")
+        .distinct("organization_id")
+        .count()
+        for y in range(year - 3, year + 4)
+    }
 
     context = {
+        "current_year": year,
         "current_sponsors": current_sponsors.order_by_yearly_coverage(year, year),
         "last_year_sponsors": last_year_sponsors.order_by_yearly_coverage(
             year - 1, year - 1
         ),
         "past_sponsors": past_sponsors.order_by_yearly_coverage(None, year - 2),
         "last_sponsorship_counts": last_sponsorship_counts,
-        "any_sponsorship_counts": any_sponsorship_counts,
+        "sponsorships_by_year": sponsorships_by_year,
     }
     return render(request, "sponsors/sponsors.html", context)
