@@ -20,16 +20,16 @@
 	    <div class="card-body">
 	      {% automarkup journal.blurb %}
 	    </div>
-	    {% if journal.contained_series.all|length > 0 %}
+	    {% if journal.series_uniquely_contained|length > 0 %}
 	      <div class="card-footer">
-		Series hosted in this Journal:
-		<ul>
-		  {% for series in journal.contained_series.all %}
-		    <li>
-		      <a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a>
-		    </li>
-		  {% endfor %}
-		</ul>
+          Series hosted in this Journal:
+          <ul>
+            {% for series in journal.series_uniquely_contained %}
+              <li>
+                <a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a>
+              </li>
+            {% endfor %}
+          </ul>
 	      </div>
 	    {% endif %}
 	  </div>

@@ -5,6 +5,8 @@ __license__ = "AGPL v3"
 from django.db import models
 from django.urls import reverse
 
+from series.managers import SeriesQuerySet
+
 
 class Series(models.Model):
     """
@@ -30,6 +32,12 @@ class Series(models.Model):
     container_journals = models.ManyToManyField(
         "journals.Journal", blank=True, related_name="contained_series"
     )
+
+    objects = SeriesQuerySet.as_manager()
+
+    @property
+    def is_uniquely_contained(self):
+        return self.container_journals.count() == 1
 
     class Meta:
         verbose_name_plural = "series"

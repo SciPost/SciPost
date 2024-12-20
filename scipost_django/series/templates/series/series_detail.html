@@ -15,22 +15,17 @@
 
   <div class="row">
     <div class="col-12">
-      <h2 class="highlight">
-	{{ series.name }}
-	{% if series.container_journals %}
-	  <br>
-	  <small><em>
-	    <ul class="list list-inline mt-2 mb-0">
-	      <li class="list-inline-item mx-0">a series contained in</li>
-	      {% for container in series.container_journals.all %}
-		<li class="list-inline-item">
-		  <a href="{{ container.get_absolute_url }}">{{ container }}</a>
-		</li>
-	      {% endfor %}
-	    </ul>
-	  </em></small>
-	{% endif %}
-      </h2>
+      <div class="highlight p-2">
+        <h1><a href="{{ series.get_absolute_url }}">{{ series.name }}</a></h1>
+
+        {% if series.is_uniquely_contained %}
+          {% with series.container_journals.first as journal %}
+            <span class="fs-4">a series contained in <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a></span>
+          {% endwith %}
+        {% endif %}
+
+      </h1>
+    </div>
       <ul>
 	<li><a href="#description">Description</a></li>
 	<li><a href="#collections">Collections in this Series</a></li>

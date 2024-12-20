@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from scipost.fields import ChoiceArrayField
-from series.models import Collection
+from series.models import Collection, Series
 
 from ..constants import (
     PUBLISHABLE_OBJECT_TYPE_CHOICES,
@@ -184,6 +184,10 @@ class Journal(models.Model):
     @property
     def has_collections(self):
         return Collection.objects.filter(series__container_journals=self).exists()
+
+    @property
+    def series_uniquely_contained(self):
+        return Series.objects.of_single_journal().filter(container_journals=self)
 
     @property
     def expectations(self):
