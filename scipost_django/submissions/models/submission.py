@@ -709,14 +709,14 @@ class Submission(models.Model):
         )
 
     @property
-    def all_authors_have_matching_profiles(self):
-        return self.author_profiles.filter(profile__isnull=False).count() == len(
+    def enough_author_profiles_matched(self):
+        return self.author_profiles.filter(profile__isnull=False).count() >= len(
             self.authors_as_list
         )
 
     @property
     def preassignment_tasks_done(self):
-        return self.all_authors_have_matching_profiles
+        return self.enough_author_profiles_matched
 
     @property
     def recommendation(self):
