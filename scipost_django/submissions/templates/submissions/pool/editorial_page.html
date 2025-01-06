@@ -78,6 +78,12 @@ container border border-warning border-3
             When refereeing has finished, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation here</a>.
           {% endif %}
         </div>
+        {% if not submission.eicrecommendations.exists %}
+          <div class="bg-info bg-opacity-25 py-2 px-3">
+            <span class="text-dark me-2">{% include 'bi/exclamation-circle-fill.html' %}</span> 
+            Authors can submit a new version of the manuscript only after an editorial recommendation for minor or major revisions is made.
+          </div>
+        {% endif %}
       {% endif %}
     </div>
     <div class="col-md-4">
