@@ -366,11 +366,11 @@ class Command(BaseCommand):
 
             return f"\n{NEWLINE}\n".join(affiliations)
 
-        def format_date_human_readable(date: datetime) -> str:
+        def format_date_iso(date: datetime) -> str:
             """
-            Format a date in a human-readable format (DD-MM-YYY).
+            Format a date in the ISO 8601 format.
             """
-            return date.strftime("%d-%m-%Y")
+            return date.strftime("%Y-%m-%d")
 
         def format_relative_url(url: str) -> str:
             """
@@ -405,8 +405,8 @@ class Command(BaseCommand):
             "<|EMAILS|>": (format_emails, paper_abbreviated_authors),
             "<|COPYRIGHT|>": (format_copyright, paper_abbreviated_authors),
             "<|AFFILIATIONS|>": (format_affiliations, paper_abbreviated_authors),
-            "<|RECEIVED|>": (format_date_human_readable, paper_received_date),
-            "<|ACCEPTED|>": (format_date_human_readable, paper_acceptance_date),
+            "<|RECEIVED|>": (format_date_iso, paper_received_date),
+            "<|ACCEPTED|>": (format_date_iso, paper_acceptance_date),
         }
 
         # Replace the logo if the submission has been accepted in Selections
