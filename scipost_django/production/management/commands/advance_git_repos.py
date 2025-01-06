@@ -407,6 +407,7 @@ class Command(BaseCommand):
             "<|AFFILIATIONS|>": (format_affiliations, paper_abbreviated_authors),
             "<|RECEIVED|>": (format_date_iso, paper_received_date),
             "<|ACCEPTED|>": (format_date_iso, paper_acceptance_date),
+            "<|PUBLISHED|>": (lambda _: "20??-??-??", None),
         }
 
         # Replace the logo if the submission has been accepted in Selections
