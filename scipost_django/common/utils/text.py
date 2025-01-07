@@ -12,6 +12,13 @@ from ..constants import CHARACTER_ALTERNATIVES, CHARACTER_LATINISATIONS
 import unicodedata
 
 
+def initialize(name: str) -> str:
+    """
+    Convert a full name to its initials.
+    """
+    return " ".join([word.upper()[0] + "." for word in name.split()])
+
+
 def unaccent(text: str) -> str:
     """
     Remove accented characters in the given string (e.g. é -> e),

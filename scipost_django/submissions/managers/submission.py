@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from comments.models import Comment
 from common.utils.db import SplitString
+from common.utils.text import initialize
 
 from .. import constants
 
@@ -163,7 +164,14 @@ class SubmissionQuerySet(models.QuerySet):
         return (
             self.filter(
                 Q(author_list__unaccent__icontains=contributor.user.last_name)
-                & Q(author_list__unaccent__icontains=contributor.user.first_name)
+                & (
+                    Q(author_list__unaccent__icontains=contributor.user.first_name)
+                    | Q(
+                        author_list__unaccent__icontains=initialize(
+                            contributor.user.first_name
+                        )
+                    )
+                )
             )
             .exclude(authors=contributor)
             .exclude(authors_claims=contributor)
