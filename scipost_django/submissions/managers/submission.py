@@ -161,7 +161,10 @@ class SubmissionQuerySet(models.QuerySet):
         Return Submissions for which the contributor could potentially be an author.
         """
         return (
-            self.filter(author_list__unaccent__icontains=contributor.user.last_name)
+            self.filter(
+                Q(author_list__unaccent__icontains=contributor.user.last_name)
+                & Q(author_list__unaccent__icontains=contributor.user.first_name)
+            )
             .exclude(authors=contributor)
             .exclude(authors_claims=contributor)
             .exclude(authors_false_claims=contributor)

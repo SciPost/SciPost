@@ -1534,10 +1534,7 @@ def claim_authorships(request):
     contributor = Contributor.objects.get(user=request.user)
 
     submission_authorships_to_claim = (
-        Submission.objects.author_full_name_in_list(contributor.profile.full_name)
-        .exclude(authors=contributor)
-        .exclude(authors_claims=contributor)
-        .exclude(authors_false_claims=contributor)
+        Submission.objects.with_potential_unclaimed_author(contributor)
     )
     sub_auth_claim_form = AuthorshipClaimForm()
     commentary_authorships_to_claim = (
