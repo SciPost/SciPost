@@ -2404,9 +2404,8 @@ def arxiv_doi_feed(request, doi_label=None):
         publications = Publication.objects.filter(
             status=PUBLICATION_PUBLISHED,
             pubtype=Publication.PUBTYPE_ARTICLE,
-            publication_date__gte=timezone.now() - timedelta(days=365),
+            publication_date__gte=timezone.now() - timedelta(days=60),
             # Two months are suggested by arxiv https://info.arxiv.org/help/bib_feed.html
-            # For now set to a whole year to cover missing items
         )
 
     feedxml = (
