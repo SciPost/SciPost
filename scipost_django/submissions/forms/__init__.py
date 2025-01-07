@@ -2466,15 +2466,15 @@ class InviteRefereeSearchFrom(forms.Form):
         required=False,
     )
 
-    show_unavailable = forms.BooleanField(
+    hide_unavailable = forms.BooleanField(
         required=False,
-        initial=True,
-        label="Show unavailable",
+        initial=False,
+        label="Hide unavailable",
     )
-    show_with_CI = forms.BooleanField(
+    hide_with_CI = forms.BooleanField(
         required=False,
-        initial=True,
-        label="Include those with competing interests",
+        initial=False,
+        label="Hide those with competing interests",
     )
     show_email_unknown = forms.BooleanField(
         required=False,
@@ -2533,8 +2533,8 @@ class InviteRefereeSearchFrom(forms.Form):
             css_class="row mb-0",
         )
         div_block_options = Div(
-            Div(Field("show_unavailable"), css_class="col-auto"),
-            Div(Field("show_with_CI"), css_class="col-auto"),
+            Div(Field("hide_unavailable"), css_class="col-auto"),
+            Div(Field("hide_with_CI"), css_class="col-auto"),
             Div(Field("show_email_unknown"), css_class="col-auto"),
             css_class="row mb-0",
         )
@@ -2606,14 +2606,6 @@ class InviteRefereeSearchFrom(forms.Form):
 
         profiles = (
             Profile.objects.eponymous()
-            .annot_has_competing_interests_with_submission_authors(self.submission)
-            .annotate(
-                is_unavailable=Exists(
-                    UnavailabilityPeriod.objects.today().filter(
-                        contributor=OuterRef("contributor")
-                    )
-                )
-            )
             .annotate(
                 last_name_matches=Exists(
                     Submission.objects.filter(
@@ -2650,12 +2642,42 @@ class InviteRefereeSearchFrom(forms.Form):
                 affiliations__organization__name__icontains=affiliation
             )
 
-        # Filter to only those without competing interests, unless the option is selected
-        if not self.cleaned_data.get("show_with_CI"):
+        can_be_sent_invitation_expression = (
+            Q(emails__isnull=False)
+            & ~Q(already_invited=True)
+            & Q(accepts_refereeing_requests=True)
+        )
+        warned_against_invitation_expression = Q(id__isnull=True)
+
+        # Filter to only those without competing interests, if the option is selected
+        if self.cleaned_data.get("hide_with_CI"):
+            can_be_sent_invitation_expression &= ~Q(
+                has_any_competing_interest_with_submission=True
+            )
+            warned_against_invitation_expression |= Q(is_submission_author=False) & Q(
+                last_name_matches=True
+            )
+
+            profiles = profiles.annot_has_competing_interests_with_submission_authors(
+                self.submission
+            )
             profiles = profiles.exclude(has_any_competing_interest_with_submission=True)
-        # Filter to only those available, unless the option is selected
-        if not self.cleaned_data.get("show_unavailable"):
+
+        # Filter out unavailable referees if the option is selected
+        if self.cleaned_data.get("hide_unavailable"):
+            warned_against_invitation_expression |= Q(is_unavailable=True) & Q(
+                has_accepted_previous_invitation=True
+            )
+
+            profiles = profiles.annotate(
+                is_unavailable=Exists(
+                    UnavailabilityPeriod.objects.today().filter(
+                        contributor=OuterRef("contributor")
+                    )
+                )
+            )
             profiles = profiles.exclude(is_unavailable=True)
+
         # Exclude those without email, if the option is selected
         if not self.cleaned_data.get("show_email_unknown"):
             profiles = profiles.exclude(emails__isnull=True)
@@ -2682,16 +2704,11 @@ class InviteRefereeSearchFrom(forms.Form):
 
         profiles = profiles.annotate(
             can_be_sent_invitation=ExpressionWrapper(
-                Q(emails__isnull=False)
-                & ~Q(already_invited=True)
-                & Q(accepts_refereeing_requests=True)
-                & ~Q(has_any_competing_interest_with_submission=True)
-                & (Q(is_unavailable=False) | Q(has_accepted_previous_invitation=True)),
+                can_be_sent_invitation_expression,
                 output_field=BooleanField(),
             ),
             warned_against_invitation=ExpressionWrapper(
-                (Q(is_submission_author=False) & Q(last_name_matches=True))
-                | (Q(is_unavailable=True) & Q(has_accepted_previous_invitation=True)),
+                warned_against_invitation_expression,
                 output_field=BooleanField(),
             ),
         )
