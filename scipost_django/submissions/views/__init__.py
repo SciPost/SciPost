@@ -1590,15 +1590,31 @@ def invite_referee(
             )
         )
 
+    contributor = None
+    if hasattr(profile, "contributor") and profile.contributor:
+        contributor = profile.contributor
+
+    has_agreed_to_previous_invitation = RefereeInvitation.objects.filter(
+        referee=profile, submission__thread_hash=submission.thread_hash, accepted=True
+    ).exists()
+
+    # Guard against profiles who are not currently available
+    if (
+        contributor is not None
+        and not contributor.is_currently_available
+        and not has_agreed_to_previous_invitation
+    ):
+        error_message = (
+            "This referee is not currently available, "
+            "and has not accepted a previous invitation for this submission."
+        )
+        return render(request, "scipost/error.html", {"errormessage": error_message})
+
     # We cannot proceed if the Profile has no email address
     # or if the email address is not linked to the Profile.
     profile_email = profile.emails.get(email=profile_email)
     if profile_email is None:
         raise Http404
-
-    contributor = None
-    if hasattr(profile, "contributor") and profile.contributor:
-        contributor = profile.contributor
 
     referee_invitation, created = RefereeInvitation.objects.get_or_create(
         referee=profile,
@@ -1618,23 +1634,8 @@ def invite_referee(
         referee_invitation.save()
 
     registration_invitation = None
-    has_agreed_to_previous_invitation = RefereeInvitation.objects.filter(
-        referee=profile, submission__thread_hash=submission.thread_hash, accepted=True
-    ).exists()
 
-    if contributor:
-        if (
-            not contributor.is_currently_available
-            and not has_agreed_to_previous_invitation
-        ):
-            error_message = (
-                "This referee is not currently available, "
-                "and has not accepted a previous invitation for this submission."
-            )
-            return render(
-                request, "scipost/error.html", {"errormessage": error_message}
-            )
-
+    if contributor is not None:
         mail_request = MailEditorSubview(
             request,
             mail_code="referees/invite_contributor_to_referee",
@@ -1727,6 +1728,23 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
     if hasattr(profile, "contributor") and profile.contributor:
         contributor = profile.contributor
 
+    has_agreed_to_previous_invitation = RefereeInvitation.objects.filter(
+        referee=profile, submission__thread_hash=submission.thread_hash, accepted=True
+    ).exists()
+
+    # Guard against profiles who are not currently available
+    if (
+        contributor is not None
+        and not contributor.is_currently_available
+        and not has_agreed_to_previous_invitation
+    ):
+
+        return HTMXResponse(
+            "This referee is not currently available, "
+            "and has not accepted a previous invitation for this submission.",
+            tag="danger",
+        )
+
     primary_or_first_email = profile.emails.order_by("-primary").first().email
     referee_invitation, created = RefereeInvitation.objects.get_or_create(
         referee=profile,
@@ -1746,21 +1764,8 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
         referee_invitation.save()
 
     registration_invitation = None
-    has_agreed_to_previous_invitation = RefereeInvitation.objects.filter(
-        referee=profile, submission__thread_hash=submission.thread_hash, accepted=True
-    ).exists()
 
-    if contributor:
-        if (
-            not contributor.is_currently_available
-            and not has_agreed_to_previous_invitation
-        ):
-            return HTMXResponse(
-                "This referee is not currently available, "
-                "and has not accepted a previous invitation for this submission.",
-                tag="danger",
-            )
-
+    if contributor is not None:
         mail_request = DirectMailUtil(
             "referees/invite_contributor_to_referee",
             invitation=referee_invitation,
