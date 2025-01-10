@@ -1551,13 +1551,14 @@ class SubmissionForm(forms.ModelForm):
         else:
             # Filter the list of proceedings to those open for submission
             proceedings_qs = self.fields["proceedings"].queryset.open_for_submission()
-            resubmission = Submission.objects.get(id=self.is_resubmission_of)
 
             # If this is a resubmission, add the previous proceedings to the list
-            if self.is_resubmission() and resubmission.proceedings is not None:
-                proceedings_qs |= Proceedings.objects.filter(
-                    id=resubmission.proceedings
-                )
+            if self.is_resubmission():
+                resubmission = Submission.objects.get(id=self.is_resubmission_of)
+                if resubmission.proceedings:
+                    proceedings_qs |= Proceedings.objects.filter(
+                        id=resubmission.proceedings
+                    )
 
             self.fields["proceedings"].queryset = proceedings_qs
 
