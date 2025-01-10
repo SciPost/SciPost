@@ -102,7 +102,7 @@ from .utils import JournalUtils
 
 from comments.models import Comment
 from common.utils import get_current_domain
-from common.views import HTMXInlineCRUDModelFormView, HTMXInlineCRUDModelListView
+from common.views.htmx import HTMXInlineCRUDModelFormView, HTMXInlineCRUDModelListView
 from finances.models import PubFrac
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant, Funder

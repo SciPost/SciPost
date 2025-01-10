@@ -38,7 +38,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 import sentry_sdk
 
-from common.views import HXFormSetView, empty
+from common.views.htmx import HXFormSetView, empty
 from profiles.utils import resolve_profile
 
 from scipost.permissions import (

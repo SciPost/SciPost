@@ -16,7 +16,7 @@ from django.utils.html import format_html
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import get_object_or_404, render, redirect
 
-from common.views import HXDynselAutocomplete
+from common.views.htmx import HXDynselAutocomplete
 
 from .models import Funder, Grant, IndividualBudget
 from .forms import (

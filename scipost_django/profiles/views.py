@@ -20,7 +20,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 from mails.views import MailView
-from common.views import HXDynselAutocomplete
+from common.views.htmx import HXDynselAutocomplete
 from ontology.models.academic_field import AcademicField
 from profiles import constants
 

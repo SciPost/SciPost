@@ -9,7 +9,7 @@ from django.db.models.query import QuerySet
 from django.forms import formset_factory, modelformset_factory
 from django.forms.forms import BaseForm
 from django.forms.formsets import ManagementForm
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -20,10 +20,10 @@ from django.views.generic.detail import SingleObjectMixin
 
 from scipost.permissions import HTMXResponse
 
-from .forms import HTMXInlineCRUDModelForm
+from ..forms import HTMXInlineCRUDModelForm
 
 
-def empty(request):
+def empty(request: HttpRequest) -> HttpResponse:
     return HttpResponse("")
 
 

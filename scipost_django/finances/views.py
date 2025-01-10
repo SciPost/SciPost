@@ -18,7 +18,7 @@ from django.utils.html import format_html
 from django.views.generic import FormView
 import matplotlib
 
-from common.views import HXDynselAutocomplete, HXDynselSelectOptionView
+from common.views.htmx import HXDynselAutocomplete, HXDynselSelectOptionView
 from finances.constants import SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_PROMISED
 from finances.models.account import Account
 from finances.models.subsidy import SubsidyCollective

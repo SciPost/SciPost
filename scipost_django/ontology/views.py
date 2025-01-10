@@ -14,7 +14,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 
-from common.views import HXDynselAutocomplete
+from common.views.htmx import HXDynselAutocomplete
 
 from .models import AcademicField, Specialty, Tag, Topic, RelationAsym
 from .forms import (

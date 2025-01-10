@@ -4,19 +4,19 @@ __license__ = "AGPL v3"
 
 from django.urls import path
 
-from . import views
+from .views import htmx as htmx_views
 
 app_name = "common"
 
 urlpatterns = [
     path(
         "empty",
-        views.empty,
+        htmx_views.empty,
         name="empty",
     ),
     path(
         "hx_dynsel/select_option/<int:content_type_id>/<int:object_id>",
-        views.HXDynselSelectOptionView.as_view(),
+        htmx_views.HXDynselSelectOptionView.as_view(),
         name="hx_dynsel_select_option",
     ),
 ]
