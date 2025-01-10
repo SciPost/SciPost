@@ -147,6 +147,32 @@ class ConditionalAssignmentOfferInline(admin.TabularInline):
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
 
+class RefereeIndicationInline(admin.TabularInline):
+    model = RefereeIndication
+    extra = 1
+    autocomplete_fields = [
+        "submission",
+        "referee",
+        "indicated_by",
+    ]
+    fields = [
+        "submission",
+        "referee",
+        "indicated_by",
+        "indication",
+        "first_name",
+        "last_name",
+        "email_address",
+        "affiliation",
+        "reason",
+    ]
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        if db_field.name == "reason":
+            kwargs["widget"] = forms.Textarea(attrs={"rows": 1, "cols": 20})
+        return super().formfield_for_dbfield(db_field, request, **kwargs)
+
+
 @admin.register(Submission)
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = "submission_date"
@@ -195,6 +221,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         SubmissionClearanceInline,
         SubmissionTieringInline,
         SubmissionEventInline,
+        RefereeIndicationInline,
         ConditionalAssignmentOfferInline,
         CollectionInline,
         RedFlagInline,
