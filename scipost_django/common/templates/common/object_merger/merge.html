@@ -1,0 +1,104 @@
+{% extends 'scipost/base.html' %}
+
+{% load scipost_extras %}
+
+{% block title %}Merging {{ model_name_plural }}{% endblock %}
+
+{% block breadcrumbs %}
+  <li>
+    <a href="{% url 'scipost:home' %}">Home</a>
+  </li>
+  <li>
+    <a href="{% url 'scipost:object_merger:compare' model_name=model_name %}">{{ model_name_plural }}</a>
+  </li>
+  <li class="active">Merging {{ model_name_plural }}</li>
+{% endblock %}
+
+{% block content %}
+  <hgroup>
+    <h1>Merging {{ model_name_plural.title }}</h1>
+    <p>
+      <span class="ms-2 fs-4"><a href="{{ object_b.get_absolute_url }}">{{ object_to }}</a></span>
+      {% include "bi/arrow-left.html" %}
+      <span class="fs-4"><a class="text-muted" href="{{ object_a.get_absolute_url }}">{{ object_from }}</a></span>
+    </p>
+  </hgroup>
+
+
+  {% for group_name, group in diff_groups.items %}
+    <h2>{{ group_name|title }}</h2>
+
+    {% if group_name == "related_objects_many" %}
+
+      {% for field_name, field_changes in group.values %}
+        <details open class="mb-3 border border-info border-2 rounded bg-info bg-opacity-10">
+          <summary class="list-triangle">
+            <span class="fs-3">{{ field_name|title }}</span>
+          </summary>
+          <div class="row">
+
+            <div class="col p-2">
+              <ul class="m-0">
+                {% for change in field_changes %}
+                  {% with status=change.0 value=change.1 %}
+                    {% if status == "added" %}
+                      <li class="text-success">{{ value }}</li>
+                    {% elif status == "removed" %}
+                      <li class="text-danger">{{ value }}</li>
+                    {% else %}
+                      <li>{{ value }}</li>
+                    {% endif %}
+                  {% endwith %}
+
+                {% endfor %}
+              </ul>
+            </div>
+
+          </div>
+        </details>
+      {% endfor %}
+
+
+    {% else %}
+
+      <table class="table table-hover">
+
+        <tr>
+          <th></th>
+          <th class="fs-4">
+            <a href="{{ object_to.get_absolute_url }}">{{ object_to }}</a>
+            {% include "bi/arrow-left.html" %}
+            <a class="text-muted" href="{{ object_a.get_absolute_url }}">{{ object_from }}</a>
+          </th>
+        </tr>
+
+        {% for field_name, changes in group.values %}
+          <tr>
+            <th>{{ field_name|title }}</th>
+
+            <td>
+            {% for change in changes %}
+              {% with status=change.0 value=change.1 %}
+                  {% if status == "added" %}
+                    <div class="text-success">{{ value }}</div>
+                  {% elif status == "removed" %}
+                    <div class="text-danger">{{ value }}</div>
+                  {% else %}
+                    {{ value }}
+                  {% endif %}
+              {% endwith %}
+            {% endfor %}
+            </td>
+
+
+          </tr>
+        {% endfor %}
+
+
+      </table>
+
+    {% endif %}
+
+  {% endfor %}
+
+{% endblock %}

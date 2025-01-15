@@ -203,3 +203,77 @@ class HXCompareView(CompareView):
         return context
 
 
+class HXMergeView(CompareView):
+    """
+    If GET: Display a "diff" view of the two objects, with buttons to merge them.
+    If POST: Merge the two objects, keeping a record of the merge in the database.
+    """
+
+    template_name = "common/object_merger/merge.html"
+
+    @staticmethod
+    def _preview_merge_field(
+        field: FieldOrRel, from_val: Any, to_val: Any
+    ) -> list[tuple[str, FieldValue]]:
+        """
+        Produces a preview of what the merged field will look like.
+        Return a list of tuples, where the first element is the status of the object (unchanged, added, removed)
+        """
+
+        changes = []
+
+        # For _2o relations and fields, values are unchanged if they are the same,
+        # "from" values are added if they are not in "to" values,
+        # and any other "from" values are removed
+        if not field.is_relation or field.one_to_one or field.many_to_one:
+            if from_val == to_val or (from_val is None and to_val is None):
+                changes = [("unchanged", to_val)]
+            elif not to_val:
+                changes = [("added", from_val)]
+            else:
+                changes = [("removed", from_val), ("unchanged", to_val)]
+
+        # For _2m relations, all objects from to_val are kept,
+        # and any new objects from from_val are added
+        elif field.many_to_many or field.one_to_many:
+            changes = [("unchanged", obj) for obj in to_val] + [
+                ("added", obj) for obj in from_val if obj not in to_val
+            ]
+        else:
+            changes = []
+
+        return sorted(changes, key=lambda x: str(x[1]))
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        content_type = self.get_content_type()
+        object_from, object_to = self.get_objects()
+
+        context |= {
+            "content_type": content_type,
+            "objects": [object_from, object_to],
+            "object_from": object_from,
+            "object_to": object_to,
+        }
+
+        if model := content_type.model_class():
+            obj_a_field_data = self.get_object_field_data(object_from)
+            obj_b_field_data = self.get_object_field_data(object_to)
+
+            diff = {
+                field: (field_name, changes)
+                for (field, (field_name, from_val)), (_, (_, to_val)) in zip(
+                    obj_a_field_data.items(), obj_b_field_data.items()
+                )
+                if (changes := self._preview_merge_field(field, from_val, to_val))
+            }
+
+            context |= {
+                "model_name": model._meta.verbose_name,
+                "model_name_plural": model._meta.verbose_name_plural,
+                "diff_groups": self.group_fields(diff),
+            }
+
+        return context
+
