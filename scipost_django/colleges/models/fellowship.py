@@ -13,6 +13,7 @@ from ..managers import FellowQuerySet
 
 if TYPE_CHECKING:
     from colleges.models import FellowshipNomination
+    from scipost.models import Contributor
     from django.db.models.manager import ManyToManyRelatedManager, RelatedManager
 
 
@@ -43,7 +44,7 @@ class Fellowship(TimeStampedModel):
         "colleges.College", on_delete=models.PROTECT, related_name="fellowships"
     )
 
-    contributor = models.ForeignKey(
+    contributor = models.ForeignKey["Contributor"](
         "scipost.Contributor", on_delete=models.CASCADE, related_name="fellowships"
     )
 

@@ -15,7 +15,7 @@ from django.contrib.auth.decorators import (
     user_passes_test,
 )
 from django.core.paginator import Paginator
-from django.db.models import Q, OuterRef, Subquery
+from django.db.models import Q, Count, Exists, OuterRef, Prefetch, Subquery
 from django.urls import reverse, reverse_lazy
 from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
@@ -32,9 +32,11 @@ from colleges.permissions import (
 from colleges.utils import check_profile_eligibility_for_fellowship
 from invitations.constants import INVITATION_EDITORIAL_FELLOW
 from invitations.models import RegistrationInvitation
+from journals.models.publication import Publication
 from scipost.constants import TITLE_DR
 from scipost.permissions import HTMXResponse, permission_required_htmx
 from submissions.models import Submission
+from submissions.models.decision import EditorialDecision
 from submissions.models.recommendation import EICRecommendation
 
 from ..constants import (
@@ -206,6 +208,56 @@ class FellowshipUpdateView(PermissionsMixin, UpdateView):
 
 class FellowshipDetailView(LoginRequiredMixin, DetailView):
     model = Fellowship
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        fellowship: Fellowship
+        if fellowship := context.get("object"):
+            assignment_submissions = (
+                Submission.objects.all()
+                .annotate(
+                    decision_journal=Subquery(
+                        EditorialDecision.objects.filter(submission=OuterRef("pk"))
+                        .nondeprecated()
+                        .order_by("-version")
+                        .values("for_journal")[:1]
+                    )
+                )
+                .annotate(
+                    thread_sequence_order=Subquery(
+                        Submission.objects.filter(
+                            thread_hash=OuterRef("thread_hash"),
+                            submission_date__lte=OuterRef("submission_date"),
+                        )
+                        .annotate(nr_submissions=Count("pk"))
+                        .values("nr_submissions")[:1]
+                    ),
+                    is_latest=~Exists(
+                        Submission.objects.filter(
+                            thread_hash=OuterRef("thread_hash"),
+                            submission_date__gt=OuterRef("submission_date"),
+                        )
+                    ),
+                )
+                .prefetch_related(
+                    "specialties",
+                )
+                .select_related(
+                    "acad_field",
+                    "preprint",
+                    "submitted_to",
+                )
+            )
+
+            context["ongoing_assignment_submissions"] = assignment_submissions.filter(
+                editorial_assignments__in=fellowship.contributor.editorial_assignments.ongoing()
+            )
+            context["completed_assignment_submissions"] = assignment_submissions.filter(
+                editorial_assignments__in=fellowship.contributor.editorial_assignments.completed()
+            )
+
+        return context
 
     def get_queryset(self):
         queryset = Fellowship.objects.all().prefetch_related(

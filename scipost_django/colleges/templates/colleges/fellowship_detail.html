@@ -211,7 +211,7 @@
     {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
       <h5 class="m-0 ms-3 pe-2">
         Workload indicator
-        {% include "icons/reception.html" with value=fellowship.contributor.editorial_assignments.ongoing.count max=4 %}
+        {% include "icons/reception.html" with value=ongoing_assignment_submissions.count max=4 %}
       </h5>
     {% endif %}
 
@@ -224,11 +224,11 @@
     <div class="col-12">
       <ul class="list-group list-group-flush">
 
-        {% for assignment in fellowship.contributor.editorial_assignments.ongoing %}
+        {% for submission in ongoing_assignment_submissions %}
           <li class="list-group-item">
             <div class="card-body px-0">
-              {% include 'submissions/_submission_card_content.html' with submission=assignment.submission %}
-              {% include 'submissions/_submission_status.html' with submission=assignment.submission %}
+              {% include 'submissions/_submission_card_content.html' with submission=submission %}
+              {% include 'submissions/_submission_status.html' with submission=submission %}
             </div>
           </li>
         {% empty %}
@@ -246,11 +246,11 @@
     <div class="col-12">
       <ul class="list-group list-group-flush">
 
-        {% for assignment in fellowship.contributor.editorial_assignments.completed %}
+        {% for submission in completed_assignment_submissions %}
           <li class="list-group-item">
             <div class="card-body px-0">
-              {% include 'submissions/_submission_card_content.html' with submission=assignment.submission %}
-              {% include 'submissions/_submission_status.html' with submission=assignment.submission %}
+              {% include 'submissions/_submission_card_content.html' with submission=submission %}
+              {% include 'submissions/_submission_status.html' with submission=submission %}
             </div>
           </li>
         {% empty %}

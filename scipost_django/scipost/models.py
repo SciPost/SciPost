@@ -16,6 +16,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
+
 from .behaviors import TimeStampedModel, orcid_validator
 from .constants import (
     NORMAL_CONTRIBUTOR,
@@ -47,6 +48,7 @@ if TYPE_CHECKING:
     from django.contrib.auth.models import User
     from profiles.models import Profile
     from colleges.models.fellowship import Fellowship
+    from submissions.models.assignment import EditorialAssignment
 
 
 def get_sentinel_user():
@@ -123,6 +125,7 @@ class Contributor(models.Model):
 
     if TYPE_CHECKING:
         fellowships: "RelatedManager[Fellowship]"
+        editorial_assignments: "RelatedManager[EditorialAssignment]"
 
     class Meta:
         ordering = ["user__last_name", "user__first_name"]

@@ -148,6 +148,8 @@ class FellowshipDynSelForm(forms.Form):
 
 
 class FellowshipForm(forms.ModelForm):
+    contributor = forms.ModelChoiceField(queryset=Contributor.objects.none())
+
     class Meta:
         model = Fellowship
         fields = (
@@ -167,6 +169,9 @@ class FellowshipForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["contributor"].queryset = Contributor.objects.filter(
+            id=self.instance.contributor.id
+        )
         self.fields["contributor"].disabled = True
 
     def clean(self):
