@@ -1557,7 +1557,7 @@ class SubmissionForm(forms.ModelForm):
                 resubmission = Submission.objects.get(id=self.is_resubmission_of)
                 if resubmission.proceedings:
                     proceedings_qs |= Proceedings.objects.filter(
-                        id=resubmission.proceedings
+                        id=resubmission.proceedings.id
                     )
 
             self.fields["proceedings"].queryset = proceedings_qs
