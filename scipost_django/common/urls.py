@@ -36,12 +36,12 @@ urlpatterns = [
                             path(
                                 "compare",
                                 merger_views.HXCompareView.as_view(),
-                                name="hx_compare",
+                                name="object_merger_compare",
                             ),
                             path(
                                 "merge",
                                 merger_views.HXMergeView.as_view(),
-                                name="hx_merge",
+                                name="object_merger_merge",
                             ),
                         ]
                     ),
