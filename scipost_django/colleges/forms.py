@@ -267,6 +267,7 @@ class SubmissionAddFellowshipForm(forms.ModelForm):
         self.fields["fellowship"].label = ""
         self.fields["fellowship"].queryset = (
             Fellowship.objects.active()
+            .without_authorship_of_submission(self.instance)
             .filter(college=self.instance.submitted_to.college)
             .exclude(id__in=pool)
         )
