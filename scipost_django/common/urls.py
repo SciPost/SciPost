@@ -36,7 +36,7 @@ urlpatterns = [
                             path(
                                 "compare",
                                 merger_views.HXCompareView.as_view(),
-                                name="hx_compare",
+                                name="object_merger_compare",
                             ),
                             path(
                                 "merge",

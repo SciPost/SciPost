@@ -4,26 +4,34 @@
 
 {% block title %}Comparing {{ model_name_plural }}{% endblock %}
 
-{% block breadcrumbs %}
-  <li>
-    <a href="{% url 'scipost:home' %}">Home</a>
-  </li>
-  <li>
-    <a href="{% url 'scipost:object_merger:compare' model_name=model_name %}">{{ model_name_plural }}</a>
-  </li>
-  <li class="active">Comparing {{ model_name_plural }}</li>
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <li>Object Merger</li>
+  <li>{{ model_name_plural }}</li>
+  <li class="active">Compare</li>
 {% endblock %}
 
 {% block content %}
-  <hgroup>
-    <h1>Comparing {{ model_name_plural.title }}</h1>
-    <p>
-      <span class="ms-2 fs-4"><a href="{{ object_a.get_absolute_url }}">{{ object_a }}</a></span>
-      <br />
-      <span class="ms-2 fs-4"><a href="{{ object_b.get_absolute_url }}">{{ object_b }}</a></span>
-    </p>
-  </hgroup>
+  <h1>Comparing {{ model_name_plural.title }}</h1>
 
+  <div class="row position-sticky top-0 bg-white p-1 border-bottom border-2 border-secondary">
+    <div class="col fs-4">
+      <a href="{{ object_a.get_absolute_url }}">{{ object_a }}</a>
+    </div>
+    <div class="col-auto d-flex flex-column justify-content-center">
+      <a class="btn btn-sm btn-primary"
+         href="{% url "common:object_merger_merge" content_type.id object_a.id object_b.id %}">
+        {% include "bi/arrow-right.html" %}
+      </a>
+      <a class="btn btn-sm btn-secondary"
+         href="{% url "common:object_merger_merge" content_type.id object_b.id object_a.id %}">
+        {% include "bi/arrow-left.html" %}
+      </a>
+    </div>
+    <div class="col fs-4">
+      <a href="{{ object_b.get_absolute_url }}">{{ object_b }}</a>
+    </div>
+  </div>
 
   {% for group_name, group in field_groups.items %}
     <h2>{{ group_name|title }}</h2>
@@ -31,7 +39,8 @@
     {% if group_name == "related_objects_many" %}
 
       {% for field_name, objects_field_value in group.items %}
-        <details open class="mb-3 border border-info border-2 rounded bg-info bg-opacity-10">
+        <details open
+                 class="mb-3 border border-info border-2 rounded bg-info bg-opacity-10">
           <summary class="list-triangle">
             <span class="fs-3">{{ field_name|title }}</span>
           </summary>
@@ -61,46 +70,28 @@
         </details>
       {% endfor %}
 
-
     {% else %}
+ 
+      {% for field_name, objects_field_value in group.items %}
+        <div class="row">
+          <h3 class="fs-5">{{ field_name|title }}</h3>
+          {% for object_field_value in objects_field_value %}
+            <div class="col">
 
-      <table class="table table-hover">
+              {% if object_field_value and object_field_value.get_absolute_url %}
+                <a href="{{ object_field_value.get_absolute_url }}">{{ object_field_value }}</a>
+              {% else %}
+                {{ object_field_value }}
+              {% endif %}
 
-        <tr>
-          <th></th>
-          <th class="fs-4">
-            <a href="{{ object_a.get_absolute_url }}">{{ object_a }}</a>
-          </th>
-          <th class="fs-4">
-            <a href="{{ object_b.get_absolute_url }}">{{ object_b }}</a>
-          </th>
-        </tr>
-
-        {% for field_name, objects_field_value in group.items %}
-          <tr>
-            <th>{{ field_name|title }}</th>
-
-            {% for object_field_value in objects_field_value %}
-              <td>
-
-                {% if object_field_value and object_field_value.get_absolute_url %}
-                  <a href="{{ object_field_value.get_absolute_url }}">{{ object_field_value }}</a>
-                {% else %}
-                  {{ object_field_value }}
-                {% endif %}
-
-              </td>
-            {% endfor %}
-
-
-          </tr>
-        {% endfor %}
-
-
-      </table>
+            </div>
+          {% endfor %} 
+        </div>
+      {% endfor %}
 
     {% endif %}
 
   {% endfor %}
+
 
 {% endblock %}
