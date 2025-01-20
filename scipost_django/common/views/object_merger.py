@@ -2,17 +2,46 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import enum
 from typing import Any, TypeVar
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import BadRequest
 from django.db.models import Model, QuerySet, Field, ForeignObjectRel
+# from django.db.models.manager import ManyToManyRelatedManager
 from django.http import Http404, HttpRequest, HttpResponse
 from django.views.generic import TemplateView
 
 FieldValue = Model | list[Model] | None
 FieldOrRel = Field[Any, Any] | ForeignObjectRel
 T = TypeVar("T")
+M = TypeVar("M", bound=Model)
+
+
+### Merge strategies
+# For one-to-many and many-to-many fields we can either replace or combine
+# For values and many-to-one fields we can either replace or do nothing
+# For one-to-one fields we can only replace or do nothing, but, in case of replacement,
+# we will be creating an "orphan" object which we need to handle
+# by either deleting, orphaning it, or merging it with the other candidate object
+
+
+class MergeStrategy(enum.Enum):
+    INERT = "inert"  # Do nothing
+    COMBINE = "combine"  # Use .add() for relations
+    REPLACE = "replace"  # Use .update() for fields, .set() for relations
+    ORPHAN = "orphan"  # Replace, naively, creating an orphan object
+    DELETE = "delete"  # Replace, deleting the object
+    MERGE = "merge"  # Replace, merging the object with its counterpart
+
+    @classmethod
+    def default_for_field(cls, field: FieldOrRel) -> "MergeStrategy":
+        if field.many_to_many or field.one_to_many:
+            return cls.COMBINE
+        elif field.one_to_one:
+            return cls.REPLACE
+        else:
+            return cls.REPLACE
 
 
 class CompareView(PermissionRequiredMixin, TemplateView):
@@ -277,3 +306,79 @@ class HXMergeView(CompareView):
 
         return context
 
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        object_from, object_to = self.get_objects()
+        return HttpResponse(f"Merged {object_from} and {object_to}")
+
+    # def merge_objects(
+    #     self,
+    #     object_from: M,
+    #     object_to: M,
+    #     strategies: dict[FieldOrRel, MergeStrategy] = {},
+    # ) -> M:
+    #     """
+    #     Merge two objects of the same content type according to the provided strategy for each field.
+    #     Returns the merged object.
+    #     """
+    #     object_from_field_data = self.get_object_field_data(object_from)
+    #     object_to_field_data = self.get_object_field_data(object_to)
+    #     model_fields = object_from_field_data.keys()
+
+    #     for field in model_fields:
+    #         strategy = strategies.get(field, MergeStrategy.default_for_field(field))
+
+    #         if not field.is_relation or field.many_to_one:
+    #             match strategy:
+    #                 case MergeStrategy.INERT:
+    #                     continue
+    #                 case MergeStrategy.REPLACE:
+    #                     setattr(object_to, field.name, getattr(object_from, field.name))
+    #                 case _:
+    #                     raise NotImplementedError(
+    #                         f"Strategy {strategy} not implemented for field {field}"
+    #                     )
+
+    #         elif field.one_to_one:
+    #             match strategy:
+    #                 case MergeStrategy.INERT:
+    #                     continue
+    #                 case MergeStrategy.REPLACE:
+    #                     raise ValueError(
+    #                         "Direct replacement of one-to-one fields is ambiguous, please select one of "
+    #                         f"{MergeStrategy.ORPHAN}, {MergeStrategy.DELETE}, or {MergeStrategy.MERGE}"
+    #                     )
+    #                 case MergeStrategy.ORPHAN:
+    #                     if not field.null:
+    #                         raise ValueError(f"{field} does not allow null values")
+    #                     elif not field.remote_field.null:
+    #                         raise ValueError(
+    #                             f"{field.remote_field} does not allow null values"
+    #                         )
+
+    #                     setattr(object_to, field.name, getattr(object_from, field.name))
+    #                     setattr(object_from, field.name, None)
+    #                 case _:
+    #                     raise NotImplementedError(
+    #                         f"Strategy {strategy} not implemented for field {field}"
+    #                     )
+
+    #         elif field.many_to_many or field.one_to_many:
+    #             to_qs: ManyToManyRelatedManager[Any, Any] = getattr(
+    #                 object_to, field.name
+    #             )
+    #             match strategy:
+    #                 case MergeStrategy.INERT:
+    #                     continue
+    #                 case MergeStrategy.COMBINE:
+    #                     to_qs.add(*getattr(object_from, field.name).all())
+    #                 case MergeStrategy.REPLACE:
+    #                     to_qs.set(getattr(object_from, field.name).all())
+    #                 case _:
+    #                     raise NotImplementedError(
+    #                         f"Strategy {strategy} not implemented for field {field}"
+    #                     )
+
+    #         object_from.save()
+    #         object_to.save()
+
+    #     return object_to
