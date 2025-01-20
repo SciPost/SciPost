@@ -9,7 +9,7 @@ from graphs.graphs.plotter import ModelFieldPlotter
 from .graphs import ALL_PLOTTERS, ALL_PLOT_KINDS, AVAILABLE_MPL_THEMES
 
 from crispy_forms.helper import FormHelper, Layout
-from crispy_forms.layout import Div, Field
+from crispy_forms.layout import LayoutObject, Div, Field
 
 
 class ModelFieldPlotterSelectForm(forms.Form):
@@ -98,13 +98,33 @@ class PlotOptionsForm(forms.Form):
 
         def get_layout_field_names(layout):
             """Recurse through a layout to get all field names."""
-            field_names = []
+            field_names: list[str] = []
+            field: LayoutObject | str
             for field in layout:
                 if isinstance(field, str):
                     field_names.append(field)
                 else:
                     field_names.extend(get_layout_field_names(field.fields))
             return field_names
+
+        def prefix_layout_fields(prefix: str, field: LayoutObject):
+            """
+            Recursively prefix the fields in a layout.
+            Return type is irrelevant, as it modifies the argument directly.
+            """
+
+            if (contained_fields := getattr(field, "fields", None)) is None:
+                return
+
+            # If the crispy field is a Field type with a single string identifier, prefix it
+            if (
+                isinstance(field, Field)
+                and len(contained_fields) == 1
+                and isinstance(field_key := contained_fields[0], str)
+            ):
+                field.fields = [prefix + field_key]
+            else:
+                [prefix_layout_fields(prefix, f) for f in contained_fields]
 
         # Iterate over all forms and construct the form layout
         # either by extending the layout with the preferred layout from the object class
@@ -121,10 +141,18 @@ class PlotOptionsForm(forms.Form):
                 layout.append(Div(Field(principal_field_name), css_class="col-12"))
 
                 row_constructor = getattr(
-                    object_class, "get_plot_options_form_layout_row_content"
+                    object_class, "get_plot_options_form_layout_row_content", None
                 )
                 if row_constructor:
-                    layout.extend(row_constructor())
+                    try:
+                        object_class_prefix = object_class.Options.prefix or ""
+                    except AttributeError:
+                        object_class_prefix = ""
+
+                    fields = row_constructor()
+                    # In-place prefixing of the layout-field names
+                    prefix_layout_fields(object_class_prefix, fields)
+                    layout.extend(fields)
 
             layout.extend(
                 [

@@ -7,7 +7,7 @@ from matplotlib.figure import Figure
 import pandas as pd
 
 from .options import BaseOptions
-from crispy_forms.layout import Layout, Div, Field
+from crispy_forms.layout import LayoutObject, Layout, Div, Field
 
 from typing import TYPE_CHECKING, Any
 
@@ -84,7 +84,7 @@ class PlotKind:
         ax.axis("off")
 
     @classmethod
-    def get_plot_options_form_layout_row_content(cls):
+    def get_plot_options_form_layout_row_content(cls) -> LayoutObject:
         return Div()
 
 
@@ -140,35 +140,11 @@ class TimelinePlot(PlotKind):
 
     @classmethod
     def get_plot_options_form_layout_row_content(cls):
-        layout = Layout(
+        return Layout(
             Div(Field("y_key"), css_class="col-12"),
             Div(Field("x_lim_min"), css_class="col-6"),
             Div(Field("x_lim_max"), css_class="col-6"),
         )
-
-        # Prefix every field in the layout with the prefix
-        def prefix_field(field):
-            """
-            Recursively prefix the fields in a layout.
-            Return type is irrelevant, as it modifies the argument directly.
-            """
-            contained_fields = getattr(field, "fields", None)
-            if contained_fields is None:
-                return
-
-            # If the crispy field is a Field type with a single string identifier, prefix it
-            if (
-                isinstance(field, Field)
-                and len(contained_fields) == 1
-                and isinstance(field_key := contained_fields[0], str)
-            ):
-                field.fields = [cls.Options.prefix + field_key]
-            else:
-                return [prefix_field(f) for f in contained_fields]
-
-        prefix_field(layout)
-
-        return layout
 
 
 class MapPlot(PlotKind):
@@ -303,31 +279,7 @@ class MapPlot(PlotKind):
 
     @classmethod
     def get_plot_options_form_layout_row_content(cls):
-        layout = Layout(
+        return Layout(
             Div(Field("agg_func"), css_class="col-6"),
             Div(Field("agg_key"), css_class="col-6"),
         )
-
-        # Prefix every field in the layout with the prefix
-        def prefix_field(field):
-            """
-            Recursively prefix the fields in a layout.
-            Return type is irrelevant, as it modifies the argument directly.
-            """
-            contained_fields = getattr(field, "fields", None)
-            if contained_fields is None:
-                return
-
-            # If the crispy field is a Field type with a single string identifier, prefix it
-            if (
-                isinstance(field, Field)
-                and len(contained_fields) == 1
-                and isinstance(field_key := contained_fields[0], str)
-            ):
-                field.fields = [cls.Options.prefix + field_key]
-            else:
-                return [prefix_field(f) for f in contained_fields]
-
-        prefix_field(layout)
-
-        return layout
