@@ -284,3 +284,69 @@ class MapPlot(PlotKind):
             Div(Field("agg_func"), css_class="col-6"),
             Div(Field("agg_key"), css_class="col-6"),
         )
+
+
+class BarPlot(PlotKind):
+    name = "bar"
+
+    def plot(self, **kwargs):
+        """
+        Plot the data on a the figure.
+        """
+        fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
+        ax = fig.add_subplot(111)
+        ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
+
+        groups, vals = self.get_data()
+
+        match self.options.get("direction", "vertical"):
+            case "vertical":
+                ax.bar(groups, vals)
+                ax.set_xticklabels(groups, rotation=45, ha="right")
+            case "horizontal":
+                ax.barh(groups, vals)
+
+        return fig
+
+    def get_data(self):
+        value_key = self.options.get("value_key", "id") or "id"
+        group_by_key = self.options.get("group_by_key", "id") or "id"
+
+        qs = self.plotter.get_queryset()
+        qs = (
+            qs.exclude(Q(**{group_by_key: None}))
+            .values(group_by_key)
+            .annotate(agg=Count(value_key))
+            .order_by(group_by_key)
+        )
+
+        if qs.exists():
+            groups, vals = zip(*qs.values_list(group_by_key, "agg"))
+            return [str(group) for group in groups], vals
+        else:
+            return [], []
+
+    class Options(BaseOptions):
+        prefix = "bar_plot_"
+        direction = forms.ChoiceField(
+            label="Direction",
+            choices=[
+                ("vertical", "Vertical"),
+                ("horizontal", "Horizontal"),
+            ],
+            required=False,
+            initial="vertical",
+            widget=forms.RadioSelect,
+        )
+        group_by_key = forms.CharField(
+            label="Group-by key", required=False, initial="id"
+        )
+        value_key = forms.CharField(label="Value key", required=False, initial="id")
+
+    @classmethod
+    def get_plot_options_form_layout_row_content(cls):
+        return Layout(
+            Div(Field("direction"), css_class="col-12"),
+            Div(Field("group_by_key"), css_class="col-6"),
+            Div(Field("value_key"), css_class="col-6"),
+        )
