@@ -104,16 +104,17 @@ class PlotOptionsForm(forms.Form):
             )
 
         super().__init__(*args, **kwargs)
-
-        self.fields.update(self.model_field_select_form.fields)
-        if plotter:
-            self.fields.update(self.plot_kind_select_form.fields)
-            self.fields.update(self.generic_plot_options_form.fields)
-
         self.helper = FormHelper()
         self.helper.layout = Layout()
 
-        def get_layout_field_names(layout):
+        self.fields.update(self.model_field_select_form.fields)
+        if not plotter:
+            return
+
+        self.fields.update(self.plot_kind_select_form.fields)
+        self.fields.update(self.generic_plot_options_form.fields)
+
+        def get_layout_field_names(layout: Layout):
             """Recurse through a layout to get all field names."""
             field_names: list[str] = []
             field: LayoutObject | str
