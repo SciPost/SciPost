@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 from django import forms
 from django.db.models import Q, Avg, Count, Sum
 from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 import pandas as pd
 
 from .options import BaseOptions
@@ -73,13 +74,13 @@ class PlotKind:
         try:
             x, y = self.get_data()
             ax.plot(x, y)
-        except ValueError as e:
-            self.display_plotting_error(ax)
+        except Exception as e:
+            self.display_plotting_error(ax, e)
 
         return fig
 
-    def display_plotting_error(self, ax):
-        ax.text(0.5, 0.5, f"No data to plot", ha="center", va="center")
+    def display_plotting_error(self, ax: Axes, error: Exception):
+        ax.text(0.5, 0.5, str(error), ha="center", va="center")
         ax.grid(False)
         ax.axis("off")
 
