@@ -63,11 +63,11 @@ class PlotKind:
         x = list(range(len(y)))
         return x, y
 
-    def plot(self):
+    def plot(self, **kwargs):
         """
         Plot the data on a the figure.
         """
-        fig = self.get_figure()
+        fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
         ax = fig.add_subplot(111)
         ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
 
@@ -92,8 +92,8 @@ class PlotKind:
 class TimelinePlot(PlotKind):
     name = "timeline"
 
-    def plot(self):
-        fig = super().plot()
+    def plot(self, **kwargs):
+        fig = super().plot(**kwargs)
         ax = fig.get_axes()[0]
 
         ax.set_xlabel(self.plotter.date_key)
@@ -191,11 +191,11 @@ class MapPlot(PlotKind):
         cax0.tick_params(axis="x", length=1.5, direction="out", which="minor")
         cax0.grid(False)
 
-    def plot(self):
+    def plot(self, **kwargs):
         from graphs.graphs import BASE_WORLD, OKLCH
         from matplotlib.colors import LinearSegmentedColormap, LogNorm
 
-        fig = self.get_figure()
+        fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
         self.draw_colorbar(fig)
         ax, cax, _ = fig.get_axes()
 

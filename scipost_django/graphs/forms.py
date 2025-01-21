@@ -65,6 +65,23 @@ class GenericPlotOptionsForm(forms.Form):
         required=False,
     )
     title = forms.CharField(label="Title", required=False)
+    fig_height = forms.FloatField(
+        label="Height", required=False, initial=4, min_value=1, max_value=30
+    )
+    fig_width = forms.FloatField(
+        label="Width", required=False, initial=6, min_value=1, max_value=30
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(Field("theme"), css_class="col-12"),
+            Div(Field("title"), css_class="col-12"),
+            Div(Field("fig_height"), css_class="col-6"),
+            Div(Field("fig_width"), css_class="col-6"),
+        )
 
 
 class PlotOptionsForm(forms.Form):
@@ -135,24 +152,33 @@ class PlotOptionsForm(forms.Form):
             self.generic_plot_options_form: None,
         }.items():
 
+            # If the form already has a layout, append it to the dynamic layout
+            if helper := getattr(form, "helper", None):
+                self.helper.layout.append(helper.layout)
+                continue
+
+            # Otherwise, construct a layout from the form fields
             layout = Layout()
             if object_class not in (None, None.__class__):
+
+                # Add the principal field to the layout
+                # This is usually the selector that will determine the other option fields
                 principal_field_name = next(iter(form.fields.keys()))
                 layout.append(Div(Field(principal_field_name), css_class="col-12"))
 
-                row_constructor = getattr(
+                get_row_field_layout = getattr(
                     object_class, "get_plot_options_form_layout_row_content", None
                 )
-                if row_constructor:
+                if get_row_field_layout:
                     try:
                         object_class_prefix = object_class.Options.prefix or ""
                     except AttributeError:
                         object_class_prefix = ""
 
-                    fields = row_constructor()
+                    layout_fields = get_row_field_layout()
                     # In-place prefixing of the layout-field names
-                    prefix_layout_fields(object_class_prefix, fields)
-                    layout.extend(fields)
+                    prefix_layout_fields(object_class_prefix, layout_fields)
+                    layout.extend(layout_fields)
 
             layout.extend(
                 [

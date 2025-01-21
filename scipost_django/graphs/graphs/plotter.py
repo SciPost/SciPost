@@ -80,8 +80,14 @@ class ModelFieldPlotter(ABC):
                 ALL_MPL_THEMES.get(options.get("theme", None), "light"),
             ]
         )
-
-        fig = kind.plot()
+        fig = kind.plot(
+            fig_kwargs={
+                "figsize": (
+                    options.get("fig_width", 6) or 6,
+                    options.get("fig_height", 4) or 4,
+                )
+            }
+        )
         if title := options.get("title", None):
             fig.axes[0].set_title(title)
 
