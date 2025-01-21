@@ -133,6 +133,15 @@ def is_editor_in_charge(user, submission):
 
 
 @register.simple_tag
+def is_pub_officer(user):
+    """
+    Assign template variable (boolean) to check if user is Publication Officer.
+    This assignment is limited to a certain context block!
+    """
+    return user.groups.filter(name="Publication Officers").exists() or user.is_superuser
+
+
+@register.simple_tag
 def recommend_new_totp_device(user):
     """
     Check if User has no TOTPDevice, but still has a high level of information access.
