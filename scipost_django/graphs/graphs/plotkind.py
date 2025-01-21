@@ -302,7 +302,14 @@ class BarPlot(PlotKind):
         match self.options.get("direction", "vertical"):
             case "vertical":
                 ax.bar(groups, vals)
-                ax.set_xticklabels(groups, rotation=45, ha="right")
+                # Compare the width of the bars to the width of the labels
+                # Rotate the labels if they are wider than the bars
+                labels_overflow_bar = any(
+                    label.get_window_extent().width > bar.get_window_extent().width
+                    for label, bar in zip(ax.get_xticklabels(), ax.patches)
+                )
+                if labels_overflow_bar:
+                    ax.set_xticklabels(groups, rotation=45, ha="right")
             case "horizontal":
                 ax.barh(groups, vals)
 
