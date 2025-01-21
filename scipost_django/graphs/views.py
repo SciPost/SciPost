@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import io
 from django.contrib.auth.decorators import login_required, permission_required
+from django.http import Http404
 from django.shortcuts import HttpResponse, render
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
@@ -76,6 +77,9 @@ class PlotView(View):
 
         figure = self.render_figure()
         bytes_io = io.BytesIO()
+
+        if figure is None:
+            raise Http404("No figure exists with the given options")
 
         match file_type:
             case "svg":
