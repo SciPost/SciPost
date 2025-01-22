@@ -103,8 +103,15 @@ class TimelinePlot(PlotKind):
         fig = super().plot(**kwargs)
         ax = fig.get_axes()[0]
 
-        ax.set_xlabel(self.plotter.date_key)
-        ax.set_ylabel(self.options.get("y_key", "id"))
+        if timeline_key_label := self.plotter.get_model_field_display(
+            self.options.get("timeline_key", "")
+        ):
+            ax.set_xlabel(timeline_key_label)
+
+        if value_key_label := self.plotter.get_model_field_display(
+            self.options.get("value_key", "")
+        ):
+            ax.set_ylabel(value_key_label)
 
         return fig
 
@@ -181,15 +188,7 @@ class MapPlot(PlotKind):
         return fig
 
     def draw_colorbar(self, fig: Figure, **kwargs):
-        color_bar_title = (
-            self.options.get("agg_func", "count").capitalize()
-            + " of "
-            + self.options.get("agg_key", "id")
-            + " per country"
-        )
-
         cax = fig.add_axes([0.385, 0.2, 0.45, 0.02])
-        cax.set_title(color_bar_title, fontsize="small")
         cax.tick_params(axis="x", length=2, direction="out", which="major")
         cax.tick_params(axis="x", length=1.5, direction="out", which="minor")
         cax.grid(False)
@@ -212,6 +211,30 @@ class MapPlot(PlotKind):
         fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
         self.draw_colorbar(fig)
         ax, cax, _ = fig.get_axes()
+
+        agg_func = self.options.get("agg_func", "count")
+        value_key_display = self.plotter.get_model_field_display(
+            self.options.get("value_key", "")
+        )
+        country_key_display = (
+            self.plotter.get_model_field_display(self.options.get("country_key", ""))
+            or "country"
+        )
+        if agg_func == "count":
+            plot_title = "{model} per {country}"
+        else:
+            plot_title = "{agg_func} of {model}' {value_key_display} per {country}"
+
+        plot_title = plot_title.format(
+            model=self.plotter.model._meta.verbose_name_plural,
+            agg_func=agg_func,
+            value_key_display=value_key_display,
+            country=country_key_display,
+        ).capitalize()
+
+        ax.set_title(plot_title)
+        color_plot_title, _ = plot_title.split(" per ")
+        cax.set_title(color_plot_title, fontsize="small")
 
         try:
             countries, agg = self.get_data()
@@ -317,6 +340,23 @@ class BarPlot(PlotKind):
         fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
         ax = fig.add_subplot(111)
         ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
+
+        direction = self.options.get("direction", "vertical") or "vertical"
+        if group_key_label := self.plotter.get_model_field_display(
+            self.options.get("group_key", "")
+        ):
+            if direction == "vertical":
+                ax.set_xlabel(group_key_label)
+            elif direction == "horizontal":
+                ax.set_ylabel(group_key_label)
+
+        if value_key_label := self.plotter.get_model_field_display(
+            self.options.get("value_key", "")
+        ):
+            if direction == "vertical":
+                ax.set_ylabel(value_key_label)
+            elif direction == "horizontal":
+                ax.set_xlabel(value_key_label)
 
         try:
             groups, vals = self.get_data()
