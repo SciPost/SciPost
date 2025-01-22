@@ -103,12 +103,13 @@ class PlotOptionsForm(forms.Form):
 
         # Update the allowed kind choices based on the selected model field plotter
         if plotter := self.model_field_select_form.plotter:
-            self.plot_kind_select_form.fields["plot_kind"].choices = list(
-                filter(
-                    lambda x: x[0] in plotter.get_available_plot_kinds(),
-                    self.plot_kind_select_form.fields["plot_kind"].choices,
-                )
-            )
+            plot_kind_select = self.plot_kind_select_form.fields["plot_kind"]
+            plot_kind_choices = [
+                (key, display_str)
+                for key, display_str in plot_kind_select.choices
+                if key in plotter.get_available_plot_kinds() or key is None
+            ]
+            plot_kind_select.choices = plot_kind_choices
 
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
