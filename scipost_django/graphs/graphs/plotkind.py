@@ -57,10 +57,7 @@ class PlotKind:
         """
         Obtain the values to plot from the queryset.
         """
-        qs = self.plotter.get_queryset()
-        y = qs.values_list("id", flat=True)
-        x = list(range(len(y)))
-        return x, y
+        raise NotImplementedError("Please select a plot kind.")
 
     def plot(self, **kwargs):
         """
@@ -68,18 +65,29 @@ class PlotKind:
         """
         fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
         ax = fig.add_subplot(111)
-        ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
 
         try:
             x, y = self.get_data()
             ax.plot(x, y)
         except Exception as e:
-            self.display_plotting_error(ax, e)
+            PlotKind.display_plotting_error(ax, e)
+            return fig
+
+        ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
 
         return fig
 
-    def display_plotting_error(self, ax: Axes, error: Exception):
-        ax.text(0.5, 0.5, str(error), ha="center", va="center")
+    @staticmethod
+    def display_plotting_error(ax: Axes, error: Exception):
+        MAX_CHAR_WIDTH = 80
+        str_error = str(error)
+        error_lines = [
+            str_error[i : i + MAX_CHAR_WIDTH]
+            for i in range(0, len(str_error), MAX_CHAR_WIDTH)
+        ]
+        error_text = "\n".join(error_lines)
+
+        ax.text(0.5, 0.5, error_text, ha="center", va="center")
         ax.grid(False)
         ax.axis("off")
 
@@ -205,9 +213,12 @@ class MapPlot(PlotKind):
         self.draw_colorbar(fig)
         ax, cax, _ = fig.get_axes()
 
-        ax.set_title(f"World map distribution of {self.plotter.model.__name__}")
+        try:
+            countries, agg = self.get_data()
+        except Exception as e:
+            PlotKind.display_plotting_error(ax, e)
+            return fig
 
-        countries, agg = self.get_data()
         df_agg = pd.DataFrame({"ISO_A2_EH": countries, "agg": agg})
         vmax = df_agg["agg"].max()
         BASE_WORLD.merge(df_agg, left_on="ISO_A2_EH", right_on="ISO_A2_EH").plot(
@@ -307,7 +318,11 @@ class BarPlot(PlotKind):
         ax = fig.add_subplot(111)
         ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
 
-        groups, vals = self.get_data()
+        try:
+            groups, vals = self.get_data()
+        except Exception as e:
+            PlotKind.display_plotting_error(ax, e)
+            return fig
 
         match self.options.get("direction", "vertical"):
             case "vertical":
@@ -327,7 +342,12 @@ class BarPlot(PlotKind):
 
     def get_data(self):
         value_key = self.options.get("value_key", "id") or "id"
-        group_by_key = self.options.get("group_by_key", "id") or "id"
+        group_key = self.options.get("group_key")
+
+        if group_key is None:
+            raise ValueError("Group key not set. Cannot plot a bar plot.")
+        if group_key == "id":
+            raise ValueError("Group key cannot be the primary key of the model.")
 
         match self.options.get("agg_func", "count"):
             case "count":
