@@ -89,6 +89,13 @@ class PlotOptionsForm(forms.Form):
     Combination of the model field selector, the plot kind selector, and generic plot options.
     """
 
+    FIELD_ADMISSIBLE_TYPES: dict[str, list[str]] = {
+        "value_key": ["int", "float"],
+        "timeline_key": ["date", "datetime"],
+        "group_key": ["str", "int", "country"],
+        "country_key": ["country"],
+    }
+
     def __init__(self, *args, **kwargs):
         self.model_field_select_form = ModelFieldPlotterSelectForm(*args, **kwargs)
         self.plot_kind_select_form = PlotKindSelectForm(*args, **kwargs)
@@ -113,6 +120,26 @@ class PlotOptionsForm(forms.Form):
 
         self.fields.update(self.plot_kind_select_form.fields)
         self.fields.update(self.generic_plot_options_form.fields)
+
+        # Populate empty choice fields with plotter's `model_fields`
+        available_model_fields: tuple[tuple[str, tuple[str, str]]] | None = (
+            plotter.Options.model_fields
+        )
+        for field_name, field in self.fields.items():
+            unprefixed_field_name = (
+                self.plot_kind_select_form.kind_class.Options.unprefixed(field_name)
+            )
+            if (
+                isinstance(field, forms.ChoiceField)
+                and not field.choices
+                and available_model_fields is not None
+            ):
+                field.choices = [
+                    (key, display_str)
+                    for key, (value_type, display_str) in available_model_fields
+                    if value_type
+                    in self.FIELD_ADMISSIBLE_TYPES.get(unprefixed_field_name, [])
+                ]
 
         def get_layout_field_names(layout: Layout):
             """Recurse through a layout to get all field names."""

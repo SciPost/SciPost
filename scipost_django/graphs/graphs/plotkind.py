@@ -25,7 +25,6 @@ class PlotKind:
 
     class Options(BaseOptions):
         prefix = "plot_kind_"
-        pass
 
     def __init__(self, plotter: "ModelFieldPlotter", options: "OptionDict" = {}):
         self.plotter = plotter
@@ -102,32 +101,38 @@ class TimelinePlot(PlotKind):
         return fig
 
     def get_data(self):
-        y_key = self.options.get("y_key", "id") or "id"
+        timeline_key = self.options.get("timeline_key", "id") or "id"
+        value_key = self.options.get("value_key", "id") or "id"
 
         # Filter the queryset to only include entries with a date and a y value
         query_filters = Q(
             **{
-                self.plotter.date_key + "__isnull": False,
-                y_key + "__isnull": False,
+                timeline_key + "__isnull": False,
+                value_key + "__isnull": False,
             }
         )
         # Filter the queryset according to the date limits if they are set
         if x_lim_min := self.options.get("x_lim_min", None):
-            query_filters &= Q(**{self.plotter.date_key + "__gte": x_lim_min})
+            query_filters &= Q(**{timeline_key + "__gte": x_lim_min})
         if x_lim_max := self.options.get("x_lim_max", None):
-            query_filters &= Q(**{self.plotter.date_key + "__lte": x_lim_max})
+            query_filters &= Q(**{timeline_key + "__lte": x_lim_max})
 
         qs = self.plotter.get_queryset()
         qs = qs.filter(query_filters)
-        qs = qs.order_by(self.plotter.date_key)
+        qs = qs.order_by(timeline_key)
 
-        x, y = zip(*qs.values_list(self.plotter.date_key, y_key))
+        x, y = zip(*qs.values_list(timeline_key, value_key))
 
         return x, y
 
     class Options(BaseOptions):
         prefix = "timeline_plot_"
-        y_key = forms.CharField(label="Y-axis key", required=False, initial="id")
+        timeline_key = forms.ChoiceField(
+            label="Timeline key", initial="id", required=False, choices=[]
+        )
+        value_key = forms.ChoiceField(
+            label="Value key", initial="id", required=False, choices=[]
+        )
         x_lim_min = forms.DateTimeField(
             label="X min",
             required=False,
@@ -142,9 +147,10 @@ class TimelinePlot(PlotKind):
     @classmethod
     def get_plot_options_form_layout_row_content(cls):
         return Layout(
-            Div(Field("y_key"), css_class="col-12"),
+            Div(Field("timeline_key"), css_class="col-12"),
             Div(Field("x_lim_min"), css_class="col-6"),
             Div(Field("x_lim_max"), css_class="col-6"),
+            Div(Field("value_key"), css_class="col-12"),
         )
 
 
@@ -237,27 +243,29 @@ class MapPlot(PlotKind):
         """
         qs = self.plotter.get_queryset()
 
-        value_key = self.options.get("agg_key", "id") or "id"
+        value_key = self.options.get("value_key", "id") or "id"
+        country_key = self.options.get("country_key")
 
-        group_by_country_agg = qs.filter(
-            Q(**{self.plotter.country_key + "__isnull": False})
-        ).values(self.plotter.country_key)
+        if country_key is None:
+            raise ValueError("Country key not set. Cannot plot a map.")
 
         match self.options.get("agg_func", "count"):
             case "count":
-                agg_func = Count
+                agg_func = Count("id")
             case "sum":
-                agg_func = Sum
+                agg_func = Sum(value_key)
             case "avg":
-                agg_func = Avg
+                agg_func = Avg(value_key)
             case _:
                 raise ValueError("Invalid aggregation function")
 
-        group_by_country_agg = group_by_country_agg.annotate(agg=agg_func(value_key))
-
-        countries, agg = zip(
-            *group_by_country_agg.values_list(self.plotter.country_key, "agg")
+        group_by_country_agg = (
+            qs.filter(Q(**{country_key + "__isnull": False}))
+            .values(country_key)
+            .annotate(agg=agg_func)
         )
+
+        countries, agg = zip(*group_by_country_agg.values_list(country_key, "agg"))
 
         # Convert the aggregated data to floats
         agg = [float(a) for a in agg]
@@ -276,13 +284,15 @@ class MapPlot(PlotKind):
             required=False,
             initial="count",
         )
-        agg_key = forms.CharField(label="Aggregation key", initial="id", required=False)
+        value_key = forms.ChoiceField(label="Value key", required=False, choices=[])
+        country_key = forms.ChoiceField(label="Country key", required=False, choices=[])
 
     @classmethod
     def get_plot_options_form_layout_row_content(cls):
         return Layout(
+            Div(Field("country_key"), css_class="col-12"),
             Div(Field("agg_func"), css_class="col-6"),
-            Div(Field("agg_key"), css_class="col-6"),
+            Div(Field("value_key"), css_class="col-6"),
         )
 
 
@@ -319,11 +329,21 @@ class BarPlot(PlotKind):
         value_key = self.options.get("value_key", "id") or "id"
         group_by_key = self.options.get("group_by_key", "id") or "id"
 
-        qs = self.plotter.get_queryset()
+        match self.options.get("agg_func", "count"):
+            case "count":
+                agg_func = Count("id")
+            case "sum":
+                agg_func = Sum(value_key)
+            case "avg":
+                agg_func = Avg(value_key)
+            case _:
+                raise ValueError("Invalid aggregation function")
+
         qs = (
-            qs.exclude(Q(**{group_by_key: None}))
-            .values(group_by_key)
-            .annotate(agg=Count(value_key))
+            self.plotter.get_queryset()
+            .values(group_key)
+            .annotate(agg=agg_func)
+            .exclude(Q(**{group_key: None}) | Q(agg=None))
         )
 
         if (order_by := self.options.get("order_by")) and (
@@ -332,7 +352,7 @@ class BarPlot(PlotKind):
 
             match order_by:
                 case "group":
-                    order_by = group_by_key
+                    order_by = group_key
                 case "value":
                     order_by = "agg"
                 case _:
@@ -342,7 +362,7 @@ class BarPlot(PlotKind):
             qs = qs.order_by(ordering + order_by)
 
         if qs.exists():
-            groups, vals = zip(*qs.values_list(group_by_key, "agg"))
+            groups, vals = zip(*qs.values_list(group_key, "agg"))
             return [str(group) for group in groups], vals
         else:
             return [], []
@@ -359,10 +379,22 @@ class BarPlot(PlotKind):
             initial="vertical",
             widget=forms.RadioSelect,
         )
-        group_by_key = forms.CharField(
-            label="Group-by key", required=False, initial="id"
+        group_key = forms.ChoiceField(
+            label="Group by key", required=False, initial="id", choices=[]
         )
-        value_key = forms.CharField(label="Value key", required=False, initial="id")
+        value_key = forms.ChoiceField(
+            label="Value key", required=False, initial="id", choices=[]
+        )
+        agg_func = forms.ChoiceField(
+            label="Aggregation function",
+            choices=[
+                ("count", "Count"),
+                ("sum", "Sum"),
+                ("avg", "Average"),
+            ],
+            required=False,
+            initial="count",
+        )
         order_by = forms.ChoiceField(
             label="Order by",
             choices=[
@@ -383,12 +415,19 @@ class BarPlot(PlotKind):
     @classmethod
     def get_plot_options_form_layout_row_content(cls):
         return Layout(
-            Div(Field("direction"), css_class="col-12"),
-            Div(Field("group_by_key"), css_class="col-6"),
+            Div(
+                Field("direction", css_class="d-flex flex-row gap-3"),
+                css_class="col-12",
+            ),
+            Div(Field("group_key"), css_class="col-12"),
+            Div(Field("agg_func"), css_class="col-6"),
             Div(Field("value_key"), css_class="col-6"),
             Div(
-                Div(Field("order_by"), css_class="col-6"),
-                Div(Field("ordering"), css_class="col-6"),
-                css_class="row",
+                Div(
+                    Div(Field("order_by"), css_class="col-6"),
+                    Div(Field("ordering"), css_class="col-6"),
+                    css_class="row",
+                ),
+                css_class="col-12",
             ),
         )

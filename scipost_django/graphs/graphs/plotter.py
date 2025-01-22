@@ -29,12 +29,11 @@ if TYPE_CHECKING:
 
 class ModelFieldPlotter(ABC):
     model: type
-    date_key: str | None = None
-    country_key: str | None = None
     name: str | None = None
 
     class Options(BaseOptions):
         prefix = "model_field_plotter_"
+        model_fields = (("id", ("int", "ID")),)
 
     def __init__(self, options: OptionDict = {}):
         self.options = self.Options.parse_prefixed_options(options)
@@ -50,6 +49,15 @@ class ModelFieldPlotter(ABC):
     def get_name(cls) -> str:
         return cls.name or cls.model.__name__
 
+    @classmethod
+    def get_model_field_display(cls, key: str) -> str | None:
+        if (options := getattr(cls, "Options", None)) and (
+            model_fields := getattr(options, "model_fields", None)
+        ):
+            for field, (_, value_display) in model_fields:
+                if field == key:
+                    return value_display
+
     def __str__(self):
         return self.get_name()
 
@@ -57,13 +65,22 @@ class ModelFieldPlotter(ABC):
         qs = self.model.objects.all()
         return qs
 
-    def get_available_plot_kinds(self):
+    def get_available_plot_kinds(self) -> list[str]:
         """Returns the plot kinds that can be used with this model field."""
-        plot_kinds: list[str | None] = ["bar"]
-        if self.date_key:
+        try:
+            model_fields_types = [
+                field_type for _, (field_type, _) in self.Options.model_fields
+            ]
+        except AttributeError:
+            return []
+
+        plot_kinds: list[str] = []
+        if "date" in model_fields_types or "datetime" in model_fields_types:
             plot_kinds.append("timeline")
-        if self.country_key:
+        if "country" in model_fields_types:
             plot_kinds.append("map")
+        if "int" in model_fields_types or "float" in model_fields_types:
+            plot_kinds.append("bar")
 
         return plot_kinds
 
@@ -103,8 +120,7 @@ class PublicationPlotter(ModelFieldPlotter):
     name = "Publication"
     date_key = "publication_date"
 
-    class Options(BaseOptions):
-        prefix = ModelFieldPlotter.Options.prefix
+    class Options(ModelFieldPlotter.Options):
         journals = forms.ModelChoiceField(
             queryset=Journal.objects.all().active(), required=False
         )
