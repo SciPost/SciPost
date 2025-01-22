@@ -17,8 +17,7 @@
     <div class="col-12 col-lg-3 d-flex flex-column"
          hx-post="{% url "graphs:plot_options_form" %}"
          hx-sync="this:replace"
-         hx-trigger="load, change from:#plot-container, click from:#plot-refresh">
-    </div>
+         hx-trigger="load, change from:#plot-container"></div>
 
     <div class="col d-flex flex-column">
       <div id="plot"
@@ -26,7 +25,8 @@
            hx-get="{% url "graphs:plot" %}"
            hx-params="not csrfmiddlewaretoken"
            hx-sync="this:replace"
-           hx-trigger="change from:#plot-container"></div>
+           hx-trigger="change from:#plot-container, click from:#plot-container target:#plot-refresh">
+      </div>
     </div>
   </div>
 {% endblock content %}
