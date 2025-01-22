@@ -324,8 +324,22 @@ class BarPlot(PlotKind):
             qs.exclude(Q(**{group_by_key: None}))
             .values(group_by_key)
             .annotate(agg=Count(value_key))
-            .order_by(group_by_key)
         )
+
+        if (order_by := self.options.get("order_by")) and (
+            ordering := self.options.get("ordering")
+        ):
+
+            match order_by:
+                case "group":
+                    order_by = group_by_key
+                case "value":
+                    order_by = "agg"
+                case _:
+                    raise ValueError("Invalid order by value")
+
+            ordering = "-" if ordering == "asc" else ""
+            qs = qs.order_by(ordering + order_by)
 
         if qs.exists():
             groups, vals = zip(*qs.values_list(group_by_key, "agg"))
@@ -349,6 +363,22 @@ class BarPlot(PlotKind):
             label="Group-by key", required=False, initial="id"
         )
         value_key = forms.CharField(label="Value key", required=False, initial="id")
+        order_by = forms.ChoiceField(
+            label="Order by",
+            choices=[
+                ("group", "Group"),
+                ("value", "Value"),
+            ],
+            required=False,
+        )
+        ordering = forms.ChoiceField(
+            label="Ordering",
+            choices=[
+                ("asc", "Ascending"),
+                ("desc", "Descending"),
+            ],
+            required=False,
+        )
 
     @classmethod
     def get_plot_options_form_layout_row_content(cls):
@@ -356,4 +386,9 @@ class BarPlot(PlotKind):
             Div(Field("direction"), css_class="col-12"),
             Div(Field("group_by_key"), css_class="col-6"),
             Div(Field("value_key"), css_class="col-6"),
+            Div(
+                Div(Field("order_by"), css_class="col-6"),
+                Div(Field("ordering"), css_class="col-6"),
+                css_class="row",
+            ),
         )
