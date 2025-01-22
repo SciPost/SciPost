@@ -10,6 +10,7 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from graphs.forms import PlotOptionsForm
 from scipost.permissions import HTMXResponse
@@ -31,6 +32,7 @@ def graphs(request):
     permission_required("scipost.can_preview_new_features", raise_exception=True),
     name="dispatch",
 )
+@method_decorator(xframe_options_sameorigin, name="dispatch")
 @method_decorator(cache_page(60 * 15), name="dispatch")
 class PlotView(View):
     """
@@ -43,12 +45,8 @@ class PlotView(View):
     def get(self, request):
         form = PlotOptionsForm(request.GET)
 
-        if not form.is_valid() and request.GET.get("widget"):
-            return HTMXResponse(
-                "Invalid plot options: " + str(form.errors), tag="danger"
-            )
-
-        cleaned_data = form.clean()
+        if not form.is_valid() and request.GET.get("embed"):
+            return HttpResponse("Invalid plot options: " + str(form.errors))
 
         self.plotter = form.model_field_select_form.plotter
         self.kind = form.plot_kind_select_form.kind_class(
