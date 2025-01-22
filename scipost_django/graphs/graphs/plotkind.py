@@ -343,6 +343,7 @@ class BarPlot(PlotKind):
     def get_data(self):
         value_key = self.options.get("value_key", "id") or "id"
         group_key = self.options.get("group_key")
+        direction = self.options.get("direction", "vertical") or "vertical"
 
         if group_key is None:
             raise ValueError("Group key not set. Cannot plot a bar plot.")
@@ -378,7 +379,11 @@ class BarPlot(PlotKind):
                 case _:
                     raise ValueError("Invalid order by value")
 
-            ordering = "-" if ordering == "asc" else ""
+            # Flip roles of ascending and descending if the direction is horizontal
+            # by leveraging a Z_2 group action (sign flip)
+            ordering_sign = -1 if ordering == "desc" else 1
+            direction_sign = -1 if direction == "horizontal" else 1
+            ordering = "-" if ordering_sign * direction_sign == -1 else ""
             qs = qs.order_by(ordering + order_by)
 
         if qs.exists():
