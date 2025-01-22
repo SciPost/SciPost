@@ -53,7 +53,7 @@ class ModelFieldPlotter(ABC):
     def __str__(self):
         return self.get_name()
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.QuerySet[Any]:
         qs = self.model.objects.all()
         return qs
 
@@ -150,7 +150,7 @@ class FellowshipPlotter(ModelFieldPlotter):
     date_key = "start_date"
     country_key = "latest_affiliation_country"
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.QuerySet[Fellowship]:
         qs = super().get_queryset()
 
         return qs.annotate(
@@ -175,7 +175,7 @@ class RefereePlotter(ModelFieldPlotter):
     date_key = "latest_report_date"
     country_key = "referee_country"
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.QuerySet[Profile]:
         qs = super().get_queryset()
         return qs.annotate(
             latest_report_date=models.Subquery(
@@ -205,7 +205,7 @@ class AuthorPlotter(ModelFieldPlotter):
     date_key = "first_authorship_date"
     country_key = "author_country"
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.QuerySet[Profile]:
         qs = super().get_queryset()
         return qs.annotate(
             first_authorship_date=models.Subquery(
@@ -235,7 +235,7 @@ class SponsorPlotter(ModelFieldPlotter):
     date_key = "latest_subsidy"
     country_key = "country"
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.QuerySet[Organization]:
         qs = super().get_queryset()
         return qs.annotate(
             latest_subsidy=models.Subquery(
@@ -251,7 +251,7 @@ class ReportPlotter(ModelFieldPlotter):
     date_key = "created"
     country_key = "latest_affiliation_country"
 
-    def get_queryset(self):
+    def get_queryset(self) -> models.QuerySet[Report]:
         qs = super().get_queryset()
 
         return qs.annotate(

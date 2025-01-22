@@ -147,6 +147,8 @@ class PlotOptionsForm(forms.Form):
         # Iterate over all forms and construct the form layout
         # either by extending the layout with the preferred layout from the object class
         # or by creating a row with all fields that are not already in the layout
+        form: forms.Form
+        object_class: ModelFieldPlotter | PlotKind | None
         for form, object_class in {
             self.model_field_select_form: self.model_field_select_form.plotter.__class__,
             self.plot_kind_select_form: self.plot_kind_select_form.kind_class,
@@ -172,7 +174,7 @@ class PlotOptionsForm(forms.Form):
                 )
                 if get_row_field_layout:
                     try:
-                        object_class_prefix = object_class.Options.prefix or ""
+                        object_class_prefix = str(object_class.Options.prefix) or ""
                     except AttributeError:
                         object_class_prefix = ""
 
