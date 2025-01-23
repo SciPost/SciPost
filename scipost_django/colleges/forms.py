@@ -765,7 +765,11 @@ class FellowshipNominationSearchForm(forms.Form):
             )
 
         nominations = (
-            FellowshipNomination.objects.all()
+            FellowshipNomination.objects.filter(
+                profile__in=Profile.objects.no_competing_interests_with(
+                    self.user.contributor.profile
+                )
+            )
             .annotate(
                 latest_round_deadline=latest_round_subquery("voting_deadline"),
                 latest_round_open=latest_round_subquery("voting_opens"),
