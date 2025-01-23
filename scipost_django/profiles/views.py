@@ -442,16 +442,17 @@ def _hx_profile_specialties(request, profile_id):
     Returns a snippet with current and possible specialties, with one-click actions.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
+    if profile.acad_field is not None:
+        specialties = Specialty.objects.filter(acad_field=profile.acad_field)
+    else:
+        specialties = Specialty.objects.all()
     if request.method == "POST":
-        specialty = get_object_or_404(Specialty, slug=request.POST.get("spec_slug"))
+        specialty = get_object_or_404(specialties, slug=request.POST.get("spec_slug"))
         if request.POST.get("action") == "add":
             profile.specialties.add(specialty)
         elif request.POST.get("action") == "remove":
             profile.specialties.remove(specialty)
-    current_spec_slugs = [s.slug for s in profile.specialties.all()]
-    other_specialties = Specialty.objects.filter(acad_field=profile.acad_field).exclude(
-        slug__in=profile.specialties.values_list("slug")
-    )
+    other_specialties = specialties.exclude(slug__in=profile.specialties.values("slug"))
     context = {
         "profile": profile,
         "other_specialties": other_specialties,
