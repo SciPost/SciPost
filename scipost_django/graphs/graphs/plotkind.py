@@ -104,12 +104,12 @@ class TimelinePlot(PlotKind):
         ax = fig.get_axes()[0]
 
         if timeline_key_label := self.plotter.get_model_field_display(
-            self.options.get("timeline_key", "")
+            self.options.get("timeline_key")
         ):
             ax.set_xlabel(timeline_key_label)
 
         if value_key_label := self.plotter.get_model_field_display(
-            self.options.get("value_key", "")
+            self.options.get("value_key")
         ):
             ax.set_ylabel(value_key_label)
 
@@ -214,10 +214,10 @@ class MapPlot(PlotKind):
 
         agg_func = self.options.get("agg_func", "count")
         value_key_display = self.plotter.get_model_field_display(
-            self.options.get("value_key", "")
+            self.options.get("value_key")
         )
         country_key_display = (
-            self.plotter.get_model_field_display(self.options.get("country_key", ""))
+            self.plotter.get_model_field_display(self.options.get("country_key"))
             or "country"
         )
         if agg_func == "count":
@@ -343,7 +343,7 @@ class BarPlot(PlotKind):
 
         direction = self.options.get("direction", "vertical") or "vertical"
         if group_key_label := self.plotter.get_model_field_display(
-            self.options.get("group_key", "")
+            self.options.get("group_key")
         ):
             if direction == "vertical":
                 ax.set_xlabel(group_key_label)
@@ -351,7 +351,7 @@ class BarPlot(PlotKind):
                 ax.set_ylabel(group_key_label)
 
         if value_key_label := self.plotter.get_model_field_display(
-            self.options.get("value_key", "")
+            self.options.get("value_key")
         ):
             if direction == "vertical":
                 ax.set_ylabel(value_key_label)

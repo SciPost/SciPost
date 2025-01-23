@@ -49,10 +49,11 @@ class ModelFieldPlotter(ABC):
     def get_name(cls) -> str:
         return cls.name or cls.model.__name__
 
-    @classmethod
-    def get_model_field_display(cls, key: str) -> str | None:
-        if (options := getattr(cls, "Options", None)) and (
-            model_fields := getattr(options, "model_fields", None)
+    def get_model_field_display(self, key: str | None) -> str | None:
+        if (
+            key is not None
+            and (options := getattr(self, "Options", None))
+            and (model_fields := getattr(options, "model_fields", None))
         ):
             for field, (_, value_display) in model_fields:
                 if field == key:
