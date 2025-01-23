@@ -176,7 +176,7 @@ class ProfileQuerySet(QuerySet):
         # Unpack the collection of id-two-tuples into two tuples of ids
         profile_CI, related_CI = tuple(zip(*CI_profiles)) or ((), ())
 
-        return self.exclude(id__in=profile_CI + related_CI)
+        return self.exclude(id__in=profile_CI + related_CI + (profile.id,))
 
     def without_competing_interests_against_submission_authors_of(self, submission):
         """
