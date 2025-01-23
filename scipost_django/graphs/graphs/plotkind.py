@@ -341,22 +341,27 @@ class BarPlot(PlotKind):
         ax = fig.add_subplot(111)
         ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
 
+        agg_func = self.options.get("agg_func", "count")
         direction = self.options.get("direction", "vertical") or "vertical"
+        group_label_axis = "x" if direction == "vertical" else "y"
+        value_label_axis = "y" if direction == "vertical" else "x"
+
         if group_key_label := self.plotter.get_model_field_display(
             self.options.get("group_key")
         ):
-            if direction == "vertical":
-                ax.set_xlabel(group_key_label)
-            elif direction == "horizontal":
-                ax.set_ylabel(group_key_label)
+            ax.set(**{f"{group_label_axis}label": group_key_label.capitalize()})
 
-        if value_key_label := self.plotter.get_model_field_display(
+        if value_key_name := self.plotter.get_model_field_display(
             self.options.get("value_key")
         ):
-            if direction == "vertical":
-                ax.set_ylabel(value_key_label)
-            elif direction == "horizontal":
-                ax.set_xlabel(value_key_label)
+            value_key_label = f"{agg_func} of {value_key_name}"
+            if agg_func == "count":
+                # Simplify label and set locator to integer
+                value_key_label = "Count"
+                axis = getattr(ax, f"{value_label_axis}axis")
+                axis.get_major_locator().set_params(integer=True)
+
+            ax.set(**{f"{value_label_axis}label": value_key_label.capitalize()})
 
         try:
             groups, vals = self.get_data()
