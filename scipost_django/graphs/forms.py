@@ -12,7 +12,53 @@ from crispy_forms.helper import FormHelper, Layout
 from crispy_forms.layout import LayoutObject, Div, Field
 
 
-class ModelFieldPlotterSelectForm(forms.Form):
+### DANGER ZONE ###
+# The following class is a subclass / modification of Django code to cater for this specific use case.
+# DO NOT USE this in other places unless you know what you are doing.
+class InitialCoalescedForm(forms.Form):
+    """
+    Modified Form that uses InitialCoalescedBoundField instead of BoundField.
+    """
+
+    class InitialCoalescedBoundField(forms.BoundField):
+        """
+        Modified BoundField that coalesces the initial value with the data value if the latter is not None.
+        """
+
+        def value(self):
+            """
+            Return the value for this BoundField:
+            - `data` when the from is bound and data is not None,
+            - `initial` value otherwise.
+            """
+            data = self.initial
+            ### MODIFICATION: Coalesce the initial value with the data value if the latter is not None.
+            if self.form.is_bound and self.data is not None:
+                data = self.field.bound_data(self.data, data)
+            return self.field.prepare_value(data)
+
+    def __getitem__(self, name):
+        """Return a BoundField with the given name."""
+        try:
+            field = self.fields[name]
+        except KeyError:
+            raise KeyError(
+                "Key '%s' not found in '%s'. Choices are: %s."
+                % (
+                    name,
+                    self.__class__.__name__,
+                    ", ".join(sorted(self.fields)),
+                )
+            )
+        if name not in self._bound_fields_cache:
+            ### MODIFICATION: Use InitialCoalescedBoundField instead of BoundField
+            self._bound_fields_cache[name] = (
+                InitialCoalescedForm.InitialCoalescedBoundField(self, field, name)
+            )
+        return self._bound_fields_cache[name]
+
+
+class ModelFieldPlotterSelectForm(InitialCoalescedForm):
     model_field_plotter = forms.ChoiceField(
         choices=[(None, "-" * 9)] + [(key, key.title()) for key in ALL_PLOTTERS],
         label="Model Field",
@@ -40,7 +86,7 @@ class ModelFieldPlotterSelectForm(forms.Form):
         return cleaned_data
 
 
-class PlotKindSelectForm(forms.Form):
+class PlotKindSelectForm(InitialCoalescedForm):
     plot_kind = forms.ChoiceField(
         choices=[(None, "-" * 9)] + [(key, key.title()) for key in ALL_PLOT_KINDS],
         label="Plot kind",
@@ -58,7 +104,7 @@ class PlotKindSelectForm(forms.Form):
         self.kind_class = plot_kind_class
 
 
-class GenericPlotOptionsForm(forms.Form):
+class GenericPlotOptionsForm(InitialCoalescedForm):
     theme = forms.ChoiceField(
         choices=[(name, name.title()) for name in AVAILABLE_MPL_THEMES],
         initial="light",
@@ -85,7 +131,7 @@ class GenericPlotOptionsForm(forms.Form):
         )
 
 
-class PlotOptionsForm(forms.Form):
+class PlotOptionsForm(InitialCoalescedForm):
     """
     Combination of the model field selector, the plot kind selector, and generic plot options.
     """
