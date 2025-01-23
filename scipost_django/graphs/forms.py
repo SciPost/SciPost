@@ -140,6 +140,7 @@ class PlotOptionsForm(forms.Form):
                     for key, (value_type, display_str) in available_model_fields
                     if value_type
                     in self.FIELD_ADMISSIBLE_TYPES.get(unprefixed_field_name, [])
+                    and not (key == "id" and unprefixed_field_name == "group_key")
                 ]
 
         def get_layout_field_names(layout: Layout):
