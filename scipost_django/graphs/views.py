@@ -44,6 +44,7 @@ class PlotView(View):
 
     def get(self, request):
         form = PlotOptionsForm(request.GET)
+        self.form = form
 
         if not form.is_valid() and request.GET.get("embed"):
             return HttpResponse("Invalid plot options: " + str(form.errors))
@@ -53,18 +54,6 @@ class PlotView(View):
             options=form.plot_kind_select_form.cleaned_data,
             plotter=self.plotter,
         )
-
-        self.plot_options = {
-            "plot_kind": {},
-            "model_field_plotter": {},
-            "generic": {},
-        }
-        for option, value in cleaned_data.items():
-            for option_group_name, option_group in self.plot_options.items():
-                if option.startswith(option_group_name + "_"):
-                    option_group[option] = value
-                else:
-                    self.plot_options["generic"][option] = value
 
         if request.GET.get("download"):
             return self.download(request.GET.get("download", "svg"))
@@ -122,7 +111,7 @@ class PlotView(View):
         if not self.plotter or not self.kind:
             return None
 
-        return self.plotter.plot(self.kind, options=self.plot_options["generic"])
+        return self.plotter.plot(self.kind, options=self.form.options["generic"])
 
     def get_context_data(self, **kwargs):
         plot_svg = None

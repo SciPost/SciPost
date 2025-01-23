@@ -231,3 +231,24 @@ class PlotOptionsForm(forms.Form):
         self.generic_plot_options_form.full_clean()
 
         return cleaned_data
+
+    @property
+    def options(self):
+        if plot_options := getattr(self, "plot_options", None):
+            return plot_options
+
+        self.plot_options = {
+            "plot_kind": {},
+            "model_field_plotter": {},
+            "generic": {},
+        }
+        for field_name, field in self.fields.items():
+            clean_field_data = self.cleaned_data.get(field_name, field.initial)
+            if field_name in self.model_field_select_form.fields:
+                self.plot_options["model_field_plotter"][field_name] = clean_field_data
+            elif field_name in self.plot_kind_select_form.fields:
+                self.plot_options["plot_kind"][field_name] = clean_field_data
+            else:
+                self.plot_options["generic"][field_name] = clean_field_data
+
+        return self.plot_options
