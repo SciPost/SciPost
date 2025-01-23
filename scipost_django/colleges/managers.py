@@ -14,6 +14,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from colleges.models import Fellowship
     from submissions.models import Submission
+    from profiles.models import Profile
+    from django.contrib.auth.models import User
 
 
 class FellowQuerySet(models.QuerySet["Fellowship"]):
@@ -57,7 +59,7 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
             | Q(start_date__isnull=True, until_date__isnull=True)
         ).ordered()
 
-    def active_in_year(self, year):
+    def active_in_year(self, year: int):
         """
         Filter for Fellows which were active during a certain calendar year.
         """
@@ -67,7 +69,7 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
         today = timezone.now().date()
         return self.filter(until_date__lt=today)
 
-    def specialties_overlap(self, specialties_slug_list):
+    def specialties_overlap(self, specialties_slug_list: list[str]):
         """
         Returns all Fellows whose specialties overlap with those specified in the slug list.
 
@@ -90,7 +92,7 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
         """Return ordered queryset explicitly, since this may have big effect on performance."""
         return self.order_by("contributor__user__last_name")
 
-    def no_competing_interests_with(self, profile):
+    def no_competing_interests_with(self, profile: "Profile"):
         """
         Returns all Fellowships whose profiles have no competing interests with the specified profile.
         """
@@ -99,7 +101,9 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
         clear_profiles = Profile.objects.no_competing_interests_with(profile)
         return self.filter(contributor__profile__pk__in=clear_profiles)
 
-    def without_competing_interests_against_submission_authors_of(self, submission):
+    def without_competing_interests_against_submission_authors_of(
+        self, submission: "Submission"
+    ):
         """
         Returns all Fellowships whose profiles have no competing interests with any of the authors of the specified submission.
         """
@@ -141,7 +145,7 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
 
 
 class PotentialFellowshipQuerySet(models.QuerySet):
-    def vote_needed(self, contributor):
+    def vote_needed(self, contributor: "Contributor"):
         college_id_list = [
             f.college.id for f in contributor.fellowships.senior().active()
         ]
@@ -154,14 +158,14 @@ class PotentialFellowshipQuerySet(models.QuerySet):
             .order_by("profile__last_name")
         )
 
-    def to_vote_on(self, contributor):
+    def to_vote_on(self, contributor: "Contributor"):
         return self.vote_needed(contributor).exclude(
             Q(in_agreement__in=[contributor])
             | Q(in_abstain__in=[contributor])
             | Q(in_disagreement__in=[contributor])
         )
 
-    def voted_on(self, contributor):
+    def voted_on(self, contributor: "Contributor"):
         return self.vote_needed(contributor).filter(
             Q(in_agreement__in=[contributor])
             | Q(in_abstain__in=[contributor])
@@ -175,7 +179,7 @@ class FellowshipNominationQuerySet(models.QuerySet):
             voting_rounds__decision__isnull=False
         )
 
-    def with_user_votable_rounds(self, user):
+    def with_user_votable_rounds(self, user: "User"):
         """Return all Fellowship nominations where the user is eligible to vote."""
         return self.filter(
             voting_rounds__eligible_to_vote__in=user.contributor.fellowships.active()
@@ -191,7 +195,7 @@ class FellowshipNominationVotingRoundQuerySet(models.QuerySet):
         now = timezone.now()
         return self.filter(voting_deadline__lte=now)
 
-    def where_user_can_vote(self, user):
+    def where_user_can_vote(self, user: "User"):
         user_fellowships = user.contributor.fellowships.active()
         return self.filter(eligible_to_vote__in=user_fellowships)
 

@@ -23,6 +23,11 @@ from django.utils import timezone
 
 from ethics.models import CompetingInterest
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from profiles.models import Profile
+
 
 class ProfileQuerySet(QuerySet):
 
@@ -161,7 +166,7 @@ class ProfileQuerySet(QuerySet):
             )
         )
 
-    def no_competing_interests_with(self, profile):
+    def no_competing_interests_with(self, profile: "Profile"):
         """
         Returns all Profiles which have no competing interests with the specified profile.
         """
