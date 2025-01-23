@@ -140,7 +140,7 @@ class TimelinePlot(PlotKind):
 
         return x, y
 
-    class Options(BaseOptions):
+    class Options(PlotKind.Options):
         prefix = "timeline_plot_"
         timeline_key = forms.ChoiceField(
             label="Timeline key", initial="id", required=False, choices=[]
@@ -306,7 +306,7 @@ class MapPlot(PlotKind):
 
         return countries, agg
 
-    class Options(BaseOptions):
+    class Options(PlotKind.Options):
         prefix = "map_plot_"
         agg_func = forms.ChoiceField(
             label="Aggregation function",
@@ -432,7 +432,7 @@ class BarPlot(PlotKind):
         else:
             return [], []
 
-    class Options(BaseOptions):
+    class Options(PlotKind.Options):
         prefix = "bar_plot_"
         direction = forms.ChoiceField(
             label="Direction",
