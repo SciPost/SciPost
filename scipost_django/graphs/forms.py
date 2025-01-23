@@ -16,7 +16,7 @@ class ModelFieldPlotterSelectForm(forms.Form):
     model_field_plotter = forms.ChoiceField(
         choices=[(None, "-" * 9)] + [(key, key.title()) for key in ALL_PLOTTERS],
         label="Model Field",
-        required=False,
+        required=True,
     )
 
     def __init__(self, *args, **kwargs):
@@ -44,7 +44,7 @@ class PlotKindSelectForm(forms.Form):
     plot_kind = forms.ChoiceField(
         choices=[(None, "-" * 9)] + [(key, key.title()) for key in ALL_PLOT_KINDS],
         label="Plot kind",
-        required=False,
+        required=True,
     )
 
     def __init__(self, *args, **kwargs):
@@ -61,6 +61,7 @@ class PlotKindSelectForm(forms.Form):
 class GenericPlotOptionsForm(forms.Form):
     theme = forms.ChoiceField(
         choices=[(name, name.title()) for name in AVAILABLE_MPL_THEMES],
+        initial="light",
         label="Theme",
         required=False,
     )
