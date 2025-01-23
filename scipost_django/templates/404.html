@@ -10,8 +10,8 @@
     <div class="col-12">
       <div style="text-align: center;">
         <img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="240" style="margin-top: 20px; margin-bottom: 20px" />
-        <h1>The page you requested could not be found.</h1>
-        <h2>404</h2>
+        <h1>Error 404: Not Found</h1>
+        <h2>{{ exception|default:"The page you requested could not be found." }}</h2>
         <p style="margin-top: 20px;">Continue to the <a href="{% url 'submissions:submissions' %}">submissions</a>, <a href="{% url 'commentaries:commentaries' %}">commentaries</a> or <a href="{% url 'theses:theses' %}">theses</a> page.</p>
       </div>
     </div>
