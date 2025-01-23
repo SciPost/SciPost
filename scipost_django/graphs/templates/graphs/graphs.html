@@ -14,7 +14,8 @@
        class="row h-100"
        hx-include="this"
        hx-indicator="#plot-loading-indicator">
-    <div class="col-12 col-lg-3 d-flex flex-column"
+    <div id="plot-options"
+         class="col-12 col-lg-3 d-flex flex-column"
          hx-post="{% url "graphs:plot_options_form" %}"
          hx-sync="this:replace"
          hx-trigger="load, change from:#plot-container"></div>
@@ -25,7 +26,7 @@
            hx-get="{% url "graphs:plot" %}"
            hx-params="not csrfmiddlewaretoken"
            hx-sync="this:replace"
-           hx-trigger="change from:#plot-container, click from:#plot-container target:#plot-refresh">
+           hx-trigger="htmx:afterOnLoad from:#plot-container target:#plot-options, click from:#plot-container target:#plot-refresh">
       </div>
     </div>
   </div>
