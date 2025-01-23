@@ -122,7 +122,7 @@ class PlotView(View):
 
             # Manipulate the SVG to make it display properly in the browser
             # Add the classes `w-100` and `h-100` to make the SVG responsive
-            plot_svg = plot_svg.replace("<svg ", '<svg class="w-100 h-100" ')
+            plot_svg = plot_svg.replace("<svg ", '<svg class="w-100 h-auto" ')
 
         return {
             "plot_svg": plot_svg,
