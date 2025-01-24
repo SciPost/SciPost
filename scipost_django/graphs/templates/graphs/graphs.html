@@ -26,7 +26,7 @@
            hx-get="{% url "graphs:plot" %}"
            hx-params="not csrfmiddlewaretoken"
            hx-sync="this:replace"
-           hx-trigger="htmx:afterOnLoad from:#plot-container target:#plot-options, click from:#plot-container target:#plot-refresh">
+           hx-trigger="htmx:afterOnLoad from:#plot-container target:#plot-options">
       </div>
     </div>
   </div>

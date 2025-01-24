@@ -3,7 +3,9 @@ __license__ = "AGPL v3"
 
 
 import io
+from typing import Any
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.handlers.asgi import HttpRequest
 from django.http import Http404
 from django.shortcuts import HttpResponse, render
 from django.template.response import TemplateResponse
@@ -33,11 +35,21 @@ def graphs(request):
     name="dispatch",
 )
 @method_decorator(xframe_options_sameorigin, name="dispatch")
-@method_decorator(cache_page(60 * 15), name="dispatch")
 class PlotView(View):
     """
     A view that renders a plot of a model.
     """
+
+    # Modify the dispatch method to cache the page for 15 minutes
+    # unless the `refresh` query parameter is set to `true`
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        method = (
+            super().dispatch
+            if request.GET.get("refresh")
+            else cache_page(15 * 60)(super().dispatch)
+        )
+
+        return method(request, *args, **kwargs)
 
     def render_to_response(self, context):
         return TemplateResponse(self.request, "graphs/plot.html", context)

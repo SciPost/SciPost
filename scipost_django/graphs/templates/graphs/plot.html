@@ -2,7 +2,13 @@
 
 {% if not request.GET.embed %}
   <div id="plot-controls" class="my-2 d-flex gap-2 justify-content-end">
-    <button id="plot-refresh" class="btn btn-primary">Refresh</button>
+    <button id="plot-refresh"
+            class="btn btn-primary"
+            hx-get="{% url "graphs:plot" %}"
+            hx-params="not csrfmiddlewaretoken"
+            hx-target="#plot"
+            hx-vals='{"refresh": true}'
+            hx-sync="#plot:replace">Refresh</button>
 
     <button id="plot-download"
             type="button"
