@@ -114,6 +114,14 @@ class TimelinePlot(PlotKind):
         ):
             ax.set_ylabel(value_key_label)
 
+        if value_key_type := self.plotter.get_model_field_type(
+            self.options.get("value_key")
+        ):
+            if value_key_type == "int":
+                ax.yaxis.get_major_locator().set_params(integer=True)
+            elif value_key_type == "date":
+                ax.yaxis_date()
+
         return fig
 
     def get_data(self):

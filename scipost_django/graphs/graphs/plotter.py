@@ -60,6 +60,16 @@ class ModelFieldPlotter(ABC):
                 if field == key:
                     return value_display
 
+    def get_model_field_type(self, key: str | None) -> str | None:
+        if (
+            key is not None
+            and (options := getattr(self, "Options", None))
+            and (model_fields := getattr(options, "model_fields", None))
+        ):
+            for field, (field_type, _) in model_fields:
+                if field == key:
+                    return field_type
+
     def __str__(self):
         return self.get_name()
 
