@@ -127,10 +127,10 @@ class TimelinePlot(PlotKind):
             }
         )
         # Filter the queryset according to the date limits if they are set
-        if x_lim_min := self.options.get("x_lim_min", None):
-            query_filters &= Q(**{timeline_key + "__gte": x_lim_min})
-        if x_lim_max := self.options.get("x_lim_max", None):
-            query_filters &= Q(**{timeline_key + "__lte": x_lim_max})
+        if timeline_min := self.options.get("timeline_min", None):
+            query_filters &= Q(**{timeline_key + "__gte": timeline_min})
+        if timeline_max := self.options.get("timeline_max", None):
+            query_filters &= Q(**{timeline_key + "__lte": timeline_max})
 
         qs = self.plotter.get_queryset()
         qs = qs.filter(query_filters)
@@ -148,13 +148,13 @@ class TimelinePlot(PlotKind):
         value_key = forms.ChoiceField(
             label="Value key", initial="id", required=False, choices=[]
         )
-        x_lim_min = forms.DateTimeField(
-            label="X min",
+        timeline_min = forms.DateTimeField(
+            label="After",
             required=False,
             widget=forms.DateTimeInput(attrs={"type": "date"}),
         )
-        x_lim_max = forms.DateTimeField(
-            label="X max",
+        timeline_max = forms.DateTimeField(
+            label="Before",
             required=False,
             widget=forms.DateTimeInput(attrs={"type": "date"}),
         )
@@ -163,8 +163,8 @@ class TimelinePlot(PlotKind):
     def get_plot_options_form_layout_row_content(cls):
         return Layout(
             Div(Field("timeline_key"), css_class="col-12"),
-            Div(Field("x_lim_min"), css_class="col-6"),
-            Div(Field("x_lim_max"), css_class="col-6"),
+            Div(Field("timeline_min"), css_class="col-6"),
+            Div(Field("timeline_max"), css_class="col-6"),
             Div(Field("value_key"), css_class="col-12"),
         )
 
