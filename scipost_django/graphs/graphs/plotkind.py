@@ -5,6 +5,7 @@ from django import forms
 from django.db.models import Q, Avg, Count, Sum
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
+from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
 import pandas as pd
 
 from .options import BaseOptions
@@ -187,8 +188,21 @@ class MapPlot(PlotKind):
 
         return fig
 
-    def draw_colorbar(self, fig: Figure, **kwargs):
-        cax = fig.add_axes([0.385, 0.2, 0.45, 0.02])
+    def draw_colorbar(
+        self, fig: Figure, vlim: tuple[float, float], **kwargs
+    ) -> tuple[Axes, Normalize]:
+        """
+        Creates the colorbar axis and normalizations for the map plot.
+        Args:
+            fig: The figure to add the colorbar to.
+            vlim: The limits of the colorbar given as a tuple (vmin, vmax).
+        Returns:
+            A tuple of the colorbar axis and the normalization object.
+        """
+        from math import log10
+
+        # Create a horizontal colorbar axis
+        cax: Axes = fig.add_axes((0.385, 0.2, 0.45, 0.02))
         cax.tick_params(axis="x", length=2, direction="out", which="major")
         cax.tick_params(axis="x", length=1.5, direction="out", which="minor")
         cax.grid(False)
@@ -204,13 +218,17 @@ class MapPlot(PlotKind):
         cax0.tick_params(axis="x", length=1.5, direction="out", which="minor")
         cax0.grid(False)
 
+        vmin, vmax = vlim
+        should_log = log10(vmax - vmin) > 2
+        if should_log:
+            norm = LogNorm(vmax=vmax)
+        else:
+            norm = Normalize(vmax=vmax, vmin=vmin)
+
+        return cax, norm
+
     def plot(self, **kwargs):
         from graphs.graphs import BASE_WORLD, OKLCH
-        from matplotlib.colors import LinearSegmentedColormap, LogNorm
-
-        fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
-        self.draw_colorbar(fig)
-        ax, cax, _ = fig.get_axes()
 
         agg_func = self.options.get("agg_func", "count")
         value_key_display = self.plotter.get_model_field_display(
@@ -231,11 +249,10 @@ class MapPlot(PlotKind):
             value_key_display=value_key_display,
             country=country_key_display,
         ).capitalize()
-
-        ax.set_title(plot_title)
         color_plot_title, _ = plot_title.split(" per ")
-        cax.set_title(color_plot_title, fontsize="small")
 
+        fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
+        ax, *_ = fig.get_axes()
         try:
             countries, agg = self.get_data()
         except Exception as e:
@@ -243,18 +260,24 @@ class MapPlot(PlotKind):
             return fig
 
         df_agg = pd.DataFrame({"ISO_A2_EH": countries, "agg": agg})
-        vmax = df_agg["agg"].max()
+        vmin, vmax = df_agg["agg"].min(), df_agg["agg"].max()
+
+        cax, norm = self.draw_colorbar(fig, (vmin, vmax))
+
         BASE_WORLD.merge(df_agg, left_on="ISO_A2_EH", right_on="ISO_A2_EH").plot(
             ax=ax,
             column="agg",
             legend=True,
             legend_kwds={"orientation": "horizontal"},
-            cmap=LinearSegmentedColormap.from_list("custom", OKLCH),
             edgecolor=ax.get_facecolor(),
             linewidth=0.25,
             cax=cax,
-            norm=LogNorm(vmax=vmax, vmin=1),
+            norm=norm,
+            cmap=LinearSegmentedColormap.from_list("custom", OKLCH),
         )
+
+        ax.set_title(plot_title)
+        cax.set_title(color_plot_title, fontsize="small")
 
         ax.xaxis.set_visible(False)
         ax.yaxis.set_visible(False)
@@ -263,7 +286,7 @@ class MapPlot(PlotKind):
         labels = []
         for label, loc in zip(cax.get_xticklabels(), cax.get_xticks()):
             if loc < 1000:
-                labels.append(int(loc))
+                labels.append(int(loc) if loc.is_integer() else round(loc, 2))
             else:
                 labels.append(label)
 
