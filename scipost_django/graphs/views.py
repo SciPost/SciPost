@@ -3,12 +3,16 @@ __license__ = "AGPL v3"
 
 
 import io
+from typing import Any
 from django.contrib.auth.decorators import login_required, permission_required
+from django.core.handlers.asgi import HttpRequest
+from django.http import Http404
 from django.shortcuts import HttpResponse, render
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from graphs.forms import PlotOptionsForm
 from scipost.permissions import HTMXResponse
@@ -30,42 +34,38 @@ def graphs(request):
     permission_required("scipost.can_preview_new_features", raise_exception=True),
     name="dispatch",
 )
-@method_decorator(cache_page(60 * 15), name="dispatch")
+@method_decorator(xframe_options_sameorigin, name="dispatch")
 class PlotView(View):
     """
     A view that renders a plot of a model.
     """
+
+    # Modify the dispatch method to cache the page for 15 minutes
+    # unless the `refresh` query parameter is set to `true`
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        method = (
+            super().dispatch
+            if request.GET.get("refresh")
+            else cache_page(15 * 60)(super().dispatch)
+        )
+
+        return method(request, *args, **kwargs)
 
     def render_to_response(self, context):
         return TemplateResponse(self.request, "graphs/plot.html", context)
 
     def get(self, request):
         form = PlotOptionsForm(request.GET)
+        self.form = form
 
-        if not form.is_valid() and request.GET.get("widget"):
-            return HTMXResponse(
-                "Invalid plot options: " + str(form.errors), tag="danger"
-            )
-
-        cleaned_data = form.clean()
+        if not form.is_valid() and request.GET.get("embed"):
+            return HttpResponse("Invalid plot options: " + str(form.errors))
 
         self.plotter = form.model_field_select_form.plotter
         self.kind = form.plot_kind_select_form.kind_class(
             options=form.plot_kind_select_form.cleaned_data,
             plotter=self.plotter,
         )
-
-        self.plot_options = {
-            "plot_kind": {},
-            "model_field_plotter": {},
-            "generic": {},
-        }
-        for option, value in cleaned_data.items():
-            for option_group_name, option_group in self.plot_options.items():
-                if option.startswith(option_group_name + "_"):
-                    option_group[option] = value
-                else:
-                    self.plot_options["generic"][option] = value
 
         if request.GET.get("download"):
             return self.download(request.GET.get("download", "svg"))
@@ -76,6 +76,9 @@ class PlotView(View):
 
         figure = self.render_figure()
         bytes_io = io.BytesIO()
+
+        if figure is None:
+            raise Http404("No figure exists with the given options")
 
         match file_type:
             case "svg":
@@ -120,7 +123,7 @@ class PlotView(View):
         if not self.plotter or not self.kind:
             return None
 
-        return self.plotter.plot(self.kind, options=self.plot_options["generic"])
+        return self.plotter.plot(self.kind, options=self.form.options["generic"])
 
     def get_context_data(self, **kwargs):
         plot_svg = None
@@ -131,7 +134,7 @@ class PlotView(View):
 
             # Manipulate the SVG to make it display properly in the browser
             # Add the classes `w-100` and `h-100` to make the SVG responsive
-            plot_svg = plot_svg.replace("<svg ", '<svg class="w-100 h-100" ')
+            plot_svg = plot_svg.replace("<svg ", '<svg class="w-100 h-auto" ')
 
         return {
             "plot_svg": plot_svg,

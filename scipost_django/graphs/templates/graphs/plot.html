@@ -1,21 +1,28 @@
 {% if plot_svg %}{{ plot_svg|safe }}{% endif %}
 
+{% if not request.GET.embed %}
+  <div id="plot-controls" class="my-2 d-flex gap-2 justify-content-end">
+    <button id="plot-refresh"
+            class="btn btn-primary"
+            hx-get="{% url "graphs:plot" %}"
+            hx-params="not csrfmiddlewaretoken"
+            hx-target="#plot"
+            hx-vals='{"refresh": true}'
+            hx-sync="#plot:replace">Refresh</button>
 
-<div id="plot-controls" class="my-2 d-flex gap-2 justify-content-end">
-  <button id="plot-refresh" class="btn btn-primary">Refresh</button>
+    <button id="plot-download"
+            type="button"
+            class="btn btn-primary dropdown-toggle"
+            data-bs-toggle="dropdown"
+            aria-expanded="false">Download</button>
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=svg" >SVG</a></li>
+      <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=pdf" >PDF</a></li>
+      <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=png" >PNG</a></li>
+      <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=jpg" >JPG</a></li>
+      <li><hr class="dropdown-divider" /></li>
+      <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=csv">CSV</a></li>
+    </ul>
 
-  <button id="plot-download"
-          type="button"
-          class="btn btn-primary dropdown-toggle"
-          data-bs-toggle="dropdown"
-          aria-expanded="false">Download</button>
-  <ul class="dropdown-menu">
-    <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=svg" >SVG</a></li>
-    <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=pdf" >PDF</a></li>
-    <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=png" >PNG</a></li>
-    <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=jpg" >JPG</a></li>
-    <li><hr class="dropdown-divider" /></li>
-    <li><a class="dropdown-item" href="{{ request.get_full_path }}&download=csv">CSV</a></li>
-  </ul>
-
-</div>
+  </div>
+{% endif %}
