@@ -442,7 +442,7 @@ class BarPlot(PlotKind):
             self.plotter.get_queryset()
             .values(group_key)
             .annotate(agg=agg_func)
-            .exclude(Q(**{group_key: None}) | Q(agg=None))
+            .exclude(**{group_key: None})
         )
 
         if (order_by := self.options.get("order_by")) and (
