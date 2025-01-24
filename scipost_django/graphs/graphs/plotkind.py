@@ -101,28 +101,55 @@ class TimelinePlot(PlotKind):
     name = "timeline"
 
     def plot(self, **kwargs):
-        fig = super().plot(**kwargs)
-        ax = fig.get_axes()[0]
+        fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
+        ax = fig.add_subplot(111)
 
-        if timeline_key_label := self.plotter.get_model_field_display(
-            self.options.get("timeline_key")
-        ):
+        value_key = self.options.get("value_key", "id") or "id"
+        timeline_key = self.options.get("timeline_key", "id") or "id"
+        resample_freq = self.options.get("resample_freq", None)
+        window_size = self.options.get("window_size", 1)
+
+        try:
+            x, y = self.get_data()
+            if (
+                self.plotter.get_model_field_type(value_key) in ["int", "float"]
+                and resample_freq
+            ):
+                x, y = self.resample_data(x, y, resample_freq, window_size)
+            ax.plot(x, y)
+        except Exception as e:
+            PlotKind.display_plotting_error(ax, e)
+            return fig
+
+        ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
+
+        if timeline_key_label := self.plotter.get_model_field_display(timeline_key):
             ax.set_xlabel(timeline_key_label)
 
-        if value_key_label := self.plotter.get_model_field_display(
-            self.options.get("value_key")
-        ):
+        if value_key_label := self.plotter.get_model_field_display(value_key):
             ax.set_ylabel(value_key_label)
 
-        if value_key_type := self.plotter.get_model_field_type(
-            self.options.get("value_key")
-        ):
+        if value_key_type := self.plotter.get_model_field_type(value_key):
             if value_key_type == "int":
                 ax.yaxis.get_major_locator().set_params(integer=True)
             elif value_key_type == "date":
                 ax.yaxis_date()
 
         return fig
+
+    def resample_data(self, dates, values, freq: str, window: int):
+        df = pd.DataFrame({"dates": pd.to_datetime(dates), "values": values})
+
+        df.set_index("dates", inplace=True)
+        df = (
+            df.resample(freq)
+            .mean()
+            .interpolate(method="time")
+            .rolling(window, center=True)
+            .mean()
+        )
+
+        return [date.to_pydatetime() for date in df.index], df["values"].tolist()
 
     def get_data(self):
         timeline_key = self.options.get("timeline_key", "id") or "id"
@@ -167,6 +194,25 @@ class TimelinePlot(PlotKind):
             required=False,
             widget=forms.DateTimeInput(attrs={"type": "date"}),
         )
+        resample_freq = forms.ChoiceField(
+            label="Resample frequency",
+            choices=[
+                ("", "None"),
+                ("D", "Days"),
+                ("W", "Weeks"),
+                ("M", "Months"),
+                ("Y", "Years"),
+            ],
+            required=False,
+            initial=None,
+        )
+        window_size = forms.IntegerField(
+            label="Window size",
+            required=False,
+            initial=1,
+            min_value=1,
+            max_value=365,
+        )
 
     @classmethod
     def get_plot_options_form_layout_row_content(cls):
@@ -175,6 +221,8 @@ class TimelinePlot(PlotKind):
             Div(Field("timeline_min"), css_class="col-6"),
             Div(Field("timeline_max"), css_class="col-6"),
             Div(Field("value_key"), css_class="col-12"),
+            Div(Field("window_size"), css_class="col-6"),
+            Div(Field("resample_freq"), css_class="col-6"),
         )
 
 
