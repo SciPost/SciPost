@@ -190,7 +190,6 @@ class PublicationPlotter(ModelFieldPlotter):
 
 class SubmissionsPlotter(ModelFieldPlotter):
     model = Submission
-    date_key = "submission_date"
 
     class Options(ModelFieldPlotter.Options):
         per_thread = forms.ChoiceField(
