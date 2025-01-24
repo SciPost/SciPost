@@ -388,7 +388,7 @@ class MapPlot(PlotKind):
     class Options(PlotKind.Options):
         prefix = "map_plot_"
         agg_func = forms.ChoiceField(
-            label="Aggregation function",
+            label="Aggregation",
             choices=[
                 ("count", "Count"),
                 ("sum", "Sum"),
@@ -396,18 +396,25 @@ class MapPlot(PlotKind):
             ],
             required=False,
             initial="count",
+            widget=forms.RadioSelect,
         )
         agg_value_key = forms.ChoiceField(
-            label="Agg Value key", required=False, choices=[]
+            label="Aggregated value",
+            required=False,
+            choices=[],
+            help_text="Ignored if aggregation method is Count",
         )
-        country_key = forms.ChoiceField(label="Country key", required=False, choices=[])
+        country_key = forms.ChoiceField(label="Country", required=False, choices=[])
 
     @classmethod
     def get_plot_options_form_layout_row_content(cls):
         return Layout(
             Div(Field("country_key"), css_class="col-12"),
-            Div(Field("agg_func"), css_class="col-6"),
-            Div(Field("agg_value_key"), css_class="col-6"),
+            Div(Field("agg_value_key"), css_class="col-12"),
+            Div(
+                Field("agg_func", css_class="d-flex flex-row gap-3"),
+                css_class="col-12",
+            ),
         )
 
 
@@ -540,13 +547,17 @@ class BarPlot(PlotKind):
             widget=forms.RadioSelect,
         )
         group_key = forms.ChoiceField(
-            label="Group by key", required=False, initial="id", choices=[]
+            label="Group by", required=False, initial="id", choices=[]
         )
         agg_value_key = forms.ChoiceField(
-            label="Agg Value key", required=False, initial="id", choices=[]
+            label="Aggregated value",
+            required=False,
+            initial="id",
+            choices=[],
+            help_text="Ignored if aggregation method is Count",
         )
         agg_func = forms.ChoiceField(
-            label="Aggregation function",
+            label="Aggregation",
             choices=[
                 ("count", "Count"),
                 ("sum", "Sum"),
@@ -554,6 +565,7 @@ class BarPlot(PlotKind):
             ],
             required=False,
             initial="count",
+            widget=forms.RadioSelect,
         )
         order_by = forms.ChoiceField(
             label="Order by",
@@ -580,8 +592,11 @@ class BarPlot(PlotKind):
                 css_class="col-12",
             ),
             Div(Field("group_key"), css_class="col-12"),
-            Div(Field("agg_func"), css_class="col-6"),
-            Div(Field("agg_value_key"), css_class="col-6"),
+            Div(Field("agg_value_key"), css_class="col-12"),
+            Div(
+                Field("agg_func", css_class="d-flex flex-row gap-3"),
+                css_class="col-12",
+            ),
             Div(
                 Div(
                     Div(Field("order_by"), css_class="col-6"),
