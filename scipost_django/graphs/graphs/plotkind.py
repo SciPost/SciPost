@@ -466,7 +466,16 @@ class BarPlot(PlotKind):
 
         if qs.exists():
             groups, vals = zip(*qs.values_list(group_key, "agg"))
-            return [str(group) for group in groups], vals
+
+            # Attempt to convert the group values to display labels if possible
+            try:
+                field_choices = self.plotter.model._meta.get_field(group_key).choices
+                group_display_labels = dict(field_choices)
+                groups = [group_display_labels.get(group, group) for group in groups]
+            except Exception:
+                groups = [str(group) for group in groups]
+
+            return groups, vals
         else:
             return [], []
 
