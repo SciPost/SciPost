@@ -17,6 +17,7 @@ from organizations.models import Organization
 from profiles.models import Affiliation, Profile
 from series.models import Collection
 from submissions.models import Report, Submission
+from submissions.models.submission import SubmissionAuthorProfile
 
 from .options import BaseOptions
 
@@ -147,10 +148,20 @@ class PublicationPlotter(ModelFieldPlotter):
             ("acceptance_date__year", ("int", "Year accepted")),
             ("acceptance_duration", ("int", "Acceptance duration (days)")),
             ("publication_duration", ("int", "Publication duration (days)")),
+            ("nr_versions", ("int", "Number of versions")),
+            ("acad_field__name", ("str", "Academic field")),
+            ("specialties__name", ("str", "Specialties")),
+            ("number_of_citations", ("int", "Number of citations")),
         )
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = (
+            super()
+            .get_queryset()
+            .filter(
+                pubtype="article",
+            )
+        )
 
         qs = qs.annotate(
             acceptance_duration=ExtractDay(
@@ -158,6 +169,14 @@ class PublicationPlotter(ModelFieldPlotter):
             ),
             publication_duration=ExtractDay(
                 models.F("publication_date") - models.F("submission_date")
+            ),
+            nr_versions=models.Subquery(
+                Submission.objects.filter(
+                    thread_hash=models.OuterRef("accepted_submission__thread_hash")
+                )
+                .values("thread_hash")
+                .annotate(nr_versions=models.Count("thread_hash"))
+                .values("nr_versions")
             ),
         )
 
@@ -194,6 +213,10 @@ class SubmissionsPlotter(ModelFieldPlotter):
             ("submission_date__year", ("int", "Year submitted")),
             ("status", ("str", "Status")),
             ("topics__name", ("str", "Topics")),
+            ("acad_field__name", ("str", "Academic field")),
+            ("specialties__name", ("str", "Specialties")),
+            ("submitted_to__name", ("str", "Journal submitted to")),
+            ("proceedings__event_suffix", ("str", "Proceedings")),
         )
 
     def get_queryset(self):
@@ -234,9 +257,14 @@ class ProfilePlotter(ModelFieldPlotter):
             ("contributor__user__last_login", ("date", "Last login")),
             ("contributor__user__last_login__year", ("int", "Year last logged in")),
             ("topics__name", ("str", "Topics")),
+            ("acad_field__name", ("str", "Academic field")),
+            ("specialties__name", ("str", "Specialties")),
+            ("orcid_authenticated", ("str", "ORCID authenticated")),
             ("latest_affiliation_country", ("country", "Latest affiliation country")),
             ("first_authorship_date", ("date", "First authorship date")),
-            ("total_publications", ("int", "Total publications")),
+            ("nr_publications", ("int", "Publications")),
+            ("nr_reports", ("int", "Reports authored")),
+            ("nr_submissions", ("int", "Submissions")),
         )
 
     def get_queryset(self) -> models.QuerySet[Profile]:
@@ -254,14 +282,34 @@ class ProfilePlotter(ModelFieldPlotter):
                 .order_by("publication__publication_date")[:1]
                 .values("publication__publication_date")
             ),
-            total_publications=Coalesce(
+            nr_publications=Coalesce(
                 models.Subquery(
                     PublicationAuthorsTable.objects.filter(
                         profile=models.OuterRef("id")
                     )
                     .values("profile")
-                    .annotate(total=models.Count("profile"))
-                    .values("total")
+                    .annotate(nr=models.Count("profile"))
+                    .values("nr")
+                ),
+                models.Value(0),
+            ),
+            nr_reports=Coalesce(
+                models.Subquery(
+                    Report.objects.filter(author=models.OuterRef("contributor"))
+                    .values("author")
+                    .annotate(nr=models.Count("author"))
+                    .values("nr")
+                ),
+                models.Value(0),
+            ),
+            nr_submissions=Coalesce(
+                models.Subquery(
+                    SubmissionAuthorProfile.objects.filter(
+                        profile=models.OuterRef("id")
+                    )
+                    .values("profile")
+                    .annotate(nr=models.Count("profile"))
+                    .values("nr")
                 ),
                 models.Value(0),
             ),
@@ -277,6 +325,10 @@ class FellowshipPlotter(ModelFieldPlotter):
         model_fields = ModelFieldPlotter.Options.model_fields + (
             ("latest_affiliation_country", ("country", "Latest affiliation country")),
             ("latest_affiliation_name", ("str", "Latest affiliation name")),
+            ("status", ("str", "Status")),
+            ("start_date", ("date", "Start date")),
+            ("until_date", ("date", "End date")),
+            ("college__name", ("str", "College")),
         )
 
     def get_queryset(self) -> models.QuerySet[Fellowship]:
@@ -304,51 +356,34 @@ class PubFracPlotter(ModelFieldPlotter):
     model = PubFrac
 
     class Options(ModelFieldPlotter.Options):
+        compensated = forms.ChoiceField(
+            required=False,
+            label="Compensated via subsidy",
+            choices=[
+                ("all", "All"),
+                ("yes", "Compensated"),
+                ("no", "Not compensated"),
+            ],
+        )
         model_fields = ModelFieldPlotter.Options.model_fields + (
             ("fraction", ("float", "Publication fraction")),
             ("organization__country", ("country", "Organization country")),
             ("organization__name", ("str", "Organization")),
+            ("cf_value", ("float", "Monetary value")),
         )
 
-
-class RefereePlotter(ModelFieldPlotter):
-    model = Profile
-    name = "Referees"
-
-    class Options(ModelFieldPlotter.Options):
-        model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("latest_report_date", ("date", "Latest report date")),
-            ("latest_report_date_year", ("int", "Year of latest report")),
-            ("latest_affiliation_country", ("country", "Latest affiliation country")),
-        )
-
-    def get_queryset(self) -> models.QuerySet[Profile]:
+    def get_queryset(self) -> models.QuerySet[PubFrac]:
         qs = super().get_queryset()
-        return qs.annotate(
-            latest_report_date=models.Subquery(
-                Report.objects.filter(author=models.OuterRef("contributor"))
-                .order_by("-created")[:1]
-                .values("created")
-            ),
-            latest_report_date_year=models.Subquery(
-                Report.objects.filter(author=models.OuterRef("contributor"))
-                .order_by("-created")[:1]
-                .values("created__year")
-            ),
-            latest_affiliation_country=models.Case(
-                models.When(
-                    latest_report_date__isnull=False,
-                    then=models.Subquery(
-                        Affiliation.objects.filter(
-                            profile=models.OuterRef("id"),
-                        )
-                        .order_by("-date_from")[:1]
-                        .values("organization__country")
-                    ),
-                ),
-                default=None,
-            ),
-        )
+
+        match self.options.get("compensated", "all"):
+            case "yes":
+                qs = qs.filter(compensated_by__isnull=False)
+            case "no":
+                qs = qs.filter(compensated_by__isnull=True)
+            case "all":
+                pass
+
+        return qs
 
 
 class SponsorPlotter(ModelFieldPlotter):
@@ -393,12 +428,15 @@ class ReportPlotter(ModelFieldPlotter):
 
     class Options(ModelFieldPlotter.Options):
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("created", ("date", "Report date")),
-            ("created__year", ("int", "Year of report")),
+            ("date_submitted", ("date", "Report date")),
+            ("date_submitted__year", ("int", "Year of report")),
             (
                 "latest_affiliation_country",
                 ("country", "Author latest affiliation country"),
             ),
+            ("invited", ("str", "Was invited")),
+            ("has_attachment", ("str", "Has attachment")),
+            ("anonymous", ("str", "Is anonymous")),
         )
 
     def get_queryset(self) -> models.QuerySet[Report]:
@@ -409,7 +447,12 @@ class ReportPlotter(ModelFieldPlotter):
                 Affiliation.objects.filter(profile=models.OuterRef("author"))
                 .order_by("-date_from")
                 .values("organization__country")[:1]
-            )
+            ),
+            has_attachment=models.Case(
+                models.When(file_attachment="", then=models.Value("Yes")),
+                default=models.Value("No"),
+                output_field=models.CharField(),
+            ),
         )
 
 
@@ -427,9 +470,18 @@ class SubsidyPlotter(ModelFieldPlotter):
 
     class Options(ModelFieldPlotter.Options):
         model_fields = ModelFieldPlotter.Options.model_fields + (
+            ("subsidy_type", ("str", "Type")),
             ("date_from", ("date", "Start date")),
             ("date_until", ("date", "End date")),
+            ("paid_on", ("date", "Paid on")),
             ("amount", ("int", "Amount")),
             ("organization__country", ("country", "Organization country")),
             ("organization__name", ("str", "Organization")),
+            ("renewable", ("str", "Is renewable")),
+            ("status", ("str", "Status")),
+            ("collective__name", ("str", "Collective")),
+            (
+                "individual_budget__organization__name",
+                ("str", "Individual budget funder"),
+            ),
         )
