@@ -69,8 +69,8 @@ class Command(BaseCommand):
             )
 
         else:
-            now = timezone.datetime.now()
-            three_months_ago = now.replace(month=shift_month(now.month, -3), day=1)
+            now = timezone.datetime.now().date()
+            three_months_ago = (now - timezone.timedelta(days=90)).replace(day=1)
             report_anonymization_backup_filename = f"anonymized_reports_for_publications_before_{three_months_ago.strftime('%Y-%m-%d')}.json"
 
             reports_to_anonymize = reports_to_anonymize.annotate(
@@ -163,14 +163,14 @@ class Command(BaseCommand):
                 MailLogRelation.objects.filter(
                     mail=OuterRef("pk"),
                     content_type=ContentType.objects.get_for_model(Report),
-                    object_id__in=[report.id for report in reports],
+                    object_id__in=reports,
                 )
             ),
             has_referee_invitation_in_context=Exists(
                 MailLogRelation.objects.filter(
                     mail=OuterRef("pk"),
                     content_type=ContentType.objects.get_for_model(RefereeInvitation),
-                    object_id__in=[invitation.id for invitation in invitations],
+                    object_id__in=invitations,
                 )
             ),
         ).filter(
