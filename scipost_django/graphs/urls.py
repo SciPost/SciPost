@@ -10,6 +10,7 @@ from . import views
 app_name = "graphs"
 
 urlpatterns = [
+    path("", views.graphs, name="graphs"),
     path("explorer", views.explorer, name="explorer"),
     path("explorer/plot", views.PlotView.as_view(), name="explorer_plot"),
     path(

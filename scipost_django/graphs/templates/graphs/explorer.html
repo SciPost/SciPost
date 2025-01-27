@@ -1,4 +1,11 @@
-{% extends "scipost/base.html" %}
+{% extends "graphs/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <li class="breadcrumb-item active">Explorer</li>
+{% endblock breadcrumb_items %}
 
 {% block pagetitle %}
   : Graphs Explorer

@@ -1,0 +1,47 @@
+{% extends "graphs/base.html" %}
+
+{% block breadcrumb_items %}
+  <li class="breadcrumb-item active">Graphs</li>
+{% endblock breadcrumb_items %}
+
+{% block content %}
+
+  <h1>Graphs</h1>
+  <p>
+    At SciPost we take pride in the openness and transparency of our data. Below you will find a selection of pre-made graphs based on our data to help you understand our operations and impact.
+  </p>
+  <p>
+    These graphs are updated automatically as new data becomes available, so you can be sure you are always looking at the most recent information. If you have any questions about the data or ideas about other meaningful plots and visualizations, please send us an email at <a href="mailto:techsupport@{{ DOMAIN_HOST }}">tech support</a>.
+  </p>
+
+  {% if perms.scipost.can_explore_graphs %}
+    <p>
+      You may also customize these graphs or create your own through our <a href="{% url 'graphs:explorer' %}">Graph Explorer</a>.
+    </p>
+  {% endif %}
+
+  <div class="row">
+
+    {% for graph in premade_graphs %}
+      <div class="col-12 col-md-6">
+
+        <div class="card mb-3">
+          <div class="card-header">
+            <h5 class="card-title d-flex justify-content-between align-items-center mb-0">
+              {{ graph.title }}
+
+              {% if perms.scipost.can_explore_graphs %}
+                <a href="{{ graph.explore_url }}" class="btn btn-secondary btn-sm">Customize</a>
+              {% endif %}
+
+            </h5>
+          </div>
+          <div class="card-body">{{ graph.plot_svg|safe }}</div>
+        </div>
+ 
+      </div>
+    {% endfor %}
+
+  </div>
+
+{% endblock content %}

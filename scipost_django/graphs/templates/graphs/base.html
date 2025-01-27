@@ -1,0 +1,21 @@
+{% extends "scipost/base.html" %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+
+        {% block breadcrumb_items %}
+          <li class="breadcrumb-item">
+            <a href="{% url "graphs:graphs" %}">Graphs</a>
+          </li>
+        {% endblock %}
+
+      </nav>
+    </div>
+  </div>
+{% endblock breadcrumb %}
+
+{% block pagetitle %}
+  : Graphs
+{% endblock pagetitle %}

@@ -4,18 +4,81 @@ __license__ = "AGPL v3"
 
 import io
 from typing import Any
+from urllib.parse import urlencode
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.handlers.asgi import HttpRequest
 from django.http import Http404
 from django.shortcuts import HttpResponse, render
 from django.template.response import TemplateResponse
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from graphs.forms import PlotOptionsForm
-from scipost.permissions import HTMXResponse
+
+
+def graphs(request):
+
+    premade_graph_options: list[dict[str, str]] = [
+        {
+            "model_field_plotter": "Submission",
+            "plot_kind": "bar",
+            "bar_plot_direction": "vertical",
+            "bar_plot_group_key": "submission_date__year",
+            "bar_plot_agg_func": "count",
+            "bar_plot_order_by": "group",
+            "bar_plot_ordering": "asc",
+            "theme": "light",
+            "title": "Submissions per year",
+        },
+        {
+            "model_field_plotter": "Publication",
+            "plot_kind": "bar",
+            "bar_plot_direction": "vertical",
+            "bar_plot_group_key": "publication_date__year",
+            "bar_plot_agg_func": "count",
+            "bar_plot_order_by": "group",
+            "bar_plot_ordering": "asc",
+            "theme": "light",
+            "title": "Publications per year",
+        },
+        {
+            "model_field_plotter": "Subsidy",
+            "plot_kind": "map",
+            "map_plot_country_key": "organization__country",
+            "map_plot_agg_value_key": "amount",
+            "map_plot_agg_func": "sum",
+            "theme": "light",
+            "title": "Subsidy income per country",
+        },
+        {
+            "model_field_plotter": "PubFrac",
+            "plot_kind": "map",
+            "map_plot_country_key": "organization__country",
+            "map_plot_agg_value_key": "cf_value",
+            "map_plot_agg_func": "sum",
+            "theme": "light",
+            "title": "Publication expenditures per affiliation country",
+        },
+    ]
+
+    premade_graphs = [
+        {
+            "title": options.get("title", "Graph"),
+            "plot_svg": form.plot_as_svg,
+            "explore_url": reverse_lazy("graphs:explorer") + "?" + urlencode(options),
+        }
+        for options in premade_graph_options
+        if (form := PlotOptionsForm(options))
+    ]
+
+    return TemplateResponse(
+        request,
+        "graphs/graphs.html",
+        {"premade_graphs": premade_graphs},
+    )
 
 
 @login_required
