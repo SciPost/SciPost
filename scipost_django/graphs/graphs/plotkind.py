@@ -200,7 +200,7 @@ class TimelinePlot(PlotKind):
                 ("", "None"),
                 ("D", "Days"),
                 ("W", "Weeks"),
-                ("M", "Months"),
+                ("ME", "Months"),
                 ("Y", "Years"),
             ],
             required=False,
