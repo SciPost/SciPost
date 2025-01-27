@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from copy import deepcopy
 from typing import TypeVar
 
 from django.forms import Field
@@ -35,10 +36,12 @@ class BaseOptions:
 
             option_value = getattr(cls, option_key)
             if isinstance(option_value, Field):
+                # Deepcopy the field to avoid modifying the original (in global scope)
+                option_field = deepcopy(option_value)
                 # Try to remove the prefix from the label if it is present
-                if option_value.label is None:
-                    option_value.label = cls.unprefixed(option_key).title()
-                options[cls.prefix + option_key] = option_value
+                if option_field.label is None:
+                    option_field.label = cls.unprefixed(option_key).title()
+                options[cls.prefix + option_key] = option_field
 
         return options
 
