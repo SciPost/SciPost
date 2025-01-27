@@ -74,7 +74,7 @@ class PlotView(View):
 
     def download(self, file_type):
 
-        figure = self.render_figure()
+        figure = self.form.render_figure()
         bytes_io = io.BytesIO()
 
         if figure is None:
@@ -119,25 +119,9 @@ class PlotView(View):
 
         return response
 
-    def render_figure(self):
-        if not self.plotter or not self.kind:
-            return None
-
-        return self.plotter.plot(self.kind, options=self.form.options["generic"])
-
     def get_context_data(self, **kwargs):
-        plot_svg = None
-        if figure := self.render_figure():
-            plot_svg = io.StringIO()
-            figure.savefig(plot_svg, format="svg")
-            plot_svg = plot_svg.getvalue()
-
-            # Manipulate the SVG to make it display properly in the browser
-            # Add the classes `w-100` and `h-100` to make the SVG responsive
-            plot_svg = plot_svg.replace("<svg ", '<svg class="w-100 h-auto" ')
-
         return {
-            "plot_svg": plot_svg,
+            "plot_svg": self.form.plot_as_svg,
             "plotter": self.plotter,
             "kind": self.kind,
             "request": self.request,

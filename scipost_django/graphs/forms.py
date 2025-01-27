@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import io
 from django import forms
 
 from graphs.graphs.plotkind import PlotKind
@@ -301,3 +302,38 @@ class PlotOptionsForm(InitialCoalescedForm):
                 self.plot_options["generic"][field_name] = clean_field_data
 
         return self.plot_options
+
+    def render_figure(self):
+        """
+        Return a matplotlib figure based on the form data,
+        or None if the form data is invalid.
+        """
+        if not self.is_valid():
+            return None
+
+        if not (plotter := self.model_field_select_form.plotter):
+            return None
+
+        kind = self.plot_kind_select_form.kind_class(
+            options=self.plot_kind_select_form.cleaned_data,
+            plotter=plotter,
+        )
+
+        return plotter.plot(kind, options=self.options.get("generic", {}))
+
+    @property
+    def plot_as_svg(self):
+        """
+        Return the SVG representation of the plot.
+        """
+        plot_svg = None
+        if figure := self.render_figure():
+            plot_svg = io.StringIO()
+            figure.savefig(plot_svg, format="svg")
+            plot_svg = plot_svg.getvalue()
+
+            # Manipulate the SVG to make it display properly in the browser
+            # Add the classes `w-100` and `h-100` to make the SVG responsive
+            plot_svg = plot_svg.replace("<svg ", '<svg class="w-100 h-auto" ')
+
+        return plot_svg
