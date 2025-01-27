@@ -21,8 +21,7 @@ from scipost.permissions import HTMXResponse
 @login_required
 @permission_required("scipost.can_explore_graphs", raise_exception=True)
 def explorer(request):
-
-    form = PlotOptionsForm(request.POST or None)
+    form = PlotOptionsForm(request.POST or request.GET or None)
     return render(
         request,
         "graphs/explorer.html",

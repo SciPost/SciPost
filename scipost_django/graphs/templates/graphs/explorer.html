@@ -32,7 +32,7 @@
          class="col-12 col-lg-3 d-flex flex-column"
          hx-post="{% url "graphs:explorer_plot_options_form" %}"
          hx-sync="this:replace"
-         hx-trigger="load, change from:#plot-container"></div>
+         hx-trigger="change from:#plot-container">{% crispy form %}</div>
 
     <div class="col d-flex flex-column">
       <div id="plot"
@@ -40,7 +40,7 @@
            hx-get="{% url "graphs:explorer_plot" %}"
            hx-params="not csrfmiddlewaretoken"
            hx-sync="this:replace"
-           hx-trigger="htmx:afterOnLoad from:#plot-container target:#plot-options">
+           hx-trigger="load, htmx:afterOnLoad from:#plot-container target:#plot-options">
       </div>
     </div>
   </div>
