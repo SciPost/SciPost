@@ -1,0 +1,47 @@
+{% extends "scipost/base.html" %}
+
+{% block pagetitle %}
+  : Graphs Explorer
+{% endblock pagetitle %}
+
+{% block content %}
+  <div class="d-flex justify-content-between mb-2">
+    <h1>Data Explorer</h1>
+    <span class="badge bg-warning bg-opacity-25 fs-6 d-flex align-items-center gap-2 text-body fw-normal">
+      {% include "bi/exclamation-triangle-fill.html" %}
+      Early preview
+    </span>
+  </div>
+  <p>
+    On this page you will find an interactive tool to explore SciPost data visually via plots.
+    The tool allows you to select a dataset, choose the columns to plot, and customize the plot's appearance.
+    The final plot may be exported as a vector or raster image, or as a CSV file containing the data used to generate the plot.
+  </p>
+  <p>
+    If you notice any issues, unexpected behavior, or have suggestions for improvements,
+    please let us know by sending an email to <a href="mailto:techsupport@{{ DOMAIN_HOST }}">tech support</a>,
+    or by <a href="https://git.{{ DOMAIN_HOST }}/scipost/SciPost/-/issues/new">creating an issue</a>
+    on our <a href="https://git.{{ DOMAIN_HOST }}/scipost/SciPost/">Gitlab</a> repository.
+  </p>
+
+  <div id="plot-container"
+       class="mt-4 row h-100"
+       hx-include="this"
+       hx-indicator="#plot-loading-indicator">
+    <div id="plot-options"
+         class="col-12 col-lg-3 d-flex flex-column"
+         hx-post="{% url "graphs:explorer_plot_options_form" %}"
+         hx-sync="this:replace"
+         hx-trigger="load, change from:#plot-container"></div>
+
+    <div class="col d-flex flex-column">
+      <div id="plot"
+           class="h-100 w-100"
+           hx-get="{% url "graphs:explorer_plot" %}"
+           hx-params="not csrfmiddlewaretoken"
+           hx-sync="this:replace"
+           hx-trigger="htmx:afterOnLoad from:#plot-container target:#plot-options">
+      </div>
+    </div>
+  </div>
+{% endblock content %}

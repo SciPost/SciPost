@@ -2,9 +2,16 @@
 
 {% if not request.GET.embed %}
   <div id="plot-controls" class="my-2 d-flex gap-2 justify-content-end">
+    <div class="d-flex justify-content-between align-items-center">
+      <span id="plot-loading-indicator"
+            class="p-2 htmx-indicator justify-content-between bg-primary bg-opacity-25">
+        <strong>Loading</strong>
+        <div class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></div>
+      </span>
+    </div>
     <button id="plot-refresh"
             class="btn btn-primary"
-            hx-get="{% url "graphs:plot" %}"
+            hx-get="{% url "graphs:explorer_plot" %}"
             hx-params="not csrfmiddlewaretoken"
             hx-target="#plot"
             hx-vals='{"refresh": true}'

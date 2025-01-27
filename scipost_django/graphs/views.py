@@ -19,19 +19,19 @@ from scipost.permissions import HTMXResponse
 
 
 @login_required
-@permission_required("scipost.can_preview_new_features", raise_exception=True)
-def graphs(request):
+@permission_required("scipost.can_explore_graphs", raise_exception=True)
+def explorer(request):
 
     form = PlotOptionsForm(request.POST or None)
     return render(
         request,
-        "graphs/graphs.html",
+        "graphs/explorer.html",
         {"form": form},
     )
 
 
 @method_decorator(
-    permission_required("scipost.can_preview_new_features", raise_exception=True),
+    permission_required("scipost.can_explore_graphs", raise_exception=True),
     name="dispatch",
 )
 @method_decorator(xframe_options_sameorigin, name="dispatch")

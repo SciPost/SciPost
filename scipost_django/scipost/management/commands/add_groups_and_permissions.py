@@ -553,6 +553,13 @@ class Command(BaseCommand):
             content_type=content_type,
         )
 
+        # Graphs
+        can_explore_graphs, created = Permission.objects.get_or_create(
+            codename="can_explore_graphs",
+            name="Can access the Graphs Explorer",
+            content_type=content_type,
+        )
+
         # Assign permissions to groups
         SciPostAdmin.permissions.set(
             [
@@ -605,6 +612,7 @@ class Command(BaseCommand):
                 can_manage_mailing_lists,
                 can_create_affiliate_journals,
                 can_mark_submission_on_hold,
+                can_explore_graphs,
             ]
         )
 
@@ -694,6 +702,7 @@ class Command(BaseCommand):
                 can_view_internal_fellowship_notes,
                 can_view_mailing_lists,
                 can_create_affiliate_journals,
+                can_explore_graphs,
             ]
         )
 
@@ -751,6 +760,7 @@ class Command(BaseCommand):
         Previewers.permissions.set(
             [
                 can_preview_new_features,
+                can_explore_graphs,
             ]
         )
 

@@ -10,11 +10,11 @@ from . import views
 app_name = "graphs"
 
 urlpatterns = [
-    path("", views.graphs, name="graphs"),
-    path("plot", views.PlotView.as_view(), name="plot"),
+    path("explorer", views.explorer, name="explorer"),
+    path("explorer/plot", views.PlotView.as_view(), name="explorer_plot"),
     path(
-        "plot/options_form",
+        "explorer/plot/options_form",
         views.PlotOptionsFormView.as_view(),
-        name="plot_options_form",
+        name="explorer_plot_options_form",
     ),
 ]
