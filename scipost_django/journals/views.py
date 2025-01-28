@@ -1982,7 +1982,7 @@ def manage_update_metadata(request):
     This page offers Editorial Administrators tools for managing
     the metadata of PublicationUpdates.
     """
-    updates = PublicationUpdate.objects.all()
+    updates = PublicationUpdate.objects.all().order_by("-publication_date")
 
     paginator = Paginator(updates, 25)
     page = request.GET.get("page")
