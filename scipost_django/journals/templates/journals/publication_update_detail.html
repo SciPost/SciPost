@@ -65,7 +65,7 @@
     {% endfor %}
   </ul>
 
-  {% if is_ed_admin %}
+  {% if perms.scipost.can_publish_accepted_submission %}
     <hr class="divider" />
     <div class="row">
       <div class="col-12">
