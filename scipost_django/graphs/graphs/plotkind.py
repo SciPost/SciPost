@@ -106,16 +106,19 @@ class TimelinePlot(PlotKind):
 
         value_key = self.options.get("value_key", "id") or "id"
         timeline_key = self.options.get("timeline_key", "id") or "id"
-        resample_freq = self.options.get("resample_freq", None)
-        window_size = self.options.get("window_size", 1)
+        resample_method = self.options.get("resample_method", None)
+        averaging_unit = self.options.get("averaging_unit", None)
+        averaging_window = self.options.get("averaging_window", 1)
 
         try:
             x, y = self.get_data()
             if (
                 self.plotter.get_model_field_type(value_key) in ["int", "float"]
-                and resample_freq
+                and resample_method != "None"
             ):
-                x, y = self.resample_data(x, y, resample_freq, window_size)
+                x, y = self.resample_data(
+                    x, y, resample_method, averaging_unit, averaging_window
+                )
             ax.plot(x, y)
         except Exception as e:
             PlotKind.display_plotting_error(ax, e)
@@ -137,17 +140,18 @@ class TimelinePlot(PlotKind):
 
         return fig
 
-    def resample_data(self, dates, values, freq: str, window: int):
+    def resample_data(self, dates, values, method: str | None, freq: str, window: int):
         df = pd.DataFrame({"dates": pd.to_datetime(dates), "values": values})
 
         df.set_index("dates", inplace=True)
-        df = (
-            df.resample(freq)
-            .mean()
-            .interpolate(method="time")
-            .rolling(window, center=True)
-            .mean()
-        )
+        if method is not None:
+            df = (
+                df.resample(freq)
+                .agg(method)
+                .interpolate(method="time")
+                .rolling(window, center=True)
+                .mean()
+            )
 
         return [date.to_pydatetime() for date in df.index], df["values"].tolist()
 
@@ -194,20 +198,32 @@ class TimelinePlot(PlotKind):
             required=False,
             widget=forms.DateTimeInput(attrs={"type": "date"}),
         )
-        resample_freq = forms.ChoiceField(
-            label="Resample frequency",
+        resample_method = forms.ChoiceField(
+            label="Resample method",
             choices=[
-                ("", "None"),
+                ("None", "None"),
+                ("mean", "Mean"),
+                ("count", "Count"),
+                ("sum", "Sum"),
+                ("max", "Max"),
+                ("min", "Min"),
+            ],
+            required=False,
+            initial="None",
+        )
+        averaging_unit = forms.ChoiceField(
+            label="Averaging unit",
+            choices=[
                 ("D", "Days"),
                 ("W", "Weeks"),
                 ("ME", "Months"),
                 ("Y", "Years"),
             ],
             required=False,
-            initial=None,
+            initial="D",
         )
-        window_size = forms.IntegerField(
-            label="Window size",
+        averaging_window = forms.IntegerField(
+            label="Averaging window",
             required=False,
             initial=1,
             min_value=1,
@@ -221,8 +237,9 @@ class TimelinePlot(PlotKind):
             Div(Field("timeline_min"), css_class="col-6"),
             Div(Field("timeline_max"), css_class="col-6"),
             Div(Field("value_key"), css_class="col-12"),
-            Div(Field("window_size"), css_class="col-6"),
-            Div(Field("resample_freq"), css_class="col-6"),
+            Div(Field("resample_method"), css_class="col-12"),
+            Div(Field("averaging_window"), css_class="col-6"),
+            Div(Field("averaging_unit"), css_class="col-6"),
         )
 
 
