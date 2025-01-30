@@ -6,17 +6,21 @@ from typing import TYPE_CHECKING, Any
 
 from django import forms
 from django.db import models
-from django.db.models.functions import Coalesce, ExtractDay
+from django.db.models.functions import Coalesce, Concat, ExtractDay
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 from colleges.models import Fellowship
 from finances.models import PubFrac, Subsidy
 from journals.models import Journal, Publication, PublicationAuthorsTable
+from ontology.models.specialty import Specialty
 from organizations.models import Organization
 from profiles.models import Affiliation, Profile
 from series.models import Collection
 from submissions.models import Report, Submission
+from submissions.models.decision import EditorialDecision
+from submissions.models.recommendation import EICRecommendation
+from submissions.models.referee_invitation import RefereeInvitation
 from submissions.models.submission import SubmissionAuthorProfile
 
 from .options import BaseOptions
@@ -148,6 +152,7 @@ class PublicationPlotter(ModelFieldPlotter):
             ("acceptance_date__year", ("int", "Year accepted")),
             ("acceptance_duration", ("int", "Acceptance duration (days)")),
             ("publication_duration", ("int", "Publication duration (days)")),
+            ("production_duration", ("int", "Production duration (days)")),
             ("nr_versions", ("int", "Number of versions")),
             ("acad_field__name", ("str", "Academic field")),
             ("specialties__name", ("str", "Specialties")),
@@ -169,6 +174,9 @@ class PublicationPlotter(ModelFieldPlotter):
             ),
             publication_duration=ExtractDay(
                 models.F("publication_date") - models.F("submission_date")
+            ),
+            production_duration=ExtractDay(
+                models.F("publication_date") - models.F("acceptance_date")
             ),
             nr_versions=models.Subquery(
                 Submission.objects.filter(
@@ -207,6 +215,16 @@ class SubmissionsPlotter(ModelFieldPlotter):
             label="Submitted before",
             widget=forms.DateInput(attrs={"type": "date"}),
         )
+        submitted_to = forms.ModelMultipleChoiceField(
+            required=False,
+            label="Target journal",
+            queryset=Journal.objects.all().active(),
+        )
+        specialties = forms.ModelMultipleChoiceField(
+            required=False,
+            label="Specialties",
+            queryset=Specialty.objects.filter(journals__isnull=False).distinct(),
+        )
         model_fields = ModelFieldPlotter.Options.model_fields + (
             ("submission_date", ("date", "Submission date")),
             ("submission_date__year", ("int", "Year submitted")),
@@ -214,8 +232,11 @@ class SubmissionsPlotter(ModelFieldPlotter):
             ("topics__name", ("str", "Topics")),
             ("acad_field__name", ("str", "Academic field")),
             ("specialties__name", ("str", "Specialties")),
-            ("submitted_to__name", ("str", "Journal submitted to")),
+            ("submitted_to__name", ("str", "Target journal")),
             ("proceedings__event_suffix", ("str", "Proceedings")),
+            ("nr_invitations", ("int", "Number of invitations")),
+            ("nr_reports", ("int", "Number of reports")),
+            ("report_turnover", ("float", "Report turnover")),
         )
 
     def get_queryset(self):
@@ -225,6 +246,47 @@ class SubmissionsPlotter(ModelFieldPlotter):
             qs = qs.filter(submission_date__gte=start)
         if end := self.options.get("submission_date_end", None):
             qs = qs.filter(submission_date__lte=end)
+
+        if journals := self.options.get("submitted_to", None):
+            qs = qs.filter(submitted_to__in=journals)
+
+        if specialties := self.options.get("specialties", None):
+            qs = qs.filter(specialties__in=specialties)
+
+        qs = qs.annotate(
+            submission_date__year_month=Concat(
+                models.F("submission_date__year"),
+                models.Value("-"),
+                models.F("submission_date__month"),
+                output_field=models.CharField(),
+            ),
+            nr_invitations=Coalesce(
+                models.Subquery(
+                    RefereeInvitation.objects.filter(submission=models.OuterRef("id"))
+                    .values("submission")
+                    .annotate(nr=models.Count("submission"))
+                    .values("nr")
+                ),
+                models.Value(0),
+            ),
+            nr_reports=Coalesce(
+                models.Subquery(
+                    Report.objects.filter(submission=models.OuterRef("id"))
+                    .values("submission")
+                    .annotate(nr=models.Count("submission"))
+                    .values("nr")
+                ),
+                models.Value(0),
+            ),
+            report_turnover=models.Case(
+                models.When(
+                    nr_invitations=0,
+                    then=models.Value(0),
+                ),
+                default=models.F("nr_reports") / models.F("nr_invitations"),
+                output_field=models.FloatField(),
+            ),
+        )
 
         match self.options.get("per_thread", None):
             case "first":
@@ -328,6 +390,7 @@ class FellowshipPlotter(ModelFieldPlotter):
             ("start_date", ("date", "Start date")),
             ("until_date", ("date", "End date")),
             ("college__name", ("str", "College")),
+            ("contributor__profile__specialties__name", ("str", "Specialties")),
         )
 
     def get_queryset(self) -> models.QuerySet[Fellowship]:
@@ -429,6 +492,11 @@ class ReportPlotter(ModelFieldPlotter):
         model_fields = ModelFieldPlotter.Options.model_fields + (
             ("date_submitted", ("date", "Report date")),
             ("date_submitted__year", ("int", "Year of report")),
+            ("last_invitation_creation_date", ("date", "Last invitation date")),
+            (
+                "report_submission_duration",
+                ("int", "Report submission duration (days)"),
+            ),
             (
                 "latest_affiliation_country",
                 ("country", "Author latest affiliation country"),
@@ -436,6 +504,7 @@ class ReportPlotter(ModelFieldPlotter):
             ("invited", ("str", "Was invited")),
             ("has_attachment", ("str", "Has attachment")),
             ("anonymous", ("str", "Is anonymous")),
+            ("needs_doi", ("str", "Needs DOI")),
         )
 
     def get_queryset(self) -> models.QuerySet[Report]:
@@ -448,9 +517,21 @@ class ReportPlotter(ModelFieldPlotter):
                 .values("organization__country")[:1]
             ),
             has_attachment=models.Case(
-                models.When(file_attachment="", then=models.Value("Yes")),
-                default=models.Value("No"),
+                models.When(file_attachment="", then=models.Value("False")),
+                default=models.Value("True"),
                 output_field=models.CharField(),
+            ),
+            last_invitation_creation_date=models.Subquery(
+                RefereeInvitation.objects.filter(
+                    submission=models.OuterRef("submission"),
+                    referee=models.OuterRef("author__profile"),
+                    fulfilled=True,
+                )
+                .order_by("-date_invited")[:1]
+                .values("date_invited")
+            ),
+            report_submission_duration=ExtractDay(
+                models.F("date_submitted") - models.F("last_invitation_creation_date")
             ),
         )
 
@@ -484,3 +565,67 @@ class SubsidyPlotter(ModelFieldPlotter):
                 ("str", "Individual budget funder"),
             ),
         )
+
+
+class EditorialDecisionPlotter(ModelFieldPlotter):
+    model = EditorialDecision
+
+    class Options(ModelFieldPlotter.Options):
+        status = EditorialDecision._meta.get_field("status").formfield(required=False)
+        decision = EditorialDecision._meta.get_field("decision").formfield(
+            required=False
+        )
+        is_alternative = forms.ChoiceField(
+            required=False,
+            label="Is alternative",
+            choices=[
+                (None, "All"),
+                ("True", "Yes (Alternative)"),
+                ("False", "No (Target)"),
+            ],
+        )
+        model_fields = ModelFieldPlotter.Options.model_fields + (
+            ("taken_on", ("date", "Decision date")),
+            ("for_journal__name", ("str", "Decision journal")),
+            ("submission__submitted_to__name", ("str", "Target journal")),
+            ("decision", ("str", "Decision")),
+            ("status", ("str", "Status")),
+            ("submission__submission_date", ("date", "Submission date")),
+            ("is_alternative", ("str", "Is alternative")),
+            ("latest_recommendation_date", ("date", "Latest recommendation date")),
+            ("voting_duration", ("int", "Voting duration (days)")),
+        )
+
+    def get_queryset(self) -> models.QuerySet[EditorialDecision]:
+        qs = super().get_queryset()
+
+        qs = qs.annotate(
+            is_alternative=models.Case(
+                models.When(
+                    submission__submitted_to=models.F("for_journal"),
+                    then=models.Value("False"),
+                ),
+                default=models.Value("True"),
+                output_field=models.CharField(),
+            ),
+            latest_recommendation_date=models.Subquery(
+                EICRecommendation.objects.filter(
+                    submission=models.OuterRef("submission"),
+                )
+                .order_by("-date_submitted")[:1]
+                .values("date_submitted")
+            ),
+            voting_duration=ExtractDay(
+                models.F("taken_on") - models.F("latest_recommendation_date")
+            ),
+        )
+        if is_alternative := self.options.get("is_alternative", None):
+            qs = qs.filter(is_alternative=is_alternative)
+
+        if status := self.options.get("status", None):
+            qs = qs.filter(status=status)
+
+        if decision := self.options.get("decision", None):
+            qs = qs.filter(decision=decision)
+
+        return qs
