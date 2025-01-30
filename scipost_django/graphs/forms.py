@@ -61,7 +61,11 @@ class InitialCoalescedForm(forms.Form):
 
 class ModelFieldPlotterSelectForm(InitialCoalescedForm):
     model_field_plotter = forms.ChoiceField(
-        choices=[(None, "-" * 9)] + [(key, key.title()) for key in ALL_PLOTTERS],
+        choices=[(None, "-" * 9)]
+        + [
+            (key, plotter.model._meta.verbose_name.title())
+            for key, plotter in ALL_PLOTTERS.items()
+        ],
         label="Model Field",
         required=True,
     )
