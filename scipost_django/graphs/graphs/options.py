@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 from copy import deepcopy
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from django.forms import Field
 
@@ -52,12 +52,21 @@ class BaseOptions:
         return key
 
     @classmethod
-    def parse_prefixed_options(cls, options: Options[T]) -> Options[T]:
+    def parse_prefixed_options(cls, options: Options[Any]) -> Options[Any]:
         """
         Returns a dictionary with only unprefixed and valid options.
         """
         return {
-            cls.unprefixed(k): v
+            cls.unprefixed(k): cls.coerce_value_types(v)
             for k, v in options.items()
             if cls.unprefixed(k) in cls.get_available_options()
         }
+
+    @classmethod
+    def coerce_value_types(cls, value: T) -> T | None:
+        """
+        Coerces the value to the correct type, e.g. "None" to None.
+        """
+        if value == "None":
+            return None
+        return value
