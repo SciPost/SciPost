@@ -123,6 +123,8 @@ class GenericPlotOptionsForm(InitialCoalescedForm):
     fig_width = forms.FloatField(
         label="Width", required=False, initial=6, min_value=1, max_value=30
     )
+    x_label = forms.CharField(label="X label", required=False)
+    y_label = forms.CharField(label="Y label", required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -131,6 +133,8 @@ class GenericPlotOptionsForm(InitialCoalescedForm):
         self.helper.layout = Layout(
             Div(Field("theme"), css_class="col-12"),
             Div(Field("title"), css_class="col-12"),
+            Div(Field("x_label"), css_class="col-6"),
+            Div(Field("y_label"), css_class="col-6"),
             Div(Field("fig_height"), css_class="col-6"),
             Div(Field("fig_width"), css_class="col-6"),
         )

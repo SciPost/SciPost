@@ -122,8 +122,17 @@ class ModelFieldPlotter(ABC):
                 )
             }
         )
+
+        main_ax, *_ = fig.get_axes()
+
         if title := options.get("title", None):
-            fig.axes[0].set_title(title)
+            main_ax.set_title(title)
+
+        if x_label := options.get("x_label", main_ax.get_xlabel()):
+            main_ax.set_xlabel(x_label)
+
+        if y_label := options.get("y_label", main_ax.get_ylabel()):
+            main_ax.set_ylabel(y_label)
 
         return fig
 
