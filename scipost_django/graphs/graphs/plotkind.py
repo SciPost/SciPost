@@ -6,6 +6,7 @@ from django.db.models import Q, Avg, Count, Sum
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
+import matplotlib.dates as mdates
 import pandas as pd
 
 from .options import BaseOptions
@@ -124,6 +125,9 @@ class TimelinePlot(PlotKind):
             PlotKind.display_plotting_error(ax, e)
             return fig
 
+        quarter_locator = mdates.MonthLocator(bymonth=(1, 4, 7, 10))
+        ax.xaxis.set_minor_locator(quarter_locator)
+
         ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
 
         if timeline_key_label := self.plotter.get_model_field_display(timeline_key):
@@ -137,6 +141,7 @@ class TimelinePlot(PlotKind):
                 ax.yaxis.get_major_locator().set_params(integer=True)
             elif value_key_type == "date":
                 ax.yaxis_date()
+                ax.yaxis.set_minor_locator(quarter_locator)
 
         return fig
 
