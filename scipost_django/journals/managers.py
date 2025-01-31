@@ -17,6 +17,12 @@ from .constants import (
 )
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from journals.models.journal import Journal
+
+
 class JournalQuerySet(models.QuerySet):
     def active(self):
         return self.filter(active=True)
@@ -103,6 +109,13 @@ class PublicationQuerySet(models.QuerySet):
             models.Q(in_issue__in_volume__in_journal__name=journal_name)
             | models.Q(in_issue__in_journal__name=journal_name)
             | models.Q(in_journal__name=journal_name)
+        )
+
+    def for_journals(self, journals: "models.QuerySet[Journal]"):
+        return self.filter(
+            models.Q(in_issue__in_volume__in_journal__in=journals)
+            | models.Q(in_issue__in_journal__in=journals)
+            | models.Q(in_journal__in=journals)
         )
 
     def most_cited(self, n_returns=5):
