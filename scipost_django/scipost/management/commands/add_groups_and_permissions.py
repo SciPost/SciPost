@@ -722,6 +722,7 @@ class Command(BaseCommand):
                 can_view_potentialfellowship_list,
                 can_add_potentialfellowship,
                 can_vote_on_potentialfellowship,
+                can_explore_graphs,
             ]
         )
 
