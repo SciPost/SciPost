@@ -114,7 +114,24 @@ class PlotView(View):
         return method(request, *args, **kwargs)
 
     def render_to_response(self, context):
-        return TemplateResponse(self.request, "graphs/plot.html", context)
+        response = TemplateResponse(self.request, "graphs/plot.html", context)
+
+        # Replace the URL in the browser history with the current plot options
+        # so that the user can refresh the page without losing the current plot
+        # and share the URL with others to provide a direct link to the plot
+        response["HX-Replace-URL"] = (
+            reverse_lazy("graphs:explorer")
+            + "?"
+            + urlencode(
+                {
+                    key: value
+                    for key, value in self.request.GET.items()
+                    if key in self.form.changed_data
+                }
+            )
+        )
+
+        return response
 
     def get(self, request):
         form = PlotOptionsForm(request.GET)
