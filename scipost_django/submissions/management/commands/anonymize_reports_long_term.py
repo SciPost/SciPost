@@ -163,14 +163,14 @@ class Command(BaseCommand):
                 MailLogRelation.objects.filter(
                     mail=OuterRef("pk"),
                     content_type=ContentType.objects.get_for_model(Report),
-                    object_id__in=reports,
+                    object_id__in=[report.id for report in reports],
                 )
             ),
             has_referee_invitation_in_context=Exists(
                 MailLogRelation.objects.filter(
                     mail=OuterRef("pk"),
                     content_type=ContentType.objects.get_for_model(RefereeInvitation),
-                    object_id__in=invitations,
+                    object_id__in=[invitation.id for invitation in invitations],
                 )
             ),
         ).filter(
