@@ -68,7 +68,7 @@ def graphs(request):
         {
             "title": options.get("title", "Graph"),
             "plot_svg": form.plot_as_svg,
-            "explore_url": reverse_lazy("graphs:explorer") + "?" + urlencode(options),
+            "explore_url": form.explorer_minimal_url,
         }
         for options in premade_graph_options
         if (form := PlotOptionsForm(options))
@@ -119,17 +119,7 @@ class PlotView(View):
         # Replace the URL in the browser history with the current plot options
         # so that the user can refresh the page without losing the current plot
         # and share the URL with others to provide a direct link to the plot
-        response["HX-Replace-URL"] = (
-            reverse_lazy("graphs:explorer")
-            + "?"
-            + urlencode(
-                {
-                    key: value
-                    for key, value in self.request.GET.items()
-                    if key in self.form.changed_data
-                }
-            )
-        )
+        response["HX-Replace-URL"] = self.form.explorer_minimal_url
 
         return response
 

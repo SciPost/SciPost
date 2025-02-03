@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 import io
 from django import forms
+from django.http import QueryDict
 
 from graphs.graphs.plotkind import PlotKind
 from graphs.graphs.plotter import ModelFieldPlotter
@@ -169,6 +170,11 @@ class PlotOptionsForm(InitialCoalescedForm):
             plot_kind_select.choices = plot_kind_choices
 
         super().__init__(*args, **kwargs)
+        if not isinstance(self.data, QueryDict):
+            data_dict = self.data.copy()
+            self.data = QueryDict("", mutable=True)
+            self.data.update(data_dict)
+
         self.helper = FormHelper()
         self.helper.layout = Layout()
 
@@ -345,3 +351,22 @@ class PlotOptionsForm(InitialCoalescedForm):
             plot_svg = plot_svg.replace("<svg ", '<svg class="w-100 h-auto" ')
 
         return plot_svg
+
+    @property
+    def explorer_minimal_url(self):
+        """
+        Return the URL to the explorer with only the changed form fields.
+        """
+        from urllib.parse import urlencode
+        from django.urls import reverse_lazy
+
+        url = (
+            reverse_lazy("graphs:explorer")
+            + "?"
+            + urlencode(
+                {key: self.data.getlist(key) for key in self.changed_data},
+                doseq=True,
+            )
+        )
+
+        return url
