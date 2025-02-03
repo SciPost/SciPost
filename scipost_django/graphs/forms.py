@@ -135,8 +135,8 @@ class GenericPlotOptionsForm(InitialCoalescedForm):
             Div(Field("title"), css_class="col-12"),
             Div(Field("x_label"), css_class="col-6"),
             Div(Field("y_label"), css_class="col-6"),
-            Div(Field("fig_height"), css_class="col-6"),
             Div(Field("fig_width"), css_class="col-6"),
+            Div(Field("fig_height"), css_class="col-6"),
         )
 
 
