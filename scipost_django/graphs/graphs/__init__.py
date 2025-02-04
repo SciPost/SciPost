@@ -31,11 +31,11 @@ AVAILABLE_MPL_THEMES = {
 
 
 import geopandas as gpd
+from django.conf import settings
 
-world_map_file_URL = (
-    "http://naturalearth.s3.amazonaws.com/110m_cultural/ne_110m_admin_0_countries.zip"
+BASE_WORLD = gpd.read_file(
+    settings.STATIC_ROOT + "graphs/ne_110m_admin_0_countries.zip"
 )
-BASE_WORLD = gpd.read_file(world_map_file_URL)
 
 columns_to_keep = ["NAME", "CONTINENT", "TYPE", "LEVEL", "ISO_A2_EH", "geometry"]
 BASE_WORLD = BASE_WORLD[columns_to_keep]
