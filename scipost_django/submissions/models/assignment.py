@@ -183,7 +183,7 @@ class BaseAssignmentCondition(abc.ABC):
 
     def accept(self, offer: "ConditionalAssignmentOffer"):
         """
-        Accept the offer, potentially modifying the offer in the process.
+        Accept the offer, potentially modifying the submission in the process.
         """
         offer.submission.add_event_for_eic(
             "Offer by " + str(offer.offered_by) + " accepted: " + str(self)
