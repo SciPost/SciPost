@@ -1,5 +1,7 @@
 {% extends "graphs/base.html" %}
 
+{% load cache %}
+
 {% block breadcrumb_items %}
   <li class="breadcrumb-item active">Graphs</li>
 {% endblock breadcrumb_items %}
@@ -36,9 +38,11 @@
 
             </h5>
           </div>
-          <div class="card-body">{{ graph.plot_svg|safe }}</div>
+          {% cache 3600 graphs_premade_graph graph %}
+            <div class="card-body">{{ graph.plot_svg|safe }}</div>
+          {% endcache %}
         </div>
- 
+
       </div>
     {% endfor %}
 

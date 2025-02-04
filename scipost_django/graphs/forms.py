@@ -335,7 +335,6 @@ class PlotOptionsForm(InitialCoalescedForm):
 
         return plotter.plot(kind, options=self.options.get("generic", {}))
 
-    @property
     def plot_as_svg(self):
         """
         Return the SVG representation of the plot.
