@@ -19,6 +19,7 @@ from organizations.models import Organization
 from profiles.models import Affiliation, Profile
 from series.models import Collection
 from submissions.models import Report, Submission
+from submissions.models.assignment import EditorialAssignment
 from submissions.models.decision import EditorialDecision
 from submissions.models.recommendation import EICRecommendation
 from submissions.models.referee_invitation import RefereeInvitation
@@ -826,3 +827,63 @@ class RefereeInvitationPlotter(ModelFieldPlotter):
             Div(Field("fulfilled"), css_class="col-6"),
             Div(Field("cancelled"), css_class="col-6"),
         )
+
+
+class EditorialAssignmentPlotter(ModelFieldPlotter):
+    model = EditorialAssignment
+
+    class Options(ModelFieldPlotter.Options):
+        submission_journals = forms.ModelMultipleChoiceField(
+            queryset=Journal.objects.all().active(),
+            required=False,
+            label="Target journal",
+        )
+        per_thread = forms.ChoiceField(
+            required=False,
+            label="Keep Submissions of thread",
+            choices=[("all", "All"), ("first", "First"), ("last", "Last")],
+        )
+        statuses = forms.MultipleChoiceField(
+            required=False,
+            choices=(
+                *(
+                    (status, display)
+                    for status, display in EditorialAssignment.ASSIGNMENT_STATUSES
+                    if status
+                    in [
+                        EditorialAssignment.STATUS_ACCEPTED,
+                        EditorialAssignment.STATUS_COMPLETED,
+                        EditorialAssignment.STATUS_DECLINED,
+                        EditorialAssignment.STATUS_DEPRECATED,
+                    ]
+                ),
+            ),
+        )
+
+        model_fields = ModelFieldPlotter.Options.model_fields + (
+            ("date_created", ("date", "Assignment date")),
+            ("submission__submitted_to__name", ("str", "Target journal")),
+            ("status", ("str", "Status")),
+            ("to__profile__specialties__name", ("str", "Specialties")),
+            ("to__profile__acad_field__name", ("str", "Academic field")),
+            ("to__profile__latest_affiliation_country", ("country", "Country")),
+        )
+
+    def get_queryset(self) -> models.QuerySet[EditorialAssignment]:
+        qs = super().get_queryset()
+
+        match self.options.get("per_thread", "all"):
+            case "first":
+                qs = qs.filter(submission__is_resubmission_of=None)
+            case "last":
+                qs = qs.filter(submission__successor=None)
+            case "all":
+                pass
+
+        if journals := self.options.get("submission_journals", None):
+            qs = qs.filter(submission__submitted_to__in=journals)
+
+        if statuses := self.options.get("statuses", None):
+            qs = qs.filter(status__in=statuses)
+
+        return qs
