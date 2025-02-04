@@ -89,6 +89,24 @@ class ProfileQuerySet(QuerySet):
             | Q(id__in=ids_of_duplicates_by_email)
         ).order_by("last_name", "first_name", "-id")
 
+    def potential_duplicates_of(self, profile: "Profile"):
+        """
+        Returns only potential duplicate Profiles of the specified Profile.
+        """
+        from profiles.models import ProfileNonDuplicates
+
+        profile_non_duplicates = ProfileNonDuplicates.objects.filter(
+            id__in=profile.profilenonduplicates_set.values("id")
+        ).values_list("profiles", flat=True)
+
+        qs = self.filter(
+            Q(first_name__unaccent__icontains=profile.first_name)
+            & Q(last_name__unaccent__icontains=profile.last_name)
+            | Q(emails__email__in=profile.emails.values("email"))
+        ).exclude(Q(id__in=profile_non_duplicates) | Q(id=profile.id))
+
+        return qs
+
     def specialties_overlap(self, specialties_slug_list):
         """
         Returns all Profiles whose specialties overlap with those specified in the slug list.

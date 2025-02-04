@@ -2,7 +2,9 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -128,9 +130,24 @@ def _hx_author_profile_action(
     )
     if action == "match":
         profile = get_object_or_404(Profile, pk=profile_id)
-        author_profile.profile = profile
-        # add Submission's topics to profile:
-        profile.topics.add(*submission.topics.all())
+
+        potential_duplicate_fellow = (
+            Profile.objects.potential_duplicates_of(profile)
+            .annotate(is_fellow=Q(contributor__fellowships__isnull=False))
+            .first()
+        )
+        if potential_duplicate_fellow:
+            messages.error(
+                request,
+                "This profile has potential duplicates which belong to Fellows. Please "
+                f'<a href="{reverse("profiles:duplicates", args=(profile.id, potential_duplicate_fellow.id))}">resolve the duplicates</a> '
+                "before matching. ",
+            )
+            author_profile.profile = None
+        else:
+            author_profile.profile = profile
+            # add Submission's topics to profile:
+            profile.topics.add(*submission.topics.all())
     elif action == "unmatch":
         author_profile.profile = None
     author_profile.save()
