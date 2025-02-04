@@ -332,7 +332,9 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
 
 @login_required
 @permission_required("scipost.can_merge_profiles")
-def profile_duplicates(request):
+def profile_duplicates(
+    request, to_merge: int | None = None, to_merge_into: int | None = None
+):
     """
     List Profiles with potential duplicates; allow to merge if necessary.
     """
@@ -340,7 +342,14 @@ def profile_duplicates(request):
     # context = {
     #     "profile_duplicates": profile_duplicates,
     # }
-    return render(request, "profiles/profile_duplicates.html")
+    return render(
+        request,
+        "profiles/profile_duplicates.html",
+        {
+            "to_merge": to_merge,
+            "to_merge_into": to_merge_into,
+        },
+    )
 
 
 @transaction.atomic
@@ -365,7 +374,9 @@ def _hx_profile_mark_non_duplicate(request, profile1: int, profile2: int):
     "scipost.can_merge_profiles",
     "You do not have permission to create profiles.",
 )
-def _hx_profile_merge(request, to_merge: int, to_merge_into: int):
+def _hx_profile_merge(
+    request, to_merge: int | None = None, to_merge_into: int | None = None
+):
     # Update the post data with the profiles to merge
     duplicate_profiles = Profile.objects.potential_duplicates()
 
@@ -379,7 +390,13 @@ def _hx_profile_merge(request, to_merge: int, to_merge_into: int):
         if merge_form.is_valid():
             profile = merge_form.save()
             messages.success(request, "Profiles merged successfully.")
-
+    elif to_merge and to_merge_into:
+        # A specific pair of profiles to merge was provided,
+        # fetch the profiles even if they are not duplicates
+        merge_form = ProfileMergeForm(
+            queryset=Profile.objects.filter(id__in=[to_merge, to_merge_into]),
+            initial={"to_merge": to_merge, "to_merge_into": to_merge_into},
+        )
     else:
         merge_form = ProfileMergeForm(
             queryset=duplicate_profiles,

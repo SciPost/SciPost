@@ -67,6 +67,11 @@ urlpatterns = [
         ),
     ),
     # Duplicates and merging
+    path(
+        "duplicates/<int:to_merge>/<int:to_merge_into>",
+        views.profile_duplicates,
+        name="duplicates",
+    ),
     path("duplicates/", views.profile_duplicates, name="duplicates"),
     path(
         "_hx_profile_comparison",
@@ -75,6 +80,11 @@ urlpatterns = [
     ),
     path(
         "_hx_profile_merge/<int:to_merge>/<int:to_merge_into>",
+        views._hx_profile_merge,
+        name="_hx_profile_merge",
+    ),
+    path(
+        "_hx_profile_merge/",
         views._hx_profile_merge,
         name="_hx_profile_merge",
     ),

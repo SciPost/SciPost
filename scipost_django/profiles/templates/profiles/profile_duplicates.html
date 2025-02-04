@@ -20,7 +20,13 @@
 
       <div id="merge-form"
            hx-trigger="intersect once"
-           hx-get="{% url 'profiles:_hx_profile_merge' to_merge=0 to_merge_into=0 %}"></div>
+           {% if to_merge and to_merge_into %}
+            hx-get="{% url 'profiles:_hx_profile_merge' to_merge to_merge_into %}"
+           {% else %}
+            hx-get="{% url 'profiles:_hx_profile_merge' %}"
+           {% endif %}
+           >
+      </div>
     </div>
   </div>
 {% endblock content %}
