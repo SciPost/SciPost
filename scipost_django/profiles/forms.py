@@ -330,7 +330,9 @@ class ProfileDynSelForm(forms.Form):
 
     def search_results(self):
         if self.cleaned_data["q"]:
-            return Profile.objects.search(self.cleaned_data["q"])
+            return Profile.objects.search(self.cleaned_data["q"]).annotate(
+                is_fellow=Q(contributor__fellowships__isnull=False)
+            )
         else:
             return Profile.objects.none()
 

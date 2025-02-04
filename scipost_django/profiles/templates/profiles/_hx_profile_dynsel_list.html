@@ -7,22 +7,29 @@
     {% if forloop.counter == 11 %}
       <li>&emsp;...</li>
     {% else %}
-      <li class="m-1 d-flex">
-        <a hx-get="{% profile_dynsel_action_url profile %}"
-           hx-target="#{{ action_target_element_id }}"
-           hx-swap="{{ action_target_swap }}"
-           hx-indicator="#{{ action_target_element_id }}-indicator">
+      <li class="m-1">
+        <span class="d-flex flex-row justify-content-between align-items-center"
+              hx-get="{% profile_dynsel_action_url profile %}"
+              hx-target="#{{ action_target_element_id }}"
+              hx-swap="{{ action_target_swap }}"
+              hx-indicator="#{{ action_target_element_id }}-indicator">
           {{ profile }}
-          <a class="ms-auto p-0"
-             target="_blank"
-             title="{{ profile.id }}"
-             href="{{ profile.get_absolute_url }}">
-            <span>{% include 'bi/info-circle-fill.html' %}</span>
-          </a>
-        </a>
+          <span class="d-flex flex-row align-items-center gap-2">
+
+            {% if profile.is_fellow %}<span class="badge bg-primary">Fellow</span>{% endif %}
+
+            <a class="p-0"
+               target="_blank"
+               title="{{ profile.id }}"
+               href="{{ profile.get_absolute_url }}">
+              <span>{% include 'bi/info-circle-fill.html' %}</span>
+            </a>
+          </span>
+        </span>
       </li>
     {% endif %}
 
   {% endfor %}
+
 
 </ul>
