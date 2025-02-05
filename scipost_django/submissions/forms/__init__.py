@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse, reverse_lazy
+from django.utils.timezone import timedelta
 
 from colleges.permissions import is_edadmin
 from common.forms import HTMXDynSelWidget
@@ -19,7 +20,9 @@ from django.db.models import (
     Q,
     Count,
     Exists,
+    IntegerField,
     OuterRef,
+    Subquery,
     Value,
     BooleanField,
     ExpressionWrapper,
@@ -2715,6 +2718,45 @@ class InviteRefereeSearchFrom(forms.Form):
                 output_field=BooleanField(),
             ),
         )
+
+        invitations_last_5y = RefereeInvitation.objects.filter(
+            referee=OuterRef("id"),
+            date_invited__gt=timezone.now() - timedelta(days=365 * 5),
+        )
+        # Add invitation statistics
+        profiles = profiles.annotate(
+            invitations_sent_5y=Subquery(
+                invitations_last_5y.values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+            invitations_accepted_5y=Subquery(
+                invitations_last_5y.filter(accepted=True, cancelled=False)
+                .values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+            invitations_declined_5y=Subquery(
+                invitations_last_5y.filter(accepted=False, cancelled=False)
+                .values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+            invitations_fulfilled_5y=Subquery(
+                invitations_last_5y.filter(fulfilled=True, cancelled=False)
+                .values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+            invitations_cancelled_5y=Subquery(
+                invitations_last_5y.filter(cancelled=True)
+                .values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+        )
+
+        profiles = profiles.prefetch_related("emails").select_related("contributor")
 
         return profiles.distinct()
 
