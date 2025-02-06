@@ -1,3 +1,5 @@
+{% load automarkup %}
+
 {% if submission.stage_incoming_completed %}
 
   <h3>Info on completed stages</h3>
@@ -69,6 +71,37 @@
 	  </td>
 	</tr>
       </table>
+
+      {% with assessment=submission.internal_plagiarism_assessment %}
+        {% if assessment.comments_for_edadmin or assessment.comments_for_authors %}
+          <div class="row">
+            <div class="col">
+              <div class="fs-4">Comments for edadmin</div>
+              <p>{% automarkup assessment.comments_for_edadmin %}</p>
+            </div>
+            <div class="col">
+              <div class="fs-4">Comments for authors</div>
+              <p>{% automarkup assessment.comments_for_authors %}</p>
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% with assessment=submission.iThenticate_plagiarism_assessment %}
+        {% if assessment.comments_for_edadmin or assessment.comments_for_authors %}
+          <div class="row">
+            <div class="col">
+              <div class="fs-4">Comments for edadmin</div>
+              <p>{% automarkup assessment.comments_for_edadmin %}</p>
+            </div>
+            <div class="col">
+              <div class="fs-4">Comments for authors</div>
+              <p>{% automarkup assessment.comments_for_authors %}</p>
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
+
     {% elif subtab == "preassignment" %}
       {% if not submission.stage_preassignment_completed %}
 	This stage has not been completed yet.
