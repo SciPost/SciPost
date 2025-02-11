@@ -280,7 +280,7 @@ class SubmissionsPlotter(ModelFieldPlotter):
             preassignment_completed_date=models.Subquery(
                 SubmissionEvent.objects.filter(
                     submission=models.OuterRef("id"),
-                    text__regex=r"Submission (passed|failed) pre(-screening|assignment)\.",
+                    text__regex=r"Submission (passed|failed|completed) pre(-screening|assignment)\.( \[Retroactively inferred from mail log\])?",
                 ).values("created")[:1]
             ),
             editor_first_assigned_date=models.Subquery(
