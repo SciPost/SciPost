@@ -67,7 +67,7 @@ Whoosh==2.7.4
 
 
 # Python Utils
-ithenticate-api-python==0.8
+ithenticate-api-python @ git+https://git.scipost.org/scipost/supporting-packages/ithenticate-python-api.git
 python-dateutil==2.8.2		# 2023-02-05
 html2text
 lxml==4.9.3             # 2023-11-29 
