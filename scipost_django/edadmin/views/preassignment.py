@@ -134,6 +134,7 @@ def _hx_author_profile_action(
         potential_duplicate_fellow = (
             Profile.objects.potential_duplicates_of(profile)
             .annotate(is_fellow=Q(contributor__fellowships__isnull=False))
+            .filter(is_fellow=True)
             .first()
         )
         if potential_duplicate_fellow:
