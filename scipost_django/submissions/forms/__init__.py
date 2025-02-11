@@ -4062,22 +4062,32 @@ class RefereeIndicationForm(forms.ModelForm):
                     "The reason is too short, please provide a more detailed explanation.",
                 )
 
-        # Check if the referee has already been indicated by the user
-        if RefereeIndication.objects.filter(
-            submission=self.submission,
-            referee=referee,
-            indicated_by=self.profile,
-        ).exists():
-            self.add_error(
-                "referee",
-                "You have already indicated this referee for this submission.",
-            )
-
         return cleaned_data
 
     def save(self, commit=True):
-        indication = super().save(commit=False)
-        indication.submission = self.submission
-        indication.indicated_by = self.profile
-        indication.save()
+        if not commit:
+            return RefereeIndication(
+                submission=self.submission,
+                referee=self.cleaned_data.get("referee"),
+                indicated_by=self.profile,
+                indication=self.cleaned_data.get("indication"),
+                reason=self.cleaned_data.get("reason"),
+                first_name=self.cleaned_data.get("first_name"),
+                last_name=self.cleaned_data.get("last_name"),
+                affiliation=self.cleaned_data.get("affiliation"),
+            )
+
+        indication, created = RefereeIndication.objects.update_or_create(
+            submission=self.submission,
+            referee=self.cleaned_data.get("referee"),
+            indicated_by=self.profile,
+            defaults={
+                "indication": self.cleaned_data.get("indication"),
+                "reason": self.cleaned_data.get("reason"),
+                "first_name": self.cleaned_data.get("first_name"),
+                "last_name": self.cleaned_data.get("last_name"),
+                "affiliation": self.cleaned_data.get("affiliation"),
+            },
+        )
+
         return indication
