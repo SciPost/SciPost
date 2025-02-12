@@ -2551,6 +2551,7 @@ def submit_report(request, identifier_w_vn_nr):
         request.FILES or None,
         instance=report_in_draft,
         submission=submission,
+        request=request,
     )
 
     # Check if data sent is valid

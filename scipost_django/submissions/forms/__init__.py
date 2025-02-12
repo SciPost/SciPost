@@ -3043,6 +3043,13 @@ class ReportForm(forms.ModelForm):
 
     required_css_class = "required-asterisk"
     report_type = REPORT_NORMAL
+    anonymity = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=[
+            ("anonymous", "Publish report anonymously"),
+            ("eponymous", "Publish report with name"),
+        ],
+    )
     license_agreement = forms.BooleanField(
         required=True,
         label="I agree for this report to be published under a CC BY 4.0 license.",
@@ -3066,7 +3073,6 @@ class ReportForm(forms.ModelForm):
             "recommendation",
             "remarks_for_editors",
             "file_attachment",
-            "anonymous",
         ]
 
         widgets = {
@@ -3123,6 +3129,7 @@ class ReportForm(forms.ModelForm):
                 )
 
         self.submission = kwargs.pop("submission")
+        self.request = kwargs.pop("request", None)
 
         super().__init__(*args, **kwargs)
 
@@ -3145,6 +3152,12 @@ class ReportForm(forms.ModelForm):
             # An active EICRecommendation is already formulated. This Report will be flagged.
             self.report_type = REPORT_POST_EDREC
 
+        if contributor := self.request.user.contributor:
+            self.fields["anonymity"].choices = [
+                ("anonymous", "Publish report anonymously"),
+                ("eponymous", f"Publish report as {contributor.profile.full_name}"),
+            ]
+
     def save(self):
         """
         Update meta data if ModelForm is submitted (non-draft).
@@ -3155,6 +3168,8 @@ class ReportForm(forms.ModelForm):
 
         report.submission = self.submission
         report.date_submitted = timezone.now()
+
+        report.anonymous = self.cleaned_data["anonymity"] != "eponymous"
 
         # Save with right status asked by user
         if "save_draft" in self.data:
