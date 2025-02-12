@@ -3,6 +3,7 @@
 <form hx-post="{% url "submissions:_hx_eic_recommendation_form" identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
       hx-swap="outerHTML"
       hx-trigger="change from:form target:select[name='recommendation'], submit"
+      novalidate="novalidate"
       hx-sync="this:replace">
   {% crispy form %}
 </form>

@@ -3263,6 +3263,8 @@ class EditorialCommunicationForm(forms.ModelForm):
 class EICRecommendationForm(forms.ModelForm):
     """Formulate an EICRecommendation."""
 
+    required_css_class = "required-asterisk"
+
     DAYS_TO_VOTE = 7
     assignment = None
     earlier_recommendations = []
@@ -3416,14 +3418,33 @@ class EICRecommendationForm(forms.ModelForm):
             self.layout_fields["for_journal"].append(journal_help_points_HTML)
 
         # Hide the tier field if the recommendation is not to publish
-        if recommendation_data := self.data.get("recommendation"):
+        recommendation_data = self.data.get("recommendation")
+        recommendation_initial = self.fields["recommendation"].initial
+        hide_tier = True
+        if recommendation_data:
             hide_tier = recommendation_data != str(EIC_REC_PUBLISH)
-        else:
-            hide_tier = self.fields["recommendation"].initial != EIC_REC_PUBLISH
+        elif recommendation_initial:
+            hide_tier = recommendation_initial != EIC_REC_PUBLISH
 
         if hide_tier:
             self.fields["tier"].widget = forms.HiddenInput()
             self.fields["tier"].required = False
+
+        should_mandate_requested_changes = False
+        if recommendation_data:
+            should_mandate_requested_changes = recommendation_data in [
+                str(EIC_REC_MINOR_REVISION),
+                str(EIC_REC_MAJOR_REVISION),
+            ]
+        else:
+            should_mandate_requested_changes = recommendation_initial in [
+                EIC_REC_MINOR_REVISION,
+                EIC_REC_MAJOR_REVISION,
+            ]
+        if should_mandate_requested_changes:
+            self.fields["requested_changes"].required = True
+        else:
+            self.fields["requested_changes"].required = False
 
         self.load_assignment()
 
