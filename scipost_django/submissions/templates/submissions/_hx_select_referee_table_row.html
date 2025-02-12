@@ -89,23 +89,20 @@
 
   </td>
 </tr>
-{% with profile.responsiveness_as_referee as stats %}
 
-  {% if stats.sent %}
-    <tr>
-      <td colspan="5">
-        <div class="ms-4 text-muted">
-          {% include "bi/arrow-return-right.html" %}
-          &nbsp;
-          Responsiveness (last 5 years) --
-          Sent: {{ stats.sent }},&nbsp;
-          Accepted: {{ stats.accepted }},&nbsp;
-          Declined: {{ stats.declined }},&nbsp;
-          Cancelled: {{ stats.cancelled }},&nbsp;
-          Fulfilled: {{ stats.fulfilled }}
-        </div>
-      </td>
-    </tr>
-  {% endif %}
-
-{% endwith %}
+{% if profile.invitations_sent_5y %} 
+  <tr>
+    <td colspan="5">
+      <div class="ms-4 text-muted">
+        {% include "bi/arrow-return-right.html" %}
+        &nbsp;
+        Responsiveness (last 5 years) --
+        Sent: {{ profile.invitations_sent_5y }},&nbsp;
+        Accepted: {{ profile.invitations_accepted_5y }},&nbsp;
+        Declined: {{ profile.invitations_declined_5y }},&nbsp;
+        Cancelled: {{ profile.invitations_cancelled_5y }},&nbsp;
+        Fulfilled: {{ profile.invitations_fulfilled_5y }}
+      </div>
+    </td>
+  </tr>
+{% endif %}

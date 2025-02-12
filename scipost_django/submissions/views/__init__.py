@@ -1331,10 +1331,13 @@ def _hx_select_referee_table(request, identifier_w_vn_nr):
         session_key=request.session.session_key,
     )
     if form.is_valid():
-        fellowships = form.search_results()
+        profiles = form.search_results()
     else:
-        fellowships = Fellowship.objects.all()
-    paginator = Paginator(fellowships, 16)
+        profiles = Profile.objects.all()
+
+    profiles = profiles.prefetch_related("emails").select_related("contributor")
+
+    paginator = Paginator(profiles, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
     count = paginator.count

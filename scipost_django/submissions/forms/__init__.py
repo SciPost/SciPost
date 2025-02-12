@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse, reverse_lazy
+from django.utils.timezone import timedelta
 
 from colleges.permissions import is_edadmin
 from common.forms import HTMXDynSelWidget
@@ -19,7 +20,10 @@ from django.db.models import (
     Q,
     Count,
     Exists,
+    IntegerField,
     OuterRef,
+    QuerySet,
+    Subquery,
     Value,
     BooleanField,
     ExpressionWrapper,
@@ -101,7 +105,7 @@ from ontology.models import AcademicField, Specialty, Topic
 from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
 from proceedings.models import Proceedings
-from profiles.models import Profile
+from profiles.models import Profile, ProfileEmail
 from scipost.services import (
     ChemRxivCaller,
     DOICaller,
@@ -2657,40 +2661,34 @@ class InviteRefereeSearchFrom(forms.Form):
 
             session.save()
 
-    def search_results(self):
+    def search_results(self) -> QuerySet[Profile]:
         """
         Return a queryset of Profiles based on the search form.
         """
         # self.save_fields_to_session() #! Removed because it is likely causing headaches for editors
 
-        profiles = (
-            Profile.objects.eponymous()
-            .annotate(
-                last_name_matches=Exists(
-                    Submission.objects.filter(
-                        id=self.submission.id,
-                        author_list__unaccent__icontains=OuterRef("last_name"),
-                    )
+        profiles = Profile.objects.eponymous().annotate(
+            last_name_matches=Exists(
+                Submission.objects.filter(
+                    id=self.submission.id,
+                    author_list__unaccent__icontains=OuterRef("last_name"),
                 )
-            )
-            .annotate(
-                has_accepted_previous_invitation=Exists(
-                    RefereeInvitation.objects.filter(
-                        referee=OuterRef("id"),
-                        submission__thread_hash=self.submission.thread_hash,
-                        accepted=True,
-                    ).exclude(submission=self.submission)
+            ),
+            has_accepted_previous_invitation=Exists(
+                RefereeInvitation.objects.filter(
+                    referee=OuterRef("id"),
+                    submission__thread_hash=self.submission.thread_hash,
+                    accepted=True,
+                ).exclude(submission=self.submission)
+            ),
+            already_invited=Exists(
+                RefereeInvitation.objects.filter(
+                    referee=OuterRef("id"),
+                    submission=self.submission,
+                    cancelled=False,
                 )
-            )
-            .annotate(
-                already_invited=Exists(
-                    RefereeInvitation.objects.filter(
-                        referee=OuterRef("id"),
-                        submission=self.submission,
-                        cancelled=False,
-                    )
-                )
-            )
+            ),
+            has_any_email=Exists(ProfileEmail.objects.filter(profile=OuterRef("id"))),
         )
 
         if text := self.cleaned_data.get("text"):
@@ -2702,7 +2700,7 @@ class InviteRefereeSearchFrom(forms.Form):
             )
 
         can_be_sent_invitation_expression = (
-            Q(emails__isnull=False)
+            Q(has_any_email=True)
             & ~Q(already_invited=True)
             & Q(accepts_refereeing_requests=True)
         )
@@ -2737,9 +2735,9 @@ class InviteRefereeSearchFrom(forms.Form):
             )
             profiles = profiles.exclude(is_unavailable=True)
 
-        # Exclude those without email, if the option is selected
+        # Filter to only those with email, if the option is selected
         if not self.cleaned_data.get("show_email_unknown"):
-            profiles = profiles.exclude(emails__isnull=True)
+            profiles = profiles.filter(has_any_email=True)
 
         if specialties := self.cleaned_data.get("specialties"):
             profiles = profiles.filter(specialties__in=specialties)
@@ -2772,7 +2770,44 @@ class InviteRefereeSearchFrom(forms.Form):
             ),
         )
 
-        return profiles.distinct()
+        invitations_last_5y = RefereeInvitation.objects.filter(
+            referee=OuterRef("id"),
+            date_invited__gt=timezone.now() - timedelta(days=365 * 5),
+        )
+        # Add invitation statistics
+        profiles = profiles.annotate(
+            invitations_sent_5y=Subquery(
+                invitations_last_5y.values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+            invitations_accepted_5y=Subquery(
+                invitations_last_5y.filter(accepted=True, cancelled=False)
+                .values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+            invitations_declined_5y=Subquery(
+                invitations_last_5y.filter(accepted=False, cancelled=False)
+                .values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+            invitations_fulfilled_5y=Subquery(
+                invitations_last_5y.filter(fulfilled=True, cancelled=False)
+                .values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+            invitations_cancelled_5y=Subquery(
+                invitations_last_5y.filter(cancelled=True)
+                .values("referee")
+                .annotate(count=Count("referee"))
+                .values("count"),
+            ),
+        )
+
+        return profiles
 
 
 class ConfigureRefereeInvitationForm(forms.Form):

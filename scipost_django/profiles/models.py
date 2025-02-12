@@ -203,22 +203,6 @@ class Profile(models.Model):
         """
         return ThesisLink.objects.filter(author_as_cont__profile=self)
 
-    @property
-    def responsiveness_as_referee(self):
-        """Simple stats on last 5 years' responsiveness as a referee."""
-        invitations = self.referee_invitations.all()
-
-        invitations = invitations.distinct().filter(
-            date_invited__gt=timezone.now() - datetime.timedelta(days=1825)
-        )
-        return {
-            "sent": invitations.count(),
-            "accepted": invitations.accepted().count(),
-            "declined": invitations.declined().count(),
-            "cancelled": invitations.filter(cancelled=True).count(),
-            "fulfilled": invitations.filter(fulfilled=True).count(),
-        }
-
     def has_competing_interest_with(self, profile):
         """
         Returns True if this Profile has a CompetingInterest with the given Profile.
