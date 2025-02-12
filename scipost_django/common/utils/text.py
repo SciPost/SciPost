@@ -206,3 +206,22 @@ def space_uppercase(text: str) -> str:
     Space out uppercase characters in a string.
     """
     return re.sub(r"(?<!^)(?=[A-Z])", " ", text)
+
+
+def partial_name_match_regexp(name: str) -> str:
+    """
+    Return a regular expression to match a partial name with initials and separators.
+    Example: "Rachel Anne-Marie" -> "^((Rachel|Anne|Marie|R|A|M)( -.)?)+$"
+    """
+    SEPARATORS = r"[ \-\.]"
+
+    name_cleaned = re.sub(f"(\\w){SEPARATORS}+(\\w)", r"\1 \2", name)
+    name_parts = name_cleaned.split()
+    name_initials = [part[0] for part in name_parts if len(part) > 1]
+
+    name_parts_or_initials = name_parts + name_initials
+
+    return "^(({names_ORed}){sep_chars}?)+$".format(
+        names_ORed="|".join(name_parts_or_initials),
+        sep_chars=SEPARATORS,
+    )
