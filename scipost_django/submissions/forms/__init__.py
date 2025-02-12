@@ -30,7 +30,16 @@ from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit, Button, HTML
+from crispy_forms.layout import (
+    Layout,
+    Div,
+    Field,
+    ButtonHolder,
+    Submit,
+    Button,
+    HTML,
+    Fieldset,
+)
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
@@ -1364,21 +1373,23 @@ class SubmissionForm(forms.ModelForm):
     )
     code_name = forms.CharField(
         label="Software name",
-        help_text="Please provide the name of the software referenced in this submission.",
+        help_text="Name of the software referenced in this submission.",
         required=True,
     )
     code_version = forms.CharField(
         label="Software version",
-        help_text="Provide the software version referenced in this submission (e.g. v1.2.3).",
+        help_text="Software version referenced in this submission.",
         required=True,
+        widget=forms.TextInput(attrs={"placeholder": "v1.2.10, 2021.04, ..."}),
     )
     code_license = forms.CharField(
         label="Software license",
         help_text=(
-            'Type the name of an acceptable license (one approved by <a href="https://opensource.org/licenses">OSI</a>). '
-            + 'Please consult <a href="https://scipost.org/SciPostPhysCodeb/about#licensing">the about page</a> for more information.'
+            'License must be approved by <a href="https://opensource.org/licenses">OSI</a>. '
+            + 'Consult <a href="https://scipost.org/SciPostPhysCodeb/about#licensing">the about page</a> for more information.'
         ),
         required=True,
+        widget=forms.TextInput(attrs={"placeholder": "AGPL-3.0, MIT, ..."}),
     )
     fulfilled_expectations = forms.MultipleChoiceField(
         choices=[],
@@ -1419,15 +1430,11 @@ class SubmissionForm(forms.ModelForm):
             "acad_field": forms.HiddenInput(),
             "is_resubmission_of": forms.HiddenInput(),
             "thread_hash": forms.HiddenInput(),
-            "code_repository_url": forms.TextInput(
-                attrs={
-                    "placeholder": "Optional: the full URL to the code repository, if applicable"
-                }
-            ),
             "data_repository_url": forms.TextInput(
-                attrs={
-                    "placeholder": "Optional: the full URL to the data repository, if applicable"
-                }
+                attrs={"placeholder": "https://..."}
+            ),
+            "code_repository_url": forms.TextInput(
+                attrs={"placeholder": "https://..."}
             ),
             "remarks_for_editors": forms.Textarea(
                 attrs={
@@ -1465,6 +1472,10 @@ class SubmissionForm(forms.ModelForm):
             ),
             "agree_to_terms": forms.CheckboxInput(),
         }
+        help_texts = {
+            "data_repository_url": "",
+            "code_repository_url": "",
+        }
 
     def __init__(self, *args, **kwargs):
         self.requested_by = kwargs.pop("requested_by")
@@ -1483,6 +1494,49 @@ class SubmissionForm(forms.ModelForm):
         self.metadata = {}  # container for possible external server-provided metadata
 
         super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            "fulfilled_expectations",
+            "is_resubmission_of",
+            "thread_hash",
+            "submitted_to",
+            "proceedings",
+            "collection",
+            "acad_field",
+            "specialties",
+            "topics",
+            "approaches",
+            "title",
+            "author_list",
+            "abstract",
+            "followup_of",
+            "author_comments",
+            "list_of_changes",
+            "remarks_for_editors",
+            Div(
+                Fieldset(
+                    "Supplementary information",
+                    Div(
+                        HTML(
+                            '<div class="mb-3 text-muted fs-6">Provide all reproducibility-enabling resources: '
+                            "datasets and processing methods, processed data "
+                            "and code snippets used to produce figures, etc.</div>"
+                        ),
+                        Field("data_repository_url"),
+                        Field("code_repository_url"),
+                        Div(
+                            Div(Field("code_name"), css_class="col-12 col-md"),
+                            Div(Field("code_version"), css_class="col-12 col-md-3"),
+                            Div(Field("code_license"), css_class="col-12 col-md"),
+                            css_class="row",
+                        ),
+                        css_class="p-2 bg-secondary bg-opacity-10",
+                    ),
+                ),
+            ),
+            "preprint_file",
+            "agree_to_terms",
+        )
 
         if self.preprint_server.name == "SciPost":
             # SciPost identifier will be auto-generated
@@ -1566,27 +1620,29 @@ class SubmissionForm(forms.ModelForm):
             del self.fields["fulfilled_expectations"]
         else:
             self.fields["fulfilled_expectations"].help_text = (
-                """<div class="mt-2">Please indicate which <a href='{expectations_url}'>journal expectations</a> you assert are being fulfilled by this Submission. 
-                At least one should be fulfilled for publication in {journal_name}. <br>
-                This information will be publicly visible and scrutinized during the refereeing process. 
-                Looking for a more accessible alternative? Consider <a href='{core_url}{thread_hash_get_param}'>submitting to {journal_name} Core</a>.</div>""".format(
-                    expectations_url=reverse_lazy(
-                        "journal:about", args=[self.submitted_to_journal.doi_label]
-                    )
-                    + "#criteria",
-                    journal_name=self.submitted_to_journal.name,
-                    core_url=reverse_lazy(
-                        "submissions:submit_choose_preprint_server",
-                        args=[self.submitted_to_journal.doi_label + "Core"],
-                    ),
-                    thread_hash_get_param=(
-                        f"?thread_hash={self.thread_hash}" if self.thread_hash else ""
-                    ),
+                "<div class='mt-2'>Please indicate which <a href='{expectations_url}'>journal expectations</a> "
+                "you assert are being fulfilled by this Submission."
+                "At least one should be fulfilled for publication in {journal_name}. <br>"
+                "This information will be publicly visible and scrutinized during the refereeing process. <br><br>"
+                "Looking for a more accessible alternative? "
+                "Consider <a href='{core_url}{thread_hash_get_param}'>submitting to {journal_name} Core</a>.</div>"
+            ).format(
+                expectations_url=reverse_lazy(
+                    "journal:about", args=[self.submitted_to_journal.doi_label]
                 )
+                + "#criteria",
+                journal_name=self.submitted_to_journal.name,
+                core_url=reverse_lazy(
+                    "submissions:submit_choose_preprint_server",
+                    args=[self.submitted_to_journal.doi_label + "Core"],
+                ),
+                thread_hash_get_param=(
+                    f"?thread_hash={self.thread_hash}" if self.thread_hash else ""
+                ),
             )
-            self.fields["fulfilled_expectations"].choices = (
-                self.submitted_to_journal.expectations
-            )
+            self.fields[
+                "fulfilled_expectations"
+            ].choices = self.submitted_to_journal.expectations
 
     def is_resubmission(self):
         return self.is_resubmission_of is not None
@@ -2524,9 +2580,9 @@ class InviteRefereeSearchFrom(forms.Form):
         #         ):
         #             self.fields[field_key].initial = session_value
 
-        self.fields["specialties"].choices = (
-            self.submission.specialties.all().values_list("id", "name")
-        )
+        self.fields[
+            "specialties"
+        ].choices = self.submission.specialties.all().values_list("id", "name")
 
         self.helper = FormHelper()
 
@@ -3079,7 +3135,9 @@ class ReportForm(forms.ModelForm):
             self.fields["license_agreement"].required = False
 
         #! Temporary annotation this field was made public:
-        self.fields["recommendation"].help_text = (
+        self.fields[
+            "recommendation"
+        ].help_text = (
             "As of April 2024, report recommendations are also publicly visible."
         )
 
@@ -3307,9 +3365,9 @@ class EICRecommendationForm(forms.ModelForm):
             latest_recommendation = self.earlier_recommendations.first()
             if latest_recommendation:
                 self.fields["for_journal"].initial = latest_recommendation.for_journal
-                self.fields["recommendation"].initial = (
-                    latest_recommendation.recommendation
-                )
+                self.fields[
+                    "recommendation"
+                ].initial = latest_recommendation.recommendation
 
         # Determine help points for the journal selection
         alternative_journal_ids = (
@@ -3814,11 +3872,11 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
         self.fields["refereeing_cycle"].choices = SUBMISSION_CYCLE_CHOICES
         other_submissions = self.instance.other_versions.all()
         if other_submissions:
-            self.fields["referees_reinvite"].queryset = (
-                RefereeInvitation.objects.filter(
-                    submission__in=other_submissions
-                ).distinct()
-            )
+            self.fields[
+                "referees_reinvite"
+            ].queryset = RefereeInvitation.objects.filter(
+                submission__in=other_submissions
+            ).distinct()
 
     def save(self):
         """
@@ -4026,9 +4084,9 @@ class RefereeIndicationForm(forms.ModelForm):
             self.fields["indication"].choices = [
                 RefereeIndication.INDICATION_CHOICES[0]
             ]
-            self.fields["reason"].help_text = (
-                "Optional short reason for this indication."
-            )
+            self.fields[
+                "reason"
+            ].help_text = "Optional short reason for this indication."
 
         for field in ["first_name", "last_name", "affiliation", "email_address"]:
             self.fields[field].label = "Ref. " + self.fields[field].label.capitalize()
