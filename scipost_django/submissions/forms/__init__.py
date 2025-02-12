@@ -3446,6 +3446,22 @@ class EICRecommendationForm(forms.ModelForm):
         else:
             self.fields["requested_changes"].required = False
 
+        should_mandate_remarks_for_editorial_college = False
+        if recommendation_data:
+            should_mandate_remarks_for_editorial_college = recommendation_data in [
+                str(EIC_REC_PUBLISH),
+                str(EIC_REC_REJECT),
+            ]
+        elif recommendation_initial:
+            should_mandate_remarks_for_editorial_college = recommendation_initial in [
+                EIC_REC_PUBLISH,
+                EIC_REC_REJECT,
+            ]
+        if should_mandate_remarks_for_editorial_college:
+            self.fields["remarks_for_editorial_college"].required = True
+        else:
+            self.fields["remarks_for_editorial_college"].required = False
+
         self.load_assignment()
 
     def clean(self):
@@ -3467,7 +3483,8 @@ class EICRecommendationForm(forms.ModelForm):
                 )
         if (
             recommendation in (EIC_REC_PUBLISH, EIC_REC_REJECT)
-            and len(cleaned_data["remarks_for_editorial_college"]) < 10
+            and (remarks_ed_col := cleaned_data.get("remarks_for_editorial_college"))
+            and len(remarks_ed_col) < 10
         ):
             self.add_error(
                 "remarks_for_editorial_college",

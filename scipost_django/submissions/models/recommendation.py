@@ -54,7 +54,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         verbose_name="requested changes", blank=True, null=True
     )
     remarks_for_editorial_college = models.TextField(
-        blank=True, verbose_name="optional remarks for the" " Editorial College"
+        blank=True, verbose_name="Remarks for the Editorial College"
     )
     for_journal = models.ForeignKey["Journal"](
         "journals.Journal", blank=True, null=True, on_delete=models.SET_NULL
