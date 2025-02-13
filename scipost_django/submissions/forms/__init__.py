@@ -1485,9 +1485,20 @@ class SubmissionForm(forms.ModelForm):
         self.requested_by = kwargs.pop("requested_by")
         self.submitted_to_journal = kwargs.pop("submitted_to_journal")
         data = args[0] if len(args) > 1 else kwargs.get("data", {})
-        self.preprint_server = kwargs["initial"].get(
-            "preprint_server", None
-        ) or PreprintServer.objects.get(id=data.get("preprint_server"))
+
+        if (
+            (preprint_server := kwargs["initial"].get("preprint_server", None))
+            or (preprint_server_id := data.get("preprint_server"))
+            and (
+                preprint_server := PreprintServer.objects.filter(
+                    id=preprint_server_id
+                ).first()
+            )
+        ):
+            self.preprint_server = preprint_server
+        else:
+            raise ValueError("No preprint server specified.")
+
         self.thread_hash = kwargs["initial"].get("thread_hash", None) or data.get(
             "thread_hash"
         )
@@ -1499,7 +1510,17 @@ class SubmissionForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
+        self.helper.form_tag = False
         self.helper.layout = Layout(
+            # Hidden fields
+            "preprint_server",
+            "preprint_link",
+            "identifier_w_vn_nr",
+            "submitted_to",
+            "acad_field",
+            "is_resubmission_of",
+            "thread_hash",
+            # Visible fields
             "fulfilled_expectations",
             "is_resubmission_of",
             "thread_hash",
