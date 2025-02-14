@@ -1043,27 +1043,31 @@ def build_author_render_list(
 @permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
 def author_affiliations(request, doi_label: str) -> HttpResponse:
-    def _affiliations_from_post(request: HttpRequest) -> list[Organization | None]:
-        """Iterate over the POST request keys 'affiliation_id_k' to build a list of affiliation Organization objects."""
-        total_affiliations_from_tex = int(request.POST.get("total_affiliations"))
-
-        affiliations = []
-        for i in range(total_affiliations_from_tex):
-            affiliation_id = request.POST.get(f"affiliation_id_{i +1}")
-            affiliation_id = int(affiliation_id) if affiliation_id else None
-            affiliation = Organization.objects.filter(pk=affiliation_id).first()
-            affiliations.append(affiliation)
-
-        return affiliations
-
-    # -------------
     publication = get_object_or_404(Publication, doi_label=doi_label)
     if not publication.is_draft and not request.user.has_perm(
         "can_publish_accepted_submission"
     ):
-        raise Http404("You do not have permission to edit this non-draft Publication")
+        raise PermissionDenied(
+            "You do not have permission to edit this non-draft Publication"
+        )
 
     form = AuthorsTableOrganizationSelectForm(request.POST or None)
+
+    organizations = {
+        identifier: Organization.objects.filter(pk=value).first()
+        if request.POST and (value := request.POST.get(f"affiliation_id_{identifier}"))
+        else None
+        for identifier, _ in publication.tex_affiliations
+    }
+    affiliations = [
+        (i, t, o)
+        for (i, t), o in zip(publication.tex_affiliations, organizations.values())
+    ]
+    context = {
+        "publication": publication,
+        "form": form,
+        "affiliations": affiliations,
+    }
 
     if request.POST:
         if not request.POST.get("submit"):
@@ -1084,11 +1088,13 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
             return response
         else:
             # First we need to check if all of the affiliations exist.
-            affiliations = _affiliations_from_post(request)
-            total_affiliations_from_tex = int(request.POST.get("total_affiliations"))
-            total_non_empty_affiliations = len(
-                list(filter(lambda x: x is not None, affiliations))
+            total_affiliations_from_tex = len(
+                list(filter(lambda x: x.startswith("affiliation_id_"), request.POST))
             )
+            total_non_empty_affiliations = len(
+                list(filter(lambda x: x is not None, organizations.values()))
+            )
+            print(total_affiliations_from_tex, total_non_empty_affiliations)
 
             if total_non_empty_affiliations != total_affiliations_from_tex:
                 messages.warning(
@@ -1097,24 +1103,15 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
                     % publication.doi_label,
                 )
 
-                tex_affiliations = publication.construct_affiliation_list()
-                context = {
-                    "publication": publication,
-                    "form": form,
-                    "affiliation_texts": tex_affiliations,
-                    "default_affiliations": affiliations,  # To reconstruct the form.
-                }
                 return render(request, "journals/author_affiliations.html", context)
             else:
                 authors = PublicationAuthorsTable.objects.filter(
                     publication=publication
                 )
-                authors_list, affiliations_of_authors = (
-                    publication.construct_tex_author_info()
-                )
-                for author, their_affiliations in zip(authors, affiliations_of_authors):
+                _, author_aff_ids = publication.construct_tex_author_info()
+                for author, aff_ids in zip(authors, author_aff_ids):
                     author.affiliations.set(
-                        [affiliations[index - 1] for index in their_affiliations]
+                        [organizations.get(i) for i in aff_ids] or None
                     )
 
                 publication.cf_author_affiliation_indices_list = []
@@ -1122,13 +1119,6 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
 
                 return publication_detail(request, doi_label)
 
-    tex_affiliations = publication.construct_affiliation_list()
-    context = {
-        "publication": publication,
-        "form": form,
-        "affiliation_texts": tex_affiliations,
-        "default_affiliations": [None] * len(tex_affiliations),
-    }
     return render(request, "journals/author_affiliations.html", context)
 
 

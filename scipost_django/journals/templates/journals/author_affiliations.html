@@ -1,6 +1,8 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: Author Affiliations{% endblock pagetitle %}
+{% block pagetitle %}
+  : Author Affiliations
+{% endblock pagetitle %}
 
 {% load bootstrap %}
 {% load common_extras %}
@@ -19,51 +21,76 @@
 
 {% block content %}
 
-  <div class="row">
-    <div class="col-12">
-      <h1 class="highlight">Author affiliations for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
-      <br>
-			<div>
-				<p>Can't find it in the selector? <a href="{% url 'organizations:organization_create' %}" target="_blank">Add a new organization to our database</a> (opens in new window)</p>
-			</div>
-
-		<div class="d-flex flex-row gap-2">
-			<form hx-post="{% url 'journals:author_affiliations' doi_label=publication.doi_label%}" id="add_affiliation_form" hx-swap="outerHTML"> 
-				{% csrf_token %}
-							{{ form|bootstrap_inline }}
-            <input name="add" class="btn btn-primary" type="submit" value="Add Organization" form="add_affiliation_form"/>
-      </form>
-      <form action="{% url 'journals:author_affiliations' doi_label=publication.doi_label%}" id="submit_affiliation_form" method="POST">
-        {% csrf_token %}
-        <input name="submit" class="btn btn-secondary" type="submit" value="Submit" form="submit_affiliation_form"/>
-        <input type="hidden" name="total_affiliations" value="{{ affiliation_texts|length }}"/>
-      </form>
-		</div>
-		
-		<br>
-		<h3>List of affiliations:</h3>
-      <table class = "ms-4" id="author_affiliations_list">
-        <tr>
-          <th> </th>
-          <th class="ps-3"> # </th>
-          <th class="ps-2"> Affiliation Text </th>
-          <th class="ps-4"> Organization </th>
-        </tr>
-        {% for affiliation_tex, default_affiliation in affiliation_texts|zip_dj:default_affiliations %}
-          <tr>
-            <td> <input type="radio" name="checked_row_id" value="{{ forloop.counter }}" form = "add_affiliation_form" id="{{ forloop.counter }}" {% if forloop.counter == checked_row_id %}checked{% endif %}> </td>
-            <td class="ps-3"><label for="{{ forloop.counter }}">{{ forloop.counter }}.</label></td>
-            <td class="ps-2"><label for="{{ forloop.counter }}">{{affiliation_tex}}</label></td>
-            {% include "journals/author_affiliations_orgcell.html" with checked_row_id=forloop.counter organization=default_affiliation %}
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
+  <h1 class="highlight">
+    Author affiliations for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a>
+  </h1>
+  <br />
+  <div>
+    <p>
+      Can't find it in the selector? <a href="{% url 'organizations:organization_create' %}" target="_blank">Add a new organization to our database</a> (opens in new window)
+    </p>
   </div>
 
-{% endblock %}
+  <div class="position-relative">
 
-{% block footer_script %}
-  {{ block.super }}
-  {{ form.media }}
-{% endblock footer_script %}
+    <form class="d-flex flex-row gap-2 p-2 position-sticky top-0 bg-white"
+          hx-post="{% url 'journals:author_affiliations' doi_label=publication.doi_label %}"
+          id="add_affiliation_form"
+          hx-swap="outerHTML">
+      <input name="add"
+             class="btn btn-primary"
+             type="submit"
+             value="Add Organization"
+             form="add_affiliation_form" />
+      {{ form|bootstrap_inline }}
+    </form>
+
+    <h3>List of affiliations:</h3>
+    <form action="{% url 'journals:author_affiliations' doi_label=publication.doi_label %}"
+          id="submit_affiliation_form"
+          method="POST">
+      {% csrf_token %}
+      <table class="table mb-4" id="author_affiliations_list">
+        <tr>
+          <th></th>
+          <th>#</th>
+          <th>Affiliation Text</th>
+          <th>Organization</th>
+        </tr>
+
+        {% for identifier, text, organization in affiliations %}
+          <tr class="align-middle">
+            <td>
+              <input class="me-2" type="radio" name="checked_row_id" value="{{ identifier }}" form = "add_affiliation_form" id="{{ identifier }}" 
+                {% if identifier == checked_row_id %}checked{% endif %}
+                 />
+              </td>
+              <td>
+                <label for="{{ identifier }}">{{ identifier }}.</label>
+              </td>
+              <td>
+                <label class="w-100" for="{{ identifier }}">{{ text }}</label>
+              </td>
+              {% include "journals/author_affiliations_orgcell.html" with checked_row_id=identifier organization=organization %}
+            </tr>
+          {% endfor %}
+
+
+        </table>
+        <input name="submit"
+               class="btn btn-primary"
+               type="submit"
+               value="Submit"
+               form="submit_affiliation_form" />
+      </form>
+
+    </div>
+
+  {% endblock %}
+
+
+
+  {% block footer_script %}
+    {{ block.super }}
+    {{ form.media }}
+  {% endblock footer_script %}

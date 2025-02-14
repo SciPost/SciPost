@@ -590,32 +590,18 @@ class Publication(models.Model):
             | models.Q(doi_label__startswith=f"{doi_anchor}-")
         ).order_by("doi_label")
     
-    @staticmethod
-    def extract_affiliations_from_tex(tex_contents: str) -> list[str]:
+    @cached_property
+    def tex_affiliations(self) -> list[tuple[str, str]]:
         """
-        Extracts the affiliations from the TeX contents, constructing a list with each affiliation as a string.
-        This list is used to render the affiliation list in the add_author view.
-        """
-        affiliation_field = re.findall("%%%%%%%%%% TODO: AFFILIATIONS(.*?)%%%%%%%%%% END TODO: AFFILIATIONS", tex_contents, re.DOTALL)[0]
-        affiliation_texts = affiliation_field.strip().split("\n\\\\")
-        
-        affiliation_list = []
-        for affiliation_text in affiliation_texts:
-            affiliation = re.findall("{\\\\bf\s*\d+} (.*)", affiliation_text, re.DOTALL) or [affiliation_text]
-            affiliation = affiliation[0].strip()
-            affiliation_list.append(affiliation)
-        
-        return affiliation_list
-
-    def construct_affiliation_list(self) -> list[str]:
-        """
-        Constructs a list of affiliations from the TeX file of the publication.
-        This list is used to render the affiliation list in the add_author view.
+        Extracts the affiliations from the TeX contents, constructing a list
+        with each affiliation as an (identifier, text) pair
+        Matches the pattern: `{\\bf #} Affiliation Text ...\\\\`
+        Returns a list of tuples with the affiliation identifier (number) and the affiliation text.
         """
 
-        if self.tex_contents:
-            return Publication.extract_affiliations_from_tex(self.tex_contents)
-        return []
+        return re.findall(
+            r"{\\bf (.+?)\}\s?(.+?)(?:\\\\\n|%{5,})", self.tex_contents, re.DOTALL
+        )
 
     @cached_property
     def tex_contents(self) -> str | None:
@@ -624,7 +610,7 @@ class Publication(models.Model):
         
         return self.proofs_repository.fetch_tex()
 
-    def construct_tex_author_info(self) -> tuple[list[str], list[list[int]]]:
+    def construct_tex_author_info(self) -> tuple[list[str], list[list[str]]]:
         """Puts together information for each author from the TeX file of the publication."""
 
         tex_contents = self.tex_contents or ""
@@ -661,8 +647,8 @@ class Publication(models.Model):
             
             # If no affiliation is present, we add them all.
             if not has_affiliation:
-                total_affiliations = len(Publication.extract_affiliations_from_tex(tex_contents))
-                default_affiliations = list(range(1, total_affiliations +1))
+                total_affiliations = len(self.tex_affiliations)
+                default_affiliations = list(range(1, total_affiliations + 1))
                 affiliation_list.append(default_affiliations)
                 continue
             
@@ -670,7 +656,7 @@ class Publication(models.Model):
             
             # We remove anything following the first "$" character which separates affiliations from emails.
             affiliations = superscript.split("$")[0].strip().split(",")
-            affiliations = [int(aff.strip()) for aff in affiliations]
+            affiliations = [aff.strip() for aff in affiliations]
             affiliation_list.append(affiliations)
 
         return author_list, affiliation_list
