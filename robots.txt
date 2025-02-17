@@ -4,5 +4,9 @@ Crawl-Delay: 10
 User-agent: BLEXBot
 Disallow: /
 
+# Block Apple from training LLM models on our content
+User-agent: Applebot-Extended 
+Disallow: /
+
 User-Agent: *
 Disallow: /search
