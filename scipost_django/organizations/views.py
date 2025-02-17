@@ -296,8 +296,8 @@ class OrganizationListView(PaginationMixin, ListView):
 
 
 def get_organization_detail(request):
-    org_id = request.GET.get("organization", None)
-    if org_id:
+    org_id_str = str(request.GET.get("organization", ""))
+    if org_id_str.isdigit() and (org_id := int(org_id_str)):
         return redirect(
             reverse("organizations:organization_detail", kwargs={"pk": org_id})
         )
