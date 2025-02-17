@@ -121,7 +121,7 @@ import iThenticate
 
 ARXIV_IDENTIFIER_PATTERN_NEW = r"^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$"
 FIGSHARE_IDENTIFIER_PATTERN = r"^[0-9]+\.v[0-9]{1,2}$"
-OSFPREPRINTS_IDENTIFIER_PATTERN = r"^[a-z0-9]+$"
+OSFPREPRINTS_IDENTIFIER_PATTERN = r"^[a-z0-9]+(_v\d{1,2})?$"
 
 
 class PortalSubmissionSearchForm(forms.Form):

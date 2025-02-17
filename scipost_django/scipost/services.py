@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 # Module for making external api calls as needed in the submissions cycle
 import re
+from typing import Any
 from django.db.models import query
 import feedparser
 import requests
@@ -337,7 +338,9 @@ class OSFPreprintsCaller:
     OSFPreprints caller to get data from api.osf.io.
     """
 
-    query_base_url = "https://api.osf.io/v2/preprints/%s/?embed=contributors"
+    query_base_url = (
+        "https://api.osf.io/v2/preprints/%s/?embed=contributors&format=json"
+    )
 
     def __init__(self, preprint_server, identifier):
         self.preprint_server = preprint_server
@@ -398,9 +401,6 @@ class OSFPreprintsCaller:
             "identifier_w_vn_nr": identifier_w_vn_nr,
         }
 
-    def _result_present(self, response_content):
-        try:
-            return response_content["data"]["id"] == self.identifier
-        except KeyError:
-            pass
-        return False
+    def _result_present(self, response_content: dict[str, Any]) -> bool:
+        data_id = response_content.get("data", {}).get("id", None)
+        return data_id == self.identifier
