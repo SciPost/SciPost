@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Min, Sum
+from django.db.models import Min, Sum, OuterRef, Exists, Q
 from django.urls import reverse
 from django.utils.functional import cached_property
 
@@ -74,11 +74,6 @@ class PublicationAuthorsTable(models.Model):
     def is_empty(self) -> bool:
         """Check if object is a temporary placeholder."""
         return self.profile is None
-
-    @property
-    def is_registered(self) -> bool:
-        """Check if author is registered at SciPost."""
-        return not self.is_empty() and self.profile.contributor is not None
 
     @property
     def first_name(self) -> str:
@@ -336,9 +331,15 @@ class Publication(models.Model):
     def get_all_funders(self):
         from funders.models import Funder
 
-        return Funder.objects.filter(
-            models.Q(grants__publications=self) | models.Q(publications=self)
-        ).distinct()
+        return Funder.objects.annotate(
+            has_publication_in_grants=Exists(self.grants.filter(funder=OuterRef("pk"))),
+            has_publication_in_funders_generic=Exists(
+                self.funders_generic.filter(pk=OuterRef("pk"))
+            ),
+        ).filter(
+            Q(has_publication_in_grants=True)
+            | Q(has_publication_in_funders_generic=True)
+        )
 
     def get_affiliations(self):
         """Returns the Organizations mentioned in author affiliations."""
@@ -539,13 +540,6 @@ class Publication(models.Model):
         self.cf_citation = citation
         self.save()
         return citation
-
-    def get_all_funders(self):
-        from funders.models import Funder
-
-        return Funder.objects.filter(
-            models.Q(grants__publications=self) | models.Q(publications=self)
-        ).distinct()
 
     def get_journal(self):
         if self.in_journal:

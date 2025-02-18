@@ -156,7 +156,7 @@
 	    {% endif %}
 	  {% endfor %}
 	{% endwith %}
-        {% if author.is_registered %}
+        {% if author.profile.contributor %}
           <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.first_name }} {{ author.profile.last_name }}</a>{% else %}{{ author.profile.first_name }} {{ author.profile.last_name }}{% endif %}{% if not forloop.last %},
           {% endif %}
       </li>
@@ -169,14 +169,14 @@
     {% endfor %}
   </ul>
 
-  {% if publication.get_all_funders %}
+  {% if publication.funders %}
     <div class="card">
       <div class="card-header">
-        Funder{{ publication.get_all_funders|length|pluralize }} for the research work leading to this publication
+        Funder{{ publication.funders|length|pluralize }} for the research work leading to this publication
       </div>
       <div class="card-content">
         <ul class="m-2">
-          {% for funder in publication.get_all_funders %}
+          {% for funder in publication.funders %}
             {% if funder.organization %}
               {% if funder.name != funder.organization.name and funder.name != funder.organization.name_original %}
                 <li>{{ funder }} (through Organization: <a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.full_name_with_acronym }}</a>)</li>

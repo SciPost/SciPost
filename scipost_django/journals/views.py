@@ -37,6 +37,7 @@ from django.db.models import (
     Count,
     Exists,
     OuterRef,
+    Prefetch,
     QuerySet,
     Subquery,
     prefetch_related_objects,
@@ -970,11 +971,15 @@ def add_author(request: HttpRequest, doi_label: str) -> HttpResponse:
         return response
 
     authors = []
-    for i, (name, superscripts) in enumerate(publication.tex_author_info):
-        publication_author = PublicationAuthorsTable.objects.filter(
-            publication=publication, order=i + 1
-        ).first()
-        profile_matches = (
+    publication_authors: dict[int, PublicationAuthorsTable] = {
+        pub_author.order: pub_author
+        for pub_author in PublicationAuthorsTable.objects.filter(
+            publication=publication
+        ).select_related("profile", "profile__contributor")
+    }
+    for i, (name, superscripts) in enumerate(publication.tex_author_info, 1):
+        publication_author = publication_authors.get(i)
+        profile_matches: QuerySet[Profile] = (
             Profile.objects.search(name) if publication_author is None else None
         )
         profile = (
@@ -2301,6 +2306,21 @@ def publication_detail(request, doi_label):
         "scipost.can_draft_publication"
     ):
         raise Http404("Publication is not publicly visible")
+
+    publication.funders = list(
+        publication.get_all_funders().select_related("organization")
+    )
+
+    prefetch_related_objects(
+        [publication],
+        Prefetch("pubfracs", queryset=PubFrac.objects.select_related("organization")),
+        Prefetch(
+            "authors",
+            queryset=PublicationAuthorsTable.objects.select_related(
+                "profile", "profile__contributor"
+            ),
+        ),
+    )
 
     context = {
         "publication": publication,
