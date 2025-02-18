@@ -16,7 +16,7 @@ techrxiv_regex_wo_vn = "techrxiv_[0-9]+"
 techrxiv_regex_w_vn = "techrxiv_[0-9]+.v[0-9]{1,2}"
 advance_regex_wo_vn = "advance_[0-9]+"
 advance_regex_w_vn = "advance_[0-9]+.v[0-9]{1,2}"
-socarxiv_regex = "socarxiv_[a-z0-9]+"
+socarxiv_regex = r"socarxiv_[a-z0-9]+(_v\d{1,2})?"
 
 # Preprints with structurally no version number
 # (like OSFPreprints-based ones: SocArXiv, ...)
