@@ -860,10 +860,10 @@ def submission_detail(request, identifier_w_vn_nr):
                 )
 
     if "invitations" in context and context["invitations"]:
-        context[
-            "communication"
-        ] = submission.editorial_communications.for_referees().filter(
-            referee__user=request.user
+        context["communication"] = (
+            submission.editorial_communications.for_referees().filter(
+                referee__user=request.user
+            )
         )
 
     recommendations = submission.eicrecommendations.active()
@@ -1741,7 +1741,6 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
         and not contributor.is_currently_available
         and not has_agreed_to_previous_invitation
     ):
-
         return HTMXResponse(
             "This referee is not currently available, "
             "and has not accepted a previous invitation for this submission.",
@@ -1958,9 +1957,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
             % (invitation.referee.full_name, decision_string)
         )
 
-        if (
-            request.user.contributor.profile.referee_invitations.awaiting_response().exists()
-        ):
+        if request.user.contributor.profile.referee_invitations.awaiting_response().exists():
             return redirect("submissions:accept_or_decline_ref_invitations")
         return redirect(invitation.submission.get_absolute_url())
     context = {"invitation": invitation, "form": form}
@@ -2008,7 +2005,7 @@ def decline_ref_invitation(request, invitation_key):
 
         # Add SubmissionEvents
         invitation.submission.add_event_for_author(
-            "A referee has declined the" " refereeing invitation."
+            "A referee has declined the refereeing invitation."
         )
         invitation.submission.add_event_for_eic(
             "Referee %s has declined the refereeing "
@@ -3061,7 +3058,7 @@ def _hx_submission_update_preprint_file(request, identifier_w_vn_nr):
 def _hx_submission_update_preprint_file_form(request, identifier_w_vn_nr):
     preprint = get_object_or_404(Preprint, identifier_w_vn_nr=identifier_w_vn_nr)
     filedata_old = (
-        f'{preprint._file.name.rpartition("/")[2]} ({preprint._file.size//1024} kb)'
+        f"{preprint._file.name.rpartition('/')[2]} ({preprint._file.size // 1024} kb)"
     )
     context = {
         "submission": preprint.submission,
@@ -3077,7 +3074,7 @@ def _hx_submission_update_preprint_file_form(request, identifier_w_vn_nr):
                     f"The preprint file has been changed from "
                     f"{filedata_old} to "
                     f"{preprint._file.name.rpartition('/')[2]} "
-                    f"({preprint._file.size//1024} kb)"
+                    f"({preprint._file.size // 1024} kb)"
                 )
             return render(
                 request,
@@ -3221,7 +3218,9 @@ def _hx_recommendation_vote_form(request, rec_id):
             elif request.user.contributor in recommendation.voted_abstain.all():
                 previous_vote = "abstain"
         except EICRecommendation.DoesNotExist:
-            raise Http404
+            return HTMXPermissionsDenied(
+                "You are not allowed to vote on this recommendation."
+            )
     initial = {"vote": previous_vote}
 
     if request.POST:
@@ -3783,7 +3782,6 @@ class HXRefereeIndicationFormSetView(HXFormSetView):
         return response
 
     def get_factory_kwargs(self):
-
         #! Improvement: Kind of a hacky way to reuse the same decorator code
         def save_profile(request, **kwargs):
             # Create a dummy view that saves the profile kwarg on self
@@ -3884,7 +3882,6 @@ def _hx_referee_indication_table(request, identifier_w_vn_nr, profile=None):
 
 @resolve_profile
 def _hx_referee_indication_delete(request: HttpRequest, pk, profile=None):
-
     # Guard against invalid request methods
     if request.method != "DELETE":
         return HTMXResponse("Invalid request method", tag="danger")
