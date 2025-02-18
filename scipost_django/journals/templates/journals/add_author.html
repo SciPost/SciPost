@@ -1,13 +1,15 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: add author to publication{% endblock pagetitle %}
+{% block pagetitle %}
+  : Add author to publication
+{% endblock pagetitle %}
 
 {% block breadcrumb %}
   <div class="breadcrumb-container">
     <div class="container">
       <nav class="breadcrumb hidden-sm-down">
         <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-        <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+        <a href="{{ publication.get_absolute_url }}" class="breadcrumb-item">{{ publication.citation }}</a>
         <span class="breadcrumb-item active">Add author to publication</span>
 
       </nav>
@@ -22,28 +24,44 @@
 
   <h1 class="highlight">Associate author profiles to the publication</h1>
   {% include 'journals/_publication_li_content.html' with publication=publication %}
-  <br>
+  <br />
 
-  <div class="row position-relative">    
-    <div class="col-md-12 col-lg-6">
-      <h3>List of authors </h3>
-      {% include "journals/add_author_list.html" %}
+  <div class="row position-relative">
+    <div class="col-12 col-md">
+      <h3>List of authors</h3>
+      <table class="table ms-4" id="add_author_list">
+        <tr>
+          <th></th>
+          <th>#</th>
+          <th>Author</th>
+          <th>Profile</th>
+        </tr>
+
+        {% for author in author_list %}
+          {% include "journals/add_author_table_tr.html" with author=author author_id=forloop.counter selected_author_id=selected_author_id %}
+        {% endfor %}
+
+      </table>
     </div>
 
-    <div class="col-md-12 col-lg-6">
+    <div class="col-12 col-md-auto">
       <div class="position-sticky top-0 pt-5">
         <h3>Author actions:</h3>
-        
-        <form hx-post="{% url 'journals:add_author' doi_label=publication.doi_label%}"
-              hx-target="#add_author_list" id = "add_author_form" hx-swap="outerHTML">
+
+        <form hx-post="{% url 'journals:add_author' doi_label=publication.doi_label %}"
+              id="add_author_form"
+              hx-swap="outerHTML">
           {% csrf_token %}
-                {{ form|bootstrap }}
+          {{ form|bootstrap }}
         </form>
         <div class="d-flex flex-row gap-2">
-          <input class="btn btn-primary" type="submit" value="Add Author" form="add_author_form"/>
+          <input class="btn btn-primary"
+                 type="submit"
+                 value="Add Author"
+                 form="add_author_form" />
           <a class="btn btn-secondary"
-            title="Fetch author list data from the git."
-            href="{% url 'journals:reset_authors' doi_label=publication.doi_label %}"> Reset
+             title="Fetch author list data from git"
+             href="{% url 'journals:reset_authors' doi_label=publication.doi_label %}"> Reset
           </a>
         </div>
       </div>
@@ -53,6 +71,7 @@
 
 
 {% endblock content %}
+
 
 {% block footer_script %}
   {{ block.super }}

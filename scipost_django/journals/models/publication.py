@@ -35,6 +35,7 @@ from scipost.fields import ChoiceArrayField
 
 if TYPE_CHECKING:
     from production.models import ProofsRepository
+    from profiles.models import Profile
 
 
 class PublicationAuthorsTable(models.Model):
@@ -52,7 +53,7 @@ class PublicationAuthorsTable(models.Model):
     publication = models.ForeignKey(
         "journals.Publication", on_delete=models.CASCADE, related_name="authors"
     )
-    profile = models.ForeignKey(
+    profile = models.ForeignKey["Profile"](
         "profiles.Profile", on_delete=models.PROTECT, blank=True, null=True
     )
     affiliations = models.ManyToManyField("organizations.Organization", blank=True)
@@ -182,7 +183,9 @@ class Publication(models.Model):
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = models.JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
-    author_info_source = models.TextField(blank=True, null=True) # To handle docx files better.
+
+    # To handle cases without parsable author info (e.g. docx)
+    author_info_source = models.TextField(blank=True, null=True)
 
     # Date fields
     submission_date = models.DateField(verbose_name="submission date")
@@ -351,7 +354,7 @@ class Publication(models.Model):
 
     @property
     def is_draft(self) -> bool:
-        """ Check if the publication is in draft status, awaiting to be published. """
+        """Check if the publication is in draft status, awaiting to be published."""
         return self.status == STATUS_DRAFT
 
     @property
@@ -367,17 +370,17 @@ class Publication(models.Model):
 
     @property
     def has_abstract_jats(self) -> bool:
-        """ Check if there is a JATS version of the abstract used for Crossref deposits. """
+        """Check if there is a JATS version of the abstract used for Crossref deposits."""
         return self.abstract_jats != ""
 
     @property
     def has_xml_metadata(self) -> bool:
-        """ Check if there is XML metadata used for Crossref deposits."""
+        """Check if there is XML metadata used for Crossref deposits."""
         return self.metadata_xml != ""
 
     @property
     def BiBTeX(self):
-        bibtex_entry = ("@Article{%s,\n" "\ttitle={{%s}},\n" "\tauthor={%s},\n") % (
+        bibtex_entry = ("@Article{%s,\n\ttitle={{%s}},\n\tauthor={%s},\n") % (
             self.doi_string,
             self.title,
             self.author_list.replace(",", " and"),
@@ -481,7 +484,7 @@ class Publication(models.Model):
     def pubfracs_sum_to_1(self):
         """Checks that the support fractions sum up to one."""
         return self.pubfracs.aggregate(Sum("fraction"))["fraction__sum"] == 1
-    
+
     @property
     def proofs_repository(self) -> "ProofsRepository":
         """Return the proofs repository for the publication."""
@@ -589,7 +592,11 @@ class Publication(models.Model):
             models.Q(doi_label=doi_anchor)
             | models.Q(doi_label__startswith=f"{doi_anchor}-")
         ).order_by("doi_label")
-    
+
+    @cached_property
+    def tex_contents(self) -> str | None:
+        return self.author_info_source or self.proofs_repository.fetch_tex()
+
     @cached_property
     def tex_affiliations(self) -> list[tuple[str, str]]:
         """
@@ -598,100 +605,95 @@ class Publication(models.Model):
         Matches the pattern: `{\\bf #} Affiliation Text ...\\\\`
         Returns a list of tuples with the affiliation identifier (number) and the affiliation text.
         """
-
-        return re.findall(
-            r"{\\bf (.+?)\}\s?(.+?)(?:\\\\\n|%{5,})", self.tex_contents, re.DOTALL
-        )
-
-    @cached_property
-    def tex_contents(self) -> str | None:
-        if self.author_info_source != "": # For docx files use author_info_source.
-            return self.author_info_source
-        
-        return self.proofs_repository.fetch_tex()
-
-    def construct_tex_author_info(self) -> tuple[list[str], list[list[str]]]:
-        """Puts together information for each author from the TeX file of the publication."""
-
-        tex_contents = self.tex_contents or ""
-        author_field_match = re.search(
-            "%%%%%%%%%% TODO: AUTHORS(.*?)%%%%%%%%%% END TODO: AUTHORS",
-            tex_contents,
+        affiliations_block = re.search(
+            r"%+ TODO: AFFILIATIONS.*?%+ END TODO: AFFILIATIONS",
+            self.tex_contents or "",
             re.DOTALL,
         )
-        if author_field_match is None:
+
+        if affiliations_block is None:
+            return []
+
+        matches = re.findall(
+            r"\n(?:\{\\bf\s([^%]+?)\})?\s?([^%]+?)\n(?:\\\\|%)",
+            affiliations_block.group(),
+            re.DOTALL,
+        )
+
+        return [
+            (number or f"UN_{i}", text.replace("\\\\", " ").strip())
+            for i, (number, text) in enumerate(matches)
+        ]
+
+    @cached_property
+    def tex_author_info(self) -> list[tuple[str, list[str]]]:
+        """
+        Returns a list of tuples with the author name and a list of superscripts.
+        """
+
+        authors_block = re.search(
+            r"%+ TODO: AUTHORS(.*?)%+ END TODO: AUTHORS",
+            self.tex_contents or "",
+            re.DOTALL,
+        )
+        if authors_block is None:
             # If matching against the tex file fails, we use the author_list of the submission.
-            original_authors_as_list = [author.strip() for author in self.author_list.split(",")]
-            return original_authors_as_list, [[] for _ in original_authors_as_list]
-        else:
-            author_field = author_field_match.group(1)
-        author_texts = author_field.strip().replace("\,", "").split("\n")
+            return [(author.strip(), []) for author in self.author_list.split(",")]
 
-        # Remove any trailing or leading "and"s.
-        if len(author_texts) > 1 and " and" in author_texts[-2]:
-            author_texts[-2] = author_texts[-2].replace(" and", ",").replace("\nand ", "\n")
-        
-        # Remove \orcidlink{...} commands.
-        author_texts = [re.sub(r"\\orcidlink\{.*?\}", "", author_text) for author_text in author_texts]
+        author_lines = authors_block.group(1).strip().split("\n")
 
-        author_list = []; affiliation_list = []
-        for author_text in author_texts:            
-            has_supperscript = re.search("textsuperscript", author_text) is not None
-            has_affiliation = re.search("\d", author_text) is not None
-            
-            delimiter: str = r"\\textsuperscript" if has_supperscript else ","
-            has_delimiter = re.search(delimiter, author_text)
-            
-            author = re.findall(rf"(.*?){delimiter}", author_text)[0] if has_delimiter else author_text
-            author_list.append(author)
-            
-            # If no affiliation is present, we add them all.
-            if not has_affiliation:
-                total_affiliations = len(self.tex_affiliations)
-                default_affiliations = list(range(1, total_affiliations + 1))
-                affiliation_list.append(default_affiliations)
-                continue
-            
-            superscript = re.findall("textsuperscript\{(.*?)\}", author_text)[0]
-            
-            # We remove anything following the first "$" character which separates affiliations from emails.
-            affiliations = superscript.split("$")[0].strip().split(",")
-            affiliations = [aff.strip() for aff in affiliations]
-            affiliation_list.append(affiliations)
+        def extract_author_info(line: str) -> tuple[str, list[str]]:
+            """Extracts the superscripts from a text."""
+            author_match = re.match(r"^(?:\\orcidlink\{.*?\}\\?\W?)?([^\\]+)", line)
+            superscripts_match = re.match(r".*?\\textsuperscript\{(.*?)\}", line)
 
-        return author_list, affiliation_list
-    
+            author_text = author_match.group(1) if author_match else ""
+            superscripts_text = (
+                superscripts_match.group(1) if superscripts_match else ""
+            )
+
+            # Remove any trailing or leading "and"s.
+            author_text = re.sub(r"(?:^and(\W)|(\W)and$)", r"\1", author_text).strip()
+
+            # Prepend a comma to every $...$ expression to split them later
+            superscripts_text = re.sub(r"(\$.+?\$)", r",\1", superscripts_text)
+
+            return (
+                author_text.strip(),
+                [superscript.strip() for superscript in superscripts_text.split(",")],
+            )
+
+        return [extract_author_info(line) for line in author_lines]
+
     def reset_author_associations(self) -> None:
-        """ Deletes all PublicationAuthorsTable entries and repopulates it based on the tex file uploaded on git. """
-        PublicationAuthorsTable.objects.filter(publication=self).delete()
-        
-        author_string_list, author_affiliation_ids = self.construct_tex_author_info()
-        author_query_list = self.search_for_authors(author_string_list)
-        
-        # We add the succesful authors from the author_render_list to the PublicationAuthorsTable.
-        for author_profile_query in author_query_list:
-            author_profile = author_profile_query.first() if len(author_profile_query) < 2 else None
-            PublicationAuthorsTable.objects.create(publication=self, profile=author_profile)
-    
-    def search_for_authors(self, author_string_list: list[str]) -> list:
-        """ Creates a list of (Profile) queryset objects based on the strings in author_string_list."""
+        """Deletes all PublicationAuthorsTable entries and repopulates it based on the tex file uploaded on git."""
         from profiles.models import Profile
-        
-        author_profile_query_list = []
-        
-        authors_metadata_table = PublicationAuthorsTable.objects.filter(publication=self)
-        
-        for i, tex_author in enumerate(author_string_list): # Author1, Author2, ...
-            # If an author is already on the index of authors_metadata_table, do not search.
-            if not authors_metadata_table.exists() or i +1 > len(authors_metadata_table) or authors_metadata_table[i].is_empty():
-                query_results = Profile.objects.search(tex_author)
-            else:
-                query_results = Profile.objects.filter(id=authors_metadata_table[i].profile.id)
-            
-            author_profile_query_list.append(query_results)
-        
-        return author_profile_query_list
-        
+
+        PublicationAuthorsTable.objects.filter(publication=self).delete()
+
+        # We add the succesful authors from the author_render_list to the PublicationAuthorsTable.
+        author_entries: list[PublicationAuthorsTable] = []
+        author_names = [name for name, _ in self.tex_author_info]
+        for i, name in enumerate(author_names):
+            profile_matches = list(Profile.objects.search(name))
+            profile = profile_matches[0] if profile_matches else None
+
+            author_entries.append(
+                PublicationAuthorsTable(
+                    publication=self,
+                    profile=profile,
+                    order=i + 1,
+                )
+            )
+
+        PublicationAuthorsTable.objects.bulk_create(author_entries)
+
+        self.cf_author_affiliation_indices_list = []
+        if author_names:
+            self.author_list = ", ".join(author_names)
+
+        self.save()
+
 
 class Reference(models.Model):
     """A Refence is a reference used in a specific Publication."""

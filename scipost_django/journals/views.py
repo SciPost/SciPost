@@ -15,8 +15,9 @@ import requests
 
 import matplotlib
 
-from proceedings.models import Proceedings
 from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
+from proceedings.models import Proceedings
+from profiles.models import Profile
 from submissions.models.decision import EditorialDecision
 
 matplotlib.use("Agg")
@@ -36,6 +37,7 @@ from django.db.models import (
     Count,
     Exists,
     OuterRef,
+    QuerySet,
     Subquery,
     prefetch_related_objects,
 )
@@ -201,8 +203,8 @@ def doi_dispatch(
     if suffix:
         # This DOI necessarily points to a Publication detail page:
         doi_label = (
-            f"{journal_tag}.{part_1}{'.'+f'{part_2}' if part_2 else ''}"
-            f"{'.'+f'{part_3}' if part_3 else ''}-{suffix}"
+            f"{journal_tag}.{part_1}{'.' + f'{part_2}' if part_2 else ''}"
+            f"{'.' + f'{part_3}' if part_3 else ''}-{suffix}"
         )
         return publication_detail(request, doi_label)
     if part_1 is None:
@@ -921,7 +923,7 @@ def reset_authors(request, doi_label: str) -> HttpResponse:
 
 @permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
-def add_author(request, doi_label: str) -> HttpResponse:
+def add_author(request: HttpRequest, doi_label: str) -> HttpResponse:
     """
     Link authors (via their Profile) to a Publication.
 
@@ -936,108 +938,75 @@ def add_author(request, doi_label: str) -> HttpResponse:
     ):
         raise Http404("You do not have permission to edit this non-draft Publication")
 
-    authors_metadata_table = PublicationAuthorsTable.objects.filter(
-        publication=publication
-    )
-    if request.method == "GET" and not authors_metadata_table.exists():
+    if (
+        request.method == "GET"
+        and not PublicationAuthorsTable.objects.filter(publication=publication).exists()
+    ):
         publication.reset_author_associations()
 
     form = ProfileSelectForm(request.POST or None)
-    if request.POST and form.is_valid():
-        author_order = request.POST["selected_author_id"]
-        # We remove previous request.POST["selected_author_id"] and add a new one there.
-        authors_metadata_table.filter(order=author_order).delete()
-        table, created = PublicationAuthorsTable.objects.get_or_create(
+    if form.is_valid() and (
+        selected_author_id := int(request.POST.get("selected_author_id"))
+    ):
+        pub_author, created = PublicationAuthorsTable.objects.update_or_create(
             publication=publication,
-            profile=form.cleaned_data["profile"],
-            order=author_order,
-        )
-        if created:
-            messages.success(request, "Added {} as an author.".format(table.profile))
-        else:
-            messages.warning(
-                request,
-                (
-                    "Author {} was already associated to this "
-                    "Publication.".format(table.profile)
-                ),
-            )
-
-        author_string_list, author_affiliation_ids = (
-            publication.construct_tex_author_info()
-        )
-        author_query_list = publication.search_for_authors(author_string_list)
-        author_render_list = build_author_render_list(
-            author_string_list, author_query_list, author_affiliation_ids
+            order=selected_author_id,
+            defaults={"profile": form.cleaned_data["profile"]},
         )
 
-        return render(
+        response = render(
             request,
-            "journals/add_author_list.html",
+            "journals/add_author_table_tr.html",
             {
-                "author_list": author_render_list,
-                "selected_author_id": int(request.POST["selected_author_id"]),
+                "author": {
+                    "name_tex": publication.tex_author_info[selected_author_id - 1][0],
+                    "profile": pub_author.profile,
+                },
+                "author_id": selected_author_id,
+                "selected_author_id": selected_author_id,
             },
         )
+        response["HX-Retarget"] = f"#author_list_tr_{selected_author_id}"
+        return response
 
-    # Fetch authors and affiliations as they appear in the TeX file.
-    author_string_list, author_affiliation_ids = publication.construct_tex_author_info()
-    author_query_list = publication.search_for_authors(author_string_list)
-    author_render_list = build_author_render_list(
-        author_string_list, author_query_list, author_affiliation_ids
-    )
+    authors = []
+    for i, (name, superscripts) in enumerate(publication.tex_author_info):
+        publication_author = PublicationAuthorsTable.objects.filter(
+            publication=publication, order=i + 1
+        ).first()
+        profile_matches = (
+            Profile.objects.search(name) if publication_author is None else None
+        )
+        profile = (
+            publication_author.profile
+            if publication_author
+            else profile_matches.first()
+            if profile_matches
+            else None
+        )
 
-    # Update and save the author_list in the publication object.
-    if len(author_string_list) > 0:
-        publication.author_list = ", ".join(author_string_list)
-        publication.save()
+        first_name_tex, last_name_tex = name.split(" ", 1)
+        new_profile_url = (
+            reverse_lazy("profiles:profile_create")
+            + f"?first_name={first_name_tex}&last_name={last_name_tex}"
+        )
+
+        author_dict: dict[str, Any] = {
+            "name_tex": name,
+            "superscripts": superscripts,
+            "profile": profile,
+            "profile_matches": profile_matches,
+            "new_profile_url": new_profile_url,
+        }
+
+        authors.append(author_dict)
 
     context = {
         "publication": publication,
         "form": form,
-        "author_list": author_render_list,
+        "author_list": authors,
     }
     return render(request, "journals/add_author.html", context)
-
-
-def build_author_render_list(
-    author_string_list: list[str],
-    author_profile_query_list: list,
-    author_affiliation_ids: list[list[int]],
-) -> list:
-    """Creates a list of dictionaries for each author. This list is used to render the author list in the add_author view."""
-    author_dict_lsit = []
-
-    for author_profile_query, tex_author, their_affiliations in zip(
-        author_profile_query_list, author_string_list, author_affiliation_ids
-    ):  # Author1, Author2, ...
-        author_profile = (
-            author_profile_query.first() if len(author_profile_query) < 2 else None
-        )
-        has_name_warning = (
-            author_profile.full_name != tex_author if author_profile else False
-        )
-        other_with_same_name = len(
-            author_profile_query
-        )  # To handle duplicate warnings.
-
-        # We assume the first and last names in order to automate 2-word profile creation.
-        first_name_guess = tex_author.split(" ")[0]
-        last_name_guess = " ".join(tex_author.split(" ")[1:])
-
-        author_dict_lsit.append(
-            {
-                "tex_name": tex_author,
-                "profile": author_profile,
-                "affiliations": their_affiliations,
-                "first_name_guess": first_name_guess,
-                "last_name_guess": last_name_guess,
-                "has_name_warning": has_name_warning,
-                "other_with_same_name": other_with_same_name,
-            }
-        )
-
-    return author_dict_lsit
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)
@@ -1072,7 +1041,7 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
     if request.POST:
         if not request.POST.get("submit"):
             context = {
-                "checked_row_id": int(request.POST["checked_row_id"]),
+                "checked_row_id": request.POST["checked_row_id"],
                 "organization": Organization.objects.get(
                     pk=form["organization"].value()
                 ),
@@ -1108,10 +1077,13 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
                 authors = PublicationAuthorsTable.objects.filter(
                     publication=publication
                 )
-                _, author_aff_ids = publication.construct_tex_author_info()
-                for author, aff_ids in zip(authors, author_aff_ids):
+                global_affiliations = [
+                    v for k, v in organizations.items() if k.startswith("UN_")
+                ]
+                for author, (name, affs) in zip(authors, publication.tex_author_info):
                     author.affiliations.set(
-                        [organizations.get(i) for i in aff_ids] or None
+                        global_affiliations
+                        + [org for aff_id in affs if (org := organizations.get(aff_id))]
                     )
 
                 publication.cf_author_affiliation_indices_list = []
@@ -1316,7 +1288,6 @@ class AbstractJATSUpdateView(
         )
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-
         if request.POST.get("convert_button"):
             # Change the abstract_jats field value to "LMAO"
             self.get_form().data["abstract_jats"] = "LMAO"
