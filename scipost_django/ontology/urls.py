@@ -75,6 +75,16 @@ urlpatterns = [
     path("topic/<slug:slug>/", views.TopicDetailView.as_view(), name="topic_details"),
     path("topics/", views.TopicListView.as_view(), name="topics"),
     path(
+        "topics/_hx_form",
+        views._hx_topic_search_form,
+        name="_hx_topic_search_form",
+    ),
+    path(
+        "topics/_hx_table",
+        views._hx_topic_table,
+        name="_hx_topic_table",
+    ),
+    path(
         "add_relation_asym/<slug:slug>/",
         views.add_relation_asym,
         name="add_relation_asym",

@@ -1,0 +1,26 @@
+<tr>
+  <td style="min-width: 400px;">
+    <a href="{% url 'ontology:topic_details' topic.slug %}">{{ topic.name }}</a>
+  </td>
+  <td>{{ topic.nr_submissions }} / {{ topic.nr_publications }}</td>
+  <td>
+    <div class="d-flex flex-wrap gap-2">
+
+      {% for specialty in topic.specialties.all %}
+        <span class="badge text-dark bg-light">{{ specialty.name }}</span>
+      {% endfor %}
+
+    </div>
+  </td>
+  <td>
+    <div class="d-flex flex-wrap gap-2">
+
+      {% for tag in topic.tags.all %}
+        <span class="badge text-dark bg-light">{{ tag.name }}</span>
+      {% endfor %}
+
+
+    </div>
+  </td>
+
+</tr>

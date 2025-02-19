@@ -4,12 +4,13 @@ __license__ = "AGPL v3"
 
 from django import forms
 from django.db.utils import ProgrammingError
+from django.db.models import Q, Exists, OuterRef, Count
+from django.urls import reverse_lazy
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
-from django.urls import reverse_lazy
 
 from common.forms import HTMXDynSelWidget
 
@@ -175,6 +176,19 @@ class TopicForm(forms.ModelForm):
             "slug",
             "tags",
         ]
+        help_texts = {
+            "slug": "A unique identifier for the topic, used in URLs.",
+            "tags": "Tags are used to categorize topics. Select all that apply.",
+        }
+        widgets = {
+            "name": forms.TextInput(
+                attrs={"placeholder": "e.g. Quantum Field Theory (QFT)"}
+            ),
+            "slug": forms.TextInput(
+                attrs={"placeholder": "e.g. quantum-field-theory"},
+            ),
+            "tags": forms.CheckboxSelectMultiple(),
+        }
 
     def save(self):
         instance = super().save()
@@ -229,6 +243,122 @@ class SelectLinkedTopicForm(forms.Form):
         ),
         label="Find a topic (click to see it)",
     )
+
+
+class TopicSearchForm(forms.Form):
+    q = forms.CharField(
+        max_length=256,
+        label="Search",
+        required=False,
+    )
+
+    acad_fields = forms.ModelMultipleChoiceField(
+        queryset=AcademicField.objects.all(),
+        required=False,
+    )
+
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        required=False,
+    )
+
+    tags = forms.ModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+    )
+
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(
+            ("name", "Name"),
+            ("nr_submissions", "# submissions"),
+            ("nr_publications", "# publications"),
+        ),
+        initial="name",
+        required=False,
+    )
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=(
+            ("+", "Ascending"),
+            ("-", "Descending"),
+        ),
+        initial="+",
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("q"), css_class="col-12 col-md-8"),
+                Div(
+                    Div(
+                        Div(Field("orderby"), css_class="col-12 col-md-6"),
+                        Div(Field("ordering"), css_class="col-12 col-md-6"),
+                        css_class="row mb-0",
+                    ),
+                    css_class="col-12 col-md-4",
+                ),
+                Div(Field("acad_fields", size=6), css_class="col-12 col-md"),
+                Div(Field("specialties", size=6), css_class="col-12 col-md"),
+                Div(Field("tags", size=6), css_class="col-12 col-md"),
+                css_class="row mb-0",
+            ),
+        )
+
+    def search_results(self):
+        objects = Topic.objects.all().annotate(
+            nr_submissions=Count("submission", distinct=True),
+            nr_publications=Count("publications", distinct=True),
+        )
+
+        if q := self.cleaned_data.get("q"):
+            objects = objects.filter(
+                Q(name__unaccent__icontains=q) | Q(slug__unaccent__icontains=q)
+            )
+
+        if acad_fields := self.cleaned_data.get("acad_fields"):
+            objects = objects.annotate(
+                belongs_to_acad_field=Exists(
+                    Specialty.objects.filter(
+                        acad_field__in=acad_fields,
+                        topics=OuterRef("pk"),
+                    )
+                )
+            ).filter(belongs_to_acad_field=True)
+
+        if specialties := self.cleaned_data.get("specialties"):
+            objects = objects.filter(specialties__in=specialties)
+
+        if tags := self.cleaned_data.get("tags"):
+            objects = objects.filter(tags__in=tags)
+
+        # Ordering of objects
+        # Only order if both fields are set
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            objects = objects.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
+                ]
+            )
+
+        objects = objects.prefetch_related(
+            "specialties",
+            "tags",
+        )
+
+        return objects
 
 
 class AddRelationAsymForm(forms.Form):

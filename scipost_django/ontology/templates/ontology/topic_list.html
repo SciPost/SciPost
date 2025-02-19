@@ -1,7 +1,12 @@
 {% extends 'ontology/base.html' %}
 
-{% block meta_description %}{{ block.super }} Topics list{% endblock meta_description %}
-{% block pagetitle %}: Topics{% endblock pagetitle %}
+{% block meta_description %}
+  {{ block.super }} Topics list
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Topics
+{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -9,51 +14,70 @@
 {% endblock %}
 
 {% block content %}
+  <h1>Topics</h1>
 
-  <div class="row">
-    <div class="col-12">
-      <h3 class="highlight">Topics</h3>
-      <ul>
-	{% if perms.scipost.can_manage_ontology %}
-	  <li><a href="{% url 'ontology:topic_create' %}">Add a Topic</a></li>
-	{% endif %}
-	<li>
-	  <form action="" method="get">
-	    <ul class="list-inline">
-	      <li class="list-inline-item">Filter to Topic name containing:</li>
-	      <li class="list-inline-item">
-		{{ searchform }}
-	      </li>
-	      <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Filter"></li>
-	    </ul>
-	  </form>
-	</li>
-	<li>{{ select_linked_topic_form }}</li>
-      </ul>
+  <details open id="topic-filter-details" class="card my-4">
+    <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
+      <div class="fs-3">Search / Filter</div>
+      <div class="d-none d-md-flex align-items-center">
+
+        <div id="topic-search-indicator" class="htmx-indicator">
+          <button class="btn btn-warning text-white d-none d-md-block me-2"
+                  type="button"
+                  disabled>
+            <strong>Loading...</strong>
+
+            <div class="spinner-grow spinner-grow-sm ms-2"
+                 role="status"
+                 aria-hidden="true"></div>
+          </button>
+        </div>
+
+        <a class="btn btn-success me-2 text-white"
+           href="{% url 'ontology:topic_create' %}">
+          {% include "bi/plus-square.html" %}
+          &nbsp;Add New
+        </a>
+
+        <a id="refresh-button" class="me-2 btn btn-primary">
+          {% include "bi/arrow-clockwise.html" %}
+        &nbsp;Refresh</a>
+      </div>
+
+    </summary>
+    <div class="card-body">
+      <div id="topic-search-form-container"
+           hx-get="{% url 'ontology:_hx_topic_search_form' %}"
+           hx-trigger="load once"></div>
     </div>
-  </div>
+  </details>
 
+  <section name="search_results" class="p-2">
+    <table class="table table-hover table-center table-responsive position-relative">
+      <thead class="position-sticky top-0 table-light align-top">
+        <tr>
+          <th>Name</th>
+          <th class="text-nowrap">
+            Submissions/
+            <br />
+            Publications
+          </th>
+          <th>Specialties</th>
+          <th>Tags</th>
+        </tr>
+      </thead>
+      <tbody id="topic-search-results">
+      </tbody>
+      <tfoot>
+        <tr id="topic-search-results-load-next"></tr>
+      </tfoot>
+    </table>
 
-  <div class="row">
-    <div class="col-12">
-      <h3>Topics</h3>
-      <ul class="list-inline">
-	{% for topic in object_list %}
-	  <li class="list-inline-item p-1"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a></li>
-	{% endfor %}
-      </ul>
+  </section>
 
-
-      {% if is_paginated %}
-	<div class="col-12">
-	  {% include '_pagination.html' with page_obj=page_obj %}
-	</div>
-      {% endif %}
-
-    </div>
-  </div>
 
 {% endblock content %}
+
 
 {% block footer_script %}
   {{ block.super }}

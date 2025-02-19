@@ -10,6 +10,7 @@ from django.utils.html import format_html
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+from django.core.paginator import Paginator
 
 from dal import autocomplete
 from guardian.decorators import permission_required
@@ -25,6 +26,7 @@ from .forms import (
     TopicDynSelForm,
     SelectLinkedTopicForm,
     AddRelationAsymForm,
+    TopicSearchForm,
 )
 
 from scipost.forms import SearchTextForm
@@ -275,6 +277,32 @@ class TopicListView(PaginationMixin, ListView):
             }
         )
         return context
+
+
+def _hx_topic_table(request):
+    form = TopicSearchForm(request.POST or None)
+    if form.is_valid():
+        topics = form.search_results()
+    else:
+        topics = Topic.objects.all()
+
+    paginator = Paginator(topics, 16)
+    page_nr = request.GET.get("page")
+    page_obj = paginator.get_page(page_nr)
+    count = paginator.count
+    start_index = page_obj.start_index
+    context = {
+        "count": count,
+        "page_obj": page_obj,
+        "start_index": start_index,
+    }
+    return render(request, "ontology/_hx_topic_table.html", context)
+
+
+def _hx_topic_search_form(request):
+    form = TopicSearchForm(request.POST or None)
+
+    return render(request, "ontology/_hx_topic_search_form.html", {"form": form})
 
 
 class TopicDetailView(DetailView):
