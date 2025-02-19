@@ -40,8 +40,6 @@ class ForumForm(forms.ModelForm):
 
 
 class MeetingForm(ForumForm):
-    parent = forms.ModelChoiceField(queryset=Forum.objects.anchors())
-
     class Meta:
         model = Meeting
         fields = [
@@ -52,7 +50,6 @@ class MeetingForm(ForumForm):
             "moderators",
             "parent_content_type",
             "parent_object_id",
-            "parent",
             "date_from",
             "date_until",
             "preamble",
@@ -65,14 +62,8 @@ class MeetingForm(ForumForm):
             "date_until": forms.DateInput(attrs={"type": "date"}),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.instance:
-            self.fields["parent"].initial = self.instance.parent
-
     def save(self):
         meeting = super().save()
-        meeting.parent = self.cleaned_data["parent"]
         meeting.save()
         return meeting
 

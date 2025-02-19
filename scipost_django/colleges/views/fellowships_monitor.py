@@ -6,7 +6,6 @@ import re
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator
 from django.shortcuts import render
-from django.utils.datetime_safe import date
 
 from colleges.forms import FellowshipsMonitorSearchForm
 from colleges.models.fellowship import Fellowship
