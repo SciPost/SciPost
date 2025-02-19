@@ -3854,7 +3854,10 @@ def _hx_referee_indication_table(request, identifier_w_vn_nr, profile=None):
         raise PermissionDenied("You must be logged in to view this page.")
 
     referee_indications = (
-        RefereeIndication.objects.all().for_submission(submission).visible_by(profile)
+        RefereeIndication.objects.all()
+        .for_submission(submission)
+        .visible_by(profile)
+        .order_by("-indication", "indicated_by", "referee__last_name", "last_name")
     )
 
     #! Refactor: This is a bit of a hack to avoid having to add a new permission

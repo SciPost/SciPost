@@ -4229,32 +4229,28 @@ class RefereeIndicationForm(forms.ModelForm):
                     "The reason is too short, please provide a more detailed explanation.",
                 )
 
+        # Check if the referee has already been indicated by the user
+        same_indications = RefereeIndication.objects.filter(
+            submission=self.submission,
+            referee=referee,
+            indicated_by=self.profile,
+        )
+        # If the indication already exists and is being updated, exclude it from the check
+        if previous_indication := cleaned_data.get("id"):
+            same_indications = same_indications.exclude(id=previous_indication.id)
+        if same_indications.exists():
+            self.add_error(
+                None,
+                "You have already indicated this referee for this submission.",
+            )
+
         return cleaned_data
 
     def save(self, commit=True):
-        if not commit:
-            return RefereeIndication(
-                submission=self.submission,
-                referee=self.cleaned_data.get("referee"),
-                indicated_by=self.profile,
-                indication=self.cleaned_data.get("indication"),
-                reason=self.cleaned_data.get("reason"),
-                first_name=self.cleaned_data.get("first_name"),
-                last_name=self.cleaned_data.get("last_name"),
-                affiliation=self.cleaned_data.get("affiliation"),
-            )
+        indication = super().save(commit=False)
+        indication.submission = self.submission
+        indication.indicated_by = self.profile
 
-        indication, created = RefereeIndication.objects.update_or_create(
-            submission=self.submission,
-            referee=self.cleaned_data.get("referee"),
-            indicated_by=self.profile,
-            defaults={
-                "indication": self.cleaned_data.get("indication"),
-                "reason": self.cleaned_data.get("reason"),
-                "first_name": self.cleaned_data.get("first_name"),
-                "last_name": self.cleaned_data.get("last_name"),
-                "affiliation": self.cleaned_data.get("affiliation"),
-            },
-        )
-
+        if commit:
+            indication.save()
         return indication
