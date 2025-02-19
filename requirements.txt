@@ -10,7 +10,6 @@ pytz==2021.3			# 2022-11-18 Timezone package
 djangorestframework==3.15.2    # 2024-08-19
 requests==2.32.3		# 2024-08-19
 pyotp==2.2.7
-mock==2.0.0
 
 
 # Django packages
@@ -26,7 +25,7 @@ django-guardian==2.4.0		# 2021-07-15
 django-mathjax==0.0.8
 django-oauth-toolkit==2.3.0	# 2024-02-27
 django-webpack-loader==1.0.0    # 2021-05-22, implicitly loads vendor bundles
-django-maintenancemode-2	# 2021-07-15
+django-maintenance-mode==0.21.1                 # 2025-02-19
 djangorestframework-csv		# 2020-10-13
 
 # Django types
@@ -35,7 +34,6 @@ django-stubs-ext==4.2.2
 
 
 # Plotting
-plotly==4.6.0			# 2020-05-05
 matplotlib==3.9.2		# 2024-08-19
 pandas==2.2.2			# 2024-11-01
 geopandas==1.0.1		# 2024-11-01
@@ -46,14 +44,12 @@ Pygments==2.15.0			# 2021-05-21 Syntax highlighter
 Sphinx==2.4.2			# 2020-02-21
 sphinx-rtd-theme==0.4.3		# 2020-02-21 Sphinx theme
 sphinxcontrib-mermaid		# 2022-04-18
-Jinja2==3.1.4			# 2024-08-19 for sphinx
+
 
 # Sentry
 urllib3==1.26.19		# 2024-08-19, for sentry-sdk
 sentry-sdk==2.13		# 2024-08-19, req: certifi, urllib3
 
-# Silk monitoring
-django-silk==4.1.0		# 2021-10-16
 
 # Testing
 factory-boy==3.0.1		# 2020-09-27
@@ -74,13 +70,6 @@ lxml==4.9.3             # 2023-11-29
 Markdown==3.1.1
 Bleach==3.3.0			# 2021-05-21
 
-# Possibly dead
-imagesize==0.7.1
-pep8==1.7.0
-six==1.16.0             # 2024-02-27
-snowballstemmer==1.2.1
-# Pillow==10.4.0			# 2024-08-19
-
 
 # Scheduled tasks
 celery==5.2.7 		            # 2022-11-18
@@ -90,9 +79,8 @@ flower==1.2.0 			    # 2022-11-18
 mailchimp3==3.0.18         # 2023-05-09
 
 # Security-related packages
-django-referrer-policy==1.0	# 2020-09-19 no new updates for 3 years
 django-csp==3.7			# 2020-09-19
-django-feature-policy==3.4.0	# 2020-09-19
+django-permissions-policy==4.25.0               # 2025-02-19: Supercedes django-referrer-policy and django-feature-policy
 
 # Version Control
 python-gitlab==3.14.0		# 2023-05-15

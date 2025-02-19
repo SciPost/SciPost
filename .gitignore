@@ -48,8 +48,6 @@ static_bundles/
 **/css/dist/*
 
 celerybeat-schedule
-start_flower.sh
-
 
 *.pid
 
@@ -59,3 +57,6 @@ start_flower.sh
 
 # Editor configs
 *.code-workspace
+
+# Django plugins 
+maintenance_mode_state.txt
