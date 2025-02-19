@@ -129,7 +129,11 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    import debug_toolbar
+    try:
+        import debug_toolbar
 
-    urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+        urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    except ImportError:
+        print("Debug toolbar not installed, not adding to urlpatterns.")
+        pass

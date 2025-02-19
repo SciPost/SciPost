@@ -107,7 +107,6 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "django_countries",
-    "django_extensions",
     "django_filters",
     "guardian",
     "maintenancemode",
