@@ -1,89 +1,73 @@
 # Core
-argon2-cffi==20.1.0		# 2021-07-18 Password hashing algorithm
-Babel==2.9.1			# 2022-01-23
-Django==4.2.15			# 2024-08-19
-feedparser~=6.0.8     # Check: not updated since 2016. [JdW, 2021-09-25] Upgrade to v6; v5 fails.
-psycopg==3.1.18  		# 2024-02-27 PostgreSQL engine -- 2023-05-10 update for python 3.11
-pytz==2021.3			# 2022-11-18 Timezone package
-# djangorestframework==3.9.3	# DEPREC, see next entry -- 2019-12-05  IMPORTANT: update templates/rest_framework/base.html if corresponding file rest_framework/templates/rest_framework/base.html has changed
-# git+https://github.com/SciPost/django-rest-framework.git@bootstrap-v5
-djangorestframework==3.15.2    # 2024-08-19
-requests==2.32.3		# 2024-08-19
-pyotp==2.2.7
-
+argon2-cffi==23.1.0                             # 2025-02-19: Password hashing
+babel==2.17.0                                   # 2025-02-19
+Django>=5.2, <5.3                               # 2025-02-19
+feedparser==6.0.11                              # 2025-02-19
+psycopg==3.2.4                                  # 2025-02-19
+psycopg_binary==3.2.4                           # 2025-02-19
+pytz==2025.1                                    # 2025-02-19
+pyotp==2.9.0                                    # 2025-02-19: Two-factor authentication
+djangorestframework==3.15.2                     # 2025-02-19
 
 # Django packages
-django-autocomplete-light==3.11 # 2024-02-27
-django-cors-headers==3.5.0	# 2020-09-11, for enabling OAuth2 with django-oauth-toolkit
-django-countries==7.5.1		# 2023-02-26
-django-crispy-forms==2.1	# 2024-02-27
-crispy-bootstrap5==2024.02		# 2024-02-27, bootstrap5 plugin for crispy forms
-django-debug-toolbar==4.4.6     # 2024-09-06
-django-extensions==3.2.3	# 2024-02-27 for e.g. runserver_plus (usage: python3 manage.py runserver_plus --cert [certificate .crt file])
-django-filter==2.4.0		# 2021-06-08
-django-guardian==2.4.0		# 2021-07-15
-django-mathjax==0.0.8
-django-oauth-toolkit==2.3.0	# 2024-02-27
-django-webpack-loader==1.0.0    # 2021-05-22, implicitly loads vendor bundles
+django-autocomplete-light==3.11.0               # 2025-02-19
+django-cors-headers==4.7.0	                    # 2025-02-19: for enabling OAuth2 with django-oauth-toolkit
+django-countries==7.6.1                         # 2025-02-19
+django-crispy-forms==2.3                        # 2025-02-19
+crispy-bootstrap5==2024.10                      # 2025-02-19
+django-filter==25.1                             # 2025-02-19
+django-guardian==2.4.0                          # 2025-02-19: Object-level permissions
+
+django-mathjax==0.0.8                           # 2025-02-19
+django-oauth-toolkit==3.0.1                     # 2025-02-19
+django-webpack-loader==3.1.1                    # 2025-02-19
 django-maintenance-mode==0.21.1                 # 2025-02-19
-djangorestframework-csv		# 2020-10-13
+djangorestframework-csv==3.0.2		            # 2025-02-19
 
 # Django types
-django-types==0.19.1
-django-stubs-ext==4.2.2
-
+django-types==0.20.0                            # 2025-02-19
+django-stubs-ext==5.1.3                         # 2025-02-19
 
 # Plotting
-matplotlib==3.9.2		# 2024-08-19
-pandas==2.2.2			# 2024-11-01
-geopandas==1.0.1		# 2024-11-01
+matplotlib==3.10.0                              # 2025-02-19
+pandas==2.2.3                                   # 2025-02-19
+geopandas==1.0.1                                # 2025-02-19
 
 # Documentation Packages
-docutils==0.16			# 2020-02-21
-Pygments==2.15.0			# 2021-05-21 Syntax highlighter
-Sphinx==2.4.2			# 2020-02-21
-sphinx-rtd-theme==0.4.3		# 2020-02-21 Sphinx theme
-sphinxcontrib-mermaid		# 2022-04-18
-
+docutils==0.21.2                                # 2025-02-19
+Pygments==2.19.1                                # 2025-02-19
+Sphinx==8.2.0                                   # 2025-02-19
+sphinx-rtd-theme==3.0.2                         # 2025-02-19: Sphinx readthedocs theme
+sphinxcontrib-mermaid==1.0.0		            # 2025-02-19: Mermaid diagrams in Sphinx
 
 # Sentry
-urllib3==1.26.19		# 2024-08-19, for sentry-sdk
-sentry-sdk==2.13		# 2024-08-19, req: certifi, urllib3
-
+urllib3==2.3.0                                  # 2025-02-19: Required by sentry-sdk
+sentry-sdk==2.22.0                              # 2025-02-19
 
 # Testing
-factory-boy==3.0.1		# 2020-09-27
-Faker==20.0.3			# 2023-11-17
-coverage==6.5.0			# 2022-11-29
-
-
-# Django Utils
-
+factory-boy==3.3.3                              # 2025-02-19
+Faker==36.1.1                                   # 2025-02-19
+coverage==7.6.12                                # 2025-02-19 
 
 # Python Utils
 ithenticate-api-python @ git+https://git.scipost.org/scipost/supporting-packages/ithenticate-python-api.git
-python-dateutil==2.8.2		# 2023-02-05
-html2text
-lxml==4.9.3             # 2023-11-29 
+python-dateutil==2.9.0.post0                    # 2025-02-19
+html2text==2024.2.26                            # 2025-02-19
+lxml==5.3.1                                     # 2025-02-19: XML parsing, metadata validation
 
-
-Markdown==3.1.1
-Bleach==3.3.0			# 2021-05-21
-
+Markdown==3.7                                   # 2025-02-19
+Bleach==6.2.0                                   # 2025-02-19: HTML sanitization
 
 # Scheduled tasks
-celery==5.2.7 		            # 2022-11-18
-django-celery-results==2.4.0 	    # 2022-11-18
-django-celery-beat==2.5.0	    # 2024-02-27
-flower==1.2.0 			    # 2022-11-18
-mailchimp3==3.0.18         # 2023-05-09
+celery==5.4.0                                   # 2025-02-19
+django-celery-results==2.5.1                    # 2025-02-19
+django-celery-beat==2.1.0                       # 2025-02-19
 
 # Security-related packages
-django-csp==3.7			# 2020-09-19
+django-csp==3.8                                 # 2025-02-19
 django-permissions-policy==4.25.0               # 2025-02-19: Supercedes django-referrer-policy and django-feature-policy
 
-# Version Control
-python-gitlab==3.14.0		# 2023-05-15
-
-# Preprint server packages
-arxiv==1.4.7            # 2023-05-19
+# Integrations
+python-gitlab==5.6.0                            # 2025-02-19
+arxiv==2.1.3                                    # 2025-02-19
+mailchimp3==3.0.21                              # 2025-02-19
