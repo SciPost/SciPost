@@ -110,7 +110,6 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_filters",
     "guardian",
-    "haystack",
     "maintenancemode",
     "oauth2_provider",
     "rest_framework",
@@ -189,21 +188,6 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 25,
 }
-
-
-HAYSTACK_CONNECTIONS = {
-    "default": {
-        "ENGINE": "haystack.backends.whoosh_backend.WhooshEngine",
-        "PATH": "local_files/haystack/",
-        "EXCLUDED_INDEXES": [],
-        "INCLUDE_SPELLING": True,
-    },
-}
-
-# Brute force automatically re-index Haystack using post_save signals on all models.
-# When write-traffic increases, a custom processor is preferred which only connects
-# signals to eg. `vet-accepted` signals possibly using cron jobs instead of realtime updates.
-HAYSTACK_SIGNAL_PROCESSOR = "SciPost_v1.signalprocessors.SearchIndexingProcessor"
 
 
 SHELL_PLUS_POST_IMPORTS = (

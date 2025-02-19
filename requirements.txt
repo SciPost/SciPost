@@ -62,8 +62,6 @@ coverage==6.5.0			# 2022-11-29
 
 
 # Django Utils
-django-haystack==3.2.1		# 2024-02-27
-Whoosh==2.7.4
 
 
 # Python Utils
