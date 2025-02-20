@@ -24,6 +24,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from dal import autocomplete
 
+from common.utils.text import split_strip
 from markup.constants import BLEACH_ALLOWED_ATTRIBUTES, BLEACH_ALLOWED_TAGS
 
 from .behaviors import orcid_validator
@@ -48,7 +49,7 @@ from .models import (
 )
 from .totp import TOTPVerification
 
-from common.forms import ModelChoiceFieldwithid
+from common.forms import ModelChoiceFieldwithid, MultiEmailField
 
 from colleges.models import Fellowship, PotentialFellowshipEvent
 from commentaries.models import Commentary
@@ -1059,6 +1060,10 @@ class EmailUsersForm(forms.Form):
         label="Recipients",
         required=True,
     )
+    cc_mail_field = MultiEmailField(label="Optional: cc this email to", required=False)
+    bcc_mail_field = MultiEmailField(
+        label="Optional: bcc this email to", required=False
+    )
     email_subject = forms.CharField(widget=forms.Textarea(), label="")
     personalize = forms.BooleanField(
         required=False, initial=False, label="Personalize (Dear Prof. AAA)?"
@@ -1101,12 +1106,21 @@ class EmailUsersForm(forms.Form):
                 html_template = Template(email_text_html)
                 html_version = html_template.render(Context(email_context))
 
+                addresses_cc = []
+                addresses_bcc = []
+                if cc_field := self.cleaned_data.get("cc_mail_field"):
+                    addresses_cc = split_strip(cc_field)
+                if bcc_field := self.cleaned_data.get("bcc_mail_field"):
+                    addresses_bcc = split_strip(bcc_field)
+
                 message = mail.EmailMultiAlternatives(
                     self.cleaned_data["email_subject"],
                     email_text,
                     f"SciPost Admin <admin@{domain}>",
                     [user.email],
                     connection=connection,
+                    cc=addresses_cc,
+                    bcc=addresses_bcc,
                 )
                 message.attach_alternative(html_version, "text/html")
                 message.send()
