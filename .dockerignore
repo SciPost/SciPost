@@ -1,0 +1,27 @@
+# Package managers
+/venv*
+/.venv*
+**/node_modules/
+*webpack-stats.json
+
+/uploads*
+/media*
+/logs*
+/data*
+
+SCIPOST_JOURNALS
+UPLOADS
+
+/cronjobs_bups/
+/docs/_build
+/docs/build
+/docs/**/_build
+/docs/local_files/
+/fixtures
+/scipost/fixtures
+/htmlcov
+/local_files/
+/scipost_django/local_files/
+/static/
+static_bundles/
+**/css/dist/*

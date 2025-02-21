@@ -9,20 +9,20 @@ services:
   scipost-webapp:
     container_name: scipost-webapp
     build: .
-    # restart: always
     command: >
       sh -c "source /app/venv/bin/activate &&
       cd /app/scipost_django &&
       ./manage.py collectstatic --noinput &&
       ./manage.py migrate &&
       ./manage.py runserver 0.0.0.0:8000"
+    # command: "tail -f /dev/null"
     user: scipost
     ports:
       - "8000:8000"
     volumes:
       - scipost-webapp-data:/data
-      - ./config/scipost/container.py:/app/scipost_django/SciPost_v1/settings/container.py
-      - ./config/scipost/secrets.json:/app/scipost_django/secrets.json
+      - ./deployment/config/scipost/container.py:/app/scipost_django/SciPost_v1/settings/container.py
+      - ./deployment/config/scipost/secrets.json:/app/scipost_django/secrets.json
     depends_on:
       - scipost-postgres
     networks:
@@ -52,10 +52,10 @@ services:
       - "443:443"
     volumes:
       - scipost-webapp-data:/data
-      - ./config/nginx/conf.d/:/etc/nginx/conf.d/
-      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./config/nginx/sites:/etc/nginx/sites-available
-      - ./config/nginx/sites:/etc/nginx/sites-enabled
+      - ./deployment/config/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./deployment/config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./deployment/config/nginx/sites:/etc/nginx/sites-available
+      - ./deployment/config/nginx/sites:/etc/nginx/sites-enabled
     depends_on:
       - scipost-webapp
     networks:
