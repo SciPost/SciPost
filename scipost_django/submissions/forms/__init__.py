@@ -1309,15 +1309,7 @@ class SubmissionForm(forms.ModelForm):
     required_css_class = "required-asterisk"
 
     collection = forms.ChoiceField(
-        choices=[(None, "None")]
-        + list(
-            Collection.objects.all()
-            .filter(is_active=True)
-            .order_by("-event_start_date")
-            # Short name is `event_suffix` if set, otherwise `event_name`
-            .annotate(name_with_series=Concat("series__name", Value(" - "), "name"))
-            .values_list("id", "name_with_series")
-        ),
+        choices=[(None, "None")],
         help_text="If your submission is part of a collection (e.g. Les Houches), please select it from the list.<br>If your target collection is missing, please contact techsupport.",
         required=False,
     )
@@ -1561,6 +1553,17 @@ class SubmissionForm(forms.ModelForm):
             ),
             "preprint_file",
             "agree_to_terms",
+        )
+
+        self.fields["collection"].choices += (
+            list(
+                Collection.objects.all()
+                .filter(is_active=True)
+                .order_by("-event_start_date")
+                # Short name is `event_suffix` if set, otherwise `event_name`
+                .annotate(name_with_series=Concat("series__name", Value(" - "), "name"))
+                .values_list("id", "name_with_series")
+            ),
         )
 
         if self.preprint_server.name == "SciPost":

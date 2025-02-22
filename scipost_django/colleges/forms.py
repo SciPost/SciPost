@@ -3,11 +3,12 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from itertools import groupby
 from typing import Any, Dict
 
 from django import forms
 from django.contrib.sessions.backends.db import SessionStore
-from django.db.models import F, Q, Count, OuterRef, Subquery
+from django.db.models import F, Q, Count, Exists, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 
 from crispy_forms.helper import FormHelper
@@ -932,13 +933,10 @@ class FellowshipNominationDecisionForm(forms.ModelForm):
 
 
 class FellowshipNominationVotingRoundSearchForm(forms.Form):
-    all_rounds = FellowshipNominationVotingRound.objects.all()
-
     nominee = forms.CharField(max_length=100, required=False, label="Nominee")
 
-    college = forms.MultipleChoiceField(
-        choices=College.objects.all().order_by("name").values_list("id", "name"),
-        required=False,
+    college = forms.ModelMultipleChoiceField(
+        queryset=College.objects.all(), required=False
     )
 
     decision = forms.ChoiceField(
@@ -1320,34 +1318,12 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
 
 class FellowshipsMonitorSearchForm(forms.Form):
     form_id = "fellowships-monitor-search-form"
-    all_fellowships = Fellowship.objects.all()
-    fellowships_colleges = all_fellowships.values_list("college", flat=True).distinct()
-    fellowships_acad_fields = all_fellowships.values("college__acad_field")
 
     fellow = forms.CharField(max_length=100, required=False, label="Fellow")
 
-    college = forms.MultipleChoiceField(
-        choices=College.objects.filter(id__in=fellowships_colleges)
-        .order_by("name")
-        .values_list("id", "name"),
-        required=False,
-    )
+    college = forms.MultipleChoiceField(required=False)
 
-    # Specialty multiple-choice grouped by the academic field that contains it.
-    acad_fields = AcademicField.objects.filter(
-        colleges__in=fellowships_acad_fields
-    ).values_list("name", "id")
-    specialty_grouped_choices = [
-        (
-            field_name,
-            tuple(
-                Specialty.objects.filter(acad_field=field_id).values_list("id", "name")
-            ),
-        )
-        for (field_name, field_id) in acad_fields
-    ]
     specialties = forms.MultipleChoiceField(
-        choices=specialty_grouped_choices,
         label="Specialties",
         required=False,
     )
@@ -1412,6 +1388,43 @@ class FellowshipsMonitorSearchForm(forms.Form):
         self.user = kwargs.pop("user")
         self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
+
+        fellowships_colleges = (
+            Fellowship.objects.all().values_list("college", flat=True).distinct()
+        )
+
+        self.fields["college"].choices = (
+            College.objects.annotate(
+                has_fellows=Exists(Fellowship.objects.filter(college=OuterRef("id")))
+            )
+            .filter(has_fellows=True)
+            .order_by("name")
+            .values_list("id", "name")
+        )
+
+        # Specialty multiple-choice grouped by the academic field that contains it.
+        fellowships_acad_fields = Fellowship.objects.all().values("college__acad_field")
+
+        specialties_with_fellows = list(
+            Specialty.objects.annotate(
+                has_fellows=Exists(
+                    Fellowship.objects.filter(
+                        contributor__profile__specialties=OuterRef("id")
+                    )
+                )
+            )
+            .filter(has_fellows=True)
+            .order_by("acad_field__name", "name")
+        )
+        self.fields["specialties"].choices = [
+            (
+                acad_field_name,
+                [(specialty.pk, specialty.name) for specialty in specialties],
+            )
+            for acad_field_name, specialties in groupby(
+                specialties_with_fellows, key=lambda x: x.acad_field.name
+            )
+        ]
 
         # Set the initial values of the form fields from the session data
         # if self.session_key:
