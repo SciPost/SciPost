@@ -544,7 +544,7 @@ def provide_plot(x, y, name, nonce=None):
     ax.bar(x, y)
     ax.set_title(name)
     flike = io.BytesIO()
-    fig.savefig(flike)
+    fig.savefig(flike, format="png")
     return base64.b64encode(flike.getvalue()).decode()
 
 
