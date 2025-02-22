@@ -312,54 +312,11 @@ class ProductionStreamSearchForm(forms.Form):
     title = forms.CharField(max_length=512, required=False)
     identifier = forms.CharField(max_length=128, required=False)
 
-    all_streams = ProductionStream.objects.ongoing()
+    journal = forms.MultipleChoiceField(choices=[], required=False)
+    proceedings = forms.MultipleChoiceField(choices=[], required=False)
+    officer = forms.MultipleChoiceField(choices=[(0, "Unassigned")], required=False)
+    supervisor = forms.MultipleChoiceField(choices=[(0, "Unassigned")], required=False)
 
-    stream_journals = all_streams.values_list(
-        "submission__editorialdecision__for_journal", flat=True
-    ).distinct()
-    stream_proceedings = all_streams.values_list(
-        "submission__proceedings", flat=True
-    ).distinct()
-    stream_officers = all_streams.values_list("officer", flat=True).distinct()
-    stream_supervisors = all_streams.values_list("supervisor", flat=True).distinct()
-
-    journal = forms.MultipleChoiceField(
-        choices=Journal.objects.active()
-        .filter(id__in=stream_journals)
-        .order_by("name")
-        .values_list("id", "name"),
-        required=False,
-    )
-    proceedings = forms.MultipleChoiceField(
-        choices=Proceedings.objects.all()
-        .filter(id__in=stream_proceedings)
-        .order_by("-submissions_close")
-        # Short name is `event_suffix` if set, otherwise `event_name`
-        .annotate(
-            short_name=Coalesce(NullIf("event_suffix", Value("")), "event_name")
-        ).values_list("id", "short_name"),
-        required=False,
-    )
-    officer = forms.MultipleChoiceField(
-        choices=[(0, "Unassigned")]
-        + [
-            (prod_user.id, str(prod_user))
-            for prod_user in ProductionUser.objects.active()
-            .filter(id__in=stream_officers)
-            .order_by("-user__id")
-        ],
-        required=False,
-    )
-    supervisor = forms.MultipleChoiceField(
-        choices=[(0, "Unassigned")]
-        + [
-            (prod_user.id, str(prod_user))
-            for prod_user in ProductionUser.objects.active()
-            .filter(id__in=stream_supervisors)
-            .order_by("-user__id")
-        ],
-        required=False,
-    )
     status = forms.MultipleChoiceField(
         # Use short status names from their internal (code) name
         choices=[
@@ -395,6 +352,39 @@ class ProductionStreamSearchForm(forms.Form):
         self.user = kwargs.pop("user")
         self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
+
+        all_streams = ProductionStream.objects.ongoing()
+
+        self.fields["journal"].choices = (
+            Journal.objects.active()
+            .filter(
+                id__in=all_streams.values("submission__editorialdecision__for_journal")
+            )
+            .order_by("name")
+            .values_list("id", "name")
+        )
+        self.fields["proceedings"].choices = (
+            Proceedings.objects.all()
+            .filter(id__in=all_streams.values("submission__proceedings"))
+            .order_by("-submissions_close")
+            # Short name is `event_suffix` if set, otherwise `event_name`
+            .annotate(
+                short_name=Coalesce(NullIf("event_suffix", Value("")), "event_name")
+            )
+            .values_list("id", "short_name")
+        )
+        self.fields["officer"].choices = [(0, "Unassigned")] + list(
+            ProductionUser.objects.active()
+            .filter(id__in=all_streams.values("officer"))
+            .order_by("-user__id")
+            .values_list("id", "name")
+        )
+        self.fields["supervisor"].choices = [(0, "Unassigned")] + list(
+            ProductionUser.objects.active()
+            .filter(id__in=all_streams.values("supervisor"))
+            .order_by("-user__id")
+            .values_list("id", "name")
+        )
 
         # Set the initial values of the form fields from the session data
         # if self.session_key:

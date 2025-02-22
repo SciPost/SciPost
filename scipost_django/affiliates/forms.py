@@ -33,11 +33,7 @@ class AffiliateJournalForm(forms.ModelForm):
     """
 
     publisher = forms.ChoiceField(
-        choices=[
-            (None, "---------"),
-            ("create", "Create from journal name"),
-        ]
-        + list(AffiliatePublisher.objects.values_list("id", "name")),
+        choices=[(None, "---------"), ("create", "Create from journal name")]
     )
 
     class Meta:
@@ -63,6 +59,10 @@ class AffiliateJournalForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["publisher"].choices += list(
+            AffiliatePublisher.objects.values_list("id", "name")
+        )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
