@@ -4,17 +4,22 @@ __license__ = "AGPL v3"
 
 from django.db import models
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ontology.models import AcademicField, Topic
+
 
 class Specialty(models.Model):
     """
     A principal division of an AcademicField.
     """
 
-    acad_field = models.ForeignKey(
+    acad_field = models.ForeignKey["AcademicField"](
         "ontology.AcademicField", on_delete=models.CASCADE, related_name="specialties"
     )
 
-    topics = models.ManyToManyField(
+    topics = models.ManyToManyField["Specialty", "Topic"](
         "ontology.Topic",
         related_name="specialties",
         blank=True,
