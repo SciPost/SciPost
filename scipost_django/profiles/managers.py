@@ -18,7 +18,7 @@ from django.db.models import (
     Subquery,
     Value,
 )
-from django.db.models.functions import Cast, Concat
+from django.db.models.functions import Cast, Concat, Lower
 from django.utils import timezone
 
 from ethics.models import CompetingInterest
@@ -30,7 +30,6 @@ if TYPE_CHECKING:
 
 
 class ProfileQuerySet(QuerySet):
-
     def eponymous(self):
         """
         Returns all non-anonymous Profiles.
@@ -49,9 +48,9 @@ class ProfileQuerySet(QuerySet):
     def with_full_names(self):
         return self.annotate(
             full_name_annot=Concat(
-                Unaccent("first_name"),
+                Lower(Unaccent("first_name")),
                 Value(" "),
-                Unaccent("last_name"),
+                Lower(Unaccent("last_name")),
             )
         )
 
@@ -73,7 +72,7 @@ class ProfileQuerySet(QuerySet):
         )
 
         # Find Profiles whose email is used by another Profile
-        ids_of_duplicates_by_email = (
+        ids_of_duplicates_by_email = list(
             ProfileEmail.objects.annotate(
                 used_by_another=Exists(
                     ProfileEmail.objects.filter(
@@ -81,12 +80,21 @@ class ProfileQuerySet(QuerySet):
                         email__iexact=OuterRef("email"),
                     )
                 )
-            ).filter(used_by_another=True)
-        ).values("profile")
+            )
+            .filter(used_by_another=True)
+            .values_list("profile", flat=True)
+        )
+
+        ids_of_same_orcid = list(
+            profiles.values("orcid_id")
+            .annotate(asd=Count("orcid_id"))
+            .filter(asd__gt=1)
+            .values_list("id", flat=True)
+        )
 
         return profiles.filter(
             Q(full_name_annot__in=duplicates_by_full_name)
-            | Q(id__in=ids_of_duplicates_by_email)
+            | Q(id__in=ids_of_duplicates_by_email + ids_of_same_orcid)
         ).order_by("last_name", "first_name", "-id")
 
     def potential_duplicates_of(self, profile: "Profile"):

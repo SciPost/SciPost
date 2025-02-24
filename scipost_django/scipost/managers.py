@@ -60,8 +60,8 @@ class ContributorQuerySet(models.QuerySet):
             .exclude(profile__isnull=True)
             .annotate(
                 full_name=Concat(
-                    Unaccent("profile__last_name"),
-                    Unaccent("profile__first_name"),
+                    Lower(Unaccent("profile__last_name")),
+                    Lower(Unaccent("profile__first_name")),
                 )
             )
         )
