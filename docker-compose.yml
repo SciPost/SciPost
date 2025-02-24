@@ -1,6 +1,7 @@
 volumes:
   scipost-webapp-data:
   scipost-postgres-data:
+  scipost-grafana-data:
 
 networks:
   scipost:
@@ -15,7 +16,6 @@ services:
       ./manage.py collectstatic --noinput &&
       ./manage.py migrate &&
       ./manage.py runserver 0.0.0.0:8000"
-    # command: "tail -f /dev/null"
     user: scipost
     ports:
       - "8000:8000"
@@ -60,3 +60,49 @@ services:
       - scipost-webapp
     networks:
       - scipost
+
+  scipost-cadvisor:
+    container_name: scipost-cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
+    networks:
+      - scipost
+    ports:
+      - "8080:8080"
+    volumes: 
+      - "/:/rootfs"
+      - "/var/run:/var/run"
+      - "/sys:/sys"
+      - "/var/lib/docker/:/var/lib/docker"
+      - "/dev/disk/:/dev/disk"
+    devices: 
+      - "/dev/kmsg"
+
+  scipost-prometheus:
+    container_name: scipost-prometheus
+    image: prom/prometheus:latest
+    networks:
+      - scipost
+    ports:
+      - "9090:9090"
+    volumes: 
+      - "./deployment/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    depends_on:
+      - scipost-cadvisor
+
+  scipost-grafana:
+    container_name: scipost-grafana
+    image: grafana/grafana:latest
+    networks:
+      - scipost
+    ports:
+      - "3123:3000"
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - DS_PROMETHEUS=prometheus
+    volumes: 
+      - "scipost-grafana-data:/var/lib/grafana"
+      - "./deployment/config/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
+      - "./deployment/config/grafana/dashboard.json:/var/lib/grafana/dashboards/dashboard.json"
+      - "./deployment/config/grafana/default.yaml:/etc/grafana/provisioning/dashboards/default.yaml"
+    depends_on:
+      - scipost-prometheus
