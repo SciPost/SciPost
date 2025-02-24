@@ -1025,6 +1025,23 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
             "You do not have permission to edit this non-draft Publication"
         )
 
+    if not (
+        (affil_info := list(zip(*publication.tex_author_info)))
+        and (author_info := list(zip(*publication.tex_affiliations)))
+        and len(affil_info) == len(author_info)
+        and all(author_info[0])  # Check that author names are not empty
+        and all(author_info[1])  # Check that author superscripts are not empty
+        and all(affil_info[0])  # Check that affiliation identifiers are not empty
+        and all(affil_info[1])  # Check that affiliations are not empty
+    ):
+        messages.warning(
+            request,
+            "Possibly malformed information in the publication "
+            "if affiliations are not intentionally empty."
+            "Please check that the publication has authors and affiliations defined, "
+            'and that they are appropriately surrounded by "%%%TODO: ____" blocks.',
+        )
+
     form = AuthorsTableOrganizationSelectForm(request.POST or None)
 
     organizations = {
@@ -1068,7 +1085,6 @@ def author_affiliations(request, doi_label: str) -> HttpResponse:
             total_non_empty_affiliations = len(
                 list(filter(lambda x: x is not None, organizations.values()))
             )
-            print(total_affiliations_from_tex, total_non_empty_affiliations)
 
             if total_non_empty_affiliations != total_affiliations_from_tex:
                 messages.warning(
