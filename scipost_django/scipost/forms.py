@@ -477,15 +477,18 @@ class UpdatePersonalDataForm(forms.ModelForm):
         self.instance.profile.acad_field = self.cleaned_data["acad_field"]
         if self.cleaned_data["orcid_id"] != self.instance.profile.orcid_id:
             self.instance.profile.orcid_authenticated = False
-        self.instance.profile.orcid_id = self.cleaned_data["orcid_id"]
+        self.instance.profile.orcid_id = self.cleaned_data["orcid_id"] or None
         self.instance.profile.webpage = self.cleaned_data["webpage"]
         self.instance.profile.save()
         self.instance.profile.specialties.set(self.cleaned_data["specialties"])
         return super().save()
 
     def clean_orcid_id(self):
-        orcid_id = self.cleaned_data.get("orcid_id", "")
-        if orcid_id and Profile.objects.filter(orcid_id=orcid_id).exists():
+        if (
+            orcid_id := self.cleaned_data.get("orcid_id", "")
+        ) and Profile.objects.filter(orcid_id=orcid_id).exclude(
+            id=self.instance.profile.id
+        ).exists():
             error_message = format_html(
                 "This ORCID id is already in use by another member. Is it yours? "
                 "<a href='mailto:techsupport@scipost.org'>Contact tech support</a>."
