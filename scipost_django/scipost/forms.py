@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 import datetime
 import bleach
 from django.db.models import Q
+from django.utils.html import format_html
 import pyotp
 import re
 
@@ -277,6 +278,17 @@ class RegistrationForm(forms.Form):
             self.add_error("email", "This email address is already in use")
         return self.cleaned_data.get("email", "")
 
+    def clean_orcid_id(self):
+        orcid_id = self.cleaned_data.get("orcid_id", "")
+        if orcid_id and Profile.objects.filter(orcid_id=orcid_id).exists():
+            error_message = format_html(
+                "This ORCID id is already in use. Have you already registered?"
+                "<a href='/password_reset/'>Reset your password</a> or "
+                "<a href='mailto:techsupport@scipost.org'>contact tech support</a>."
+            )
+            self.add_error("orcid_id", error_message)
+        return orcid_id
+
     def create_and_save_contributor(self):
         user = User.objects.create_user(
             **{
@@ -470,6 +482,16 @@ class UpdatePersonalDataForm(forms.ModelForm):
         self.instance.profile.save()
         self.instance.profile.specialties.set(self.cleaned_data["specialties"])
         return super().save()
+
+    def clean_orcid_id(self):
+        orcid_id = self.cleaned_data.get("orcid_id", "")
+        if orcid_id and Profile.objects.filter(orcid_id=orcid_id).exists():
+            error_message = format_html(
+                "This ORCID id is already in use by another member. Is it yours? "
+                "<a href='mailto:techsupport@scipost.org'>Contact tech support</a>."
+            )
+            self.add_error("orcid_id", error_message)
+        return orcid_id
 
     def sync_lists(self):
         """
