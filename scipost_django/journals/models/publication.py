@@ -34,6 +34,7 @@ from scipost.fields import ChoiceArrayField
 
 
 if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
     from production.models import ProofsRepository
     from profiles.models import Profile
 
@@ -208,6 +209,9 @@ class Publication(models.Model):
 
     objects = PublicationQuerySet.as_manager()
 
+    if TYPE_CHECKING:
+        authors = RelatedManager[PublicationAuthorsTable]
+
     class Meta:
         default_related_name = "publications"
         ordering = ("-publication_date", "-paper_nr")
@@ -302,21 +306,28 @@ class Publication(models.Model):
             return self.cf_author_affiliation_indices_list
 
         indexed_author_list = []
-        for author in self.authors.all():
+        pub_affiliations = self.get_all_affiliations()
+        pub_authors = self.authors.all().prefetch_related("affiliations")
+
+        for author in pub_authors:
             affnrs = []
-            for idx, aff in enumerate(self.get_all_affiliations()):
+            for idx, aff in enumerate(pub_affiliations):
                 if aff in author.affiliations.all():
                     affnrs.append(idx + 1)
+
             # If no affiliation is found, add a None to the list
             # Prevents crashes since Django v4
             if len(affnrs) == 0:
                 affnrs = [None]
+
             indexed_author_list.append(affnrs)
+
         # Since nested ArrayFields must have the same dimension,
         # we pad the "empty" entries with Null:
         max_length = 0
         for entry in indexed_author_list:
             max_length = max(max_length, len(entry))
+
         padded_list = []
         for entry in indexed_author_list:
             padded_entry = entry + [None] * (max_length - len(entry))
