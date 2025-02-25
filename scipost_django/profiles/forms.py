@@ -129,7 +129,7 @@ class ProfileMergeForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        queryset = kwargs.pop("queryset", Profile.objects.potential_duplicates())
+        queryset = kwargs.pop("queryset", Profile.objects.all())
         super().__init__(*args, **kwargs)
         if queryset:
             self.fields["to_merge"].queryset = queryset
@@ -174,12 +174,15 @@ class ProfileMergeForm(forms.Form):
         (which would mean two Contributor objects for the same person).
         """
         data = super().clean()
-        if self.cleaned_data["to_merge"] == self.cleaned_data["to_merge_into"]:
+        to_merge: Profile | None = data.get("to_merge")
+        to_merge_into: Profile | None = data.get("to_merge_into")
+
+        if to_merge is None or to_merge_into is None:
+            raise forms.ValidationError("Both profiles must be selected.")
+
+        if to_merge == to_merge_into:
             self.add_error(None, "A Profile cannot be merged into itself.")
-        if (
-            self.cleaned_data["to_merge"].has_active_contributor
-            and self.cleaned_data["to_merge_into"].has_active_contributor
-        ):
+        if to_merge.has_active_contributor and to_merge_into.has_active_contributor:
             self.add_error(
                 None,
                 "Each of these two Profiles has an active Contributor. "
