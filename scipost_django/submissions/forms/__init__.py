@@ -1555,15 +1555,13 @@ class SubmissionForm(forms.ModelForm):
             "agree_to_terms",
         )
 
-        self.fields["collection"].choices += (
-            list(
-                Collection.objects.all()
-                .filter(is_active=True)
-                .order_by("-event_start_date")
-                # Short name is `event_suffix` if set, otherwise `event_name`
-                .annotate(name_with_series=Concat("series__name", Value(" - "), "name"))
-                .values_list("id", "name_with_series")
-            ),
+        self.fields["collection"].choices += list(
+            Collection.objects.all()
+            .filter(is_active=True)
+            .order_by("-event_start_date")
+            # Short name is `event_suffix` if set, otherwise `event_name`
+            .annotate(name_with_series=Concat("series__name", Value(" - "), "name"))
+            .values_list("id", "name_with_series")
         )
 
         if self.preprint_server.name == "SciPost":
