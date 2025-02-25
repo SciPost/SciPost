@@ -99,7 +99,11 @@ class Profile(models.Model):
 
     orcid_authenticated = models.BooleanField(default=False)
     orcid_id = models.CharField(
-        max_length=20, verbose_name="ORCID id", blank=True, validators=[orcid_validator]
+        max_length=20,
+        verbose_name="ORCID id",
+        blank=True,
+        null=True,
+        validators=[orcid_validator],
     )
 
     webpage = models.URLField(max_length=300, blank=True)
@@ -132,6 +136,18 @@ class Profile(models.Model):
 
     class Meta:
         ordering = ["last_name", "first_name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["orcid_id"],
+                name="unique_orcid_id",
+                condition=Q(orcid_id__isnull=False),
+            ),
+            models.CheckConstraint(
+                check=Q(orcid_id__isnull=True)
+                | Q(orcid_id__regex=r"^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]{1}$"),
+                name="orcid_id_format",
+            ),
+        ]
 
     def __str__(self):
         return "%s, %s %s" % (
