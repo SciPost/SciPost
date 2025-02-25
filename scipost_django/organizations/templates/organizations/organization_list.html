@@ -162,13 +162,31 @@
 	      </td>
 	      <td>{{ org.cf_nr_associated_publications }}</td>
 	      {% if org.has_current_subsidy %}
-		<td class="bg-success">Yes, current</td>
+          <td class="bg-success text-white">Current</td>
 	      {% elif org.has_children_with_current_subsidy %}
-		<td class="bg-success">Yes, as&nbsp;parent</td>
-	      {% elif org.has_any_subsidy %}
-		<td class="bg-primary text-white">Yes, past</td>
-	      {% else %}
-		<td class="bg-warning">Not yet</td>
+          <td class="bg-success text-white">
+            <div>Current</div>
+            <div><small>via child</small></div>
+          </td>
+        {% elif org.has_any_subsidy %}
+          <td class="bg-primary text-white">Past</td>
+        {% elif org.parent.has_current_subsidy %}
+          <td class="bg-success text-white">
+            <div>Current</div>
+            <div><small>via parent</small></div>
+          </td>
+	      {% elif org.parent.has_any_subsidy %}
+          <td class="bg-primary text-white">
+            <div>Past</div>
+            <div><small>via parent</small></div>
+          </td>
+	      {% elif org.cf_nr_associated_publications > 0 %}
+          <td class="bg-warning bg-opacity-75">Not yet</td>
+        {% else %}
+          <td class="bg-light">
+            <div>Not yet</div>
+            <div><small>no NAP</small></div>
+          </td>
 	      {% endif %}
 	      {% if 'finadmin' in user_roles %}
 		<td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ org.cf_balance_info.cumulative.impact_on_reserves }}</td>
