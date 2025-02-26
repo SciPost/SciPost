@@ -1,0 +1,10 @@
+{% if object.red_flags.all %}
+  <span class="text-danger" data-bs-toggle="tooltip" data-bs-html="true" title='
+    <div class="p-2">
+      {% for flag in object.red_flags.all %}
+        <div class="text-danger"> {{ flag.description }}</div>
+      {% endfor %}
+    </div>'>
+  {% include 'bi/flag.html' %}
+  </span>
+{% endif %}

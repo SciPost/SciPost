@@ -18,11 +18,17 @@
       <tbody>
         <tr>
           <td>
+            {% if "edadmin" in user_roles %}
+              {% include "ethics/_hover_red_flags.html" with  object=submission %}
+            {% endif %}
             <strong class="text-primary">{{ submission.title }}</strong>
           </td>
         </tr>
         <tr class="mt-1">
           <td>
+            {% if "edadmin" in user_roles %}
+              {% include "ethics/_hover_red_flags.html" with object=submission.submitted_by.profile %}
+            {% endif %}
             <strong><em>by {{ submission.author_list }}</em></strong>
           </td>
         </tr>
