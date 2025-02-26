@@ -6,12 +6,13 @@ from django.db.models import Q
 from django.shortcuts import HttpResponse
 from django.template.response import TemplateResponse
 
-from scipost.permissions import HTMXResponse
+from scipost.permissions import HTMXResponse, permission_required_htmx
 
 from .models import Note
 from .forms import NoteForm
 
 
+@permission_required_htmx("scipost.can_add_notes")
 def _hx_note_create_form(request, regarding_content_type, regarding_object_id):
     regarding_content_type = ContentType.objects.get_for_id(regarding_content_type)
     form = NoteForm(
@@ -45,9 +46,7 @@ def _hx_note_delete(request, pk):
         note.delete()
         return HttpResponse()
     else:
-        response = HTMXResponse(
-            "You are not the author of this note.", tag="danger"
-        )
+        response = HTMXResponse("You are not the author of this note.", tag="danger")
 
     response["HX-Trigger"] = "notes-updated"
     return response
@@ -62,7 +61,7 @@ def _hx_notes_list(request, regarding_content_type, regarding_object_id):
     )
 
     # Handle permission checks for viewing and creating notes
-    can_create_notes = request.user.has_perm("pins.can_add_notes")
+    can_create_notes = request.user.has_perm("scipost.can_add_notes")
 
     # Filter according to the visibility of the notes
     notes = notes.visible_to(request.user, object.__class__)
