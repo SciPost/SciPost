@@ -312,7 +312,7 @@ class RegistrationForm(forms.Form):
                 first_name_original=self.cleaned_data["first_name_original"],
                 last_name_original=self.cleaned_data["last_name_original"],
                 acad_field=self.cleaned_data["acad_field"],
-                orcid_id=self.cleaned_data["orcid_id"],
+                orcid_id=self.cleaned_data["orcid_id"] or None,
                 webpage=self.cleaned_data["webpage"],
             )
             profile.specialties.set(self.cleaned_data["specialties"])
