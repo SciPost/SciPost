@@ -44,12 +44,28 @@ def is_possible_author_of_submission(user, submission):
         # User explicitly assigned author.
         return True
 
+    if submission.author_profiles.filter(profile=user.contributor.profile).exists():
+        # Profile associated with the Submission during preassignment.
+        return True
+
     if submission.authors_false_claims.filter(user=user).exists():
         # User explicitly dissociated from the Submission.
         return False
 
     # Last resort: last name check
     return user.last_name in submission.author_list
+
+
+@register.filter
+def is_submission_author(user, submission):
+    if not user.is_authenticated:
+        return False
+
+    verified_author = submission.authors.filter(user=user).exists()
+    preassigned_author = submission.author_profiles.filter(
+        profile=user.contributor.profile
+    ).exists()
+    return verified_author or preassigned_author
 
 
 @register.filter
