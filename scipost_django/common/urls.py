@@ -43,6 +43,11 @@ urlpatterns = [
                                 merger_views.HXMergeView.as_view(),
                                 name="object_merger_merge",
                             ),
+                            path(
+                                "mark_non_duplicate",
+                                merger_views.HXNonDuplicateCreateView.as_view(),
+                                name="object_merger_mark_non_duplicate",
+                            ),
                         ]
                     ),
                 ),

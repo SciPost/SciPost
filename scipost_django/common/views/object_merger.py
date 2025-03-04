@@ -10,6 +10,9 @@ from django.db.models import Model, QuerySet, Field, ForeignObjectRel
 from django.http import Http404, HttpRequest, HttpResponse
 from django.views.generic import TemplateView
 
+from common.models import NonDuplicate
+from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
+
 FieldValue = Model | list[Model] | None
 FieldOrRel = Field[Any, Any] | ForeignObjectRel
 T = TypeVar("T")
@@ -68,6 +71,28 @@ class CompareView(PermissionRequiredMixin, TemplateView):
             raise Http404(f"Error: {e}")
 
         return object_a, object_b
+
+    def get_non_duplicate_declaration(self) -> NonDuplicate | None:
+        """
+        Retrieve all NonDuplicate declarations for the two objects.
+        """
+
+        if not (content_type_id := self.kwargs.get(self.content_type_kwarg)):
+            raise BadRequest("No content type ID provided.")
+        if not (object_a_id := self.kwargs.get(self.object_a_kwarg)):
+            raise BadRequest("No object A ID provided.")
+        if not (object_b_id := self.kwargs.get(self.object_b_kwarg)):
+            raise BadRequest("No object B ID provided.")
+
+        # Ensure object_a_id < object_b_id
+        if object_a_id > object_b_id:
+            object_a_id, object_b_id = object_b_id, object_a_id
+
+        return NonDuplicate.objects.filter(
+            content_type_id=content_type_id,
+            object_a_id=object_a_id,
+            object_b_id=object_b_id,
+        ).first()
 
     def get_permission_required(self) -> list[str]:
         perms = list(super().get_permission_required())
@@ -139,7 +164,6 @@ class CompareView(PermissionRequiredMixin, TemplateView):
 
     @staticmethod
     def group_fields(field_data: dict[FieldOrRel, T]) -> dict[str, dict[FieldOrRel, T]]:
-
         groups: dict[str, dict[FieldOrRel, T]] = {
             "fields": {},
             "related_objects_one": {},
@@ -170,12 +194,14 @@ class HXCompareView(CompareView):
 
         content_type = self.get_content_type()
         object_a, object_b = self.get_objects()
+        non_duplicate_declaration = self.get_non_duplicate_declaration()
 
         context |= {
             "content_type": content_type,
             "objects": [object_a, object_b],
             "object_a": object_a,
             "object_b": object_b,
+            "non_duplicate_declaration": non_duplicate_declaration,
         }
 
         if model := content_type.model_class():
@@ -249,12 +275,14 @@ class HXMergeView(CompareView):
 
         content_type = self.get_content_type()
         object_from, object_to = self.get_objects()
+        non_duplicate_declaration = self.get_non_duplicate_declaration()
 
         context |= {
             "content_type": content_type,
             "objects": [object_from, object_to],
             "object_from": object_from,
             "object_to": object_to,
+            "non_duplicate_declaration": non_duplicate_declaration,
         }
 
         if model := content_type.model_class():
@@ -277,3 +305,38 @@ class HXMergeView(CompareView):
 
         return context
 
+
+class HXNonDuplicateCreateView(CompareView):
+    """
+    View for creating a NonDuplicate object.
+    """
+
+    permission_required = "scipost.can_mark_non_duplicates"
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if request.headers.get("HX-Request") != "true":
+            raise BadRequest("This view is only accessible via HTMX.")
+
+        if not request.user.has_perm("scipost.can_mark_non_duplicates"):
+            return HTMXPermissionsDenied(
+                "You do not have permission to mark non-duplicates."
+            )
+
+        content_type = self.get_content_type()
+        object_a, object_b = self.get_objects()
+
+        # Ensure object_a_id < object_b_id
+        if object_a.id > object_b.id:
+            object_a, object_b = object_b, object_a
+
+        NonDuplicate.objects.create(
+            object_a=object_a,
+            object_b=object_b,
+            contributor=request.user.contributor,
+            description=request.headers.get("HX-Prompt"),
+        )
+
+        return HTMXResponse(
+            "Objects marked as non-duplicates.",
+            tag="success",
+        )

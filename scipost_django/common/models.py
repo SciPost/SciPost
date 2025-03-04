@@ -8,7 +8,6 @@ from scipost.models import Contributor
 
 
 class NonDuplicate(models.Model):
-
     contributor = models.ForeignKey[Contributor](
         "scipost.Contributor",
         on_delete=models.CASCADE,
@@ -29,7 +28,18 @@ class NonDuplicate(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("content_type", "object_a_id", "object_b_id")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["content_type", "object_a_id", "object_b_id"],
+                name="unique_non_duplicate",
+                violation_error_message="This non-duplicate declaration already exists",
+            ),
+            models.CheckConstraint(
+                check=models.Q(object_a_id__lt=models.F("object_b_id")),
+                name="object_a_lt_object_b",
+                violation_error_message="To avoid duplicate declarations, object_a_id must be less than object_b_id",
+            ),
+        ]
         verbose_name = "Non-duplicate"
         verbose_name_plural = "Non-duplicates"
 

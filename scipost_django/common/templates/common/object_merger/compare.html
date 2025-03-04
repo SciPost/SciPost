@@ -18,19 +18,42 @@
     <div class="col fs-4">
       <a href="{{ object_a.get_absolute_url }}">{{ object_a }}</a>
     </div>
-    <div class="col-auto d-flex flex-column justify-content-center">
-      <a class="btn btn-sm btn-primary"
-         href="{% url "common:object_merger_merge" content_type.id object_a.id object_b.id %}">
-        {% include "bi/arrow-right.html" %}
-      </a>
-      <a class="btn btn-sm btn-secondary"
-         href="{% url "common:object_merger_merge" content_type.id object_b.id object_a.id %}">
-        {% include "bi/arrow-left.html" %}
-      </a>
-    </div>
+    
+    {% if not non_duplicate_declaration %}
+      <div class="col-auto d-flex flex-column justify-content-center">
+        <div class="d-flex flex-row">
+          <a class="btn btn-sm btn-primary flex-fill"
+            href="{% url "common:object_merger_merge" content_type.id object_a.id object_b.id %}">
+            {% include "bi/arrow-right.html" %}
+          </a>
+          <a class="btn btn-sm btn-secondary flex-fill"
+            href="{% url "common:object_merger_merge" content_type.id object_b.id object_a.id %}">
+            {% include "bi/arrow-left.html" %}
+          </a>
+        </div>
+        <button class="btn btn-sm btn-warning"
+                hx-swap="afterend"
+                hx-get="{% url "common:object_merger_mark_non_duplicate" content_type.id object_b.id object_a.id %}"
+                hx-prompt="What is the reason/source for marking these as definitively not duplicates?">
+          Non Duplicate
+        </button>
+      </div>
+    {% endif %}
+
     <div class="col fs-4">
       <a href="{{ object_b.get_absolute_url }}">{{ object_b }}</a>
     </div>
+
+    {% if non_duplicate_declaration %}
+      <div class="bg-warning bg-opacity-25 p-2 mt-2">
+        <div class="d-flex justify-content-between">
+          <span class="fw-bold">Non Duplicate Declaration by {{ non_duplicate_declaration.contributor.profile.full_name }}</span>
+          <span>{{ non_duplicate_declaration.created|date:"Y-m-d" }}</span>
+        </div>
+        <p class="mb-0">{{ non_duplicate_declaration.description }}</p>
+      </div>
+    {% endif %}
+
   </div>
 
   {% for group_name, group in field_groups.items %}
@@ -67,20 +90,24 @@
 
               {% if not forloop.last %}
                 <div class="col-12 col-md-auto">
-                  <hr class="d-md-none">
+                  <hr class="d-md-none" />
                 </div>
               {% endif %}
+
             {% endfor %}
+
 
           </div>
         </details>
       {% endfor %}
 
+
     {% else %}
- 
+
       {% for field_name, objects_field_value in group.items %}
         <div class="row">
           <h3 class="fs-5 bg-light">{{ field_name|title }}</h3>
+
           {% for object_field_value in objects_field_value %}
             <div class="col-12 col-md">
 
@@ -91,9 +118,12 @@
               {% endif %}
 
             </div>
-          {% endfor %} 
+          {% endfor %}
+
+
         </div>
       {% endfor %}
+
 
     {% endif %}
 
