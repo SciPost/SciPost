@@ -34,7 +34,7 @@
   </div>
 
   {% for group_name, group in field_groups.items %}
-    <h2>{{ group_name|title }}</h2>
+    <h2 class="mt-5 mb-4 fw-bold">{{ group_name|title }}</h2>
 
     {% if group_name == "related_objects_many" %}
 
@@ -47,8 +47,8 @@
           <div class="row">
 
             {% for object_field_qs in objects_field_value %}
-              <div class="col p-2">
-                <ul>
+              <div class="col-12 col-md p-2">
+                <ul class="m-0">
 
                   {% for item in object_field_qs %}
                     <li>
@@ -64,6 +64,12 @@
 
                 </ul>
               </div>
+
+              {% if not forloop.last %}
+                <div class="col-12 col-md-auto">
+                  <hr class="d-md-none">
+                </div>
+              {% endif %}
             {% endfor %}
 
           </div>
@@ -74,9 +80,9 @@
  
       {% for field_name, objects_field_value in group.items %}
         <div class="row">
-          <h3 class="fs-5">{{ field_name|title }}</h3>
+          <h3 class="fs-5 bg-light">{{ field_name|title }}</h3>
           {% for object_field_value in objects_field_value %}
-            <div class="col">
+            <div class="col-12 col-md">
 
               {% if object_field_value and object_field_value.get_absolute_url %}
                 <a href="{{ object_field_value.get_absolute_url }}">{{ object_field_value }}</a>
