@@ -131,29 +131,46 @@ urlpatterns = [
             ]
         ),
     ),
-    # Affiliations
     path(
-        "<int:profile_id>/affiliation/",
+        "<int:profile_id>/",
         include(
-            [
+            [  # Affiliations
                 path(
-                    "add/",
-                    views.AffiliationCreateView.as_view(),
-                    name="affiliation_create",
-                ),
-                path(
-                    "<int:pk>/",
+                    "affiliations/",
                     include(
                         [
                             path(
-                                "update/",
+                                "add",
+                                views.AffiliationCreateView.as_view(),
+                                name="affiliation_create",
+                            ),
+                            path(
+                                "<int:pk>/update",
                                 views.AffiliationUpdateView.as_view(),
                                 name="affiliation_update",
                             ),
                             path(
-                                "delete/",
+                                "<int:pk>/delete",
                                 views.AffiliationDeleteView.as_view(),
                                 name="affiliation_delete",
+                            ),
+                        ]
+                    ),
+                ),
+                # Topic Interests
+                path(
+                    "topic_interests/",
+                    include(
+                        [
+                            path(
+                                "",
+                                views.topic_interests,
+                                name="topic_interests",
+                            ),
+                            path(
+                                "_hx_formset",
+                                views.HXTopicInterestFormSetView.as_view(),
+                                name="_hx_topic_interests_formset",
                             ),
                         ]
                     ),

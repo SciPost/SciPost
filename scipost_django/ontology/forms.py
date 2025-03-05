@@ -13,6 +13,8 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
 from common.forms import HTMXDynSelWidget
+from ontology.models.topic import TopicInterest
+from profiles.models import Profile
 
 from .constants import TOPIC_RELATIONS_ASYM
 from .models import Branch, AcademicField, Specialty, Tag, Topic
@@ -195,6 +197,59 @@ class TopicForm(forms.ModelForm):
         for specialty in self.cleaned_data["specialties"].all():
             specialty.topics.add(instance)
         return instance
+
+
+class TopicInterestForm(forms.ModelForm):
+    class Meta:
+        model = TopicInterest
+        fields = ["topic", "weight"]
+
+        widgets = {
+            "topic": HTMXDynSelWidget(url=reverse_lazy("ontology:topic_dynsel")),
+            "weight": forms.NumberInput(
+                attrs={"step": 0.1, "min": -1, "max": 1, "value": 0}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop("profile")
+
+        if not isinstance(self.profile, Profile):
+            raise ValueError("Profile object is required for this form.")
+
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        # self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("topic"), css_class="col"),
+                Div(Field("weight"), css_class="col-auto"),
+                Div(Field("id", type="hidden"), css_class="d-none"),
+                css_class="row mb-0",
+            )
+        )
+
+    def save(self, commit=True):
+        instance = self.cleaned_data.get("id")
+        topic = self.cleaned_data.get("topic")
+        weight = self.cleaned_data.get("weight")
+
+        if not commit:
+            return TopicInterest(
+                profile=self.profile,
+                topic=topic,
+                weight=weight,
+            )
+
+        interest, created = TopicInterest.objects.update_or_create(
+            profile=self.profile,
+            topic=topic,
+            source=TopicInterest.SOURCE_MANUAL,  # Force manual source
+            defaults={"weight": weight},
+        )
+
+        return interest
 
 
 class SelectTopicForm(forms.Form):

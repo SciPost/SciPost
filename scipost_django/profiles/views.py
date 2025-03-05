@@ -11,7 +11,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q, Count
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -20,8 +20,10 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 from mails.views import MailView
-from common.views import HXDynselAutocomplete
+from common.views import HXDynselAutocomplete, HXFormSetView
+from ontology.forms import TopicInterestForm
 from ontology.models.academic_field import AcademicField
+from ontology.models.topic import TopicInterest
 from profiles import constants
 
 from scipost.mixins import PermissionsMixin, PaginationMixin
@@ -768,3 +770,63 @@ class ProfileSendEmailView(PermissionsMixin, MailView):
 
     def get_success_url(self):
         return self.object.get_absolute_url()
+
+
+# Topic Interests
+class HXTopicInterestFormSetView(PermissionsMixin, HXFormSetView):
+    form_class = TopicInterestForm
+
+    def has_permission(self) -> bool:
+        editing_own_profile = (
+            self.request.user.contributor.profile.id == self.kwargs.get("profile_id")
+        )
+        return (
+            self.request.user.has_perm("scipost.can_add_profile_topic_interests")
+            or editing_own_profile
+        )
+
+    def formset_valid(self):
+        response = HTMXResponse("Topic Interests saved successfully", tag="success")
+        response.headers["HX-Trigger"] = "topic-interests-updated"
+        return response
+
+    def get_factory_kwargs(self):
+        profile_id = self.kwargs.get("profile_id")
+        self.profile = Profile.objects.get(id=profile_id)
+
+        kwargs = super().get_factory_kwargs()
+        kwargs.update({"can_delete": True})
+
+        return kwargs
+
+    def get_formset_kwargs(self):
+        kwargs = super().get_formset_kwargs()
+        kwargs.update({"queryset": TopicInterest.objects.filter(profile=self.profile)})
+        return kwargs
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({"profile": self.profile})
+        return kwargs
+
+
+def topic_interests(request: HttpRequest, profile_id: int):
+    """
+    View to display the referee indications table for a submission,
+    the creation formset, and the instruction set for either.
+    """
+
+    profile = get_object_or_404(Profile, pk=profile_id)
+
+    is_own_profile = request.user.contributor.profile == profile
+    if not (is_own_profile or request.user.has_perm("scipost.can_view_profiles")):
+        raise PermissionError(
+            "You do not have permission to the topic interests of this profile."
+        )
+
+    context = {
+        "profile": profile,
+        "topic_interests": TopicInterest.objects.filter(profile=profile),
+    }
+
+    return render(request, "profiles/topic_interests.html", context)
