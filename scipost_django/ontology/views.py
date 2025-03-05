@@ -192,6 +192,13 @@ def _hx_topic_dynsel_list(request):
     return render(request, "ontology/_hx_topic_dynsel_list.html", context)
 
 
+class HXDynselTopicAutocomplete(HXDynselAutocomplete):
+    model = Topic
+
+    def search(self, queryset, q):
+        return queryset.filter(name__icontains=q)
+
+
 class TopicLinkedAutocompleteView(TopicAutocompleteView):
     """To feed the Select2 widget."""
 
