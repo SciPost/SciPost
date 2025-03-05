@@ -171,9 +171,9 @@ class HXDynselAutocomplete(View):
     template_name = "htmx/dynsel_list_page.html"
     paginate_by = 16
 
-    def post(self, request):
+    def get(self, request):
         self.page_nr = request.GET.get("page")
-        self.q = request.POST.get("q", "")
+        self.q = request.GET.get("q", "")
 
         context = self.get_context_data()
 

@@ -14,7 +14,7 @@
 
 {% if page_obj.has_next %}
   <li class="htmx-indicator w-100 d-flex justify-content-center bg-primary bg-opacity-25"
-      hx-post="{{ request.path }}?page={{ page_obj.next_page_number }}"
+      hx-get="{{ request.path }}?page={{ page_obj.next_page_number }}"
       hx-include="previous input"
       hx-trigger="intersect once"
       hx-swap="outerHTML"

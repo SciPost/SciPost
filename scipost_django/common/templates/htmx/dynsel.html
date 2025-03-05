@@ -9,17 +9,17 @@
     </div>
 
     {% include "django/forms/widgets/select.html" %}
- 
+
     <input name="q"
            value="{{ initial }}"
            type="text"
-           hx-post="{{ url }}"
+           hx-get="{{ url }}"
            hx-trigger="keyup changed delay:500ms"
            hx-swap="innerHTML"
            hx-target="next .result-list" />
   </div>
- 
+
   <ul class="result-list">
   </ul>
- 
+
 </div>
