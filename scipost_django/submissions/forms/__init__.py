@@ -2913,7 +2913,8 @@ class ConsiderRefereeInvitationForm(forms.Form):
         help_text=("The date by which you intend to deliver your report."),
     )
     refusal_reason = forms.ChoiceField(
-        choices=[(None, "")] + list(EditorialAssignment.REFUSAL_REASONS), required=False
+        choices=[(None, "-" * 9)] + list(EditorialAssignment.REFUSAL_REASONS),
+        required=False,
     )
     other_refusal_reason = forms.CharField(
         required=False,
@@ -2968,8 +2969,16 @@ class ConsiderRefereeInvitationForm(forms.Form):
                     "Please select an intended delivery date for your report.",
                 )
 
-    def save(self):
-        super().save()
+    def save(self, commit=True):
+        accepted = self.cleaned_data.get("accept", None)
+        intended_delivery_date = self.cleaned_data.get("intended_delivery_date", None)
+        refusal_reason = self.cleaned_data.get("refusal_reason", None)
+        other_refusal_reason = self.cleaned_data.get("other_refusal_reason", None)
+
+        self.invitation.accepted = accepted
+        self.invitation.intended_delivery_date = intended_delivery_date
+        self.invitation.refusal_reason = refusal_reason
+        self.invitation.other_refusal_reason = other_refusal_reason
 
         self.invitation.submission.add_event_for_eic(
             f"Referee {self.invitation.referee.full_name} set intended report delivery date to {self.invitation.intended_delivery_date}."
@@ -2977,6 +2986,11 @@ class ConsiderRefereeInvitationForm(forms.Form):
         self.invitation.submission.add_event_for_author(
             f"A referee has set their intended report delivery date to {self.invitation.intended_delivery_date}."
         )
+
+        if commit:
+            self.invitation.save()
+
+        return self.invitation
 
 
 class ReportIntendedDeliveryForm(forms.ModelForm):
@@ -2988,6 +3002,9 @@ class ReportIntendedDeliveryForm(forms.ModelForm):
     class Meta:
         model = RefereeInvitation()
         fields = ["intended_delivery_date"]
+        widgets = {
+            "intended_delivery_date": forms.DateInput(attrs={"type": "date"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

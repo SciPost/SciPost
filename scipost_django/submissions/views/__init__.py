@@ -1893,6 +1893,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
 
     form = ConsiderRefereeInvitationForm(request.POST or None, invitation=invitation)
     if form.is_valid():
+        invitation = form.save(commit=False)
         invitation.date_responded = timezone.now()
         if form.cleaned_data["accept"] == "True":
             invitation.accepted = True
@@ -2070,9 +2071,14 @@ def _hx_report_intended_delivery_form(request, invitation_id):
             "You do not have permission to edit the intended delivery date."
         )
 
-    if invitation.submission.reporting_deadline_has_passed:
+    if invitation.fulfilled:
         return HTMXResponse(
-            "The refereeing deadline has passed. You cannot change the intended delivery date anymore.",
+            "The report has already been delivered. You may not change the intended delivery date.",
+            tag="danger",
+        )
+    if invitation.cancelled:
+        return HTMXResponse(
+            "The invitation has been cancelled. You may not change the intended delivery date.",
             tag="danger",
         )
 
