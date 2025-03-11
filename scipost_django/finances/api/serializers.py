@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from api.serializers import DynamicFieldsModelSerializer
 
-from finances.models import Subsidy
+from finances.models import Subsidy, SubsidyPayment
 from organizations.api.serializers import OrganizationPublicSerializer
 
 
@@ -31,4 +31,19 @@ class SubsidyFinAdminSerializer(DynamicFieldsModelSerializer):
             "date_until",
             "renewable",
             "renewal_of",
+        ]
+
+
+class SubsidyPaymentSerializer(DynamicFieldsModelSerializer):
+    subsidy = SubsidyFinAdminSerializer()
+
+    class Meta:
+        model = SubsidyPayment
+        fields = [
+            "subsidy",
+            "amount",
+            "date_scheduled",
+            "status",
+            "invoice_date",
+            "payment_date",
         ]

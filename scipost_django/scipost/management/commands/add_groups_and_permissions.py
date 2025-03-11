@@ -560,6 +560,16 @@ class Command(BaseCommand):
             content_type=content_type,
         )
 
+        # API private access
+        # These are likely to be granted on a per-user basis
+        can_use_private_api_subsidy_payments, created = (
+            Permission.objects.get_or_create(
+                codename="can_use_private_api_subsidy_payments",
+                name="Can use the private API for subsidy payments",
+                content_type=content_type,
+            )
+        )
+
         # Assign permissions to groups
         SciPostAdmin.permissions.set(
             [

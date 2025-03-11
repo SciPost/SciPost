@@ -31,7 +31,11 @@ from organizations.api.viewsets import (
 )
 
 # finances
-from finances.api.viewsets import SubsidyFinAdminAPIViewSet, SubsidyPublicAPIViewSet
+from finances.api.viewsets import (
+    SubsidyFinAdminAPIViewSet,
+    SubsidyPublicAPIViewSet,
+    SubsidyPaymentPrivateAPIViewSet,
+)
 
 
 # Next two: old style, to be deprecated:
@@ -83,6 +87,7 @@ router.register("nap", OrganizationNAPViewSet, basename="organization_nap")
 router.register(
     "finadmin/subsidies", SubsidyFinAdminAPIViewSet, basename="subsidies_finadmin"
 )
+router.register("subsidies/payments", SubsidyPaymentPrivateAPIViewSet)
 router.register("subsidies", SubsidyPublicAPIViewSet)
 
 # Next two: old style, to be deprecated:
