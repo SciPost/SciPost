@@ -1,0 +1,22 @@
+{% extends "scipost/base.html" %}
+
+{% block content %}
+  <h1>SciPost API</h1>
+  <p>SciPost provides a public JSON API via the Django REST framework.</p>
+
+  <h2>Endpoints</h2>
+  <p>Here you can find a list of all the available public API endpoints (DRF ViewSets).</p>
+
+  {% for url in resolver.url_patterns %}{{ url.callback }}{% endfor %}
+
+  <ul>
+
+    {% for endpoint in endpoints %}
+      <li>
+        <a href="{{ endpoint.url }}">{{ endpoint.name }}</a>
+      </li>
+    {% endfor %}
+
+  </ul>
+
+{% endblock %}

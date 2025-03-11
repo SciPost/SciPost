@@ -68,6 +68,7 @@
 	<div class="container">
           {% block breadcrumbs %}
             <ul class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'api:api' %}">API</a></li>
               {% for breadcrumb_name, breadcrumb_url in breadcrumblist %}
 		{% if forloop.last %}
                   <li class="breadcrumb-item active"><a href="{{ breadcrumb_url }}">{{ breadcrumb_name }}</a></li>
