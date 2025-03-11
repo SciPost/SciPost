@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.urls import include, path
+from . import views
 
 from rest_framework import routers
 
@@ -89,10 +90,9 @@ router.register(r"news", NewsItemViewSet)
 router.register(r"conflicts", ConflictOfInterestViewSet)
 
 
-urlpatterns = router.urls
-
-
-urlpatterns += [
+urlpatterns = [
+    path("", views.APIView.as_view(), name="api"),
+    *router.urls,
     path(  # /api/omniauth/userinfo/, for SciPost as GitLab/OmniAuth authorization server
         "omniauth/userinfo/", OmniAuthUserInfoView.as_view(), name="omniauth_userinfo"
     ),
