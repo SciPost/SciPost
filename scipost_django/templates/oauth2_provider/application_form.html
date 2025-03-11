@@ -1,0 +1,38 @@
+{% extends "oauth2_provider/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% load i18n %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'oauth2_provider:list' %}">Applications</a></span>
+
+  {% if object %}
+    <span class="breadcrumb-item">{{ object }}</span>
+  {% else %}
+    <span class="breadcrumb-item">Register</span>
+  {% endif %}
+
+{% endblock %}
+
+
+{% block content %}
+  <form id="application-form" method="post" action=" 
+    {% block app-form-action-url %}{% url 'oauth2_provider:update' application.pk %}{% endblock app-form-action-url %}
+     ">
+    {% csrf_token %}
+    {% crispy form %}
+
+
+    <div class="d-flex gap-2">
+      <a class="btn" href=" 
+        {% block app-form-back-url %}{% url "oauth2_provider:detail" application.pk %}{% endblock app-form-back-url %}
+       ">{% trans "Go Back" %}</a>
+      <button type="submit"
+              form="application-form"
+              class="btn btn-primary">{% trans "Save" %}</button>
+    </div>
+
+  </form>
+{% endblock %}
