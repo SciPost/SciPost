@@ -10,6 +10,7 @@ from django.db import models
 from django.db.models import Avg, F
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from scipost.fields import ChoiceArrayField
 from series.models import Collection, Series
@@ -90,7 +91,7 @@ class Journal(models.Model):
         blank=True,
         null=True,
         help_text=(
-            "CSS styling for the journal; the Journal's DOI " "should be used as class"
+            "CSS styling for the journal; the Journal's DOI should be used as class"
         ),
     )
 
@@ -167,6 +168,17 @@ class Journal(models.Model):
     def get_absolute_url(self):
         """Return Journal's homepage url."""
         return reverse("scipost:journal_detail", args=(self.doi_label,))
+
+    @cached_property
+    def name_prose(self):
+        """
+        Return Journal's name in prose, to be used in sentences.
+        Namely, "SciPost [...]" is returned as "SciPost [...]",
+        but "Journal of [...]" is returned as "the Journal of [...]".
+        """
+        if self.name.lower().startswith("journal"):
+            return "the " + self.name
+        return self.name
 
     @property
     def doi_string(self):

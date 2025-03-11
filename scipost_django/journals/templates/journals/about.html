@@ -130,7 +130,7 @@
       {% endif %}
 
       <h2 class="highlight" id="criteria">
-	Acceptance criteria
+	Acceptance Criteria
       </h2>
       {% include "journals/_acceptance_criteria.html" %}
 
@@ -138,8 +138,8 @@
 	Submission and Editorial Process
       </h2>
       {% automarkup journal.submission_insert %}
-      <p>Authors should follow the <a href="{% url 'journal:authoring' doi_label=journal.doi_label %}">authoring guidelines</a> to ensure seamless processing of their manuscript. The <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a> apply to all Submissions to {{ journal }}.</p>
-      <p>All incoming Submissions are thoroughly checked for plagiarism, and follow the peer-witnessed refereeing procedures outlined in <a href="{% url 'submissions:editorial_procedure' %}">Editorial procedure</a>.</p>
+      <p>Authors should follow the <a href="{% url 'journal:authoring' doi_label=journal.doi_label %}">authoring guidelines</a> to ensure seamless processing of their manuscript. The <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a> apply to all submissions to {{ journal.name_prose }}.</p>
+      <p>All incoming submissions are thoroughly checked for plagiarism, and follow the peer-witnessed refereeing procedures outlined in <a href="{% url 'submissions:editorial_procedure' %}">Editorial procedure</a>.</p>
       {% if journal.minimal_nr_of_reports > 0 %}
 	<p><strong>Minimal number of reports</strong>: at least {{ journal.minimal_nr_of_reports }} substantial report{{ journal.minimal_nr_of_reports|pluralize }} must have been received; all points raised must have been addressed either in resubmissions or in author replies before a recommendation for publication can be formulated.</p>
       {% endif %}
@@ -150,7 +150,7 @@
       <h2 class="highlight" id="genuineOA">
 	Genuine Open Access
       </h2>
-      <p>Publications in {{ journal.name }} are <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a>. Take the time to understand what this means, and how we compare to other publishers. We do not profiteer from you or your contributions in any way. We are truly run by and for the academic community, entirely not-for-profit and without any competing interests.</p>
+      <p>Publications in {{ journal.name_prose }} are <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a>. We do not profiteer from you or your contributions in any way. We are truly run by and for the academic community, entirely not-for-profit and without any competing interests.</p>
       <p>As authors, you retain your copyright: all articles are published in your name under the terms of the <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>, allowing freedom to use, reproduce and distribute the articles and related content (unless otherwise noted), for commercial and noncommercial purposes, subject to the citation of the original source.</p>
       <p>There are no subscription fees, nor are there Article Processing Charges (APCs). By publishing with us, you are contributing to implementing a <a href="{% url 'finances:business_model' %}">healthier business model</a> for academic publishing.</p>
 

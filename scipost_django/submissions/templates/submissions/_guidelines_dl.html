@@ -10,9 +10,9 @@
 	<dt class="col-sm-6 col-md-5">
 	  {% if 'author_guidelines' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
 	  {% if journal %}
-	    <a href="{% url 'journal:authoring' doi_label=journal.doi_label %}">Author guidelines</a>
+	    <a href="{% url 'journal:authoring' doi_label=journal.doi_label %}">Author Guidelines</a>
 	  {% else %}
-	    <a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a>
+	    <a href="{% url 'submissions:author_guidelines' %}">Author Guidelines</a>
 	  {% endif %}
 	</dt>
 	<dd class="col-sm-6 col-md-7"><em>A simple guide on how to proceed as an author</em>
@@ -20,15 +20,15 @@
 	<dt class="col-sm-6 col-md-5">
 	  {% if 'referee_guidelines' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
 	  {% if journal %}
-	    <a href="{% url 'journal:refereeing' doi_label=journal.doi_label %}">Referee guidelines</a>
+	    <a href="{% url 'journal:refereeing' doi_label=journal.doi_label %}">Referee Guidelines</a>
 	  {% else %}
-	    <a href="{% url 'submissions:referee_guidelines' %}">Refereeing guidelines</a>
+	    <a href="{% url 'submissions:referee_guidelines' %}">Refereeing Guidelines</a>
 	  {% endif %}
 	</dt>
 	<dd class="col-sm-6 col-md-7"><em>A simple guide on how (if you are a referee) to act professionally, and (if you are an author) react constructively</em></dd>
 	<dt class="col-sm-6 col-md-5">
 	  {% if 'editorial_procedure' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
-	  <a href="{% url 'submissions:editorial_procedure' %}">Editorial procedure</a>
+	  <a href="{% url 'submissions:editorial_procedure' %}">Editorial Procedure</a>
 	</dt>
 	<dd class="col-sm-6 col-md-7"><em>More details about submission procedure and refereeing protocols</em>
 	</dd>
