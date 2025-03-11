@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from datetime import date
 import re
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.paginator import Paginator

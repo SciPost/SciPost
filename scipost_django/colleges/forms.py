@@ -1473,7 +1473,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 *[
                     HTML(
                         f'<button class="btn btn-outline-secondary" '
-                        f"""hx-get={reverse("colleges:fellowships_monitor:_hx_search_form", kwargs={"filter_set":f"from_{from_date}_to_{to_date}"})} """
+                        f"""hx-get={reverse("colleges:fellowships_monitor:_hx_search_form", kwargs={"filter_set": f"from_{from_date}_to_{to_date}"})} """
                         f'hx-target="#fellowships-monitor-search-form-container"'
                         f">{date_range_name}</button>"
                     )
@@ -1546,7 +1546,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
     def search_results(self):
         # self.save_fields_to_session()
 
-        fellowships = Fellowship.objects.all().distinct()
+        fellowships = Fellowship.objects.all()
 
         if fellow := self.cleaned_data.get("fellow"):
             fellowships = fellowships.filter(
@@ -1681,6 +1681,8 @@ class FellowshipsMonitorSearchForm(forms.Form):
             + F("nr_recommendations_voted_against")
             + F("nr_recommendations_voted_abstain")
         )
+
+        fellowships = fellowships.select_related("contributor", "contributor__profile")
 
         if not self.cleaned_data.get("has_regular"):
             fellowships = fellowships.exclude(status=Fellowship.STATUS_REGULAR)
