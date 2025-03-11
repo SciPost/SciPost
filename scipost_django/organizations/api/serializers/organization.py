@@ -9,12 +9,14 @@ from rest_framework import serializers
 from api.serializers import DynamicFieldsModelSerializer
 
 from organizations.models import Organization
+from django_countries.serializers import CountryFieldMixin
 
 
-class OrganizationPublicSerializer(DynamicFieldsModelSerializer):
+class OrganizationPublicSerializer(CountryFieldMixin, DynamicFieldsModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="organizations:organization_detail", lookup_field="pk"
     )
+    ror_id = serializers.CharField(source="ror_json.id", read_only=True)
 
     class Meta:
         model = Organization
@@ -28,6 +30,7 @@ class OrganizationPublicSerializer(DynamicFieldsModelSerializer):
             "country",
             "parent",
             "superseded_by",
+            "ror_id",
         ]
 
 
