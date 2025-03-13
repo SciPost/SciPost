@@ -203,12 +203,15 @@ class ProfileMergeForm(forms.Form):
         # Merge information from old to new Profile.
         if profile.orcid_id is None:
             profile.orcid_id = profile_old.orcid_id
+            profile_old.orcid_id = None
         if profile.webpage == "":
             profile.webpage = profile_old.webpage
         if profile.acad_field is None:
             profile.acad_field = profile_old.acad_field
         if profile_old.has_active_contributor and not profile.has_active_contributor:
             profile.contributor = profile_old.contributor
+
+        profile_old.save()  # Purge old Profile data.
         profile.save()  # Save all the field updates.
 
         profile.specialties.add(*profile_old.specialties.all())
