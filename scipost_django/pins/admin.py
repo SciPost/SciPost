@@ -12,21 +12,22 @@ from pins.models import Note
 class NoteAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "regarding_object_links",
+        "web_link",
+        "admin_link",
         "title",
         "author",
         "created",
         "modified",
     )
-    list_filter = ("created", "modified", "visibility", "regarding_content_type")
+    list_filter = ("created", "modified", "visibility")
     search_fields = ("title", "author__username")
     date_hierarchy = "created"
     ordering = ("-created",)
-    readonly_fields = ("created", "modified", "regarding")
+    readonly_fields = ("created", "modified", "web_link", "admin_link")
     fields = (
+        "web_link",
         "title",
         "description",
-        "regarding",
         "visibility",
         "author",
         "created",
@@ -34,14 +35,16 @@ class NoteAdmin(admin.ModelAdmin):
     )
     autocomplete_fields = ("author",)
 
-    def regarding_object_links(self, obj):
+    def admin_link(self, obj):
+        content_type = obj.regarding_content_type
+        admin_url = f"admin:{content_type.app_label}_{content_type.model}_change"
+        return format_html(
+            '<a href="{}">[admin]</a>',
+            reverse(admin_url, args=[obj.regarding_object_id]),
+        )
+
+    def web_link(self, obj):
         content_type = obj.regarding_content_type
         model = content_type.model_class()
         regarding = model.objects.get(pk=obj.regarding_object_id)
-        admin_url = f"admin:{content_type.app_label}_{content_type.model}_change"
-        return format_html(
-            "<div style='display: flex; justify-content:space-between;>"
-            f'<a href="{regarding.get_absolute_url()}">{regarding}</a>'
-            f'<a href="{reverse(admin_url, args=[obj.regarding_object_id])}">[admin]</a>'
-            "</div>"
-        )
+        return format_html(f'<a href="{regarding.get_absolute_url()}">{regarding}</a>')
