@@ -5,6 +5,7 @@ import abc
 import datetime
 import json
 
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join, html_safe
@@ -213,20 +214,17 @@ class NoEICRecommendationAction(BaseAction):
 class NeedRefereesAction(BaseAction):
     def __init__(self, object=None, **kwargs):
         self.minimum_number_of_referees = kwargs.pop("minimum_number_of_referees")
-        self.current_number_of_referees = kwargs.pop("current_number_of_referees")
+        self.number_of_invitations = kwargs.pop("number_of_invitations")
         super().__init__(object, **kwargs)
 
     @property
     def txt(self):
-        if self.current_number_of_referees == 0:
-            text = "No Referees have yet been invited."
-        elif self.current_number_of_referees == 1:
-            text = "Only 1 Referee has yet been invited."
+        if self.number_of_invitations == 0:
+            text = "No Referees have been invited."
+        elif self.number_of_invitations == 1:
+            text = "Only 1 Referee has been invited."
         else:
-            text = (
-                "Only %i Referees have yet been invited."
-                % self.current_number_of_referees
-            )
+            text = f"Only {self.number_of_invitations} Referees have been invited."
         text += ' At least {minimum} should be. <a href="{url}">Invite a referee here</a>.'.format(
             minimum=self.minimum_number_of_referees,
             url=reverse(
@@ -311,31 +309,26 @@ class BaseCycle(abc.ABC):
 
         if self.can_invite_referees and self._submission.in_stage_in_refereeing:
             # Referees required in this cycle.
-            referee_invitations_count = (
-                self._submission.referee_invitations.non_cancelled().count()
+            non_cancelled_or_refused_invitations = (
+                self._submission.referee_invitations.exclude(
+                    Q(cancelled=True) | Q(accepted=False)
+                )
             )
-
-            # The current number of referees does not meet the minimum number of referees yet
-            # Except if the submission is a resubmission with vetted reports
-            # or if the number of reports is sufficient
-            not_enough_invitations = (
-                referee_invitations_count < self.minimum_number_of_referees
-            )
-            is_resubmission_with_vetted_reports = (
-                self._submission.nr_unique_thread_vetted_reports > 0
-                and self._submission.is_resubmission
+            active_invitations = non_cancelled_or_refused_invitations.count()
+            has_enough_invitations = (
+                active_invitations >= self.minimum_number_of_referees
             )
             reports_suffice = (
                 self._submission.submitted_to.minimal_nr_of_reports > 0
                 and self._submission.nr_unique_thread_vetted_reports
                 >= self._submission.submitted_to.minimal_nr_of_reports
             )
-            if not_enough_invitations and not (
-                is_resubmission_with_vetted_reports or reports_suffice
-            ):
+            # Only show the action if reports don't suffice
+            # and there are not enough active invitations (pending or accepted)
+            if not (reports_suffice or has_enough_invitations):
                 self.add_action(
                     NeedRefereesAction(
-                        current_number_of_referees=referee_invitations_count,
+                        number_of_invitations=active_invitations,
                         minimum_number_of_referees=self.minimum_number_of_referees,
                     )
                 )
