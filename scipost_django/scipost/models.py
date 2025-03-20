@@ -6,9 +6,10 @@ import datetime
 import hashlib
 import random
 import string
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, override
 import uuid
 
+from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -63,6 +64,41 @@ def get_sentinel_user():
     return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
 
 
+class AnonymousAbstractUser(AnonymousUser):
+    """
+    A runtime instance of an anonymous user
+    that contains the same properties as an AbstractUser.
+    """
+
+    @property
+    def first_name(self):
+        return "Anonymous"
+
+    @property
+    def last_name(self):
+        return "Anonymous"
+
+    @property
+    def email(self):
+        return "anonympus@scipost.org"
+
+    @property
+    @override
+    def username(self):  # type: ignore
+        return "anonymous"
+
+
+if TYPE_CHECKING:
+
+    class TypedUser(User):
+        """
+        Type hints for User model of Django.
+        To be used entirely for type hinting.
+        """
+
+        contributor: "Contributor"
+
+
 class TOTPDevice(models.Model):
     """
     Any device used by a User for 2-step authentication based on the RFC 6238 TOTP protocol.
@@ -94,11 +130,14 @@ class Contributor(AnonymizableObjectMixin, models.Model):
     Other information is carried by the related Profile.
     """
 
+    dbuser = models.OneToOneField["TypedUser"](
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        verbose_name="user",
+        null=True,
+    )
     profile = models.OneToOneField["Profile"](
         "profiles.Profile", on_delete=models.SET_NULL, null=True, blank=True
-    )
-    user = models.OneToOneField["User"](
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True
     )
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
@@ -130,7 +169,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         editorial_assignments: "RelatedManager[EditorialAssignment]"
 
     class Meta:
-        ordering = ["user__last_name", "user__first_name"]
+        ordering = ["dbuser__last_name", "dbuser__first_name"]
 
     @property
     def roles(self):
@@ -140,6 +179,20 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         if self.user.is_staff:
             r.append("st")
         return r if len(r) > 0 else None
+
+    @property
+    def user(self):
+        """
+        Return the database-saved User object of the Contributor if
+        it is not anonymous, or a runtime instance of AnonymousAbstractUser.
+        """
+        if self.is_anonymous or not self.dbuser:
+            return AnonymousAbstractUser()
+        return self.dbuser
+
+    @user.setter
+    def user(self, user: "User"):
+        self.dbuser = user
 
     def __str__(self):
         val = "%s, %s" % (self.user.last_name, self.user.first_name)
@@ -275,7 +328,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         return cls.objects.create(
             is_anonymous=True,
             status=DISABLED,
-            user=anonymous_user,
+            dbuser=None,
             profile=anonymous_profile,
         )
 
