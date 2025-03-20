@@ -173,6 +173,33 @@ class RefereeIndicationInline(admin.TabularInline):
         return super().formfield_for_dbfield(db_field, request, **kwargs)
 
 
+class ReportAuthorStatusTabularInline(admin.TabularInline):
+    model = Report
+    extra = 0
+    min_num = 0
+    autocomplete_fields = ["author"]
+    fields = [
+        "author",
+        "status",
+        "invited",
+        "anonymous",
+    ]
+
+
+class RefereeInvitationTabularInline(admin.TabularInline):
+    model = RefereeInvitation
+    extra = 0
+    min_num = 0
+    autocomplete_fields = ["referee"]
+    fields = [
+        "referee",
+        "email_address",
+        "accepted",
+        "cancelled",
+        "fulfilled",
+    ]
+
+
 @admin.register(Submission)
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = "submission_date"
@@ -213,18 +240,20 @@ class SubmissionAdmin(GuardedModelAdmin):
         "topics",
     ]
     inlines = [
+        RefereeIndicationInline,
         InternalPlagiarismAssessmentInline,
         iThenticatePlagiarismAssessmentInline,
         SubmissionAuthorProfileInline,
+        SubmissionClearanceInline,
         QualificationInline,
         ReadinessInline,
-        SubmissionClearanceInline,
-        SubmissionTieringInline,
-        SubmissionEventInline,
-        RefereeIndicationInline,
         ConditionalAssignmentOfferInline,
+        RefereeInvitationTabularInline,
+        ReportAuthorStatusTabularInline,
+        SubmissionTieringInline,
         CollectionInline,
         RedFlagInline,
+        SubmissionEventInline,
     ]
 
     # Admin fields should be added in the fieldsets
@@ -387,7 +416,11 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    search_fields = ["author__user__last_name", "submission__title"]
+    search_fields = [
+        "author__user__last_name",
+        "submission__title",
+        "submission__preprint__identifier_w_vn_nr",
+    ]
     list_display = (
         "author",
         "status",
