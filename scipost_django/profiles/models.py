@@ -15,6 +15,7 @@ from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from anonymization.mixins import AnonymizableObjectMixin
 from mails.utils import DirectMailUtil
 from scipost.behaviors import orcid_validator
 from scipost.constants import TITLE_CHOICES, TITLE_DR
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     from submissions.models.referee_invitation import RefereeInvitation
 
 
-class Profile(models.Model):
+class Profile(AnonymizableObjectMixin, models.Model):
     """
     A Profile object instance contains information about an individual.
 
@@ -218,6 +219,7 @@ class Profile(models.Model):
     def create_anonymous(cls, uuid_str: str | None = None):
         """Create an anonymous profile."""
         return cls.objects.create(
+            is_anonymous=True,
             title="MX",
             first_name="Anonymous",
             last_name=uuid_str or str(uuid.uuid4()),

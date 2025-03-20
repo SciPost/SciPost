@@ -16,6 +16,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
+from anonymization.mixins import AnonymizableObjectMixin
+
 
 from .behaviors import TimeStampedModel, orcid_validator
 from .constants import (
@@ -82,7 +84,7 @@ class TOTPDevice(models.Model):
         return "{}: {}".format(self.user, self.name)
 
 
-class Contributor(models.Model):
+class Contributor(AnonymizableObjectMixin, models.Model):
     """Contributor is an extension of the User model.
 
     *Professionally active scientist* users of SciPost are Contributors.
@@ -172,10 +174,6 @@ class Contributor(models.Model):
     @property
     def is_duplicate(self):
         return self.duplicate_of is not None
-
-    @property
-    def is_anonymous(self):
-        return self.user.username.startswith("anonymous_")
 
     @property
     def is_currently_available(self):
@@ -274,13 +272,8 @@ class Contributor(models.Model):
         uuid_str = str(uuid.uuid4()) if uuid_str is None else uuid_str
 
         anonymous_profile = Profile.create_anonymous(uuid_str)
-        anonymous_user = get_user_model().objects.create(
-            first_name="Anonymous",
-            last_name=uuid_str,
-            username="anonymous_" + uuid_str,
-            is_active=False,
-        )
         return cls.objects.create(
+            is_anonymous=True,
             status=DISABLED,
             user=anonymous_user,
             profile=anonymous_profile,
