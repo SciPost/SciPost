@@ -67,6 +67,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
         from submissions.models.submission import SubmissionAuthorProfile
         from invitations.models import RegistrationInvitation
         from colleges.models import FellowshipNomination, PotentialFellowship
+        from anonymization.models import ProfileAnonymization
 
         id: int
         contributor: Contributor | None
@@ -78,6 +79,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
         registrationinvitation_set: "RelatedManager[RegistrationInvitation]"
         potentialfellowship_set: "RelatedManager[PotentialFellowship]"
         fellowship_nominations: "RelatedManager[FellowshipNomination]"
+        eponymization: "ProfileAnonymization | None"
 
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, default=TITLE_DR)
     first_name = models.CharField(max_length=64)
