@@ -16,8 +16,6 @@ from ..managers import (
     FellowshipNominationVoteQuerySet,
 )
 
-from scipost.models import get_sentinel_user
-
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
     from colleges.models import College, Fellowship
@@ -236,7 +234,7 @@ class FellowshipNominationEvent(models.Model):
     by_id: int
     by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
-        on_delete=models.SET(get_sentinel_user),
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
     )

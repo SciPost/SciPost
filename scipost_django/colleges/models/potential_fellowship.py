@@ -7,8 +7,6 @@ import datetime
 from django.db import models
 from django.utils import timezone
 
-from scipost.models import get_sentinel_user
-
 from ..constants import (
     POTENTIAL_FELLOWSHIP_STATUSES,
     POTENTIAL_FELLOWSHIP_IDENTIFIED,
@@ -98,7 +96,7 @@ class PotentialFellowshipEvent(models.Model):
     noted_on = models.DateTimeField(auto_now_add=True)
     noted_by = models.ForeignKey(
         "scipost.Contributor",
-        on_delete=models.SET(get_sentinel_user),
+        on_delete=models.SET_NULL,
         blank=True,
         null=True,
     )

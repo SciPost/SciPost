@@ -54,16 +54,6 @@ if TYPE_CHECKING:
     from submissions.models.assignment import EditorialAssignment
 
 
-def get_sentinel_user():
-    """Temporary fix to be able to delete Contributor instances.
-
-    Eventually the 'to-be-removed-Contributor' should be status: "deactivated" and anonymized.
-    Fallback user for models relying on Contributor that is being deleted.
-    """
-    user, __ = get_user_model().objects.get_or_create(username="deleted")
-    return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
-
-
 class AnonymousAbstractUser(AnonymousUser):
     """
     A runtime instance of an anonymous user
@@ -148,7 +138,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
     address = models.CharField(max_length=1000, verbose_name="address", blank=True)
     vetted_by = models.ForeignKey["Contributor"](
         "self",
-        on_delete=models.SET(get_sentinel_user),
+        on_delete=models.SET_NULL,
         related_name="contrib_vetted_by",
         blank=True,
         null=True,
