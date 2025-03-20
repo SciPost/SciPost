@@ -65,7 +65,7 @@
 		  {% if not submission.open_for_resubmission %}
 		    <p class="bg-dark border-warning text-warning p-3 mb-0"><strong><span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span> This submission is still undergoing peer refereeing. Please wait until the closing of the previous refereeing round and formulation of the Editorial Recommendation before resubmitting.</strong></p>
 		  {% else %}
-		    {% if not request.user == submission.submitted_by.user %}
+		    {% if not request.user == submission.submitted_by.dbuser %}
 		      <p class="bg-dark p-2 text-white text-center">
 			Corresponding author: {{ submission.submitted_by }}.<br>
 			<em class="text-warning">

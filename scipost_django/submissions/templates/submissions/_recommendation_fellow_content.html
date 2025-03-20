@@ -31,7 +31,7 @@
 
       <h3 class="card-title">Fellows eligible to vote:</h3>
       <ul>
-        {% for eligible in recommendation.eligible_to_vote.all|sort_by:'user__last_name' %}
+        {% for eligible in recommendation.eligible_to_vote.all|sort_by:'dbuser__last_name' %}
           <li>{{ eligible.user.first_name }} {{ eligible.user.last_name }}</li>
         {% endfor %}
       </ul>
@@ -40,19 +40,19 @@
       <ul>
         <li>
           Agreed ({{ recommendation.voted_for.all.count }}):
-          {% for agreed in recommendation.voted_for.all|sort_by:'user__last_name' %}
+          {% for agreed in recommendation.voted_for.all|sort_by:'dbuser__last_name' %}
             {{ agreed.user.last_name }}{% if not forloop.last %},{% endif %}
           {% endfor %}
         </li>
         <li>
           Disagreed ({{ recommendation.voted_against.all.count }}):
-          {% for disagreed in recommendation.voted_against.all|sort_by:'user__last_name' %}
+          {% for disagreed in recommendation.voted_against.all|sort_by:'dbuser__last_name' %}
             {{ disagreed.user.last_name }}{% if not forloop.last %},{% endif %}
           {% endfor %}
         </li>
         <li>
           Abstained ({{ recommendation.voted_abstain.all.count }}):
-          {% for abstained in recommendation.voted_abstain.all|sort_by:'user__last_name' %}
+          {% for abstained in recommendation.voted_abstain.all|sort_by:'dbuser__last_name' %}
             {{ abstained.user.last_name }}{% if not forloop.last %},{% endif %}
           {% endfor %}
         </li>

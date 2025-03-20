@@ -45,7 +45,7 @@ def is_edadmin(user):
 def is_edadmin_or_active_fellow(user):
     return (
         user.groups.filter(name="Editorial Administrators").exists()
-        or Fellowship.objects.active().filter(contributor__user=user).exists()
+        or Fellowship.objects.active().filter(contributor__dbuser=user).exists()
     )
 
 
@@ -55,7 +55,7 @@ def is_edadmin_or_advisory_or_active_regular_or_senior_fellow(user):
         or user.groups.filter(name="Advisory Board").exists()
         or Fellowship.objects.active()
         .regular_or_senior()
-        .filter(contributor__user=user)
+        .filter(contributor__dbuser=user)
         .exists()
     )
 
@@ -64,7 +64,10 @@ def is_edadmin_or_advisory_or_active_senior_fellow(user):
     return (
         user.groups.filter(name="Editorial Administrators").exists()
         or user.groups.filter(name="Advisory Board").exists()
-        or Fellowship.objects.active().senior().filter(contributor__user=user).exists()
+        or Fellowship.objects.active()
+        .senior()
+        .filter(contributor__dbuser=user)
+        .exists()
     )
 
 
@@ -73,7 +76,7 @@ def is_edadmin_or_active_regular_or_senior_fellow(user):
         user.groups.filter(name="Editorial Administrators").exists()
         or Fellowship.objects.active()
         .regular_or_senior()
-        .filter(contributor__user=user)
+        .filter(contributor__dbuser=user)
         .exists()
     )
 
@@ -81,5 +84,8 @@ def is_edadmin_or_active_regular_or_senior_fellow(user):
 def is_edadmin_or_senior_fellow(user):
     return (
         user.groups.filter(name="Editorial Administrators").exists()
-        or Fellowship.objects.active().senior().filter(contributor__user=user).exists()
+        or Fellowship.objects.active()
+        .senior()
+        .filter(contributor__dbuser=user)
+        .exists()
     )

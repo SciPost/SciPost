@@ -40,12 +40,12 @@ class Command(BaseCommand):
 
         # Query
         queryset = Contributor.objects.filter(
-            user__is_active=True,
+            dbuser__is_active=True,
             status=CONTRIBUTOR_NORMAL,
             profile__accepts_SciPost_emails=True,
         )
         if kwargs["group"]:
-            queryset = queryset.filter(user__groups__name=kwargs["group"])
+            queryset = queryset.filter(dbuser__groups__name=kwargs["group"])
 
         # Open + write the file
         with open(filename, "w", newline="") as _file:

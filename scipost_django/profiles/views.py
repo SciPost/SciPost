@@ -278,7 +278,7 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         queryset = (
             Profile.objects.all()
             .prefetch_related("specialties")
-            .select_related("contributor", "contributor__user")
+            .select_related("contributor", "contributor__dbuser")
         )
         if self.request.GET.get("field"):
             queryset = queryset.filter(acad_field__slug=self.request.GET["field"])

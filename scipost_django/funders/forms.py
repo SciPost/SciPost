@@ -65,8 +65,8 @@ class GrantForm(HttpRefererFormMixin, forms.ModelForm):
             widget=HTMXDynSelWidget(url="/funders/funder-autocomplete"),
         )
         self.fields["recipient"] = forms.ModelChoiceField(
-            queryset=Contributor.objects.select_related("user").order_by(
-                "user__last_name"
+            queryset=Contributor.objects.select_related("dbuser").order_by(
+                "dbuser__last_name"
             ),
             required=False,
         )

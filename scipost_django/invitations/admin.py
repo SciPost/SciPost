@@ -20,16 +20,14 @@ class RegistrationInvitationAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 @admin.register(CitationNotification)
 class CitationNotificationAdmin(admin.ModelAdmin):
     date_hierarchy = "date_sent"
     search_fields = [
         "invitation__first_name",
         "invitation__last_name",
-        "contributor__user__first_name",
-        "contributor__user__last_name",
+        "contributor__dbuser__first_name",
+        "contributor__dbuser__last_name",
     ]
     list_display = ["__str__", "created_by", "date_sent", "processed"]
     list_filter = ["processed"]
@@ -40,5 +38,3 @@ class CitationNotificationAdmin(admin.ModelAdmin):
         "publication",
         "created_by",
     ]
-
-

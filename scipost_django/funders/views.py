@@ -56,8 +56,8 @@ class HXDynselGrantAutocomplete(HXDynselAutocomplete):
                 | Q(funder__acronym__icontains=q)
                 | Q(number__icontains=q)
                 | Q(recipient_name__unaccent__icontains=q)
-                | Q(recipient__user__last_name__unaccent__icontains=q)
-                | Q(recipient__user__first_name__unaccent__icontains=q)
+                | Q(recipient__dbuser__last_name__unaccent__icontains=q)
+                | Q(recipient__dbuser__first_name__unaccent__icontains=q)
                 | Q(further_details__icontains=q)
             ).order_by("funder__name", "number")
 

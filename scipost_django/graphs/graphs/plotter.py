@@ -369,10 +369,10 @@ class ProfilePlotter(ModelFieldPlotter):
     class Options(ModelFieldPlotter.Options):
         prefix = "profile_plotter_"
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("contributor__user__date_joined", ("date", "Date joined")),
-            ("contributor__user__date_joined__year", ("int", "Year joined")),
-            ("contributor__user__last_login", ("date", "Last login")),
-            ("contributor__user__last_login__year", ("int", "Year last logged in")),
+            ("contributor__dbuser__date_joined", ("date", "Date joined")),
+            ("contributor__dbuser__date_joined__year", ("int", "Year joined")),
+            ("contributor__dbuser__last_login", ("date", "Last login")),
+            ("contributor__dbuser__last_login__year", ("int", "Year last logged in")),
             ("topics__name", ("str", "Topics")),
             ("acad_field__name", ("str", "Academic field")),
             ("specialties__name", ("str", "Specialties")),

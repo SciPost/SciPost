@@ -57,14 +57,14 @@ class UnavailabilityPeriodAdmin(admin.ModelAdmin):
 @admin.register(Contributor)
 class ContributorAdmin(admin.ModelAdmin):
     search_fields = [
-        "user__first_name",
-        "user__last_name",
-        "user__email",
+        "dbuser__first_name",
+        "dbuser__last_name",
+        "dbuser__email",
         "profile__orcid_id",
     ]
     autocomplete_fields = [
         "profile",
-        "user",
+        "dbuser",
         "vetted_by",
         "duplicate_of",
     ]
@@ -173,7 +173,7 @@ class AuthorshipClaimAdmin(admin.ModelAdmin):
         "vetted_by",
     ]
     search_fields = [
-        "claimant__user__last_name",
+        "claimant__dbuser__last_name",
         "submission__title",
         "submission__preprint__identifier_w_vn_nr",
     ]

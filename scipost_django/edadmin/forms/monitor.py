@@ -67,7 +67,7 @@ class EdAdminFellowshipSearchForm(forms.Form):
         )
 
         return fellowships.prefetch_related(
-            "contributor__user",
+            "contributor__dbuser",
             "contributor__profile__specialties",
             prefetch_current_unavailability_periods,
             prefetch_EIC_in_stage_in_refereeing,

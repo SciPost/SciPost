@@ -28,7 +28,10 @@ def fellowhip_is_active(fellowship):
 
 @admin.register(Fellowship)
 class FellowshipAdmin(admin.ModelAdmin):
-    search_fields = ["contributor__user__last_name", "contributor__user__first_name"]
+    search_fields = [
+        "contributor__dbuser__last_name",
+        "contributor__dbuser__first_name",
+    ]
     list_display = (
         "__str__",
         "college",
@@ -42,8 +45,6 @@ class FellowshipAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "contributor",
     ]
-
-
 
 
 class PotentialFellowshipEventInline(admin.TabularInline):
@@ -67,8 +68,6 @@ class PotentialFellowshipAdmin(admin.ModelAdmin):
         "in_abstain",
         "in_disagreement",
     ]
-
-
 
 
 class FellowshipNominationEventInline(admin.TabularInline):
@@ -111,8 +110,6 @@ class FellowshipNominationAdmin(admin.ModelAdmin):
     list_display = ["profile", "college", "nominated_on"]
     search_fields = ["college__name", "profile__last_name", "profile__first_name"]
     autocomplete_fields = ["profile", "nominated_by", "fellowship"]
-
-
 
 
 class FellowshipNominationVoteInline(admin.TabularInline):
@@ -162,5 +159,3 @@ class FellowshipNominationVotingRoundAdmin(admin.ModelAdmin):
     )
     def is_open_checkmark(self, obj):
         return obj.is_open
-
-

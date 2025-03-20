@@ -112,7 +112,7 @@ class SubsidyAttachment(models.Model):
         ):
             return True
         if self.subsidy.organization.contactrole_set.filter(
-            contact__user=current_user
+            contact__dbuser=current_user
         ).exists():
             return True
         return False

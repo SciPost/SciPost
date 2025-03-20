@@ -23,12 +23,12 @@ def filter_for_submission(qs, submission):
 
 @register.filter
 def is_in_submission_fellowship(user, submission):
-    return submission.fellows.filter(contributor__user=user).exists()
+    return submission.fellows.filter(contributor__dbuser=user).exists()
 
 
 @register.filter
 def is_editor_of_submission(user, submission):
-    return submission.editor_in_charge and submission.editor_in_charge.user == user
+    return submission.editor_in_charge and submission.editor_in_charge.dbuser == user
 
 
 @register.filter
@@ -40,11 +40,11 @@ def is_possible_author_of_submission(user, submission):
     if not user.is_authenticated:
         return False
 
-    if submission.authors.filter(user=user).exists():
+    if submission.authors.filter(dbuser=user).exists():
         # User explicitly assigned author.
         return True
 
-    if submission.authors_false_claims.filter(user=user).exists():
+    if submission.authors_false_claims.filter(dbuser=user).exists():
         # User explicitly dissociated from the Submission.
         return False
 
@@ -62,7 +62,7 @@ def is_viewable_by_authors(recommendation):
 
 @register.filter
 def user_can_vote(recommendation, user):
-    return recommendation.eligible_to_vote.filter(user=user).exists()
+    return recommendation.eligible_to_vote.filter(dbuser=user).exists()
 
 
 @register.filter

@@ -799,7 +799,7 @@ def submission_detail(request, identifier_w_vn_nr):
     is_author = check_verified_author(submission, request.user)
     is_author_unchecked = check_unverified_author(submission, request.user)
     is_submission_fellow = submission.fellows.filter(
-        contributor__user=request.user.id
+        contributor__dbuser=request.user.id
     ).exists()
 
     if not submission.visible_public and not is_author:
@@ -808,7 +808,7 @@ def submission_detail(request, identifier_w_vn_nr):
 
         elif (
             not request.user.has_perm("scipost.can_assign_submissions")
-            and not submission.fellows.filter(contributor__user=request.user).exists()
+            and not submission.fellows.filter(contributor__dbuser=request.user).exists()
         ):
             raise PermissionDenied()
 
@@ -832,7 +832,7 @@ def submission_detail(request, identifier_w_vn_nr):
     # User is referee for the Submission
     if request.user.is_authenticated:
         context["unfinished_report_for_user"] = (
-            submission.reports.in_draft().filter(author__user=request.user).first()
+            submission.reports.in_draft().filter(author__dbuser=request.user).first()
         )
         context["invitations"] = submission.referee_invitations.non_cancelled().filter(
             referee=request.user.contributor.profile
@@ -849,7 +849,7 @@ def submission_detail(request, identifier_w_vn_nr):
                 submission.fellows.without_competing_interests_against_submission_authors_of(
                     submission
                 )
-                .filter(contributor__user=request.user)
+                .filter(contributor__dbuser=request.user)
                 .exists()
             )
 
@@ -862,7 +862,7 @@ def submission_detail(request, identifier_w_vn_nr):
     if "invitations" in context and context["invitations"]:
         context["communication"] = (
             submission.editorial_communications.for_referees().filter(
-                referee__user=request.user
+                referee__dbuser=request.user
             )
         )
 
@@ -870,10 +870,10 @@ def submission_detail(request, identifier_w_vn_nr):
 
     has_appraised_submission = (
         submission.qualification_set.filter(
-            fellow__contributor__user=request.user.id
+            fellow__contributor__dbuser=request.user.id
         ).exists()
         and submission.readiness_set.filter(
-            fellow__contributor__user=request.user.id
+            fellow__contributor__dbuser=request.user.id
         ).exists()
     )
 
@@ -2535,7 +2535,7 @@ def submit_report(request, identifier_w_vn_nr):
 
         if errormessage:
             # Remove old drafts from the database
-            submission.reports.in_draft().filter(author__user=request.user).delete()
+            submission.reports.in_draft().filter(author__dbuser=request.user).delete()
 
     if errormessage:
         messages.warning(request, errormessage)
@@ -2543,7 +2543,7 @@ def submit_report(request, identifier_w_vn_nr):
 
     # Find and fill earlier version of report
     try:
-        report_in_draft = submission.reports.in_draft().get(author__user=request.user)
+        report_in_draft = submission.reports.in_draft().get(author__dbuser=request.user)
     except Report.DoesNotExist:
         report_in_draft = Report(author=request.user.contributor, submission=submission)
     form = ReportForm(
@@ -2719,7 +2719,7 @@ def prepare_for_voting(request, rec_id):
             | Q(
                 contributor__profile__specialties__in=recommendation.submission.specialties.all()
             )
-        ).order_by("contributor__user__last_name")
+        ).order_by("contributor__dbuser__last_name")
 
         # coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
         coauthorships = None
@@ -3185,7 +3185,7 @@ class EICRecommendationDetailView(
             preprint__identifier_w_vn_nr=self.kwargs.get("identifier_w_vn_nr"),
         )
         eicrec = submission.eicrecommendations.last()
-        if eicrec.eligible_to_vote.filter(user=self.request.user).exists():
+        if eicrec.eligible_to_vote.filter(dbuser=self.request.user).exists():
             return True
         return False
 

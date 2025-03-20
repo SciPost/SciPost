@@ -58,7 +58,7 @@ class Fellowship(TimeStampedModel):
     objects = FellowQuerySet.as_manager()
 
     class Meta:
-        ordering = ["contributor__user__last_name"]
+        ordering = ["contributor__dbuser__last_name"]
         unique_together = ("college", "contributor", "start_date", "until_date")
 
     def __str__(self):

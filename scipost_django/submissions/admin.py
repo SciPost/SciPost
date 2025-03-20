@@ -189,7 +189,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     )
     list_filter = ("status", "acad_field", "specialties", "submitted_to")
     search_fields = [
-        "submitted_by__user__last_name",
+        "submitted_by__dbuser__last_name",
         "title",
         "author_list",
         "abstract",
@@ -343,7 +343,7 @@ class EditorialAssignmentAdmin(admin.ModelAdmin):
         "submission__title",
         "submission__author_list",
         "submission__preprint__identifier_w_vn_nr",
-        "to__user__last_name",
+        "to__dbuser__last_name",
     ]
     list_display = (
         "to",
@@ -387,7 +387,7 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    search_fields = ["author__user__last_name", "submission__title"]
+    search_fields = ["author__dbuser__last_name", "submission__title"]
     list_display = (
         "author",
         "status",
@@ -408,7 +408,7 @@ class ReportAdmin(admin.ModelAdmin):
 
 @admin.register(EditorialCommunication)
 class EditorialCommunicationAdmin(admin.ModelAdmin):
-    search_fields = ["submission__title", "referee__user__last_name", "text"]
+    search_fields = ["submission__title", "referee__dbuser__last_name", "text"]
     autocomplete_fields = ["submission", "referee"]
 
 

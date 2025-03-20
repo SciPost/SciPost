@@ -400,11 +400,11 @@ def _hx_motion_voting(request, slug, motion_id):
     forum = get_object_or_404(Forum, slug=slug)
     motion = get_object_or_404(
         Motion.objects.prefetch_related(
-            "eligible_for_voting__contributor__user",
-            "in_agreement__contributor__user",
-            "in_doubt__contributor__user",
-            "in_disagreement__contributor__user",
-            "in_abstain__contributor__user",
+            "eligible_for_voting__contributor__dbuser",
+            "in_agreement__contributor__dbuser",
+            "in_doubt__contributor__dbuser",
+            "in_disagreement__contributor__dbuser",
+            "in_abstain__contributor__dbuser",
         ),
         pk=motion_id,
     )

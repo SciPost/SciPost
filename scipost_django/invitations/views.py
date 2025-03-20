@@ -81,7 +81,7 @@ class RegistrationInvitationsFellowView(RegistrationInvitationsView):
 class CitationNotificationsView(PermissionsMixin, PaginationMixin, ListView):
     permission_required = "scipost.can_manage_registration_invitations"
     queryset = CitationNotification.objects.unprocessed().prefetch_related(
-        "invitation", "contributor", "contributor__user"
+        "invitation", "contributor", "contributor__dbuser"
     )
     paginate_by = 25
 
@@ -303,7 +303,7 @@ def cleanup(request):
     Compares the email addresses of invitations with those in the
     database of registered Contributors. Flags overlaps.
     """
-    contributor_email_list = Contributor.objects.values_list("user__email", flat=True)
+    contributor_email_list = Contributor.objects.values_list("dbuser__email", flat=True)
     invitations = RegistrationInvitation.objects.sent().filter(
         email__in=contributor_email_list
     )

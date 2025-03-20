@@ -50,8 +50,6 @@ class OrganizationAdmin(GuardedModelAdmin):
         return obj.ror_json.get("id", None) if obj.ror_json else None
 
 
-
-
 class ContactRoleInline(admin.TabularInline):
     model = ContactRole
     extra = 0
@@ -69,8 +67,6 @@ class ContactAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "user",
     ]
-
-
 
 
 class ContactInline(admin.TabularInline):

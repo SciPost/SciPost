@@ -321,7 +321,7 @@ class RegistrationForm(forms.Form):
         contributor, __ = Contributor.objects.get_or_create(
             **{
                 "profile": profile,
-                "user": user,
+                "dbuser": user,
                 "invitation_key": self.cleaned_data.get("invitation_key", ""),
                 "address": self.cleaned_data["address"],
             }
@@ -333,9 +333,9 @@ class RegistrationForm(forms.Form):
             contributor.status = NORMAL_CONTRIBUTOR
             contributor.save()
             group = Group.objects.get(name="Registered Contributors")
-            contributor.user.groups.add(group)
-            contributor.user.is_active = True
-            contributor.user.save()
+            contributor.dbuser.groups.add(group)
+            contributor.dbuser.is_active = True
+            contributor.dbuser.save()
 
         return contributor
 
@@ -1149,7 +1149,7 @@ class SciPostPasswordResetForm(PasswordResetForm):
         Given an email, return a list of newly registered users with that email.
         """
         return Contributor.objects.filter(
-            user__email__iexact=email, status=NEWLY_REGISTERED
+            dbuser__email__iexact=email, status=NEWLY_REGISTERED
         )
 
     def save(self, **kwargs):
