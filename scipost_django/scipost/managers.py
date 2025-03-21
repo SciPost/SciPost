@@ -19,6 +19,12 @@ from .constants import (
 class ContributorQuerySet(models.QuerySet):
     """Custom defined filters for the Contributor model."""
 
+    def eponymous(self):
+        return self.filter(is_anonymous=False)
+
+    def anonymous(self):
+        return self.filter(is_anonymous=True)
+
     def active(self):
         """Return all validated and vetted Contributors."""
         return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
@@ -99,6 +105,11 @@ class ContributorQuerySet(models.QuerySet):
         This method is also separately implemented for Profile and PotentialFellowship objects.
         """
         return self.filter(profile__specialties__slug__in=specialties_slug_list)
+
+
+class ContributorManager(models.Manager.from_queryset(ContributorQuerySet)):
+    def get_queryset(self):
+        return super().get_queryset().eponymous()
 
 
 class UnavailabilityPeriodManager(models.Manager):

@@ -30,12 +30,11 @@ if TYPE_CHECKING:
 
 
 class ProfileQuerySet(QuerySet):
-
     def eponymous(self):
-        """
-        Returns all non-anonymous Profiles.
-        """
-        return self.exclude(first_name="Anonymous")
+        return self.filter(is_anonymous=False)
+
+    def anonymous(self):
+        return self.filter(is_anonymous=True)
 
     def get_unique_from_email_or_None(self, email):
         try:

@@ -5,6 +5,7 @@ import enum
 import uuid
 from django.db import models
 
+from anonymization.managers import AnonymousContributorManager, AnonymousProfileManager
 from profiles.models import Profile
 from scipost.models import Contributor
 
@@ -20,6 +21,8 @@ class AnonymousContributor(Contributor):
     It implements a custom default manager to separate
     anonymous and eponymous contributors.
     """
+
+    objects = AnonymousContributorManager()
 
     if TYPE_CHECKING:
         profile: "Profile | AnonymousProfile | None"
@@ -49,6 +52,8 @@ class AnonymousProfile(Profile):
     It implements a custom default manager to separate
     anonymous and eponymous profiles.
     """
+
+    objects = AnonymousProfileManager()
 
     if TYPE_CHECKING:
         contributor: "Contributor | AnonymousContributor | None"
