@@ -6,7 +6,7 @@ import datetime
 import hashlib
 import random
 import string
-from typing import TYPE_CHECKING, Self, override
+from typing import TYPE_CHECKING, Any, Self, override
 import uuid
 
 from django.contrib.auth.models import AnonymousUser
@@ -52,6 +52,7 @@ if TYPE_CHECKING:
     from profiles.models import Profile
     from colleges.models.fellowship import Fellowship
     from submissions.models.assignment import EditorialAssignment
+    from anonymization.models import ContributorAnonymization
 
 
 class AnonymousAbstractUser(AnonymousUser):
@@ -308,19 +309,43 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         return ConflictOfInterest.objects.filter_for_profile(self.profile)
 
     @classmethod
-    def create_anonymous(cls, uuid_str: str | None = None) -> "Self":
-        """Create an anonymous contributor with optional UUID last name."""
+    def create_anonymous(
+        cls, uuid_str: str | None = None, **kwargs: dict[str, Any]
+    ) -> "Self":
+        """Create an anonymous contributor with a UUID-identified profile."""
         from profiles.models import Profile
 
         uuid_str = str(uuid.uuid4()) if uuid_str is None else uuid_str
 
-        anonymous_profile = Profile.create_anonymous(uuid_str)
+        if "profile" not in kwargs:
+            kwargs["profile"] = Profile.create_anonymous(uuid_str)
+
         return cls.objects.create(
             is_anonymous=True,
             status=DISABLED,
             dbuser=None,
-            profile=anonymous_profile,
+            **kwargs,
         )
+
+    def anonymize(self, uuid_str: str | None = None) -> "ContributorAnonymization":
+        """
+        Creates an anonymous object of the same type,
+        and returns the anonymization record for it.
+        """
+        uuid_str = str(uuid.uuid4()) if uuid_str is None else uuid_str
+        anonymous_profile_record = (
+            self.profile.anonymize(uuid_str=uuid_str) if self.profile else None
+        )
+
+        record = self.anonymizations.create(
+            uuid=uuid_str,
+            original=self,
+            anonymous=self.create_anonymous(
+                uuid_str,
+                profile=anonymous_profile_record.anonymous,
+            ),
+        )
+        return record
 
 
 class UnavailabilityPeriod(models.Model):
