@@ -439,7 +439,8 @@ class FellowshipNominationForm(forms.ModelForm):
         self.profile = kwargs.pop("profile")
         super().__init__(*args, **kwargs)
         self.fields["college"].queryset = College.objects.filter(
-            Q(acad_field=self.profile.acad_field)
+            Q(acad_field__name="Multidisciplinary")
+            | Q(acad_field=self.profile.acad_field)
             | Q(
                 acad_field__in=self.profile.specialties.values_list(
                     "acad_field", flat=True
