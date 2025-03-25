@@ -90,12 +90,12 @@
                 </tr>
                 <tr>
                     <td>Submitted to:</td>
-                    <td>{{ submission.submitted_to }}</td>
+                    <td><a href="{{ submission.submitted_to.get_absolute_url }}">{{ submission.submitted_to }}</a></td>
                 </tr>
                 {% if submission.proceedings %}
                     <tr>
                         <td>Proceedings issue:</td>
-                        <td>{{ submission.proceedings }}</td>
+                        <td><a href="{{ submission.proceedings.get_absolute_url }}">{{ submission.proceedings }}</a></td>
                     </tr>
                 {% endif %}
                 {% with ncollections=submission.collections.all|length %}
