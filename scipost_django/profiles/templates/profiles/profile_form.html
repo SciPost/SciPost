@@ -1,17 +1,32 @@
 {% extends 'profiles/base.html' %}
 
-{% load bootstrap %}
+{% load scipost_extras %}
+{% load crispy_forms_tags %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Profile {% if from_type %}(from {{ from_type }}){% endif %}{% endif %}</span>
+  {% if form.instance.id %}
+    <span class="breadcrumb-item"><a href="{{ form.instance.get_absolute_url }}">{{ form.instance }}</a></span>
+    <span class="breadcrumb-item"><a href="#" class="active">Update</a></span>
+  {% else %}
+    <span class="breadcrumb-item"><a href="#" class="active">Create {% if from_type %}(from {{ from_type }}){% endif %}</a></span>
+  {% endif %}
 {% endblock %}
 
 {% block pagetitle %}: Profiles{% endblock pagetitle %}
 
+
 {% block content %}
-  <div class="row">
-    <div class="col-12">
+<div class="row">
+  <div class="col-12">
+      <hgroup class="highlight p-3 mb-3">
+        <h1>{% if form.instance.id %}Update{% else %}Create {{ form.instance|object_name }}{% endif %} Form</h1>
+        {% if form.instance.id %}
+          <p class="m-0 fs-4"><a href="{{ form.instance.get_absolute_url }}">{{ form.instance }}</a></p>
+        {% endif %}
+      </hgroup>
+
+      
       {% if matching_profiles %}
 	<h4>Matching profiles found for this {{ from_type }}</h4>
 	<ul>
@@ -23,10 +38,9 @@
       {% endif %}
 
 
-      <form action="" method="post">
-	{% csrf_token %}
-	{{ form|bootstrap }}
-	<input type="submit" value="Submit" class="btn btn-primary">
+      <form class="mt-4" id="profile_edit_form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% crispy form %}
       </form>
     </div>
   </div>

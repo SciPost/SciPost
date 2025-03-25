@@ -244,7 +244,6 @@ class ProfileUpdateView(PermissionsMixin, UpdateView):
     model = Profile
     form_class = ProfileForm
     template_name = "profiles/profile_form.html"
-    success_url = reverse_lazy("profiles:profiles")
 
 
 class ProfileDeleteView(PermissionsMixin, DeleteView):

@@ -16,6 +16,8 @@ from django.urls import reverse
 
 from common.forms import ModelChoiceFieldwithid
 from invitations.models import RegistrationInvitation
+from ontology.models.specialty import Specialty
+from ontology.models.topic import Topic
 from organizations.models import Organization
 from scipost.models import Contributor
 from submissions.models import RefereeInvitation
@@ -47,11 +49,51 @@ class ProfileForm(forms.ModelForm):
             "instance_from_type",
             "instance_pk",
         ]
+        widgets = {
+            "specialties": autocomplete.ModelSelect2Multiple(
+                url="/ontology/specialty-autocomplete",
+                attrs={"data-html": True},
+            ),
+            "topics": autocomplete.ModelSelect2Multiple(
+                url="/ontology/topic-autocomplete",
+                attrs={"data-html": True},
+                forward=["specialties"],
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["instance_from_type"].widget = forms.HiddenInput()
         self.fields["instance_pk"].widget = forms.HiddenInput()
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("title"), css_class="col-12 col-md-3"),
+                Div(Field("first_name"), css_class="col-12 col-md"),
+                Div(Field("last_name"), css_class="col-12 col-md"),
+                css_class="row mb-0",
+            ),
+            Div(
+                Div(Field("acad_field"), css_class="col-12 col-md-3 order-3 order-md-1"),
+                Div(Field("first_name_original"), css_class="col-12 order-1 col-md order-md-2"),
+                Div(Field("last_name_original"), css_class="col-12 order-2 col-md order-md-3"),
+                css_class="row mb-0",
+            ),
+            Div(
+                Div(Field("specialties"), css_class="col-12 col-md"),
+                Div(Field("topics"), css_class="col-12 col-md"),
+                css_class="row mb-0",
+            ),
+            Div(
+                Div(Field("orcid_id"), css_class="col-12 col-md"),
+                Div(Field("webpage"), css_class="col-12 col-md"),
+                css_class="row mb-0",
+            ),
+            Div(
+                Submit("submit", "Save", css_class="btn btn-primary"),
+            )
+        )
 
     def clean_email(self):
         """Check that the email isn't yet associated to an existing Profile."""
