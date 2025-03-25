@@ -42,8 +42,8 @@
 	      <div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
 		  <div class="modal-body">
-        {% if report.real_author %}
-    		    <a href="{{ report.real_author.get_absolute_url }}">{{ report.real_author.profile }}</a>
+        {% if report.author.eponymization.original %}
+    		    <a href="{{ report.author.eponymization.original.get_absolute_url }}">{{ report.author.eponymization.original.profile }}</a>
             {% if perms.scipost.can_view_profiles %}
               &emsp;(<a href="{% url 'profiles:profile_detail' pk=report.author.profile.id %}">view Profile</a>)
             {% endif %}
