@@ -20,7 +20,11 @@ class NoteAdmin(admin.ModelAdmin):
         "modified",
     )
     list_filter = ("created", "modified", "visibility")
-    search_fields = ("title", "author__username")
+    search_fields = (
+        "title",
+        "author__profile__first_name",
+        "author__profile__last_name",
+    )
     date_hierarchy = "created"
     ordering = ("-created",)
     readonly_fields = ("created", "modified", "web_link", "admin_link")
