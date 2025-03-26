@@ -10,6 +10,7 @@ from django.db.models import F, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.utils.datastructures import OrderedSet
 from django.utils.functional import cached_property
 
 from scipost.models import Contributor
@@ -323,15 +324,12 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     @cached_property
     def referee_nr_in_thread(self):
         """Return the number of the referee in the thread."""
-        ordered_reports = list(
-            Report.objects.filter(
-                submission__thread_hash=self.submission.thread_hash,
-            )
-            .order_by("author__id", "date_submitted")
-            .distinct("author__id")
+        ordered_reports = OrderedSet(
+            Report.objects.filter(submission__thread_hash=self.submission.thread_hash)
+            .order_by("date_submitted")
             .values_list("author__id", flat=True)
         )
-        return ordered_reports.index(self.author.id) + 1
+        return list(ordered_reports).index(self.author.id) + 1
 
     def create_doi_label(self):
         """Create a doi in the default format."""
