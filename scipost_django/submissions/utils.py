@@ -652,14 +652,8 @@ class SubmissionUtils(BaseMailUtil):
             "report": cls.report.report,
             "requested_changes": cls.report.requested_changes,
             "remarks_for_editors": cls.report.remarks_for_editors,
+            "refusal_reason": cls.report.get_status_display(),
         }
-        if cls.report.status in [
-            STATUS_UNCLEAR,
-            STATUS_INCORRECT,
-            STATUS_NOT_USEFUL,
-            STATUS_NOT_ACADEMIC,
-        ]:
-            email_context["refusal_reason"] = cls.report.get_status_display()
         email_text_html += "<br/>" + EMAIL_FOOTER
         html_template = Template(email_text_html)
         html_version = html_template.render(Context(email_context))
