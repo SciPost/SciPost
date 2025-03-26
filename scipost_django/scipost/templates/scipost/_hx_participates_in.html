@@ -1,59 +1,106 @@
 {% load static %}
 
 <h2 class="highlight my-2 fs-2">SciPost participates in</h2>
-<div class="px-3 logos">
-  <a href="https://www.crossref.org" target="_blank" rel="noopener">
-    <img src="https://assets.crossref.org/logo/crossref-logo-200.svg"
-         width="100"
-         height="65"
-         alt="Crossref logo" />
-  </a>
-  <a href="https://www.doaj.org" target="_blank" rel="noopener">
-    <picture>
-	
-      <source type="image/webp"
-              srcset="{% static 'scipost/images/doaj_logo_200.webp' %} 90w" />
-	
-      <img src="{% static 'scipost/images/doaj_logo_200.jpg' %}"
-           width="90"
-           height="90"
-           alt="DOAJ logo" />
-    </picture>
-  </a>
-  <a href="https://www.clockss.org" target="_blank" rel="noopener">
-    <picture>
-	
-      <source type="image/webp"
-              srcset="{% static 'scipost/images/clockss-boxed-logo-90w.webp' %} 80w" />
-	
-      <img src="{% static 'scipost/images/clockss-boxed-logo-90w.png' %}"
-           width="90"
-           height="90"
-           alt="Clockss logo" />
-    </picture>
-  </a>
-  <a href="https://i4oc.org/" target="_blank" rel="noopener">
-    <picture>
-	
-      <source type="image/webp"
-              srcset="{% static 'scipost/images/I4OC.webp' %} 100w" />
-	
-      <img src="{% static 'scipost/images/I4OC.png' %}"
-           width="100"
-           height="37"
-           alt="I4OC logo" />
-    </picture>
-  </a>
-  <a href="https://freejournals.org" target="_blank" rel="noopener">
-    <picture>
-	
-      <source type="image/webp"
-              srcset="{% static 'scipost/images/FJN-logo-long_w200.webp' %} 100w" />
-	
-      <img src="{% static 'scipost/images/FJN-logo-long_w200.png' %}"
-           width="100"
-           height="46"
-           alt="FJN logo" />
-    </picture>
-  </a>
+<div class="row">
+  <div class="col-6">
+    <a href="https://scoss.org"
+       target="_blank"
+       rel="noopener">
+      <picture>
+
+        <source type="image/webp"
+                srcset="{% static 'scipost/images/SCOSS_endorsement.webp' %} 100w" />
+
+        <img src="{% static 'scipost/images/SCOSS_endorsement.png' %}"
+             class="w-100 h-auto"
+             width="150"
+             height="198"
+             alt="FJN logo" />
+      </picture>
+    </a>
+  </div>
+  <div class="col-6 d-flex flex-column">
+    <a href="https://www.doaj.org"
+       target="_blank"
+       rel="noopener">
+      <picture>
+
+        <source type="image/webp"
+                srcset="{% static 'scipost/images/doaj_logo_200.webp' %} 90w" />
+
+        <img src="{% static 'scipost/images/doaj_logo_200.jpg' %}"
+             class="w-100 h-auto"
+             width="90"
+             height="90"
+             alt="DOAJ logo" />
+      </picture>
+    </a>
+    <a href="https://i4oc.org/"
+       target="_blank"
+       rel="noopener">
+      <picture>
+
+        <source type="image/webp"
+                srcset="{% static 'scipost/images/I4OC.webp' %} 100w" />
+
+        <img src="{% static 'scipost/images/I4OC.png' %}"
+             class="w-100 h-auto"
+             width="100"
+             height="37"
+             alt="I4OC logo" />
+      </picture>
+    </a>
+  </div>
+</div>
+<div class="d-flex gap-3 flex-row justify-content-center align-items-center">
+  <div class="col-3">
+    <a href="https://www.clockss.org"
+       target="_blank"
+       rel="noopener">
+      <picture>
+
+        <source type="image/webp"
+                srcset="{% static 'scipost/images/clockss-boxed-logo-90w.webp' %} 80w" />
+
+        <img src="{% static 'scipost/images/clockss-boxed-logo-90w.png' %}"
+             class="w-100 h-auto"
+             width="90"
+             height="90"
+             alt="Clockss logo" />
+      </picture>
+    </a>
+  </div>
+  <div class="col">
+    <a href="https://www.crossref.org"
+       target="_blank"
+       rel="noopener">
+
+       <source type="image/webp"
+                srcset="{% static 'scipost/images/crossref-logo-200.webp' %} 100w" />
+
+        <img src="{% static 'scipost/images/crossref-logo-200.png' %}"
+             class="w-100 h-auto"
+             width="100"
+             height="65"
+             alt="Crossref logo" />
+
+    </a>
+  </div>
+  <div class="col">
+    <a href="https://freejournals.org"
+       target="_blank"
+       rel="noopener">
+      <picture>
+
+        <source type="image/webp"
+                srcset="{% static 'scipost/images/FJN-logo-long_w200.webp' %} 100w" />
+
+        <img src="{% static 'scipost/images/FJN-logo-long_w200.png' %}"
+             class="w-100 h-auto"
+             width="100"
+             height="46"
+             alt="FJN logo" />
+      </picture>
+    </a>
+  </div>
 </div>
