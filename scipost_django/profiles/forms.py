@@ -75,12 +75,17 @@ class ProfileForm(forms.ModelForm):
                 css_class="row mb-0",
             ),
             Div(
-                Div(Field("acad_field"), css_class="col-12 col-md-3 order-3 order-md-1"),
-                Div(Field("first_name_original"), css_class="col-12 order-1 col-md order-md-2"),
-                Div(Field("last_name_original"), css_class="col-12 order-2 col-md order-md-3"),
+                Div(
+                    Div(Field("accepts_SciPost_emails")),
+                    Div(Field("accepts_refereeing_requests")),
+                    css_class="col-12 col-md-3 d-flex flex-column gap-2",
+                ),
+                Div(Field("first_name_original"), css_class="col-12 col-md"),
+                Div(Field("last_name_original"), css_class="col-12 col-md"),
                 css_class="row mb-0",
             ),
             Div(
+                Div(Field("acad_field"), css_class="col-12 col-md-3"),
                 Div(Field("specialties"), css_class="col-12 col-md"),
                 Div(Field("topics"), css_class="col-12 col-md"),
                 css_class="row mb-0",
@@ -92,7 +97,7 @@ class ProfileForm(forms.ModelForm):
             ),
             Div(
                 Submit("submit", "Save", css_class="btn btn-primary"),
-            )
+            ),
         )
 
     def clean_email(self):
