@@ -497,6 +497,11 @@ class ProofsRepository(models.Model):
         """
         paths = ["{ROOT}/Templates/Base".format(ROOT=settings.GITLAB_ROOT)]
 
+        if self.journal_abbrev.startswith("SciPost"):
+            paths.append(
+                "{ROOT}/Templates/BaseSciPost".format(ROOT=settings.GITLAB_ROOT)
+            )
+
         # Determine whether to add the proceedings template or of some other journal
         if self.stream.submission.proceedings is not None:
             paths.append(
@@ -560,7 +565,11 @@ class ProofsRepository(models.Model):
 
         # Attempt to fetch the publication file
         try:
-            publication_filename = [file["name"] for file in project.repository_tree() if re.findall("SciPost\w+(?:_\d+)+.tex", file["name"])][0]
+            publication_filename = [
+                file["name"]
+                for file in project.repository_tree()
+                if re.findall("SciPost\w+(?:_\d+)+.tex", file["name"])
+            ][0]
             publication_file = project.files.get(
                 file_path=publication_filename, ref="main"
             )
