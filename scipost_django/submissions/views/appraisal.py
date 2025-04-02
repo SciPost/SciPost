@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 from colleges.permissions import fellowship_required
+from scipost.permissions import HTMXPermissionsDenied
 from submissions.forms.appraisal import (
     ConditionalAssignmentOfferInlineForm,
     RadioAppraisalForm,
@@ -22,7 +23,15 @@ def _hx_radio_appraisal_form(request, identifier_w_vn_nr=None):
         Submission.objects.in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
-    fellow = request.user.contributor.session_fellowship(request)
+
+    # Guard for the rare case where the session has an incorrect fellowship id,
+    # where simply resetting the session would fix this for the user.
+    if (fellow := request.user.contributor.session_fellowship(request)) is None:
+        return HTMXPermissionsDenied(
+            "Your fellowship was unable to be determined. "
+            "Please try to log out and back in again, "
+            "and contact support if the issue persists."
+        )
 
     try:
         qualification = Qualification.objects.get(submission=submission, fellow=fellow)
