@@ -201,51 +201,46 @@ def doi_dispatch(
     * suffix (optional) -- Suffix of form r[number[.number]].
     """
     journal = get_object_or_404(Journal, doi_label=journal_tag)
-    if suffix:
-        # This DOI necessarily points to a Publication detail page:
-        doi_label = (
-            f"{journal_tag}.{part_1}{'.' + f'{part_2}' if part_2 else ''}"
-            f"{'.' + f'{part_3}' if part_3 else ''}-{suffix}"
-        )
-        return publication_detail(request, doi_label)
-    if part_1 is None:
-        # This DOI refers to a Journal landing page.
-        return journal_detail(request, journal_tag)
-    elif part_2 is None:
-        doi_label = "{0}.{1}".format(journal_tag, part_1)
+    doi_label = ".".join(
+        [s for s in [journal_tag, part_1, part_2, part_3] if s is not None]
+    ) + (f"-{suffix}" if suffix else "")
 
-        if journal.structure == INDIVIDUAL_PUBLICATIONS:
-            # Publication DOI for invidivual publication Journals.
+    match (part_1, part_2, part_3, suffix):
+        case (None, None, None, None):
+            # This DOI refers to a Journal landing page.
+            return journal_detail(request, doi_label)
+
+        case (part_1, None, None, None):
+            if journal.structure == INDIVIDUAL_PUBLICATIONS:
+                return publication_detail(request, doi_label)
+            elif journal.structure == ISSUES_ONLY:
+                return issue_detail(request, doi_label)
+            else:
+                # The third option: a `Issue and Volume Journal DOI` would lead to a "volume detail page",
+                # but that does not exist. Redirect to the Journal landing page instead.
+                return journal_detail(request, journal_tag)
+
+        case (part_1, part_2, None, None):
+            if journal.structure == ISSUES_AND_VOLUMES:
+                return issue_detail(request, doi_label)
+            elif journal.structure == ISSUES_ONLY:
+                return publication_detail(request, doi_label)
+
+        case (part_1, part_2, part_3, None):
             return publication_detail(request, doi_label)
-        elif journal.structure == ISSUES_ONLY:
-            # Issue DOI for Issue only Journals.
-            return issue_detail(request, doi_label)
 
-        # The third option: a `Issue and Volume Journal DOI` would lead to a "volume detail page",
-        # but that does not exist. Redirect to the Journal landing page instead.
-        return journal_detail(request, journal_tag)
-    elif part_3 is None:
-        doi_label = "{0}.{1}.{2}".format(journal_tag, part_1, part_2)
-
-        if journal.structure == ISSUES_AND_VOLUMES:
-            # Issue DOI for Issue+Volumes Journals.
-            return issue_detail(request, doi_label)
-        elif journal.structure == ISSUES_ONLY:
-            # Publication DOI for Issue only Journals.
+        case (part_1, part_2, part_3, suffix):
             return publication_detail(request, doi_label)
-    else:
-        doi_label = "{0}.{1}.{2}.{3}".format(journal_tag, part_1, part_2, part_3)
-        return publication_detail(request, doi_label)
 
-    # Invalid db configure
-    raise InvalidDOIError(
-        {
-            "journal_tag": journal_tag,
-            "part_1": part_1,
-            "part_2": part_2,
-            "part_3": part_3,
-        }
-    )
+        case _:
+            raise InvalidDOIError(
+                {
+                    "journal_tag": journal_tag,
+                    "part_1": part_1,
+                    "part_2": part_2,
+                    "part_3": part_3,
+                }
+            )
 
 
 ############
