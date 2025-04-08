@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django.db.utils import ProgrammingError
 
+from journals.regexes import PUBLICATION_DOI_LABEL_REGEX
+
 
 class JournalDOILabelConverter:
     def __init__(self):
@@ -60,18 +62,7 @@ class PublicationDOILabelConverter:
     """
 
     def __init__(self):
-        try:
-            from journals.models import Journal
-
-            self.regex = "|".join([j.doi_label for j in Journal.objects.all()])
-        except ProgrammingError:
-            self.regex = "SciPost"
-        self.regex = (
-            "("
-            + self.regex
-            + ")"
-            + r"\.[0-9]+(\.[0-9]+(\.[0-9]+)?)?(-r[0-9]+(\.[0-9]+)?)?"
-        )
+        self.regex = PUBLICATION_DOI_LABEL_REGEX
 
     def to_python(self, value):
         from journals.models import Publication
@@ -80,7 +71,6 @@ class PublicationDOILabelConverter:
             return Publication.objects.get(doi_label=value).doi_label
         except Publication.DoesNotExist:
             return ValueError
-        return value
 
     def to_url(self, value):
         return value
