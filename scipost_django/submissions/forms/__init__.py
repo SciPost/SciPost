@@ -1309,8 +1309,8 @@ class SubmissionForm(forms.ModelForm):
     required_css_class = "required-asterisk"
 
     collection = forms.ChoiceField(
-        choices=[(None, "None")],
-        help_text="If your submission is part of a collection (e.g. Les Houches), please select it from the list.<br>If your target collection is missing, please contact techsupport.",
+        choices=[(None, "-" * 9)],
+        help_text="If your target collection is missing, please contact techsupport.",
         required=False,
     )
     specialties = forms.ModelMultipleChoiceField(
@@ -1503,56 +1503,25 @@ class SubmissionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = False
-        self.helper.layout = Layout(
-            # Hidden fields
-            "preprint_server",
-            "preprint_link",
-            "identifier_w_vn_nr",
-            "submitted_to",
-            "acad_field",
-            "is_resubmission_of",
-            "thread_hash",
-            # Visible fields
-            "fulfilled_expectations",
-            "is_resubmission_of",
-            "thread_hash",
-            "submitted_to",
-            "proceedings",
-            "collection",
-            "acad_field",
-            "specialties",
-            "topics",
-            "approaches",
-            "title",
-            "author_list",
-            "abstract",
-            "followup_of",
-            "author_comments",
-            "list_of_changes",
-            "remarks_for_editors",
-            Div(
-                Fieldset(
-                    "Supplementary information",
-                    Div(
-                        HTML(
-                            '<div class="mb-3 text-muted fs-6">Provide all reproducibility-enabling resources: '
-                            "datasets and processing methods, processed data "
-                            "and code snippets used to produce figures, etc.</div>"
-                        ),
-                        Field("data_repository_url"),
-                        Field("code_repository_url"),
-                        Div(
-                            Div(Field("code_name"), css_class="col-12 col-md"),
-                            Div(Field("code_version"), css_class="col-12 col-md-3"),
-                            Div(Field("code_license"), css_class="col-12 col-md"),
-                            css_class="row",
-                        ),
-                        css_class="p-2 bg-secondary bg-opacity-10",
-                    ),
-                ),
-            ),
-            "preprint_file",
-            "agree_to_terms",
+
+        active_collections_in_journal = (
+            Collection.objects.all()
+            .annotate(
+                contained_in_journal=Exists(
+                    Journal.objects.filter(
+                        id=self.submitted_to_journal.id,
+                        contained_series__collections__in=OuterRef("id"),
+                    )
+                )
+            )
+            .filter(is_active=True, contained_in_journal=True)
+            .order_by("-event_start_date")
+        )
+
+        self.fields["collection"].choices += list(
+            active_collections_in_journal.annotate(
+                name_with_series=Concat("series__name", Value(" - "), "name")
+            ).values_list("id", "name_with_series")
         )
 
         self.fields["collection"].choices += list(
@@ -1599,7 +1568,7 @@ class SubmissionForm(forms.ModelForm):
         data_required = all(require_type(PUBLISHABLE_OBJECT_TYPE_DATASET))
         proceedings_allowed = "Proc" in self.submitted_to_journal.doi_label
         proceedings_required = proceedings_allowed
-        collection_allowed = "LectNotes" in self.submitted_to_journal.doi_label
+        collection_allowed = len(active_collections_in_journal) > 0
         collection_required = False
         expectations_allowed = self.submitted_to_journal.doi_label == "SciPostPhys"
         expectations_required = expectations_allowed
@@ -1669,6 +1638,109 @@ class SubmissionForm(forms.ModelForm):
             self.fields[
                 "fulfilled_expectations"
             ].choices = self.submitted_to_journal.expectations
+
+        def _no_fields_present(*fields: list[str]):
+            """
+            Check if all fields are missing (not present in self.fields).
+            """
+            return all([field not in self.fields for field in fields])
+
+        is_expected_author_of_any_collection = (
+            self.requested_by.contributor.profile.id
+            in list(
+                active_collections_in_journal.values_list("expected_authors", flat=True)
+            )
+        )
+
+        collection_col = Div(
+            Div(
+                HTML(
+                    '<div class="mb-3 text-muted fs-6">'
+                    f"If your submission is part of a collection (e.g. {active_collections_in_journal.first()}), "
+                    "please select it from the list.</div>"
+                ),
+                Field("collection"),
+                css_class="p-2 bg-secondary bg-opacity-10"
+                + (
+                    " border border-warning border-2"
+                    if is_expected_author_of_any_collection
+                    else ""
+                ),
+            ),
+            css_class="col-12 col-md-4",
+        )
+
+        # Remove entire collection block if collection field is missing
+        if _no_fields_present("collection"):
+            collection_col = None
+
+        codebase_metadata_row = Div(
+            Div(Field("code_name"), css_class="col-12 col-md"),
+            Div(Field("code_version"), css_class="col-12 col-md-3"),
+            Div(Field("code_license"), css_class="col-12 col-md"),
+            css_class="row mb-0",
+        )
+
+        # Remove codebase metadata row if no fields are present
+        if _no_fields_present("code_name", "code_version", "code_license"):
+            codebase_metadata_row = None
+
+        supp_info_fieldset = Fieldset(
+            "Supplementary information",
+            Div(
+                HTML(
+                    '<div class="mb-3 text-muted fs-6">Provide all reproducibility-enabling resources: '
+                    "datasets and processing methods, processed data "
+                    "and code snippets used to produce figures, etc.</div>"
+                ),
+                Field("data_repository_url"),
+                Field("code_repository_url"),
+                codebase_metadata_row,
+                css_class="p-2 bg-secondary bg-opacity-10 mb-3",
+            ),
+        )
+
+        # Remove supplementary information fieldset if no fields are present
+        if _no_fields_present("data_repository_url", "code_repository_url"):
+            supp_info_fieldset = None
+
+        self.helper.layout = Layout(
+            # Hidden fields
+            "preprint_server",
+            "preprint_link",
+            "identifier_w_vn_nr",
+            "submitted_to",
+            "acad_field",
+            "is_resubmission_of",
+            "thread_hash",
+            # Visible fields
+            "fulfilled_expectations",
+            "is_resubmission_of",
+            "thread_hash",
+            "submitted_to",
+            "proceedings",
+            "acad_field",
+            Div(
+                Div(
+                    Field("specialties"),
+                    Field("topics"),
+                    Field("approaches"),
+                    css_class="col-12 col-md",
+                ),
+                collection_col,
+                css_class="row",
+            ),
+            "title",
+            "author_list",
+            "abstract",
+            "followup_of",
+            "author_comments",
+            "list_of_changes",
+            "remarks_for_editors",
+            supp_info_fieldset,
+            "preprint_file",
+            "agree_to_terms",
+        )
 
     def is_resubmission(self):
         return self.is_resubmission_of is not None
