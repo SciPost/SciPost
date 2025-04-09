@@ -1049,14 +1049,19 @@ class Submission(models.Model):
             .without_authorship_of_submission(self)
         )
 
+        expected_editor_ids = list(
+            filter(
+                lambda x: x is not None,
+                self.collections.all().values_list("expected_editors", flat=True),
+            )
+        )
+
         if self.proceedings:
             # Add only Proceedings-related Fellowships
             fellows = fellows.filter(proceedings=self.proceedings)
-        elif self.collections.all():
+        elif self.collections.all() and expected_editor_ids:
             # Add the Fellowships of the collections
-            fellows = fellows.filter(
-                id__in=self.collections.all().values("expected_editors")
-            )
+            fellows = fellows.filter(id__in=expected_editor_ids)
         else:
             # Add only Fellowships from the same College and with matching specialties
             fellows = fellows.college_specialties_overlap_with_submission(self)
