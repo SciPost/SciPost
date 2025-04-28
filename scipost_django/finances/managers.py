@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
+from django.utils import timezone
 
 from .constants import SUBSIDY_WITHDRAWN, SUBSIDY_TYPE_INDIVIDUAL_BUDGET
 
@@ -16,6 +17,19 @@ class SubsidyQuerySet(models.QuerySet):
 
     def through_individual_budget(self):
         return self.filter(subsidy_type=SUBSIDY_TYPE_INDIVIDUAL_BUDGET)
+
+    def sequentially_renewable(self):
+        """
+        Returns subsidies that are eligible to be renewed without the breaking of a
+        sponsorship period, i.e. those that can be renewed and whose end date elapsed
+        no more than one year ago (current, and last year ones).
+        For a sponsorship within a calendar year, the sponsor is named "current" during that year
+        and marked as "pending renewal" for the next year.
+        Sponsors not renewing for more than one year are then considered "past".
+        """
+        return self.filter(renewable=True).exclude(
+            models.Q(date_until__year__lt=timezone.now().year - 1)
+        )
 
 
 class SubsidyPaymentQuerySet(models.QuerySet):

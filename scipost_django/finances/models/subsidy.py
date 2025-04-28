@@ -85,6 +85,7 @@ class Subsidy(models.Model):
     class Meta:
         verbose_name_plural = "subsidies"
         ordering = ["-date_from"]
+        get_latest_by = "date_until"
 
     def __str__(self):
         if self.amount_publicly_shown:

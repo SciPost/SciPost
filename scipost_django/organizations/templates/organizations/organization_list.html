@@ -168,17 +168,29 @@
             <div>Current</div>
             <div><small>via child</small></div>
           </td>
-        {% elif org.has_any_subsidy %}
-          <td class="bg-primary text-white">Past</td>
+        {% elif org.subsidy_set.obtained.sequentially_renewable.all %}
+          <td class="bg-success bg-opacity-50">
+            <div>Pending renewal</div>
+          </td>
+        {% elif org.parent.subsidy_set.obtained.sequentially_renewable.all %}
+          <td class="bg-success bg-opacity-50">
+            <div>Pending renewal</div>
+            <div><small>via parent</small></div>
+          </td>
+        {% elif org.subsidy_set.obtained.all %}
+          <td class="bg-primary text-white">
+            <div>Past</div>
+            <div><small>latest in {{ org.subsidy_set.obtained.latest.date_until.year }} </small></div>
+          </td>
         {% elif org.parent.has_current_subsidy %}
           <td class="bg-success text-white">
             <div>Current</div>
             <div><small>via parent</small></div>
           </td>
-	      {% elif org.parent.has_any_subsidy %}
+	      {% elif org.parent.subsidy_set.obtained.all %}
           <td class="bg-primary text-white">
             <div>Past</div>
-            <div><small>via parent</small></div>
+            <div><small>via parent, for {{ org.parent.subsidy_set.obtained.latest.date_until.year }} </small></div>
           </td>
 	      {% elif org.cf_nr_associated_publications > 0 %}
           <td class="bg-warning bg-opacity-75">Not yet</td>
