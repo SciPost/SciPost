@@ -908,7 +908,7 @@ def manage_metadata(request, doi_label=None):
 def reset_authors(request, doi_label: str) -> HttpResponse:
     publication = get_object_or_404(Publication, doi_label=doi_label)
     if not publication.is_draft and not request.user.has_perm(
-        "can_publish_accepted_submission"
+        "scipost.can_publish_accepted_submission"
     ):
         raise Http404("You do not have permission to edit this non-draft Publication")
 
@@ -930,7 +930,7 @@ def add_author(request: HttpRequest, doi_label: str) -> HttpResponse:
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
     if not publication.is_draft and not request.user.has_perm(
-        "can_publish_accepted_submission"
+        "scipost.can_publish_accepted_submission"
     ):
         raise Http404("You do not have permission to edit this non-draft Publication")
 
@@ -1014,7 +1014,7 @@ def add_author(request: HttpRequest, doi_label: str) -> HttpResponse:
 def author_affiliations(request, doi_label: str) -> HttpResponse:
     publication = get_object_or_404(Publication, doi_label=doi_label)
     if not publication.is_draft and not request.user.has_perm(
-        "can_publish_accepted_submission"
+        "scipost.can_publish_accepted_submission"
     ):
         raise PermissionDenied(
             "You do not have permission to edit this non-draft Publication"
