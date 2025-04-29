@@ -3,7 +3,8 @@ __license__ = "AGPL v3"
 
 
 from django import template
-from django.db.models import Q, Count, Exists, OuterRef, Prefetch, Subquery
+from django.db.models import Q, Count, Exists, OuterRef, Prefetch, Subquery, Value
+from django.db.models.functions import Concat
 from django.utils import timezone
 
 from ethics.models import SubmissionClearance
@@ -101,7 +102,12 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
     manual_eic_invitation_events = SubmissionEvent.objects.filter(
         submission=submission,
         event=EVENT_FOR_EDADMIN,
-        text__contains=OuterRef("contributor__profile__last_name"),
+        text__icontains="manual EIC invitation",
+        text__contains=Concat(
+            OuterRef("contributor__profile__first_name"),
+            Value(" "),
+            OuterRef("contributor__profile__last_name"),
+        ),
     )
 
     nr_manual_eic_invitations = (
