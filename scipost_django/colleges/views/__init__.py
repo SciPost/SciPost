@@ -1320,11 +1320,9 @@ def _hx_fellowship_invitation_update_response(request, invitation_id):
                 FellowshipInvitation.RESPONSE_POSTPONED,
             ]:
                 nonexpired_fellowship = (
-                    Fellowship.objects.exclude(
-                        until_date__lte=timezone.now().date(),
-                        status=Fellowship.STATUS_GUEST,
-                    )
-                    .filter(
+                    Fellowship.objects.filter(
+                        ~Q(status=Fellowship.STATUS_GUEST),
+                        until_date__gt=timezone.now().date(),
                         college=invitation.nomination.college,
                         contributor=invitation.nomination.profile.contributor,
                     )

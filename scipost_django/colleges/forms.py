@@ -526,6 +526,7 @@ class FellowshipNominationForm(forms.ModelForm):
             Fellowship.objects.active()
             .filter(contributor__profile=self.profile)
             .filter(college=data["college"])
+            .exclude(status=Fellowship.STATUS_GUEST)
             .exists()
         ):
             self.add_error(
