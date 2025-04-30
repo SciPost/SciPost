@@ -1,39 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns="http://www.crossref.org/doi_resources_schema/4.5.0"
-	targetNamespace="http://www.crossref.org/doi_resources_schema/4.5.0"
+	xmlns="http://www.crossref.org/doi_resources_schema/5.4.0"
+	targetNamespace="http://www.crossref.org/doi_resources_schema/5.4.0"
+	xmlns:fr5.4.0="http://www.crossref.org/fundingdata5.4.0.xsd"
 	xmlns:fr="http://www.crossref.org/fundref.xsd"
 	xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
 	xmlns:rel="http://www.crossref.org/relations.xsd"
 	xmlns:ct="http://www.crossref.org/clinicaltrials.xsd">
 
+<!-- =============================================================
+This is version 5.4.0 of the Crossref resource schema. It supports appending or updating select pieces of metadata to an existing DOI metadata record. Supported metadata includes:
 
-	<!--*************************************************************
-	Crossref Resource Input Schema, v. 4.5.0
-	*************************************************************
-	
-This is the latest iteration of the Crossref Resource Schema, used to append metadata to existing records.
+- reference lists
+- Crossmark metadata
+- clinical trial data
+- funding data
+- multiple resolution URLs
+- relationships
+- license metadata
 
-As of version 4.5.0 all changes are noted in the release notes for the schema repository in GitLab:  https://gitlab.com/crossref/schema/-/releases
-	
-Prior updates are noted as comments within previous schema versions.
-	
-  -->
+All changes are noted in the release notes for the schema repository in GitLab:  https://gitlab.com/crossref/schema/-/releases
 
-
-	<xsd:include schemaLocation="common4.5.0.xsd"/>
+     ============================================================= -->
+	<xsd:include schemaLocation="common5.4.0.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/fundingdata5.4.0.xsd" schemaLocation="fundingdata5.4.0.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/fundref.xsd" schemaLocation="fundref.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/AccessIndicators.xsd" schemaLocation="AccessIndicators.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/relations.xsd" schemaLocation="relations.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/clinicaltrials.xsd" schemaLocation="clinicaltrials.xsd"/>
-
 	<xsd:element name="doi_batch">
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element ref="head"/>
 				<xsd:element ref="body"/>
 			</xsd:sequence>
-			<xsd:attribute name="version" type="xsd:string" fixed="4.5.0"/>
+			<xsd:attribute name="version" type="xsd:string" fixed="5.4.0"/>
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:element name="head">
@@ -100,7 +101,7 @@ Prior updates are noted as comments within previous schema versions.
 	<xsd:element name="doi_relations">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="doi"/>
+				<xsd:element ref="doi"/>  
 				<xsd:element ref="rel:program"/>
 			</xsd:sequence>
 		</xsd:complexType>
@@ -108,11 +109,9 @@ Prior updates are noted as comments within previous schema versions.
 	<xsd:element name="clinicaltrial_data">
 		<xsd:complexType>
 			<xsd:sequence>
-				<xsd:element ref="doi"/>
+				<xsd:element ref="doi"/>  
 				<xsd:element ref="ct:program"/>
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>
-
-
 </xsd:schema>

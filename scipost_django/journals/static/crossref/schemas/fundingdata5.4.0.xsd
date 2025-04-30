@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    targetNamespace="http://www.crossref.org/fundref.xsd"
-    xmlns="http://www.crossref.org/fundref.xsd">
+    targetNamespace="http://www.crossref.org/fundingdata5.4.0.xsd"
+    xmlns="http://www.crossref.org/fundingdata5.4.0.xsd">
     
     <!--=========Change History===========
     10/9/24 (PDF) added ror identifier    

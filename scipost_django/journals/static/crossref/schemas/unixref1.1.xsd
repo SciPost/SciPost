@@ -2,7 +2,8 @@
 <!--
 Unified Crossref XML schema. 
 
-1.1 (PDF) import new grants schema grant
+1.1 (PDF) add updates for 5.4 schema
+1.1 (PDF) import new grants schema (0.2.0)
 1.1 (PDF) added institution_id to affiliations and made institution_id or institution_name required
 1.1 (PDF) for input schema update 4.8.0; update JATS file path to support JATS 1.3
 1.1 (PDF) add link-header, link_header_relationship; add anonymous option for contributors
@@ -37,13 +38,15 @@ Unified Crossref XML schema.
 <xsd:schema xmlns="http://www.crossref.org/xschema/1.1" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	targetNamespace="http://www.crossref.org/xschema/1.1"
 	xmlns:fr="http://www.crossref.org/fundref.xsd"
+	xmlns:fd="http://www.crossref.org/fundingdata5.4.0.xsd"
 	xmlns:ai="http://www.crossref.org/AccessIndicators.xsd"
 	xmlns:ct="http://www.crossref.org/clinicaltrials.xsd"
 	xmlns:rel="http://www.crossref.org/relations.xsd" xmlns:mml="http://www.w3.org/1998/Math/MathML"
 	xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1"
-	xmlns:gid="http://www.crossref.org/grant_id/0.1.0">
+	xmlns:gid="http://www.crossref.org/grant_id/0.2.0">
 
 	<xsd:import namespace="http://www.crossref.org/fundref.xsd" schemaLocation="fundref.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/fundingdata5.4.0.xsd" schemaLocation="fundingdata5.4.0.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/AccessIndicators.xsd"
 		schemaLocation="AccessIndicators.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/relations.xsd" schemaLocation="relations.xsd"/>
@@ -53,7 +56,12 @@ Unified Crossref XML schema.
 		schemaLocation="JATS-journalpublishing1-3d2-mathml3.xsd"/>
 	<xsd:import namespace="http://www.crossref.org/clinicaltrials.xsd"
 		schemaLocation="clinicaltrials.xsd"/>
-	<xsd:import namespace="http://www.crossref.org/grant_id/0.1.0" schemaLocation="grant_id0.1.0.xsd"/>
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace"
+		schemaLocation="http://www.w3.org/2009/01/xml.xsd"/>
+	<xsd:import namespace="http://www.crossref.org/grant_id/0.2.0" schemaLocation="grant_id0.2.0.xsd"/>
+	<xsd:include schemaLocation="languages5.4.0.xsd"/>
+	<xsd:include schemaLocation="mediatypes5.4.0.xsd"/>
+	
 	
 	
 	<!-- =============================================================
@@ -118,350 +126,7 @@ Unified Crossref XML schema.
 		</xsd:attribute>
 		<xsd:attributeGroup ref="language.atts"/>
 	</xsd:attributeGroup>
-	<!-- lanuage attributes are based on iso 639  -->
-	<xsd:attributeGroup name="language.atts">
-		<xsd:attribute name="language" use="optional">
-			<xsd:simpleType>
-				<xsd:restriction base="xsd:NMTOKEN">
-					<xsd:enumeration value="aa"/>
-					<xsd:enumeration value="ab"/>
-					<xsd:enumeration value="ae"/>
-					<xsd:enumeration value="af"/>
-					<xsd:enumeration value="ak"/>
-					<xsd:enumeration value="am"/>
-					<xsd:enumeration value="an"/>
-					<xsd:enumeration value="ar"/>
-					<xsd:enumeration value="as"/>
-					<xsd:enumeration value="av"/>
-					<xsd:enumeration value="ay"/>
-					<xsd:enumeration value="az"/>
-					<xsd:enumeration value="ba"/>
-					<xsd:enumeration value="be"/>
-					<xsd:enumeration value="bg"/>
-					<xsd:enumeration value="bh"/>
-					<xsd:enumeration value="bi"/>
-					<xsd:enumeration value="bm"/>
-					<xsd:enumeration value="bn"/>
-					<xsd:enumeration value="bo"/>
-					<xsd:enumeration value="br"/>
-					<xsd:enumeration value="bs"/>
-					<xsd:enumeration value="ca"/>
-					<xsd:enumeration value="ce"/>
-					<xsd:enumeration value="ch"/>
-					<xsd:enumeration value="co"/>
-					<xsd:enumeration value="cr"/>
-					<xsd:enumeration value="cs"/>
-					<xsd:enumeration value="cu"/>
-					<xsd:enumeration value="cv"/>
-					<xsd:enumeration value="cy"/>
-					<xsd:enumeration value="da"/>
-					<xsd:enumeration value="de"/>
-					<xsd:enumeration value="dv"/>
-					<xsd:enumeration value="dz"/>
-					<xsd:enumeration value="ee"/>
-					<xsd:enumeration value="el"/>
-					<xsd:enumeration value="en"/>
-					<xsd:enumeration value="eo"/>
-					<xsd:enumeration value="es"/>
-					<xsd:enumeration value="et"/>
-					<xsd:enumeration value="eu"/>
-					<xsd:enumeration value="fa"/>
-					<xsd:enumeration value="ff"/>
-					<xsd:enumeration value="fi"/>
-					<xsd:enumeration value="fj"/>
-					<xsd:enumeration value="fo"/>
-					<xsd:enumeration value="fr"/>
-					<xsd:enumeration value="fy"/>
-					<xsd:enumeration value="ga"/>
-					<xsd:enumeration value="gd"/>
-					<xsd:enumeration value="gl"/>
-					<xsd:enumeration value="gn"/>
-					<xsd:enumeration value="gu"/>
-					<xsd:enumeration value="gv"/>
-					<xsd:enumeration value="ha"/>
-					<xsd:enumeration value="he"/>
-					<xsd:enumeration value="hi"/>
-					<xsd:enumeration value="ho"/>
-					<xsd:enumeration value="hr"/>
-					<xsd:enumeration value="ht"/>
-					<xsd:enumeration value="hu"/>
-					<xsd:enumeration value="hy"/>
-					<xsd:enumeration value="hz"/>
-					<xsd:enumeration value="ia"/>
-					<xsd:enumeration value="id"/>
-					<xsd:enumeration value="ie"/>
-					<xsd:enumeration value="ig"/>
-					<xsd:enumeration value="ii"/>
-					<xsd:enumeration value="ik"/>
-					<xsd:enumeration value="io"/>
-					<xsd:enumeration value="is"/>
-					<xsd:enumeration value="it"/>
-					<xsd:enumeration value="iu"/>
-					<xsd:enumeration value="ja"/>
-					<xsd:enumeration value="jw"/>
-					<xsd:enumeration value="ka"/>
-					<xsd:enumeration value="kg"/>
-					<xsd:enumeration value="ki"/>
-					<xsd:enumeration value="kj"/>
-					<xsd:enumeration value="kk"/>
-					<xsd:enumeration value="kl"/>
-					<xsd:enumeration value="km"/>
-					<xsd:enumeration value="kn"/>
-					<xsd:enumeration value="ko"/>
-					<xsd:enumeration value="kr"/>
-					<xsd:enumeration value="ks"/>
-					<xsd:enumeration value="ku"/>
-					<xsd:enumeration value="kv"/>
-					<xsd:enumeration value="kw"/>
-					<xsd:enumeration value="ky"/>
-					<xsd:enumeration value="la"/>
-					<xsd:enumeration value="lb"/>
-					<xsd:enumeration value="lg"/>
-					<xsd:enumeration value="li"/>
-					<xsd:enumeration value="ln"/>
-					<xsd:enumeration value="lo"/>
-					<xsd:enumeration value="lt"/>
-					<xsd:enumeration value="lu"/>
-					<xsd:enumeration value="lv"/>
-					<xsd:enumeration value="mg"/>
-					<xsd:enumeration value="mu"/>
-					<xsd:enumeration value="mi"/>
-					<xsd:enumeration value="mk"/>
-					<xsd:enumeration value="ml"/>
-					<xsd:enumeration value="mn"/>
-					<xsd:enumeration value="mr"/>
-					<xsd:enumeration value="ms"/>
-					<xsd:enumeration value="mt"/>
-					<xsd:enumeration value="my"/>
-					<xsd:enumeration value="na"/>
-					<xsd:enumeration value="nb"/>
-					<xsd:enumeration value="nd"/>
-					<xsd:enumeration value="ne"/>
-					<xsd:enumeration value="ng"/>
-					<xsd:enumeration value="nl"/>
-					<xsd:enumeration value="nn"/>
-					<xsd:enumeration value="no"/>
-					<xsd:enumeration value="nr"/>
-					<xsd:enumeration value="nv"/>
-					<xsd:enumeration value="ny"/>
-					<xsd:enumeration value="oc"/>
-					<xsd:enumeration value="oj"/>
-					<xsd:enumeration value="om"/>
-					<xsd:enumeration value="or"/>
-					<xsd:enumeration value="os"/>
-					<xsd:enumeration value="pa"/>
-					<xsd:enumeration value="pi"/>
-					<xsd:enumeration value="pl"/>
-					<xsd:enumeration value="ps"/>
-					<xsd:enumeration value="pt"/>
-					<xsd:enumeration value="qu"/>
-					<xsd:enumeration value="rm"/>
-					<xsd:enumeration value="rn"/>
-					<xsd:enumeration value="ro"/>
-					<xsd:enumeration value="ru"/>
-					<xsd:enumeration value="rw"/>
-					<xsd:enumeration value="sa"/>
-					<xsd:enumeration value="sc"/>
-					<xsd:enumeration value="sd"/>
-					<xsd:enumeration value="se"/>
-					<xsd:enumeration value="sg"/>
-					<xsd:enumeration value="si"/>
-					<xsd:enumeration value="sk"/>
-					<xsd:enumeration value="sl"/>
-					<xsd:enumeration value="sm"/>
-					<xsd:enumeration value="sn"/>
-					<xsd:enumeration value="so"/>
-					<xsd:enumeration value="sq"/>
-					<xsd:enumeration value="sr"/>
-					<xsd:enumeration value="ss"/>
-					<xsd:enumeration value="st"/>
-					<xsd:enumeration value="su"/>
-					<xsd:enumeration value="sv"/>
-					<xsd:enumeration value="sw"/>
-					<xsd:enumeration value="ta"/>
-					<xsd:enumeration value="te"/>
-					<xsd:enumeration value="tg"/>
-					<xsd:enumeration value="th"/>
-					<xsd:enumeration value="ti"/>
-					<xsd:enumeration value="tk"/>
-					<xsd:enumeration value="tl"/>
-					<xsd:enumeration value="tn"/>
-					<xsd:enumeration value="to"/>
-					<xsd:enumeration value="tr"/>
-					<xsd:enumeration value="ts"/>
-					<xsd:enumeration value="tt"/>
-					<xsd:enumeration value="tw"/>
-					<xsd:enumeration value="ty"/>
-					<xsd:enumeration value="ug"/>
-					<xsd:enumeration value="uk"/>
-					<xsd:enumeration value="ur"/>
-					<xsd:enumeration value="uz"/>
-					<xsd:enumeration value="ve"/>
-					<xsd:enumeration value="vi"/>
-					<xsd:enumeration value="vo"/>
-					<xsd:enumeration value="wa"/>
-					<xsd:enumeration value="wo"/>
-					<xsd:enumeration value="xh"/>
-					<xsd:enumeration value="yi"/>
-					<xsd:enumeration value="yo"/>
-					<xsd:enumeration value="za"/>
-					<xsd:enumeration value="zh"/>
-				</xsd:restriction>
-			</xsd:simpleType>
-		</xsd:attribute>
-	</xsd:attributeGroup>
-	<!--
-         Mime types for component format
-        (for mime types refer to http://www.iana.org/assignments/media-types/
-    -->
-	<xsd:attributeGroup name="mime_type.atts">
-		<xsd:attribute name="mime_type" use="optional">
-			<xsd:simpleType>
-				<xsd:restriction base="xsd:string">
-					<xsd:enumeration value="text/plain"/>
-					<xsd:enumeration value="text/richtext"/>
-					<xsd:enumeration value="text/enriched"/>
-					<xsd:enumeration value="text/tab-separated-values"/>
-					<xsd:enumeration value="text/html"/>
-					<xsd:enumeration value="text/sgml"/>
-					<xsd:enumeration value="text/css"/>
-					<xsd:enumeration value="text/xml"/>
-					<xsd:enumeration value="text/xml-external-parsed-entity"/>
-					<xsd:enumeration value="multipart/mixed"/>
-					<xsd:enumeration value="multipart/alternative"/>
-					<xsd:enumeration value="multipart/digest"/>
-					<xsd:enumeration value="multipart/parallel"/>
-					<xsd:enumeration value="multipart/appledouble"/>
-					<xsd:enumeration value="multipart/header-set"/>
-					<xsd:enumeration value="multipart/form-data"/>
-					<xsd:enumeration value="multipart/report"/>
-					<xsd:enumeration value="multipart/voice-message"/>
-					<xsd:enumeration value="multipart/signed"/>
-					<xsd:enumeration value="multipart/encrypted"/>
-					<xsd:enumeration value="multipart/byteranges"/>
-					<xsd:enumeration value="application/eps"/>
-					<xsd:enumeration value="application/epub+zip"/>
-					<xsd:enumeration value="application/octet-stream"/>
-					<xsd:enumeration value="application/postscript"/>
-					<xsd:enumeration value="application/rtf"/>
-					<xsd:enumeration value="application/applefile"/>
-					<xsd:enumeration value="application/mac-binhex40"/>
-					<xsd:enumeration value="application/wordperfect5.1"/>
-					<xsd:enumeration value="application/pdf"/>
-					<xsd:enumeration value="application/x-gzip"/>
-					<xsd:enumeration value="application/zip"/>
-					<xsd:enumeration value="application/gzip"/>
-					<xsd:enumeration value="application/macwriteii"/>
-					<xsd:enumeration value="application/msword"/>
-					<xsd:enumeration value="application/sgml"/>
-					<xsd:enumeration value="application/cals-1840"/>
-					<xsd:enumeration value="application/pgp-encrypted"/>
-					<xsd:enumeration value="application/pgp-signature"/>
-					<xsd:enumeration value="application/pgp-keys"/>
-					<xsd:enumeration value="application/sgml-open-catalog"/>
-					<xsd:enumeration value="application/rc"/>
-					<xsd:enumeration value="application/xml"/>
-					<xsd:enumeration value="application/xml-external-parsed-entity"/>
-					<xsd:enumeration value="application/xml-dtd"/>
-					<xsd:enumeration value="application/batch-SMTP"/>
-					<xsd:enumeration value="application/ipp"/>
-					<xsd:enumeration value="application/ocsp-request"/>
-					<xsd:enumeration value="application/ocsp-response"/>
-					<xsd:enumeration value="application/vnd.oasis.opendocument.text"/>
-					<xsd:enumeration value="application/vnd.oasis.opendocument.presentation"/>
-					<xsd:enumeration value="application/vnd.oasis.opendocument.spreadsheet"/>
-					<xsd:enumeration value="application/vnd.ms-excel"/>
-					<xsd:enumeration value="application/vnd.ms-powerpoint"/>
-					<xsd:enumeration
-						value="application/vnd.openxmlformats-officedocument.presentationml.presentation"/>
-					<xsd:enumeration
-						value="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
-					<xsd:enumeration
-						value="application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
-					<xsd:enumeration value="application/epub+zip"/>
-					<xsd:enumeration value="image/fits"/>
-					<xsd:enumeration value="image/jpeg"/>
-					<xsd:enumeration value="image/gif"/>
-					<xsd:enumeration value="image/ief"/>
-					<xsd:enumeration value="image/g3fax"/>
-					<xsd:enumeration value="image/tiff"/>
-					<xsd:enumeration value="image/Graphics-Metafile"/>
-					<xsd:enumeration value="image/png"/>
-					<xsd:enumeration value="audio/basic"/>
-					<xsd:enumeration value="audio/32kadpcm"/>
-					<xsd:enumeration value="audio/mpeg"/>
-					<xsd:enumeration value="audio/parityfec"/>
-					<xsd:enumeration value="audio/MP4A-LATM"/>
-					<xsd:enumeration value="audio/mpa-robust"/>
-					<xsd:enumeration value="video/x-ms-wmv"/>
-					<xsd:enumeration value="video/avi"/>
-					<xsd:enumeration value="video/mpeg"/>
-					<xsd:enumeration value="video/quicktime"/>
-					<xsd:enumeration value="video/pointer"/>
-					<xsd:enumeration value="video/parityfec"/>
-					<xsd:enumeration value="video/MP4V-ES"/>
-					<xsd:enumeration value="video/mp4"/>
-					<xsd:enumeration value="chemical/x-alchemy"/>
-					<xsd:enumeration value="chemical/x-cache-csf"/>
-					<xsd:enumeration value="chemical/x-cactvs-binary"/>
-					<xsd:enumeration value="chemical/x-cactvs-binary"/>
-					<xsd:enumeration value="chemical/x-cactvs-binary"/>
-					<xsd:enumeration value="chemical/x-cdx"/>
-					<xsd:enumeration value="chemical/x-cerius"/>
-					<xsd:enumeration value="chemical/x-chemdraw"/>
-					<xsd:enumeration value="chemical/x-cif"/>
-					<xsd:enumeration value="chemical/x-mmcif"/>
-					<xsd:enumeration value="chemical/x-chem3d"/>
-					<xsd:enumeration value="chemical/x-cmdf"/>
-					<xsd:enumeration value="chemical/x-compass"/>
-					<xsd:enumeration value="chemical/x-crossfire"/>
-					<xsd:enumeration value="chemical/x-cml"/>
-					<xsd:enumeration value="chemical/x-csml"/>
-					<xsd:enumeration value="chemical/x-ctx"/>
-					<xsd:enumeration value="chemical/x-cxf"/>
-					<xsd:enumeration value="chemical/x-daylight-smiles"/>
-					<xsd:enumeration value="chemical/x-embl-dl-nucleotide"/>
-					<xsd:enumeration value="chemical/x-galactic-spc"/>
-					<xsd:enumeration value="Data/spcvue.htm"/>
-					<xsd:enumeration value="chemical/x-gamess-input"/>
-					<xsd:enumeration value="chemical/x-gaussian-input"/>
-					<xsd:enumeration value="chemical/x-gaussian-checkpoint"/>
-					<xsd:enumeration value="chemical/x-gaussian-cube"/>
-					<xsd:enumeration value="chemical/x-gcg8-sequence"/>
-					<xsd:enumeration value="chemical/x-genbank"/>
-					<xsd:enumeration value="chemical/x-isostar"/>
-					<xsd:enumeration value="chemical/x-jcamp-dx"/>
-					<xsd:enumeration value="chemical/x-kinemage"/>
-					<xsd:enumeration value="chemical/x-macmolecule"/>
-					<xsd:enumeration value="chemical/x-macromodel-input"/>
-					<xsd:enumeration value="chemical/x-mdl-molfile"/>
-					<xsd:enumeration value="chemical/x-mdl-rdfile"/>
-					<xsd:enumeration value="chemical/x-mdl-rxnfile"/>
-					<xsd:enumeration value="chemical/x-mdl-sdfile"/>
-					<xsd:enumeration value="chemical/x-mdl-tgf"/>
-					<xsd:enumeration value="chemical/x-mif"/>
-					<xsd:enumeration value="chemical/x-mol2"/>
-					<xsd:enumeration value="chemical/x-molconn-Z"/>
-					<xsd:enumeration value="chemical/x-mopac-input"/>
-					<xsd:enumeration value="chemical/x-mopac-graph"/>
-					<xsd:enumeration value="chemical/x-ncbi-asn1"/>
-					<xsd:enumeration value="chemical/x-ncbi-asn1-binary"/>
-					<xsd:enumeration value="chemical/x-pdb"/>
-					<xsd:enumeration value="chemical/x-swissprot"/>
-					<xsd:enumeration value="chemical/x-vamas-iso14976"/>
-					<xsd:enumeration value="chemical/x-vmd"/>
-					<xsd:enumeration value="chemical/x-xtel"/>
-					<xsd:enumeration value="chemical/x-xyz"/>
-					<xsd:enumeration value="model/vrml"/>
-					<xsd:enumeration value="model/stl"/>
-					<xsd:enumeration value="model/x.stl-binary"/>
-					<xsd:enumeration value="model/x.stl-ascii"/>
-					<xsd:enumeration value="audio/x-wav"/>
-					<xsd:enumeration value="video/x-flv"/>
-				</xsd:restriction>
-			</xsd:simpleType>
-		</xsd:attribute>
-	</xsd:attributeGroup>
+	
 	<xsd:attributeGroup name="metadata_distribution_opts.att">
 		<xsd:annotation>
 			<xsd:documentation>Use to flag metadata for distribution. "query" is the default and
@@ -694,6 +359,7 @@ Unified Crossref XML schema.
 						<xsd:enumeration value="scirus"/>
 						<xsd:enumeration value="yahoo"/>
 						<xsd:enumeration value="iParadigms"/>
+						<xsd:enumeration value="similarity-check"/>
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
@@ -1056,12 +722,13 @@ Unified Crossref XML schema.
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:element name="ORCID">
-		<xsd:simpleType>
-			<xsd:restriction base="xsd:string">
-				<xsd:maxLength value="37"/>
-				<xsd:minLength value="33"/>
-			</xsd:restriction>
-		</xsd:simpleType>
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="orcid_t">
+					<xsd:attribute default="false" name="authenticated" type="xsd:boolean"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
 	</xsd:element>
 	<xsd:simpleType name="orcid_t">
 		<xsd:restriction base="xsd:string">
@@ -1331,12 +998,25 @@ Unified Crossref XML schema.
 			<xsd:attribute name="name" use="required">
 				<xsd:simpleType>
 					<xsd:restriction base="xsd:string">
+						<xsd:enumeration value="ADS"/>
+						<xsd:enumeration value="BL"/>
+						<xsd:enumeration value="Cariniana Network"/>
 						<xsd:enumeration value="CLOCKSS"/>
-						<xsd:enumeration value="LOCKSS"/>
-						<xsd:enumeration value="Portico"/>
-						<xsd:enumeration value="KB"/>
-						<xsd:enumeration value="Internet Archive"/>
 						<xsd:enumeration value="DWT"/>
+						<xsd:enumeration value="HathiTrust"/>
+						<xsd:enumeration value="Internet Archive"/>
+						<xsd:enumeration value="KB"/>
+						<xsd:enumeration value="LOCKSS"/>
+						<xsd:enumeration value="LOC"/>
+						<xsd:enumeration value="NAA"/>
+						<xsd:enumeration value="NARA"/>
+						<xsd:enumeration value="NDPP"/>
+						<xsd:enumeration value="NSK"/>
+						<xsd:enumeration value="PKP PN"/>
+						<xsd:enumeration value="Portico"/>
+						<xsd:enumeration value="PSNC"/>
+						<xsd:enumeration value="Scholars Portal"/>
+						<xsd:enumeration value="TNA"/>
 					</xsd:restriction>
 				</xsd:simpleType>
 			</xsd:attribute>
@@ -1376,7 +1056,6 @@ Unified Crossref XML schema.
 				</xsd:simpleType>
 			</xsd:attribute>
 			<xsd:attribute name="specific-use"/>
-			<!--using our language.atts attribute group instead of importing xml:lang-->
 			<xsd:attributeGroup ref="language.atts"/>
 		</xsd:complexType>
 	</xsd:element>
@@ -1471,6 +1150,34 @@ Unified Crossref XML schema.
 
      ============================================================= -->
 	<xsd:attributeGroup name="citation_key.atts">
+		<xsd:attribute name="type" use="optional">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:NMTOKEN">
+					<xsd:enumeration value="blog"/>
+					<xsd:enumeration value="blog_post"/>
+					<xsd:enumeration value="book"/>
+					<xsd:enumeration value="book_chapter"/>
+					<xsd:enumeration value="collection"/>
+					<xsd:enumeration value="conference_paper"/>
+					<xsd:enumeration value="conference_proceedings"/>
+					<xsd:enumeration value="dataset"/>
+					<xsd:enumeration value="dissertation"/>
+					<xsd:enumeration value="journal"/>
+					<xsd:enumeration value="journal_article"/>
+					<xsd:enumeration value="other"/>
+					<xsd:enumeration value="patent"/>
+					<xsd:enumeration value="peer_review"/>
+					<xsd:enumeration value="poster"/>
+					<xsd:enumeration value="preprint"/>
+					<xsd:enumeration value="protocol"/>
+					<xsd:enumeration value="registered_report"/>
+					<xsd:enumeration value="report"/>
+					<xsd:enumeration value="software"/>
+					<xsd:enumeration value="standard"/>
+					<xsd:enumeration value="web_resource"/>		
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
 		<xsd:attribute name="key" type="xsd:string" use="required"/>
 	</xsd:attributeGroup>
 	<!-- =============================================================
@@ -1591,6 +1298,7 @@ Unified Crossref XML schema.
 				<xsd:group ref="face_markup"/>
 			</xsd:choice>
 			<xsd:attributeGroup ref="language.atts"/>
+			<xsd:attribute ref="xml:lang"/>
 		</xsd:complexType>
 	</xsd:element>
 	<xsd:simpleType name="format_t">
@@ -1829,13 +1537,18 @@ Unified Crossref XML schema.
 				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="pages" minOccurs="0"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
-				<xsd:element ref="ct:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data"/>
 				<xsd:element ref="citation_list" minOccurs="0"/>
 				<xsd:element ref="component_list" minOccurs="0"/>
@@ -1951,12 +1664,12 @@ Unified Crossref XML schema.
 			<xsd:sequence>
 				<xsd:element ref="proceedings_title"/>
 				<xsd:element ref="proceedings_subject" minOccurs="0"/>
-				<xsd:element ref="publisher" maxOccurs="5"/>
+				<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="publication_date" maxOccurs="10"/>
 				<xsd:element ref="volume" minOccurs="0"/>
 				<xsd:element ref="series_metadata" minOccurs="0"/>
 				<xsd:choice>
-					<xsd:element ref="isbn" maxOccurs="6"/>
+					<xsd:element ref="isbn" maxOccurs="unbounded"/>
 					<xsd:element ref="noisbn"/>
 				</xsd:choice>
 				<xsd:element ref="issn" minOccurs="0" maxOccurs="6"/>
@@ -1984,16 +1697,16 @@ Unified Crossref XML schema.
 							<xsd:element ref="volume"/>
 						</xsd:choice>
 						<xsd:element ref="proceedings_subject" minOccurs="0"/>
-						<xsd:element ref="publisher" maxOccurs="5"/>
+						<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 						<xsd:element ref="publication_date" maxOccurs="10"/>
 						<xsd:choice>
-							<xsd:element ref="isbn" maxOccurs="6"/>
+							<xsd:element ref="isbn" maxOccurs="unbounded"/>
 							<xsd:element ref="noisbn"/>
 						</xsd:choice>
 					</xsd:sequence>
 					<xsd:sequence>
 						<xsd:element ref="proceedings_subject" minOccurs="0"/>
-						<xsd:element ref="publisher" maxOccurs="5"/>
+						<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 						<xsd:element ref="publication_date" maxOccurs="10"/>
 					</xsd:sequence>
 				</xsd:choice>
@@ -2032,14 +1745,18 @@ Unified Crossref XML schema.
 				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="pages" minOccurs="0"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
-				<xsd:element ref="ct:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
-				<!--   CS-3495 -->
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data"/>
 				<xsd:element ref="citation_list" minOccurs="0"/>
 				<xsd:element ref="component_list" minOccurs="0"/>
@@ -2086,14 +1803,19 @@ Unified Crossref XML schema.
 				<xsd:element ref="edition_number" minOccurs="0"/>
 				<xsd:element ref="publication_date" maxOccurs="10"/>
 				<xsd:choice>
-					<xsd:element ref="isbn" maxOccurs="6"/>
+					<xsd:element ref="isbn" maxOccurs="unbounded"/>
 					<xsd:element ref="noisbn"/>
 				</xsd:choice>
-				<xsd:element ref="publisher"/>
+				<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="doi_data" minOccurs="0"/>
@@ -2121,17 +1843,22 @@ Unified Crossref XML schema.
 						<xsd:element ref="edition_number" minOccurs="0"/>
 						<xsd:element ref="publication_date" maxOccurs="10"/>
 						<xsd:choice>
-							<xsd:element ref="isbn" maxOccurs="6"/>
+							<xsd:element ref="isbn" maxOccurs="unbounded"/>
 							<xsd:element ref="noisbn"/>
 						</xsd:choice>
 					</xsd:sequence>
 					<xsd:element ref="publication_date" maxOccurs="10"/>
 				</xsd:choice>
-				<xsd:element ref="publisher"/>
+				<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="doi_data" minOccurs="0"/>
@@ -2156,12 +1883,17 @@ Unified Crossref XML schema.
 				</xsd:choice>
 				<xsd:element ref="edition_number" minOccurs="0"/>
 				<xsd:element ref="publication_date" maxOccurs="10"/>
-				<xsd:element ref="isbn" maxOccurs="6"/>
-				<xsd:element ref="publisher"/>
+				<xsd:element ref="isbn" maxOccurs="unbounded"/>
+				<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="doi_data" minOccurs="0"/>
@@ -2176,7 +1908,7 @@ Unified Crossref XML schema.
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element ref="titles"/>
-				<xsd:element ref="isbn" maxOccurs="6"/>
+				<xsd:element ref="isbn" maxOccurs="unbounded"/>
 				<xsd:element ref="contributors" minOccurs="0"/>
 				<xsd:element ref="part_number" minOccurs="0"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
@@ -2203,13 +1935,18 @@ Unified Crossref XML schema.
 				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="pages" minOccurs="0"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
-				<xsd:element ref="ct:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data"/>
 				<xsd:element ref="citation_list" minOccurs="0"/>
 				<xsd:element ref="component_list" minOccurs="0"/>
@@ -2363,13 +2100,18 @@ Unified Crossref XML schema.
 				<xsd:element ref="degree" minOccurs="0" maxOccurs="10"/>
 				<xsd:element ref="isbn" minOccurs="0" maxOccurs="6"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
-				<!--   CS-3495 -->
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data"/>
 				<xsd:element ref="citation_list" minOccurs="0"/>
 				<xsd:element ref="component_list" minOccurs="0"/>
@@ -2407,17 +2149,22 @@ Unified Crossref XML schema.
 				<xsd:element ref="approval_date" minOccurs="0" maxOccurs="10"/>
 				<xsd:element ref="isbn" minOccurs="0" maxOccurs="6"/>
 				<xsd:element ref="issn" minOccurs="0" maxOccurs="6"/>
-				<xsd:element ref="publisher" minOccurs="0"/>
+				<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="institution" minOccurs="0" maxOccurs="5"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
 				<xsd:element ref="contract_number" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
 				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
-				<!--   CS-3495 -->
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data"/>
 				<xsd:element ref="citation_list" minOccurs="0"/>
 			</xsd:sequence>
@@ -2442,11 +2189,13 @@ Unified Crossref XML schema.
 				<xsd:element ref="publication_date" maxOccurs="10"/>
 				<xsd:element ref="approval_date" minOccurs="0" maxOccurs="10"/>
 				<xsd:element ref="isbn" minOccurs="0" maxOccurs="6"/>
-				<xsd:element ref="publisher" minOccurs="0"/>
+				<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="institution" minOccurs="0" maxOccurs="5"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
 				<xsd:element ref="contract_number" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data" minOccurs="0"/>
 				<xsd:element ref="citation_list" minOccurs="0"/>
 				<xsd:element ref="rel:program" minOccurs="0"/>
@@ -2488,15 +2237,22 @@ Unified Crossref XML schema.
 				</xsd:choice>
 				<xsd:element ref="isbn" minOccurs="0" maxOccurs="6"/>
 				<xsd:element ref="issn" minOccurs="0" maxOccurs="6"/>
-				<xsd:element ref="publisher" minOccurs="0"/>
+				<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="institution" minOccurs="0" maxOccurs="10"/>
 				<xsd:element ref="standards_body" minOccurs="0"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data"/>
 				<xsd:element ref="citation_list" minOccurs="0"/>
 			</xsd:sequence>
@@ -2522,7 +2278,7 @@ Unified Crossref XML schema.
 				<xsd:element ref="publication_date" maxOccurs="10"/>
 				<xsd:element ref="approval_date" maxOccurs="10"/>
 				<xsd:element ref="isbn" minOccurs="0" maxOccurs="6"/>
-				<xsd:element ref="publisher" minOccurs="0"/>
+				<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="institution" minOccurs="0" maxOccurs="10"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
 				<xsd:element ref="doi_data" minOccurs="0"/>
@@ -2531,7 +2287,6 @@ Unified Crossref XML schema.
 			<xsd:attributeGroup ref="language.atts"/>
 		</xsd:complexType>
 	</xsd:element>
-
 	<xsd:element name="standard_designator">
 		<xsd:complexType>
 			<xsd:sequence>
@@ -2703,10 +2458,12 @@ Unified Crossref XML schema.
 				<xsd:element ref="titles"/>
 				<xsd:element ref="description" minOccurs="0"/>
 				<xsd:element ref="database_date" minOccurs="0" maxOccurs="10"/>
-				<xsd:element ref="publisher" minOccurs="0"/>
+				<xsd:element ref="publisher" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="institution" minOccurs="0" maxOccurs="10"/>
 				<xsd:element ref="publisher_item" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
+				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data" minOccurs="0"/>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 			</xsd:sequence>
@@ -2724,11 +2481,17 @@ Unified Crossref XML schema.
 				<xsd:element ref="publisher_item" minOccurs="0"/>
 				<xsd:element ref="description" minOccurs="0"/>
 				<xsd:element ref="format" minOccurs="0"/>
-				<xsd:element ref="crossmark" minOccurs="0"/>
-				<xsd:element ref="fr:program" minOccurs="0"/>
-				<xsd:element ref="ai:program" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="crossmark" minOccurs="0"/>
+					<xsd:sequence>
+						<xsd:element ref="fr:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ai:program" minOccurs="0" maxOccurs="1"/>
+						<xsd:element ref="ct:program" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:choice>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="archive_locations" minOccurs="0"/>
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data"/>
 				<xsd:element ref="citation_list" minOccurs="0"/>
 				<xsd:element ref="component_list" minOccurs="0"/>
@@ -2847,7 +2610,6 @@ Unified Crossref XML schema.
 
 
 	<xsd:element name="posted_content">
-
 		<xsd:complexType>
 			<xsd:sequence>
 				<xsd:element ref="group_title" minOccurs="0" maxOccurs="1"/>
@@ -2855,6 +2617,7 @@ Unified Crossref XML schema.
 				<xsd:element ref="titles"/>
 				<xsd:element ref="posted_date" minOccurs="1" maxOccurs="1"/>
 				<xsd:element ref="acceptance_date" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="status" minOccurs="0" maxOccurs="unbounded"/>
 				<xsd:element ref="institution" minOccurs="0" maxOccurs="5"/>
 				<xsd:element ref="item_number" minOccurs="0" maxOccurs="3"/>
 				<xsd:element ref="jats:abstract" minOccurs="0" maxOccurs="unbounded"/>
@@ -2862,9 +2625,10 @@ Unified Crossref XML schema.
 				<xsd:element ref="ai:program" minOccurs="0"/>
 				<xsd:element ref="rel:program" minOccurs="0"/>
 				<xsd:element ref="scn_policies" minOccurs="0" maxOccurs="1"/>
-				<!--   CS-3495 -->
+				<xsd:element ref="version_info" minOccurs="0" maxOccurs="1"/>
 				<xsd:element ref="doi_data" minOccurs="1"/>
 				<xsd:element ref="citation_list" minOccurs="0"/>
+				<xsd:element ref="component_list" minOccurs="0"/>
 			</xsd:sequence>
 			<xsd:attribute name="type" default="preprint">
 				<xsd:simpleType>
@@ -3236,5 +3000,45 @@ Unified Crossref XML schema.
 			</xsd:simpleContent>
 		</xsd:complexType>
 	</xsd:element>
-	<!-- ================= -->
+	<xsd:element name="version_info">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="version" minOccurs="1"/>
+				<xsd:element ref="description" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="version">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="version">
+					<xsd:attribute ref="xml:lang"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:simpleType name="version">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="100"/>
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:element name="status">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="type">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="withdrawn"/>
+						<xsd:enumeration value="removed"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="date" type="xsd:date"/>	
+		</xsd:complexType>
+	</xsd:element>
+
 </xsd:schema>
