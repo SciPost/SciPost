@@ -121,10 +121,12 @@
                                 {% endfor %}
                             </fr:program>
                         {% endif %}
-                            <ai:program name="AccessIndicators">
-			                      <ai:free_to_read start_date="{{ publication.publication_date|date:'Y-m-d' }}"/>
-                            <ai:license_ref applies_to="vor">{{ publication.get_cc_license_URI }}</ai:license_ref>
-                        </ai:program>
+                        <program xmlns="http://www.crossref.org/AccessIndicators.xsd">
+                          <license_ref applies_to="vor" start_date="{{ publication.publication_date|date:'Y-m-d' }}"
+                            >{{ publication.get_cc_license_URI }}</license_ref>
+                          <license_ref applies_to="am" start_date="{{ publication.publication_date|date:'Y-m-d' }}"
+                            >{{ publication.get_cc_license_URI }}</license_ref>
+                        </program>
                     </custom_metadata>
                 </crossmark>
                 <program xmlns="http://www.crossref.org/relations.xsd">
