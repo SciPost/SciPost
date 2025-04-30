@@ -252,10 +252,8 @@ def country_level_data(request):
         }
         for organization in country_organizations:
             for key in ("subsidy_income", "expenditures", "impact_on_reserves"):
-                countrydata[key] += organization.cf_balance_info["cumulative"][key]
-        countrydatalist += [
-            countrydata,
-        ]
+                countrydata[key] += organization.cf_balance_info.get("cumulative", {}).get(key, 0)
+        countrydatalist += [countrydata]
 
     # Determine the ranks
     countrydatalist.sort(key=lambda country: country["expenditures"], reverse=True)
