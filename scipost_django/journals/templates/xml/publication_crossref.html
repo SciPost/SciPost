@@ -102,7 +102,11 @@
                                     {% if funders|length > 1 %}
                                         <fr:assertion name='fundgroup'>
                                     {% endif %}
-                                    <fr:assertion name='funder_name'>{{ funder.name }}<fr:assertion name='funder_identifier'>{{ funder.identifier }}</fr:assertion></fr:assertion>
+                                    {% if funder.organization.ror_json.ror_link %}
+                                      <fr:assertion name="ror">{{ funder.organization.ror_json.ror_link }}</fr:assertion>
+                                    {% else %}
+                                      <fr:assertion name='funder_name'>{{ funder.name }}<fr:assertion name='funder_identifier'>{{ funder.identifier }}</fr:assertion></fr:assertion>
+                                    {% endif %}
                                     {% for grant in publication.grants.all %}
                                         {% if grant.funder == funder %}
                                             <fr:assertion name='award_number'>{{ grant.number }}</fr:assertion>
