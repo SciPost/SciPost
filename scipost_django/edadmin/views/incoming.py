@@ -57,6 +57,9 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
             Submission.objects.filter(pk=submission.id).update(
                 status=Submission.ADMISSION_FAILED
             )
+            submission.add_event_for_edadmin(
+                "Submission admission failed (at admissibility step)"
+            )
             # send authors admission failed email
             mail_util = DirectMailUtil(
                 "authors/admission_failed",
@@ -249,6 +252,9 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
         else:  # inadmissible, inform authors and set status to ADMISSION_FAILED
             Submission.objects.filter(pk=submission.id).update(
                 status=Submission.ADMISSION_FAILED
+            )
+            submission.add_event_for_edadmin(
+                "Submission admission failed (at admission step)"
             )
             # send authors admission failed email
             mail_util = DirectMailUtil(
