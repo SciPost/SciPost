@@ -228,7 +228,6 @@
 		  <a class="btn btn-sm btn-primary"
 		     hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_grant_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id contributor_id=fellowship.contributor.id %}"
 		     hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
-		     hx-confirm="Confirm: grant voting right to {{ fellowship.contributor }}?"
 		     hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
 		  >
 		    Grant voting right
