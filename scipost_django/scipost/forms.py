@@ -300,29 +300,23 @@ class RegistrationForm(forms.Form):
                 "is_active": False,
             }
         )
-        # Get or create a Profile
-        profile = Profile.objects.filter(
-            emails__email__icontains=self.cleaned_data["email"]
-        ).first()
-        if profile is None:
-            profile = Profile.objects.create(
-                title=self.cleaned_data["title"],
-                first_name=self.cleaned_data["first_name"],
-                last_name=self.cleaned_data["last_name"],
-                first_name_original=self.cleaned_data["first_name_original"],
-                last_name_original=self.cleaned_data["last_name_original"],
-                acad_field=self.cleaned_data["acad_field"],
-                orcid_id=self.cleaned_data["orcid_id"] or None,
-                webpage=self.cleaned_data["webpage"],
-            )
-            profile.specialties.set(self.cleaned_data["specialties"])
-        # Add a ProfileEmail to this Profile
-        profile_email, created = ProfileEmail.objects.get_or_create(
-            profile=profile, email=self.cleaned_data["email"]
+
+        profile = Profile.objects.create(
+            title=self.cleaned_data["title"],
+            first_name=self.cleaned_data["first_name"],
+            last_name=self.cleaned_data["last_name"],
+            first_name_original=self.cleaned_data["first_name_original"],
+            last_name_original=self.cleaned_data["last_name_original"],
+            acad_field=self.cleaned_data["acad_field"],
+            orcid_id=self.cleaned_data["orcid_id"] or None,
+            webpage=self.cleaned_data["webpage"],
         )
-        profile.emails.update(primary=False)
-        profile.emails.filter(id=profile_email.id).update(
-            primary=True, still_valid=True
+        profile.specialties.set(self.cleaned_data["specialties"])
+        # Add a ProfileEmail to this Profile
+        ProfileEmail.objects.create(
+            profile=profile,
+            primary=True,
+            email=self.cleaned_data["email"],
         )
         # Create an Affiliation for this Profile
         current_affiliation = self.cleaned_data.get("current_affiliation", None)
