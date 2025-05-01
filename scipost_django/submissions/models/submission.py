@@ -828,28 +828,21 @@ class Submission(models.Model):
 
     @property
     def nr_unique_thread_vetted_reports(self):
-        """Return the number of vetted reports from the set of latest reports submitted by each author."""
-        # REFACTOR: I don't have access to Report objects here, so I have to be creative
-        thread_reports = self.thread_full.filter(reports__isnull=False).values(
-            "reports__status", "reports__author", "reports__date_submitted"
-        )
-        latest_reports = {}
-        for report in thread_reports:
-            if report["reports__author"] not in latest_reports:
-                latest_reports[report["reports__author"]] = report
-            elif (
-                report["reports__date_submitted"]
-                > latest_reports[report["reports__author"]]["reports__date_submitted"]
-            ):
-                latest_reports[report["reports__author"]] = report
+        """
+        Return the total number of unique vetted reports across the thread,
+        with repeat authors counted only once.
+        """
+        from submissions.models import Report
 
-        vetted_reports = sum(
-            [
-                report["reports__status"] == STATUS_VETTED
-                for report in latest_reports.values()
-            ]
+        return (
+            Report.objects.filter(
+                submission__thread_hash=self.thread_hash,
+                status=STATUS_VETTED,
+            )
+            .order_by("author_id", "-date_submitted")
+            .distinct("author_id")
+            .count()
         )
-        return vetted_reports
 
     @property
     def thread_full(self):
