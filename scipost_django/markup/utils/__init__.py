@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from typing import Any
 import bleach
 from docutils.core import publish_parts
 import markdown
@@ -168,11 +169,11 @@ def match_rst_ordered_list(text):
     return re.search(r"(^[\s]*[#]\.[ ].+$[\n]*){1,3}", text, re.MULTILINE)
 
 
-def check_markers(markers):
+def check_markers(markers) -> dict[str, str | None]:
     """
     Checks the consistency of a markers dictionary. Returns a detector.
     """
-    markers_cut = {}
+    markers_cut: dict[str, dict[str, Any]] = {}
     for key, val in markers.items():
         markers_cut[key] = {}
         for key2, val2 in val.items():
@@ -227,7 +228,7 @@ def check_markers(markers):
     }
 
 
-def detect_markup_language(text):
+def detect_markup_language(text) -> dict[str, str | None]:
     """
     Detect whether text is plain text, Markdown or reStructuredText.
 
@@ -338,7 +339,9 @@ def detect_markup_language(text):
     return detector
 
 
-def process_markup(text_given, language_forced=None, include_errors=False):
+def process_markup(
+    text_given, language_forced: str | None = None, include_errors=False
+):
     """
     Process a text in a markup language into HTML.
 
@@ -355,33 +358,41 @@ def process_markup(text_given, language_forced=None, include_errors=False):
         return markup
 
     # See if text_given contains a language coerce
-    coerced = False
-    if text_given.partition("\n")[0].startswith("#coerce:"):
-        language_requested_code = text_given.partition("\n")[0].partition("#coerce:")[2]
+    coerced = language_forced is not None
+    language_coercion = re.search(
+        r"^#coerce:([a-zA-Z0-9_]+?)\n(.*)", text_given, re.DOTALL
+    )
+    if language_forced is None and language_coercion is not None:
         coerced = True
-        text = text_given.partition("\n")[2]
-        if language_requested_code not in recognized_markup_languages:
+        language_coerced_code, text = language_coercion.groups()
+        if language_coerced_code not in recognized_markup_languages:
             markup["errors"] = (
-                f"Unknown language ({language_requested_code}) requested for coerce.\n"
+                f"Unknown language ({language_coerced_code}) requested for coerce.\n"
                 "Your options are: "
                 f"{recognized_markup_languages}\n"
                 "To coerce, at the start of the first line, write #coerce:[code] "
                 "with the language code, e.g. #coerce:reST"
             )
             return markup
-        language_requested = recognized_markup_languages[language_requested_code]
-        markup["warnings"] = f"Coercing language: {language_requested}"
+        language_coerced = recognized_markup_languages[language_coerced_code]
+        markup["warnings"] = f"Coercing language: {language_coerced}"
     else:
         text = text_given
+        language_coerced = None
 
     markup_detector = detect_markup_language(text)
 
-    if coerced and language_requested != markup_detector["language"]:
+    if coerced and language_coerced != markup_detector["language"]:
         markup["warnings"] = (
             "markup language was coerced to %s, while the detected one was %s."
-        ) % (language_requested, markup_detector["language"])
+        ) % (language_coerced, markup_detector["language"])
 
-    language = language_requested if coerced else markup_detector["language"]
+    language = (
+        language_forced
+        or language_coerced
+        or markup_detector.get("language")
+        or "plain"
+    )
     markup["language"] = language
     markup["errors"] = markup_detector["errors"]
 
