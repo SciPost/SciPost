@@ -5,6 +5,7 @@
 {% load user_groups %}
 
 {% is_active_fellow request.user as is_active_fellow %}
+{% is_ed_admin request.user as is_ed_admin %}
 
 
 <nav class="navbar main-nav p-2">
@@ -260,7 +261,7 @@
               {% if user.contributor %}
                 <div class="dropdown-item"><a href="{% url 'scipost:personal_page' %}">Personal Page</a></div>
 
-                {% if is_active_fellow %}
+                {% if is_active_fellow or is_ed_admin %}
                   <div class="dropdown-item"><a href="{% url 'submissions:pool:pool' %}">Submissions Pool</a></div>
                 {% endif %}
               {% endif %}
