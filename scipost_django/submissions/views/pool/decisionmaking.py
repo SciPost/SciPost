@@ -170,6 +170,12 @@ def _hx_recommendation_open_voting(
     EICRecommendation.objects.filter(pk=recommendation.id).update(
         status=PUT_TO_VOTING,
     )
+    submission.add_event_for_edadmin(
+        "Voting on recommendation "
+        f"{recommendation.get_recommendation_short_display()} "
+        f"for {recommendation.get_for_journal_display()} "
+        "started"
+    )
     return render(
         request,
         "submissions/pool/decisionmaking/_recommendations_and_voting.html",

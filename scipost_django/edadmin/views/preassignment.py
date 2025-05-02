@@ -183,6 +183,8 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
                 timezone.now() + submission.submitted_to.assignment_period
             )
             submission.save()
+
+            submission.add_event_for_edadmin("Submission preassignment passed")
             # send authors admission passed email
             mail_util = DirectMailUtil(
                 "authors/preassignment_completed",
@@ -197,6 +199,7 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
         else:  # inadmissible, inform authors and set status to PREASSIGNMENT_FAILED
             submission.status = Submission.PREASSIGNMENT_FAILED
             submission.save()
+            submission.add_event_for_edadmin("Submission preassignment failed")
             # send authors admission failed email
             mail_util = DirectMailUtil(
                 "authors/preassignment_failed",
