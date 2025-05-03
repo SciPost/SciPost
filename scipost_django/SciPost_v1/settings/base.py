@@ -109,7 +109,7 @@ INSTALLED_APPS = [
     "django_countries",
     "django_filters",
     "guardian",
-    "maintenancemode",
+    "maintenance_mode",
     "oauth2_provider",
     "rest_framework",
     "sitesserved",
