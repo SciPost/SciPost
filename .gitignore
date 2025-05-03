@@ -48,8 +48,6 @@ static_bundles/
 **/css/dist/*
 
 celerybeat-schedule
-start_flower.sh
-whoosh_index
 
 *.pid
 
@@ -59,3 +57,6 @@ whoosh_index
 
 # Editor configs
 *.code-workspace
+
+# Django plugins 
+maintenance_mode_state.txt

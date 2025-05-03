@@ -204,8 +204,11 @@
             <div class="dropdown-divider"></div>
  
             <div class="dropdown-item">
-              <a href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
- 
+              <form method="post" action="{% url 'scipost:logout' %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit">logout</button>
+              </form>
             </div>
           </div>
 

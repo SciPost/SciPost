@@ -107,11 +107,9 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "django_countries",
-    "django_extensions",
     "django_filters",
     "guardian",
-    "haystack",
-    "maintenancemode",
+    "maintenance_mode",
     "oauth2_provider",
     "rest_framework",
     "sitesserved",
@@ -192,21 +190,6 @@ REST_FRAMEWORK = {
 }
 
 
-HAYSTACK_CONNECTIONS = {
-    "default": {
-        "ENGINE": "haystack.backends.whoosh_backend.WhooshEngine",
-        "PATH": "local_files/haystack/",
-        "EXCLUDED_INDEXES": [],
-        "INCLUDE_SPELLING": True,
-    },
-}
-
-# Brute force automatically re-index Haystack using post_save signals on all models.
-# When write-traffic increases, a custom processor is preferred which only connects
-# signals to eg. `vet-accepted` signals possibly using cron jobs instead of realtime updates.
-HAYSTACK_SIGNAL_PROCESSOR = "SciPost_v1.signalprocessors.SearchIndexingProcessor"
-
-
 SHELL_PLUS_POST_IMPORTS = (
     ("theses.factories", ("ThesisLinkFactory")),
     ("comments.factories", ("CommentFactory")),
@@ -242,9 +225,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    "django_feature_policy.FeaturePolicyMiddleware",
-    "maintenancemode.middleware.MaintenanceModeMiddleware",
-    "django_referrer_policy.middleware.ReferrerPolicyMiddleware",
+    "django_permissions_policy.PermissionsPolicyMiddleware",
+    "maintenance_mode.middleware.MaintenanceModeMiddleware",
     "csp.middleware.CSPMiddleware",
     "oauth2_provider.middleware.OAuth2TokenMiddleware",
     "scipost.middleware.UsernameHeaderMiddleware",

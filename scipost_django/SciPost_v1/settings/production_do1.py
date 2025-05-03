@@ -53,7 +53,6 @@ CROSSREF_DEBUG = False
 CROSSREF_DEPOSIT_EMAIL = "edadmin@scipost.org"
 
 DOAJ_API_KEY = get_secret("DOAJ_API_KEY")
-HAYSTACK_CONNECTIONS["default"]["PATH"] = "/home/scipost/SciPost/whoosh_index"
 
 # iThenticate
 ITHENTICATE_USERNAME = get_secret("ITHENTICATE_USERNAME")
