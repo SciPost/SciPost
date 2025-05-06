@@ -3,7 +3,7 @@
 # Per hour cronjobs for production area
 
 cd /home/scipost/SciPost/scipost_django
-source ../venv-3.11.7/bin/activate
+source ../venv-3.13/bin/activate
 
 # Do tasks
 python manage.py check_celery --settings=SciPost_v1.settings.production_do1

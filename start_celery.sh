@@ -1,7 +1,7 @@
 #!/bin/bash
 pkill -f bin/celery
 
-cd /home/scipost/SciPost/scipost_django && source ../venv-3.11.7/bin/activate
+cd /home/scipost/SciPost/scipost_django && source ../venv-3.13/bin/activate
 
 mkdir -p /home/scipost/SciPost_logs
 touch /home/scipost/SciPost_logs/celery_worker.log
