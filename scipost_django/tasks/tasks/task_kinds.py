@@ -16,6 +16,7 @@ from django.db.models import (
 from django.db.models.functions import Cast, Coalesce
 from django.urls import reverse_lazy
 from django.utils import timezone
+from finances.constants import SUBSIDY_RECEIVED, SUBSIDY_WITHDRAWN
 from scipost.templatetags.user_groups import (
     is_active_fellow,
     is_ed_admin,
@@ -87,6 +88,7 @@ class ScheduleSubsidyPayments(TaskKind):
                 Q(collective__isnull=True)
                 & (Q(schedule_blank=True) | Q(schedule_complete=False))
             )
+            .exclude(status__in=[SUBSIDY_RECEIVED, SUBSIDY_WITHDRAWN])
             .prefetch_related("organization")
         )
 
