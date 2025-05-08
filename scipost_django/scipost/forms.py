@@ -301,23 +301,58 @@ class RegistrationForm(forms.Form):
             }
         )
 
-        profile = Profile.objects.create(
-            title=self.cleaned_data["title"],
-            first_name=self.cleaned_data["first_name"],
-            last_name=self.cleaned_data["last_name"],
-            first_name_original=self.cleaned_data["first_name_original"],
-            last_name_original=self.cleaned_data["last_name_original"],
-            acad_field=self.cleaned_data["acad_field"],
-            orcid_id=self.cleaned_data["orcid_id"] or None,
-            webpage=self.cleaned_data["webpage"],
-        )
+        # If *and only if* the user has been invited to referee,
+        # is it safe to search the referee invitations
+        # and assign to them the invited profile
+        if invitation_key := self.cleaned_data["invitation_key"]:
+            profile = Profile.objects.filter(
+                referee_invitations__invitation_key=invitation_key
+            ).first()
+
+            already_registered = (
+                Contributor.objects.filter(invitation_key=invitation_key).first()
+                is not None
+            )
+
+            if profile is None:
+                raise forms.ValidationError(
+                    "The invitation key is invalid. "
+                    "Please click the link in the invitation email to register, or "
+                    "contact techsupport@scipost.org if the issue persists."
+                )
+
+            if already_registered:
+                raise forms.ValidationError(
+                    "The invitation key has already been used "
+                    "to register an account. "
+                )
+
+        else:
+            profile = Profile.objects.create(
+                title=self.cleaned_data["title"],
+                first_name=self.cleaned_data["first_name"],
+                last_name=self.cleaned_data["last_name"],
+                first_name_original=self.cleaned_data["first_name_original"],
+                last_name_original=self.cleaned_data["last_name_original"],
+                acad_field=self.cleaned_data["acad_field"],
+                orcid_id=self.cleaned_data["orcid_id"] or None,
+                webpage=self.cleaned_data["webpage"],
+            )
+
         profile.specialties.set(self.cleaned_data["specialties"])
-        # Add a ProfileEmail to this Profile
-        ProfileEmail.objects.create(
-            profile=profile,
-            primary=True,
+
+        # Try adding a ProfileEmail to this Profile
+        # If not created, it must already exist, move it and make it primary
+        # After all, user got the key to their email and verified it
+        profile_email, created = ProfileEmail.objects.get_or_create(
             email=self.cleaned_data["email"],
+            defaults=dict(profile=profile, primary=True),
         )
+        if not created:
+            profile_email.profile = profile
+            profile_email.primary = True
+            profile_email.save()
+
         # Create an Affiliation for this Profile
         current_affiliation = self.cleaned_data.get("current_affiliation", None)
         if current_affiliation:
