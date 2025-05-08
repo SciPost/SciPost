@@ -348,7 +348,7 @@ def _hx_export_associated_profile_emails(request, pk):
                     affiliations__organization=organization,
                 )
             ),
-            logged_in=Q(contributor__user__last_login__gte=year_ago),
+            logged_in=Q(contributor__dbuser__last_login__gte=year_ago),
         )
         .filter(
             Q(accepts_SciPost_emails=True)

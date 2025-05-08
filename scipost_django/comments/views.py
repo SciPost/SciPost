@@ -309,7 +309,7 @@ def reply_to_report(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
 
     # Verify if this is from an author:
-    is_author = report.submission.authors.filter(user=request.user).exists()
+    is_author = report.submission.authors.filter(dbuser=request.user).exists()
 
     form = CommentForm(
         request.POST or None, request.FILES or None, is_report_comment=True

@@ -33,7 +33,7 @@ class Command(BaseCommand):
         )
         contributor.save()
         Contributor.objects.filter(pk=contributor.id).update(vetted_by=contributor)
-        contributor.user.groups.add(Group.objects.get(name="Registered Contributors"))
+        contributor.dbuser.groups.add(Group.objects.get(name="Registered Contributors"))
 
     def handle(self, *args, **options):
         self.create_contributor(options["username"])

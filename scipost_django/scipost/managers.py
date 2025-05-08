@@ -19,9 +19,15 @@ from .constants import (
 class ContributorQuerySet(models.QuerySet):
     """Custom defined filters for the Contributor model."""
 
+    def eponymous(self):
+        return self.filter(is_anonymous=False)
+
+    def anonymous(self):
+        return self.filter(is_anonymous=True)
+
     def active(self):
         """Return all validated and vetted Contributors."""
-        return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
+        return self.filter(dbuser__is_active=True, status=NORMAL_CONTRIBUTOR)
 
     def nonduplicates(self):
         """
@@ -39,11 +45,11 @@ class ContributorQuerySet(models.QuerySet):
 
     def awaiting_validation(self):
         """Filter Contributors that have not been validated by the user."""
-        return self.filter(user__is_active=False, status=NEWLY_REGISTERED)
+        return self.filter(dbuser__is_active=False, status=NEWLY_REGISTERED)
 
     def awaiting_vetting(self):
         """Filter Contributors that have not been vetted through."""
-        return self.filter(user__is_active=True, status=NEWLY_REGISTERED).exclude(
+        return self.filter(dbuser__is_active=True, status=NEWLY_REGISTERED).exclude(
             status=DOUBLE_ACCOUNT
         )
 
@@ -55,8 +61,8 @@ class ContributorQuerySet(models.QuerySet):
         """
         contribs = (
             self.exclude(status=DOUBLE_ACCOUNT)
-            .exclude(user__is_superuser=True)
-            .exclude(user__is_staff=True)
+            .exclude(dbuser__is_superuser=True)
+            .exclude(dbuser__is_staff=True)
             .exclude(profile__isnull=True)
             .annotate(
                 full_name=Concat(
@@ -79,10 +85,10 @@ class ContributorQuerySet(models.QuerySet):
         """
         qs = (
             self.exclude(status=DOUBLE_ACCOUNT)
-            .exclude(user__is_superuser=True)
-            .exclude(user__is_staff=True)
-            .exclude(user__email="")
-            .annotate(lower_email=Lower("user__email"))
+            .exclude(dbuser__is_superuser=True)
+            .exclude(dbuser__is_staff=True)
+            .exclude(dbuser__email="")
+            .annotate(lower_email=Lower("dbuser__email"))
         )
         duplicates = (
             qs.values("lower_email")
@@ -99,6 +105,11 @@ class ContributorQuerySet(models.QuerySet):
         This method is also separately implemented for Profile and PotentialFellowship objects.
         """
         return self.filter(profile__specialties__slug__in=specialties_slug_list)
+
+
+class ContributorManager(models.Manager.from_queryset(ContributorQuerySet)):
+    def get_queryset(self):
+        return super().get_queryset().eponymous()
 
 
 class UnavailabilityPeriodManager(models.Manager):

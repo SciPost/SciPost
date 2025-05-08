@@ -22,9 +22,9 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
     ########################################
     # select_related template accelerators #
     ########################################
-    def select_related_contributor__user_and_profile(self):
+    def select_related_contributor__dbuser_and_profile(self):
         return self.select_related(
-            "contributor__user",
+            "contributor__dbuser",
             "contributor__profile",
         )
 
@@ -90,7 +90,7 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
 
     def ordered(self):
         """Return ordered queryset explicitly, since this may have big effect on performance."""
-        return self.order_by("contributor__user__last_name")
+        return self.order_by("contributor__dbuser__last_name")
 
     def no_competing_interests_with(self, profile: "Profile"):
         """

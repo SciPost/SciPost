@@ -256,7 +256,7 @@ class SubmissionQuerySet(models.QuerySet):
         """
         qs = self.in_pool(user, latest=latest, historical=historical)
         if user.is_authenticated and not user.contributor.is_ed_admin:
-            qs = qs.filter(editor_in_charge__user=user)
+            qs = qs.filter(editor_in_charge__dbuser=user)
         return qs
 
     def filter_for_author(self, user):

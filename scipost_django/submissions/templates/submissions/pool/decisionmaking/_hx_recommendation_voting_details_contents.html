@@ -177,7 +177,7 @@
 	  </tr>
 	</thead>
 	<tbody>
-	  {% for fellowship in submission.fellows.select_related_contributor__user_and_profile %}
+	  {% for fellowship in submission.fellows.select_related_contributor__dbuser_and_profile %}
 	    {% if fellowship.contributor not in recommendation.eligible_to_vote.all  %}
 	      <tr>
 		<td>{{ fellowship.contributor }}</td>

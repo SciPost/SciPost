@@ -116,6 +116,7 @@ INSTALLED_APPS = [
     "webpack_loader",
     # own apps
     "affiliates",
+    "anonymization",
     "api",
     "apimail",
     "blog",

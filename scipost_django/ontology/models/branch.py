@@ -4,10 +4,6 @@ __license__ = "AGPL v3"
 
 from django.db import models
 
-from journals.models import Journal
-from submissions.models import Submission
-
-
 class Branch(models.Model):
     """
     A principal division in the tree of knowledge.
@@ -30,8 +26,10 @@ class Branch(models.Model):
 
     @property
     def journals(self):
+        from journals.models import Journal
         return Journal.objects.filter(college__acad_field__branch=self.id)
 
     @property
     def submissions(self):
+        from submissions.models import Submission
         return Submission.objects.public_latest().filter(acad_field__branch=self.id)

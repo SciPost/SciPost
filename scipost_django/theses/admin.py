@@ -13,7 +13,7 @@ from scipost.models import Contributor
 
 @admin.register(ThesisLink)
 class ThesisLinkAdmin(admin.ModelAdmin):
-    search_fields = ["requested_by__user__username", "author", "title"]
+    search_fields = ["requested_by__dbuser__username", "author", "title"]
     autocomplete_fields = [
         "requested_by",
         "vetted_by",
@@ -22,5 +22,3 @@ class ThesisLinkAdmin(admin.ModelAdmin):
         "author_false_claims",
         "supervisor_as_cont",
     ]
-
-

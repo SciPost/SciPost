@@ -41,6 +41,7 @@ from ..managers import ReportQuerySet
 
 if TYPE_CHECKING:
     from submissions.models import Submission
+    from anonymization.models import AnonymousContributor
 
 
 class Report(SubmissionRelatedObjectMixin, models.Model):
@@ -74,7 +75,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     # `flagged' if author of report has been flagged by submission authors (surname check only)
     flagged = models.BooleanField(default=False)
-    author = models.ForeignKey["Contributor"](
+    author = models.ForeignKey["Contributor | AnonymousContributor"](
         "scipost.Contributor",
         on_delete=models.CASCADE,
         related_name="reports",
@@ -152,7 +153,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     objects = ReportQuerySet.as_manager()
 
     if TYPE_CHECKING:
-        anonymized_author_table: "AnonymizedReportContributor"
+        id: int
 
     class Meta:
         unique_together = ("submission", "report_nr")
@@ -346,161 +347,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             .last()
         )
 
-    def anonymize_author_long_term(self, restore=False, commit=True):
-        """
-        This method is used to anonymize the author of a Report at the database level.
-        It creates a new (anonymized) Contributor for the author of this Report, and stores
-        the original author information in AnonymizedReportContributor.
-
-        If `restore` is True, the anonymization is reversed, and the original author is restored.
-        If `commit` is False, the changes are not saved automatically, delegating saving to the caller.
-
-        Returns the AnonymizedReportContributor, the Report, and any RefereeInvitations
-        that (may) belong to the author of this Report. These can be used to bulk-update the objects.
-        """
-        if not self.anonymous:
-            raise ValueError("This method should only be called for anonymous Reports.")
-
-        # Get any referee invitations belonging to the author of this Report (anonymous or not)
-        invitations = RefereeInvitation.objects.filter(
-            submission=self.submission, referee=self.author.profile
-        )
-
-        arc, created = AnonymizedReportContributor.objects.get_or_create(report=self)
-        missing_info = (arc.original_author is None) or arc.anonymized_author is None
-        if restore and created:
-            # The record was just now created, meaning it did not exist before, and contains no data
-            arc.delete()
-            # Return if the author is not anonymous, as there is nothing to restore
-            if not self.author.is_anonymous:
-                return None, self, invitations
-            else:
-                # Raise error if trying to restore an anonymous author without a record
-                raise ValueError(
-                    "There exists no anonymization record for this Report, "
-                    "so it cannot be restored."
-                )
-        elif not (restore or created):
-            # Requesting new anonymization when a record already exists
-            # Return if the author is anonymous, as there is nothing to anonymize
-            if self.author.is_anonymous:
-                return arc, self, invitations
-
-            # If the user is not anonymous, but the record exists,
-            # it means the author info is purged but the object is not deleted.
-            # Raise an error to prevent anonymizing the same author twice with
-            # different UUIDs. This would cause conflicts when restoring.
-            # TODO: Perhaps there should be a `force` flag to allow this behavior.
-            elif missing_info:
-                raise ValueError(
-                    "Anonymization record exists, but the information is purged. "
-                    "A second anonymization is prohibited to prevent conflicts. "
-                    "Please restored the purged information before anonymizing again."
-                )
-        elif restore and missing_info:
-            raise ValueError(
-                "Anonymization record is missing the author information, "
-                "so there is nothing to restore."
-            )
-
-        # Sort invitations by fulfilled, accepted, response date, and invitation date,
-        # to get the most probable invitation the user has responded to.
-        responded_invitation = invitations.order_by(
-            F("fulfilled").desc(nulls_last=True),
-            F("accepted").desc(nulls_last=True),
-            "-date_responded",
-            "-date_invited",
-        ).first()
-
-        # Either anonymize or restore the author of the Report and the invitation email
-        if not restore:
-            anonymous_author = arc.anonymized_author or Contributor.create_anonymous()
-            arc.anonymized_author = anonymous_author
-            arc.original_author = self.author
-            self.author = anonymous_author
-
-            if responded_invitation:
-                arc.invitation_email = responded_invitation.email_address
-
-            for inv in invitations:
-                inv.email_address = ""
-        elif not missing_info:
-            self.author: Contributor  # Valid, since `missing_info` is False
-            self.author = arc.original_author
-
-            for inv in invitations:
-                if inv == responded_invitation:
-                    inv.email_address = arc.invitation_email
-
-        # Update the invitation with the new referee information (anonymous or not)
-        for inv in invitations:
-            inv.referee = self.author.profile
-
-        if commit:
-            arc.save()
-            self.save()
-            RefereeInvitation.objects.bulk_update(
-                invitations,
-                ["referee", "email_address"],
-            )
-
-        return arc, self, invitations
-
-    @property
-    def real_author(self):
-        """
-        Return the real author of the Report by looking up the anonymization record.
-        Will return None if the anonymization record is missing.
-        """
-        if not self.author.is_anonymous:
-            return self.author
-
-        try:
-            return self.anonymized_author_table.original_author
-        except AnonymizedReportContributor.DoesNotExist:
-            return None
-
 
 @receiver(post_save, sender=Report)
 def clean_anonymous_report_pdf(sender, instance, created, **kwargs):
     if instance.pdf_report and instance.anonymous:
         clean_pdf(instance.pdf_report.path)
-
-
-class AnonymizedReportContributor(models.Model):
-    """
-    Model to store the relation between a Report and its author before routine anonymization.
-    A new anonymous Contributor is created for each Report, and the original author is stored here.
-    """
-
-    report = models.OneToOneField["Report"](
-        "submissions.Report",
-        related_name="anonymized_author_table",
-        on_delete=models.CASCADE,
-        primary_key=True,
-    )
-    original_author = models.ForeignKey["Contributor"](
-        "scipost.Contributor",
-        related_name="anonymized_reports",
-        on_delete=models.CASCADE,
-        null=True,
-    )
-    anonymized_author = models.ForeignKey["Contributor"](
-        "scipost.Contributor",
-        related_name="anonymized_reports_as",
-        on_delete=models.RESTRICT,
-        null=True,
-    )
-
-    invitation_email = models.EmailField(
-        blank=True,
-        help_text="Email address to which the (accepted) invitation was sent.",
-    )
-
-    objects = models.Manager["AnonymizedReportContributor"]()
-
-    def __str__(self):
-        if self.anonymized_author and self.original_author:
-            return f"Anonymized {self.original_author} as {self.anonymized_author} for Report #{self.report.report_nr} on {self.report.submission}"
-        else:
-            return f"Empty anonymization record for Report #{self.report.report_nr} on {self.report.submission}"

@@ -41,7 +41,7 @@ class SignPetitionForm(forms.ModelForm):
                     "email", "This email address is not associated to your account"
                 )
         else:
-            if Contributor.objects.filter(user__email=email).exists():
+            if Contributor.objects.filter(dbuser__email=email).exists():
                 self.add_error(
                     "email",
                     (

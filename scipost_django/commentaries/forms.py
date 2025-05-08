@@ -259,7 +259,7 @@ class VetCommentaryForm(forms.Form):
             return cleaned_data
         else:
             self.commentary = Commentary.objects.select_related(
-                "requested_by__user"
+                "requested_by__dbuser"
             ).get(pk=self.commentary_id)
 
         # Check valid `user`

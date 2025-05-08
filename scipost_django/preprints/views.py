@@ -49,7 +49,7 @@ def preprint_pdf(request, identifier_w_vn_nr):
             return prompt_to_login(request)
         elif (
             not request.user.has_perm("scipost.can_assign_submissions")
-            and not submission.fellows.filter(contributor__user=request.user).exists()
+            and not submission.fellows.filter(contributor__dbuser=request.user).exists()
         ):
             raise PermissionDenied()
 

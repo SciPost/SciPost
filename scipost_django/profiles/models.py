@@ -15,6 +15,7 @@ from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from anonymization.mixins import AnonymizableObjectMixin
 from mails.utils import DirectMailUtil
 from scipost.behaviors import orcid_validator
 from scipost.constants import TITLE_CHOICES, TITLE_DR
@@ -37,7 +38,7 @@ if TYPE_CHECKING:
     from submissions.models.referee_invitation import RefereeInvitation
 
 
-class Profile(models.Model):
+class Profile(AnonymizableObjectMixin, models.Model):
     """
     A Profile object instance contains information about an individual.
 
@@ -66,6 +67,7 @@ class Profile(models.Model):
         from submissions.models.submission import SubmissionAuthorProfile
         from invitations.models import RegistrationInvitation
         from colleges.models import FellowshipNomination, PotentialFellowship
+        from anonymization.models import ProfileAnonymization
 
         id: int
         contributor: Contributor | None
@@ -77,6 +79,7 @@ class Profile(models.Model):
         registrationinvitation_set: "RelatedManager[RegistrationInvitation]"
         potentialfellowship_set: "RelatedManager[PotentialFellowship]"
         fellowship_nominations: "RelatedManager[FellowshipNomination]"
+        eponymization: "ProfileAnonymization | None"
 
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, default=TITLE_DR)
     first_name = models.CharField(max_length=64)
@@ -237,6 +240,7 @@ class Profile(models.Model):
     def create_anonymous(cls, uuid_str: str | None = None):
         """Create an anonymous profile."""
         return cls.objects.create(
+            is_anonymous=True,
             title="MX",
             first_name="Anonymous",
             last_name=uuid_str or str(uuid.uuid4()),

@@ -32,7 +32,6 @@ from scipost.models import Contributor
 from colleges.models import Fellowship
 from ethics.models import SubmissionClearance
 from submissions.models.assignment import ConditionalAssignmentOffer
-from submissions.models.report import AnonymizedReportContributor
 
 
 def submission_short_title(obj):
@@ -216,7 +215,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     )
     list_filter = ("status", "acad_field", "specialties", "submitted_to")
     search_fields = [
-        "submitted_by__user__last_name",
+        "submitted_by__dbuser__last_name",
         "title",
         "author_list",
         "abstract",
@@ -372,7 +371,7 @@ class EditorialAssignmentAdmin(admin.ModelAdmin):
         "submission__title",
         "submission__author_list",
         "submission__preprint__identifier_w_vn_nr",
-        "to__user__last_name",
+        "to__dbuser__last_name",
     ]
     list_display = (
         "to",
@@ -417,7 +416,7 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
     search_fields = [
-        "author__user__last_name",
+        "author__dbuser__last_name",
         "submission__title",
         "submission__preprint__identifier_w_vn_nr",
     ]
@@ -441,7 +440,7 @@ class ReportAdmin(admin.ModelAdmin):
 
 @admin.register(EditorialCommunication)
 class EditorialCommunicationAdmin(admin.ModelAdmin):
-    search_fields = ["submission__title", "referee__user__last_name", "text"]
+    search_fields = ["submission__title", "referee__dbuser__last_name", "text"]
     autocomplete_fields = ["submission", "referee"]
 
 
@@ -562,25 +561,3 @@ class RefereeIndicationAdmin(admin.ModelAdmin):
             if obj.referee
             else f"{obj.first_name} {obj.last_name}"
         )
-
-
-@admin.register(AnonymizedReportContributor)
-class AnonymizedReportContributorAdmin(admin.ModelAdmin):
-    search_fields = [
-        "report__submission__title",
-        "report__submission__author_list",
-        "report__submission__preprint__identifier_w_vn_nr",
-        "original_author__profile__last_name",
-        "original_author__profile__first_name",
-        "anonymized_author__profile__last_name",
-    ]
-    list_display = (
-        "report",
-        "original_author",
-        "anonymized_author",
-    )
-    autocomplete_fields = [
-        "report",
-        "original_author",
-        "anonymized_author",
-    ]

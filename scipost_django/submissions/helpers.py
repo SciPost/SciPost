@@ -27,7 +27,7 @@ def check_verified_author(submission, user):
     if not hasattr(user, "contributor"):
         return False
 
-    return submission.authors.filter(user=user).exists()
+    return submission.authors.filter(dbuser=user).exists()
 
 
 def check_unverified_author(submission, user):
@@ -39,13 +39,13 @@ def check_unverified_author(submission, user):
     if not hasattr(user, "contributor"):
         return False
 
-    if submission.authors.filter(user=user).exists():
+    if submission.authors.filter(dbuser=user).exists():
         # User is verified author.
         return False
 
     return (
         user.last_name in submission.author_list
-        and not submission.authors_false_claims.filter(user=user).exists()
+        and not submission.authors_false_claims.filter(dbuser=user).exists()
     )
 
 

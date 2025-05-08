@@ -6,15 +6,18 @@ import datetime
 import hashlib
 import random
 import string
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Any, Self, override
 import uuid
 
+from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
+
+from anonymization.mixins import AnonymizableObjectMixin
 
 
 from .behaviors import TimeStampedModel, orcid_validator
@@ -34,7 +37,7 @@ from .constants import (
 )
 from .fields import ChoiceArrayField
 from .managers import (
-    ContributorQuerySet,
+    ContributorManager,
     UnavailabilityPeriodManager,
     AuthorshipClaimQuerySet,
 )
@@ -49,16 +52,42 @@ if TYPE_CHECKING:
     from profiles.models import Profile
     from colleges.models.fellowship import Fellowship
     from submissions.models.assignment import EditorialAssignment
+    from anonymization.models import ContributorAnonymization
 
 
-def get_sentinel_user():
-    """Temporary fix to be able to delete Contributor instances.
-
-    Eventually the 'to-be-removed-Contributor' should be status: "deactivated" and anonymized.
-    Fallback user for models relying on Contributor that is being deleted.
+class AnonymousAbstractUser(AnonymousUser):
     """
-    user, __ = get_user_model().objects.get_or_create(username="deleted")
-    return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
+    A runtime instance of an anonymous user
+    that contains the same properties as an AbstractUser.
+    """
+
+    @property
+    def first_name(self):
+        return "Anonymous"
+
+    @property
+    def last_name(self):
+        return "Anonymous"
+
+    @property
+    def email(self):
+        return "anonympus@scipost.org"
+
+    @property
+    @override
+    def username(self):  # type: ignore
+        return "anonymous"
+
+
+if TYPE_CHECKING:
+
+    class TypedUser(User):
+        """
+        Type hints for User model of Django.
+        To be used entirely for type hinting.
+        """
+
+        contributor: "Contributor"
 
 
 class TOTPDevice(models.Model):
@@ -82,7 +111,7 @@ class TOTPDevice(models.Model):
         return "{}: {}".format(self.user, self.name)
 
 
-class Contributor(models.Model):
+class Contributor(AnonymizableObjectMixin, models.Model):
     """Contributor is an extension of the User model.
 
     *Professionally active scientist* users of SciPost are Contributors.
@@ -92,11 +121,14 @@ class Contributor(models.Model):
     Other information is carried by the related Profile.
     """
 
+    dbuser = models.OneToOneField["TypedUser"](
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        verbose_name="user",
+        null=True,
+    )
     profile = models.OneToOneField["Profile"](
         "profiles.Profile", on_delete=models.SET_NULL, null=True, blank=True
-    )
-    user = models.OneToOneField["User"](
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True
     )
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
@@ -107,7 +139,7 @@ class Contributor(models.Model):
     address = models.CharField(max_length=1000, verbose_name="address", blank=True)
     vetted_by = models.ForeignKey["Contributor"](
         "self",
-        on_delete=models.SET(get_sentinel_user),
+        on_delete=models.SET_NULL,
         related_name="contrib_vetted_by",
         blank=True,
         null=True,
@@ -121,14 +153,14 @@ class Contributor(models.Model):
         related_name="duplicates",
     )
 
-    objects = ContributorQuerySet.as_manager()
+    objects = ContributorManager()
 
     if TYPE_CHECKING:
         fellowships: "RelatedManager[Fellowship]"
         editorial_assignments: "RelatedManager[EditorialAssignment]"
 
     class Meta:
-        ordering = ["user__last_name", "user__first_name"]
+        ordering = ["dbuser__last_name", "dbuser__first_name"]
 
     @property
     def roles(self):
@@ -138,6 +170,20 @@ class Contributor(models.Model):
         if self.user.is_staff:
             r.append("st")
         return r if len(r) > 0 else None
+
+    @property
+    def user(self):
+        """
+        Return the database-saved User object of the Contributor if
+        it is not anonymous, or a runtime instance of AnonymousAbstractUser.
+        """
+        if self.is_anonymous or not self.dbuser:
+            return AnonymousAbstractUser()
+        return self.dbuser
+
+    @user.setter
+    def user(self, user: "User"):
+        self.dbuser = user
 
     def __str__(self):
         val = "%s, %s" % (self.user.last_name, self.user.first_name)
@@ -172,10 +218,6 @@ class Contributor(models.Model):
     @property
     def is_duplicate(self):
         return self.duplicate_of is not None
-
-    @property
-    def is_anonymous(self):
-        return self.user.username.startswith("anonymous_")
 
     @property
     def is_currently_available(self):
@@ -267,24 +309,43 @@ class Contributor(models.Model):
         return ConflictOfInterest.objects.filter_for_profile(self.profile)
 
     @classmethod
-    def create_anonymous(cls, uuid_str: str | None = None) -> "Self":
-        """Create an anonymous contributor with optional UUID last name."""
+    def create_anonymous(
+        cls, uuid_str: str | None = None, **kwargs: dict[str, Any]
+    ) -> "Self":
+        """Create an anonymous contributor with a UUID-identified profile."""
         from profiles.models import Profile
 
         uuid_str = str(uuid.uuid4()) if uuid_str is None else uuid_str
 
-        anonymous_profile = Profile.create_anonymous(uuid_str)
-        anonymous_user = get_user_model().objects.create(
-            first_name="Anonymous",
-            last_name=uuid_str,
-            username="anonymous_" + uuid_str,
-            is_active=False,
-        )
+        if "profile" not in kwargs:
+            kwargs["profile"] = Profile.create_anonymous(uuid_str)
+
         return cls.objects.create(
+            is_anonymous=True,
             status=DISABLED,
-            user=anonymous_user,
-            profile=anonymous_profile,
+            dbuser=None,
+            **kwargs,
         )
+
+    def anonymize(self, uuid_str: str | None = None) -> "ContributorAnonymization":
+        """
+        Creates an anonymous object of the same type,
+        and returns the anonymization record for it.
+        """
+        uuid_str = str(uuid.uuid4()) if uuid_str is None else uuid_str
+        anonymous_profile_record = (
+            self.profile.anonymize(uuid_str=uuid_str) if self.profile else None
+        )
+
+        record = self.anonymizations.create(
+            uuid=uuid_str,
+            original=self,
+            anonymous=self.create_anonymous(
+                uuid_str,
+                profile=anonymous_profile_record.anonymous,
+            ),
+        )
+        return record
 
 
 class UnavailabilityPeriod(models.Model):

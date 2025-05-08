@@ -3,7 +3,20 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import scipost.models
+
+
+def get_sentinel_user():
+    """Temporary fix to be able to delete Contributor instances.
+
+    Eventually the 'to-be-removed-Contributor' should be status: "deactivated" and anonymized.
+    Fallback user for models relying on Contributor that is being deleted.
+    """
+    from django.contrib.auth import get_user_model
+    from scipost.models import Contributor
+    from scipost.constants import DISABLED
+
+    user, __ = get_user_model().objects.get_or_create(username="deleted")
+    return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
 
 
 class Migration(migrations.Migration):
@@ -32,7 +45,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         blank=True,
                         null=True,
-                        on_delete=models.SET(scipost.models.get_sentinel_user),
+                        on_delete=models.SET(get_sentinel_user),
                         to="scipost.contributor",
                     ),
                 ),

@@ -95,7 +95,8 @@ class MailchimpList(TimeStampedModel):
 
         # Unsubscribe *all* Contributors in the database if asked for
         updated_contributors = Profile.objects.filter(
-            accepts_SciPost_emails=True, contributor__user__email__in=unsubscribe_emails
+            accepts_SciPost_emails=True,
+            contributor__dbuser__email__in=unsubscribe_emails,
         ).update(accepts_SciPost_emails=False)
 
         # Check the current list of subscribers in MailChimp account

@@ -228,7 +228,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
             request,
             "{} {} has already agreed to be Editor-in-charge of this Submission.".format(
                 submission.editor_in_charge.profile.get_title_display(),
-                submission.editor_in_charge.user.last_name,
+                submission.editor_in_charge.dbuser.last_name,
             ),
         )
         return redirect("submissions:pool:pool")
@@ -254,7 +254,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
         try:
             assignment = (
                 submission.editorial_assignments.invited()
-                .filter(to__user=request.user)
+                .filter(to__dbuser=request.user)
                 .first()
             )
         except EditorialAssignment.DoesNotExist:

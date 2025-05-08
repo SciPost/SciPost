@@ -20,9 +20,9 @@ def link_created_profile_to_contributor(sender, instance, created, **kwargs):
     if created:
         try:
             contributor = Contributor.objects.get(
-                user__first_name=instance.first_name,
-                user__last_name=instance.last_name,
-                user__email=instance.email,
+                dbuser__first_name=instance.first_name,
+                dbuser__last_name=instance.last_name,
+                dbuser__email=instance.email,
             )
             contributor.profile = instance
             contributor.save()

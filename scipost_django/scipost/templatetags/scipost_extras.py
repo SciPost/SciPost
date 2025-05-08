@@ -112,8 +112,8 @@ def is_in_group(user, group_name):
 @register.filter(name="associated_contributors")
 def associated_contributors(draft):
     return Contributor.objects.filter(
-        user__last_name__icontains=draft.last_name
-    ).order_by("user__last_name")
+        dbuser__last_name__icontains=draft.last_name
+    ).order_by("dbuser__last_name")
 
 
 @register.filter

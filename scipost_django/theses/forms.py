@@ -48,7 +48,7 @@ class RequestThesisLinkForm(BaseRequestThesisLinkForm):
 
     def save(self, *args, **kwargs):
         """Prefill instance before save"""
-        self.instance.requested_by = Contributor.objects.get(user=self.user)
+        self.instance.requested_by = Contributor.objects.get(dbuser=self.user)
         return super(RequestThesisLinkForm, self).save(*args, **kwargs)
 
 
@@ -98,7 +98,7 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
 
         if action == VetThesisLinkForm.ACCEPT or action == VetThesisLinkForm.MODIFY:
             thesislink.vetted = True
-            thesislink.vetted_by = Contributor.objects.get(user=user)
+            thesislink.vetted_by = Contributor.objects.get(dbuser=user)
             thesislink.save()
 
             subject_line = "SciPost Thesis Link activated"

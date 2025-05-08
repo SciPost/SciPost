@@ -820,7 +820,7 @@ def registration_requests(request):
     """
     inactive_contributors = (
         Contributor.objects.awaiting_validation()
-        .prefetch_related("user")
+        .prefetch_related("dbuser")
         .order_by("-key_expires")
     )
     context = {"inactive_contributors": inactive_contributors, "now": timezone.now()}
@@ -1457,7 +1457,7 @@ def _update_personal_data_contact(request):
 
 
 def _update_personal_data_contributor(request):
-    contributor = Contributor.objects.get(user=request.user)
+    contributor = Contributor.objects.get(dbuser=request.user)
     user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
     cont_form = UpdatePersonalDataForm(request.POST or None, instance=contributor)
     if user_form.is_valid() and cont_form.is_valid():
@@ -1531,7 +1531,7 @@ def claim_authorships(request):
     The contributor must confirm/deny authorship from the
     Personal Page.
     """
-    contributor = Contributor.objects.get(user=request.user)
+    contributor = Contributor.objects.get(dbuser=request.user)
 
     submission_authorships_to_claim = (
         Submission.objects.with_potential_unclaimed_author(contributor)
@@ -1571,7 +1571,7 @@ def claim_authorships(request):
 @is_contributor_user()
 def claim_sub_authorship(request, submission_id, claim):
     if request.method == "POST":
-        contributor = Contributor.objects.get(user=request.user)
+        contributor = Contributor.objects.get(dbuser=request.user)
         submission = get_object_or_404(Submission, pk=submission_id)
         if claim == 1:
             submission.authors_claims.add(contributor)
@@ -1589,7 +1589,7 @@ def claim_sub_authorship(request, submission_id, claim):
 @is_contributor_user()
 def claim_com_authorship(request, commentary_id, claim):
     if request.method == "POST":
-        contributor = Contributor.objects.get(user=request.user)
+        contributor = Contributor.objects.get(dbuser=request.user)
         commentary = get_object_or_404(Commentary, pk=commentary_id)
         if claim == 1:
             commentary.authors_claims.add(contributor)
@@ -1607,7 +1607,7 @@ def claim_com_authorship(request, commentary_id, claim):
 @is_contributor_user()
 def claim_thesis_authorship(request, thesis_id, claim):
     if request.method == "POST":
-        contributor = Contributor.objects.get(user=request.user)
+        contributor = Contributor.objects.get(dbuser=request.user)
         thesislink = get_object_or_404(ThesisLink, pk=thesis_id)
         if claim == 1:
             thesislink.author_claims.add(contributor)
@@ -1631,7 +1631,7 @@ def vet_authorship_claims(request):
 @permission_required("scipost.can_vet_authorship_claims", return_403=True)
 def vet_authorship_claim(request, claim_id, claim):
     if request.method == "POST":
-        vetting_contributor = Contributor.objects.get(user=request.user)
+        vetting_contributor = Contributor.objects.get(dbuser=request.user)
         claim_to_vet = AuthorshipClaim.objects.get(pk=claim_id)
 
         if claim_to_vet.submission:

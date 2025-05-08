@@ -342,7 +342,7 @@ class SubmissionUtils(BaseMailUtil):
             f"SciPost Refereeing <refereeing@{domain}>",
             [cls.invitation.email_address],
             bcc=[
-                cls.invitation.submission.editor_in_charge.user.email,
+                cls.invitation.submission.editor_in_charge.dbuser.email,
                 f"refereeing@{domain}",
             ],
             reply_to=[f"refereeing@{domain}"],
@@ -452,7 +452,7 @@ class SubmissionUtils(BaseMailUtil):
             f"SciPost Refereeing <refereeing@{domain}>",
             [cls.invitation.email_address],
             bcc=[
-                cls.invitation.submission.editor_in_charge.user.email,
+                cls.invitation.submission.editor_in_charge.dbuser.email,
                 f"refereeing@{domain}",
             ],
             reply_to=[f"refereeing@{domain}"],
@@ -533,7 +533,7 @@ class SubmissionUtils(BaseMailUtil):
             f"SciPost Refereeing <refereeing@{domain}>",
             [cls.invitation.email_address],
             bcc=[
-                cls.invitation.submission.editor_in_charge.user.email,
+                cls.invitation.submission.editor_in_charge.dbuser.email,
                 f"refereeing@{domain}",
             ],
             reply_to=[f"refereeing@{domain}"],
@@ -663,7 +663,7 @@ class SubmissionUtils(BaseMailUtil):
             f"SciPost Refereeing <refereeing@{domain}>",
             [cls.report.author.user.email],
             bcc=[
-                cls.report.submission.editor_in_charge.user.email,
+                cls.report.submission.editor_in_charge.dbuser.email,
                 f"refereeing@{domain}",
             ],
             reply_to=[f"refereeing@{domain}"],
@@ -958,7 +958,7 @@ class SubmissionUtils(BaseMailUtil):
             email_text.format(**email_context),
             f"SciPost Editorial Admin <submissions@{domain}>",
             [submission.submitted_by.user.email],
-            bcc=[submission.editor_in_charge.user.email, f"submissions@{domain}"],
+            bcc=[submission.editor_in_charge.dbuser.email, f"submissions@{domain}"],
             reply_to=[f"submissions@{domain}"],
         )
         emailmessage.attach_alternative(html_version, "text/html")
@@ -1078,7 +1078,7 @@ class SubmissionUtils(BaseMailUtil):
             email_text,
             f"SciPost Editorial Admin <submissions@{domain}>",
             [cls.submission.submitted_by.user.email],
-            bcc=[cls.submission.editor_in_charge.user.email, f"submissions@{domain}"],
+            bcc=[cls.submission.editor_in_charge.dbuser.email, f"submissions@{domain}"],
             reply_to=[f"submissions@{domain}"],
         )
         emailmessage.attach_alternative(html_version, "text/html")

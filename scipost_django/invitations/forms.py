@@ -307,7 +307,7 @@ class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
 
     def clean_email(self):
         email = self.cleaned_data["email"]
-        if Contributor.objects.filter(user__email=email).exists():
+        if Contributor.objects.filter(dbuser__email=email).exists():
             self.add_error(
                 "email", "This email address is already associated to a Contributor"
             )

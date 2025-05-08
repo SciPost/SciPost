@@ -227,7 +227,7 @@ class SubmissionPoolSearchForm(forms.Form):
     identifier = forms.CharField(max_length=128, required=False)
     status = forms.ChoiceField(choices=())
     editor_in_charge = forms.ModelChoiceField(
-        queryset=Fellowship.objects.active().select_related("contributor__user"),
+        queryset=Fellowship.objects.active().select_related("contributor__dbuser"),
         required=False,
     )
 
@@ -3152,7 +3152,7 @@ class VotingEligibilityForm(forms.ModelForm):
                 | Q(profile__specialties__in=self.instance.submission.specialties.all())
                 | Q(pk__in=prev_elig_id)
             )
-            .order_by("user__last_name")
+            .order_by("dbuser__last_name")
             .distinct()
         )
 

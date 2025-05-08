@@ -382,7 +382,7 @@ class VetCommentTask(TaskKind):
         return (
             get_objects_for_user(cls.user, "comments.can_vet_comments")
             .awaiting_vetting()
-            .prefetch_related("author__user")
+            .prefetch_related("author__dbuser")
         )
 
     @staticmethod

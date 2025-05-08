@@ -28,7 +28,7 @@ def get_editor_invitations(submission, user):
     if not user.is_authenticated or not hasattr(user, "contributor"):
         return EditorialAssignment.objects.none()
     return EditorialAssignment.objects.filter(
-        to__user=user, submission=submission
+        to__dbuser=user, submission=submission
     ).invited()
 
 
@@ -97,7 +97,7 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
     """
     Return the fellowship of the submission with additional pool-tab-related annotations.
     """
-    fellows_qs = submission.fellows.select_related_contributor__user_and_profile()
+    fellows_qs = submission.fellows.select_related_contributor__dbuser_and_profile()
 
     manual_eic_invitation_events = SubmissionEvent.objects.filter(
         submission=submission,
