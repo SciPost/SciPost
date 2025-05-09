@@ -195,7 +195,7 @@ def finances(request):
     ax.set_xlabel("year")
 
     flike = io.BytesIO()
-    fig.savefig(flike)
+    fig.savefig(flike, format="png")
     subsidies_plot_b64 = base64.b64encode(flike.getvalue()).decode()
     context = {
         "subsidies_plot": subsidies_plot_b64,
