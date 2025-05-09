@@ -285,6 +285,7 @@ class RenewSponsorshipTask(TaskKind):
                         - timezone.timedelta(days=122)
                     ).filter(
                         Q(organization=OuterRef("id"))
+                        & Q(renewable=True)
                         & (
                             Q(date_until__lt=timezone.now())
                             | Q(renewal_action_date__lt=timezone.now())
