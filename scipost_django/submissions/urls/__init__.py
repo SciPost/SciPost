@@ -478,12 +478,12 @@ urlpatterns = [
     ),
     path("refereeing_overview", views.refereeing_overview, name="refereeing_overview"),
     path(
-        "communication/<identifier:identifier_w_vn_nr>/<str:comtype>",
+        "communication/<identifier:identifier_w_vn_nr>/<str:comtype>/<int:referee_id>",
         views.communication,
         name="communication",
     ),
     path(
-        "communication/<identifier:identifier_w_vn_nr>/<str:comtype>/<int:referee_id>",
+        "communication/<identifier:identifier_w_vn_nr>/<str:comtype>",
         views.communication,
         name="communication",
     ),

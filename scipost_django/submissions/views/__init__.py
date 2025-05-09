@@ -22,7 +22,7 @@ from django.contrib.auth.mixins import (
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction, IntegrityError
-from django.db.models import Q, QuerySet
+from django.db.models import Q, Exists, OuterRef, QuerySet
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
@@ -47,6 +47,7 @@ from scipost.permissions import (
     permission_required_htmx,
 )
 from submissions.models.assignment import ConditionalAssignmentOffer
+from submissions.models.communication import EditorialCommunication
 
 from ..constants import (
     ED_COMM_CHOICES,
@@ -2296,8 +2297,23 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
     if recipient == "R" and referee_id:
         # Get the Contributor to communicate with if not already defined (`Eto?` communication)
         # To Fix: Assuming the Editorial Administrator won't make any `referee_id` mistakes
-        referee = get_object_or_404(Contributor.objects.active(), pk=referee_id)
+        referee = get_object_or_404(
+            Contributor.objects.active()
+            .annotate(
+                invited_in_thread=Exists(
+                    RefereeInvitation.objects.filter(
+                        submission__thread_hash=submission.thread_hash,
+                        referee__contributor=OuterRef("pk"),
+                    )
+                )
+            )
+            .filter(invited_in_thread=True),
+            pk=referee_id,
+        )
 
+    dummy_communication = EditorialCommunication(
+        comtype=comtype, submission=submission, referee=referee
+    )
     form = EditorialCommunicationForm(request.POST or None)
     if form.is_valid():
         communication = form.save(commit=False)
@@ -2337,6 +2353,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         "comtype": comtype,
         "referee_id": referee_id,
         "form": form,
+        "dummy_communication": dummy_communication,
     }
     return render(request, "submissions/communication.html", context)
 

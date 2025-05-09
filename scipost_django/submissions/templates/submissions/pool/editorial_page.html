@@ -531,16 +531,17 @@ container border border-warning border-3
     <hr class="lg bg-warning my-5">
 
     <h2 id="communications">Communications</h2>
-    <ul>
+    <h3 class="fw-normal fs-6">Draft and send a communication{% if is_ed_admin %} (as Editorial Administrator){% endif %} to:</h3>
+    <ul class="d-flex flex-row gap-3 list-unstyled">
       {% if submission.editor_in_charge == request.user.contributor %}
-        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
-        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
+        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoA' %}" class="btn btn-small btn-primary">the submitting Author</a></li>
+        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoS' %}" class="btn btn-small btn-warning">Editorial Administration</a></li>
       {% endif %}
       {% if is_ed_admin %}
+      <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoA' %}" class="btn btn-small btn-primary">the submitting Author</a></li>
         {% if submission.editor_in_charge %}
-          <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Draft and send a communication as Editorial Administrator to the Editor-in-charge</a></li>
+          <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}" class="btn btn-small btn-warning">the Editor-in-charge</a></li>
         {% endif %}
-        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoA' %}">Draft and send a communication as Editorial Administrator to the submitting Author</a></li>
       {% endif %}
     </ul>
 
