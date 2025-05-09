@@ -2472,10 +2472,10 @@ class WithdrawSubmissionForm(forms.Form):
 
             # Update all assignments
             EditorialAssignment.objects.filter(
-                submission=self.submission
+                submission__thread_hash=self.submission.thread_hash
             ).need_response().update(status=EditorialAssignment.STATUS_DEPRECATED)
             EditorialAssignment.objects.filter(
-                submission=self.submission
+                submission__thread_hash=self.submission.thread_hash
             ).accepted().update(status=EditorialAssignment.STATUS_COMPLETED)
 
             # Deprecate any outstanding recommendations
