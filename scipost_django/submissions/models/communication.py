@@ -9,7 +9,7 @@ from django.utils import timezone
 from common.utils.models import get_current_domain
 
 from ..behaviors import SubmissionRelatedObjectMixin
-from ..constants import ED_COMM_CHOICES
+from ..constants import ED_COMM_CHOICES, ED_COMM_PARTIES
 from ..managers import EditorialCommunicationQuerySet
 
 from typing import TYPE_CHECKING
@@ -87,6 +87,12 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     @property
     def recipient_letter(self):
         return self.comtype[-1]
+
+    def get_author_type_display(self):
+        return dict(ED_COMM_PARTIES).get(self.author_letter, "Unknown")
+
+    def get_recipient_type_display(self):
+        return dict(ED_COMM_PARTIES).get(self.recipient_letter, "Unknown")
 
     @property
     def author(self):
