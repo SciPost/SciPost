@@ -3,11 +3,12 @@ __license__ = "AGPL v3"
 
 
 from django import template
-from django.db.models import Q, Count, Exists, OuterRef, Prefetch, Subquery, Value
+from django.db.models import Q, Avg, Count, Exists, OuterRef, Prefetch, Subquery, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
 
 from ethics.models import SubmissionClearance
+from ontology.models.topic import TopicInterest
 from scipost.models import UnavailabilityPeriod
 from submissions.constants import EVENT_FOR_EDADMIN
 from submissions.models.submission import SubmissionEvent
@@ -137,6 +138,15 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
                     contributor__editorial_assignments__status=EditorialAssignment.STATUS_ACCEPTED,
                 ),
             ),
+            avg_overlapping_topic_weight=Subquery(
+                TopicInterest.objects.filter(
+                    profile=OuterRef("contributor__profile"),
+                    topic__in=submission.topics.all(),
+                )
+                .values("profile")
+                .annotate(avg_weight=Avg("weight"))
+                .values("avg_weight")[:1]
+            ),
         )
         .prefetch_related(
             Prefetch(
@@ -153,6 +163,13 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
                 "contributor__profile__submission_clearances",
                 queryset=SubmissionClearance.objects.filter(submission=submission),
                 to_attr="submission_clearance",
+            ),
+            Prefetch(
+                "contributor__profile__topic_interests",
+                queryset=TopicInterest.objects.filter(
+                    topic__in=submission.topics.all(),
+                ),
+                to_attr="submission_overlapping_topics",
             ),
         )
         .order_by("contributor__profile__last_name")

@@ -1,46 +1,4 @@
-<ul class="nav nav-pills justify-content-center">
-  {% if "edadmin" in user_roles %}
-    <li class="nav-item">
-      {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="edadmin" text="EdAdmin" %}
-    </li>
-  {% endif %}
-  <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="info" text="Submission<br>information" %}
-  </li>
-  <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="fellows" text="Fellows" %}
-  </li>
-  <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="refereeing" text="Refereeing" %}
-  </li>
-  {% if "edadmin" in user_roles %}
-    <li class="nav-item text-center">
-      {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="recommendations_and_voting" text="Recommendations<br>& Voting" %}
-    </li>
-  {% endif %}
-  <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="remarks" text="Remarks" notification=submission.remarks.count %}
-  </li>
-  <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="graph" text="Graphs" %}
-  </li>
-  <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="events" text="Events" %}
-  </li>
-  <li class="nav-item">
-    {% include "submissions/pool/_submission_tab_link.html" with submission=submission tab=tab target="old" text="Old version" %}
-  </li>
-  <li class="nav-item">
-    <span id="tabs-{{ submission.id }}-indicator"
-	  class="htmx-indicator p-2"
-    >
-      <button class="btn btn-sm btn-warning" type="button" disabled>
-	<small><strong>Loading...</strong></small>
-	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-      </button>
-    </span>
-  </li>
-</ul>
+{% include "submissions/pool/_submission_tab_navbar.html" %}
 <hr>
 <div class="tab-content">
   {% if tab == "info" %}

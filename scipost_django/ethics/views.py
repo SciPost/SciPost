@@ -133,11 +133,13 @@ def _hx_submission_competing_interest_delete(request, identifier_w_vn_nr, pk):
     context = {
         "submission": submission,
     }
-    return render(
+    response = render(
         request,
         "submissions/pool/_submission_fellows.html",
         context,
     )
+    response["HX-Retarget"] = f"#submission-{submission.id}-fellows-details"
+    return response
 
 
 @login_required
@@ -164,11 +166,13 @@ def _hx_submission_competing_interest_create(
     if form.is_valid():
         instance = form.save()
         instance.affected_submissions.add(submission)
-        return render(
+        response = render(
             request,
-            "submissions/pool/_hx_submission_fellow_row.html",
-            context={"submission": submission, "fellowship": fellowship},
+            "submissions/pool/_submission_fellows.html",
+            context={"submission": submission},
         )
+        response["HX-Retarget"] = f"#submission-{submission.id}-fellows-details"
+        return response
 
     context = {
         "submission": submission,

@@ -115,6 +115,19 @@ def _hx_submission_tab(request, identifier_w_vn_nr, tab):
     return render(request, "submissions/pool/_hx_submission_tab.html", context)
 
 
+@login_required
+@fellowship_or_admin_required()
+def _hx_submission_fellows_tab(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission.objects.in_pool(request.user, historical=True, latest=False),
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+    context = {
+        "submission": submission,
+    }
+    return render(request, "submissions/pool/_submission_fellows.html", context)
+
+
 @permission_required_htmx("scipost.can_mark_submission_on_hold")
 def _hx_submission_toggle_on_hold(request, identifier_w_vn_nr):
     submission = get_object_or_404(

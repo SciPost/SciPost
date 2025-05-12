@@ -22,6 +22,33 @@
     </td>
   {% endif %}
 
+  <td>
+
+    {% if fellowship.contributor.profile.submission_overlapping_topics %}
+      <details class="d-flex flex-row flex-wrap gap-2">
+        <summary class="d-flex justify-content-between align-items-center">
+          <span>{{ fellowship.contributor.profile.submission_overlapping_topics|length }} with {{ fellowship.avg_overlapping_topic_weight|floatformat:2 }} avg</span>
+          <span class="text-underline">view</span>
+        </summary>
+
+        <ul class="list-unstyled mb-0">
+
+          {% for interest in fellowship.contributor.profile.submission_overlapping_topics %}
+            <li class="d-flex justify-content-between align-items-center">
+              <span class="text-truncate">
+                <a href="{{ interest.topic.get_absolute_url }}">{{ interest.topic }}</a>
+              </span>
+              <span>({{ interest.weight }})</span>
+            </li>
+          {% endfor %}
+
+        </ul>
+
+      </details>
+    {% endif %}
+
+  </td>
+
   <td>{{ fellowship.submission_qualification.0.get_expertise_level_display }}</td>
   <td>{{ fellowship.submission_readiness.0.get_status_display }}</td>
 

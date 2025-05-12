@@ -1,0 +1,30 @@
+{% extends 'profiles/base.html' %}
+
+
+{% block meta_description %}
+  {{ block.super }} Topic Interests for {{ profile }}
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  Submission: {{ submission.title|truncatechars:40 }}
+{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'profiles:profile_detail' profile.id %}">{{ profile }}</a></span>
+  <span class="breadcrumb-item active">Topic Interests</span>
+{% endblock %}
+
+
+{% block content %}
+  <h1>Topic Interests</h1>
+  <p>
+    Indicate your interest in particular topics to help us sort submissions according to your expertise and preferences.
+    This will also help our editors to determine whether you are a suitable referee for a given submission.
+  </p>
+
+  <p>View your current topic interests below:</p>
+  <div hx-get="{% url "profiles:_hx_topic_interests_formset" profile.id %}"
+       hx-trigger="load once, topic-interests-updated from:body delay:1s"></div>
+
+{% endblock content %}

@@ -160,6 +160,23 @@
 </div>
 
 <div class="row">
+
+  <div class="col-12">  
+    <div class="highlight p-2 d-flex flex-row justify-content-between align-items-center mb-3">
+      <h3 class="mt-1">Topic Interests</h3>
+      <a href="{% url 'profiles:topic_interests' profile_id=contributor.profile.id %}"
+        class="btn btn-sm btn-primary fs-6">Update</a>
+    </div>
+    <ul class="list-unstyled d-flex flex-row flex-wrap gap-2">
+      {% for interest in contributor.profile.topic_interests.all|dictsortreversed:'weight' %}
+          <li class="bg-opacity-10 {% if interest.weight >= 0 %}bg-primary{% else %}bg-danger{% endif %} rounded-2 px-2 py-1 d-flex flex-row align-items-center gap-1">
+            <a href="{{ interest.topic.get_absolute_url }}">{{ interest.topic }}</a>
+            <span class="badge bg-opacity-75 text-light rounded-2 {% if interest.weight >= 0 %}bg-primary{% else %}bg-danger{% endif %}">{{ interest.weight }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+  </div>
+
   <div class="col-12">
     <h3>Your Affiliations:</h3>
     <ul>

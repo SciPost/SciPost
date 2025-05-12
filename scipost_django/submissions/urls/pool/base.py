@@ -43,6 +43,11 @@ urlpatterns = [  # building on /submissions/pool/
                     ),
                 ),
                 path(
+                    "tab/fellows",
+                    views_base._hx_submission_fellows_tab,
+                    name="_hx_submission_fellows_tab",
+                ),
+                path(
                     "tab/<slug:tab>",
                     views_base._hx_submission_tab,
                     name="_hx_submission_tab",

@@ -133,6 +133,11 @@ class Command(BaseCommand):
             name="Can add affiliations to Profiles",
             content_type=content_type,
         )
+        can_add_profile_topic_interests = Permission.objects.get_or_create(
+            codename="can_add_profile_topic_interests",
+            name="Can add topic interests to Profiles",
+            content_type=content_type,
+        )
         can_add_profile_emails, created = Permission.objects.get_or_create(
             codename="can_add_profile_emails",
             name="Can add emails to Profiles",
@@ -600,6 +605,7 @@ class Command(BaseCommand):
                 can_create_profiles,
                 can_view_profiles,
                 can_add_profile_affiliations,
+                can_add_profile_topic_interests,
                 can_add_profile_emails,
                 can_verify_profile_emails,
                 can_validate_profile_emails,

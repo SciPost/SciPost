@@ -45,6 +45,11 @@ urlpatterns = [
         name="_hx_topic_dynsel_list",
     ),
     path(
+        "topics/autocomplete/dynsel",
+        views.HXDynselTopicAutocomplete.as_view(),
+        name="topic_dynsel",
+    ),
+    path(
         "set_session_acad_field",
         views.set_session_acad_field,
         name="set_session_acad_field",
