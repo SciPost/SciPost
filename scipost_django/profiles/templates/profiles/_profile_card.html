@@ -57,6 +57,23 @@
 	    {% endfor %}
 	  </td>
 	</tr>
+	<tr>
+	  <td>Topic Interests
+      {% if perms.scipost.can_add_profile_topic_interests %}
+      <ul class="mb-0"><li><a href="{% url 'profiles:topic_interests' profile_id=profile.id %}">Manage</a></li></ul>
+      {% endif %}
+    </td>
+	  <td>
+      <ul class="list-unstyled d-flex flex-row flex-wrap gap-2">
+      {% for interest in profile.topic_interests.all|dictsortreversed:'weight' %}
+          <li class="bg-opacity-10 {% if interest.weight >= 0 %}bg-primary{% else %}bg-danger{% endif %} rounded-2 px-2 py-1 d-flex flex-row align-items-center gap-1">
+            <a href="{{ interest.topic.get_absolute_url }}">{{ interest.topic }}</a>
+            <span class="badge bg-opacity-75 text-light rounded-2 {% if interest.weight >= 0 %}bg-primary{% else %}bg-danger{% endif %}">{{ interest.weight }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+	  </td>
+	</tr>
 	<tr><td>ORCID ID</td><td><a href="https://orcid.org/{{ profile.orcid_id }}" target="_blank" rel="noopener">{{ profile.orcid_id }}</a></td></tr>
 	<tr><td>Webpage</td><td><a href="{{ profile.webpage }}" target="_blank" rel="noopener">{{ profile.webpage }}</a></td></tr>
 	<tr><td>Accepts SciPost emails</td><td>{{ profile.accepts_SciPost_emails }}</td></tr>

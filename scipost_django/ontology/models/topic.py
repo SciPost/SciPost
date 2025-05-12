@@ -26,7 +26,7 @@ class Topic(models.Model):
     def __str__(self):
         return self.name
 
-    def get_abolute_url(self):
+    def get_absolute_url(self):
         return reverse("ontology:topic_details", kwargs={"slug": self.slug})
 
 

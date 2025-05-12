@@ -31,23 +31,16 @@
         <tr>
           <th>Fellow</th>
           <th>Status</th>
-          <th>
-            Currently
-            <br />
-            available
-          </th>
+          <th class="text-truncate">Available</th>
 
           {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}<th>Workload</th>{% endif %}
 
+          <th>Topics</th>
           <th>Qualification</th>
-          <th>Readiness to take charge</th>
+          <th>Readiness</th>
 
           {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
-            <th>
-              Competing
-              <br />
-              interests
-            </th>
+            <th class="text-wrap">Competing interests</th>
 
             {% if "edadmin" in user_roles %}<th>Actions</th>{% endif %}
           {% endif %}
