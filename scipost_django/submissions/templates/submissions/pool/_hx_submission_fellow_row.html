@@ -17,9 +17,7 @@
   </td>
 
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
-    <td>
-      {% include "icons/reception.html" with value=fellowship.nr_ongoing_editorial_assignments max=4 %}
-    </td>
+    <td>{% include "icons/reception.html" with value=fellowship.nr_ongoing_editorial_assignments max=4 %}</td>
   {% endif %}
 
   <td>
@@ -59,50 +57,53 @@
         <span class="text-success">all clear</span>
         &nbsp;<em>(asserted by {{ fellowship.contributor.profile.submission_clearance.0.asserted_by }})</em>
       {% else %}
-        {% get_profile_competing_interests submission.competing_interests fellowship.contributor.profile as ci_qs %}
 
-        {% if ci_qs %}
-          <table class="table table-bordered bg-danger bg-opacity-10 mb-0">
-            <thead>
-              <tr>
-                <th>
-                  Related Profile / <em>(nature)</em>
-                </th>
+        {% with submission_competing_interests=fellowship.contributor.profile.submission_competing_interests|add:fellowship.contributor.profile.submission_competing_interests_related %}
 
-                {% if "edadmin" in user_roles %}<th>Actions</th>{% endif %}
-
-              </tr>
-            </thead>
-            <tbody>
-
-              {% for ci in ci_qs %}
+          {% if submission_competing_interests %}
+            <table class="table table-bordered bg-danger bg-opacity-10 mb-0">
+              <thead>
                 <tr>
-                  <td>
-                    {{ ci.related_profile }}
-                    <br />
-                    <em>({{ ci.get_nature_display }})</em>
-                  </td>
-                  <td>
+                  <th>
+                    Related Profile / <em>(nature)</em>
+                  </th>
 
-                    {% if "edadmin" in user_roles %}
-                      <a class="btn btn-sm btn-danger px-1 py-0"
-                         hx-get="{% url 'ethics:_hx_submission_competing_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=ci.pk %}"
-                         hx-confirm="Delete this competing interest?"
-                         hx-target="#submission-{{ submission.pk }}-fellows-details">
-                        {% include "bi/trash-fill.html" %}
-                      </a>
-                    {% endif %}
+                  {% if "edadmin" in user_roles %}<th>Actions</th>{% endif %}
 
-                  </td>
                 </tr>
-              {% endfor %}
+              </thead>
+              <tbody>
+
+                {% for ci in submission_competing_interests %}
+                  <tr>
+                    <td>
+                      {{ ci.related_profile }}
+                      <br />
+                      <em>({{ ci.get_nature_display }})</em>
+                    </td>
+                    <td>
+
+                      {% if "edadmin" in user_roles %}
+                        <a class="btn btn-sm btn-danger px-1 py-0"
+                           hx-get="{% url 'ethics:_hx_submission_competing_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=ci.pk %}"
+                           hx-confirm="Delete this competing interest?"
+                           hx-target="#submission-{{ submission.pk }}-fellows-details">
+                          {% include "bi/trash-fill.html" %}
+                        </a>
+                      {% endif %}
+
+                    </td>
+                  </tr>
+                {% endfor %}
 
 
-            </tbody>
-          </table>
-        {% else %}
-          <em class="text-danger">unknown</em>
-        {% endif %}
+              </tbody>
+            </table>
+          {% else %}
+            <em class="text-danger">unknown</em>
+          {% endif %}
+
+        {% endwith %}
       {% endif %}
 
     </td>
@@ -110,28 +111,31 @@
     {% if "edadmin" in user_roles %}
       <td>
         <div class="d-flex gap-1">
-        <a class="btn btn-sm btn-danger px-1 py-0"
-           title="Declare competing interest"
-           hx-get="{% url 'ethics:_hx_submission_competing_interest_create' submission.preprint.identifier_w_vn_nr fellowship.id %}"
-           hx-target="closest tr">{% include "bi/plus-square-fill.html" %}</a>
-        <a class="btn btn-sm btn-danger px-1 py-0"
-           hx-get="{% url 'colleges:_hx_submission_remove_fellowship' submission.preprint.identifier_w_vn_nr fellowship.id %}"
-           hx-confirm="Remove this Fellow from this Submission's Fellowship?"
-           hx-target="#submission-{{ submission.pk }}-fellows-details">{% include "bi/trash-fill.html" %}</a>
+          <a class="btn btn-sm btn-danger px-1 py-0"
+             title="Declare competing interest"
+             hx-get="{% url 'ethics:_hx_submission_competing_interest_create' submission.preprint.identifier_w_vn_nr fellowship.id %}"
+             hx-target="closest tr">{% include "bi/plus-square-fill.html" %}</a>
+          <a class="btn btn-sm btn-danger px-1 py-0"
+             hx-get="{% url 'colleges:_hx_submission_remove_fellowship' submission.preprint.identifier_w_vn_nr fellowship.id %}"
+             hx-confirm="Remove this Fellow from this Submission's Fellowship?"
+             hx-target="#submission-{{ submission.pk }}-fellows-details">{% include "bi/trash-fill.html" %}</a>
 
-        {% if fellowship.submission_readiness.0.status != 'desk_reject' %}
-          <a class="btn btn-sm btn-primary px-1 py-0"
-             title="Send manual EIC invitation{% if fellowship.nr_manual_eic_invitations %}<br> Already sent: {{ fellowship.nr_manual_eic_invitations }} time{{ fellowship.nr_manual_eic_invitations|pluralize }}<br>Latest at: {{ fellowship.latest_manual_eic_invitation }}{% endif %}"
-             data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true"
-             href="{% url "submissions:pool:manual_EIC_invitation" submission.preprint.identifier_w_vn_nr fellowship.id %}">
+          {% if fellowship.submission_readiness.0.status != 'desk_reject' %}
+            <a class="btn btn-sm btn-primary px-1 py-0" title="Send manual EIC invitation 
+              {% if fellowship.nr_manual_eic_invitations %}<br> Already sent: {{ fellowship.nr_manual_eic_invitations }} time{{ fellowship.nr_manual_eic_invitations|pluralize }}<br>Latest at: {{ fellowship.latest_manual_eic_invitation }}
+            {% endif %}
+
+            " data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" href="{% url "submissions:pool:manual_EIC_invitation" submission.preprint.identifier_w_vn_nr fellowship.id %}">
             <span class="d-flex gap-2 text-white">
               {% include "bi/envelope-fill.html" %}
               {{ fellowship.nr_manual_eic_invitations|default:'' }}
             </span>
           </a>
         {% endif %}
-        </div>
-      </td>
-    {% endif %}
+
+      </div>
+    </td>
   {% endif %}
+{% endif %}
+
 </tr>
