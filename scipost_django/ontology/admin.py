@@ -10,6 +10,7 @@ from .models import (
     Specialty,
     Tag,
     Topic,
+    TopicInterest,
     RelationAsym,
     RelationSym,
 )
@@ -23,8 +24,6 @@ class AcademicFieldAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-
-
 @admin.register(Specialty)
 class SpecialtyAdmin(admin.ModelAdmin):
     search_fields = ["name"]
@@ -33,15 +32,11 @@ class SpecialtyAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     search_fields = [
         "name",
     ]
-
-
 
 
 @admin.register(Topic)
@@ -52,6 +47,21 @@ class TopicAdmin(admin.ModelAdmin):
     ]
 
 
+@admin.register(TopicInterest)
+class TopicInterestAdmin(admin.ModelAdmin):
+    search_fields = [
+        "topic",
+        "profile",
+    ]
+    list_display = [
+        "topic",
+        "profile",
+        "weight",
+    ]
+    autocomplete_fields = [
+        "topic",
+        "profile",
+    ]
 
 
 @admin.register(RelationAsym)
@@ -62,12 +72,8 @@ class RelationAsymAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 @admin.register(RelationSym)
 class RelationSymAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         "topics",
     ]
-
-

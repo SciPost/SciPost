@@ -12,4 +12,4 @@ from .relations import RelationAsym, RelationSym
 
 from .tag import Tag
 
-from .topic import Topic
+from .topic import Topic, TopicInterest
