@@ -218,12 +218,7 @@ class RadioAppraisalForm(forms.Form):
         - Knowledgeable
         - Marginally qualified
         """
-
-        is_qualified = self.cleaned_data["expertise_level"] in [
-            choice[0] for choice in Qualification.EXPERTISE_LEVEL_CHOICES[:4]
-        ]
-
-        return is_qualified
+        return self.cleaned_data["expertise_level"] in Qualification.EXPERTISE_QUALIFIED
 
     @property
     def has_clearance(self):

@@ -27,6 +27,16 @@ class Qualification(models.Model):
         (NOT_REALLY_QUALIFIED, "Not really qualified"),
         (NOT_AT_ALL_QUALIFIED, "Not at all qualified"),
     )
+    EXPERTISE_QUALIFIED = [
+        EXPERT,
+        VERY_KNOWLEDGEABLE,
+        KNOWLEDGEABLE,
+        MARGINALLY_QUALIFIED,
+    ]
+    EXPERTISE_NOT_QUALIFIED = [
+        NOT_REALLY_QUALIFIED,
+        NOT_AT_ALL_QUALIFIED,
+    ]
 
     submission = models.ForeignKey(
         "submissions.Submission",
@@ -67,9 +77,4 @@ class Qualification(models.Model):
 
     @property
     def is_qualified(self):
-        return self.expertise_level in [
-            self.EXPERT,
-            self.VERY_KNOWLEDGEABLE,
-            self.KNOWLEDGEABLE,
-            self.MARGINALLY_QUALIFIED,
-        ]
+        return self.expertise_level in self.EXPERTISE_QUALIFIED
