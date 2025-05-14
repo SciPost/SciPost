@@ -1,8 +1,10 @@
+{% load automarkup %}
+
 {% if report.strengths %}
   <div class="row">
     <div class="col-12">
       <h3 class="highlight tight">Strengths</h3>
-      <div class="ps-md-4">{{ report.strengths|linebreaks }}</div>
+      <div class="ps-md-4">{% automarkup report.strengths %}</div>
     </div>
   </div>
 {% endif %}
@@ -11,7 +13,7 @@
   <div class="row">
     <div class="col-12">
       <h3 class="highlight tight">Weaknesses</h3>
-      <div class="ps-md-4">{{ report.weaknesses|linebreaks }}</div>
+      <div class="ps-md-4">{% automarkup report.weaknesses %}</div>
     </div>
   </div>
 {% endif %}
@@ -19,7 +21,7 @@
 <div class="row">
   <div class="col-12">
     <h3 class="highlight tight">Report</h3>
-    <div class="ps-md-4">{{ report.report|linebreaks }}</div>
+    <div class="ps-md-4">{% automarkup report.report %}</div>
   </div>
 </div>
 
@@ -28,7 +30,7 @@
     <div class="col-12">
       <h3 class="highlight tight">Requested changes</h3>
       <div class="ps-md-4">
-        <p>{{ report.requested_changes|linebreaksbr }}</p>
+        <p>{% automarkup report.requested_changes %}</p>
       </div>
     </div>
   </div>
