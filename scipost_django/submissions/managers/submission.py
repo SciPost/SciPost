@@ -6,12 +6,14 @@ import datetime
 
 from django.contrib.postgres.lookups import Unaccent
 from django.db import models
-from django.db.models import Q, Value
+from django.db.models import Q, Exists, Value
 from django.utils import timezone
 
+from colleges.models.fellowship import Fellowship
 from comments.models import Comment
 from common.utils.db import SplitString
 from common.utils.text import initialize
+from submissions.models.qualification import Qualification
 
 from .. import constants
 
@@ -412,6 +414,19 @@ class SubmissionQuerySet(models.QuerySet):
             .annot_clearance_by(fellow.contributor.profile)
             .exclude(has_qualification=True, has_readiness=True, has_clearance=True)
         )
+
+    def exclude_not_qualified_for_fellow(self, fellow: Fellowship):
+        """
+        Exclude Submissions that the Fellow has indicated they are not qualified to judge.
+        """
+        return self.annotate(
+            is_not_qualified=Exists(
+                Qualification.objects.filter(
+                    submission=models.OuterRef("pk"),
+                    fellow=fellow,
+                ).not_qualified()
+            )
+        ).exclude(is_not_qualified=True)
 
     def comments_set_complete(self):
         """Return Comments on Submissions, Reports and other Comments."""

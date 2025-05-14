@@ -236,6 +236,12 @@ class SubmissionPoolSearchForm(forms.Form):
         required=False,
         initial=False,
     )
+    hide_unqualified_for = forms.BooleanField(
+        label="Hide unqualified for",
+        required=False,
+        initial=False,
+    )
+
     orderby = forms.ChoiceField(
         label="Order by",
         choices=(
@@ -295,6 +301,10 @@ class SubmissionPoolSearchForm(forms.Form):
         div_block_checkbox = Div(
             Div(
                 Field("hide_fully_appraised"),
+                css_class="col-auto col-lg-12 col-xl-auto",
+            ),
+            Div(
+                Field("hide_unqualified_for"),
                 css_class="col-auto col-lg-12 col-xl-auto",
             ),
             css_class="row mb-0",
@@ -492,6 +502,8 @@ class SubmissionPoolSearchForm(forms.Form):
         fellowship = user.contributor.fellowships.active().first()
         if fellowship and self.cleaned_data.get("hide_fully_appraised"):
             submissions = submissions.not_fully_appraised_by(fellowship)
+        if fellowship and self.cleaned_data.get("hide_unqualified_for"):
+            submissions = submissions.exclude_not_qualified_for_fellow(fellowship)
 
         if not user.contributor.is_ed_admin:
             submissions = submissions.stage_incoming_completed()
