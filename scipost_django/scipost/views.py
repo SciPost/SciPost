@@ -1636,18 +1636,41 @@ def claim_thesis_authorship(request, thesis_id, claim):
     return redirect("scipost:claim_authorships")
 
 
-@permission_required("scipost.can_vet_authorship_claims", return_403=True)
 def vet_authorship_claims(request):
+    can_vet_all_claims = request.user.has_perm("scipost.can_vet_authorship_claims")
     claims_to_vet = AuthorshipClaim.objects.filter(status="0")
-    context = {"claims_to_vet": claims_to_vet}
-    return render(request, "scipost/vet_authorship_claims.html", context)
+    # Limit to claims that are not created by the user, and for those that they
+    # can act as administrator, e.g. submissions for which they are the submitting author
+    if not can_vet_all_claims:
+        claims_to_vet = claims_to_vet.filter(
+            Q(submission__submitted_by=request.user.contributor)
+            | Q(commentary__requested_by=request.user.contributor)
+            | Q(thesislink__requested_by=request.user.contributor)
+        ).exclude(claimant=request.user.contributor)
+
+    return render(
+        request,
+        "scipost/vet_authorship_claims.html",
+        {"claims_to_vet": claims_to_vet},
+    )
 
 
-@permission_required("scipost.can_vet_authorship_claims", return_403=True)
 def vet_authorship_claim(request, claim_id, claim):
     if request.method == "POST":
         vetting_contributor = Contributor.objects.get(dbuser=request.user)
-        claim_to_vet = AuthorshipClaim.objects.get(pk=claim_id)
+
+        can_vet_all_claims = request.user.has_perm("scipost.can_vet_authorship_claims")
+        claims_to_vet = AuthorshipClaim.objects.filter(status="0")
+        # Limit to claims that are not created by the user, and for those that they
+        # can act as administrator, e.g. submissions for which they are the submitting author
+        if not can_vet_all_claims:
+            claims_to_vet = claims_to_vet.filter(
+                Q(submission__submitted_by=request.user.contributor)
+                | Q(commentary__requested_by=request.user.contributor)
+                | Q(thesislink__requested_by=request.user.contributor)
+            ).exclude(claimant=request.user.contributor)
+
+        claim_to_vet = get_object_or_404(claims_to_vet, pk=claim_id)
 
         if claim_to_vet.submission:
             claim_to_vet.submission.authors_claims.remove(claim_to_vet.claimant)

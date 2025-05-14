@@ -69,11 +69,18 @@
       {% endif %}
 
       {% if is_author %}
-	<div class="w-100">
-	  <div class="border border-success py-2 px-3 mb-3">
-            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> You are a verified author of this Submission.
-	  </div>
-	</div>
+        <div class="w-100">
+          <div class="border border-success py-2 px-3 mb-3">
+                  <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> You are a verified author of this Submission.
+          </div>
+        </div>
+      {% endif %}
+      {% if is_submitting_author and unverified_claims_exist %}
+        <div class="w-100">
+          <div class="border border-warning py-2 px-3 mb-3">
+                  <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> There exist Authorship Claims on this Submission that are not yet verified. You can help Editorial Administration by <a href="{% url 'scipost:vet_authorship_claims' %}">reviewing them</a>.
+          </div>
+        </div>
       {% endif %}
       {% if not submission.visible_public %}
   <div class="w-100">

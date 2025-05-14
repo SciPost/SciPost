@@ -797,6 +797,7 @@ def submission_detail(request, identifier_w_vn_nr):
     }
 
     # Check if Contributor is author of the Submission
+    is_submitting_author = request.user.contributor == submission.submitted_by
     is_author = check_verified_author(submission, request.user)
     is_author_unchecked = check_unverified_author(submission, request.user)
     is_submission_fellow = submission.fellows.filter(
@@ -886,10 +887,12 @@ def submission_detail(request, identifier_w_vn_nr):
             "invited_reports": invited_reports,
             "contributed_reports": contributed_reports,
             "author_replies": author_replies,
+            "is_submitting_author": is_submitting_author,
             "is_author": is_author,
             "is_author_unchecked": is_author_unchecked,
             "is_submission_fellow": is_submission_fellow,
             "has_appraised_submission": has_appraised_submission,
+            "unverified_claims_exist": submission.authorshipclaim_set.filter(status=0).exists(),
         }
     )
     return render(request, "submissions/submission_detail.html", context)
