@@ -283,7 +283,7 @@
                 <form method="post" action="{% url 'scipost:logout' %}">
                   {% csrf_token %}
                   <input type="hidden" name="next" value="{{ request.path }}">
-                  <button type="submit">logout</button>
+                  <button class="btn btn-link" type="submit">Log Out</button>
                 </form>
               </div>
             </div>
