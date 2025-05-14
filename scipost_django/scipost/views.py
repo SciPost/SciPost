@@ -1577,6 +1577,11 @@ def claim_sub_authorship(request, submission_id, claim):
             submission.authors_claims.add(contributor)
             newclaim = AuthorshipClaim(claimant=contributor, submission=submission)
             newclaim.save()
+            messages.success(
+                request,
+                "Editorial Administration has been notified of your claim "
+                "and it is now awaiting vetting.",
+            )
         elif claim == 0:
             submission.authors_false_claims.add(contributor)
         else:
@@ -1595,6 +1600,11 @@ def claim_com_authorship(request, commentary_id, claim):
             commentary.authors_claims.add(contributor)
             newclaim = AuthorshipClaim(claimant=contributor, commentary=commentary)
             newclaim.save()
+            messages.success(
+                request,
+                "Editorial Administration has been notified of your claim "
+                "and it is now awaiting vetting.",
+            )
         elif claim == 0:
             commentary.authors_false_claims.add(contributor)
         else:
@@ -1613,6 +1623,11 @@ def claim_thesis_authorship(request, thesis_id, claim):
             thesislink.author_claims.add(contributor)
             newclaim = AuthorshipClaim(claimant=contributor, thesislink=thesislink)
             newclaim.save()
+            messages.success(
+                request,
+                "Editorial Administration has been notified of your claim "
+                "and it is now awaiting vetting.",
+            )
         elif claim == 0:
             thesislink.author_false_claims.add(contributor)
         else:
