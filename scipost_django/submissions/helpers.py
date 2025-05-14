@@ -8,6 +8,11 @@ import unicodedata
 
 from .exceptions import ArxivPDFNotFound
 
+from django.contrib.auth.models import User
+from submissions.models.submission import Submission
+
+from common.utils.text import initialize
+
 
 def retrieve_pdf_from_arxiv(arxiv_id):
     """Try to download the pdf as bytes object from arXiv for a certain arXiv Identifier.
@@ -30,7 +35,7 @@ def check_verified_author(submission, user):
     return submission.authors.filter(dbuser=user).exists()
 
 
-def check_unverified_author(submission, user):
+def check_unverified_author(submission: Submission, user: User):
     """
     Check if user may be author of Submission.
 
@@ -45,6 +50,10 @@ def check_unverified_author(submission, user):
 
     return (
         user.last_name in submission.author_list
+        and (
+            user.first_name in submission.author_list
+            or initialize(user.first_name) in submission.author_list
+        )
         and not submission.authors_false_claims.filter(dbuser=user).exists()
     )
 
