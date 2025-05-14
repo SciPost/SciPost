@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from functools import reduce
 import re
 from django import forms
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, Submit, Button, ButtonHolder
@@ -14,6 +14,7 @@ from dal import autocomplete
 from django.forms import ChoiceField
 from django.urls import reverse
 
+from colleges.models.fellowship import Fellowship
 from common.forms import ModelChoiceFieldwithid
 from invitations.models import RegistrationInvitation
 from ontology.models.specialty import Specialty
@@ -384,7 +385,11 @@ class ProfileDynSelForm(forms.Form):
     def search_results(self):
         if self.cleaned_data["q"]:
             return Profile.objects.search(self.cleaned_data["q"]).annotate(
-                is_fellow=Q(contributor__fellowships__isnull=False)
+                is_fellow=Exists(
+                    Fellowship.objects.filter(
+                        Q(contributor__profile=OuterRef("id"))
+                    ).active()
+                )
             )
         else:
             return Profile.objects.none()
