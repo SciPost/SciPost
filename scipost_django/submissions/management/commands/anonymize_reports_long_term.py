@@ -55,6 +55,10 @@ class Command(BaseCommand):
             author__is_anonymous=False, anonymous=True
         )
 
+        now = timezone.datetime.now().date()
+        three_months_ago = (now - timezone.timedelta(days=90)).replace(day=1)
+        report_anonymization_backup_filename = f"anonymized_reports_for_publications_before_{three_months_ago.strftime('%Y-%m-%d')}.json"
+
         if thread_hash := kwargs.get("thread_hash"):
             reports_to_anonymize = reports_to_anonymize.filter(
                 submission__thread_hash__in=thread_hash
@@ -81,10 +85,6 @@ class Command(BaseCommand):
             )
 
         # If no thread hash is provided, we will anonymize all reports
-        now = timezone.datetime.now().date()
-        three_months_ago = (now - timezone.timedelta(days=90)).replace(day=1)
-        report_anonymization_backup_filename = f"anonymized_reports_for_publications_before_{three_months_ago.strftime('%Y-%m-%d')}.json"
-
         reports_to_anonymize = reports_to_anonymize.annotate(
             latest_status=Subquery(
                 Submission.objects.filter(
