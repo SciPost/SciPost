@@ -703,7 +703,7 @@ class Submission(models.Model):
 
     @property
     def plagiarism_tests_completed(self):
-        return (
+        return self.internal_plagiarism_assessment.permanently_failed or (
             self.plagiarism_internal_tests_completed
             and self.plagiarism_iThenticate_tests_completed
         )

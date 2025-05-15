@@ -34,6 +34,10 @@ class PlagiarismAssessment(models.Model):
         return self.status == self.STATUS_PASSED
 
     @property
+    def permanently_failed(self):
+        return self.status == self.STATUS_FAILED_PERMANENT
+
+    @property
     def failed(self):
         return self.status in [
             self.STATUS_FAILED_TEMPORARY,
