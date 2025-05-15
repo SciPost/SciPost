@@ -797,7 +797,7 @@ def submission_detail(request, identifier_w_vn_nr):
     }
 
     # Check if Contributor is author of the Submission
-    is_submitting_author = request.user.contributor == submission.submitted_by
+    is_submitting_author = request.user == submission.submitted_by.user
     is_author = check_verified_author(submission, request.user)
     is_author_unchecked = check_unverified_author(submission, request.user)
     is_submission_fellow = submission.fellows.filter(
