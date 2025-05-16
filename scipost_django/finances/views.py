@@ -11,8 +11,8 @@ from dal import autocomplete
 from django.contrib.contenttypes.models import ContentType
 from django.core.handlers.asgi import HttpRequest
 from django.db import models
-from django.db.models import Q, Count, Exists, OuterRef, Subquery
-from django.db.models.functions import Coalesce
+from django.db.models import Q, Count, Exists, OuterRef, Subquery, Sum
+from django.db.models.functions import Cast, Coalesce
 from django.template.response import TemplateResponse
 from django.utils.html import format_html
 from django.views.generic import FormView
@@ -228,58 +228,51 @@ def apex(request):
 
 
 def country_level_data(request):
-    context = {}
-    countrycodes = [
-        code["country"]
-        for code in list(
-            Organization.objects.all().distinct("country").values("country")
+    columns = ["expenditures", "subsidy_income", "impact_on_reserves"]
+
+    # Sum column data for each org in the country
+    # through the cf_balance_info field, cumulative key
+    country_summary = list(
+        Organization.objects.values("country").annotate(
+            **{
+                column: Coalesce(
+                    Sum(
+                        Cast(
+                            "cf_balance_info__cumulative__" + column,
+                            models.IntegerField(),
+                        ),
+                        filter=Q(cf_balance_info__cumulative__isnull=False),
+                    ),
+                    0,
+                    output_field=models.IntegerField(),
+                )
+                for column in columns
+            }
         )
-    ]
-    context = {
-        "countrycodes": countrycodes,
-    }
-    countrydatalist = []
-    for country in countrycodes:
-        country_organizations = Organization.objects.filter(country=country)
-        countrydata = {
-            "country": country,
-            "expenditures": 0,
-            "expenditures_rank": None,
-            "subsidy_income": 0,
-            "subsidy_income_rank": None,
-            "impact_on_reserves": 0,
-            "impact_on_reserves_rank": None,
-        }
-        for organization in country_organizations:
-            for key in ("subsidy_income", "expenditures", "impact_on_reserves"):
-                countrydata[key] += organization.cf_balance_info.get("cumulative", {}).get(key, 0)
-        countrydatalist += [countrydata]
+    )
 
     # Determine the ranks
-    countrydatalist.sort(key=lambda country: country["expenditures"], reverse=True)
-    for idx, c in enumerate(countrydatalist):
-        c["expenditures_rank"] = idx + 1
-    countrydatalist.sort(key=lambda country: country["subsidy_income"], reverse=True)
-    for idx, c in enumerate(countrydatalist):
-        c["subsidy_income_rank"] = idx + 1
-    countrydatalist.sort(
-        key=lambda country: country["impact_on_reserves"], reverse=True
-    )
-    for idx, c in enumerate(countrydatalist):
-        c["impact_on_reserves_rank"] = idx + 1
+    for column in columns:
+        country_summary.sort(key=lambda country: country.get(column, 0), reverse=True)
+        for idx, c in enumerate(country_summary, 1):
+            c[f"{column}_rank"] = idx
+
     ordering = request.GET.get("ordering", None)
     reverse_ordering = request.GET.get("reverse", None)
     if ordering == "expenditures":
-        countrydatalist.sort(key=lambda country: country["expenditures"])
+        country_summary.sort(key=lambda country: country["expenditures"])
     elif ordering == "subsidy_income":
-        countrydatalist.sort(key=lambda country: country["subsidy_income"])
+        country_summary.sort(key=lambda country: country["subsidy_income"])
     elif ordering == "impact":
-        countrydatalist.sort(key=lambda country: country["impact_on_reserves"])
+        country_summary.sort(key=lambda country: country["impact_on_reserves"])
     if reverse_ordering == "true":
-        countrydatalist.reverse()
+        country_summary.reverse()
 
-    context["countrydata"] = countrydatalist
-    return render(request, "finances/country_level_data.html", context)
+    return render(
+        request,
+        "finances/country_level_data.html",
+        {"countrydata": country_summary},
+    )
 
 
 def _hx_country_level_data(request, country):
@@ -293,7 +286,14 @@ def _hx_country_level_data(request, country):
             "expenditures": 0,
             "impact_on_reserves": 0,
             "nap": len(
-                set(chain.from_iterable([o.get_publications() for o in organizations]))
+                set(
+                    chain.from_iterable(
+                        organizations.values_list(
+                            "cf_associated_publication_ids__all",
+                            flat=True,
+                        )
+                    )
+                )
             ),
         },
         "per_year": {},
