@@ -15,26 +15,97 @@
 
   <div class="card bg-light">
     <div class="card-body">
-      <img src="{{ organization.country.flag }}" style="width:20px;" alt="{{ organization.country }} flag"/>
-      <small class="text-muted">[{{ organization.country }}]</small> {{ organization.get_country_display }}
-      <h2 class="mb-0 mt-2">{{ organization.full_name }}&nbsp;&nbsp;<small>{% if organization.acronym %}[{{ organization.acronym }}]{% endif %}</small></h2>
+      <div class="row mb-0">
+        <div class="col">
+          <img src="{{ organization.country.flag }}" style="width:20px;" alt="{{ organization.country }} flag"/>
+          <small class="text-muted">[{{ organization.country }}]</small> {{ organization.get_country_display }}
+          <h2 class="mb-0 mt-2">{{ organization.full_name }}&nbsp;&nbsp;<small>{% if organization.acronym %}[{{ organization.acronym }}]{% endif %}</small></h2>
 
-      {% if organization.parent %}
-        <small class="text-muted">Parent: <a href="{{ organization.parent.get_absolute_url }}">{{ organization.parent }}</a></small>
-      {% endif %}
-      {% if organization.children.all %}
-        <br>
-        <small class="text-muted">
-          Parent of:
-          {% for child in organization.children.all %}
-            <a href="{{ child.get_absolute_url }}">{{ child }}</a>{% if not forloop.last %},&nbsp;{% endif %}
-          {% endfor %}
-        </small>
-      {% endif %}
-      {% if organization.superseded_by %}
-        <br>
-        <small class="text-muted">Superseded by {{ organization.superseded_by }}</small>
-      {% endif %}
+          {% if organization.parent %}
+            <small class="text-muted">Parent: <a href="{{ organization.parent.get_absolute_url }}">{{ organization.parent }}</a></small>
+          {% endif %}
+          {% if organization.children.all %}
+            <br>
+            <small class="text-muted">
+              Parent of:
+              {% for child in organization.children.all %}
+                <a href="{{ child.get_absolute_url }}">{{ child }}</a>{% if not forloop.last %},&nbsp;{% endif %}
+              {% endfor %}
+            </small>
+          {% endif %}
+          {% if organization.superseded_by %}
+            <br>
+            <small class="text-muted">Superseded by {{ organization.superseded_by }}</small>
+          {% endif %}
+        </div>
+          {% if organization.has_current_subsidy %}
+            <div class="bg-success text-white col-auto d-flex flex-column align-items-start gap-1 me-1 p-1 px-2">
+              <div class="fs-6 fw-light">Sponsorship</div>
+              <div class="fs-4 flex-grow-1 d-flex flex-column justify-content-center">Current</div>
+            </div>
+          {% elif organization.has_children_with_current_subsidy %}
+            <div class="bg-success text-white col-auto d-flex flex-column align-items-start gap-1 me-1 p-1 px-2">
+              <div class="fs-6 fw-light">Sponsorship</div>
+              <div class="fs-4 flex-grow-1 d-flex flex-column justify-content-center">
+                <div>Current</div>
+                <div><small>via child</small></div>
+              </div>
+            </div>
+          {% elif organization.subsidy_set.obtained.sequentially_renewable.all %}
+            <div class="bg-success bg-opacity-50 col-auto d-flex flex-column align-items-start gap-1 me-1 p-1 px-2">
+              <div class="fs-6 fw-light">Sponsorship</div>
+              <div class="fs-4 flex-grow-1 d-flex flex-column justify-content-center">
+                <div>Pending</br>renewal</div>
+              </div>
+            </div>
+          {% elif organization.parent.subsidy_set.obtained.sequentially_renewable.all %}
+            <div class="bg-success bg-opacity-50 col-auto d-flex flex-column align-items-start gap-1 me-1 p-1 px-2">
+              <div class="fs-6 fw-light">Sponsorship</div>
+              <div class="fs-4 flex-grow-1 d-flex flex-column justify-content-center">
+                <div>Pending renewal</div>
+                <div><small>via parent</small></div>
+              </div>
+            </div>
+          {% elif organization.subsidy_set.obtained.all %}
+            <div class="bg-primary text-white col-auto d-flex flex-column align-items-start gap-1 me-1 p-1 px-2">
+              <div class="fs-6 fw-light">Sponsorship</div>
+              <div class="fs-4 flex-grow-1 d-flex flex-column justify-content-center">
+                <div>Past</div>
+                <div><small>latest in {{ organization.subsidy_set.obtained.latest.date_until.year }} </small></div>
+              </div>
+            </div>
+          {% elif organization.parent.has_current_subsidy %}
+            <div class="bg-success text-white col-auto d-flex flex-column align-items-start gap-1 me-1 p-1 px-2">
+              <div class="fs-6 fw-light">Sponsorship</div>
+              <div class="fs-4 flex-grow-1 d-flex flex-column justify-content-center">
+                <div>Current</div>
+                <div><small>via parent</small></div>
+              </div>
+            </div>
+          {% elif organization.parent.subsidy_set.obtained.all %}
+            <div class="bg-primary text-white col-auto d-flex flex-column align-items-start gap-1 me-1 p-1 px-2">
+              <div class="fs-6 fw-light">Sponsorship</div>
+              <div class="fs-4 flex-grow-1 d-flex flex-column justify-content-center">
+                <div>Past</div>
+                <div><small>via parent, for {{ organization.parent.subsidy_set.obtained.latest.date_until.year }} </small></div>
+              </div>
+            </div>
+          {% elif organization.cf_nr_associated_publications > 0 %}
+            <div class="bg-warning bg-opacity-75 col-auto d-flex flex-column align-items-start gap-1 me-1 p-1 px-2">
+              <div class="fs-6 fw-light">Sponsorship</div>
+              <div class="fs-4 flex-grow-1 d-flex flex-column justify-content-center">Not yet</div>
+            </div>
+          {% else %}
+            <div class="bg-light col-auto d-flex flex-column align-items-start gap-1 me-1 p-1 px-2">
+              <div class="fs-6 fw-light">Sponsorship</div>
+              <div class="fs-4 flex-grow-1 d-flex flex-column justify-content-center">
+                <div>Not yet</div>
+                <div><small>no NAP</small></div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </div>
 
