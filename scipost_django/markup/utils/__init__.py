@@ -183,20 +183,27 @@ def check_markers(markers) -> dict[str, str | None]:
     if len(markers_cut["rst"]) > 0:
         if len(markers_cut["md"]) > 0:
             return {
-                "language": "plain",
-                "errors": (
-                    "Inconsistency: Markdown and reStructuredText syntaxes are mixed:\n\n"
-                    "Markdown: %s\n\nreStructuredText: %s"
+                "language": "Markdown",
+                "warning": (
+                    "Inconsistency: Markdown and reStructuredText syntaxes are mixed. Markdown will be used.\n"
+                    'Add "#coerce:reST" or "#coerce:plain" as the first line of your text to force reStructuredText or no markup. \n'
+                    "You may also contact the helpdesk if the formatting is incorrect and you are unable to edit your text."
+                ),
+                "error_details": (
+                    "Markdown: %s\nreStructuredText: %s"
                     % (markers_cut["md"].popitem(), markers_cut["rst"].popitem())
                 ),
             }
         elif len(markers_cut["plain_or_md"]) > 0:
             return {
-                "language": "plain",
-                "errors": (
-                    "Inconsistency: plain/Markdown and reStructuredText "
-                    "syntaxes are mixed:\n\n"
-                    "Markdown: %s\n\nreStructuredText: %s"
+                "language": "Markdown",
+                "warning": (
+                    "Inconsistency: plain/Markdown and reStructuredText syntaxes are mixed. Markdown will be used.\n"
+                    'Add "#coerce:reST" or "#coerce:plain" as the first line of your text to force reStructuredText or no markup. \n'
+                    "You may also contact the helpdesk if the formatting is incorrect and you are unable to edit your text."
+                ),
+                "error_details": (
+                    "Markdown: %s\nreStructuredText: %s"
                     % (
                         markers_cut["plain_or_md"].popitem(),
                         markers_cut["rst"].popitem(),
@@ -205,13 +212,11 @@ def check_markers(markers) -> dict[str, str | None]:
             }
         return {
             "language": "reStructuredText",
-            "errors": None,
         }
 
     elif len(markers_cut["md"]) > 0:
         return {
             "language": "Markdown",
-            "errors": None,
         }
 
     elif (
@@ -219,12 +224,10 @@ def check_markers(markers) -> dict[str, str | None]:
     ):  # markup, but indeterminate; assume Markdown
         return {
             "language": "Markdown",
-            "errors": None,
         }
 
     return {
         "language": "plain",
-        "errors": None,
     }
 
 
@@ -352,7 +355,12 @@ def process_markup(
     * `language_forced=None`: override language auto-detection
     """
 
-    markup = {"language": "plain", "errors": None, "warnings": None, "processed": ""}
+    markup: dict[str, Any] = {
+        "language": "plain",
+        "errors": None,
+        "processed": "",
+        "warnings": [],
+    }
 
     if not text_given:
         return markup
@@ -375,7 +383,7 @@ def process_markup(
             )
             return markup
         language_coerced = recognized_markup_languages[language_coerced_code]
-        markup["warnings"] = f"Coercing language: {language_coerced}"
+        markup["warnings"].append(f"Coercing language: {language_coerced}")
     else:
         text = text_given
         language_coerced = None
@@ -383,9 +391,10 @@ def process_markup(
     markup_detector = detect_markup_language(text)
 
     if coerced and language_coerced != markup_detector["language"]:
-        markup["warnings"] = (
-            "markup language was coerced to %s, while the detected one was %s."
-        ) % (language_coerced, markup_detector["language"])
+        markup["warnings"].append(
+            ("markup language was coerced to %s, while the detected one was %s.")
+            % (language_coerced, markup_detector["language"])
+        )
 
     language = (
         language_forced
@@ -394,8 +403,8 @@ def process_markup(
         or "plain"
     )
     markup["language"] = language
-    markup["errors"] = markup_detector["errors"]
-
+    markup["errors"] = markup_detector.get("errors")
+    markup["warnings"].append(markup_detector.get("warning"))
     if markup["errors"]:
         error_msg = (
             '<span style="color: red;">Errors in user-supplied markup '
@@ -406,9 +415,19 @@ def process_markup(
                 '<span style="color: red;">Errors in user-supplied markup<br><br>'
                 "%s</span><br><br>"
             ) % linebreaksbr(markup["errors"])
-        markup["processed"] = mark_safe(error_msg + linebreaksbr(text))
+        markup["processed"] += error_msg
         if not coerced:
             return markup
+
+    if warnings := [w for w in markup.get("warnings", []) if w]:
+        warning_msg = (
+            '<div class="mb-2 border border-warning p-2">'
+            '<p class="mb-0">Warnings issued while processing user-supplied markup:</p><ul class="mb-0">'
+        )
+        for warning in warnings:
+            warning_msg += f"<li>{linebreaksbr(warning)}</li>"
+        warning_msg += "</ul></div>"
+        markup["processed"] += warning_msg
 
     if language == "reStructuredText":
         warnStream = StringIO()
@@ -425,24 +444,30 @@ def process_markup(
                     "warning_stream": warnStream,
                 },
             )
-            markup["processed"] = mark_safe(force_str(parts["html_body"]))
+            markup["processed"] += force_str(parts["html_body"])
         except:
             markup["errors"] = warnStream.getvalue()
 
     elif language == "Markdown":
-        markup["processed"] = mark_safe(
+        markup["processed"] += bleach.clean(
+            markdown.markdown(
+                text,
+                extensions=["attr_list", MathJaxExtension()],
+                output_format="html5",
+            ),
+            tags=BLEACH_ALLOWED_TAGS,
+            attributes=BLEACH_ALLOWED_ATTRIBUTES,
+        )
+
+    else:
+        markup["processed"] += linebreaksbr(
             bleach.clean(
-                markdown.markdown(
-                    text,
-                    extensions=["attr_list", MathJaxExtension()],
-                    output_format="html5",
-                ),
+                text,
                 tags=BLEACH_ALLOWED_TAGS,
                 attributes=BLEACH_ALLOWED_ATTRIBUTES,
             )
         )
 
-    else:
-        markup["processed"] = linebreaksbr(text)
+    markup["processed"] = mark_safe(markup["processed"])
 
     return markup
