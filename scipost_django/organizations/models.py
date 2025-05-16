@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 import hashlib
+from itertools import chain
 import random
 import string
 
@@ -258,56 +259,29 @@ class Organization(models.Model):
     def update_cf_associated_publication_ids(self):
         """
         Update the calculated field Organization:cf_associated_publication_ids.
+        !Warning: "via_*" keys are not using "distinct" and could contain duplicates.
         """
-        ids = {
-            "via_author_affiliation": [
-                pk
-                for pk in Publication.objects.published()
-                .filter(authors__affiliations=self)
-                .values_list("pk", flat=True)
-            ],
-            "via_grant": [
-                pk
-                for pk in Publication.objects.published()
-                .filter(grants__funder__organization=self)
-                .values_list("pk", flat=True)
-            ],
-            "via_funder_generic": [
-                pk
-                for pk in Publication.objects.published()
-                .filter(funders_generic__organization=self)
-                .values_list("pk", flat=True)
-            ],
+        published_pks = Publication.objects.published().values_list("pk", flat=True)
+        children_ids = list(self.children.all().values_list("id", flat=True))
+        ids: dict[str, list[int]] = {
+            "via_author_affiliation": list(
+                published_pks.filter(authors__affiliations=self)
+            ),
+            "via_grant": list(published_pks.filter(grants__funder__organization=self)),
+            "via_funder_generic": list(
+                published_pks.filter(funders_generic__organization=self)
+            ),
+            "via_child_author_affiliation": list(
+                published_pks.filter(authors__affiliations__pk__in=children_ids)
+            ),
+            "via_child_grant": list(
+                published_pks.filter(grants__funder__organization__pk__in=children_ids)
+            ),
+            "via_child_funder_generic": list(
+                published_pks.filter(funders_generic__organization__pk__in=children_ids)
+            ),
         }
-        children_ids = [pk for pk in self.children.all().values_list("id", flat=True)]
-        ids["via_child_author_affiliation"] = [
-            pk
-            for pk in Publication.objects.published()
-            .filter(authors__affiliations__pk__in=children_ids)
-            .values_list("pk", flat=True)
-        ]
-        ids["via_child_grant"] = [
-            pk
-            for pk in Publication.objects.published()
-            .filter(grants__funder__organization__pk__in=children_ids)
-            .values_list("pk", flat=True)
-        ]
-        ids["via_child_funder_generic"] = [
-            pk
-            for pk in Publication.objects.published()
-            .filter(funders_generic__organization__pk__in=children_ids)
-            .values_list("pk", flat=True)
-        ]
-        ids["all"] = list(
-            set(
-                ids["via_author_affiliation"]
-                + ids["via_grant"]
-                + ids["via_funder_generic"]
-                + ids["via_child_author_affiliation"]
-                + ids["via_child_grant"]
-                + ids["via_child_funder_generic"]
-            )
-        )
+        ids["all"] = list(set(chain.from_iterable(ids.values())))
         self.cf_associated_publication_ids = ids
         self.save()
 
