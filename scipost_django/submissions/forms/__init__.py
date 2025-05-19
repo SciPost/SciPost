@@ -2066,6 +2066,9 @@ class SubmissionForm(forms.ModelForm):
         # Copy Topics
         submission.topics.add(*previous_submission.topics.all())
 
+        # Copy Collections
+        submission.collections.add(*previous_submission.collections.all())
+
         # Open for comments (reports: opened upon cycle choice) and copy EIC info
         Submission.objects.filter(id=submission.id).update(
             open_for_commenting=True,
