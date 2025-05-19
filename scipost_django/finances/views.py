@@ -276,7 +276,9 @@ def country_level_data(request):
 
 
 def _hx_country_level_data(request, country):
-    organizations = Organization.objects.filter(country=country)
+    organizations = Organization.objects.filter(country=country).order_by(
+        "-cf_balance_info__cumulative__impact_on_reserves"
+    )
     pubyears = [str(y) for y in range(int(timezone.now().strftime("%Y")), 2015, -1)]
     context = {
         "country": country,
@@ -288,10 +290,13 @@ def _hx_country_level_data(request, country):
             "nap": len(
                 set(
                     chain.from_iterable(
-                        organizations.values_list(
-                            "cf_associated_publication_ids__all",
-                            flat=True,
-                        )
+                        filter(
+                            lambda x: x is not None,
+                            organizations.values_list(
+                                "cf_associated_publication_ids__all",
+                                flat=True,
+                            ),
+                        ),
                     )
                 )
             ),
@@ -325,19 +330,22 @@ def _hx_country_level_data(request, country):
         }
     for organization in organizations.all():
         for key in ("subsidy_income", "expenditures", "impact_on_reserves"):
-            context["cumulative"][key] += organization.cf_balance_info["cumulative"][
-                key
-            ]
+            context["cumulative"][key] += organization.cf_balance_info.get(
+                "cumulative", {}
+            ).get(key, 0)
         for year in pubyears:
-            context["per_year"][year]["subsidy_income"] += organization.cf_balance_info[
-                year
-            ]["subsidy_income"]
-            context["per_year"][year]["expenditures"] += organization.cf_balance_info[
-                year
-            ]["expenditures"]["total"]["expenditures"]
+            context["per_year"][year][
+                "subsidy_income"
+            ] += organization.cf_balance_info.get(year, {}).get("subsidy_income", 0)
+            context["per_year"][year]["expenditures"] += (
+                organization.cf_balance_info.get(year, {})
+                .get("expenditures", {})
+                .get("total", {})
+                .get("expenditures", 0)
+            )
             context["per_year"][year][
                 "impact_on_reserves"
-            ] += organization.cf_balance_info[year]["impact_on_reserves"]
+            ] += organization.cf_balance_info.get(year, {}).get("impact_on_reserves", 0)
     return render(request, "finances/_hx_country_level_data.html", context)
 
 

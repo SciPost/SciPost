@@ -14,7 +14,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr class="bg-light">
+    <tr class="bg-light border-bottom border-dark">
       <td>Cumulative</td>
       <td style="text-align: right;">{{ cumulative.nap }}</td>
       <td style="text-align: right;">&euro;{{ cumulative.expenditures }}</td>
@@ -49,7 +49,7 @@
 </tr>
     </thead>
     <tbody>
-<tr class="bg-light">
+<tr class="bg-light border-bottom border-dark">
   <td>Total</td>
   <td></td>
   <td style="text-align: right;">{{ cumulative.nap }}</td>
@@ -57,7 +57,7 @@
   <td style="text-align: right;">{{ cumulative.subsidy_income }}</td>
   <td style="text-align: right;">{{ cumulative.impact_on_reserves }}</td>
 </tr>
-{% for organization in organizations|dictsortreversed:"cf_balance_info.cumulative.impact_on_reserves" %}
+{% for organization in organizations %}
   {% if organization.cf_balance_info.cumulative.subsidy_income > 0 or organization.cf_balance_info.cumulative.expenditures > 0 %}
     <tr>
       <td><a href="https://{{ request.get_host }}{{ organization.get_absolute_url }}">{{ organization }}</a></td>
