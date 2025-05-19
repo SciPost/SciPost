@@ -175,3 +175,18 @@ def _hx_collection_publication_action(request, slug, doi_label, action):
     return redirect(
         reverse("series:_hx_collection_publications", kwargs={"slug": collection.slug})
     )
+
+
+@permission_required("scipost.can_manage_series")
+def _hx_collection_toggle_enforce_expected_authors(request, slug):
+    """
+    Toggle the enforce_expected_authors flag for a Collection.
+    """
+    collection = get_object_or_404(Collection, slug=slug)
+    collection.enforce_expected_authors = not collection.enforce_expected_authors
+    collection.save()
+    return render(
+        request,
+        "series/_hx_collection_toggle_enforce_expected_authors.html",
+        {"collection": collection},
+    )

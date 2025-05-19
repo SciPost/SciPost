@@ -67,7 +67,10 @@
       <h3>Editorial Administration</h3>
 
       <div class="card my-4">
-        <div class="card-header">Expected authors for this Collection</div>
+        <div class="card-header d-flex flex-row justify-content-between">
+          <span>Expected authors for this Collection</span>
+          {% include "series/_hx_collection_toggle_enforce_expected_authors.html" %}
+        </div>
         <div class="card-body">
           <div id="author_profiles"
                hx-get="{% url 'series:_hx_collection_expected_authors' slug=collection.slug %}"

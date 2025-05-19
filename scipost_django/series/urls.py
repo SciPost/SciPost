@@ -25,6 +25,11 @@ urlpatterns = [
                     name="_hx_collection_expected_authors",
                 ),
                 path(
+                    "_hx_collection_expected_authors/_hx_toggle_enforce",
+                    views._hx_collection_toggle_enforce_expected_authors,
+                    name="_hx_collection_toggle_enforce_expected_authors",
+                ),
+                path(
                     "_hx_collection_expected_editors",
                     views._hx_collection_expected_editors,
                     name="_hx_collection_expected_editors",

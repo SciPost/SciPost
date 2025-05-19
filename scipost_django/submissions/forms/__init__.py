@@ -1536,15 +1536,6 @@ class SubmissionForm(forms.ModelForm):
             ).values_list("id", "name_with_series")
         )
 
-        self.fields["collection"].choices += list(
-            Collection.objects.all()
-            .filter(is_active=True)
-            .order_by("-event_start_date")
-            # Short name is `event_suffix` if set, otherwise `event_name`
-            .annotate(name_with_series=Concat("series__name", Value(" - "), "name"))
-            .values_list("id", "name_with_series")
-        )
-
         if self.preprint_server.name == "SciPost":
             # SciPost identifier will be auto-generated
             del self.fields["identifier_w_vn_nr"]
@@ -1870,21 +1861,26 @@ class SubmissionForm(forms.ModelForm):
             )
 
         clean_author_list = [name.strip() for name in str_author_list.split(",")]
-        expected_author_list = [a.full_name for a in collection.expected_authors.all()]
 
         # Check that the collection has defined expected authors
-        if len(expected_author_list) == 0:
-            self.add_error(
-                "collection",
-                "This collection has no specified authors yet, please contact techsupport.",
-            )
-        # Check that at least one of the authors in the list is an expected author of the collection
-        elif not any(author in expected_author_list for author in clean_author_list):
-            self.add_error(
-                "collection",
-                "None of the authors in the author list match any of the expected authors of this collection. "
-                "Please check that the author list and collection are correct before contacting techsupport.",
-            )
+        if collection.enforce_expected_authors:
+            expected_author_list = [
+                a.full_name for a in collection.expected_authors.all()
+            ]
+            if len(expected_author_list) == 0:
+                self.add_error(
+                    "collection",
+                    "This collection has no specified authors yet, please contact techsupport.",
+                )
+            # Check that at least one of the authors in the list is an expected author of the collection
+            elif not any(
+                author in expected_author_list for author in clean_author_list
+            ):
+                self.add_error(
+                    "collection",
+                    "None of the authors in the author list match any of the expected authors of this collection. "
+                    "Please check that the author list and collection are correct before contacting techsupport.",
+                )
 
     def clean_code_repository_url(self):
         """

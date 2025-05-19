@@ -82,6 +82,13 @@ class Collection(models.Model):
     image = models.ImageField(upload_to="series/collections/images/", blank=True)
     is_active = models.BooleanField(default=True)
 
+    enforce_expected_authors = models.BooleanField(
+        default=True,
+        help_text=(
+            "If checked, only authors in the expected_authors "
+            "list can submit to this collection."
+        ),
+    )
     expected_authors = models.ManyToManyField(
         "profiles.Profile", blank=True, related_name="collections_authoring"
     )

@@ -1,0 +1,28 @@
+<div id="collection-{{ collection.pk }}-toggle-enforce-expected-authors"
+     class="d-flex flex-column gap-2">
+  <div class="d-flex flex-row gap-2 justify-content-end align-items-center">
+    <span>Enforce</span>
+    <button role="checkbox"
+            class="btn btn-sm text-white btn-{{ collection.enforce_expected_authors|yesno:"success,danger" }}"
+            hx-post="{% url "series:_hx_collection_toggle_enforce_expected_authors" slug=collection.slug %}"
+            hx-target="#collection-{{ collection.pk }}-toggle-enforce-expected-authors"
+            hx-trigger="click, expected-authors-updated from:body"
+            hx-swap="outerHTML"
+            aria-checked="{{ collection.enforce_expected_authors|yesno:"true,false" }}"
+            aria-label="Enforce expected authors for this collection"
+            tabindex="0">{{ collection.enforce_expected_authors|yesno:"ON,OFF" }}</button>
+  </div>
+
+  {% if collection.enforce_expected_authors and not collection.expected_authors.exists %}
+    <div class="bg-warning text-white p-2">
+      No expected authors are set for this collection. Please add expected authors to enforce them.
+    </div>
+  {% endif %}
+
+  {% if not collection.enforce_expected_authors and collection.expected_authors.exists %}
+    <div class="bg-warning text-white p-2">
+      Expected author list is populated, but not enforced. Everyone will be admitted.
+    </div>
+  {% endif %}
+
+</div>
