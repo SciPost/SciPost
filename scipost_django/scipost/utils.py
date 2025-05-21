@@ -83,3 +83,9 @@ EMAIL_UNSUBSCRIBE_LINK_HTML = (
 class Utils(BaseMailUtil):
     mail_sender = f"registration@{domain}"
     mail_sender_title = "SciPost registration"
+
+
+# Recursive type of dict[str -> dict | int]
+TContributorStatDictKey = str | int
+TContributorStatDict = dict[TContributorStatDictKey, "TContributorStatDict | int"]
+

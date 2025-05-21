@@ -83,12 +83,14 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
         (STATUS_REPLACED, "Replaced"),
     )
 
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission",
         on_delete=models.CASCADE,
     )
 
-    to = models.ForeignKey("scipost.Contributor", on_delete=models.CASCADE)
+    to = models.ForeignKey["Contributor"](
+        "scipost.Contributor", on_delete=models.CASCADE
+    )
 
     status = models.CharField(
         max_length=16, choices=ASSIGNMENT_STATUSES, default=STATUS_PREASSIGNED

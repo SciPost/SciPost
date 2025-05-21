@@ -21,7 +21,8 @@ from ..constants import (
 from ..managers import EICRecommendationQuerySet
 
 if TYPE_CHECKING:
-    from scipost.models import Contributor
+    from django.db.models.manager import RelatedManager
+    from scipost.models import Contributor, Remark
     from submissions.models import Submission
     from journals.models import Journal
 
@@ -82,6 +83,9 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     voting_deadline = models.DateTimeField("date submitted", default=timezone.now)
 
     objects = EICRecommendationQuerySet.as_manager()
+
+    if TYPE_CHECKING:
+        remarks: "RelatedManager[Remark]"
 
     class Meta:
         unique_together = ("submission", "version")

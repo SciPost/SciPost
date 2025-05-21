@@ -47,9 +47,14 @@ from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
-    from submissions.models import EditorialDecision, RefereeInvitation, Report
+    from submissions.models import (
+        EditorialDecision,
+        RefereeInvitation,
+        Report,
+        EICRecommendation,
+    )
     from submissions.models.assignment import ConditionalAssignmentOffer
-    from scipost.models import Contributor
+    from scipost.models import Contributor, Remark
     from journals.models import Journal, Publication
     from proceedings.models import Proceedings
     from iThenticate_report import iThenticateReport
@@ -260,7 +265,9 @@ class Submission(models.Model):
         editorial_assignments: "RelatedManager[EditorialAssignment]"
         reports: "RelatedManager[Report]"
         conditional_assignment_offers: "RelatedManager[ConditionalAssignmentOffer]"
-
+        eicrecommendations: "RelatedManager[EICRecommendation]"
+        tierings: "RelatedManager[SubmissionTiering]"
+        remarks: "RelatedManager[Remark]"
     # Fields
     preprint = models.OneToOneField(
         "preprints.Preprint", on_delete=models.CASCADE, related_name="submission"
@@ -1132,9 +1139,13 @@ class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
 class SubmissionTiering(models.Model):
     """A Fellow's quality tiering of a Submission for a given Journal, given during voting."""
 
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission", on_delete=models.CASCADE, related_name="tierings"
     )
-    fellow = models.ForeignKey("scipost.Contributor", on_delete=models.CASCADE)
-    for_journal = models.ForeignKey("journals.Journal", on_delete=models.CASCADE)
+    fellow = models.ForeignKey["Contributor"](
+        "scipost.Contributor", on_delete=models.CASCADE
+    )
+    for_journal = models.ForeignKey["Journal"](
+        "journals.Journal", on_delete=models.CASCADE
+    )
     tier = models.SmallIntegerField(choices=SUBMISSION_TIERS)
