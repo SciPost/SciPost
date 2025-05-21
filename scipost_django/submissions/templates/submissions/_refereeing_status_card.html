@@ -34,7 +34,7 @@
     </ul>
 
     {% if invitation.related_report.anonymous and not invitation.related_report.is_in_draft %}
-      <p>You have submitted your Report anonymously. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign this Report</a> (leads to confirmation page).</p>
+      <p>You have submitted your Report anonymously. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign (de-anonymize) this Report</a> (leads to confirmation page).</p>
     {% endif %}
 
     {% if invitation.submission.editor_in_charge %}

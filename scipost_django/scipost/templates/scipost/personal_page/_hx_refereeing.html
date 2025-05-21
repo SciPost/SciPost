@@ -68,7 +68,7 @@
                   </tr>
                 {% endif %}
                 <tr>
-                  <th>Anonymous:</th><td>{{report.anonymous|yesno:'Yes,No'}}</td>{% if report.anonymous %}<td>You can <a href="{% url 'journals:sign_existing_report' report_id=report.id %}">click here to sign this Report</a> (leads to confirmation page){% endif %}</td>
+                  <th>Anonymous:</th><td>{{report.anonymous|yesno:'Yes,No'}}</td>{% if report.anonymous %}<td>You can <a href="{% url 'journals:sign_existing_report' report_id=report.id %}">click here to sign (de-anonymize) this Report</a> (leads to confirmation page){% endif %}</td>
                 </tr>
               </table>
             </div>
