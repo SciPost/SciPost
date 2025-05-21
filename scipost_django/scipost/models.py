@@ -385,11 +385,7 @@ class Remark(models.Model):
 
     def __str__(self):
         return (
-            self.contributor.user.first_name
-            + " "
-            + self.contributor.user.last_name
-            + " on "
-            + self.date.strftime("%Y-%m-%d")
+            self.contributor.profile.full_name + " on " + self.date.strftime("%Y-%m-%d")
         )
 
 

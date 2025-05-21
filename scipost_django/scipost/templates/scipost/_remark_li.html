@@ -1,6 +1,6 @@
 <li id="{{ remark.id }}">
   <div class="fw-bold">
-    {{ remark.contributor.user.first_name }} {{ remark.contributor.user.last_name }} <small class="text-muted">on {{ remark.date }}</small>
+    {{ remark.contributor.profile.full_name }} <small class="text-muted">on {{ remark.date }}</small>
   </div>
   {% if remark.contributor.user.is_superuser %}
     <div>{{ remark.remark|safe|linebreaks }}</div>

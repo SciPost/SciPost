@@ -16,7 +16,7 @@
           <strong>{{ report.report_nr }}</strong>
         </td>
         <td>
-          {{ report.author }}
+          <a href="{{ report.author.get_absolute_url }}">{{ report.author }}</a>
           {% if report.anonymous %}
             <br>
             <b><span class="text-danger">Chose public anonymity</span></b>

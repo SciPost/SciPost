@@ -69,7 +69,7 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
         elif letter == "E":
             return "Editor in Charge"
         elif contributor := self._resolve_contributor_from_letter(letter):
-            return f"{contributor.profile_title} {contributor.user.last_name}"
+            return contributor.profile.formal_name
         return "Unknown"
 
     def _resolve_contributor_email(self, letter: str):

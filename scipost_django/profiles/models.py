@@ -165,6 +165,8 @@ class Profile(AnonymizableObjectMixin, models.Model):
     @property
     def full_name(self):
         """The full name: first name + last name."""
+        if self.is_anonymous:
+            return self.last_name
         return f"{self.first_name} {self.last_name}"
 
     @property
