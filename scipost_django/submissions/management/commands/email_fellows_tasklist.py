@@ -24,11 +24,6 @@ class Command(BaseCommand):
                 filter=Q(pool__status=Submission.SEEKING_ASSIGNMENT),
                 distinct=True,
             ),
-            nr_appraised=Count(
-                "qualification",
-                filter=Q(pool__status=Submission.SEEKING_ASSIGNMENT),
-                distinct=True,
-            ),
         )
         count = 0
 
@@ -37,6 +32,12 @@ class Command(BaseCommand):
                 FellowshipNominationVotingRound.objects.ongoing()
                 .filter(eligible_to_vote=fellowship)
                 .exclude(votes__fellow=fellowship)
+                .count()
+            )
+            nr_appraised = (
+                fellowship.pool.filter(status=Submission.SEEKING_ASSIGNMENT)
+                .annot_fully_appraised_by(fellowship)
+                .filter(is_fully_appraised=True)
                 .count()
             )
             recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(
@@ -57,7 +58,7 @@ class Command(BaseCommand):
                 or assignments_ongoing_with_required_actions
                 or assignments_to_consider
                 or assignments_upcoming_deadline
-                or fellowship.nr_visible > fellowship.nr_appraised
+                or fellowship.nr_visible > nr_appraised
             ):
                 mail_sender = DirectMailUtil(
                     "fellows/email_fellow_tasklist",
@@ -70,10 +71,8 @@ class Command(BaseCommand):
                     assignments_ongoing=assignments_ongoing,
                     assignments_to_consider=assignments_to_consider,
                     nr_visible=fellowship.nr_visible,
-                    nr_appraised=fellowship.nr_appraised,
-                    nr_appraisals_required=(
-                        fellowship.nr_visible - fellowship.nr_appraised
-                    ),
+                    nr_appraised=nr_appraised,
+                    nr_appraisals_required=(fellowship.nr_visible - nr_appraised),
                     assignments_upcoming_deadline=assignments_upcoming_deadline,
                 )
                 mail_sender.send_mail()
