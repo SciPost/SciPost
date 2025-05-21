@@ -7,6 +7,7 @@ import datetime
 from django.contrib.postgres.lookups import Unaccent
 from django.db import models
 from django.db.models import Q, Exists, Value
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from colleges.models.fellowship import Fellowship
@@ -14,6 +15,7 @@ from comments.models import Comment
 from common.utils.db import SplitString
 from common.utils.text import initialize
 from submissions.models.qualification import Qualification
+from submissions.models.readiness import Readiness
 
 from .. import constants
 
@@ -373,23 +375,27 @@ class SubmissionQuerySet(models.QuerySet):
         ]
         return self.filter(id__in=ids_list)
 
-    def annot_qualified_by(self, fellow):
+    def annot_qualified_expertise_by(self, fellow):
         """
-        Annotate Submissions with a boolean indicating if the fellow has provided a Qualification.
+        Annotate Submissions with the expertise level of the Qualification provided by a Fellow.
         """
         return self.annotate(
-            has_qualification=models.Exists(
+            qualification_expertise=models.Subquery(
                 fellow.qualification_set.filter(submission=models.OuterRef("pk"))
+                .order_by("-datetime")
+                .values("expertise_level")[:1]
             )
         )
 
-    def annot_readiness_by(self, fellow):
+    def annot_readiness_status_by(self, fellow):
         """
-        Annotate Submissions with a boolean indicating if the fellow has provided a Readiness.
+        Annotate Submissions with the readiness status of the Readiness provided by a Fellow.
         """
         return self.annotate(
-            has_readiness=models.Exists(
+            readiness_status=models.Subquery(
                 fellow.readiness_set.filter(submission=models.OuterRef("pk"))
+                .order_by("-datetime")
+                .values("status")[:1]
             )
         )
 
@@ -403,16 +409,31 @@ class SubmissionQuerySet(models.QuerySet):
             )
         )
 
-    def not_fully_appraised_by(self, fellow):
+    def annot_fully_appraised_by(self, fellow: Fellowship):
         """
-        Return Submissions that are not fully appraised yet by the fellow,
-        i.e. missing Qualification, Readiness or Clearance.
+        Annotate Submissions with a boolean indicating if the fellow has fully appraised the submission.
+        Full appraisal means one of the following states:
+        - Qualification, Readiness and Clearance are all provided
+        - Qualification is not sufficient for taking charge
+        - Readiness is "Perhaps Later"
         """
         return (
-            self.annot_qualified_by(fellow)
-            .annot_readiness_by(fellow)
+            self.annot_qualified_expertise_by(fellow)
+            .annot_readiness_status_by(fellow)
             .annot_clearance_by(fellow.contributor.profile)
-            .exclude(has_qualification=True, has_readiness=True, has_clearance=True)
+            .annotate(
+                is_fully_appraised=Coalesce(
+                    Q(
+                        qualification_expertise__isnull=False,
+                        readiness_status__isnull=False,
+                        has_clearance=True,
+                    )
+                    | Q(qualification_expertise__in=Qualification.EXPERTISE_NOT_QUALIFIED)
+                    | Q(readiness_status=Readiness.STATUS_PERHAPS_LATER),
+                    Value(False),
+                    output_field=models.BooleanField(),
+                )
+            )
         )
 
     def exclude_not_qualified_for_fellow(self, fellow: Fellowship):

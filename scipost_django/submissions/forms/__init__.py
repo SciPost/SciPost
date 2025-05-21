@@ -234,7 +234,7 @@ class SubmissionPoolSearchForm(forms.Form):
     hide_fully_appraised = forms.BooleanField(
         label="Hide fully appraised",
         required=False,
-        initial=False,
+        initial=True,
     )
     hide_unqualified_for = forms.BooleanField(
         label="Hide unqualified for",
@@ -501,7 +501,9 @@ class SubmissionPoolSearchForm(forms.Form):
         # Warning: this will only work for one fellowship per user
         fellowship = user.contributor.fellowships.active().first()
         if fellowship and self.cleaned_data.get("hide_fully_appraised"):
-            submissions = submissions.not_fully_appraised_by(fellowship)
+            submissions = submissions.annot_fully_appraised_by(fellowship).exclude(
+                is_fully_appraised=True
+            )
         if fellowship and self.cleaned_data.get("hide_unqualified_for"):
             submissions = submissions.exclude_not_qualified_for_fellow(fellowship)
 
