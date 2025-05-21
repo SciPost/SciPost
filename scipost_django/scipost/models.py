@@ -37,7 +37,7 @@ from .constants import (
 )
 from .fields import ChoiceArrayField
 from .managers import (
-    ContributorManager,
+    ContributorQuerySet,
     UnavailabilityPeriodManager,
     AuthorshipClaimQuerySet,
 )
@@ -153,7 +153,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         related_name="duplicates",
     )
 
-    objects = ContributorManager()
+    objects = ContributorQuerySet.as_manager()
 
     if TYPE_CHECKING:
         fellowships: "RelatedManager[Fellowship]"
