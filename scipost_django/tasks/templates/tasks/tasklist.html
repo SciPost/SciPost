@@ -13,9 +13,35 @@
       &nbsp;in construction!</span> <em>This might not contain all your todo items.</em>
     </p>
 
-    {% if assignments_to_consider or assignments_ongoing %}
+    {% if assignments_to_consider or assignments_ongoing or submissions_to_appraise %}
       <div class="mt-5 p-4 border border-primary">
         <h2>Assignments</h2>
+
+          {% if submissions_to_appraise %}
+          <details>
+            <summary class="highlight list-triangle p-2">
+              <h3 class="mb-0">
+                Submissions for you to appraise <span class="text-info">{% include 'bi/exclamation-circle-fill.html' %}</span>
+              </h3>
+            </summary>
+
+              <table>
+
+              {% for submission in submissions_to_appraise %}
+                <tr>
+                  <td>
+                    {% include 'submissions/_submission_li.html' %}
+                  </td>
+                  <td>
+                    <a class="btn btn-sm btn-light"
+                    href="{% url 'submissions:pool:pool' submission.preprint.identifier_w_vn_nr %}">Appraise</a>
+                  </td>
+                </tr>
+              {% endfor %}
+
+              </table>
+          </details>
+          {% endif %}
 
         {% if assignments_to_consider %}
           <h3 class="highlight">

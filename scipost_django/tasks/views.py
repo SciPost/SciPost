@@ -8,6 +8,7 @@ from django.shortcuts import render
 from colleges.permissions import is_edadmin_or_active_fellow
 from submissions.models.assignment import EditorialAssignment
 from submissions.models.recommendation import EICRecommendation
+from submissions.models.submission import Submission
 from tasks.forms import TaskListSearchForm
 from tasks.tasks.task_kinds import get_all_task_kinds
 
@@ -26,6 +27,14 @@ def tasklist(request):
             request.user
         ),
     }
+
+    if fellow := request.user.contributor.session_fellowship(request):
+        context["submissions_to_appraise"] = (
+            fellow.pool.filter(status=Submission.SEEKING_ASSIGNMENT)
+            .annot_fully_appraised_by(fellow)
+            .filter(is_fully_appraised=False)
+        )
+
     return render(request, "tasks/tasklist.html", context)
 
 
