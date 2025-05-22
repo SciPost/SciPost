@@ -336,9 +336,9 @@ class ConditionalAssignmentOffer(models.Model):
 
         return condition_class(**self.condition_details)
 
-    def accept(self, by: "Contributor"):
+    def accept(self, by: "Contributor | None"):
         """
-        Accept the offer, potentially modifying the offer in the process.
+        Accept the offer, potentially modifying the submission in the process.
         """
         if self.offered_until and timezone.now() > self.offered_until:
             raise ValueError("The offer has expired.")
@@ -348,6 +348,9 @@ class ConditionalAssignmentOffer(models.Model):
 
         if self.status != self.STATUS_OFFERED:
             raise ValueError("The offer has already been processed.")
+
+        if self.submission.editor_in_charge is not None:
+            raise ValueError("The submission already has an editor in charge.")
 
         self.condition.accept(offer=self)
 

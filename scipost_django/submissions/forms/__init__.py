@@ -8,6 +8,7 @@ from django.utils.timezone import timedelta
 
 from colleges.permissions import is_edadmin
 from common.forms import HTMXDynSelWidget
+from submissions.models.assignment import ConditionalAssignmentOffer
 from .appraisal import QualificationForm, ReadinessForm
 
 
@@ -2615,6 +2616,11 @@ class EditorialAssignmentForm(forms.ModelForm):
                 submission=self.submission
             ).need_response().exclude(id=assignment.id).update(
                 status=EditorialAssignment.STATUS_DEPRECATED,
+            )
+
+            # Decline all standing ConditionalAssignments
+            self.instance.submission.conditional_assignment_offers.offered().update(
+                status=ConditionalAssignmentOffer.STATUS_DECLINED
             )
         else:
             assignment.status = EditorialAssignment.STATUS_DECLINED

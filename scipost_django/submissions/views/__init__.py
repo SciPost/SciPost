@@ -688,17 +688,17 @@ def accept_conditional_assignment_offer(request, identifier_w_vn_nr, offer_id):
 
     # Find all identical offers and sort them by the fellow's ongoing assignments
     # Select the offer with the least ongoing assignments, or the oldest if equal
-    identical_offers = ConditionalAssignmentOffer.objects.filter(
+    if identical_offers := ConditionalAssignmentOffer.objects.filter(
         submission=submission,
         condition_type=offer.condition_type,
         condition_details=offer.condition_details,
         status=ConditionalAssignmentOffer.STATUS_OFFERED,
-    ).order_by("offered_on")
-    sorted_offers = sorted(
-        identical_offers,
-        key=lambda x: x.offered_by.editorial_assignments.ongoing().count(),
-    )
-    offer = sorted_offers[0]
+    ).order_by("offered_on"):
+        sorted_offers = sorted(
+            identical_offers,
+            key=lambda x: x.offered_by.editorial_assignments.ongoing().count(),
+        )
+        offer = sorted_offers[0]
 
     try:
         offer.accept(by=request.user.contributor)
