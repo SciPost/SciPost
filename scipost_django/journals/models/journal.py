@@ -27,6 +27,11 @@ from ..constants import (
 from ..managers import JournalQuerySet
 from ..validators import doi_journal_validator
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from colleges.models import College
+
 
 def cost_default_value():
     return {"default": 400}
@@ -48,7 +53,7 @@ class Journal(models.Model):
     College's `acad_field`). If none are given, the Journal operates field-wide.
     """
 
-    college = models.ForeignKey(
+    college = models.ForeignKey["College"](
         "colleges.College", on_delete=models.PROTECT, related_name="journals"
     )
 

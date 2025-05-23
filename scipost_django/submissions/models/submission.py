@@ -9,7 +9,7 @@ import uuid
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -55,6 +55,7 @@ if TYPE_CHECKING:
     from iThenticate_report import iThenticateReport
     from ontology.models import AcademicField, Specialty, Topic
     from series.models import Collection
+    from journals.models import Journal
 
 
 class SubmissionAuthorProfile(models.Model):
@@ -1029,7 +1030,32 @@ class Submission(models.Model):
 
         return assignment, old_assignment
 
-    def get_default_fellowship(self):
+    def set_target_journal(
+        self, target_journal: "Journal", keep_manually_added_fellows=False
+    ):
+        """
+        Sets the target journal for the submission (`submitted_to` field)
+        """
+        if keep_manually_added_fellows:
+            default_old_fellowships = self.get_default_fellowship()
+            manually_added_fellows = list(
+                self.fellows.exclude(id__in=default_old_fellowships)
+            )
+
+        self.submitted_to = target_journal
+        if "Proceedings" not in self.submitted_to.name:
+            self.proceedings = None
+
+        self.acad_field = self.submitted_to.college.acad_field
+        #! For the moment, no change to specialties
+
+        # Reset fellowship
+        self.fellows.set(self.get_default_fellowship())
+        if keep_manually_added_fellows:
+            self.fellows.add(*manually_added_fellows)
+        self.save()
+
+    def get_default_fellowship(self) -> QuerySet[Fellowship]:
         """
         Return the default *list* of Fellows for this Submission.
         - For a regular Submission, this is the subset of Fellowships of the Editorial College

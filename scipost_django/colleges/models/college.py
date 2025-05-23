@@ -11,6 +11,7 @@ from ontology.models import Specialty
 if TYPE_CHECKING:
     from colleges.models import FellowshipNomination
     from django.db.models.manager import RelatedManager
+    from ontology.models.academic_field import AcademicField
 
 
 class College(models.Model):
@@ -34,7 +35,7 @@ class College(models.Model):
         unique=True,
     )
 
-    acad_field = models.ForeignKey(
+    acad_field = models.ForeignKey["AcademicField"](
         "ontology.AcademicField", on_delete=models.PROTECT, related_name="colleges"
     )
 

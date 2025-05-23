@@ -2282,6 +2282,12 @@ class SubmissionReassignmentForm(forms.ModelForm):
 class SubmissionTargetJournalForm(forms.ModelForm):
     """Change the target journal for the Submission."""
 
+    keep_manually_added_fellows = forms.BooleanField(
+        required=False,
+        initial=False,
+        help_text="Keep manually added fellows from the previous journal's college.",
+    )
+
     class Meta:
         model = Submission
         fields = [
@@ -2294,8 +2300,15 @@ class SubmissionTargetJournalForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             FloatingField("submitted_to"),
+            Field("keep_manually_added_fellows"),
             ButtonHolder(Submit("submit", "Update", css_class="btn btn-danger")),
         )
+
+    def save(self):
+        journal = self.cleaned_data["submitted_to"]
+        keep_fellows = self.cleaned_data["keep_manually_added_fellows"]
+
+        self.instance.set_target_journal(journal, keep_fellows)
 
 
 class SubmissionTargetProceedingsForm(forms.ModelForm):
