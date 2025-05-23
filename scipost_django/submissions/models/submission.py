@@ -1055,6 +1055,26 @@ class Submission(models.Model):
             self.fellows.add(*manually_added_fellows)
         self.save()
 
+    def set_target_proceedings(
+        self, target_proceedings: "Proceedings", keep_manually_added_fellows=False
+    ):
+        """
+        Sets the target proceedings for the submission (`proceedings` field)
+        """
+        if keep_manually_added_fellows:
+            default_old_fellowships = self.get_default_fellowship()
+            manually_added_fellows = list(
+                self.fellows.exclude(id__in=default_old_fellowships)
+            )
+
+        self.proceedings = target_proceedings
+
+        # Reset fellowship
+        self.fellows.set(self.get_default_fellowship())
+        if keep_manually_added_fellows:
+            self.fellows.add(*manually_added_fellows)
+        self.save()
+
     def get_default_fellowship(self) -> QuerySet[Fellowship]:
         """
         Return the default *list* of Fellows for this Submission.
