@@ -16,7 +16,13 @@ register = template.Library()
 @register.simple_tag(takes_context=True)
 def automarkup(context, text, language_forced=None):
     markup = process_markup(text, language_forced=language_forced)
-    if markup["errors"] and "request" in context and context["request"]:
+    if (
+        markup["errors"]
+        and "request" in context
+        and context["request"]
+        and (full_path := context["request"].get_full_path())
+        and "helpdesk" not in full_path
+    ):
         # Create a ticket (if not yet present) flagging the error for page's
         # url if automarkup called in template (so if context.request exists)
         markup_queue = Queue.objects.get(name="Markup")
@@ -26,9 +32,10 @@ def automarkup(context, text, language_forced=None):
         Ticket.objects.get_or_create(
             queue=markup_queue,
             title="Broken markup",
-            description=f"{context['request'].get_full_path()}"
-            f"\n\n{'\n'.join(markup.get('warnings', []))}"
-            f"\n\n{markup.get('errors')}",
+            description="#coerce:plain\n"
+            f"{full_path}\n\n"
+            f"{'\n'.join(markup.get('warnings', []))}\n\n"
+            f"{markup.get('errors')}",
             defined_by=markup_firefighter,
             priority=TICKET_PRIORITY_MEDIUM,
             status=TICKET_STATUS_UNASSIGNED,
