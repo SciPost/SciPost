@@ -1969,7 +1969,7 @@ class SubmissionForm(forms.ModelForm):
         """
         Create the new Submission and Preprint instances.
         """
-        submission = super().save(commit=False)
+        submission: Submission = super().save(commit=False)
         submission.submitted_by = self.requested_by.contributor
 
         # Save expectations
@@ -2003,12 +2003,11 @@ class SubmissionForm(forms.ModelForm):
 
         # Try to match the submitting author's last name to a position from the author list.
         try:
-            submitting_author_order = list(
-                map(
-                    lambda x: self.requested_by.contributor.profile.last_name
-                    in x.strip(),
-                    submission.author_list.split(","),
-                )
+            submitting_author_order = 1 + (
+                [
+                    submission.submitted_by.profile.last_name in author
+                    for author in submission.author_list.split(",")
+                ]
             ).index(True)
         except ValueError:
             # Otherwise, assume the submitting author is the first author.
@@ -2021,7 +2020,6 @@ class SubmissionForm(forms.ModelForm):
             order=submitting_author_order,
         )
         author_profile.save()
-        submission.author_profiles.add(author_profile)
 
         # Explicitly handle specialties (otherwise they are not saved)
         submission.specialties.set(self.cleaned_data["specialties"])
