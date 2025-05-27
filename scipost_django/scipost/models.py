@@ -263,24 +263,24 @@ class Contributor(AnonymizableObjectMixin, models.Model):
     def is_active_senior_fellow(self):
         return self.fellowships.active().senior().exists() or self.user.is_superuser
 
-    def session_fellowship(self, request):
+    def session_fellowship(self, request) -> "Fellowship | None":
         """Return session's fellowship, if any; if Fellow, set session_fellowship_id if not set."""
         fellowships = self.fellowships.active()
-        if fellowships.exists():
-            if request.session["session_fellowship_id"]:
-                from colleges.models import Fellowship
 
-                try:
-                    return self.fellowships.active().get(
-                        pk=request.session["session_fellowship_id"]
-                    )
-                except Fellowship.DoesNotExist:
-                    return None
-            # set the session's fellowship_id to default
-            fellowship = fellowships.first()
-            request.session["session_fellowship_id"] = fellowship.id
-            return fellowship
-        return None
+        if not fellowships.exists():
+            return None
+
+        if session_fellowship_id := request.session.get("session_fellowship_id"):
+            from colleges.models import Fellowship
+
+            try:
+                return fellowships.get(pk=session_fellowship_id)
+            except Fellowship.DoesNotExist:
+                pass
+        # set the session's fellowship_id to default
+        fellowship = fellowships.first()
+        request.session["session_fellowship_id"] = fellowship.id
+        return fellowship
 
     @property
     def is_vetting_editor(self):
