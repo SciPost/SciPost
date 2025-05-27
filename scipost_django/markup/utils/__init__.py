@@ -367,9 +367,7 @@ def process_markup(
 
     # See if text_given contains a language coerce
     coerced = language_forced is not None
-    language_coercion = re.search(
-        r"^#coerce:([a-zA-Z0-9_]+?)\n(.*)", text_given, re.DOTALL
-    )
+    language_coercion = re.search(r"^#coerce:([^\s]+)(.*)$", text_given, re.DOTALL)
     if language_forced is None and language_coercion is not None:
         coerced = True
         language_coerced_code, text = language_coercion.groups()
