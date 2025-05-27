@@ -401,8 +401,8 @@ def process_markup(
         or "plain"
     )
     markup["language"] = language
-    markup["errors"] = markup_detector.get("errors")
-    markup["warnings"].append(markup_detector.get("warning"))
+    markup["errors"] = markup_detector.get("errors", "")
+    markup["warnings"].append(markup_detector.get("warning", ""))
     if markup["errors"]:
         error_msg = (
             '<span style="color: red;">Errors in user-supplied markup '
