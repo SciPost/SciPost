@@ -26,7 +26,9 @@ def automarkup(context, text, language_forced=None):
         Ticket.objects.get_or_create(
             queue=markup_queue,
             title="Broken markup",
-            description=f"{context['request'].get_full_path()}\n\n{markup['errors']}",
+            description=f"{context['request'].get_full_path()}"
+            f"\n\n{'\n'.join(markup.get('warnings', []))}"
+            f"\n\n{markup.get('errors')}",
             defined_by=markup_firefighter,
             priority=TICKET_PRIORITY_MEDIUM,
             status=TICKET_STATUS_UNASSIGNED,
