@@ -97,7 +97,7 @@ class TOTPDevice(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
-    token = models.CharField(max_length=16)
+    token = models.CharField(max_length=32)
     last_verified_counter = models.PositiveIntegerField(default=0)
 
     created = models.DateTimeField(auto_now_add=True)

@@ -323,8 +323,7 @@ class RegistrationForm(forms.Form):
 
             if already_registered:
                 raise forms.ValidationError(
-                    "The invitation key has already been used "
-                    "to register an account. "
+                    "The invitation key has already been used to register an account. "
                 )
 
         else:
@@ -678,14 +677,20 @@ class TOTPDeviceForm(forms.ModelForm):
 
     class Meta:
         model = TOTPDevice
-        fields = ["name", "token"]
-        widgets = {"token": forms.HiddenInput()}
-        labels = {"name": "Device name"}
+        fields = ["token", "name"]
+        labels = {"name": "Device name", "token": "Secret Key"}
 
     def __init__(self, *args, **kwargs):
         self.current_user = kwargs.pop("current_user")
         super().__init__(*args, **kwargs)
         self.initial["token"] = pyotp.random_base32()
+        self.fields["token"].widget.attrs.update(
+            {"autocomplete": "off", "readonly": True}
+        )
+        self.fields["token"].help_text = (
+            "This is the secret key for your device. "
+            "You can scan the QR code or copy it to your authenticator app."
+        )
         self.fields["name"].widget.attrs.update(
             {"placeholder": "Your choice of a simple memorable name for your device"}
         )
@@ -698,14 +703,13 @@ class TOTPDeviceForm(forms.ModelForm):
 
     def get_QR_data(self):
         return pyotp.totp.TOTP(self.secret_key).provisioning_uri(
-            self.current_user.email, issuer_name="SciPost"
+            self.current_user.username, issuer_name="SciPost"
         )
 
     def clean(self):
         cleaned_data = self.cleaned_data
         code = cleaned_data.get("code")
-        token = cleaned_data.get("token")
-        if not TOTPVerification.verify_token(token, code):
+        if not TOTPVerification.verify_token(self.secret_key, code):
             self.add_error("code", "Invalid code, please try again.")
         return cleaned_data
 
