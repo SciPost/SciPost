@@ -93,35 +93,35 @@ def _hx_plagiarism_internal(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
+
+    submission_matches = [
+        {
+            "submission": s,
+            "ratio_title": m["ratio_title"],
+            "ratio_authors": m["ratio_authors"],
+            "ratio_abstract": m["ratio_abstract"],
+        }
+        for m in submission.internal_plagiarism_matches.get("submission_matches", [])
+        if (s := Submission.objects.filter(preprint__identifier_w_vn_nr=m["identifier_w_vn_nr"]).first())
+    ]
+
+    publication_matches = [
+        {
+            "publication": p,
+            "ratio_title": m["ratio_title"],
+            "ratio_authors": m["ratio_authors"],
+            "ratio_abstract": m["ratio_abstract"],
+        }
+        for m in submission.internal_plagiarism_matches.get("publication_matches", [])
+        if (p := Publication.objects.filter(doi_label=m["doi_label"]).first())
+    ]
+
     context = {
         "submission": submission,
-        "submission_matches": [],
-        "publication_matches": [],
+        "submission_matches": submission_matches,
+        "publication_matches": publication_matches,
     }
-    if "submission_matches" in submission.internal_plagiarism_matches:
-        for sub_match in submission.internal_plagiarism_matches["submission_matches"]:
-            context["submission_matches"].append(
-                {
-                    "submission": Submission.objects.get(
-                        preprint__identifier_w_vn_nr=sub_match["identifier_w_vn_nr"],
-                    ),
-                    "ratio_title": sub_match["ratio_title"],
-                    "ratio_authors": sub_match["ratio_authors"],
-                    "ratio_abstract": sub_match["ratio_abstract"],
-                }
-            )
-    if "publication_matches" in submission.internal_plagiarism_matches:
-        for pub_match in submission.internal_plagiarism_matches["publication_matches"]:
-            context["publication_matches"].append(
-                {
-                    "publication": Publication.objects.get(
-                        doi_label=pub_match["doi_label"]
-                    ),
-                    "ratio_title": pub_match["ratio_title"],
-                    "ratio_authors": pub_match["ratio_authors"],
-                    "ratio_abstract": pub_match["ratio_abstract"],
-                }
-            )
+
     return render(request, "edadmin/incoming/_hx_plagiarism_internal.html", context)
 
 
