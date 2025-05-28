@@ -10,7 +10,7 @@ import string
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import F, Q, Sum
+from django.db.models import F, Q, Case, OuterRef, Subquery, Sum, Value, When
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -18,6 +18,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django_countries.fields import CountryField
 
+from finances.models.subsidy import Subsidy
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
@@ -210,7 +211,28 @@ class Organization(models.Model):
 
     def get_publications_with_year(self, year=None, journal=None):
         return self.get_publications(year=year, journal=journal).annotate(
-            publication_year=F("publication_date__year")
+            publication_year=F("publication_date__year"),
+            pubfrac_id=Subquery(
+                PubFrac.objects.filter(
+                    publication=OuterRef("pk"),
+                    organization=self,
+                ).values("id")[:1]
+            ),
+            pubfrac_compensated_by_id=Subquery(
+                Subsidy.objects.filter(
+                    compensated_pubfracs=OuterRef("pubfrac_id"),
+                ).values("id")[:1]
+            ),
+            pubfrac_compensation_status=Case(
+                When(pubfrac_id__isnull=True, then=Value("no_costs")),
+                When(
+                    pubfrac_compensated_by_id__isnull=True, then=Value("uncompensated")
+                ),
+                When(
+                    pubfrac_compensated_by_id__isnull=False, then=Value("compensated")
+                ),
+                output_field=models.CharField(max_length=32),
+            ),
         )
 
     def get_affiliate_publications(self, journal):

@@ -158,19 +158,37 @@
               <h4>{{ publication_year.grouper }}</h4>
               <p class="text-muted">{{ publication_year.list|length }} publication{{ publication_year.list|pluralize }}{% if perms.scipost.can_manage_organizations %}, {{ org|pubfracs_in_year:publication_year.grouper }} pubfracs{% endif %}</p>
             </hgroup>
-            <ul>
+            <ul class="px-2">
 
               {% for publication in publication_year.list %}
 
-                  <li>
-                    <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a><br />
-                    by {{ publication.author_list }},<br />
-                    {{ publication.citation }}
+                  <li class="d-flex flex-row justify-content-between align-items-stretch">
+                    <div>
+                      <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a><br />
+                      by {{ publication.author_list }},<br />
+                      {{ publication.citation }}
 
-                    {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-                      <br />
-                      <span class="text-muted small">Expenditure: &euro;{{ org|expenditure_for_publication:publication }}</span>
+                      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+                        <br />
+                        <span class="text-muted small">Expenditure: &euro;{{ org|expenditure_for_publication:publication }}</span>
+                      {% endif %}
+                    </div>
+
+                    <div class="d-flex flex-column justify-content-center p-2">
+                    {% if publication.pubfrac_compensation_status == "compensated" %}
+                      <a href={% url "finances:subsidy_details" publication.pubfrac_compensated_by_id %}>
+                        <span class="fs-5 badge bg-success text-white">Compensated 
+                          <span class="ms-2 text-white">
+                            {% include "bi/info-circle-fill.html" %}
+                          </span>
+                        </span>
+                      </a>
+                    {% elif publication.pubfrac_compensation_status == "uncompensated" %}
+                        <div class="fs-5 badge bg-warning text-white">Uncompensated</div>
+                    {% elif publication.pubfrac_compensation_status == "no_costs" %}
+                        <div class="fs-5 badge bg-primary text-white">No PubFrac</div>
                     {% endif %}
+                    </div>
 
                   </li>
 
