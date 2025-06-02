@@ -3454,7 +3454,7 @@ class EditorialCommunicationForm(forms.ModelForm):
         fields = ("text",)
         widgets = {
             "text": forms.Textarea(
-                attrs={"rows": 5, "placeholder": "Write your message in this box."}
+                attrs={"rows": 15, "placeholder": "Write your message in this box."}
             ),
         }
 
