@@ -169,33 +169,35 @@
                       {{ publication.citation }}
                     </div>
 
-                    <div class="d-block col-12 d-md-flex flex-column col-md-auto">
+                    <div class="ms-auto col-auto d-flex flex-column">
                       {% if not publication.pubfracs_for_org.0 %}
-                        <div class="fs-5 badge bg-primary d-flex">No PubFrac</div>
+                        <div class="badge bg-primary d-flex">No PubFrac</div>
                       {% elif not publication.pubfracs_for_org.0.compensated_by %}
-                        <div class="fs-5 badge bg-warning d-flex flex-row gap-2">
+                        <div class="badge bg-warning d-flex flex-row gap-2">
                           Not (yet) compensated
                           {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-                            <span class="fs-6 fw-light">&euro;{{ org|expenditure_for_publication:publication }}</span>
+                            <span class="fw-light">&euro;{{ org|expenditure_for_publication:publication }}</span>
                           {% endif %}
                         </div>
                       {% elif publication.pubfracs_for_org.0.compensated_by %}
-                        <a href={% url "finances:subsidy_details" publication.pubfracs_for_org.0.compensated_by.id %}>
-                          <div class="fs-5 badge bg-success d-flex flex-column gap-2">
-                            <div class="d-flex flex-row gap-2 text-white text-wrap">
+                          <details class="badge bg-success d-flex flex-column gap-2">
+                            <summary class="d-flex flex-row gap-2 text-white text-wrap">
                               Compensated 
                               {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-                                <span class="fs-6 fw-light">&euro;{{ org|expenditure_for_publication:publication }}</span>
+                                <span class="d-flex fw-light">&euro;{{ org|expenditure_for_publication:publication }}</span>
                               {% endif %}
-                              {% include "bi/info-circle-fill.html" %}
-                            </div>
+                              <a class="text-white" href={% url "finances:subsidy_details" publication.pubfracs_for_org.0.compensated_by.id %}>
+                                {% include "bi/info-circle-fill.html" %}
+                              </a>
+                            </summary>
                             {% if publication.pubfracs_for_org.0.compensated_by.organization != org %}
-                              <div class="fs-6 fw-light">
-                                by {{ publication.pubfracs_for_org.0.compensated_by.organization }}
+                              <div class="mt-2 fw-light">
+                                by <a class="text-white" href="{% url "organizations:organization_detail" pk=publication.pubfracs_for_org.0.compensated_by.organization.id %}">
+                                  {{ publication.pubfracs_for_org.0.compensated_by.organization }}
+                                </a>
                               </div>
                             {% endif %}
-                          </div>
-                        </a>
+                          </details>
                       {% endif %}
                     </div>
 
