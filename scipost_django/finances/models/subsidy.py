@@ -6,16 +6,17 @@ from collections import OrderedDict
 import datetime
 
 from django.db import models
-from django.db.models import Sum
+from django.db.models import F, Q, QuerySet, Sum
 from django.db.models.functions import ExtractYear
 from django.urls import reverse
 from django.utils.html import format_html
 
 from ..constants import (
+    SUBSIDY_RECEIVED,
     SUBSIDY_TYPES,
     SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
     SUBSIDY_STATUS,
-    SUBSIDY_WITHDRAWN,
+    SUBSIDY_UPTODATE,
 )
 from ..managers import SubsidyQuerySet, PubFracQuerySet
 
@@ -153,37 +154,76 @@ class Subsidy(models.Model):
         """
         return self.amount == self.payments.aggregate(Sum("amount"))["amount__sum"]
 
-    def compensate(self, pubfracs: PubFracQuerySet):
+    @classmethod
+    def compensate_pubfracs(cls, subsidies: "None | QuerySet[Subsidy]" = None):
         """
-        Allocate subsidy to uncompensated pubfracs in queryset, up to depletion.
+        Compute pubfrac compensations for the provided subsidies.
+        If no subsidies are specified, all subsidies are considered.
+        Returns the number of PubFracs updated.
         """
-        for pubfrac in pubfracs.uncompensated():
-            if pubfrac.cf_value <= self.remainder:
-                pubfrac.compensated_by = self
-                pubfrac.save()
-
-    def compensate_own_pubfracs(self):
-        """
-        Compensate PubFracs with direct affiliation to Subsidy-giver.
-        """
-        max_year = self.date_until.year if self.date_until else self.date_from.year
-        pubfracs = self.organization.pubfracs.filter(
-            publication__publication_date__year__gte=self.date_from.year,
-            publication__publication_date__year__lte=max_year,
-        )
-        self.compensate(pubfracs)
-
-    def compensate_children_pubfracs(self):
-        """
-        Compensate PubFracs with direct affiliation to Subsidy-giver's children Organizations.
-        """
-        max_year = self.date_until.year if self.date_until else self.date_from.year
-        for child in self.organization.children.all():
-            pubfracs = child.pubfracs.filter(
-                publication__publication_date__year__gte=self.date_from.year,
-                publication__publication_date__year__lte=max_year,
+        if subsidies is None:
+            subsidies = Subsidy.objects.all()
+            PubFrac.objects.update(compensated_by=None)
+        else:
+            PubFrac.objects.filter(compensated_by__in=subsidies).update(
+                compensated_by=None
             )
-            self.compensate(pubfracs)
+        subsidies = subsidies.filter(
+            Q(status=SUBSIDY_RECEIVED) | Q(status=SUBSIDY_UPTODATE)
+        )
+
+        subsidy_pubfrac_table: list[dict[str, Any]] = []
+        for subsidy in subsidies.annotate(remaining=F("amount")):
+            for strategy in subsidy.compensation_strategies:
+                for pubfrac in PubFrac.objects.filter(strategy.get_filter(subsidy)):
+                    subsidy_pubfrac_table.append(
+                        {
+                            "subsidy": subsidy,
+                            "pubfrac": pubfrac,
+                            "priority": strategy.priority,
+                        }
+                    )
+
+        subsidy_pubfrac_table.sort(
+            key=lambda x: (
+                x["pubfrac"].id,  # PubFrac ID for grouping later
+                x["subsidy"].date_from.year,  # Year of the subsidy
+                x["priority"],  # Priority of the compensation strategy
+                -x["subsidy"].remaining,  # Remaining amount (descending)
+            )
+        )
+
+        pubfracs_to_update: list[PubFrac] = []
+        for pubfrac, group_table in groupby(
+            subsidy_pubfrac_table, key=lambda x: x["pubfrac"]
+        ):
+            for row in group_table:
+                subsidy = row["subsidy"]
+                # Only if the subsidy has enough remaining amount,
+                # assign it to the PubFrac and break out of the loop
+                if subsidy.remaining >= pubfrac.cf_value:
+                    pubfrac.compensated_by = subsidy
+                    subsidy.remaining -= pubfrac.cf_value
+                    pubfracs_to_update.append(pubfrac)
+                    break
+
+        return PubFrac.objects.bulk_update(pubfracs_to_update, ["compensated_by"])
+
+    def allocate(self):
+        """
+        Allocate subsidy to uncompensated pubfracs up to depletion.
+        """
+        self.compensate_pubfracs(subsidies=Subsidy.objects.filter(id=self.id))
+
+    @property
+    def compensation_strategies(self):
+        """
+        Returns the compensation strategies realized from the `CompensationStrategy` enum.
+        """
+        return [
+            CompensationStrategy.from_key(key)
+            for key in self.compensation_strategies_keys
+        ]
 
     @property
     def total_compensations(self):
