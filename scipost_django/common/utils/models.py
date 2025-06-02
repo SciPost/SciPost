@@ -1,6 +1,12 @@
+import importlib
+
 from django.contrib.sites.models import Site
-from django.db.models import Field, ForeignObjectRel
+from django.db.models import F, Q, Field, ForeignObjectRel, Model, QuerySet
 from django.db.models.fields.related import RelatedField
+
+from typing import Any, TypeVar
+
+TQuery = TypeVar("TQuery", bound=Q | F)
 
 
 def get_current_domain():
@@ -76,3 +82,57 @@ def merge(old, new):
     # Save both objects
     new.save()
     old.save()
+
+
+def model_eval_attr(obj: Model | QuerySet[Model], attr_path: str) -> Any:
+    """
+    Evaluates an attribute path against a Model/QuerySet recursively.
+    e.g. converts `"organization.id"` to `object.organization.id`
+    """
+    if "." in attr_path:
+        attr, rest = attr_path.split(".", 1)
+    else:
+        attr, rest = attr_path, None
+
+    if isinstance(obj, dict) and attr in obj:
+        obj_attr = obj[attr]
+    else:
+        obj_attr = getattr(obj, attr)
+
+    if rest:
+        return model_eval_attr(obj_attr, attr_path=rest)
+    else:
+        return obj_attr
+
+
+def parametrize_query(query: TQuery, obj: Model) -> TQuery:
+    # Deconstruct query to access values and parametrize them
+    model_str, args, kwargs = query.deconstruct()
+
+    # Import the symbol deconstructed so that it may be reinstanciated
+    namespace_str, symbol_str = model_str.rsplit(".", 1)
+    module = importlib.import_module(namespace_str)
+    symbol = getattr(module, symbol_str)
+
+    parameterized_args = []
+    for arg in args:
+        if not isinstance(arg, tuple):
+            # In case this is another composable Q/F, recurse
+            parameterized_arg = parametrize_query(arg, obj)
+        else:
+            # This is a regular value, evaluate the str value against the object
+            key, value = arg
+            evaluated_attribute = model_eval_attr(obj, value)
+
+            if eval_attr_all := getattr(evaluated_attribute, "all", None):
+                # If this is a Queryset or Manager, run .all() on it to obtain usable models
+                # Also append default "__in" to the filter key
+                parameterized_arg = (key + "__in", eval_attr_all())
+            else:
+                # Otherwise simply use the evaluated attribute with the same key
+                parameterized_arg = (key, evaluated_attribute)
+
+        parameterized_args.append(parameterized_arg)
+
+    # Reconstruct the query obj exactly as it was, but with the evaluated attributes
+    return symbol(*parameterized_args, **kwargs)
