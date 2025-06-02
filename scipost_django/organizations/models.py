@@ -10,7 +10,7 @@ import string
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import F, Q, Case, OuterRef, Subquery, Sum, Value, When
+from django.db.models import F, Q, Count, Prefetch, Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -210,35 +210,53 @@ class Organization(models.Model):
         return publications.filter(pk__in=self.cf_associated_publication_ids["all"])
 
     def get_publications_with_year(self, year=None, journal=None):
-        return self.get_publications(year=year, journal=journal).annotate(
-            publication_year=F("publication_date__year"),
-            pubfrac_id=Subquery(
-                PubFrac.objects.filter(
-                    publication=OuterRef("pk"),
-                    organization=self,
-                ).values("id")[:1]
-            ),
-            pubfrac_compensated_by_id=Subquery(
-                Subsidy.objects.filter(
-                    compensated_pubfracs=OuterRef("pubfrac_id"),
-                ).values("id")[:1]
-            ),
-            pubfrac_compensation_status=Case(
-                When(pubfrac_id__isnull=True, then=Value("no_costs")),
-                When(
-                    pubfrac_compensated_by_id__isnull=True, then=Value("uncompensated")
-                ),
-                When(
-                    pubfrac_compensated_by_id__isnull=False, then=Value("compensated")
-                ),
-                output_field=models.CharField(max_length=32),
-            ),
+        return (
+            self.get_publications(year=year, journal=journal)
+            .annotate(
+                publication_year=F("publication_date__year"),
+            )
+            .prefetch_related(
+                Prefetch(
+                    "pubfracs",
+                    queryset=PubFrac.objects.filter(organization=self).select_related(
+                        "compensated_by"
+                    ),
+                    to_attr="pubfracs_for_org",
+                )
+            )
         )
 
     def get_affiliate_publications(self, journal):
         return AffiliatePublication.objects.filter(
             pubfracs__organization=self,
             journal=journal,
+        )
+
+    def get_ally_compensated_pubfracs(self):
+        return (
+            PubFrac.objects.filter(
+                organization=self, publication__in=self.get_publications()
+            )
+            .exclude(compensated_by__isnull=True)
+            .exclude(compensated_by__organization=self)
+        )
+
+    def get_ally_compensation_stats(self):
+        """
+        Returns a dict with statistics about the ally compensation for this Organization.
+        """
+
+        return (
+            self.get_ally_compensated_pubfracs()
+            .values("compensated_by__organization")
+            .annotate(
+                amount=Sum("cf_value"),
+                count=Count("publication", distinct=True),
+                id=F("compensated_by__organization__id"),
+                name=F("compensated_by__organization__name"),
+            )
+            .order_by("-amount")
+            .values("id", "name", "amount", "count")
         )
 
     def get_author_profiles(self):

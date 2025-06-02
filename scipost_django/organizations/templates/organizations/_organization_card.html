@@ -158,7 +158,7 @@
               <h4>{{ publication_year.grouper }}</h4>
               <p class="text-muted">{{ publication_year.list|length }} publication{{ publication_year.list|pluralize }}{% if perms.scipost.can_manage_organizations %}, {{ org|pubfracs_in_year:publication_year.grouper }} pubfracs{% endif %}</p>
             </hgroup>
-            <ul class="px-2">
+            <ul class="px-2 d-flex flex-column gap-2">
 
               {% for publication in publication_year.list %}
 
@@ -167,26 +167,35 @@
                       <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a><br />
                       by {{ publication.author_list }},<br />
                       {{ publication.citation }}
-
-                      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-                        <br />
-                        <span class="text-muted small">Expenditure: &euro;{{ org|expenditure_for_publication:publication }}</span>
-                      {% endif %}
                     </div>
 
                     <div class="d-flex flex-column justify-content-center p-2">
-                    {% if publication.pubfrac_compensation_status == "compensated" %}
-                      <a href={% url "finances:subsidy_details" publication.pubfrac_compensated_by_id %}>
-                        <span class="fs-5 badge bg-success text-white">Compensated 
-                          <span class="ms-2 text-white">
+                    {% if not publication.pubfracs_for_org.0 %}
+                      <div class="fs-5 badge bg-primary d-flex flex-column gap-2">No PubFrac</div>
+                    {% elif not publication.pubfracs_for_org.0.compensated_by %}
+                      <div class="fs-5 badge bg-warning d-flex flex-row gap-2">
+                        Uncompensated
+                        {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+                          <span class="fs-6 fw-light">&euro;{{ org|expenditure_for_publication:publication }}</span>
+                        {% endif %}
+                      </div>
+                    {% elif publication.pubfracs_for_org.0.compensated_by %}
+                      <a href={% url "finances:subsidy_details" publication.pubfracs_for_org.0.compensated_by.id %}>
+                        <div class="fs-5 badge bg-success d-flex flex-column gap-2">
+                          <div class="d-flex flex-row gap-2 text-white text-wrap">
+                            Compensated 
+                            {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+                              <span class="fs-6 fw-light">&euro;{{ org|expenditure_for_publication:publication }}</span>
+                            {% endif %}
                             {% include "bi/info-circle-fill.html" %}
-                          </span>
-                        </span>
+                          </div>
+                          {% if publication.pubfracs_for_org.0.compensated_by.organization != org %}
+                            <div class="fs-6 fw-light">
+                              by {{ publication.pubfracs_for_org.0.compensated_by.organization }}
+                            </div>
+                          {% endif %}
+                        </div>
                       </a>
-                    {% elif publication.pubfrac_compensation_status == "uncompensated" %}
-                        <div class="fs-5 badge bg-warning text-white">Uncompensated</div>
-                    {% elif publication.pubfrac_compensation_status == "no_costs" %}
-                        <div class="fs-5 badge bg-primary text-white">No PubFrac</div>
                     {% endif %}
                     </div>
 
@@ -370,7 +379,7 @@
           {% if org.subsidy_set.direct.obtained|length > 0 or org.children.all|length > 0 %}
 
             {% if org.subsidy_set.direct.obtained|length > 0 %}
-              <table class="table table-hover mb-5 caption-top">
+              <table class="table table-hover mb-2 caption-top">
                 <caption>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</caption>
                 <thead class="table-light">
                   <tr>
@@ -421,17 +430,6 @@
                   </tr>
                 </tbody>
               </table>
-            {% endif %}
-
-            {% if org.children.all|length > 0 %}
-              <h4>See also the subsidies obtained from these sub-organizations:</h4>
-              <ul>
-
-                {% for child in org.children.all %}
-                  <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
-                {% endfor %}
-
-              </ul>
             {% endif %}
 
           {% else %}
@@ -489,11 +487,37 @@
                 </tbody>
               </table>
           {%endif %}
+          
+          <h4 class="mt-4">Compensations from allied Organizations</h4>
+          <table class="table table-hover mb-5 caption-top">
+            <caption>List of allied Organizations and their compensations towards this Organization's PubFracs. Organizations define their "allies" at the time of sponsorship and their contribution is shared accordingly.</caption>
+            <thead>
+              <tr>
+                <th>Organization</th>
+                <th>Amount</th>
+                <th>Compensated Publications</th>
+              </tr>
+            </thead>
+            <tbody>
 
-          {% if org.parent %}
-            <h4>See also the subsidies from this parent organization:</h4>
-            <ul><li><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></li></ul>
-          {% endif %}
+              {% for ally in org.get_ally_compensation_stats %}
+                <tr>
+                  <td>
+                    <a href="{% url "organizations:organization_detail" pk=ally.id %}">{{ ally.name }}</a>
+                  </td>
+                  <td>
+                    &euro;{{ ally.amount|floatformat:"0" }}
+                  </td>
+                  <td>{{ ally.count }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td class="text-center" colspan="3">No allied Organization has compensated this Organization's PubFracs.</td>
+                </tr>
+              {% endfor %}
+
+            </tbody>
+          </table>
 
 	  {% include "pins/_hx_notes_list.html" with object=org %}
 
