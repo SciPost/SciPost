@@ -12,3 +12,6 @@ python manage.py advance_git_repos --settings=SciPost_v1.settings.production_do1
 
 # Do a update_index of the last hour
 python manage.py update_index -r -v 0 -a 1 --settings=SciPost_v1.settings.production_do1
+
+# Run PubFrac compensations algorithm
+python manage.py compensate_pubfracs --settings=SciPost_v1.settings.production_do1
