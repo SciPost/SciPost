@@ -198,8 +198,8 @@ class Subsidy(models.Model):
         subsidy_pubfrac_table.sort(
             key=lambda x: (
                 x["pubfrac"].id,  # PubFrac ID for grouping later
-                x["subsidy"].date_from.year,  # Year of the subsidy
                 x["priority"],  # Priority of the compensation strategy
+                x["subsidy"].date_from.year,  # Year of the subsidy
                 -x["subsidy"].remaining,  # Remaining amount (descending)
             )
         )

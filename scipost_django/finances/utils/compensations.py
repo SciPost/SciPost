@@ -7,17 +7,13 @@ from common.utils.models import parametrize_query
 
 class CompensationStrategy(Enum):
     SELF = ("self", "Self", Q(organization="organization.id"))
-    PARENT = ("parent", "Parent", Q(organization="organization.parent"))
     CHILDREN = ("children", "Children", Q(organization="organization.children"))
+    PARENT = ("parent", "Parent", Q(organization="organization.parent"))
     SIBLINGS = ("siblings", "Siblings", Q(organization="organization.parent.children"))
     IDS = ("ids", "IDs", Q(organization__in="compensation_strategies_details.ids"))
     COUNTRIES = ("countries", "Countries", Q(organization__country__in="compensation_strategies_details.countries"))
     FUNDERS = ("funders", "Funders", Q(publication__generic_funders__in="compensation_strategies_details.funders"))
-    SPECIALTIES = (
-        "specialties",
-        "Specialties",
-        Q(publication__specialties__slug__in="compensation_strategies_details.specialties"),
-    )
+    SPECIALTIES = ("specialties", "Specialties", Q(publication__specialties__slug__in="compensation_strategies_details.specialties"))
     ANY = ("any", "Any", Q(organization__isnull=False))
     NONE = ("none", "None", Q(organization__isnull=True))
 
