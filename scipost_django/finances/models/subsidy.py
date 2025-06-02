@@ -3,13 +3,17 @@ __license__ = "AGPL v3"
 
 
 from collections import OrderedDict
+from itertools import groupby
 import datetime
 
 from django.db import models
 from django.db.models import F, Q, QuerySet, Sum
 from django.db.models.functions import ExtractYear
 from django.urls import reverse
-from django.utils.html import format_html
+
+from finances.utils.compensations import CompensationStrategy
+from finances.models import PubFrac
+from scipost.fields import ChoiceArrayField
 
 from ..constants import (
     SUBSIDY_RECEIVED,
@@ -20,7 +24,7 @@ from ..constants import (
 )
 from ..managers import SubsidyQuerySet, PubFracQuerySet
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
@@ -78,8 +82,15 @@ class Subsidy(models.Model):
         related_name="subsidies_funded",
     )
 
+    compensation_strategies_keys = ChoiceArrayField(
+        models.CharField(max_length=32, choices=CompensationStrategy.get_choices()),
+        default=CompensationStrategy.get_default_strategies_keys_list,
+    )
+    compensation_strategies_details = models.JSONField(blank=True, default=dict)
+
     if TYPE_CHECKING:
         collectives: RelatedManager["SubsidyCollective"]
+        compensated_pubfracs: RelatedManager["PubFrac"]
 
     objects = SubsidyQuerySet.as_manager()
 

@@ -2,7 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 import datetime
-import re
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -27,6 +26,7 @@ from finances.constants import (
 )
 
 from finances.models.subsidy import SubsidyCollective
+from finances.utils.compensations import CompensationStrategy
 from funders.models import IndividualBudget
 from organizations.models import Organization
 from scipost.fields import UserModelChoiceField
@@ -60,6 +60,12 @@ class SubsidyForm(forms.ModelForm):
         required=False,
     )
 
+    compensation_strategies_keys = forms.MultipleChoiceField(
+        choices=CompensationStrategy.get_choices(),
+        widget=forms.SelectMultiple(attrs={"size": 5}),
+        label="Compensation Strategies",
+    )
+
     class Meta:
         model = Subsidy
         fields = [
@@ -76,6 +82,8 @@ class SubsidyForm(forms.ModelForm):
             "renewal_of",
             "collective",
             "individual_budget",
+            "compensation_strategies_keys",
+            "compensation_strategies_details",
         ]
         widgets = {
             "paid_on": forms.DateInput(attrs={"type": "date"}),

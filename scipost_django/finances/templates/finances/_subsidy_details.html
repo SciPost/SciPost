@@ -36,8 +36,14 @@
       {% endif %}
       {% if perms.scipost.can_manage_subsidies %}
 	<tr>
-	  <td>Allocation algorithm</td>
-	  <td>{{ subsidy.get_algorithm_display }}</td>
+	  <td>Compensation strategies</td>
+	  <td>
+      {% for strategy in subsidy.compensation_strategies %}
+      <span class="badge border border-primary text-body">{{ strategy.display_str }}</span>
+      {% empty %}
+      <span class="text-muted">No compensation strategy defined</span>
+      {% endfor %}
+    </td>
 	</tr>
 	<tr>
 	  <td>Renewable?</td><td>{% if subsidy.renewable == True %}Yes, renewal action date: <span class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</span>{% elif subsidy.renewable == None %}Undetermined [please update]{% else %}No{% endif %}</td>
@@ -147,7 +153,11 @@
   <div class="border border-danger bg-danger bg-opacity-10">
     <strong class="text-danger">[FinAdmin]</strong>
 
-    <h3 class="highlight">Expenditures compensated by this Subsidy</h3>
+    <div class="highlight p-2 d-flex flex-row justify-content-between align-items-center mb-3">
+      <h3 class="mt-1">Expenditures compensated by this Subsidy</h3>
+      <a href="{% url 'finances:allocate_subsidy' subsidy.id %}"
+        class="btn btn-sm btn-light fs-6">Reallocate</a>
+    </div>
 
     {% if subsidy.allocatable %}
       <a class="btn btn-primary" href="{% url 'finances:allocate_subsidy' subsidy_id=subsidy.id %}">Allocate this Subsidy</a>
