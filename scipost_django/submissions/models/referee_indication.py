@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 from typing import TYPE_CHECKING, Literal
 from django.db import models
 
+from colleges.permissions import is_edadmin
 from submissions.managers.referee_indication import RefereeIndicationQuerySet
 
 if TYPE_CHECKING:
@@ -87,11 +88,12 @@ class RefereeIndication(models.Model):
         - "fellow" if the Profile is a Fellow
         - "author" if the Profile is an Author
         - "referee" if the Profile is another (invited) Referee
+        - "edadmin" if the Profile belongs to an Editorial Administrator
         - "contributor" if the Profile is not any of the above
         """
-        if self.indicated_by == getattr(
-            self.submission.editor_in_charge, "profile", None
-        ):
+        eic_profile = getattr(self.submission, "editor_in_charge", None)
+        user = getattr(self.indicated_by.contributor, "user")
+        if self.indicated_by == eic_profile:
             return "editor"
         elif self.indicated_by.id in self.submission.authors.values_list(
             "profile__id", flat=True
@@ -105,5 +107,7 @@ class RefereeIndication(models.Model):
             "contributor__profile__id", flat=True
         ):
             return "fellow"
+        elif user and is_edadmin(user):
+            return "edadmin"
         else:
             return "contributor"
