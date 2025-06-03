@@ -7,7 +7,6 @@ from django.db import models
 
 
 class NotesQuerySet(models.QuerySet):
-
     def visible_to(
         self,
         user: User | None = None,
@@ -17,14 +16,21 @@ class NotesQuerySet(models.QuerySet):
         Filter out notes which are not visible to the given user.
         """
 
-        if user is None or not user.is_authenticated:
+        # Guard against users without an associated contributor
+        # Like when a ContactPerson is logging in
+        try:
+            contributor = user.contributor
+        except (User.contributor.RelatedObjectDoesNotExist, AttributeError):
+            contributor = None
+
+        if user is None or not user.is_authenticated or contributor is None:
             # Without specifying a user, only public notes are visible
             return self.filter(visibility=self.model.VISIBILITY_PUBLIC)
         else:
             # Filter non-author users from viewing private notes
             self = self.exclude(
                 models.Q(visibility=self.model.VISIBILITY_PRIVATE)
-                & ~models.Q(author=user.contributor)
+                & ~models.Q(author=contributor)
             )
 
         # Filter out internal notes unless the user has the default "manager"
