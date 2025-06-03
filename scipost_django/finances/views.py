@@ -161,45 +161,37 @@ def finances(request):
     # matplotlib plot
     width = 0.2
     fig, ax = plt.subplots()
-    rects_exp = ax.bar(
-        [y - 1.5 * width for y in years],
-        [e / 1000 for e in pub_expenditures],
-        width,
-        label="Expenditures",
-        color="red",
-    )
-    rects_sub = ax.bar(
-        [y - 0.5 * width for y in years],
-        [s / 1000 for s in subsidies],
-        width,
-        label="Subsidies",
-        color="blue",
-    )
-    rects_bal = ax.bar(
-        [y + 0.5 * width for y in years],
-        [b / 1000 for b in balance],
-        width,
-        label="Balance",
-        color="green",
-    )
-    rects_sub = ax.bar(
-        [y + 1.5 * width for y in years],
-        [c / 1000 for c in cumulative_balance],
-        width,
-        label="Cumulative",
-        color="orange",
-    )
+
+    plot_data = {
+        "values": [pub_expenditures, subsidies, balance, cumulative_balance],
+        "labels": ["Expenditures", "Subsidies", "Balance", "Cumulative"],
+        "colors": ["C3", "C0", "C2", "C1"],
+    }
+
+    for i, (values, label, color) in enumerate(
+        zip(plot_data["values"], plot_data["labels"], plot_data["colors"])
+    ):
+        offseted_years = [y + (i - 1.5) * width for y in years]
+        ax.bar(offseted_years, values, width, label=label, color=color)
+
+    ax.set_yscale("linear")
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: f"€{int(x):,}"))
+    ax.yaxis.set_major_locator(plt.MaxNLocator(integer=True))
+
     ax.legend()
     ax.set_title("Financial balance")
-    ax.set_ylabel("'000 euros")
-    ax.set_xlabel("year")
+    ax.set_xlabel("Year")
 
-    flike = io.BytesIO()
-    fig.savefig(flike, format="png")
-    subsidies_plot_b64 = base64.b64encode(flike.getvalue()).decode()
-    context = {
-        "subsidies_plot": subsidies_plot_b64,
-    }
+    plot_svg = io.StringIO()
+    fig.savefig(plot_svg, format="svg")
+    subsidies_plot_svg = plot_svg.getvalue()
+    # Manipulate the SVG to make it display properly in the browser
+    # Add the classes `w-100` and `h-100` to make the SVG responsive
+    subsidies_plot_svg = subsidies_plot_svg.replace(
+        "<svg ", '<svg class="w-100 h-auto" '
+    )
+
+    context = {"subsidies_plot": subsidies_plot_svg}
     current_year = int(now.strftime("%Y"))
     future_subsidies = 0
     for key, val in subsidies_dict.items():
