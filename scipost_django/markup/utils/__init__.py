@@ -388,7 +388,11 @@ def process_markup(
 
     markup_detector = detect_markup_language(text)
 
-    if coerced and language_coerced != markup_detector["language"]:
+    if (
+        (language_forced is None)
+        and coerced
+        and language_coerced != markup_detector["language"]
+    ):
         markup["warnings"].append(
             ("markup language was coerced to %s, while the detected one was %s.")
             % (language_coerced, markup_detector["language"])
