@@ -116,18 +116,35 @@
   </div>
   <div class="col-md-6 col-lg-4 mb-2">
     <div class="card">
-      <div class="card-header">
-	Submissions (ongoing)
-      </div>
-      <div class="card-body">
-	<ul>
-	  {% for sub in profile.contributor.submissions.public_latest.unpublished %}
-	    <li><a href="{{ sub.get_absolute_url }}">{{ sub }}</a></li>
-	  {% empty %}
-	    <li>No ongoing Submission found</li>
-	  {% endfor %}
-	</ul>
-      </div>
+      {% if is_ed_admin %}
+        <div class="card-header">Submissions</div>
+        <div class="card-body">
+        {% regroup profile.contributor.submissions.latest|dictsort:'status' by get_status_display as submissions_by_status %}
+        <ul {% if submissions_by_status %}class="list-unstyled"{% endif %}>
+          {% for submission_status in submissions_by_status %}
+            <li>{{ submission_status.grouper }}:</li>
+            <ul>
+              {% for submission in submission_status.list %}
+                <li class="d-block-inline text-truncate"><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></li>
+              {% endfor %}
+            </ul>
+          {% empty %}
+            <li>No submissions found</li>
+          {% endfor %}
+        </ul>
+        </div>
+      {% else %}
+        <div class="card-header">Submissions (ongoing)</div>
+        <div class="card-body">
+        <ul>
+          {% for sub in profile.contributor.submissions.public_latest.unpublished %}
+            <li><a href="{{ sub.get_absolute_url }}">{{ sub }}</a></li>
+          {% empty %}
+            <li>No ongoing Submission found</li>
+          {% endfor %}
+        </ul>
+        </div>
+      {% endif %}
     </div>
   </div>
   <div class="col-md-6 col-lg-4 mb-2">
