@@ -30,6 +30,19 @@
   You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:editorial_procedure' %}">editorial procedure</a>, <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
 </p>
 <p>
+  The submission is currently a candidate for publication in <a href="https://{{ domain }}{% url 'scipost:journal_detail' invitation.submission.submitted_to.doi_label %}">{{ invitation.submission.submitted_to }}</a>, for which you are advised to review its <a href="https://{{ domain }}{% url 'journal:about' invitation.submission.submitted_to.doi_label %}#criteria">acceptance criteria</a>.
+  {% if invitation.submission.submitted_to.alternative_journals.all %}
+  <p>You may also deem that the submission is better suited to one of the following alternative journals, whose acceptance criteria are linked below:</p>
+    <ul>
+    {% for alternative_journal in invitation.submission.submitted_to.alternative_journals.all %}
+      <li>
+        <a href="https://{{ domain }}{% url 'journal:about' alternative_journal.doi_label %}#criteria">{{ alternative_journal }}</a>
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+</p>
+<p>
   We very much hope that we can count on your expertise,
   <br />
   Many thanks in advance,
