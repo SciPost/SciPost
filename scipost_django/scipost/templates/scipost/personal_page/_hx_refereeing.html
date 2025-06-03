@@ -2,6 +2,13 @@
 
 {% include 'submissions/_refereeing_invitations_ongoing.html' with contributor=request.user.contributor %}
 
+<div class="p-3 bg-warning bg-opacity-10">
+  <p class="mb-0">
+    In order to protect your privacy, we regularly purge information about your anonymous refereeing contributions a few months after processing (e.g. publication/rejection).
+    Therefore, refereeing invitations and authored reports on past submissions may be permanently hidden. You may <a href="mailto:techsupport@scipost.org">contact techsupport</a> or <a href="{% url "helpdesk:ticket_create" %}">open a helpdesk ticket</a>  if you wish to retrieve your past contributions.
+  </p>
+</div>
+
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">Refereeing Invitations</h3>
