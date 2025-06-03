@@ -207,7 +207,7 @@ class TopicInterestForm(forms.ModelForm):
         widgets = {
             "topic": HTMXDynSelWidget(url=reverse_lazy("ontology:topic_dynsel")),
             "weight": forms.NumberInput(
-                attrs={"step": 0.1, "min": -1, "max": 1, "value": 0}
+                attrs={"step": 0.1, "min": -1, "max": 1, "value": 1}
             ),
         }
 

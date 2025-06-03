@@ -33,7 +33,7 @@ class Topic(models.Model):
 class TopicInterest(models.Model):
     """
     An interest of a Profile in a Topic, either declared via a user action or inferred from their activity.
-    Weights should be in the range [-1, 1], with 0 meaning no interest, -1 meaning disinterest, and 1 meaning strong interest.
+    Weights should be in the range [-1, 1], with 0 meaning no interest, -1 meaning strong disinterest, and 1 meaning strong interest.
     Automatic interests are inferred from the user's activity, and should not be modified by any user directly, only by the system.
     """
 
@@ -46,7 +46,10 @@ class TopicInterest(models.Model):
 
     profile = models.ForeignKey["Profile"]("profiles.Profile", on_delete=models.CASCADE)
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name="interests")
-    weight = models.FloatField(default=0.0)
+    weight = models.FloatField(
+        default=1.0,
+        help_text="Relative interest in the range [-1, 1], e.g. 0.4 or -0.3. A weight of (0/-1/1) means (no/dis/-) interest.",
+    )
     source = models.CharField(
         choices=SOURCE_CHOICES,
         default=SOURCE_MANUAL,
