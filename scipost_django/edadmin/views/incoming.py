@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -13,6 +14,7 @@ from guardian.shortcuts import get_objects_for_user
 from colleges.permissions import is_edadmin
 from journals.models import Publication
 from mails.utils import DirectMailUtil
+from pins.models import Note
 from scipost.permissions import HTMXResponse
 from submissions.models import (
     Submission,
@@ -66,6 +68,16 @@ def _hx_submission_admissibility(request, identifier_w_vn_nr):
                 rejection_email_text=form.cleaned_data["rejection_email_text"],
             )
             mail_util.send_mail()
+
+            Note.objects.create(
+                visibility=Note.VISIBILITY_INTERNAL,
+                author=request.user.contributor,
+                regarding_content_type=ContentType.objects.get_for_model(Submission),
+                regarding_object_id=submission.id,
+                title="Admissibility failed email sent",
+                description="Email customized with:\n\n"
+                + form.cleaned_data["rejection_email_text"],
+            )
         submission.refresh_from_db()
         # trigger re-rendering of the details-contents div
         response = HttpResponse()
@@ -261,6 +273,16 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
                 rejection_email_text=form.cleaned_data["rejection_email_text"],
             )
             mail_util.send_mail()
+
+            Note.objects.create(
+                visibility=Note.VISIBILITY_INTERNAL,
+                author=request.user.contributor,
+                regarding_content_type=ContentType.objects.get_for_model(Submission),
+                regarding_object_id=submission.id,
+                title="Admission failed email sent",
+                description="Email customized with:\n\n"
+                + form.cleaned_data["rejection_email_text"],
+            )
         submission.refresh_from_db()
         response = HttpResponse()
         # trigger refresh of pool listing
