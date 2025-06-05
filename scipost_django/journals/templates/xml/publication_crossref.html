@@ -130,11 +130,9 @@
                     </custom_metadata>
                 </crossmark>
                 <program xmlns="http://www.crossref.org/relations.xsd">
-                  {% for preprint_sub in publication.accepted_submission.thread_full %}
-                    <related_item>
-                      <intra_work_relation relationship-type="hasPreprint" identifier-type="uri">https://{{ domain }}{{ preprint_sub.get_absolute_url }}</intra_work_relation>
-                    </related_item>
-                  {% endfor %}                  
+                  <related_item>
+                    <intra_work_relation relationship-type="hasPreprint" identifier-type="uri">https://{{ domain }}{{ publication.accepted_submission.preprint.get_absolute_url }}</intra_work_relation>
+                  </related_item>
                 </program>
                 <archive_locations>
                     <archive name="CLOCKSS"></archive>
