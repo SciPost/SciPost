@@ -19,15 +19,16 @@ class MailViewBase:
     """Send a templated email after being edited by user."""
 
     form_class = None
-    mail_code = None
+    mail_code: str | None = None
     mail_config = {}
     mail_variables = {}
     fail_silently = True
 
     def __init__(self, *args, **kwargs):
-        if not self.mail_code:
-            raise AttributeError(
-                self.__class__.__name__ + " object has no attribute `mail_code`"
+        if not self.get_mail_code():
+            raise ImproperlyConfigured(
+                "No mail code provided. Please set `mail_code` attribute, "
+                "or override `get_mail_code` method."
             )
         super().__init__(*args, **kwargs)
         self.mail_form = None
@@ -38,6 +39,13 @@ class MailViewBase:
 
     def get_mail_config(self):
         return self.mail_config
+
+    def get_mail_code(self) -> str:
+        if not self.mail_code:
+            raise ImproperlyConfigured(
+                "No mail code provided. Please set `mail_code` attribute."
+            )
+        return self.mail_code
 
 
 class MailFormView(MailViewBase, UpdateView):
@@ -63,7 +71,7 @@ class MailFormView(MailViewBase, UpdateView):
             self.mail_form = EmailForm(
                 request.POST or None,
                 csp_nonce=self.request.csp_nonce,
-                mail_code=self.mail_code,
+                mail_code=self.get_mail_code(),
                 instance=self.object,
                 **self.get_mail_config(),
                 **self.mail_variables,
@@ -88,7 +96,7 @@ class MailFormView(MailViewBase, UpdateView):
                     return response
                 else:
                     raise PermissionDenied(
-                        "You are not allowed to send mail: %s." % self.mail_code
+                        "You are not allowed to send mail: %s." % self.get_mail_code()
                     )
             self.mail_form.save()
         except AttributeError:
@@ -130,7 +138,7 @@ class MailView(MailViewBase, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["mail_code"] = self.mail_code
+        kwargs["mail_code"] = self.get_mail_code()
         kwargs["instance"] = self.get_object()
         kwargs["csp_nonce"] = self.request.csp_nonce
         kwargs["user"] = self.request.user
@@ -145,7 +153,7 @@ class MailView(MailViewBase, UpdateView):
                 return HttpResponseRedirect(self.get_success_url())
             else:
                 raise PermissionDenied(
-                    "You are not allowed to send mail: %s." % self.mail_code
+                    "You are not allowed to send mail: %s." % self.get_mail_code()
                 )
         messages.success(self.request, "Mail sent")
         return super().form_valid(form)
