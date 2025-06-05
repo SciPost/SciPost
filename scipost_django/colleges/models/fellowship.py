@@ -14,6 +14,8 @@ from ..managers import FellowQuerySet
 if TYPE_CHECKING:
     from colleges.models import FellowshipNomination
     from scipost.models import Contributor
+    from journals.models import Journal
+    from colleges.models import College
     from django.db.models.manager import ManyToManyRelatedManager, RelatedManager
 
 
@@ -40,7 +42,7 @@ class Fellowship(TimeStampedModel):
         (STATUS_GUEST, "Guest"),
     )
 
-    college = models.ForeignKey(
+    college = models.ForeignKey["College"](
         "colleges.College", on_delete=models.PROTECT, related_name="fellowships"
     )
 
@@ -74,6 +76,15 @@ class Fellowship(TimeStampedModel):
     @property
     def senior(self):
         return self.status == self.STATUS_SENIOR
+
+    @property
+    def hosted_journal(self) -> "Journal | None":
+        """
+        Return the hosted journal if this Fellowship is for a hosted journal, `None` otherwise.
+        """
+        if self.college.is_hosted_journal and self.college.journals.count() == 1:
+            return self.college.journals.first()
+        return None
 
     def get_absolute_url(self):
         """Return the admin fellowship page."""

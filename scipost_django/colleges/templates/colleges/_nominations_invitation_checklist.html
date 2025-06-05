@@ -56,6 +56,11 @@
 
       </li>
 
+      <li class="list-group-item p-2">
+        <span class="text-primary">{% include 'bi/exclamation-square-fill.html' %}</span>
+            <span>&nbsp;Define Proceedings / Collections for this <a href="{% url 'colleges:fellowship_detail' pk=invitation.nomination.fellowship.id %}">Fellowship</a> (if applicable).</span>
+      </li>
+
       {% if invitation.nomination.fellowship %}
         <li class="list-group-item p-2">
  

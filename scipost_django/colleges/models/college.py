@@ -43,6 +43,11 @@ class College(models.Model):
 
     order = models.PositiveSmallIntegerField()
 
+    if TYPE_CHECKING:
+        from journals.models import Journal
+
+        journals: "RelatedManager[Journal]"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -67,6 +72,14 @@ class College(models.Model):
     @property
     def specialties(self):
         return Specialty.objects.filter(journals__college__pk=self.id).distinct()
+
+    @property
+    def is_hosted_journal(self):
+        """
+        Check if the College is exists for a hosted journal.
+        In practice this is when the name does not match the academic field.
+        """
+        return self.name != self.acad_field.name
 
     @property
     def is_field_wide(self):
