@@ -93,6 +93,7 @@ class MailEngine:
         self._check_template_exists()
         self._validate_configuration()
         self._validate_email_fields()
+        self.render_subject()
         if render_template:
             self.render_template()
 
@@ -120,6 +121,14 @@ class MailEngine:
         handler = HTML2Text()
         self.mail_data["message"] = handler.handle(self.mail_data["html_message"])
         self._processed_template = True
+
+    def render_subject(self):
+        """Render the subject str of the mail as if it were a template."""
+        from django.template import Template, Context
+        if subject := self.mail_data.get("subject", ""):
+            subject = Template(subject).render(Context(self.template_variables))
+
+        self.mail_data["subject"] = subject
 
     def send_mail(self):
         """Send the mail."""
