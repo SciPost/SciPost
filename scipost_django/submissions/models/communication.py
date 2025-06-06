@@ -76,8 +76,17 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
         if letter == "S":
             domain = get_current_domain()
             return f"submissions@{domain}"
-        elif contributor := self._resolve_contributor_from_letter(letter):
-            return contributor.user.email
+        elif letter == "R" and self.referee and self.referee.profile:
+            # Attempt to get the referee's email through the invitation
+            if ref_invitation := self.submission.referee_invitations.filter(
+                referee=self.referee.profile,
+                cancelled=False,
+            ).first():
+                return ref_invitation.email_address
+
+        # In the generic case, resolve Contributor and use Profile's primary
+        if contributor := self._resolve_contributor_from_letter(letter):
+            return contributor.profile.email if contributor.profile else ""
         return ""
 
     @property
