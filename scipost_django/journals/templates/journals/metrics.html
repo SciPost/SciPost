@@ -37,24 +37,24 @@
 	<div class="col">
 	  <div class="card">
 	    <div class="card-header">
-	      <h3>Publications
+	      <h3 class="mb-0">Publications
 		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      <img src="data:image/png;base64,{{ nr_publications_plot }}">
+	      {{ nr_publications_plot|safe }}
 	    </div>
 	  </div>
 	</div>
 	<div class="col">
 	  <div class="card">
 	    <div class="card-header">
-	      <h3>Submissions
+	      <h3 class="mb-0">Submissions
 		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      <img src="data:image/png;base64,{{ nr_submissions_plot }}">
+	      {{ nr_submissions_plot|safe }}
 	    </div>
 	  </div>
 	</div>
@@ -72,36 +72,36 @@
 	<div class="col">
 	  <div class="card">
 	    <div class="card-header">
-	      <h3>Citations (total)
+	      <h3 class="mb-0">Citations (total)
 		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      <img src="data:image/png;base64,{{ nr_citations_plot }}">
+	      {{ nr_citations_plot|safe }}
 	    </div>
 	  </div>
 	</div>
 	<div class="col">
 	  <div class="card">
 	    <div class="card-header">
-	      <h3><a href="https://en.wikipedia.org/wiki/CiteScore" target="_blank">CiteScore</a>
+	      <h3 class="mb-0"><a href="https://en.wikipedia.org/wiki/CiteScore" target="_blank">CiteScore</a>
 		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      <img src="data:image/png;base64,{{ citescore_plot }}">
+	      {{ citescore_plot|safe }}
 	    </div>
 	  </div>
 	</div>
 	<div class="col">
 	  <div class="card">
 	    <div class="card-header">
-	      <h3><a href="https://en.wikipedia.org/wiki/Impact_factor" target="_blank">Impact Factor</a>
+	      <h3 class="mb-0"><a href="https://en.wikipedia.org/wiki/Impact_factor" target="_blank">Impact Factor</a>
 		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      <img src="data:image/png;base64,{{ impact_factor_plot }}">
+	      {{ impact_factor_plot|safe }}
 	    </div>
 	  </div>
 	</div>

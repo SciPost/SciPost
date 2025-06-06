@@ -535,12 +535,17 @@ def about(request, doi_label):
 
 
 def provide_plot(x, y, name, nonce=None):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(5, 3))
     ax.bar(x, y)
     ax.set_title(name)
-    flike = io.BytesIO()
-    fig.savefig(flike, format="png")
-    return base64.b64encode(flike.getvalue()).decode()
+
+    plot_svg = io.StringIO()
+    fig.savefig(plot_svg, format="svg")
+    plot_svg = plot_svg.getvalue()
+    # Manipulate the SVG to make it display properly in the browser
+    # Add the classes `w-100` and `h-100` to make the SVG responsive
+    plot_svg = plot_svg.replace("<svg ", '<svg class="w-100 h-auto" ')
+    return plot_svg
 
 
 def metrics(request, doi_label, specialty=None):
@@ -558,31 +563,31 @@ def metrics(request, doi_label, specialty=None):
     nr_publications_plot = provide_plot(
         x=journal.cf_metrics["nr_publications"]["years"],
         y=journal.cf_metrics["nr_publications"]["nr_publications"][key],
-        name="publications",
+        name="Publications",
         nonce=request.csp_nonce,
     )
     nr_submissions_plot = provide_plot(
         x=journal.cf_metrics["nr_submissions"]["years"],
         y=journal.cf_metrics["nr_submissions"]["nr_submissions"][key],
-        name="submissions",
+        name="Submissions",
         nonce=request.csp_nonce,
     )
     nr_citations_plot = provide_plot(
         x=journal.cf_metrics["nr_citations"]["years"],
         y=journal.cf_metrics["nr_citations"]["nr_citations"][key],
-        name="citations",
+        name="Total Citations",
         nonce=request.csp_nonce,
     )
     citescore_plot = provide_plot(
         x=journal.cf_metrics["citedby_citescore"]["years"],
         y=journal.cf_metrics["citedby_citescore"]["citedby_citescore"][key],
-        name="citations",
+        name="Citescore",
         nonce=request.csp_nonce,
     )
     impact_factor_plot = provide_plot(
         x=journal.cf_metrics["citedby_impact_factor"]["years"],
         y=journal.cf_metrics["citedby_impact_factor"]["citedby_impact_factor"][key],
-        name="citations",
+        name="Impact Factor",
         nonce=request.csp_nonce,
     )
     context["nr_publications_plot"] = nr_publications_plot
