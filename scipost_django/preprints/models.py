@@ -47,7 +47,10 @@ class Preprint(models.Model):
         if self.url:
             return self.url
         if self._file:
-            return reverse("preprints:pdf", args=(self.identifier_w_vn_nr,))
+            return "https://%s%s" % (
+                get_current_domain(),
+                reverse("preprints:pdf", args=(self.identifier_w_vn_nr,)),
+            )
         return None
 
     def get_document(self):
@@ -70,10 +73,7 @@ class Preprint(models.Model):
     def citation_pdf_url(self):
         """Return the absolute URL of the pdf for the meta tag for Google Scholar."""
         if self._file:  # means this is a SciPost-hosted preprint
-            return "https://%s%s" % (
-                get_current_domain(),
-                self.get_absolute_url(),
-            )
+            return self.get_absolute_url()
         elif self.is_arXiv:
             return "%s.pdf" % self.get_absolute_url().replace("/abs/", "/pdf/")
         # Match SocArXiv preprints
