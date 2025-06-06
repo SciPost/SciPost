@@ -48,8 +48,8 @@
           {% endif %}
 
           <tr>
-            <th>Academic field</th>
-            <td>{{ fellowship.contributor.profile.acad_field }}</td>
+            <th>College</th>
+            <td><a href="{{ fellowship.college.get_absolute_url }}">{{ fellowship.college.name }}</a></td>
           </tr>
           <tr>
             <th>Start date</th>
