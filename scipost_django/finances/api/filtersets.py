@@ -5,9 +5,10 @@ __license__ = "AGPL v3"
 from django_filters import rest_framework as df_filters
 
 from finances.models import Subsidy, SubsidyPayment
+from finances.models.subsidy import SubsidyCollective
 
 
-class SubsidyFinAdminAPIFilterSet(df_filters.FilterSet):
+class SubsidyAPIFilterSet(df_filters.FilterSet):
     class Meta:
         model = Subsidy
         fields = {
@@ -134,4 +135,16 @@ class SubsidyPaymentAPIFilterSet(df_filters.FilterSet):
                 "range",
             ],
             "amount": ["gte", "lte", "range"],
+        }
+
+
+class SubsidyCollectiveAPIFilterSet(df_filters.FilterSet):
+    class Meta:
+        model = SubsidyCollective
+        fields = {
+            "coordinator__name": ["icontains", "contains", "iregex", "regex"],
+            "coordinator__acronym": ["icontains", "contains", "iregex", "regex"],
+            "coordinator__country": ["icontains", "exact", "iexact", "iregex", "regex"],
+            "name": ["icontains", "contains", "istartswith", "iregex", "regex"],
+            "description": ["icontains"],
         }

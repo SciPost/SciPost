@@ -11,30 +11,40 @@ from api.viewsets.mixins import FilteringOptionsActionMixin
 
 from finances.models import Subsidy, SubsidyPayment
 from finances.api.filtersets import (
-    SubsidyFinAdminAPIFilterSet,
+    SubsidyAPIFilterSet,
     SubsidyPaymentAPIFilterSet,
 )
-from finances.api.serializers import SubsidyFinAdminSerializer, SubsidyPaymentSerializer
+from finances.api.serializers import (
+    SubsidyCollectiveSerializer,
+    SubsidySerializer,
+    SubsidyPaymentSerializer,
+)
+from finances.models.subsidy import SubsidyCollective
 
 
-class CanManageSubsidies(BasePermission):
-    def has_permission(self, request, view):
-        return request.user.has_perm("scipost.can_manage_subsidies")
+def at_least_one_permission(*permissions: str):
+    """
+    Custom permission class to check if the user has at least one of the specified permissions.
+    """
+
+    class AtLeastOnePermission(BasePermission):
+        def has_permission(self, request, view):
+            return any(request.user.has_perm(perm) for perm in permissions)
+
+    return AtLeastOnePermission
 
 
-class CanUseSubsidyPaymentAPI(BasePermission):
-    def has_permission(self, request, view):
-        return request.user.has_perm("scipost.can_use_private_api_subsidy_payments")
-
-
-class SubsidyFinAdminAPIViewSet(
+class SubsidyPrivateAPIViewSet(
     FilteringOptionsActionMixin, ExtraFilteredReadOnlyModelViewSet
 ):
     queryset = Subsidy.objects.all()
     permission_classes = [
-        CanManageSubsidies,
+        at_least_one_permission(
+            "scipost.can_manage_subsidies",
+            "scipost.can_use_private_api_subsidies",
+        )
     ]
-    serializer_class = SubsidyFinAdminSerializer
+    serializer_class = SubsidySerializer
     renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (r.CSVRenderer,)
     search_fields = [
         "organization__name",
@@ -42,11 +52,11 @@ class SubsidyFinAdminAPIViewSet(
     ]
     ordering_fields = [
         "organization__name",
-        "amount",  # this ViewSet is for FinAdmin, no data leak here
+        "amount",  # this ViewSet is for private access, no data leak here
         "date",
         "date_until",
     ]
-    filterset_class = SubsidyFinAdminAPIFilterSet
+    filterset_class = SubsidyAPIFilterSet
     default_filtering_fields = [
         "organization__name__icontains",
         "organization__acronym__icontains",
@@ -61,7 +71,7 @@ class SubsidyFinAdminAPIViewSet(
         )
 
 
-class SubsidyPublicAPIViewSet(SubsidyFinAdminAPIViewSet):
+class SubsidyPublicAPIViewSet(SubsidyPrivateAPIViewSet):
     queryset = Subsidy.objects.filter(amount_publicly_shown=True)
     permission_classes = [
         AllowAny,
@@ -73,7 +83,10 @@ class SubsidyPaymentPrivateAPIViewSet(
 ):
     queryset = SubsidyPayment.objects.all()
     permission_classes = [
-        CanUseSubsidyPaymentAPI,
+        at_least_one_permission(
+            "scipost.can_manage_subsidies",
+            "scipost.can_use_private_api_subsidy_payments",
+        )
     ]
     serializer_class = SubsidyPaymentSerializer
     renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (r.CSVRenderer,)
@@ -103,3 +116,29 @@ class SubsidyPaymentPrivateAPIViewSet(
             )
             .prefetch_related("subsidy__renewal_of")
         )
+
+
+class SubsidyCollectivePrivateAPIViewSet(
+    FilteringOptionsActionMixin, ExtraFilteredReadOnlyModelViewSet
+):
+    queryset = SubsidyCollective.objects.all()
+    permission_classes = [
+        at_least_one_permission(
+            "scipost.can_manage_subsidies",
+            "scipost.can_use_private_api_subsidy_collectives",
+        )
+    ]
+    serializer_class = SubsidyCollectiveSerializer
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (r.CSVRenderer,)
+    search_fields = [
+        "coordinator__name",
+        "coordinator__acronym",
+        "name",
+    ]
+    ordering_fields = [
+        "coordinator__name",
+        "name",
+    ]
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("coordinator")

@@ -32,7 +32,8 @@ from organizations.api.viewsets import (
 
 # finances
 from finances.api.viewsets import (
-    SubsidyFinAdminAPIViewSet,
+    SubsidyCollectivePrivateAPIViewSet,
+    SubsidyPrivateAPIViewSet,
     SubsidyPublicAPIViewSet,
     SubsidyPaymentPrivateAPIViewSet,
 )
@@ -85,9 +86,18 @@ router.register("nap", OrganizationNAPViewSet, basename="organization_nap")
 
 # finances
 router.register(
-    "finadmin/subsidies", SubsidyFinAdminAPIViewSet, basename="subsidies_finadmin"
+    "private/subsidies/payments",
+    SubsidyPaymentPrivateAPIViewSet,
+    basename="subsidy_payments_private",
 )
-router.register("subsidies/payments", SubsidyPaymentPrivateAPIViewSet)
+router.register(
+    "private/subsidies/collectives",
+    SubsidyCollectivePrivateAPIViewSet,
+    basename="subsidy_collectives_private",
+)
+router.register(
+    "private/subsidies", SubsidyPrivateAPIViewSet, basename="subsidies_private"
+)
 router.register("subsidies", SubsidyPublicAPIViewSet)
 
 # Next two: old style, to be deprecated:

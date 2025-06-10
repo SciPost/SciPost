@@ -567,10 +567,22 @@ class Command(BaseCommand):
 
         # API private access
         # These are likely to be granted on a per-user basis
+        can_use_private_api_subsidies, created = Permission.objects.get_or_create(
+            codename="can_use_private_api_subsidies",
+            name="Can use the private API for subsidies",
+            content_type=content_type,
+        )
         can_use_private_api_subsidy_payments, created = (
             Permission.objects.get_or_create(
                 codename="can_use_private_api_subsidy_payments",
                 name="Can use the private API for subsidy payments",
+                content_type=content_type,
+            )
+        )
+        can_use_private_api_subsidy_collectives, created = (
+            Permission.objects.get_or_create(
+                codename="can_use_private_api_subsidy_collectives",
+                name="Can use the private API for subsidy collectives",
                 content_type=content_type,
             )
         )
