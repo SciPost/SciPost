@@ -43,8 +43,10 @@ class Command(BaseCommand):
                 )
 
                 # Send the appropriate reminder email based on the number of days since the invitation
+                # Subtract 1 from the workday calculation to account for worst case scenario where
+                # the reminder email sent in the morning of the workday
                 mail = None
-                match workdays_since_invitation:
+                match workdays_since_invitation - 1:
                     case 2:
                         # First reminder according to the referee registration status
                         mail = DirectMailUtil(
