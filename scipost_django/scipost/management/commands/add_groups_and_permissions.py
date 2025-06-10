@@ -133,7 +133,7 @@ class Command(BaseCommand):
             name="Can add affiliations to Profiles",
             content_type=content_type,
         )
-        can_add_profile_topic_interests = Permission.objects.get_or_create(
+        can_add_profile_topic_interests, created = Permission.objects.get_or_create(
             codename="can_add_profile_topic_interests",
             name="Can add topic interests to Profiles",
             content_type=content_type,
