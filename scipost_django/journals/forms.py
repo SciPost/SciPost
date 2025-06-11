@@ -29,6 +29,7 @@ from common.forms import HTMXInlineCRUDModelForm
 
 from journals.models.resource import PublicationResource
 from journals.models.update import PublicationUpdate
+from series.models import CollectionPublicationsTable
 
 from .constants import (
     STATUS_DRAFT,
@@ -1123,11 +1124,20 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
         else:
             print(f"Publication tag: {tag_name} already exists. Something went wrong.")
 
+    def update_collection(self) -> None:
+        """Adds the publication to its accepted submission's collections."""
+        for collection in self.instance.accepted_submission.collections.all():
+            cpt = CollectionPublicationsTable(
+                collection=collection, publication=self.instance
+            )
+            cpt.save()
+
     def save(self, commit=True):
         if commit:
             self.move_pdf()
             self.update_submission()
             self.update_stream()
+            self.update_collection()
             self.tag_publication()
 
             # Email authors

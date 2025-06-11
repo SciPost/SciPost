@@ -40,6 +40,14 @@
       <li>Move the pdf file to the appropriate folder</li>
       <li>Update the Submission status</li>
       <li>Update the Production Stream status</li>
+      {% if form.instance.accepted_submission.collections.exists %}
+        <li>Add the Publication to the Collection(s)</li>
+        <ul>
+          {% for collection in form.instance.accepted_submission.collections.all %}
+            <li>{{ collection }}</li>
+          {% endfor %}
+        </ul>  
+      {% endif %}
       <li>Send the authors a publication-email</li>
       <li>Tag the git repository as published</li>
     </ul>
