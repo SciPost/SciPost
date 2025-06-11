@@ -145,6 +145,7 @@ def _hx_productionstream_actions_change_properties(request, productionstream_id)
     )
     supervisor_form = AssignSupervisorForm(
         instance=productionstream,
+        production_user=request.user.production_user,
         auto_id=f"productionstream_{productionstream.id}_id_%s",
     )
     invitations_officer_form = AssignInvitationsOfficerForm(
@@ -153,6 +154,7 @@ def _hx_productionstream_actions_change_properties(request, productionstream_id)
     )
     officer_form = AssignOfficerForm(
         instance=productionstream,
+        production_user=request.user.production_user,
         auto_id=f"productionstream_{productionstream.id}_id_%s",
     )
 
@@ -534,7 +536,11 @@ def add_officer(request, stream_id):
     if not checker.has_perm("can_perform_supervisory_actions", stream):
         return redirect(reverse("production:production_old", args=(stream.id,)))
 
-    form = AssignOfficerForm(request.POST or None, instance=stream)
+    form = AssignOfficerForm(
+        request.POST or None,
+        instance=stream,
+        production_user=request.user.production_user,
+    )
     if form.is_valid():
         form.save()
         officer = form.cleaned_data.get("officer")
@@ -820,7 +826,11 @@ def _hx_update_invitations_officer(request, stream_id):
 @transaction.atomic
 def add_supervisor(request, stream_id):
     stream = get_object_or_404(ProductionStream.objects.ongoing(), pk=stream_id)
-    form = AssignSupervisorForm(request.POST or None, instance=stream)
+    form = AssignSupervisorForm(
+        request.POST or None,
+        instance=stream,
+        production_user=request.user.production_user,
+    )
     if form.is_valid():
         form.save()
         supervisor = form.cleaned_data.get("supervisor")
