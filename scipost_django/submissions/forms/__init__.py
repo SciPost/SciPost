@@ -3853,6 +3853,7 @@ class EICRecommendationForm(forms.ModelForm):
         # id is determined for use in the ManyToMany relation.
         # Tiering has already been created above, and no special objects are required
         # in the event of submission rejection.
+        recommendation.eligible_to_vote.add(recommendation.formulated_by)
         recommendation.voted_for.add(recommendation.formulated_by)
         recommendation.save()
 
