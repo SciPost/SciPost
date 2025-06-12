@@ -1645,7 +1645,8 @@ class FellowshipsMonitorSearchForm(forms.Form):
             nr_recommendations_eligible=count_q(
                 filter_submissions_in_pool(
                     EICRecommendation.objects.filter(
-                        eligible_to_vote__exact=OuterRef("contributor")
+                        Q(eligible_to_vote__exact=OuterRef("contributor"))
+                        & ~Q(formulated_by=OuterRef("contributor"))
                     ),
                     prefix="submission__",
                 ),
@@ -1654,7 +1655,8 @@ class FellowshipsMonitorSearchForm(forms.Form):
             nr_recommendations_voted_for=count_q(
                 filter_submissions_in_pool(
                     EICRecommendation.objects.filter(
-                        voted_for__exact=OuterRef("contributor"),
+                        Q(voted_for__exact=OuterRef("contributor"))
+                        & ~Q(formulated_by=OuterRef("contributor"))
                     ),
                     prefix="submission__",
                 ),
@@ -1663,7 +1665,8 @@ class FellowshipsMonitorSearchForm(forms.Form):
             nr_recommendations_voted_against=count_q(
                 filter_submissions_in_pool(
                     EICRecommendation.objects.filter(
-                        voted_against__exact=OuterRef("contributor"),
+                        Q(voted_against__exact=OuterRef("contributor"))
+                        & ~Q(formulated_by=OuterRef("contributor"))
                     ),
                     prefix="submission__",
                 ),
@@ -1672,7 +1675,8 @@ class FellowshipsMonitorSearchForm(forms.Form):
             nr_recommendations_voted_abstain=count_q(
                 filter_submissions_in_pool(
                     EICRecommendation.objects.filter(
-                        voted_abstain__exact=OuterRef("contributor"),
+                        Q(voted_abstain__exact=OuterRef("contributor"))
+                        & ~Q(formulated_by=OuterRef("contributor"))
                     ),
                     prefix="submission__",
                 ),
