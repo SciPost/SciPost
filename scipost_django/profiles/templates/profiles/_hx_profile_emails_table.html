@@ -9,8 +9,10 @@
     </tr>
   </thead>
 
-  {% for profile_mail in profile.emails.all %}
-    {% include "profiles/_hx_profile_emails_table_row.html" %}
-  {% endfor %}
+  <tbody>
+    {% for profile_mail in profile.emails.all %}
+      {% include "profiles/_hx_profile_emails_table_row.html" %}
+    {% endfor %}
+  </tbody>
 
 </table>
