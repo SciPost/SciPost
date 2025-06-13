@@ -387,7 +387,7 @@ def _hx_profile_merge(
             "to_merge": to_merge,
             "to_merge_into": to_merge_into,
         }
-        merge_form = ProfileMergeForm(post_data)
+        merge_form = ProfileMergeForm(post_data, queryset=duplicate_profiles)
         if merge_form.is_valid():
             profile = merge_form.save()
             messages.success(request, "Profiles merged successfully.")
