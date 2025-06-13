@@ -16,7 +16,13 @@
       {% include 'profiles/_affiliations_table_row.html' with affiliation=aff actions=actions %}
     {% empty %}
       <tr>
-        <td colspan="4">No Affiliation has been defined</td>
+        <td colspan="4">
+          {% if profile.contributor.address %}
+            User address at registration: "{{ profile.contributor.address }}"
+          {% else %}
+            No Affiliation has been defined
+          {% endif %}
+        </td>
       </tr>
     {% endfor %}
 
