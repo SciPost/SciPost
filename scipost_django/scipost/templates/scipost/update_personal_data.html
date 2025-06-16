@@ -17,9 +17,13 @@
     <div class="row justify-content-center">
       <div class="col-lg-6">
         <h1 class="mb-3">Update your personal data</h1>
-	{% if contact_form %}
-	  {{ contact_form|bootstrap }}
-	{% endif %}
+        <p class="mb-2 p-2 bg-info bg-opacity-25">
+          Looking to change your (primary) email address? You can do this in the
+          <a href="{% url 'scipost:personal_page' %}">"Email Preferences"</a> tab.
+        </p>
+        {% if contact_form %}
+          {{ contact_form|bootstrap }}
+        {% endif %}
         {{ user_form|bootstrap }}
         {% if cont_form %}
           {{ cont_form|bootstrap }}

@@ -217,11 +217,12 @@ def profile_match(request, profile_id, from_type, pk):
         # Preconditions are met, match:
         nr_rows = Contributor.objects.filter(pk=pk).update(profile=profile)
         # Give priority to the email coming from Contributor
-        profile.emails.update(primary=False)
         email, __ = ProfileEmail.objects.get_or_create(
-            profile=profile, email=contributor.user.email
+            profile=profile,
+            email=contributor.user.email,
+            defaults={"still_valid": True},
         )
-        profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
+        email.set_primary()
     elif from_type == "refereeinvitation":
         nr_rows = RefereeInvitation.objects.filter(pk=pk).update(referee=profile)
     elif from_type == "registrationinvitation":
@@ -531,6 +532,9 @@ def _hx_profile_email_mark_primary(request, email_id):
     """
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
 
+    if not request.method == "PATCH":
+        raise BadRequest("Invalid request method")
+
     is_mail_owner = request.user.contributor.profile == profile_email.profile
     can_validate_emails = request.user.has_perm("scipost.can_validate_profile_emails")
     can_mark_primary = request.user.has_perm("scipost.can_mark_profile_emails_primary")
@@ -564,10 +568,32 @@ def _hx_profile_email_mark_primary(request, email_id):
             tag="danger",
         )
 
-    if request.method == "PATCH":
-        ProfileEmail.objects.filter(profile=profile_email.profile).update(primary=False)
-        profile_email.primary = True
-        profile_email.save()
+    if not profile_email.still_valid:
+        messages.error(
+            request,
+            "Cannot mark an invalid email as primary. Please mark it as valid first.",
+        )
+
+    if not profile_email.verified:
+        if is_mail_owner:
+            messages.error(
+                request,
+                "You cannot mark your unverified email as primary. "
+                "Please verify it first.",
+            )
+        else:
+            messages.warning(
+                request,
+                "You have marked an unverified email as primary. "
+                "This can lead to issues where the profile owner "
+                "may not be able to access the emails they receive.",
+            )
+
+    # The email must be valid, and also verified if the owner is performing the change.
+    # If someone other than the owner is marking it as primary, it's generally okay to pass it with a warning.
+    if profile_email.still_valid and (profile_email.verified or not is_mail_owner):
+        profile_email.set_primary()
+
     return TemplateResponse(
         request,
         "profiles/_hx_profile_emails_table.html",

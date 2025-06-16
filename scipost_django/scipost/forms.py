@@ -349,8 +349,8 @@ class RegistrationForm(forms.Form):
         )
         if not created:
             profile_email.profile = profile
-            profile_email.primary = True
             profile_email.save()
+            profile_email.set_primary()
 
         # Create an Affiliation for this Profile
         current_affiliation = self.cleaned_data.get("current_affiliation", None)
@@ -388,51 +388,11 @@ class ModifyPersonalMessageForm(forms.Form):
 class UpdateUserDataForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name"]
+        fields = ["first_name", "last_name"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["last_name"].widget.attrs["readonly"] = True
-
-    def clean_email(self):
-        # Guard against empty email address
-        if not (email := self.cleaned_data.get("email")):
-            raise ValidationError("The email address cannot be empty.")
-
-        other_users = User.objects.filter(email=email).exclude(pk=self.instance.pk)
-        if other_users.exists():
-            raise ValidationError(
-                "This email is already in use by another user. "
-                "If it belongs to you and you have forgotten your credentials, "
-                "use the email in place of your username and/or reset your password.",
-            )
-
-        profile_email, created = ProfileEmail.objects.get_or_create(
-            email=email, profile=self.instance.contributor.profile
-        )
-
-        # If just created, it needs to be verified
-        if created:
-            profile_email.send_verification_email()
-            raise ValidationError(
-                "This email is not yet verified. Please check your inbox for a verification email."
-            )
-        # Existing, but of another User
-        elif profile_email.profile.contributor != self.instance.contributor:
-            raise ValidationError(
-                "This email is already declared as belonging to another person. "
-                "Please contact tech support.",
-            )
-        # Existing, of this User, but not verified
-        elif not profile_email.verified:
-            profile_email.send_verification_email()
-            raise ValidationError(
-                "This email is not yet verified. Please check your inbox for a verification email."
-            )
-
-        # Existing, of this User, and verified
-        profile_email.set_primary()
-        return email
 
     def clean_last_name(self):
         """Make sure the `last_name` cannot be saved via this form."""

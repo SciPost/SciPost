@@ -328,6 +328,15 @@ class ProfileEmail(models.Model):
         self.primary = True
         self.save()
 
+        # Propagate the change to User if it exists
+        try:
+            if user := self.profile.contributor.user:
+                user.email = self.email
+                user.save()
+        except (Contributor.DoesNotExist, AttributeError):
+            # If the profile does not have a contributor or user, we do nothing
+            pass
+
 
 def get_profiles(slug):
     """

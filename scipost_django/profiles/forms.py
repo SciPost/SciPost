@@ -92,7 +92,8 @@ class ProfileForm(forms.ModelForm):
                 css_class="row mb-0",
             ),
             Div(
-                Div(Field("orcid_id"), css_class="col-12 col-md"),
+                Div(Field("orcid_id"), css_class="col-12 col-md-3"),
+                Div(Field("email"), css_class="col-12 col-md"),
                 Div(Field("webpage"), css_class="col-12 col-md"),
                 css_class="row mb-0",
             ),
@@ -129,12 +130,14 @@ class ProfileForm(forms.ModelForm):
 
     def save(self):
         profile = super().save()
-        if self.cleaned_data["email"]:
-            profile.emails.update(primary=False)
-            email, __ = ProfileEmail.objects.get_or_create(
-                profile=profile, email=self.cleaned_data["email"]
+        if email := self.cleaned_data["email"]:
+            profile_email, _ = ProfileEmail.objects.get_or_create(
+                profile=profile,
+                email=email,
+                defaults={"still_valid": True},
             )
-            profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
+            profile_email.set_primary()
+
         instance_pk = self.cleaned_data["instance_pk"]
         if instance_pk:
             if self.cleaned_data["instance_from_type"] == "contributor":
