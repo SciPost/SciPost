@@ -26,5 +26,15 @@
       </tr>
     {% endfor %}
 
+    {% for pub_aff in profile.additional_publication_affiliations %}
+      {% for affiliation in pub_aff.affiliations.all %}
+        <tr class="bg-secondary bg-opacity-10">
+          <td><a href="{{ affiliation.get_absolute_url }}">{{ affiliation }}</a></td>
+          <td colspan="2">via <a href="{{ pub_aff.publication.get_absolute_url }}">{{ pub_aff.publication.title }}</a></td>
+          <td>{{ pub_aff.publication.publication_date|date:"Y-m-d" }}</td>
+        </tr>
+      {% endfor %}
+    {% endfor %}
+
   </tbody>
 </table>

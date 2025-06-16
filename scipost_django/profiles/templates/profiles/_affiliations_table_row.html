@@ -1,6 +1,6 @@
 <tr>
   <td>
-    {{ affiliation.organization }}
+    <a href="{{ affiliation.organization.get_absolute_url }}">{{ affiliation.organization }}</a>
     {% if affiliation.description %}<br/>&nbsp;<em>{{ affiliation.description }}</em>{% endif %}
   </td>
   <td>{{ affiliation.get_category_display }}</td>

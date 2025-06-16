@@ -7,7 +7,7 @@ import secrets
 from typing import TYPE_CHECKING
 import uuid
 from django.contrib.contenttypes.fields import GenericRelation
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
 
 from django.urls import reverse
 from django.db import models
@@ -206,6 +206,25 @@ class Profile(AnonymizableObjectMixin, models.Model):
 
     def get_absolute_url(self):
         return reverse("profiles:profile_detail", kwargs={"pk": self.id})
+
+    def additional_publication_affiliations(self):
+        """
+        Returns additional PublicationAuthorsTable affiliations
+        excluding the ones from the Profile's own affiliations.
+        """
+        return (
+            self.publicationauthorstable_set.annotate(
+                has_declared_affiliation=Exists(
+                    self.affiliations.filter(
+                        organization__in=OuterRef("affiliations__id")
+                    )
+                )
+            )
+            .exclude(has_declared_affiliation=True)
+            .order_by("id", "-publication__publication_date")
+            .prefetch_related("affiliations")
+            .distinct("id")
+        )
 
     def publications(self):
         """
