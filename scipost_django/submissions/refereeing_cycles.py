@@ -314,21 +314,28 @@ class BaseCycle(abc.ABC):
                     Q(cancelled=True) | Q(accepted=False)
                 )
             )
-            active_invitations = non_cancelled_or_refused_invitations.count()
-            has_enough_invitations = (
-                active_invitations >= self.minimum_number_of_referees
+            nr_active_invitations = non_cancelled_or_refused_invitations.count()
+            nr_unique_reports = self._submission.nr_unique_thread_vetted_reports
+            nr_unfulfilled_accepted_invitations = (
+                self._submission.referee_invitations.filter(accepted=True)
+                .exclude(Q(cancelled=True) | Q(fulfilled=True))
+                .count()
             )
-            reports_suffice = (
+            has_enough_invitations = (
+                nr_active_invitations >= self.minimum_number_of_referees
+            )
+            reports_and_accepted_suffice = (
                 self._submission.submitted_to.minimal_nr_of_reports > 0
-                and self._submission.nr_unique_thread_vetted_reports
+                and (nr_unique_reports + nr_unfulfilled_accepted_invitations)
+                # minimal_nr_of_reports is really the number of referees needed
                 >= self._submission.submitted_to.minimal_nr_of_reports
             )
             # Only show the action if reports don't suffice
             # and there are not enough active invitations (pending or accepted)
-            if not (reports_suffice or has_enough_invitations):
+            if not (reports_and_accepted_suffice or has_enough_invitations):
                 self.add_action(
                     NeedRefereesAction(
-                        number_of_invitations=active_invitations,
+                        number_of_invitations=nr_active_invitations,
                         minimum_number_of_referees=self.minimum_number_of_referees,
                     )
                 )
