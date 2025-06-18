@@ -527,8 +527,36 @@ class VetRegistrationForm(forms.Form):
         choices=REGISTRATION_REFUSAL_CHOICES, required=False
     )
     email_response_field = forms.CharField(
-        widget=forms.Textarea(), label="Justification (optional)", required=False
+        widget=forms.Textarea({"rows": 4}), label="Justification", required=False
     )
+
+    def __init__(self, *args, **kwargs):
+        self.contributor_id = kwargs.pop("contributor_id")
+
+        if args and len(args) > 0 and (data := args[0]):
+            # Create an editable dict from the QueryDict keeping only Truthy values
+            # This is to avoid empty fields in the form counting as "bound".
+            data = {k: v for k, v in data.items() if v}
+            if data.get("refusal_reason") == UNVERIFIABLE_CREDENTIALS:
+                data.setdefault(
+                    "email_response_field",
+                    "Unfortunately, we were unable to verify your affiliation to a research organization. "
+                    "Please register again using an email address issued by your organization.",
+                )
+
+        super().__init__(data, *args[1:], **kwargs)
+        self.auto_id = "%s_" + str(self.contributor_id)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("decision"),
+        )
+
+        if self.data.get("decision") == "False":
+            self.fields["refusal_reason"].required = True
+            self.helper.layout.extend(
+                (Field("refusal_reason"), Field("email_response_field"))
+            )
 
     def promote_to_registered_contributor(self):
         return self.cleaned_data.get("decision") == "True"

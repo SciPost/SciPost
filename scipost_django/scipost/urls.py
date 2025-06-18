@@ -309,9 +309,9 @@ urlpatterns = [
         name="vet_registration_requests",
     ),
     path(
-        "vet_registration_request_ack/<int:contributor_id>",
-        views.vet_registration_request_ack,
-        name="vet_registration_request_ack",
+        "_hx_vet_registration_request_ack_form/<int:contributor_id>",
+        views._hx_vet_registration_request_ack_form, # type: ignore
+        name="_hx_vet_registration_request_ack_form",
     ),
     path(
         "registration_requests",

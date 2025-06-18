@@ -229,7 +229,8 @@ def portal_hx_home(request):
                 .values("organization")
             )
             # .annot_has_current_subsidy()
-            .annot_has_any_subsidy().annotate(
+            .annot_has_any_subsidy()
+            .annotate(
                 has_contributing_parent=Exists(
                     Organization.objects.filter(
                         children=OuterRef("pk"),
@@ -740,17 +741,27 @@ def unsubscribe(request, contributor_id, key):
 def vet_registration_requests(request):
     """List of new Registration requests to vet."""
     contributors_to_vet = Contributor.objects.awaiting_vetting().order_by("key_expires")
-    form = VetRegistrationForm()
-    context = {"contributors_to_vet": contributors_to_vet, "form": form}
+    context = {"contributors_to_vet": contributors_to_vet}
     return render(request, "scipost/vet_registration_requests.html", context)
 
 
 @permission_required("scipost.can_vet_registration_requests", return_403=True)
-def vet_registration_request_ack(request, contributor_id):
+def _hx_vet_registration_request_ack_form(request, contributor_id):
     """Form view to vet new Registration requests."""
-    form = VetRegistrationForm(request.POST or None)
+    form = VetRegistrationForm(request.POST or None, contributor_id=contributor_id)
+
+    print(request.POST)
+
+    if request.POST.get("submit") is None:
+        return TemplateResponse(
+            request,
+            "scipost/_hx_vet_registration_request_ack_form.html",
+            {"form": form, "contributor": {"id": contributor_id}},
+        )
+
     contributor = Contributor.objects.get(pk=contributor_id)
-    if form.is_valid():
+
+    if request.POST.get("submit") and form.is_valid():
         domain = get_current_domain()
         if form.promote_to_registered_contributor():
             contributor.status = NORMAL_CONTRIBUTOR
@@ -777,6 +788,11 @@ def vet_registration_request_ack(request, contributor_id):
                 reply_to=["registration@%s" % domain],
             )
             emailmessage.send(fail_silently=False)
+
+            return HTMXResponse(
+                "SciPost Registration request vetted.",
+                tag="success",
+            )
         else:
             ref_reason = form.cleaned_data["refusal_reason"]
             email_text = (
@@ -808,8 +824,16 @@ def vet_registration_request_ack(request, contributor_id):
             contributor.status = form.cleaned_data["refusal_reason"]
             contributor.save()
 
-    messages.success(request, "SciPost Registration request vetted.")
-    return redirect(reverse("scipost:vet_registration_requests"))
+            return HTMXResponse(
+                "SciPost Registration request refused.",
+                tag="success",
+            )
+
+    return TemplateResponse(
+        request,
+        "scipost/_hx_vet_registration_request_ack_form.html",
+        {"form": form, "contributor": contributor},
+    )
 
 
 @permission_required("scipost.can_resend_registration_requests", return_403=True)

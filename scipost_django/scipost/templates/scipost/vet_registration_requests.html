@@ -1,11 +1,11 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
 {% load scipost_extras %}
+{% load crispy_forms_tags %}
+{% load static %}
 
 {% block pagetitle %}: registrations to vet{% endblock pagetitle %}
 
-{% load bootstrap %}
-{% load static %}
 
 
 {% block breadcrumb_items %}
@@ -60,11 +60,7 @@
 	    {% endif %}
 	  </ul>
 	{% endif %}
-        <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
-          {% csrf_token %}
-          {{form|bootstrap}}
-          <input type="submit" class="btn btn-outline-secondary" />
-        </form>
+        {% include "scipost/_hx_vet_registration_request_ack_form.html" with form=form contributor=contributor_to_vet %}
       </div>
     </div>
   {% empty %}
@@ -74,7 +70,3 @@
 
 
 {% endblock content %}
-
-{% block footer_script %}
-  <script src="{% static 'scipost/vet-registration.js' %}"></script>
-{% endblock footer_script %}

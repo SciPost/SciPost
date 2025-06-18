@@ -1,0 +1,22 @@
+{% load crispy_forms_tags %}
+
+<form id="vet-registration-request-ack-form-{{ contributor.id }}" 
+      novalidate="novalidate" 
+      hx-post="{% url 'scipost:_hx_vet_registration_request_ack_form' contributor_id=contributor.id %}" 
+      hx-swap="outerHTML" 
+      hx-trigger=" {% if form %}submit, change delay:250ms{% else %}load once{% endif %}">
+  <div class="row mb-0 align-items-center">
+
+    {% if form %}
+      {% crispy form %}
+
+      {% if form.is_valid %}
+        <input type="submit"
+               name="submit"
+               value="submit"
+               class="btn btn-outline-secondary" />
+      {% endif %}
+    {% endif %}
+
+  </div>
+</form>
