@@ -56,15 +56,14 @@
 
       </li>
 
-      <li class="list-group-item p-2">
-        <span class="text-primary">{% include 'bi/exclamation-square-fill.html' %}</span>
-            <span>&nbsp;Define Proceedings / Collections for this <a href="{% url 'colleges:fellowship_detail' pk=invitation.nomination.fellowship.id %}">Fellowship</a> (if applicable).</span>
-      </li>
-
       {% if invitation.nomination.fellowship %}
         <li class="list-group-item p-2">
- 
+          <span class="text-primary">{% include 'bi/exclamation-square-fill.html' %}</span>
+              <span>&nbsp;Define Proceedings / Collections for this <a href="{% url 'colleges:fellowship_detail' pk=invitation.nomination.fellowship.id %}">Fellowship</a> (if applicable).</span>
+        </li>
 
+        <li class="list-group-item p-2">
+ 
           {% if not start_email_sent %}
             <span class="text-primary">{% include 'bi/question-square-fill.html' %}</span>
             <span>&nbsp;Uncertain whether a nomination start email has been sent.</span>
