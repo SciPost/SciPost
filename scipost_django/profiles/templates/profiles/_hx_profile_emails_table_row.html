@@ -3,10 +3,18 @@
 {% equal profile_mail.profile user.contributor.profile as is_mail_owner %}
 
 <tr>
-  <td class=" 
-    {% if profile_mail.primary %}fw-bold{% endif %}
-     ">{{ profile_mail.email }}</td>
-  <td>{{ profile_mail.primary|yesno:'Primary,Alternative' }}{% if profile_mail.kind == "recovery" %}, Recovery{% endif %}
+  <td class=" {% if profile_mail.primary %}fw-bold{% endif %}">
+    {{ profile_mail.email }}
+  </td>
+
+  <td>
+    {% if profile_mail.primary %}
+      Primary
+    {% elif profile_mail.kind == "recovery" and is_mail_owner or profile_mail.kind == "recovery" and perms.scipost.can_mark_profile_emails_recovery %}
+      Recovery
+    {% else %}
+      Alternative
+    {% endif %}
   </td>
   <td>
 
