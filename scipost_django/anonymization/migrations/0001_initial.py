@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("profiles", "0044_profile_is_anonymous"),
+        ("profiles", "0045_profile_is_anonymous"),
         ("scipost", "0042_contributor_is_anonymous"),
     ]
 
