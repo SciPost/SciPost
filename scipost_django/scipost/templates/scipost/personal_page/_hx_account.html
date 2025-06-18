@@ -17,7 +17,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-6">
+  <div class="col-12 col-md">
     <h2 class="fs-3">Personal details:</h2>
     {% include "scipost/_private_info_as_table.html" with contributor=contributor %}
 
@@ -43,7 +43,7 @@
     {% endif %}
   </div>
 
-  <div class="col-md-6">
+  <div class="col-12 col-md-4">
     {% if contributor %}
       {% if not contributor.is_currently_available %}
         <h3 class="text-warning">You are currently unavailable</h3>
@@ -53,27 +53,19 @@
     {% endif %}
 
     {% if recommend_totp %}
-      <div class="border border-danger p-2 mb-3">
-        <h3>
-          <span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span>
-          Please increase your account's security</h3>
+      <div class="bg-info bg-opacity-25 p-2 mb-3">
+        <div class="fs-4 mb-2"><span class="text-primary">{% include 'bi/exclamation-circle-fill.html' %}</span>
+          Increase your account's security</div>
         <div>
           Your account grants access to sensitive, confidential information.
 	  Therefore we strongly recommend to use two factor authentication, which adds
 	  an extra layer of protection to your SciPost account.
           <br><br>
-          <a href="{% url 'scipost:totp_create' %}">Set up two factor authentication here</a>.
+          <a href="{% url 'scipost:totp_create' %}">Set up two factor authentication</a>.
         </div>
       </div>
     {% endif %}
 
-    <div class="border border-danger p-2">
-      <h3 class="text-danger">Scientists, please help us out!</h3>
-      <p class="mb-1">If it is not listed on our
-	<a href="{% url 'sponsors:sponsors' %}" target="_blank">Sponsors page</a>,
-	please encourage your institution (through a librarian, director, ...) to join.
-	You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.</p>
-    </div>
     <hr>
 
     {% if "scipost_admin" in user_roles %}
