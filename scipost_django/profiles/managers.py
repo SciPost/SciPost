@@ -289,6 +289,34 @@ class ProfileQuerySet(QuerySet):
         )
 
 
+class ProfileEmailQuerySet(QuerySet):
+    def still_valid(self):
+        """
+        Return ProfileEmails which are still valid.
+        """
+        return self.filter(still_valid=True)
+
+    def primary(self):
+        """
+        Return ProfileEmails which are primary.
+        """
+        return self.filter(primary=True)
+
+    def verified(self):
+        """
+        Return ProfileEmails which are verified.
+        """
+        return self.filter(verified=True)
+
+    def recovery(self):
+        """
+        Return ProfileEmails which are recovery emails.
+        """
+        from profiles.models import ProfileEmail
+
+        return self.filter(kind=ProfileEmail.KIND_RECOVERY)
+
+
 class AffiliationQuerySet(QuerySet):
     def current(self):
         """

@@ -31,7 +31,12 @@ from .constants import (
     AFFILIATION_CATEGORIES,
     AFFILIATION_CATEGORY_UNSPECIFIED,
 )
-from .managers import ProfileManager, ProfileQuerySet, AffiliationQuerySet
+from .managers import (
+    ProfileEmailQuerySet,
+    ProfileManager,
+    ProfileQuerySet,
+    AffiliationQuerySet,
+)
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
@@ -271,9 +276,21 @@ class Profile(AnonymizableObjectMixin, models.Model):
 class ProfileEmail(models.Model):
     """Any email related to a Profile instance."""
 
+    KIND_COMMUNICATION = "communication"
+    KIND_RECOVERY = "recovery"
+
     profile = models.ForeignKey[Profile]("profiles.Profile", on_delete=models.CASCADE)
     email = models.EmailField()
+    kind = models.CharField(
+        max_length=32,
+        choices=[
+            (KIND_COMMUNICATION, "Communication"),
+            (KIND_RECOVERY, "Recovery"),
+        ],
+        default=KIND_COMMUNICATION,
+    )
     still_valid = models.BooleanField(default=True)
+    primary = models.BooleanField(default=False)
     verified = models.BooleanField(default=False)
     verification_token = models.CharField(max_length=128, null=True)
     token_expiration = models.DateTimeField(default=timezone.now)
@@ -284,7 +301,8 @@ class ProfileEmail(models.Model):
         null=True,
         related_name="profile_emails_added",
     )
-    primary = models.BooleanField(default=False)
+
+    objects = ProfileEmailQuerySet.as_manager()
 
     if TYPE_CHECKING:
         objects: models.Manager["ProfileEmail"]
@@ -306,6 +324,16 @@ class ProfileEmail(models.Model):
     @property
     def has_token_expired(self):
         return timezone.now() > self.token_expiration
+
+    @property
+    def has_institutional_domain(self):
+        # Dummy implementation
+        return False
+
+    @property
+    def has_personal_domain(self):
+        # Dummy implementation
+        return False
 
     def send_verification_email(self):
         if self.has_token_expired:
@@ -336,6 +364,14 @@ class ProfileEmail(models.Model):
         except (Contributor.DoesNotExist, AttributeError):
             # If the profile does not have a contributor or user, we do nothing
             pass
+
+    def set_recovery(self):
+        """
+        Sets this email as the recovery email for the Profile, unsetting others.
+        """
+        self.profile.emails.update(kind=ProfileEmail.KIND_COMMUNICATION)
+        self.kind = ProfileEmail.KIND_RECOVERY
+        self.save()
 
 
 def get_profiles(slug):

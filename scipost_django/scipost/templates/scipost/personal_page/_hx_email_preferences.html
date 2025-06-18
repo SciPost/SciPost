@@ -18,7 +18,17 @@
   <div class="col-12">
     <h3 class="mt-3">Email addresses associated to your Profile:</h3>
 
-    <a role="button"
+    {% if not contributor.profile.emails.recovery.exists %}
+      <p class="my-2 bg-warning bg-opacity-10 p-2">
+        There are no recovery email addresses associated with your profile. Please consider 
+        <a role="button" type="button" class="btn-link" hx-get="{% url 'profiles:_hx_add_profile_email' profile_id=contributor.profile.id %}" hx-target="next a#add-profile-email-btn" hx-swap="afterend">adding</a> 
+        (or marking an existing) non-institutional address as a recovery address 
+        to ensure you can recover your account if needed.
+      </p>
+    {% endif %}
+
+    <a id="add-profile-email-btn"
+       role="button"
        type="button"
        class="btn-link"
        hx-get="{% url 'profiles:_hx_add_profile_email' profile_id=contributor.profile.id %}"

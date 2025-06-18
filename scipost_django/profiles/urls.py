@@ -114,6 +114,11 @@ urlpatterns = [
                     name="_hx_profile_email_mark_primary",
                 ),
                 path(
+                    "mark_recovery",
+                    views._hx_profile_email_mark_recovery,
+                    name="_hx_profile_email_mark_recovery",
+                ),
+                path(
                     "toggle_valid",
                     views._hx_profile_email_toggle_valid,
                     name="_hx_profile_email_toggle_valid",

@@ -601,6 +601,71 @@ def _hx_profile_email_mark_primary(request, email_id):
     )
 
 
+def _hx_profile_email_mark_recovery(request, email_id):
+    """
+    Make this email the recovery one for this Profile.
+
+    If the email's owner is a registered Contributor, only they and users
+    with the `scipost.can_mark_profile_emails_recovery` permission can mark it as recovery.
+    """
+    profile_email = get_object_or_404(ProfileEmail, pk=email_id)
+
+    if not request.method == "PATCH":
+        raise BadRequest("Invalid request method")
+
+    is_mail_owner = request.user.contributor.profile == profile_email.profile
+    can_mark_recovery = request.user.has_perm(
+        "scipost.can_mark_profile_emails_recovery"
+    )
+
+    if not (is_mail_owner or can_mark_recovery):
+        return HTMXResponse(
+            "You do not have the required permissions to mark this email as a recovery address.",
+            tag="danger",
+        )
+
+    if not profile_email.still_valid:
+        messages.error(
+            request,
+            "Cannot mark an invalid email as a recovery address. Please mark it as valid first.",
+        )
+
+    if not profile_email.verified:
+        if is_mail_owner:
+            messages.error(
+                request,
+                "You cannot mark your unverified email as a recovery address. "
+                "Please verify it first.",
+            )
+        else:
+            messages.warning(
+                request,
+                "You have marked an unverified email as a recovery address. "
+                "This can lead to issues where the profile owner "
+                "may not be able to reset their password or access their account.",
+            )
+
+    if profile_email.has_institutional_domain:
+        messages.error(
+            request,
+            "Cannot mark an institutional email as a recovery address. "
+            "Please use a personal email instead.",
+        )
+
+    if (
+        profile_email.still_valid
+        and (profile_email.verified or not is_mail_owner)
+        and not profile_email.has_institutional_domain
+    ):
+        profile_email.set_recovery()
+
+    return TemplateResponse(
+        request,
+        "profiles/_hx_profile_emails_table.html",
+        {"profile": profile_email.profile},
+    )
+
+
 def _hx_profile_email_toggle_valid(request, email_id):
     """Toggle valid/deprecated status of ProfileEmail."""
 

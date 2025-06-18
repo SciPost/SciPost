@@ -52,6 +52,17 @@
       {% endif %}
     {% endif %}
 
+    {% if not contributor.profile.emails.recovery.exists %}
+    <div class="bg-warning bg-opacity-10 p-2 mb-3">
+      <div class="fs-4 mb-2"><span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span>
+          Add a recovery email address</div>
+      <p class="m-0">
+        There are no recovery email addresses associated with your profile. Please consider 
+        adding (or marking an existing) one via the "Email Preferences" tab.
+      </p>
+    </div>
+    {% endif %}
+
     {% if recommend_totp %}
       <div class="bg-info bg-opacity-25 p-2 mb-3">
         <div class="fs-4 mb-2"><span class="text-primary">{% include 'bi/exclamation-circle-fill.html' %}</span>

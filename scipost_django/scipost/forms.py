@@ -4,8 +4,13 @@ __license__ = "AGPL v3"
 
 import datetime
 import bleach
-from django.db.models import Q
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Coalesce
+from django.utils.encoding import force_bytes
 from django.utils.html import format_html
+from django.utils.http import urlsafe_base64_encode
 import pyotp
 import re
 
@@ -1167,11 +1172,11 @@ class SciPostPasswordResetForm(PasswordResetForm):
     def clean(self):
         super_clean = super().clean()
 
-        users = User.objects.filter(email__iexact=self.cleaned_data.get("email"))
+        users = self.get_users(self.cleaned_data.get("email"))
         if len(list(users)) == 0:
             self.add_error(
                 "email",
-                "There is no user associated with this email address.",
+                "There is no user associated with this recovery email address.",
             )
 
         return super_clean
@@ -1184,15 +1189,71 @@ class SciPostPasswordResetForm(PasswordResetForm):
             dbuser__email__iexact=email, status=NEWLY_REGISTERED
         )
 
-    def save(self, **kwargs):
+    def get_users(self, email: str):
+        """
+        Return users with the given email address as recovery email or primary email,
+        who are also active and have a usable password.
+        """
+        matched_active_users = (
+            User.objects.annotate(
+                recovery_email=Subquery(
+                    ProfileEmail.objects.filter(
+                        profile__contributor__dbuser=OuterRef("pk"),
+                        kind=ProfileEmail.KIND_RECOVERY,
+                    ).values("email")[:1]
+                ),
+                # If there is no recovery email, use the User's email (primary)
+                password_reset_email=Coalesce("recovery_email", "email"),
+            )
+            .filter(password_reset_email__iexact=email)
+            .filter(is_active=True)
+        )
+
+        return (u for u in matched_active_users if u.has_usable_password())
+
+    def save(
+        self,
+        domain_override=None,
+        use_https=False,
+        token_generator=default_token_generator,
+        request=None,
+        **kwargs,
+    ):
         """
         Process users as PasswordResetForm does if they are active.
         If newly registered, Inactive users get a new activation link.
         """
-
-        super().save(**kwargs)
-
         email = self.cleaned_data["email"]
+
+        # Copy of Django's default implementation
+        # because I'm not allowed to override the "to" address.
+        if not domain_override:
+            current_site = get_current_site(request)
+            site_name = current_site.name
+            domain = current_site.domain
+        else:
+            site_name = domain = domain_override
+
+        for user in self.get_users(email):
+            user_email = user.password_reset_email
+            context = {
+                "email": user_email,
+                "domain": domain,
+                "site_name": site_name,
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "user": user,
+                "token": token_generator.make_token(user),
+                "protocol": "https" if use_https else "http",
+            }
+            self.send_mail(
+                kwargs.get("subject_template_name"),
+                kwargs.get("email_template_name"),
+                context,
+                kwargs.get("from_email"),
+                user_email,
+                html_email_template_name=kwargs.get("html_email_template_name"),
+            )
+
         for contributor in self.get_newly_registered_contributors(email):
             contributor.generate_key()
             contributor.save()

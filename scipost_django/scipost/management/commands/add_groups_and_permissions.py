@@ -158,6 +158,11 @@ class Command(BaseCommand):
             name="Can mark emails of Profiles as primary",
             content_type=content_type,
         )
+        can_mark_profile_emails_recovery, created = Permission.objects.get_or_create(
+            codename="can_mark_profile_emails_recovery",
+            name="Can mark emails of Profiles as recovery addresses",
+            content_type=content_type,
+        )
         can_delete_profile_emails, created = Permission.objects.get_or_create(
             codename="can_delete_profile_emails",
             name="Can delete emails of Profiles",
@@ -622,6 +627,7 @@ class Command(BaseCommand):
                 can_verify_profile_emails,
                 can_validate_profile_emails,
                 can_mark_profile_emails_primary,
+                can_mark_profile_emails_recovery,
                 can_delete_profile_emails,
                 can_merge_profiles,
                 can_merge_contributors,
@@ -714,6 +720,7 @@ class Command(BaseCommand):
                 can_verify_profile_emails,
                 can_validate_profile_emails,
                 can_mark_profile_emails_primary,
+                can_mark_profile_emails_recovery,
                 can_delete_profile_emails,
                 can_merge_profiles,
                 can_merge_contributors,
