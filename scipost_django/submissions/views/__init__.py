@@ -3468,6 +3468,14 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
         open_for_reporting=False, open_for_commenting=False
     )
 
+    # Cancel outstanding refereeing invitations
+    for invitation in submission.referee_invitations.outstanding():
+        SubmissionUtils.load({"invitation": invitation})
+        if invitation.date_invited is not None:
+            SubmissionUtils.send_ref_cancellation_email()
+        invitation.cancelled = True
+        invitation.save()
+
     # Update Editorial Assignment statuses.
     EditorialAssignment.objects.filter(
         submission=submission, to=submission.editor_in_charge
