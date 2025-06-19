@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 import secrets
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 import uuid
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models import Q, Exists, OuterRef
@@ -37,6 +37,8 @@ from .managers import (
     ProfileQuerySet,
     AffiliationQuerySet,
 )
+
+from mails.models import MailAddressDomain
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
@@ -281,6 +283,13 @@ class ProfileEmail(models.Model):
 
     profile = models.ForeignKey[Profile]("profiles.Profile", on_delete=models.CASCADE)
     email = models.EmailField()
+    domain = models.ForeignKey["MailAddressDomain"](
+        "mails.MailAddressDomain",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="profile_emails",
+    )
     kind = models.CharField(
         max_length=32,
         choices=[
@@ -327,13 +336,26 @@ class ProfileEmail(models.Model):
 
     @property
     def has_institutional_domain(self):
-        # Dummy implementation
-        return False
+        return self.domain and self.domain.kind == MailAddressDomain.KIND_INSTITUTIONAL
 
     @property
     def has_personal_domain(self):
-        # Dummy implementation
-        return False
+        return self.domain and self.domain.kind == MailAddressDomain.KIND_PERSONAL
+
+    def _find_domain(self):
+        """
+        Return the MailAddressDomain matching this email's domain or None if not found.
+        """
+        domain_name = self.email.split("@")[-1].strip().lower()
+        return MailAddressDomain.objects.filter(domain=domain_name).first()
+
+    def save(self, *args, **kwargs):
+        """
+        Override to update the MailAddressDomain on save.
+        """
+        self.domain = self._find_domain()
+
+        super().save(*args, **kwargs)
 
     def send_verification_email(self):
         if self.has_token_expired:

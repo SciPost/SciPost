@@ -8,3 +8,8 @@ class SplitString(Func):
     function = "regexp_split_to_array"
     template = "%(function)s(%(expressions)s, '%(delimiter)s')"
     arg_joiner = ", "
+
+
+class GetElement(Func):
+    template = "(%(expressions)s)[%(index)s]"
+    function = ""

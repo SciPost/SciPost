@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 from django.core.management import call_command
 from django.contrib import admin
 
-from .models import MailLog, MailLogRelation
+from .models import MailAddressDomain, MailLog, MailLogRelation
 
 
 @admin.action(description="Render and send email")
@@ -32,3 +32,12 @@ class MailLogAdmin(admin.ModelAdmin):
     ]
     inlines = [MailLogRelationInline]
     actions = [send_email]
+
+
+@admin.register(MailAddressDomain)
+class MailAddressDomainAdmin(admin.ModelAdmin):
+    list_display = ["domain", "kind", "organization"]
+    list_filter = ["kind"]
+    search_fields = ["domain", "organization__name"]
+    ordering = ["domain"]
+    autocomplete_fields = ["organization"]

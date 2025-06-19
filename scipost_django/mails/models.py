@@ -9,6 +9,14 @@ from django.contrib.postgres.fields import ArrayField
 
 from .managers import MailLogQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+    from organizations.models import Organization
+    from profiles.models import ProfileEmail
+
+
 MAIL_NOT_RENDERED, MAIL_RENDERED = "not_rendered", "rendered"
 MAIL_SENT = "sent"
 MAIL_STATUSES = (
@@ -124,3 +132,34 @@ class MailLogRelation(models.Model):
         elif self.content_object:
             return self.content_object
         return None
+
+
+class MailAddressDomain(models.Model):
+    """
+    A model to represent the domain of an email address.
+    """
+
+    KIND_UNKNOWN = "unknown"
+    KIND_PERSONAL = "personal"
+    KIND_INSTITUTIONAL = "institutional"
+    KIND_CHOICES = (
+        (KIND_UNKNOWN, "Unknown"),
+        (KIND_PERSONAL, "Personal"),
+        (KIND_INSTITUTIONAL, "Institutional"),
+    )
+
+    domain = models.CharField(max_length=128, unique=True)
+    kind = models.CharField(max_length=16, choices=KIND_CHOICES, default=KIND_UNKNOWN)
+    organization = models.ForeignKey["Organization"](
+        "organizations.Organization", blank=True, null=True, on_delete=models.CASCADE
+    )
+    ror_id_matches = ArrayField(models.CharField(max_length=128), blank=True, null=True)
+
+    if TYPE_CHECKING:
+        profile_emails = RelatedManager["ProfileEmail"]
+
+    class Meta:
+        ordering = ["domain"]
+
+    def __str__(self):
+        return self.domain

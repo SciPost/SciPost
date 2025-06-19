@@ -12,6 +12,8 @@ from .models import Profile, ProfileEmail, ProfileNonDuplicates, Affiliation
 class ProfileEmailInline(admin.TabularInline):
     model = ProfileEmail
     autocomplete_fields = ["added_by"]
+    exclude = ["verification_token", "token_expiration"]
+    readonly_fields = ["domain"]
     extra = 0
 
 
@@ -31,8 +33,7 @@ class ProfileAdmin(admin.ModelAdmin):
     autocomplete_fields = ["topics"]
     readonly_fields = ["orcid_authenticated"]
 
-
-    # Set the orcid_authenticated field to false 
+    # Set the orcid_authenticated field to false
     # if the orcid_id has been changed by the user
     def save_model(self, request, obj, form, change):
         if change:
