@@ -306,19 +306,12 @@ class RegistrationForm(forms.Form):
             }
         )
 
-        # If *and only if* the user has been invited to referee,
-        # is it safe to search the referee invitations
-        # and assign to them the invited profile
+        # If *and only if* the user has been invited to register,
+        # is it safe to assign to them the invited profile
         if invitation_key := self.cleaned_data["invitation_key"]:
             profile = Profile.objects.filter(
-                referee_invitations__invitation_key=invitation_key
+                registrationinvitation__invitation_key=invitation_key
             ).first()
-
-            already_registered = (
-                Contributor.objects.filter(invitation_key=invitation_key).first()
-                is not None
-            )
-
             if profile is None:
                 raise forms.ValidationError(
                     "The invitation key is invalid. "
@@ -326,6 +319,10 @@ class RegistrationForm(forms.Form):
                     "contact techsupport@scipost.org if the issue persists."
                 )
 
+            already_registered = (
+                Contributor.objects.filter(invitation_key=invitation_key).first()
+                is not None
+            )
             if already_registered:
                 raise forms.ValidationError(
                     "The invitation key has already been used to register an account. "
