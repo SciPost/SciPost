@@ -16,20 +16,28 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-4 mb-md-2">
-      <div class="card bg-white">
-        <div class="card-body">
-          <h3>Notes:</h3>
-          <p class="text-danger"><em>Only professional academics (staff members, postdocs, PhD students) can register!</em></p>
-          <p>Required fields are marked with a *.</p>
-          <p>An ORCID id is not formally required but helps preventing identification ambiguities.
-            You can easily get one at  <a href="http://orcid.org">orcid.org</a>.</p>
-          <p>Registration and use of the portal means that you agree with our <a href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a> and with our <a href="{% url 'scipost:privacy_policy' %}">Privacy Policy</a>.</p>
+  <div class="row p-2">
+    <div class="col-md-3 order-md-2 mb-2 mb-md-0 position-relative">
+      <div class="d-flex flex-column gap-3 position-sticky top-0 py-md-3">
+        {% if not invitation %}
+          <p class="m-0 bg-warning bg-opacity-10 border border-warning p-2">
+            <span class="text-warning me-2">{% include "bi/exclamation-triangle-fill.html" %}</span>
+            Did you receive an invitation to referee? If so, please use the registration link provided in the invitation email to register.</p>
+        {% endif %}
+        <p class="m-0 bg-warning bg-opacity-10 p-2">
+          <span class="text-warning me-2">{% include "bi/exclamation-circle-fill.html" %}</span>
+          Only professional academics (staff members, postdocs, PhD students) can register!</p>
+        <p class="m-0 bg-info bg-opacity-25 p-2">
+          <span class="text-primary me-2">{% include "bi/exclamation-circle-fill.html" %}</span>
+          An ORCID id is not formally required but helps preventing identification ambiguities.
+          You can easily get one at  <a href="http://orcid.org">orcid.org</a>.</p>
+        <p class="m-0 bg-info bg-opacity-25 p-2">
+          <span class="text-primary me-2">{% include "bi/exclamation-circle-fill.html" %}</span>
+          Registration and use of the portal means that you agree with our <a href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a> and with our <a href="{% url 'scipost:privacy_policy' %}">Privacy Policy</a>.</p>
         </div>
-      </div>
     </div>
-    <div class="col-md-8 col-lg-7 ms-lg-auto">
+
+    <div class="col-12 order-md-1 col-md">
 
       <form action="{% url 'scipost:register' %}" method="post">
         {% csrf_token %}
