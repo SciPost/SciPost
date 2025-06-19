@@ -31,6 +31,7 @@ from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from dal import autocomplete
 
 from common.utils.text import split_strip
+from mails.models import MailAddressDomain
 from markup.constants import BLEACH_ALLOWED_ATTRIBUTES, BLEACH_ALLOWED_TAGS
 
 from .behaviors import orcid_validator
@@ -125,8 +126,18 @@ class RegistrationForm(forms.Form):
 
     required_css_class = "required-asterisk"
 
+    institutional_email = forms.EmailField(
+        label="Institutional Email address",
+        help_text="An academic email address, used to verify your credentials "
+        "and act as a primary communications channel. "
+        "It also can be used in place of your username for login.",
+    )
+    personal_email = forms.EmailField(
+        label="Personal (Recovery) Email address",
+        help_text="A personal email address to recover your account "
+        "in case you lose access to your institutional email address.",
+    )
     title = forms.ChoiceField(choices=TITLE_CHOICES, label="Title")
-    email = forms.EmailField(label="Email address")
     first_name = forms.CharField(label="First name", max_length=64)
     last_name = forms.CharField(label="Last name", max_length=64)
     first_name_original = forms.CharField(
@@ -221,7 +232,6 @@ class RegistrationForm(forms.Form):
         """
         Check that:
         * either an organization or an address are provided
-        * that any existing associated profile does not already have a Contributor
         """
         cleaned_data = super(RegistrationForm, self).clean()
         current_affiliation = cleaned_data.get("current_affiliation", None)
@@ -233,17 +243,51 @@ class RegistrationForm(forms.Form):
                 "fill in the institution name and address field"
             )
 
-        profile = Profile.objects.filter(
-            emails__email__iexact=self.cleaned_data["email"]
-        ).first()
-        try:
-            if profile and profile.contributor:
-                raise forms.ValidationError(
-                    "There is already a registered Contributor with your email address. "
-                    f"Please contact techsupport@{domain} to clarify this issue."
-                )
-        except Contributor.DoesNotExist:
-            pass
+    def _forbid_already_registered_email(self, field: str):
+        """
+        Check that the email field does not correspond to an already registered Contributor's email.
+        """
+        if ProfileEmail.objects.filter(
+            email__iexact=self.cleaned_data.get(field, ""),
+            profile__contributor__isnull=False,
+        ).exists():
+            error_message = format_html(
+                "This email address is already in use. "
+                "Have you already registered? <br/>"
+                "<a href='/password_reset/'>Reset your password</a> or "
+                "<a href='mailto:techsupport@scipost.org'>contact tech support</a>."
+            )
+            self.add_error(field, error_message)
+
+    def clean_institutional_email(self):
+        self._forbid_already_registered_email("institutional_email")
+
+        institutional_email = self.cleaned_data.get("institutional_email", "")
+        mail_domain = institutional_email.split("@")[-1]
+        if MailAddressDomain.objects.filter(
+            domain__iexact=mail_domain, kind=MailAddressDomain.KIND_PERSONAL
+        ).exists():
+            self.add_error(
+                "institutional_email",
+                "Please do not use a personal address for academic credential verification purposes.",
+            )
+
+        return institutional_email
+
+    def clean_personal_email(self):
+        self._forbid_already_registered_email("personal_email")
+
+        personal_email = self.cleaned_data.get("personal_email", "")
+        mail_domain = personal_email.split("@")[-1]
+        if MailAddressDomain.objects.filter(
+            domain__iexact=mail_domain, kind=MailAddressDomain.KIND_INSTITUTIONAL
+        ).exists():
+            self.add_error(
+                "personal_email",
+                "Please do not use an institutional address for recovery purposes.",
+            )
+
+        return personal_email
 
     def clean_password(self):
         password = self.cleaned_data.get("password", "")
@@ -251,7 +295,7 @@ class RegistrationForm(forms.Form):
             username=self.cleaned_data.get("username", ""),
             first_name=self.cleaned_data.get("first_name", ""),
             last_name=self.cleaned_data.get("last_name", ""),
-            email=self.cleaned_data.get("email", ""),
+            email=self.cleaned_data.get("institutional_email", ""),
         )
         try:
             validate_password(password, user)
@@ -278,11 +322,6 @@ class RegistrationForm(forms.Form):
             self.add_error("username", "This username is already in use")
         return username
 
-    def clean_email(self):
-        if User.objects.filter(email=self.cleaned_data["email"]).exists():
-            self.add_error("email", "This email address is already in use")
-        return self.cleaned_data.get("email", "")
-
     def clean_orcid_id(self):
         orcid_id = self.cleaned_data.get("orcid_id", "")
         if orcid_id and Profile.objects.filter(orcid_id=orcid_id).exists():
@@ -299,7 +338,7 @@ class RegistrationForm(forms.Form):
             **{
                 "first_name": self.cleaned_data["first_name"],
                 "last_name": self.cleaned_data["last_name"],
-                "email": self.cleaned_data["email"],
+                "email": self.cleaned_data["institutional_email"],
                 "username": self.cleaned_data["username"],
                 "password": self.cleaned_data["password"],
                 "is_active": False,
@@ -342,17 +381,18 @@ class RegistrationForm(forms.Form):
 
         profile.specialties.set(self.cleaned_data["specialties"])
 
-        # Try adding a ProfileEmail to this Profile
-        # If not created, it must already exist, move it and make it primary
-        # After all, user got the key to their email and verified it
-        profile_email, created = ProfileEmail.objects.get_or_create(
-            email=self.cleaned_data["email"],
-            defaults=dict(profile=profile, primary=True),
+        institutional_email = ProfileEmail.objects.create(
+            email=self.cleaned_data["institutional_email"],
+            profile=profile,
+            primary=True,
         )
-        if not created:
-            profile_email.profile = profile
-            profile_email.save()
-            profile_email.set_primary()
+
+        personal_email = ProfileEmail.objects.create(
+            email=self.cleaned_data["personal_email"],
+            profile=profile,
+            primary=False,
+            kind=ProfileEmail.KIND_RECOVERY,
+        )
 
         # Create an Affiliation for this Profile
         current_affiliation = self.cleaned_data.get("current_affiliation", None)

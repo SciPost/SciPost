@@ -591,7 +591,8 @@ def register(request):
 
         # Disable invitations related to the new Contributor
         RegistrationInvitation.objects.declined_or_without_response().filter(
-            email=form.cleaned_data["email"]
+            Q(email=form.cleaned_data["personal_email"])
+            | Q(email=form.cleaned_data["institutional_email"])
         ).update(status=STATUS_REGISTERED)
 
         context = {
