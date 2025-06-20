@@ -48,6 +48,25 @@ class RORAPIHandler:
         return response
 
     @staticmethod
+    def query_for_domain(domain: str) -> dict[str, Any]:
+        """
+        Query the ROR API for an organization with the given domain
+        and return the matching ROR IDs.
+        """
+        # URL-encode domain to make it safe for use in a URL
+        domain = quote(domain)
+
+        url = f"{RORAPIHandler.API_URL}?query.advanced=links.value:{domain}"
+
+        response = requests.get(url)
+        try:
+            data = response.json()
+        except requests.JSONDecodeError:
+            data = {}
+
+        return [ror_id for item in data.get("items", []) if (ror_id := item.get("id"))]
+
+    @staticmethod
     def organization_from_ror_id(ror_id: str) -> dict[str, Any]:
         """
         Returns a dictionary of Organization model fields as returned by the ROR API.

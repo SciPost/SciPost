@@ -17,6 +17,7 @@ from django.utils import timezone
 
 from anonymization.mixins import AnonymizableObjectMixin
 from mails.utils import DirectMailUtil
+from organizations.utils import RORAPIHandler
 from scipost.behaviors import orcid_validator
 from scipost.constants import TITLE_CHOICES, TITLE_DR
 from scipost.models import Contributor
@@ -336,18 +337,37 @@ class ProfileEmail(models.Model):
 
     @property
     def has_institutional_domain(self):
-        return self.domain and self.domain.kind == MailAddressDomain.KIND_INSTITUTIONAL
+        return (
+            self.domain is not None
+            and self.domain.kind == MailAddressDomain.KIND_INSTITUTIONAL
+        )
 
     @property
     def has_personal_domain(self):
-        return self.domain and self.domain.kind == MailAddressDomain.KIND_PERSONAL
+        return (
+            self.domain is not None
+            and self.domain.kind == MailAddressDomain.KIND_PERSONAL
+        )
 
     def _find_domain(self):
         """
         Return the MailAddressDomain matching this email's domain or None if not found.
         """
         domain_name = self.email.split("@")[-1].strip().lower()
-        return MailAddressDomain.objects.filter(domain=domain_name).first()
+
+        domain, created = MailAddressDomain.objects.get_or_create(domain=domain_name)
+        if created:
+            # Attempt to fetch from the ROR API if the domain was just created
+            try:
+                if found_ROR_ids := RORAPIHandler.query_for_domain(domain_name):
+                    domain.ror_id_matches = found_ROR_ids
+                    domain.kind = MailAddressDomain.KIND_INSTITUTIONAL
+                    domain.save()
+            except Exception:
+                # Whatever the error, there's no reason to fail here
+                pass
+
+        return domain
 
     def save(self, *args, **kwargs):
         """
