@@ -2,8 +2,8 @@
 <div class="referee-box">
   {% if invitation.accepted is None %}
     <h3>Your Referee Invitation is pending response</h3>
-    <p>
-      In view of your expertise and on behalf of the Editor-in-charge we would like to invite you to referee this Submission. Please accept or decline this invitation.
+    <p class="my-2">
+      In view of your expertise and on behalf of the Editor-in-charge we would like to invite you to referee this Submission.
       We would be extremely grateful for your contribution, and thank you in advance for your consideration.
     </p>
     <a href="{% url 'submissions:accept_or_decline_ref_invitations' invitation.id %}" class="card-link">Accept or decline here</a>
@@ -37,12 +37,6 @@
       <p>You have submitted your Report anonymously. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign (de-anonymize) this Report</a> (leads to confirmation page).</p>
     {% endif %}
 
-    {% if invitation.submission.editor_in_charge %}
-      <h4>Communications</h4>
-      <a href="{% url 'submissions:communication' invitation.submission.preprint.identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
-
-      {% include 'submissions/_communication_thread.html' with communication=communication %}
-    {% endif %}
   {% elif not invitation.accepted %}
     <h3>Your Referee Invitation</h3>
     <p>You have declined to contribute a Report. Nonetheless, we thank you very much for considering this refereeing invitation.</p>
@@ -50,5 +44,12 @@
     {% if invitation.refusal_reason == 'OTH' %}
       <p>{{ invitation.other_refusal_reason }}</p>
     {% endif %}
+  {% endif %}
+
+  {% if invitation.submission.editor_in_charge %}
+    <h4 class="mt-3 mb-2">Communications</h4>
+    <a href="{% url 'submissions:communication' invitation.submission.preprint.identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
+
+    {% include 'submissions/_communication_thread.html' with communication=communication %}
   {% endif %}
 </div>
