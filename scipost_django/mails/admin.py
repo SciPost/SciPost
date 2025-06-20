@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 from django.core.management import call_command
 from django.contrib import admin
+from django.db.models import Count
 
 from .models import MailAddressDomain, MailLog, MailLogRelation
 
@@ -36,8 +37,15 @@ class MailLogAdmin(admin.ModelAdmin):
 
 @admin.register(MailAddressDomain)
 class MailAddressDomainAdmin(admin.ModelAdmin):
-    list_display = ["domain", "kind", "organization"]
+    list_display = ["domain", "kind", "organization", "email_count"]
     list_filter = ["kind"]
     search_fields = ["domain", "organization__name"]
     ordering = ["domain"]
     autocomplete_fields = ["organization"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.annotate(email_count=Count("profile_emails"))
+
+    def email_count(self, obj):
+        return obj.email_count
