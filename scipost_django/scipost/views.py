@@ -659,34 +659,40 @@ def activation(request, contributor_id, key):
     Once clicked, the account is activated.
     """
     contributor = get_object_or_404(Contributor, id=contributor_id, activation_key=key)
-    if not contributor.user.is_active:
-        if timezone.now() > contributor.key_expires:
-            return redirect(
-                reverse(
-                    "scipost:request_new_activation_link",
-                    kwargs={"contributor_id": contributor_id, "key": key},
+    if contributor.user.is_active:
+        messages.success(
+            request,
+            (
+                "Your email has already been confirmed."
+                + (
+                    "</br>Please wait for vetting of your registration."
+                    " We shall strive to send you an update by email within 24 hours."
+                    if contributor.status != NORMAL_CONTRIBUTOR
+                    else ""
                 )
-            )
-        contributor.user.is_active = True
-        contributor.user.save()
-        context = {
-            "ack_header": "Many thanks for confirming your email address.",
-            "ack_message": (
-                "Your SciPost account will soon be vetted by "
-                "an administrator, after which you will be able to log in. "
-                "You will soon receive an email confirmation from us!"
             ),
-        }
-        return render(request, "scipost/acknowledgement.html", context)
-    messages.success(
-        request,
-        (
-            "<h3>Your email has already been confirmed.</h3>"
-            "Please wait for vetting of your registration."
-            " We shall strive to send you an update by email within 24 hours."
-        ),
-    )
-    return redirect(reverse("scipost:index"))
+        )
+        return redirect(reverse("scipost:index"))
+
+    if timezone.now() > contributor.key_expires:
+        return redirect(
+            reverse(
+                "scipost:request_new_activation_link",
+                kwargs={"contributor_id": contributor_id, "key": key},
+            )
+        )
+    contributor.user.is_active = True
+    contributor.user.save()
+    context = {"ack_header": "Many thanks for confirming your email address."}
+    if contributor.status == NORMAL_CONTRIBUTOR:
+        context["ack_message"] = "You can now login to SciPost and start contributing."
+    else:
+        context["ack_message"] = (
+            "Your SciPost account will soon be vetted by "
+            "an administrator, after which you will be able to log in. "
+            "You will soon receive an email confirmation from us!"
+        )
+    return render(request, "scipost/acknowledgement.html", context)
 
 
 def request_new_activation_link(request, contributor_id, key):

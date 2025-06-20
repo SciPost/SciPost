@@ -417,7 +417,6 @@ class RegistrationForm(forms.Form):
             contributor.save()
             group = Group.objects.get(name="Registered Contributors")
             contributor.dbuser.groups.add(group)
-            contributor.dbuser.is_active = True
             contributor.dbuser.save()
 
         return contributor
