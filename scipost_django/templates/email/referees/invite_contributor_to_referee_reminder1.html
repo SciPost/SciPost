@@ -21,9 +21,10 @@
 </p>
 <p>
   Please respond to this invitation: <a href="https://{{ domain }}{% url 'submissions:accept_or_decline_ref_invitations' %}">accept</a> (login required) or <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline</a>.
+  If you accept, your report can be submitted by simply clicking on the "Contribute a Report" link on <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">the Submission Page</a>{% if invitation.submission.reporting_deadline %} before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'d-m-Y' }}){% endif %}; your report will be automatically recognized as an invited report.
 </p>
 <p>
-  If you accept, your report can be submitted by simply clicking on the "Contribute a Report" link on <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">the Submission Page</a>{% if invitation.submission.reporting_deadline %} before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'d-m-Y' }}){% endif %}; your report will be automatically recognized as an invited report.
+  You can <a href="https://{{ domain }}{% url 'submissions:communication' invitation.submission.preprint.identifier_w_vn_nr 'RtoE' %}">contact the EIC</a> at any time (even before acceptance) if you have any questions or concerns regarding this invitation. You can also find these communication tools in the <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">Submission Page</a>.
 </p>
 <p>
   You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:editorial_procedure' %}">editorial procedure</a>, <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
