@@ -412,7 +412,8 @@ class RegistrationForm(forms.Form):
         contributor.save()
 
         # Automatically vet the Contributor if they have an invitation key
-        if contributor.invitation_key:
+        # or if their institutional email is from a known domain.
+        if contributor.invitation_key or institutional_email.has_institutional_domain:
             contributor.status = NORMAL_CONTRIBUTOR
             contributor.save()
             group = Group.objects.get(name="Registered Contributors")
