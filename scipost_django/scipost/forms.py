@@ -6,7 +6,7 @@ import datetime
 import bleach
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
-from django.db.models import OuterRef, Subquery
+from django.db.models import Q, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.utils.encoding import force_bytes
 from django.utils.html import format_html
@@ -692,7 +692,9 @@ class UserAuthInfoForm(forms.Form):
         return {
             "username": username,
             "has_password": True,
-            "has_totp": TOTPDevice.objects.filter(user__username=username).exists(),
+            "has_totp": TOTPDevice.objects.filter(
+                Q(user__username=username) | Q(user__email=username)
+            ).exists(),
         }
 
 
