@@ -74,7 +74,7 @@
       <p class="fs-5 mb-2 text-uppercase">Plans</p>
       <ul class="mb-0 list-unstyled d-flex flex-column gap-3 ps-2">
         <li>
-          <span id="inHouse">In-house Journals</span>
+          <span class="fs-6" id="inHouse">In-house Journals</span>
           <ul>
             <li>upscale existing <a class="text-warning" href="{% url 'colleges:colleges' %}">Colleges</a></li>
             <li>expand the portfolio of Journals in existing fields</li>
@@ -84,7 +84,7 @@
         </li>
 
         <li>
-          <span id="hosted">Hosted Journals</span>
+          <span class="fs-6" id="hosted">Hosted Journals</span>
           <ul>
             <li>support communities wishing to launch a specialized hosted journal using our editorial and financial infrastructure</li>
             <li>support communities wishing to shift their existing venue to Diamond publishing using our infrastructure.</li>
@@ -92,7 +92,7 @@
         </li>
 
         <li>
-          <span id="affiliate">Affiliate Journals</span>
+          <span class="fs-6" id="affiliate">Affiliate Journals</span>
           <ul>
             <li>support independent journals who wish to use our PubFracs business model and use our financial information and reporting facilities</li>
           </ul>
@@ -136,15 +136,15 @@
       <tr>
         <td><a href="{% url 'scipost:journal_detail' doi_label='SciPostCommem' %}/about">SciPost Commemorations</a></td>
         <td class="d-flex gap-1">
-          <span class="badge bg-success">🚀&nbsp;&nbsp;Launched</span>
-          <span class="badge bg-warning">📈&nbsp;&nbsp;Upscaling</span>
+          <span class="badge bg-success">Launched</span>
+          <span class="badge bg-warning">Upscaling</span>
         </td>
         <td></td>
       </tr>
       <tr>
         <td><a href="{% url 'scipost:journal_detail' doi_label='SciPostSelect' %}/about">SciPost Selections</a></td>
         <td>
-          <span class="badge bg-warning">📅&nbsp;&nbsp;Scheduled to launch</span></br>
+          <span class="badge bg-warning">Scheduled to launch</span></br>
           <small>once operations in Chemistry and Astro are upscaled</small>
         </td>
         <td>&euro;50k to launch +</br>&euro;30k per year</td>
@@ -155,32 +155,32 @@
       </tr>
       <tr>
         <td>eliminate editorial delays (edadmin)</td>
-        <td><span class="badge bg-warning">⏳&nbsp;&nbsp;Ongoing</span></td>
+        <td><span class="badge bg-warning">Ongoing</span></td>
         <td></td>
       </tr>
       <tr>
         <td>expand <a href="{% url 'colleges:college_detail' college="physics" %}">Physics College</a>: 
           additional Fellows in Experimental specialties</td>
-        <td><span class="badge bg-warning">⏳&nbsp;&nbsp;Ongoing</span></td>
+        <td><span class="badge bg-warning">Ongoing</span></td>
         <td></td>
       </tr>
       <tr>
         <td>expand <a href="{% url 'colleges:college_detail' college="physics" %}">Physics College</a>: 
           additional Fellows in Computational specialties</td>
-        <td><span class="badge bg-warning">⏳&nbsp;&nbsp;Ongoing</span></td>
+        <td><span class="badge bg-warning">Ongoing</span></td>
         <td></td>
       </tr>
       <tr>
         <td><a href="{% url 'scipost:journal_detail' doi_label='SciPostPhysRev' %}/about">SciPost Physics Reviews</a></td>
         <td class="d-flex gap-1">
-          <span class="badge bg-success">🚀&nbsp;&nbsp;Launched</span>
-          <span class="badge bg-warning">📈&nbsp;&nbsp;Upscaling</span>
+          <span class="badge bg-success">Launched</span>
+          <span class="badge bg-warning">Upscaling</span>
         </td>
         <td></td>
       </tr>
       <tr>
         <td><a href="{% static 'scipost/roadmap/SciPost_Bundled_Datasets.pdf' %}">SciPost Physics Datasets</a></td>
-        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td><span class="badge bg-danger">Insufficient resources</span></td>
         <td>&euro;50k to launch +</br>&euro;500 per publication</td>
       </tr>
 
@@ -189,7 +189,7 @@
       </tr>
       <tr>
         <td>build the <a href="{% url 'colleges:college_detail' college="chemistry" %}">Chemistry College</a></td>
-        <td><span class="badge bg-warning">🏁&nbsp;&nbsp;Initiated</span></td>
+        <td><span class="badge bg-warning">Initiated</span></td>
         <td></td>
       </tr>
       <tr>
@@ -197,7 +197,7 @@
           establish the <a href="{% url 'journals:journals_in_acad_spec' acad_field="chemistry" %}">Chemistry Journals</a> 
           as recognized publishing venues
         </td>
-        <td><span class="badge bg-warning">🏁&nbsp;&nbsp;Initiated</span></td>
+        <td><span class="badge bg-warning">Initiated</span></td>
         <td>&euro;500 per publication</td>
       </tr>
 
@@ -206,7 +206,7 @@
       </tr>
       <tr>
         <td>build the <a href="{% url 'colleges:college_detail' college="astronomy" %}">Astronomy College</a></td>
-        <td><span class="badge bg-warning">🏁&nbsp;&nbsp;Initiated</span></td>
+        <td><span class="badge bg-warning">Initiated</span></td>
         <td></td>
       </tr>
       <tr>
@@ -214,7 +214,7 @@
           establish the <a href="{% url 'journals:journals_in_acad_spec' acad_field="astronomy" %}">Astronomy Journals</a> 
           as recognized publishing venues
         </td>
-        <td><span class="badge bg-warning">🏁&nbsp;&nbsp;Initiated</span></td>
+        <td><span class="badge bg-warning">Initiated</span></td>
         <td>&euro;500 per publication</td>
       </tr>
       
@@ -223,7 +223,7 @@
       </tr>
       <tr>
         <td>initiate</td>
-        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td><span class="badge bg-danger">Insufficient resources</span></td>
         <td>&euro;100k</td>
       </tr>
 
@@ -232,7 +232,7 @@
       </tr>
       <tr>
         <td>initiate</td>
-        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td><span class="badge bg-danger">Insufficient resources</span></td>
         <td>&euro;100k</td>
       </tr>
 
@@ -241,7 +241,7 @@
       </tr>
       <tr>
         <td>initiate</td>
-        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td><span class="badge bg-danger">Insufficient resources</span></td>
         <td>&euro;100k</td>
       </tr>
 
@@ -250,7 +250,7 @@
       </tr>
       <tr>
         <td>initiate</td>
-        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td><span class="badge bg-danger">Insufficient resources</span></td>
         <td>&euro;100k</td>
       </tr>
 
@@ -259,7 +259,7 @@
       </tr>
       <tr>
         <td>initiate</td>
-        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td><span class="badge bg-danger">Insufficient resources</span></td>
         <td>&euro;100k</td>
       </tr>
 
@@ -278,7 +278,7 @@
     </div>
 
     <p class="mt-4">If you are not yet familiar with our business model, see our separate <a class="text-warning" href="{% url 'scipost:about' %}#aboutPubFracs">summary</a> or <a class="text-warning" href="{% url 'finances:business_model' %}">detailed explanations</a>.</p>
-    <p>We believe this model to be the best antidote to profitmaking and financial obfuscation in publishing.</p>
+    <p>We believe this model to be the best antidote to APCs and financial obfuscation in publishing.</p>
   
     <div class="mb-4 border-start border-4 border-primary p-2">
       <p class="fs-5 mb-2 text-uppercase">Plans</p>
