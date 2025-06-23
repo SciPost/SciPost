@@ -1,3 +1,5 @@
+{% load common_extras %}
+
 <table class="table table-sm table-borderless">
   <thead>
     <tr>
@@ -11,9 +13,18 @@
   </thead>
 
   <tbody>
+
     {% for profile_mail in profile.emails.all %}
-      {% include "profiles/_hx_profile_emails_table_row.html" %}
+      {% equal profile_mail.profile request.user.contributor.profile as is_mail_owner %}
+
+      {% if is_mail_owner or perms.scipost.can_mark_profile_emails_recovery or profile_mail.primary or profile_mail.kind == 'communication' %}
+        <!-- Fellows should not see emails that are marked as recovery, unless they are also primary communication emails
+             Equivalently, emails are listed if you are the owner, EdAdmin, the email is primary, or the email is a communication email -->
+        {% include "profiles/_hx_profile_emails_table_row.html" %}
+      {% endif %}
+
     {% endfor %}
+
   </tbody>
 
 </table>
