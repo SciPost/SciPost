@@ -194,11 +194,6 @@ urlpatterns = [
         name="roadmap",
     ),
     path(
-        "D3",
-        TemplateView.as_view(template_name="scipost/D3.html"),
-        name="D3",
-    ),
-    path(
         "foundation",
         TemplateView.as_view(template_name="scipost/foundation.html"),
         name="foundation",
