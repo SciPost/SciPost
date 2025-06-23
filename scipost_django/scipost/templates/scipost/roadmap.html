@@ -11,324 +11,297 @@
 
 {% block content %}
 
-  <div class="row">
-    <div class="col-12">
+<h1 class="highlight">Roadmap</h1>
 
-      <h1 class="highlight">Roadmap</h1>
-
-      <p>
-	At SciPost, we practice complete openness and transparency for all our operations.
-	This means that you can easily peruse all our <a href="{% url 'journals:publications' %}">publications</a>,
-	examine the list of <a href="{% url 'organizations:organizations' %}">benefitting organizations</a>,
-	see which ones are <a href="{% url 'finances:subsidies' %}">supporting us</a>,
-	and what that means for our <a href="{% url 'finances:finances' %}">finances</a>
-	and  <a href="{% url 'finances:finances' %}#current">sustainability</a>.
-      </p>
-
-      <p>
-	This however only highlights our <em><strong>past</strong></em> activities.
-	What about our <em><strong>future</strong></em> ones?
-      </p>
-
-      <ul>
-	<li>
-	  <a href="#3Pillars">The 3 Pillars Plan</a>
-	  <ul>
-	    <li><a href="#inHouse">In-house Journals</a></li>
-	    <li><a href="#hosted">Hosted Journals</a></li>
-	    <li><a href="#affiliate">Affiliate Journals</a></li>
-	  </ul>
-	</li>
-	<li>
-	  <a href="#sustainability">The Struggle for Sustainability</a>
-	</li>
-      </ul>
-
-
-      <h2 class="highlight mt-5" id="3Pillars">The 3 Pillars Plan</h2>
-
-      <div class="p-4">
-
-	<div class="row">
-	  <div class="col-md-6">
-	    <p><strong>Objective:</strong></p>
-	    <div class="mx-auto border border-primary p-2" style="width: 80%;">
-	      <em><strong>
-		Transform SciPost into a large-scale, multi-field, multi-level <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a> publishing infrastructure built on three pillars:
-	      </strong></em>
-	      <ul class="mx-auto m-0">
-		<li><em><strong>In-house Journals</strong></em></li>
-		<li><em><strong>Hosted Journals</strong></em></li>
-		<li><em><strong>Affiliate Journals</strong></em></li>
-	      </ul>
-	    </div>
-
-	    <p class="mt-4">If you are not yet familiar with our three pillars, see our <a href="{% url 'scipost:about' %}#aboutThreePillars">summary description</a> or our <a href="{% static 'scipost/roadmap/SciPost_3Pillars.pdf' %}">short writeup</a>.</p>
-	    <p>Our plans for each of the 3 Pillars are summarized below.</p>
-
-	  </div>
-
-	  <div class="col-md-6">
-	    <img style="width: 80%; margin: auto; display: block; max-width: 300px;" src="{% static 'scipost/scipost_diamond_journal_pillars.jpg' %}"></img>
-	  </div>
-
-	</div>
-
-
-	<div class="card mt-4 mb-0" id="inHouse">
-	  <div class="card-header">
-	    <strong>In-house Journals</strong>
-	  </div>
-	  <div class="card-body">
-
-	    <strong>Overall strategy</strong>
-	    <ul>
-	      <li>upscale existing <a href="{% url 'colleges:colleges' %}">Colleges</a></li>
-	      <li>expand the portfolio of Journals in existing fields</li>
-	      <li>establish new Colleges and launch field-specific in-house journals in further fields</li>
-	      <li>establish <a href="{% url 'scipost:journal_detail' doi_label='SciPostSelect' %}/about">SciPost Selections</a> as an alternative to the "glossies"</li>
-	    </ul>
-
-	    <p class="ms-4">{% include 'bi/arrow-return-right.html' %}<em>Interested in helping or suggesting somebody who can? Email us at <a href="mailto:edadmin@{{ request.get_host }}">edadmin@{{ request.get_host }}</a></em>.</p>
-
-	    <div clas="m-2">
-	      <strong>Ongoing work</strong>
-	      <table class="table m-2">
-		<thead>
-		  <tr>
-		    <th>Field</th>
-		    <th><em>Priority</em></th>
-		    <th>
-		      <em>Status</em>
-		      <br>
-		      <span class="text-warning">[estimate of resources required]</span>
-		    </th>
-		  </tr>
-		</thead>
-		<tbody>
-		  <tr>
-		    <td rowspan="3"><strong>All</strong></td>
-		    <td>&nbsp;</td>
-		    <td>&nbsp;</td>
-		  </tr>
-		  <tr>
-		    <td><a href="{% url 'scipost:journal_detail' doi_label='SciPostCommem' %}/about">SciPost Commemorations</a></td>
-		    <td>launched, upscaling</td>
-		  </tr>
-		  <tr>
-		    <td><a href="{% url 'scipost:journal_detail' doi_label='SciPostSelect' %}/about">SciPost Selections</a></td>
-		    <td>
-		      launch once operations in Chemistry and Astro are upscaled
-		      <br>
-		      <span class="text-warning">[&euro;50k setup, &euro;30k per year]</span>
-		    </td>
-		  </tr>
-
-		  <tr>
-		    <td rowspan="6"><strong>Physics</strong></td>
-		    <td>&nbsp;</td>
-		    <td>&nbsp;</td>
-		  </tr>
-		  <tr>
-		    <td>eliminate editorial delays (edadmin)</td>
-		    <td>ongoing</td>
-		  </tr>
-		  <tr>
-		    <td>expand <a href="{% url 'colleges:college_detail' college="physics" %}">Physics College</a>: additional Fellows in Experimental specialties</td>
-		    <td>ongoing</td>
-		  </tr>
-		  <tr>
-		    <td>expand <a href="{% url 'colleges:college_detail' college="physics" %}">Physics College</a>: additional Fellows in Computational specialties</td>
-		    <td>ongoing</td>
-		  </tr>
-		  <tr>
-		    <td><a href="{% url 'scipost:journal_detail' doi_label='SciPostPhysRev' %}/about">SciPost Physics Reviews</a></td>
-		    <td>launched, upscaling</td>
-		  </tr>
-		  <tr>
-		    <td><a href="{% static 'scipost/roadmap/SciPost_Bundled_Datasets.pdf' %}">SciPost Physics Datasets</a></td>
-		    <td>
-		      additional resources needed
-		      <br>
-		      <span class="text-warning">[&euro;50k launch, &euro;500 per publication]</span>
-		    </td>
-		  </tr>
-
-
-		  <tr>
-		    <td rowspan="3"><strong>Chemistry</strong></td>
-		    <td>&nbsp;</td>
-		    <td>&nbsp;</td>
-		  </tr>
-		  <tr>
-		    <td>build the <a href="{% url 'colleges:college_detail' college="chemistry" %}">Chemistry College</a></td>
-		    <td>initiated</td>
-		  </tr>
-		  <tr>
-		    <td>establish the <a href="{% url 'journals:journals_in_acad_spec' acad_field="chemistry" %}">Chemistry Journals</a> as recognized publishing venues</td>
-		    <td>
-		      initiated
-		      <br>
-		      <span class="text-warning">[&euro;500 per publication]</span>
-		    </td>
-		  </tr>
-
-		  <tr>
-		    <td rowspan="3"><strong>Astronomy</strong></td>
-		    <td>&nbsp;</td>
-		    <td>&nbsp;</td>
-		  </tr>
-		  <tr>
-		    <td>build the <a href="{% url 'colleges:college_detail' college="astronomy" %}">Astronomy College</a></td>
-		    <td>initiated</td>
-		  </tr>
-		  <tr>
-		    <td>establish the <a href="{% url 'journals:journals_in_acad_spec' acad_field="astronomy" %}">Astronomy Journals</a> as recognized publishing venues</td>
-		    <td>
-		      initiated
-		      <br>
-		      <span class="text-warning">[&euro;500 per publication]</span>
-		    </td>
-		  </tr>
-		  <tr>
-		    <td rowspan="2"><strong>Computer Science</strong></td>
-		    <td>&nbsp;</td>
-		    <td>&nbsp;</td>
-		  </tr>
-		  <tr>
-		    <td>initiate</td>
-		    <td>
-		      additional resources needed
-		      <br>
-		      <span class="text-warning">[&euro; 100k]</span>
-		    </td>
-		  </tr>
-
-		  <tr>
-		    <td rowspan="2"><strong>Mathematics</strong></td>
-		    <td>&nbsp;</td>
-		    <td>&nbsp;</td>
-		  </tr>
-		  <tr>
-		    <td>initiate</td>
-		    <td>
-		      additional resources needed
-		      <br>
-		      <span class="text-warning">[&euro; 100k]</span>
-		    </td>
-		  </tr>
-
-		  <tr>
-		    <td rowspan="2"><strong>Biology</strong></td>
-		    <td>&nbsp;</td>
-		    <td>&nbsp;</td>
-		  </tr>
-		  <tr>
-		    <td>initiate</td>
-		    <td>
-		      additional resources needed
-		      <br>
-		      <span class="text-warning">[&euro; 100k]</span>
-		    </td>
-		  </tr>
-
-		  <tr>
-		    <td rowspan="2"><strong>Earth and Environmental Sciences</strong></td>
-		    <td>&nbsp;</td>
-		    <td>&nbsp;</td>
-		  </tr>
-		  <tr>
-		    <td>initiate</td>
-		    <td>
-		      additional resources needed
-		      <br>
-		      <span class="text-warning">[&euro; 100k]</span>
-		    </td>
-		  </tr>
-
-		  <tr>
-		    <td rowspan="2"><strong>[other fields of academia]</strong></td>
-		    <td>&nbsp;</td>
-		    <td>&nbsp;</td>
-		  </tr>
-		  <tr>
-		    <td>initiate</td>
-		    <td>
-		      additional resources needed
-		      <br>
-		      <span class="text-warning">[&euro; 100k]</span>
-		    </td>
-		  </tr>
-
-		</tbody>
-	      </table>
-	    </div>
-	  </div>
-	</div>
-
-	<div class="card mt-4 mb-0" id="hosted">
-	  <div class="card-header">
-	    <strong>Hosted Journals</strong>
-	  </div>
-	  <div class="card-body">
-	    <ul>
-	      <li>support communities wishing to launch a specialized hosted journal using our editorial and financial infrastructure</li>
-	      <li>support communities wishing to shift their existing venue to Diamond publishing using our infrastructure.</li>
-	    </ul>
-	    <p class="ms-4">{% include 'bi/arrow-return-right.html' %}<em>Interested in launching or flipping? Email us at <a href="mailto:edadmin@{{ request.get_host }}">edadmin@{{ request.get_host }}</a></em>.</p>
-	  </div>
-	</div>
-
-
-	<div class="card mt-4 mb-0" id="affiliate">
-	  <div class="card-header">
-	    <strong>Affiliate Journals</strong>
-	  </div>
-	  <div class="card-body">
-	    <ul>
-	      <li>support independent journals who wish to use our PubFracs business model and use our financial information and reporting facilities</li>
-	    </ul>
-	    <p class="ms-4">{% include 'bi/arrow-return-right.html' %}<em>Interested in your journal (Diamond-style only!) becoming one of our affiliates? Email us at <a href="mailto:edadmin@{{ request.get_host }}">edadmin@{{ request.get_host }}</a></em>.</p>
-	  </div>
-	</div>
-
-      </div>
-
-
-      <h2 class="highlight mt-5" id="sustainability">The Struggle for Sustainability</h2>
-
-      <div class="p-2">
-
-	<div class="row">
-	  <div class="col-lg-6">
-	    <p><strong>Objective:</strong></p>
-	    <p class="text-center mx-auto border border-primary p-2" style="width: 80%;">
-	      <em><strong>
-		Ensure our sustainability, by
-		promoting understanding and use of our <a href="{% url 'finances:business_model' %}">PubFracs business model</a>
-	      </strong></em>
-	    </p>
-	    <p class="mt-4">If you are not yet familiar with our business model, see our separate <a href="{% url 'scipost:about' %}#aboutPubFracs">summary</a> or <a href="{% url 'finances:business_model' %}">detailed explanations</a>.</p>
-	    <p>We believe this model to be the best antidote to profitmaking and financial obfuscation in publishing</p>
-	    <p>Our plans are to</p>
-	    <ul>
-	      <li>liaise with academic organizations to ensure familiarity with our business model and increase its levels of adoption</li>
-	      <li>set up long-term agreements to ensure sustainability of our operations</li>
-	      <li>advocate for the installation of proper sustainable funding mechanisms for Diamond</li>
-	      <li>support the sustainability of other Diamond initiatives through our Affiliate Journals network</li>
-	    </ul>
-	    <p class="ms-4">{% include 'bi/arrow-return-right.html' %}<em>Are you an institutional Open Access officer, Library representative or similar, and are you interested in helping us set up a sustainably funding structure for Diamond? Get in touch with us at <a href="mailto:sponsors@{{ request.get_host }}">sponsors@{{ request.get_host }}</a></em>.</p>
-	  </div>
-	  <div class="col-lg-6">
-	    <img style="width: 90%; margin: auto; display: block; max-width: 400px;" src="{% static 'scipost/pubfracs_model_calculation.jpg' %}"></img>
-	  </div>
-	</div>
-
-      </div>
-
-    </div>
+<div class="row">
+  <div class="col">
+    <p> 
+      At SciPost, we practice complete openness and transparency for all our operations.
+      This means that you can easily peruse all our <a href="{% url 'journals:publications' %}">publications</a>,
+      examine the list of <a href="{% url 'organizations:organizations' %}">benefitting organizations</a>,
+      see which ones are <a href="{% url 'finances:subsidies' %}">supporting us</a>,
+      and what that means for our <a href="{% url 'finances:finances' %}">finances</a>
+      and  <a href="{% url 'finances:finances' %}#current">sustainability</a>.
+    </p>
+    <p class="fs-6">
+      This however only highlights our <span class="fw-bold">past</span> activities.
+      What about our <span class="fw-bold">future</span> ones?
+    </p>
   </div>
 
+  <nav class="col-12 col-sm-auto">
+    <div class="card">
+      <p class="fs-6 mb-1 card-header">Table of contents</p>
+      <div class="card-body">
+        <ul class=" mb-0">
+          <li>
+            <a href="#3Pillars">The 3 Pillars Plan</a>
+            <ul>
+              <li><a href="#inHouse">In-house Journals</a></li>
+              <li><a href="#hosted">Hosted Journals</a></li>
+              <li><a href="#affiliate">Affiliate Journals</a></li>
+            </ul>
+          </li>
+          <li><a href="#sustainability">The Struggle for Sustainability</a></li>
+        </ul>
+      </div>
+    </nav>
+    
+  </div>
+</div>
 
+
+<section class="row text-white p-4" style="background: #002b49; border-top: 8px solid #f6a11a;">
+  <div class="col-12 col-md d-flex flex-column">
+
+    <h2 class="mb-4" id="3Pillars">The 3 Pillars Plan</h2>
+    <div class="bg-primary bg-opacity-25 rounded border-start border-4 border-primary p-2">
+      <p class="fs-5 mb-2 text-uppercase">Objective</p>
+      <p class="mb-0">Transform SciPost into a large-scale, multi-field, multi-level <a class="text-warning" href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a> publishing infrastructure built on three pillars:
+      <ul class="mb-0 mt-1">
+        <li><a class="text-white" href="#inHouse">In-house Journals</a></li>
+        <li><a class="text-white" href="#hosted">Hosted Journals</a></li>
+        <li><a class="text-white" href="#affiliate">Affiliate Journals</a></li>
+      </ul>
+    </div>
+
+    <p class="mt-4">If you are not yet familiar with our three pillars, 
+      see our <a class="text-warning" href="{% url 'scipost:about' %}#aboutThreePillars">summary description</a> 
+      or our <a class="text-warning" href="{% static 'scipost/roadmap/SciPost_3Pillars.pdf' %}">short writeup</a>.</p>
+    <p>Our plans for each of the 3 Pillars are summarized below.</p>
+  
+    <div class="mb-4 border-start border-4 border-primary p-2">
+      <p class="fs-5 mb-2 text-uppercase">Plans</p>
+      <ul class="mb-0 list-unstyled d-flex flex-column gap-3 ps-2">
+        <li>
+          <span id="inHouse">In-house Journals</span>
+          <ul>
+            <li>upscale existing <a class="text-warning" href="{% url 'colleges:colleges' %}">Colleges</a></li>
+            <li>expand the portfolio of Journals in existing fields</li>
+            <li>establish new Colleges and launch field-specific in-house journals in further fields</li>
+            <li>establish <a class="text-warning" href="{% url 'scipost:journal_detail' doi_label='SciPostSelect' %}/about">SciPost Selections</a> as an alternative to the "glossies"</li>
+          </ul>
+        </li>
+
+        <li>
+          <span id="hosted">Hosted Journals</span>
+          <ul>
+            <li>support communities wishing to launch a specialized hosted journal using our editorial and financial infrastructure</li>
+            <li>support communities wishing to shift their existing venue to Diamond publishing using our infrastructure.</li>
+          </ul>
+        </li>
+
+        <li>
+          <span id="affiliate">Affiliate Journals</span>
+          <ul>
+            <li>support independent journals who wish to use our PubFracs business model and use our financial information and reporting facilities</li>
+          </ul>
+        </li>
+        
+      </ul>
+    </div>
+
+    <div class="mt-auto border-start border-4 border-warning p-2">
+      <p class="fs-5 mb-2 text-uppercase">Contact</p>
+      <ul>
+        <li>Interested in helping expanding our colleges or suggesting somebody who can?</li>
+        <li>Interesting in launching a journal or flipping to a diamond business model?</li>
+        <li>Interested in your journal (Diamond-style only!) becoming one of our affiliates?</li>
+      </ul>
+      Get in touch with us at <a class="text-warning" href="mailto:sponsors@{{ request.get_host }}">edadmin@{{ request.get_host }}</a>
+    </div>
+  
+  </div>
+
+  <div class="col-12 col-md-7 col-lg-6 col-xl-5 d-flex justify-content-center align-items-center">
+    <img style="width: 100%; max-width: 500px;" src="{% static 'scipost/scipost_diamond_journal_pillars.jpg' %}"></img>
+  </div>
+
+<details open class="col-12 mt-4 mx-2 p-0 text-body rounded border-start border-primary border-4" style="background: #fffd" id="inHouse">
+  <summary class="list-triangle p-2 text-white" style="background: #1D4168dd;"><h3 class="m-0 text-uppercase fs-5">Detailed In-house Journal Plans</h3></summary>
+
+  <table class="table table-hover position-relative">
+    <thead>
+      <tr class="position-sticky top-0 bg-white">
+        <th>Field</th>
+        <th>Task <span class="ms-2 text-muted">(prioritized)</span></th>
+        <th>Status</th>
+        <th>Resources Needed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="3">All</td>
+      </tr>
+      <tr>
+        <td><a href="{% url 'scipost:journal_detail' doi_label='SciPostCommem' %}/about">SciPost Commemorations</a></td>
+        <td class="d-flex gap-1">
+          <span class="badge bg-success">🚀&nbsp;&nbsp;Launched</span>
+          <span class="badge bg-warning">📈&nbsp;&nbsp;Upscaling</span>
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href="{% url 'scipost:journal_detail' doi_label='SciPostSelect' %}/about">SciPost Selections</a></td>
+        <td>
+          <span class="badge bg-warning">📅&nbsp;&nbsp;Scheduled to launch</span></br>
+          <small>once operations in Chemistry and Astro are upscaled</small>
+        </td>
+        <td>&euro;50k to launch +</br>&euro;30k per year</td>
+      </tr>
+
+      <tr>
+        <td rowspan="6">Physics</td>
+      </tr>
+      <tr>
+        <td>eliminate editorial delays (edadmin)</td>
+        <td><span class="badge bg-warning">⏳&nbsp;&nbsp;Ongoing</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>expand <a href="{% url 'colleges:college_detail' college="physics" %}">Physics College</a>: 
+          additional Fellows in Experimental specialties</td>
+        <td><span class="badge bg-warning">⏳&nbsp;&nbsp;Ongoing</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>expand <a href="{% url 'colleges:college_detail' college="physics" %}">Physics College</a>: 
+          additional Fellows in Computational specialties</td>
+        <td><span class="badge bg-warning">⏳&nbsp;&nbsp;Ongoing</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href="{% url 'scipost:journal_detail' doi_label='SciPostPhysRev' %}/about">SciPost Physics Reviews</a></td>
+        <td class="d-flex gap-1">
+          <span class="badge bg-success">🚀&nbsp;&nbsp;Launched</span>
+          <span class="badge bg-warning">📈&nbsp;&nbsp;Upscaling</span>
+        </td>
+        <td></td>
+      </tr>
+      <tr>
+        <td><a href="{% static 'scipost/roadmap/SciPost_Bundled_Datasets.pdf' %}">SciPost Physics Datasets</a></td>
+        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td>&euro;50k to launch +</br>&euro;500 per publication</td>
+      </tr>
+
+      <tr>
+        <td rowspan="3">Chemistry</td>
+      </tr>
+      <tr>
+        <td>build the <a href="{% url 'colleges:college_detail' college="chemistry" %}">Chemistry College</a></td>
+        <td><span class="badge bg-warning">🏁&nbsp;&nbsp;Initiated</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          establish the <a href="{% url 'journals:journals_in_acad_spec' acad_field="chemistry" %}">Chemistry Journals</a> 
+          as recognized publishing venues
+        </td>
+        <td><span class="badge bg-warning">🏁&nbsp;&nbsp;Initiated</span></td>
+        <td>&euro;500 per publication</td>
+      </tr>
+
+      <tr>
+        <td rowspan="3">Astronomy</td>
+      </tr>
+      <tr>
+        <td>build the <a href="{% url 'colleges:college_detail' college="astronomy" %}">Astronomy College</a></td>
+        <td><span class="badge bg-warning">🏁&nbsp;&nbsp;Initiated</span></td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>
+          establish the <a href="{% url 'journals:journals_in_acad_spec' acad_field="astronomy" %}">Astronomy Journals</a> 
+          as recognized publishing venues
+        </td>
+        <td><span class="badge bg-warning">🏁&nbsp;&nbsp;Initiated</span></td>
+        <td>&euro;500 per publication</td>
+      </tr>
+      
+      <tr>
+        <td rowspan="2">Computer Science</td>
+      </tr>
+      <tr>
+        <td>initiate</td>
+        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td>&euro;100k</td>
+      </tr>
+
+      <tr>
+        <td rowspan="2">Mathematics</td>
+      </tr>
+      <tr>
+        <td>initiate</td>
+        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td>&euro;100k</td>
+      </tr>
+
+      <tr>
+        <td rowspan="2">Biology</td>
+      </tr>
+      <tr>
+        <td>initiate</td>
+        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td>&euro;100k</td>
+      </tr>
+
+      <tr>
+        <td rowspan="2">Earth and</br> Environmental Sciences</td>
+      </tr>
+      <tr>
+        <td>initiate</td>
+        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td>&euro;100k</td>
+      </tr>
+
+      <tr>
+        <td rowspan="2" class="text-muted">Other Fields</td>
+      </tr>
+      <tr>
+        <td>initiate</td>
+        <td><span class="badge bg-danger">🪫&nbsp;&nbsp;Insufficient resources</span></td>
+        <td>&euro;100k</td>
+      </tr>
+
+    </tbody>
+  </table>
+</section>
+
+<section class="row text-white p-4" style="background: #002b49; border-top: 8px solid #f6a11a;">
+  <div class="col-12 col-md d-flex flex-column">
+
+    <h2 class="mb-4" id="sustainability">The Struggle for Sustainability</h2>
+    <div class="bg-primary bg-opacity-25 rounded border-start border-4 border-primary p-2">
+      <p class="fs-5 mb-2 text-uppercase">Objective</p>
+      <p class="mb-0">Ensure our sustainability, by promoting understanding and use 
+        of our <a class="text-warning" href="{% url 'finances:business_model' %}">PubFracs business model</a>.</p>
+    </div>
+
+    <p class="mt-4">If you are not yet familiar with our business model, see our separate <a class="text-warning" href="{% url 'scipost:about' %}#aboutPubFracs">summary</a> or <a class="text-warning" href="{% url 'finances:business_model' %}">detailed explanations</a>.</p>
+    <p>We believe this model to be the best antidote to profitmaking and financial obfuscation in publishing.</p>
+  
+    <div class="mb-4 border-start border-4 border-primary p-2">
+      <p class="fs-5 mb-2 text-uppercase">Plans</p>
+      <ul>
+        <li>liaise with academic organizations to ensure familiarity with our business model and increase its levels of adoption</li>
+        <li>set up long-term agreements to ensure sustainability of our operations</li>
+        <li>advocate for the installation of proper sustainable funding mechanisms for Diamond</li>
+        <li>support the sustainability of other Diamond initiatives through our Affiliate Journals network</li>
+      </ul>
+    </div>
+
+    <div class="mt-auto border-start border-4 border-warning p-2">
+      <p class="fs-5 mb-2 text-uppercase">Contact</p>
+      Are you an institutional Open Access officer, Library representative or similar, 
+      and are you interested in helping us set up a sustainably funding structure for Diamond? 
+      Get in touch with us at <a class="text-warning" href="mailto:sponsors@{{ request.get_host }}">sponsors@{{ request.get_host }}</a>
+    </div>
+  
+  </div>
+
+  <div class="col-12 col-md-7 col-lg-6 col-xl-5 d-flex justify-content-center align-items-center">
+    <img style="width: 100%; max-width: 500px;" src="{% static 'scipost/pubfracs_model_calculation.jpg' %}"></img>
+  </div>
+</section>
 
 {% endblock content %}
