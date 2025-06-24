@@ -17,12 +17,18 @@ from .managers import RegistrationInvitationQuerySet, CitationNotificationQueryS
 from scipost.constants import TITLE_CHOICES
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scipost_django.profiles.models import Profile
+
+
 class RegistrationInvitation(models.Model):
     """
     Invitation to particular persons for registration
     """
 
-    profile = models.ForeignKey(
+    profile = models.ForeignKey["Profile"](
         "profiles.Profile", on_delete=models.SET_NULL, blank=True, null=True
     )
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)

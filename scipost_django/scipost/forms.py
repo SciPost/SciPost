@@ -31,6 +31,7 @@ from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from dal import autocomplete
 
 from common.utils.text import split_strip
+from invitations.constants import STATUS_REGISTERED
 from mails.models import MailAddressDomain
 from markup.constants import BLEACH_ALLOWED_ATTRIBUTES, BLEACH_ALLOWED_TAGS
 
@@ -63,7 +64,7 @@ from commentaries.models import Commentary
 from comments.models import Comment
 from common.utils import get_current_domain
 from funders.models import Grant
-from invitations.models import CitationNotification
+from invitations.models import CitationNotification, RegistrationInvitation
 from journals.models import PublicationAuthorsTable, Publication
 from mails.utils import DirectMailUtil
 from ontology.models import AcademicField, Specialty
@@ -122,10 +123,20 @@ class RegistrationForm(forms.Form):
     Due to the construction of a separate Contributor from the User,
     it is difficult to create a 'combined ModelForm'. All fields
     are thus separately handled here.
+
+    The form may get an optional "profile" kwarg, which will be used
+    to pre-fill the form with the data of the Profile to be registered.
+    Then, all fields will be propagated to the Profile, and a Contributor
+    will be created for it. An "invitation_key" may be pre-filled as initial
+    and can be used to match the passed Profile to a RegistrationInvitation,
+    which will be used to set the Contributor's field.
     """
 
     required_css_class = "required-asterisk"
 
+    invitation_key = forms.CharField(
+        max_length=40, widget=forms.HiddenInput(), required=False
+    )
     institutional_email = forms.EmailField(
         label="Institutional Email address",
         help_text="An academic email address, used to verify your credentials "
@@ -151,9 +162,6 @@ class RegistrationForm(forms.Form):
         max_length=64,
         required=False,
         help_text="Name in original script (if not using the Latin alphabet)",
-    )
-    invitation_key = forms.CharField(
-        max_length=40, widget=forms.HiddenInput(), required=False
     )
     orcid_id = forms.CharField(
         label="ORCID id",
@@ -228,6 +236,25 @@ class RegistrationForm(forms.Form):
         label="Stay informed, subscribe to the SciPost newsletter.",
     )
 
+    def __init__(
+        self,
+        *args,
+        profile: Profile | None = None,
+        **kwargs,
+    ):
+        if profile:
+            form_initials = {
+                "title": profile.title,
+                "first_name": profile.first_name,
+                "last_name": profile.last_name,
+                "institutional_email": profile.email,
+                "acad_field": profile.acad_field,
+                "specialties": profile.specialties.all(),
+            } | kwargs.pop("initial", {})
+            super().__init__(*args, initial=form_initials, **kwargs)
+        else:
+            super().__init__(*args, **kwargs)
+
     def clean(self):
         """
         Check that:
@@ -242,6 +269,47 @@ class RegistrationForm(forms.Form):
                 "You must either specify a Current Affiliation, or "
                 "fill in the institution name and address field"
             )
+
+    def clean_invitation_key(self):
+        """
+        Validates that the invitation key matches a non-deprecated RegistrationInvitation,
+        """
+        INSTRUCTIONS = (
+            "Please click the link in the invitation email to register, or "
+            "contact techsupport@scipost.org if the issue persists."
+        )
+
+        if not (key := self.cleaned_data.get("invitation_key", "")):
+            return ""
+
+        invitation = RegistrationInvitation.objects.filter(invitation_key=key).first()
+
+        if not invitation:
+            return self.add_error(
+                None,
+                "The invitation key you provided is invalid. " + INSTRUCTIONS,
+            )
+
+        already_registered = (
+            Contributor.objects.filter(invitation_key=key).first() is not None
+        )
+
+        if invitation.profile is None:
+            return self.add_error(
+                None, "No profile associated to given invitation key. " + INSTRUCTIONS
+            )
+        elif invitation.has_responded or already_registered:
+            return self.add_error(
+                None,
+                "This invitation token has already been used to register an account. "
+                + INSTRUCTIONS,
+            )
+        elif timezone.now() > invitation.key_expires:
+            return self.add_error(
+                None, "The invitation key has expired. " + INSTRUCTIONS
+            )
+
+        return invitation.invitation_key
 
     def _forbid_already_registered_email(self, field: str):
         """
@@ -335,79 +403,75 @@ class RegistrationForm(forms.Form):
 
     def create_and_save_contributor(self):
         user = User.objects.create_user(
-            **{
-                "first_name": self.cleaned_data["first_name"],
-                "last_name": self.cleaned_data["last_name"],
-                "email": self.cleaned_data["institutional_email"],
-                "username": self.cleaned_data["username"],
-                "password": self.cleaned_data["password"],
-                "is_active": False,
-            }
+            first_name=self.cleaned_data["first_name"],
+            last_name=self.cleaned_data["last_name"],
+            email=self.cleaned_data["institutional_email"],
+            username=self.cleaned_data["username"],
+            password=self.cleaned_data["password"],
+            is_active=False,  # Initially inactive until vetted
         )
 
-        # If *and only if* the user has been invited to register,
-        # is it safe to assign to them the invited profile
-        if invitation_key := self.cleaned_data["invitation_key"]:
-            profile = Profile.objects.filter(
-                registrationinvitation__invitation_key=invitation_key
-            ).first()
-            if profile is None:
-                raise forms.ValidationError(
-                    "The invitation key is invalid. "
-                    "Please click the link in the invitation email to register, or "
-                    "contact techsupport@scipost.org if the issue persists."
-                )
+        # Structure form data into a Profile object
+        profile_data = {
+            "title": self.cleaned_data["title"],
+            "first_name": self.cleaned_data["first_name"],
+            "last_name": self.cleaned_data["last_name"],
+            "first_name_original": self.cleaned_data["first_name_original"],
+            "last_name_original": self.cleaned_data["last_name_original"],
+            "acad_field": self.cleaned_data["acad_field"],
+            "orcid_id": self.cleaned_data["orcid_id"] or None,
+            "webpage": self.cleaned_data["webpage"],
+        }
 
-            already_registered = (
-                Contributor.objects.filter(invitation_key=invitation_key).first()
-                is not None
-            )
-            if already_registered:
-                raise forms.ValidationError(
-                    "The invitation key has already been used to register an account. "
-                )
+        key = self.cleaned_data.get("invitation_key", "")
+        invitation = RegistrationInvitation.objects.filter(invitation_key=key).first()
 
+        if invitation:
+            invitation.status = STATUS_REGISTERED
+            invitation.save()
+
+        # If an invitation key is provided, use its profile, otherwise create a new one
+        profile = invitation.profile if invitation else None
+        if profile is not None:
+            for attr, value in profile_data.items():
+                setattr(profile, attr, value)
+            profile.save()
         else:
-            profile = Profile.objects.create(
-                title=self.cleaned_data["title"],
-                first_name=self.cleaned_data["first_name"],
-                last_name=self.cleaned_data["last_name"],
-                first_name_original=self.cleaned_data["first_name_original"],
-                last_name_original=self.cleaned_data["last_name_original"],
-                acad_field=self.cleaned_data["acad_field"],
-                orcid_id=self.cleaned_data["orcid_id"] or None,
-                webpage=self.cleaned_data["webpage"],
-            )
+            profile = Profile.objects.create(**profile_data)
 
         profile.specialties.set(self.cleaned_data["specialties"])
 
-        institutional_email = ProfileEmail.objects.create(
+        institutional_email, created = ProfileEmail.objects.get_or_create(
             email=self.cleaned_data["institutional_email"],
             profile=profile,
-            primary=True,
+            defaults={"primary": True},
         )
+        institutional_email.set_primary()
 
-        personal_email = ProfileEmail.objects.create(
+        personal_email, created = ProfileEmail.objects.get_or_create(
             email=self.cleaned_data["personal_email"],
             profile=profile,
-            primary=False,
-            kind=ProfileEmail.KIND_RECOVERY,
+            defaults={"primary": False, "kind": ProfileEmail.KIND_RECOVERY},
         )
+        if not created:
+            personal_email.primary = False
+            personal_email.kind = ProfileEmail.KIND_RECOVERY
+            personal_email.save()
 
         # Create an Affiliation for this Profile
         current_affiliation = self.cleaned_data.get("current_affiliation", None)
         if current_affiliation:
             Affiliation.objects.create(
-                profile=profile, organization=self.cleaned_data["current_affiliation"]
+                profile=profile, organization=current_affiliation
             )
         # Create the Contributor object
         contributor, __ = Contributor.objects.get_or_create(
-            **{
-                "profile": profile,
-                "dbuser": user,
-                "invitation_key": self.cleaned_data.get("invitation_key", ""),
-                "address": self.cleaned_data["address"],
-            }
+            profile=profile,
+            dbuser=user,
+            defaults=dict(
+                invitation_key=key,
+                address=self.cleaned_data["address"],
+            ),
         )
         contributor.save()
 

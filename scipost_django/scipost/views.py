@@ -93,7 +93,6 @@ from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
 from comments.forms import CommentSearchForm
 from common.utils import get_current_domain
-from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication, PublicationAuthorsTable
 from journals.forms import PublicationSearchForm
@@ -589,12 +588,6 @@ def register(request):
         )
         mail_util.send_mail()
 
-        # Disable invitations related to the new Contributor
-        RegistrationInvitation.objects.declined_or_without_response().filter(
-            Q(email=form.cleaned_data["personal_email"])
-            | Q(email=form.cleaned_data["institutional_email"])
-        ).update(status=STATUS_REGISTERED)
-
         context = {
             "ack_header": "Thanks for registering to SciPost.",
             "ack_message": (
@@ -628,24 +621,30 @@ def invitation(request, key):
     the default registration form from the invitation data.
     """
     invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
-    if invitation.has_responded:
+    already_registered = (
+        Contributor.objects.filter(invitation_key=key).first() is not None
+    )
+
+    errormessage = None
+    if invitation.profile is None:
         errormessage = (
-            "This invitation token has already been used, "
-            "or this email address is already associated to a registration."
+            "No profile associated to given invitation key is invalid. "
+            "Please click the link in the invitation email to register, or "
+            "contact techsupport@scipost.org if the issue persists."
+        )
+    elif invitation.has_responded or already_registered:
+        errormessage = (
+            "This invitation token has already been used to register an account. "
         )
     elif timezone.now() > invitation.key_expires:
         errormessage = "The invitation key has expired."
     else:
-        prefilled_fields = invitation.__dict__
-
-        profile = Profile.objects.get(pk=prefilled_fields["profile_id"])
-        if profile:
-            prefilled_fields["acad_field"] = profile.acad_field
-            prefilled_fields["specialties"] = profile.specialties.all()
-
         context = {
             "invitation": invitation,
-            "form": RegistrationForm(initial=prefilled_fields),
+            "form": RegistrationForm(
+                profile=invitation.profile,
+                initial={"invitation_key": key},
+            ),
         }
         return render(request, "scipost/register.html", context)
     return render(

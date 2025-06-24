@@ -19,7 +19,7 @@
   <div class="row p-2">
     <div class="col-md-3 order-md-2 mb-2 mb-md-0 position-relative">
       <div class="d-flex flex-column gap-3 position-sticky top-0 py-md-3">
-        {% if not invitation %}
+        {% if not invitation and not form.data.invitation_key %}
           <p class="m-0 bg-warning bg-opacity-10 border border-warning p-2">
             <span class="text-warning me-2">{% include "bi/exclamation-triangle-fill.html" %}</span>
             Did you receive an invitation to referee? If so, please use the registration link provided in the invitation email to register.</p>
