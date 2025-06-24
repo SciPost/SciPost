@@ -526,7 +526,7 @@ class Command(BaseCommand):
                                 f"Could not read {member.name} from the arXiv source files, skipping..."
                             )
                         )
-        except UnsupportedOperation:
+        except (gzip.BadGzipFile, UnsupportedOperation):
             # The file is not a tar, but a single file (gzipped .tex)
             # Refetch the source stream since the previous one was consumed
             source_stream = requests.get(paper.pdf_url.replace("pdf", "src"))
