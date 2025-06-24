@@ -270,6 +270,22 @@ class RegistrationForm(forms.Form):
                 "fill in the institution name and address field"
             )
 
+        # If ORCID exists in another profile
+        duplicate_orcid_profile = Profile.objects.filter(
+            orcid_id=cleaned_data.get("orcid_id", "")
+        ).first()
+        invitation = RegistrationInvitation.objects.filter(
+            invitation_key=cleaned_data.get("invitation_key", "")
+        ).first()
+        invitation_profile = invitation.profile if invitation else None
+        if duplicate_orcid_profile and invitation_profile != duplicate_orcid_profile:
+            error_message = format_html(
+                "This ORCID id is already in use. Have you already registered?"
+                "<a href='/password_reset/'>Reset your password</a> or "
+                "<a href='mailto:techsupport@scipost.org'>contact tech support</a>."
+            )
+            self.add_error("orcid_id", error_message)
+
     def clean_invitation_key(self):
         """
         Validates that the invitation key matches a non-deprecated RegistrationInvitation,
@@ -389,17 +405,6 @@ class RegistrationForm(forms.Form):
         if User.objects.filter(username=username).exists():
             self.add_error("username", "This username is already in use")
         return username
-
-    def clean_orcid_id(self):
-        orcid_id = self.cleaned_data.get("orcid_id", "")
-        if orcid_id and Profile.objects.filter(orcid_id=orcid_id).exists():
-            error_message = format_html(
-                "This ORCID id is already in use. Have you already registered?"
-                "<a href='/password_reset/'>Reset your password</a> or "
-                "<a href='mailto:techsupport@scipost.org'>contact tech support</a>."
-            )
-            self.add_error("orcid_id", error_message)
-        return orcid_id
 
     def create_and_save_contributor(self):
         user = User.objects.create_user(
