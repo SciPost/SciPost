@@ -180,6 +180,17 @@ class RadioAppraisalForm(forms.Form):
         elif readiness == Readiness.STATUS_CONDITIONAL:
             action = "offer a conditional assignment"
 
+            # Also check if the fellow has made an offer for conditional assignment
+            offer = ConditionalAssignmentOffer.objects.filter(
+                submission=self.submission,
+                offered_by=self.fellow.contributor,
+            )
+            if not offer.exists():
+                self.add_error(
+                    "readiness",
+                    "Please complete the form and make an offer for conditional assignment.",
+                )
+
         if action:  # If readiness is set to assign_now or desk_reject
             if reason:  # Both readiness and expertise_level are required
                 self.add_error("expertise_level", f"{reason} to {action}.")
@@ -329,6 +340,16 @@ class ConditionalAssignmentOfferInlineForm(forms.ModelForm):
 
     def save(self):
         instance = super().save(commit=False)
+
+        # The readiness of the fellow must be set to conditional
+        readiness, _ = Readiness.objects.get_or_create(
+            submission=self.submission,
+            fellow=self.offered_by.fellowships.active()
+            .filter(college=self.submission.submitted_to.college)
+            .first(),
+        )
+        readiness.status = Readiness.STATUS_CONDITIONAL
+        readiness.save()
 
         if instance.condition_type == "JournalTransfer":
             instance.condition_details = {
