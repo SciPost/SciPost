@@ -170,8 +170,10 @@ class FellowshipForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Get the initial when creating, or the instance when editing
+        contributor_id = self.initial.get("contributor") or self.instance.contributor.id
         self.fields["contributor"].queryset = Contributor.objects.filter(
-            id=self.instance.contributor.id
+            id=contributor_id
         )
         self.fields["contributor"].disabled = True
 
