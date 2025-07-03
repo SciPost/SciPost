@@ -3,8 +3,8 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from functools import reduce
 from itertools import groupby
-from typing import Any, Dict
 
 from django import forms
 from django.contrib.sessions.backends.db import SessionStore
@@ -730,7 +730,7 @@ class FellowshipNominationSearchForm(forms.Form):
             ),
         )
 
-    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
+    def apply_filter_set(self, filters: dict, none_on_empty: bool = False):
         # Apply the filter set to the form
         for key in self.fields:
             if key in filters:
@@ -1020,7 +1020,7 @@ class FellowshipNominationVotingRoundSearchForm(forms.Form):
             ),
         )
 
-    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
+    def apply_filter_set(self, filters: dict, none_on_empty: bool = False):
         # Apply the filter set to the form
         for key in self.fields:
             if key in filters:
@@ -1413,10 +1413,11 @@ class FellowshipsMonitorSearchForm(forms.Form):
                     Fellowship.objects.filter(
                         contributor__profile__specialties=OuterRef("id")
                     )
-                )
+                ),
+                acad_field_name=F("acad_field__name"),
             )
             .filter(has_fellows=True)
-            .order_by("acad_field__name", "name")
+            .order_by("acad_field_name", "name")
         )
         self.fields["specialties"].choices = [
             (
@@ -1424,7 +1425,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 [(specialty.pk, specialty.name) for specialty in specialties],
             )
             for acad_field_name, specialties in groupby(
-                specialties_with_fellows, key=lambda x: x.acad_field.name
+                specialties_with_fellows, key=lambda x: x.acad_field_name
             )
         ]
 
@@ -1534,7 +1535,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
 
             session.save()
 
-    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
+    def apply_filter_set(self, filters: dict, none_on_empty: bool = False):
         # Apply the filter set to the form
         for key in self.fields:
             if key in filters:
@@ -1589,7 +1590,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
         def count_q(qs, key="pk"):
             """Count the number of items in a queryset, or return 0 if the queryset is empty."""
             return Coalesce(
-                Subquery(qs.values(key).annotate(count=Count(key)).values("count")),
+                Subquery(qs.values(key).annotate(count=Count(key)).values("count")[:1]),
                 0,
             )
 
@@ -1622,21 +1623,21 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 ),
                 key="fellow",
             ),
-            nr_assignments_completed=count_q(
-                filter_submissions_in_pool(
-                    EditorialAssignment.objects.filter(
-                        to=OuterRef("contributor"),
-                        status=EditorialAssignment.STATUS_COMPLETED,
-                    ),
-                    prefix="submission__",
-                ),
-                key="to",
-            ),
             nr_assignments_ongoing=count_q(
                 filter_submissions_in_pool(
                     EditorialAssignment.objects.filter(
                         to=OuterRef("contributor"),
                         status=EditorialAssignment.STATUS_ACCEPTED,
+                    ),
+                    prefix="submission__",
+                ),
+                key="to",
+            ),
+            nr_assignments_completed=count_q(
+                filter_submissions_in_pool(
+                    EditorialAssignment.objects.filter(
+                        to=OuterRef("contributor"),
+                        status=EditorialAssignment.STATUS_COMPLETED,
                     ),
                     prefix="submission__",
                 ),
@@ -1651,37 +1652,22 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 ),
                 key="eligible_to_vote",
             ),
-            nr_recommendations_voted_for=count_q(
-                filter_submissions_in_pool(
-                    EICRecommendation.objects.filter(
-                        voted_for__exact=OuterRef("contributor"),
-                    ),
-                    prefix="submission__",
-                ),
-                key="voted_for",
+            # Create a combined expression adding all the votes
+            nr_recommendations_voted=reduce(
+                lambda x, y: CombinedExpression(x, "+", y),
+                [
+                    count_q(
+                        filter_submissions_in_pool(
+                            EICRecommendation.objects.filter(
+                                **{key + "__exact": OuterRef("contributor")}
+                            ),
+                            prefix="submission__",
+                        ),
+                        key=key,
+                    )
+                    for key in ("voted_for", "voted_against", "voted_abstain")
+                ],
             ),
-            nr_recommendations_voted_against=count_q(
-                filter_submissions_in_pool(
-                    EICRecommendation.objects.filter(
-                        voted_against__exact=OuterRef("contributor"),
-                    ),
-                    prefix="submission__",
-                ),
-                key="voted_against",
-            ),
-            nr_recommendations_voted_abstain=count_q(
-                filter_submissions_in_pool(
-                    EICRecommendation.objects.filter(
-                        voted_abstain__exact=OuterRef("contributor"),
-                    ),
-                    prefix="submission__",
-                ),
-                key="voted_abstain",
-            ),
-        ).annotate(
-            nr_recommendations_voted=F("nr_recommendations_voted_for")
-            + F("nr_recommendations_voted_against")
-            + F("nr_recommendations_voted_abstain")
         )
 
         fellowships = fellowships.select_related("contributor", "contributor__profile")
