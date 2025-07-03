@@ -348,18 +348,21 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         Creates an anonymous object of the same type,
         and returns the anonymization record for it.
         """
+        kwargs: dict[str, Any] = {"uuid_str": uuid_str}
+
         uuid_str = str(uuid.uuid4()) if uuid_str is None else uuid_str
-        anonymous_profile_record = (
-            self.profile.anonymize(uuid_str=uuid_str) if self.profile else None
-        )
+
+        # If the contributor has a profile, anonymize it as well.
+        # Otherwise call `create_anonymous` without `profile`,
+        # which will create a new (empty) anonymous profile.
+        if self.profile:
+            anonymous_profile_record = self.profile.anonymize(uuid_str=uuid_str)
+            kwargs["profile"] = anonymous_profile_record.anonymous
 
         record = self.anonymizations.create(
             uuid=uuid_str,
             original=self,
-            anonymous=self.create_anonymous(
-                uuid_str,
-                profile=anonymous_profile_record.anonymous,
-            ),
+            anonymous=self.create_anonymous(**kwargs),
         )
         return record
 
