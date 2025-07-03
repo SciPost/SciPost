@@ -164,6 +164,8 @@ class Contributor(AnonymizableObjectMixin, models.Model):
     objects = ContributorQuerySet.as_manager()
 
     if TYPE_CHECKING:
+        eponymization: "ContributorAnonymization | None"
+        anonymizations: "RelatedManager[ContributorAnonymization]"
         fellowships: "RelatedManager[Fellowship]"
         editorial_assignments: "RelatedManager[EditorialAssignment]"
 

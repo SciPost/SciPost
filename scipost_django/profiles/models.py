@@ -80,6 +80,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
         potentialfellowship_set: "RelatedManager[PotentialFellowship]"
         fellowship_nominations: "RelatedManager[FellowshipNomination]"
         eponymization: "ProfileAnonymization | None"
+        anonymizations: "RelatedManager[ProfileAnonymization]"
 
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, default=TITLE_DR)
     first_name = models.CharField(max_length=64)
