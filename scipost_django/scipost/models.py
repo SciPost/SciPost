@@ -73,7 +73,7 @@ class AnonymousAbstractUser(AnonymousUser):
 
     @property
     def email(self):
-        return "anonympus@scipost.org"
+        return "anonymous@scipost.org"
 
     @property
     @override
