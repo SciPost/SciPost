@@ -16,7 +16,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
+from django.utils.functional import cached_property
 
+from scipost.utils import ContributorStatsAccessor, TContributorStatDict
 from anonymization.mixins import AnonymizableObjectMixin
 
 
@@ -153,6 +155,12 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         related_name="duplicates",
     )
 
+    anonymous_stats = models.JSONField[TContributorStatDict](
+        default=dict,
+        blank=True,
+        help_text="Aggregated statistics saved prior to anonymization.",
+    )
+
     objects = ContributorQuerySet.as_manager()
 
     if TYPE_CHECKING:
@@ -180,6 +188,14 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         if self.is_anonymous or not self.dbuser:
             return AnonymousAbstractUser()
         return self.dbuser
+
+    @cached_property
+    def stats(self) -> "ContributorStatsAccessor":
+        """
+        Return a ContributorStats object for this Contributor.
+        This is a utility class to access contributor statistics.
+        """
+        return ContributorStatsAccessor(self)
 
     @user.setter
     def user(self, user: "User"):
