@@ -147,6 +147,26 @@ class Command(BaseCommand):
                 if submission.editor_in_charge is None:
                     continue
 
+                if completed_assignment := (
+                    submission.editorial_assignments.completed()
+                    .filter(to=submission.editor_in_charge)
+                    .first()
+                ):
+                    completed_date = completed_assignment.date_created
+                elif assignment_event := submission.events.filter(
+                    text__icontains="has been assigned"
+                ).first():
+                    completed_date = assignment_event.created
+                elif submission.eic_first_assigned_date:
+                    completed_date = submission.eic_first_assigned_date
+                else:
+                    completed_date = submission.latest_activity
+
+                submission.editor_in_charge.stats.increment_anon(
+                    "nr_assignments_completed",
+                    subgroup=completed_date.year,
+                )
+                submission.editor_in_charge.stats.save()
                 submission.editor_in_charge = anon_contr_in_sub(
                     submission.editor_in_charge, submission
                 )
@@ -174,6 +194,17 @@ class Command(BaseCommand):
                             recommendation, voting_set
                         )
                         for voter in rec_voter_set.all():
+                            if voting_set == "eligible_to_vote":
+                                voter.stats.increment_anon(
+                                    "nr_recommendations_eligible",
+                                    subgroup=recommendation.date_submitted.year,
+                                )
+                            else:  # voted for, against, abstained
+                                voter.stats.increment_anon(
+                                    "nr_recommendations_voted",
+                                    subgroup=recommendation.date_submitted.year,
+                                )
+                            voter.stats.save()
                             voted_set_anon.append(anon_contr_in_sub(voter, submission))
 
                         rec_voter_set.set(voted_set_anon)
