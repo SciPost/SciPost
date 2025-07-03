@@ -8,8 +8,17 @@ from itertools import groupby
 
 from django import forms
 from django.contrib.sessions.backends.db import SessionStore
-from django.db.models import F, Q, Count, Exists, OuterRef, Subquery
-from django.db.models.functions import Coalesce
+from django.db.models import (
+    F,
+    Q,
+    Count,
+    Exists,
+    IntegerField,
+    OuterRef,
+    Subquery,
+)
+from django.db.models.functions import Cast, Coalesce
+from django.db.models.expressions import CombinedExpression
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit, HTML
@@ -1330,14 +1339,9 @@ class FellowshipsMonitorSearchForm(forms.Form):
         required=False,
     )
 
-    date_from = forms.DateField(
-        label="From date",
-        widget=forms.DateInput(attrs={"type": "date"}),
-        required=False,
-    )
-    date_to = forms.DateField(
-        label="To date",
-        widget=forms.DateInput(attrs={"type": "date"}),
+    year = forms.IntegerField(
+        label="Year",
+        widget=forms.NumberInput(attrs={"min": 2016, "max": date.today().year}),
         required=False,
     )
 
@@ -1450,11 +1454,6 @@ class FellowshipsMonitorSearchForm(forms.Form):
             Div(Field("ordering"), css_class="col-6"),
             css_class="row mb-0",
         )
-        div_block_dates = Div(
-            Div(Field("date_from"), css_class="col-6"),
-            Div(Field("date_to"), css_class="col-6"),
-            css_class="row mb-0",
-        )
         div_block_fellow_types = Div(
             Div(Field("has_regular"), css_class="col-auto"),
             Div(Field("has_senior"), css_class="col-auto"),
@@ -1465,22 +1464,16 @@ class FellowshipsMonitorSearchForm(forms.Form):
 
         # Date ranges until today
         today = date.today()
-        time_ranges = [
-            ("Last month", today - timedelta(days=30), today),
-            ("Last year", today - timedelta(days=365), today),
-            ("Last 2 years", today - timedelta(days=2 * 365), today),
-        ]
-
         div_block_date_buttons = Div(
             Div(
                 *[
                     HTML(
                         f'<button class="btn btn-outline-secondary" '
-                        f"""hx-get={reverse("colleges:fellowships_monitor:_hx_search_form", kwargs={"filter_set": f"from_{from_date}_to_{to_date}"})} """
+                        f"""hx-get={reverse("colleges:fellowships_monitor:_hx_search_form", kwargs={"filter_set": f"year_{year}"})} """
                         f'hx-target="#fellowships-monitor-search-form-container"'
-                        f">{date_range_name}</button>"
+                        f">{year}</button>"
                     )
-                    for (date_range_name, from_date, to_date) in time_ranges
+                    for year in range(today.year - 3, today.year + 1)
                 ],
                 css_class="d-grid gap-1 my-3",
             ),
@@ -1499,12 +1492,12 @@ class FellowshipsMonitorSearchForm(forms.Form):
                     css_class="col",
                 ),
                 Div(
-                    Field("specialties", size=13),
+                    Field("specialties", size=16),
                     css_class="col-12 col-sm-6 col-md-4 col-lg-5 col-xl-6",
                 ),
                 Div(
                     Div(
-                        Div(div_block_dates, css_class="col-12"),
+                        Div(Field("year"), css_class="col-12"),
                         Div(div_block_date_buttons, css_class="col-12"),
                         Div(div_block_ordering, css_class="col-12"),
                         css_class="row mb-0 d-flex flex-column justify-content-between h-100",
@@ -1563,34 +1556,41 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 contributor__profile__specialties__in=specialties
             )
 
-        date_from = self.cleaned_data.get("date_from")
-        date_to = self.cleaned_data.get("date_to")
+        year = self.cleaned_data.get("year")
 
         def filter_submissions_in_pool(qs, prefix=""):
             """
             Filter a Submission queryset to only items in the pool between some dates.
             """
-            if not date_from and not date_to:
+            if not year:
                 return qs
-            else:
-                date_filter = Q()
 
             # Should not have left the pool before the "from" start date or not left at all
-            if date_from:
-                date_filter = Q(**{prefix + "eic_first_assigned_date__isnull": True})
-                date_filter |= Q(**{prefix + "eic_first_assigned_date__gte": date_from})
-
-            # Should have been added to the pool before the "to" final date
-            # Only dates in the past can change the query result
-            if date_to and date_to < date.today():
-                date_filter &= Q(**{prefix + "checks_cleared_date__lte": date_to})
-
-            return qs.filter(date_filter)
+            # and should have cleared checks before the "to" end date.
+            return qs.filter(
+                Q(**{prefix + "eic_first_assigned_date__year__gte": year}),
+                Q(**{prefix + "checks_cleared_date__year__lte": year}),
+            )
 
         def count_q(qs, key="pk"):
             """Count the number of items in a queryset, or return 0 if the queryset is empty."""
             return Coalesce(
                 Subquery(qs.values(key).annotate(count=Count(key)).values("count")[:1]),
+                0,
+            )
+
+        def get_anon_stat(key):
+            """
+            Get the anonymous stats for a Fellowship from its Contributor.
+            Stat key is combined with the subgroup depending on the form choices,
+            fetched as an IntegerField, coalesced to 0 if not found.
+            """
+            subgroup = year or "total"
+            return Coalesce(
+                Cast(
+                    f"contributor__anonymous_stats__{key}__{subgroup}",
+                    output_field=IntegerField(),
+                ),
                 0,
             )
 
@@ -1633,7 +1633,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 ),
                 key="to",
             ),
-            nr_assignments_completed=count_q(
+            nr_assignments_completed_epon=count_q(
                 filter_submissions_in_pool(
                     EditorialAssignment.objects.filter(
                         to=OuterRef("contributor"),
@@ -1643,7 +1643,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 ),
                 key="to",
             ),
-            nr_recommendations_eligible=count_q(
+            nr_recommendations_eligible_epon=count_q(
                 filter_submissions_in_pool(
                     EICRecommendation.objects.filter(
                         eligible_to_vote__exact=OuterRef("contributor")
@@ -1653,7 +1653,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 key="eligible_to_vote",
             ),
             # Create a combined expression adding all the votes
-            nr_recommendations_voted=reduce(
+            nr_recommendations_voted_epon=reduce(
                 lambda x, y: CombinedExpression(x, "+", y),
                 [
                     count_q(
@@ -1668,6 +1668,18 @@ class FellowshipsMonitorSearchForm(forms.Form):
                     for key in ("voted_for", "voted_against", "voted_abstain")
                 ],
             ),
+        )
+
+        # Consolidate eponymous and anonymous stats
+        # by re-annotating every `<base_key>_epon` as <base_key>
+        # and adding the anonymous stat to it.
+        fellowships = fellowships.annotate(
+            **{
+                base_key: F(epon_key) + get_anon_stat(base_key)
+                for epon_key in fellowships.query.annotations.keys()
+                if epon_key.endswith("_epon")
+                and (base_key := epon_key.replace("_epon", ""))
+            },
         )
 
         fellowships = fellowships.select_related("contributor", "contributor__profile")
