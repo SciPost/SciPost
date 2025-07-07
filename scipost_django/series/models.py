@@ -82,6 +82,11 @@ class Collection(models.Model):
     image = models.ImageField(upload_to="series/collections/images/", blank=True)
     is_active = models.BooleanField(default=True)
 
+    editor_considerations = models.TextField(
+        blank=True,
+        help_text=("Special rules enforced in this Collection, affecting the editors."),
+    )
+
     enforce_expected_authors = models.BooleanField(
         default=True,
         help_text=(

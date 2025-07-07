@@ -1120,6 +1120,19 @@ class Submission(models.Model):
             return self.editorialdecision_set.nondeprecated().latest_version()
         return None
 
+    @cached_property
+    def special_considerations(self) -> dict[str, dict[str, list[str]]]:
+        if self.collections.exists():
+            return {
+                "editorial": {
+                    collection.name: list(collection.editor_considerations.splitlines())
+                    for collection in self.collections.all()
+                    if collection.editor_considerations
+                }
+            }
+
+        return {}
+
     def edadmin_notes(self):
         """Notes to be displayed to edadmin."""
         notes: list[tuple[str, str]] = []

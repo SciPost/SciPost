@@ -37,6 +37,34 @@
   <form method="post">
     {% csrf_token %}
     {{ form|bootstrap }}
+
+    {% if submission.special_considerations.editorial %}
+      <div class="bg-warning bg-opacity-10 p-2 my-2" >
+        <p class="fs-4">
+          <span class="text-warning mx-2">{% include "bi/exclamation-triangle-fill.html" %}</span>
+          Special considerations for editors of this Submission</p>
+        <ul class="list-unstyled">
+          {% for group, considerations in submission.special_considerations.editorial.items %}
+            <li>
+              <span class="fw-bold">Considerations for {{ group }}</span>
+              <ul>
+                {% for consideration in considerations %}
+                  <li>{{ consideration }}</li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% endfor %}
+        </ul>
+        
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="editorial_considerations_acknowledged" name="editorial_considerations_acknowledged" required>
+          <label class="form-check-label" for="editorial_considerations_acknowledged">
+            I accept and will adhere to the special considerations for editors of this Submission.
+          </label>
+        </div>
+      </div>
+    {% endif %}
+
     <input class="btn btn-primary" type="submit" value="Submit" />
     <p class="border p-2 mt-3">
       <strong>Clarification</strong>
