@@ -440,7 +440,6 @@ class BaseCycle(abc.ABC):
         """
         from mails.utils import DirectMailUtil
 
-        # SubmissionUtils.load({'submission': self._submission})
         for referee in referees:
             invitation = referee
             invitation.pk = None  # Duplicate, do not remove the old invitation

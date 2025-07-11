@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: Voting duties reminder",
+    "recipient_list": [
+        "fellow.profile.email"
+    ],
+    "bcc": [
+        "edadmin@"
+    ],
+    "from_name": "SciPost Editorial Administration",
+    "from_email": "edadmin@"
+}

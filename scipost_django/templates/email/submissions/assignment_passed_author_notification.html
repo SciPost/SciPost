@@ -1,0 +1,52 @@
+<p>Dear {{ assignment.submission.submitted_by.profile.formal_name }},</p>
+
+<p>
+  We are pleased to inform you that your recent Submission to {{ assignment.submission.submitted_to.name }}
+  <br />
+  <strong>{{ assignment.submission.title }}</strong>
+  <br />
+  by {{ assignment.submission.author_list }}
+  <br />
+  has successfully passed the assignment stage.
+</p>
+
+<p>
+  A Submission Page has been activated at <a href="https://{{ domain }}{{ assignment.submission.get_absolute_url }}">https://{{ domain }}{{ assignment.submission.get_absolute_url }}</a>
+
+  {% if assignment.submission.reporting_deadline %}
+    and a refereeing round has been started, with deadline currently set at {{ assignment.submission.reporting_deadline|date:"%Y-%m-%d" }}
+  {% endif %}
+
+  .
+</p>
+
+<p>
+  During the refereeing round, you are welcome to provide replies to any
+  Report or Comment posted on your Submission (you can do so from the
+  Submission Page; you will be informed by email of any such Report or
+  Comment being delivered). In order to facilitate the work of the
+  Editorial College, we recommend limiting these replies to short
+  to-the-point clarifications of any issue raised on your manuscript.
+</p>
+
+<p>
+  Please wait for the Editor-in-charge's Editorial Recommendation
+  before any resubmission of your manuscript.
+</p>
+
+<p>
+  To facilitate metadata handling, we recommend that all authors
+  have an ORCID id (easily obtained from https://orcid.org),
+  and be registered as SciPost Contributors. Could we please ask you
+  (and your coathors, if any) to ensure that this is the case?
+</p>
+
+<p>
+  We thank you very much for your contribution,
+  <br />
+  Sincerely,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}

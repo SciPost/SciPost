@@ -6,8 +6,6 @@ from common.utils import get_current_domain
 
 domain = get_current_domain()
 
-from common.utils import BaseMailUtil
-
 
 def build_absolute_uri_using_site(path):
     """
@@ -78,8 +76,3 @@ EMAIL_UNSUBSCRIBE_LINK_HTML = (
     '\n\n<p style="font-size: 10px;">Don\'t want to receive such emails? Unsubscribe by '
     f'<a href="https://{domain}/update_personal_data">updating your personal data</a>.</p>'
 )
-
-
-class Utils(BaseMailUtil):
-    mail_sender = f"registration@{domain}"
-    mail_sender_title = "SciPost registration"

@@ -233,6 +233,17 @@ class Journal(models.Model):
         """
         return self.structure == ISSUES_ONLY and "Proceedings" in self.name
 
+    @property
+    def owner(self) -> str:
+        """
+        Return the owner of this Journal:
+        "SciPost" if this Journal is in-house,
+        or the Journal's name if it is a hosted/affiliate Journal.
+        """
+        if self.doi_label.startswith("SciPost"):
+            return "SciPost"
+        return self.name
+
     def get_issues(self):
         from journals.models import Issue
 

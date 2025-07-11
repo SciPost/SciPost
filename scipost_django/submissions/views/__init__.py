@@ -114,7 +114,6 @@ from ..forms import (
     PreassignEditorsFormSet,
     SubmissionReassignmentForm,
 )
-from ..utils import SubmissionUtils
 
 from colleges.models import PotentialFellowship, Fellowship
 from colleges.permissions import (
@@ -1918,11 +1917,15 @@ def ref_invitation_reminder(request, identifier_w_vn_nr, invitation_id):
     )
     invitation.reminder_sent()
 
-    SubmissionUtils.load({"invitation": invitation}, request)
-    if invitation.to_registered_referee:
-        SubmissionUtils.send_ref_reminder_email()
-    else:
-        SubmissionUtils.send_unreg_ref_reminder_email()
+    email_template_code = (
+        "ref_reminder_registered"
+        if invitation.to_registered_referee
+        else "ref_reminder_unregistered"
+    )
+    DirectMailUtil(
+        "submissions/" + email_template_code,
+        invitation=invitation,
+    ).send_mail()
     messages.success(request, "Reminder sent successfully.")
     return redirect(
         reverse(
@@ -2111,14 +2114,7 @@ def _hx_cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     elif invitation.accepted == False:
         return HTMXResponse("Invitation already declined.", tag="danger")
 
-    invitation.cancelled = True
-    invitation.save()
-
-    notify_by_email = request.GET.get("notify_by_email", False)
-    if notify_by_email:
-        SubmissionUtils.load({"invitation": invitation})
-        if invitation.date_invited is not None:
-            SubmissionUtils.send_ref_cancellation_email()
+    invitation.cancel(should_send_email=request.GET.get("notify_by_email", False))
 
     # Add SubmissionEvents
     invitation.submission.add_event_for_author(
@@ -2385,8 +2381,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         communication.save()
 
         try:
-            SubmissionUtils.load({"communication": communication})
-            SubmissionUtils.send_communication_email()
+            communication.send_email()
         except Exception as e:
             messages.error(
                 request,
@@ -2466,16 +2461,11 @@ def _hx_eic_recommendation_form(request, identifier_w_vn_nr):
             contributor=request.user.contributor,
             for_object=recommendation,
         )
-
         if form.revision_requested():
-            # Send mail to authors to notify about the request for revision.
-            SubmissionUtils.load(
-                {
-                    "submission": form.submission,
-                    "recommendation": recommendation,
-                }
-            )
-            SubmissionUtils.send_author_revision_requested_email()
+            DirectMailUtil(
+                "submissions/revision_requested_author_notification",
+                recommendation=recommendation,
+            ).send_mail()
 
         response = HttpResponse()
         messages.success(request, "Editorial Recommendation successfully formulated")
@@ -2760,20 +2750,21 @@ def vet_submitted_report(request, report_id):
         report = form.process_vetting(request.user.contributor)
 
         # email report author
-        SubmissionUtils.load(
-            {
-                "report": report,
-                "email_response": form.cleaned_data["email_response_field"],
-            }
-        )
-        SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
+        DirectMailUtil(
+            "submissions/report_referee_notification",
+            report=report,
+            email_response=form.cleaned_data["email_response_field"],
+        ).send_mail()
 
         # Add SubmissionEvent for the EIC
         report.submission.add_event_for_eic(
             "The Report by %s is vetted." % report.author.user.last_name
         )
         if report.status == STATUS_VETTED:
-            SubmissionUtils.send_author_report_received_email()
+            DirectMailUtil(
+                "submissions/report_submission_author_notification",
+                report=report,
+            ).send_mail()
 
             # Add SubmissionEvent to tell the author about the new report
             report.submission.add_event_for_author("A new Report has been submitted.")
@@ -2924,13 +2915,12 @@ def remind_Fellows_to_vote(request, rec_id):
             and fellow not in fellows
         ):
             fellows.append(fellow)
-            SubmissionUtils.load(
-                {
-                    "fellow": fellow,
-                    "recommendation": recommendation,
-                }
-            )
-            SubmissionUtils.send_fellow_voting_reminder_email()
+            DirectMailUtil(
+                "submissions/fellow_voting_duties_reminder",
+                fellow=fellow,
+                recommendation=recommendation,
+                object=recommendation,
+            ).send_mail()
 
     ack_message = "Email reminders have been sent to: <ul>"
     for name in sorted(map(lambda f: f.user.get_full_name(), fellows)):
@@ -3497,10 +3487,7 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
         submission__thread_hash=submission.thread_hash
     ).outstanding()
     for invitation in invitations:
-        SubmissionUtils.load({"invitation": invitation})
-        if invitation.date_invited is not None:
-            SubmissionUtils.send_ref_cancellation_email()
-    invitations.update(cancelled=True)
+        invitation.cancel(should_send_email=invitation.date_invited is not None)
 
     # Update Editorial Assignment statuses.
     EditorialAssignment.objects.filter(

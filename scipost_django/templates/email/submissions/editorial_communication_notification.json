@@ -1,0 +1,14 @@
+{
+    "subject": "SciPost: Editorial communication ({{ communication.get_comtype_display }})",
+    "recipient_list": [
+        "communication.recipient_email"
+    ],
+    "bcc": [
+        "submissions@"
+        {% if communication.author_letter == "E" %}
+            ,"{{ communication.author_email }}"
+        {% endif %}
+    ],
+    "from_name": "SciPost Editorial Administration",
+    "from_email": "edadmin@"
+}

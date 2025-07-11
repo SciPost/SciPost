@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from common.utils.models import get_current_domain
+from mails.utils import DirectMailUtil
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import ED_COMM_CHOICES, ED_COMM_PARTIES
@@ -51,6 +52,16 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     def get_absolute_url(self):
         """Return the url of the related Submission detail page."""
         return self.submission.get_absolute_url()
+
+    def get_reply_url(self):
+        """Return the url to reply to this communication."""
+        return reverse(
+            "submissions:communication",
+            kwargs={
+                "identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr,
+                "comtype": self.reverse_comtype,
+            },
+        )
 
     def _resolve_profile_from_letter(self, letter: str):
         recipients: dict[str, "Profile | None"] = {
@@ -126,3 +137,23 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     @property
     def recipient_email(self):
         return self._resolve_profile_email(self.recipient_letter)
+
+    @property
+    def reverse_comtype(self):
+        """Return the reverse communication type, e.g. EtoA -> AtoE."""
+        return self.recipient_letter + "to" + self.author_letter
+
+    def send_email(self):
+        valid_comtypes = [comtype[0] for comtype in ED_COMM_CHOICES]
+        valid_comtypes.remove("RtoA")  # Referee to Author communication is forbidden
+        valid_comtypes.remove("AtoR")  # Author to Referee communication is forbidden
+
+        if self.comtype not in valid_comtypes:
+            raise ValueError(
+                f"Invalid comtype {self.comtype}. Valid comtypes are {valid_comtypes}."
+            )
+
+        DirectMailUtil(
+            "submissions/editorial_communication_notification",
+            {"communication": self, "domain": get_current_domain()},
+        ).send_mail()

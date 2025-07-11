@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: College decision taken on your Submission",
+    "recipient_list": [
+        "recommendation.submission.submitted_by.profile.email"
+    ],
+    "bcc": [
+        "edadmin@"
+    ],
+    "from_name": "SciPost Editorial Administration",
+    "from_email": "submissions@"
+}

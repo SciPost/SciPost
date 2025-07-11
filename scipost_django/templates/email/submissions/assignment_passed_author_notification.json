@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: Assignment passed",
+    "recipient_list": [
+        "assignment.submission.submitted_by.profile.email"
+    ],
+    "bcc": [
+        "submissions@"
+    ],
+    "from_name": "SciPost Editorial Administration",
+    "from_email": "submissions@"
+}
