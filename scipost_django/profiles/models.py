@@ -212,7 +212,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
         except Contributor.DoesNotExist:
             return False
 
-    def get_absolute_url(self):
+    def get_eponymous_absolute_url(self):
         return reverse("profiles:profile_detail", kwargs={"pk": self.id})
 
     def publications(self):

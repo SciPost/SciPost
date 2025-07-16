@@ -28,6 +28,15 @@ class AnonymizableObjectMixin(models.Model):
         eponymization: AnonymizationBase | None
         anonymizations: RelatedManager[AnonymizationBase]
 
+    def get_absolute_url(self) -> str:
+        """
+        Returns the URL for the object (via `get_eponymous_absolute_url`).
+        If the object is anonymous, it returns the URL of the original object.
+        """
+        if self.is_anonymous and self.eponymization and self.eponymization.original:
+            return self.eponymization.original.get_eponymous_absolute_url()
+        return self.get_eponymous_absolute_url()
+
     @property
     def prefer_eponymous(self) -> "models.Model":
         """

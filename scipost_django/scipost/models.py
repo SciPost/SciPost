@@ -220,7 +220,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
             self.generate_key()
         return super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
+    def get_eponymous_absolute_url(self):
         """Return public information page url."""
         return reverse("scipost:contributor_info", args=(self.id,))
 
