@@ -246,7 +246,7 @@ class SubmissionPoolSearchForm(forms.Form):
     orderby = forms.ChoiceField(
         label="Order by",
         choices=(
-            ("assignment_deadline", "Assignment deadline"),
+            ("assignment_deadline,submission_date", "Assignment deadline"),
             ("submission_date", "Submission date"),
             ("latest_activity", "Latest activity"),
         ),
