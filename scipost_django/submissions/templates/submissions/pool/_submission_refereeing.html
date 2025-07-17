@@ -49,9 +49,7 @@
 
       {% if submission.editor_in_charge %}
         <div class="overflow-scroll" style="max-height: 50vh">
-          {% with submission.editor_in_charge.conflict_of_interests.non_deprecated|filter_for_submission:submission as conflicts %}
-            {% include 'submissions/admin/_conflicts.html' with conflicts=conflicts %}
-          {% endwith %}
+          {% include 'submissions/admin/_conflicts.html' with conflicts=submission.editor_in_charge.profile.submission_conflicts|add:submission.editor_in_charge.profile.submission_related_conflicts %}
         </div>
       {% else %}
         <p>No editor in charge assigned yet.</p>

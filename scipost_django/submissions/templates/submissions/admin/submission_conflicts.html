@@ -42,15 +42,13 @@
       </tr>
     </thead>
     <tbody>
-      {% for fellow in submission.fellows.all %}
+      {% for fellow in submission.fellows_with_conflicts.all %}
         <tr>
           <td>
             <strong>{{ fellow }}</strong>
           </td>
           <td>
-            {% with fellow.contributor.conflict_of_interests.non_deprecated|filter_for_submission:submission as conflicts %}
-              {% include 'submissions/admin/_conflicts.html' with conflicts=conflicts %}
-            {% endwith %}
+            {% include 'submissions/admin/_conflicts.html' with conflicts=fellow.contributor.profile.submission_conflicts|add:fellow.contributor.profile.submission_related_conflicts %}
           </td>
         </tr>
       {% endfor %}

@@ -3,13 +3,12 @@ __license__ = "AGPL v3"
 
 
 import datetime
-from typing import TYPE_CHECKING
 import feedparser
 import uuid
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Q, QuerySet
+from django.db.models import Q, Exists, OuterRef, Prefetch, QuerySet
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -17,6 +16,7 @@ from django.utils.functional import cached_property
 from guardian.models import UserObjectPermissionBase, GroupObjectPermissionBase
 from guardian.shortcuts import assign_perm, remove_perm
 
+from conflicts.models import ConflictOfInterest
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
@@ -44,6 +44,8 @@ from ..constants import (
 from ..exceptions import StageNotDefinedError
 from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
 from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
+
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
@@ -936,6 +938,49 @@ class Submission(models.Model):
                         queryresults.entries
                     )
         return coauthorships
+
+    def get_coi_prefetches_for_profile_path(
+        self, profile_obj_path: str = "profile"
+    ) -> "list[Prefetch[ConflictOfInterest]]":
+        """
+        Return a list of prefetches for COI checks on the Submission.
+        Expects a path from the object-to-fetch-cois-for to the profile object.
+        (e.g. "contributor__profile" when starting from a Fellowship queryset).
+        Produces attributes `submission_conflicts` and `submission_related_conflicts`
+        on the Profile object, each a list of ConflictOfInterest objects.
+        """
+        COI_prefetcher: QuerySet[ConflictOfInterest] = (
+            ConflictOfInterest.objects.annotate(
+                is_related_to_submission=Exists(
+                    ConflictOfInterest.related_submissions.through.objects.filter(
+                        conflictofinterest_id=OuterRef("id"), submission_id=self.id
+                    )
+                )
+            )
+            .non_deprecated()
+            .order_by("header")
+            .distinct("header")
+            .select_related("profile", "related_profile")
+        )
+
+        return [
+            Prefetch(
+                f"{profile_obj_path}__conflicts",
+                queryset=COI_prefetcher.filter(
+                    Q(is_related_to_submission=True)
+                    | Q(related_profile__in=self.author_profiles.values("profile__id"))
+                ),
+                to_attr="submission_conflicts",
+            ),
+            Prefetch(
+                f"{profile_obj_path}__related_conflicts",
+                queryset=COI_prefetcher.filter(
+                    Q(is_related_to_submission=True)
+                    | Q(profile__in=self.author_profiles.values("profile__id"))
+                ),
+                to_attr="submission_related_conflicts",
+            ),
+        ]
 
     def is_sending_editorial_invitations(self):
         """Return whether editorial assignments are being sent out."""

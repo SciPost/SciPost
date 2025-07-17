@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import prefetch_related_objects
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
 from mails.views import MailView
@@ -112,6 +113,12 @@ def _hx_submission_tab(request, identifier_w_vn_nr, tab):
     }
     if tab == "remarks":
         context["remark_form"] = RemarkForm()
+    if tab == "refereeing":
+        if submission.editor_in_charge:
+            prefetch_related_objects(
+                [submission.editor_in_charge],
+                *submission.get_coi_prefetches_for_profile_path(),
+            )
     return render(request, "submissions/pool/_hx_submission_tab.html", context)
 
 

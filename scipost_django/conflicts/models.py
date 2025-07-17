@@ -36,7 +36,7 @@ class ConflictOfInterest(models.Model):
         "profiles.Profile", on_delete=models.CASCADE, related_name="conflicts"
     )
     related_profile = models.ForeignKey(
-        "profiles.Profile", on_delete=models.CASCADE, related_name="+"
+        "profiles.Profile", on_delete=models.CASCADE, related_name="related_conflicts"
     )
 
     # To

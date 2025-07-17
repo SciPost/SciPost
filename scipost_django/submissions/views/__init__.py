@@ -3190,6 +3190,15 @@ class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
     editorial_page = True
     success_url = reverse_lazy("submissions:pool:pool")
 
+    def get_object(self) -> Submission:
+        obj: Submission = super().get_object()
+
+        obj.fellows_with_conflicts = obj.fellows.all().prefetch_related(
+            *obj.get_coi_prefetches_for_profile_path("contributor__profile")
+        )
+
+        return obj
+
 
 class EICRecommendationDetailView(
     SubmissionMixin, LoginRequiredMixin, UserPassesTestMixin, DetailView
