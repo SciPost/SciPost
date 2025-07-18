@@ -25,6 +25,7 @@ from scipost.models import Contributor
 from comments.models import Comment
 from journals.models import Publication, PublicationAuthorsTable
 from ontology.models import Topic
+from submissions.models.submission import Submission
 from theses.models import ThesisLink
 
 from .constants import (
@@ -239,6 +240,30 @@ class Profile(AnonymizableObjectMixin, models.Model):
         Returns all the publications associated to this Profile.
         """
         return Publication.objects.published().filter(authors__profile=self)
+
+    def get_latest_submissions_authored(self):
+        """
+        Returns a queryset of submissions authored by this Profile.
+        Criteria for authorship is either profile preassignment or normal contributor authorship.
+        """
+        annotations = {
+            "has_been_preassigned": Exists(
+                self.submissionauthorprofile_set.filter(submission=OuterRef("id"))
+            )
+        }
+        query = Q(has_been_preassigned=True)
+
+        try:
+            # If the profile has a contributor, we also check for contributor authorship
+            annotations["is_contributor_author"] = Exists(
+                self.contributor.submissions.filter(id=OuterRef("id"))
+            )
+            query.add((Q(is_contributor_author=True)), Q.OR)
+        except Profile.contributor.RelatedObjectDoesNotExist:
+            # If the profile does not have a contributor, we skip this annotation
+            pass
+
+        return Submission.objects.annotate(**annotations).filter(query).latest()
 
     def comments(self):
         """

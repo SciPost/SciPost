@@ -119,7 +119,7 @@
       {% if is_ed_admin %}
         <div class="card-header">Submissions</div>
         <div class="card-body">
-        {% regroup profile.contributor.submissions.latest|dictsort:'status' by get_status_display as submissions_by_status %}
+        {% regroup profile.get_latest_submissions_authored|dictsort:'status' by get_status_display as submissions_by_status %}
         <ul {% if submissions_by_status %}class="list-unstyled"{% endif %}>
           {% for submission_status in submissions_by_status %}
             <li>{{ submission_status.grouper }}:</li>

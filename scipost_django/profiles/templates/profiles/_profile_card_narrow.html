@@ -111,7 +111,7 @@
   </tr>
   <tr class="text-muted">
     <td>Submissions</td>
-    <td>{{ profile.contributor.submissions.count }}</td>
+    <td>{{ profile.get_latest_submissions_authored.count }}</td>
   </tr>
   <tr>
     <td>Comments</td>
