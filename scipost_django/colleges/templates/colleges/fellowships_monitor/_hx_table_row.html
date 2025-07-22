@@ -1,29 +1,43 @@
-<tr>
+<tr class="align-middle">
   <td>
     <span title="{{ fellowship.get_status_display }}">{{ fellowship.status|upper|slice:":1" }}</span>
   </td>
   <td>
+    {% if fellowship.contributor.current_unavailability_periods %}
+	    <span class="text-danger" title="Unavailable up to {{ fellowship.contributor.available_again_after_date }}" data-bs-toggle="tooltip">{% include "bi/x-square-fill.html" %}</span>
+	  {% else %}
+	    <span class="text-success" title="Available" data-bs-toggle="tooltip">{% include "bi/check-square-fill.html" %}</span>
+	  {% endif %}
+  </td>
+  <td>
     <a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor.profile.full_name }}</a>
   </td>
-  <td>
-    <time datetime="{{ fellowship.start_date }}">{{ fellowship.start_date|date:"Y-m-d" }}</time>
-  </td>
-  <td>
-
+  <td class="align-top">
+    <div><time datetime="{{ fellowship.start_date }}">{{ fellowship.start_date|date:"Y-m-d" }}</time></div>
     {% if fellowship.until_date %}
-      <time datetime="{{ fellowship.until_date }}">{{ fellowship.until_date|date:"Y-m-d" }}</time>
-    {% else %}
-      -
+      <div><time datetime="{{ fellowship.until_date }}" class="text-muted">{{ fellowship.until_date|date:"Y-m-d" }}</time></div>
     {% endif %}
-
   </td>
-  <td>{{ fellowship.nr_in_pool }}</td>
-  <td>{{ fellowship.nr_appraised }}</td>
-  <td>{{ fellowship.nr_qualified_for }}</td>
-  <td>{{ fellowship.nr_assignments_ongoing }}</td>
-  <td>{{ fellowship.nr_assignments_completed }}</td>
-  <td>{{ fellowship.nr_recommendations_eligible }}</td>
-  <td>{{ fellowship.nr_recommendations_voted }}</td>
+  <td class="text-end">
+    <div>{{ fellowship.nr_assignments_completed }}</div>
+    <div class="text-muted">{{ fellowship.nr_in_pool }}</div>
+  </td>
+  <td class="text-end">
+    <div>{{ fellowship.nr_qualified_for }}</div>
+    <div class="text-muted">{{ fellowship.nr_appraised }}</div>
+  </td>
+  <td class="text-end">
+    <div>{{ fellowship.nr_recommendations_voted }}</div>
+    <div class="text-muted">{{ fellowship.nr_recommendations_eligible }}</div>
+  </td>
+  <td class="text-end bg-light bg-secondary-10">
+    <span class="fs-2">{% include "icons/reception.html" with value=fellowship.nr_assignments_ongoing max=4 %}</span>
+  </td>
+  <td class="text-end bg-light bg-secondary-10" width="1%">
+    <div>{{ fellowship.nr_assignments_ongoing }}</div>
+    <div class="text-muted">{{ fellowship.nr_in_pool_seeking_assignment }}</div>
+  </td>
+    
   <td>
     <span role="button" class="text-muted">{% include "bi/ellipsis-vertical.html" %}</span>
   </td>

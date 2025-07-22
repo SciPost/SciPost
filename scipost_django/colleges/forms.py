@@ -1601,6 +1601,13 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 ),
                 key="fellows",
             ),
+            nr_in_pool_seeking_assignment=count_q(
+                Submission.objects.filter(
+                    fellows__exact=OuterRef("id"),
+                    status=Submission.SEEKING_ASSIGNMENT,
+                ),
+                key="fellows",
+            ),
             nr_appraised=count_q(
                 filter_submissions_in_pool(
                     Qualification.objects.filter(fellow=OuterRef("id")),
@@ -1624,12 +1631,9 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 key="fellow",
             ),
             nr_assignments_ongoing=count_q(
-                filter_submissions_in_pool(
-                    EditorialAssignment.objects.filter(
-                        to=OuterRef("contributor"),
-                        status=EditorialAssignment.STATUS_ACCEPTED,
-                    ),
-                    prefix="submission__",
+                EditorialAssignment.objects.filter(
+                    to=OuterRef("contributor"),
+                    status=EditorialAssignment.STATUS_ACCEPTED,
                 ),
                 key="to",
             ),
