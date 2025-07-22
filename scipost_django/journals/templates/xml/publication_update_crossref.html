@@ -89,7 +89,7 @@
           </crossmark_domains>
           <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
 	  <updates>
-	    <update type="{{ update.update_type }}" date="{{ update.publication_date }}">{{ update.publication.doi_string }}</update>
+	    <update type="{{ update.update_type }}" date="{{ update.publication_date|date:"Y-m-d" }}">{{ update.publication.doi_string }}</update>
 	  </updates>
         </crossmark>
         <doi_data>
