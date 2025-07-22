@@ -3666,6 +3666,17 @@ class EICRecommendationForm(forms.ModelForm):
         else:
             self.fields["remarks_for_editorial_college"].required = False
 
+        should_mandate_remarks_for_authors = False
+        if recommendation_data:
+            should_mandate_remarks_for_authors = recommendation_data == str(EIC_REC_REJECT)
+        elif recommendation_initial:
+            should_mandate_remarks_for_authors = recommendation_initial == EIC_REC_REJECT
+        
+        if should_mandate_remarks_for_authors:
+            self.fields["remarks_for_authors"].required = True
+        else:
+            self.fields["remarks_for_authors"].required = False
+
         self.load_assignment()
 
     def clean(self):
