@@ -728,6 +728,15 @@ class SciPostAuthenticationForm(AuthenticationForm):
         return self.cleaned_data
 
     def confirm_login_allowed(self, user):
+        if user.contributor.status not in (NEWLY_REGISTERED, NORMAL_CONTRIBUTOR):
+            raise forms.ValidationError(
+                (
+                    "Your registration request has been turned down. "
+                    "You are still able to view all SciPost content, "
+                    "but not log in or contribute new one."
+                ),
+                code="rejected",
+            )
         if not user.is_active:
             raise forms.ValidationError(
                 (
