@@ -168,8 +168,8 @@
       {% endif %}
 
       {% if submission.list_of_changes %}
-	<h3>List of changes</h3>
-	<div class="blockquote">{{ submission.list_of_changes|linebreaks }}</div>
+        <h3>List of changes</h3>
+        <div class="blockquote">{% automarkup submission.list_of_changes %}</div>
       {% endif %}
     </div>
 
