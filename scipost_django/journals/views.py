@@ -1544,24 +1544,34 @@ def metadata_xml_deposit(request, doi_label, option="test"):
         # New deposit, go for it.
         if option == "deposit" and not settings.DEBUG:
             # CAUTION: Real deposit only on production!
-            url = "http://doi.crossref.org/servlet/deposit"
+            url = "https://doi.crossref.org/servlet/deposit"
         else:
-            url = "http://test.crossref.org/servlet/deposit"
+            url = "https://test.crossref.org/servlet/deposit"
 
         # First perform the actual deposit to Crossref
-        params = {
-            "operation": "doMDUpload",
-            "login_id": settings.CROSSREF_LOGIN_ID,
-            "login_passwd": settings.CROSSREF_LOGIN_PASSWORD,
-        }
         files = {
             "fname": (
                 "metadata.xml",
                 publication.metadata_xml.encode("utf-8"),
                 "multipart/form-data",
-            )
+            ),
+            "operation": (
+                None,
+                "doMDUpload",
+                "multipart/form-data",
+            ),
+            "login_id": (
+                None,
+                settings.CROSSREF_LOGIN_ID,
+                "multipart/form-data",
+            ),
+            "login_passwd": (
+                None,
+                settings.CROSSREF_LOGIN_PASSWORD,
+                "multipart/form-data",
+            ),
         }
-        r = requests.post(url, params=params, files=files)
+        r = requests.post(url, files=files)
         response_headers = r.headers
         response_text = r.text
 
@@ -2189,16 +2199,33 @@ def generic_metadata_xml_deposit(request, **kwargs):
 
     if not settings.CROSSREF_DEBUG:
         # CAUTION: Debug is False, production goes for real deposit!!!
-        url = "http://doi.crossref.org/servlet/deposit"
+        url = "https://doi.crossref.org/servlet/deposit"
     else:
-        url = "http://test.crossref.org/servlet/deposit"
-    params = {
-        "operation": "doMDUpload",
-        "login_id": settings.CROSSREF_LOGIN_ID,
-        "login_passwd": settings.CROSSREF_LOGIN_PASSWORD,
+        url = "https://test.crossref.org/servlet/deposit"
+
+    files = {
+        "fname": (
+            "metadata.xml",
+            metadata_xml.encode("utf-8"),
+            "multipart/form-data",
+        ),
+        "operation": (
+            None,
+            "doMDUpload",
+            "multipart/form-data",
+        ),
+        "login_id": (
+            None,
+            settings.CROSSREF_LOGIN_ID,
+            "multipart/form-data",
+        ),
+        "login_passwd": (
+            None,
+            settings.CROSSREF_LOGIN_PASSWORD,
+            "multipart/form-data",
+        ),
     }
-    files = {"fname": ("metadata.xml", metadata_xml, "multipart/form-data")}
-    r = requests.post(url, params=params, files=files)
+    r = requests.post(url, files=files)
     deposit = GenericDOIDeposit(
         content_type=ContentType.objects.get_for_model(_object),
         object_id=object_id,
