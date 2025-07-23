@@ -6,6 +6,7 @@ import datetime
 import bleach
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.validators import RegexValidator
 from django.db.models import Q, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.utils.encoding import force_bytes
@@ -21,13 +22,13 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
-from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.dates import MONTHS
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
+from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
 from common.utils.text import split_strip
@@ -688,12 +689,30 @@ class SciPostAuthenticationForm(AuthenticationForm):
     * confirm_login_allowed: disallow inactive or unvetted accounts.
     """
 
-    next = forms.CharField(widget=forms.HiddenInput(), required=False)
-    code = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={"autocomplete": "off"}),
-        help_text="Please type in the code displayed on your authenticator app from your device",
+    next = forms.CharField(required=False)
+    password = forms.CharField(
+        label="Password",
+        strip=False,
+        widget=forms.PasswordInput(
+            attrs={"autocomplete": "current-password"}, render_value=True
+        ),
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField("username"), css_class="col-12"),
+                Div(FloatingField("password"), css_class="col-12"),
+                Div(FloatingField("next"), css_class="d-none"),
+                Div(
+                    Submit("submit", "Login", css_class="btn btn-primary"),
+                    css_class="col-12",
+                ),
+                css_class="row",
+            )
+        )
 
     def clean(self):
         """Allow either username, or email as substitute for username."""
@@ -756,28 +775,55 @@ class SciPostAuthenticationForm(AuthenticationForm):
                 ),
                 code="unvetted",
             )
-        if user.devices.exists():
-            if self.cleaned_data.get("code"):
-                code = self.cleaned_data.get("code")
-                totp = TOTPVerification(user)
-                if not totp.verify_code(code):
-                    self.add_error("code", "Invalid code")
-            else:
-                self.add_error("code", "Your account uses two factor authentication")
 
 
-class UserAuthInfoForm(forms.Form):
-    username = forms.CharField()
+class SciPostMFAVerifyForm(SciPostAuthenticationForm):
+    code = forms.CharField(
+        label="2FA Code",
+        max_length=6,
+        required=True,
+        validators=[RegexValidator(r"^\d{6}$", "Enter a valid 6-digit code.")],
+        widget=forms.TextInput(
+            attrs={
+                "autocomplete": "one-time-code",
+                "placeholder": "000000",
+                "autofocus": "autofocus",
+                "pattern": r"\d{6}",
+                "inputmode": "numeric",
+            }
+        ),
+    )
 
-    def get_data(self):
-        username = self.cleaned_data.get("username")
-        return {
-            "username": username,
-            "has_password": True,
-            "has_totp": TOTPDevice.objects.filter(
-                Q(user__username=username) | Q(user__email=username)
-            ).exists(),
-        }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("code"), css_class="col-12"),
+                Div(Field("username"), css_class="d-none"),
+                Div(Field("password"), css_class="d-none"),
+                Div(Field("next"), css_class="d-none"),
+                Div(
+                    Submit("submit", "Login", css_class="btn btn-primary"),
+                    css_class="col-12",
+                ),
+                css_class="row",
+            )
+        )
+
+    def clean(self):
+        super_clean = super().clean()
+
+        if code := super_clean.get("code", ""):
+            code_verified = TOTPVerification(self.get_user()).verify_code(code)
+            if not code_verified:
+                self.add_error(
+                    "code",
+                    "The code you entered is invalid. Please try again.",
+                )
+
+        return super_clean
 
 
 class TOTPDeviceForm(forms.ModelForm):

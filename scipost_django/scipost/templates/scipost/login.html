@@ -1,7 +1,14 @@
 {% extends 'scipost/base.html' %}
 
-{% block meta_description %}{{ block.super }} Login{% endblock meta_description %}
-{% block pagetitle %}: login{% endblock pagetitle %}
+{% load crispy_forms_tags %}
+
+{% block meta_description %}
+  {{ block.super }} Login
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : login
+{% endblock pagetitle %}
 
 {% load bootstrap %}
 {% load static %}
@@ -11,27 +18,20 @@
   <div class="row my-4">
     <div class="col-md-6">
       <h1 class="mb-md-2">Log in to SciPost</h1>
-      <form action="{% url 'scipost:login' %}" method="post">
-    	{% csrf_token %}
-        {{ form|bootstrap }}
-    	<input class="btn btn-primary" type="submit" value="Login" />
-	<input type="hidden" name="next" value="{{ next }}" />
-      </form>
-      <br/>
+      {% crispy form %}
+      <br />
       <a href="{% url 'scipost:password_reset' %}">Forgot your password?</a>
     </div>
 
 
     <div class="col-md-6">
       <h1>Not registered as a Contributor to SciPost?</h1>
-      <p>If you are a professional scientist (PhD student and above), you can register by filling the
-	<a href="{% url 'scipost:register' %}">registration form</a>.</p>
+      <p>
+        If you are a professional scientist (PhD student and above), you can register by filling the
+        <a href="{% url 'scipost:register' %}">registration form</a>.
+      </p>
     </div>
 
   </div>
 
-{% endblock %}
-
-{% block footer_script %}
-  <script src="{% static 'scipost/login-form.js' %}"></script>
 {% endblock %}

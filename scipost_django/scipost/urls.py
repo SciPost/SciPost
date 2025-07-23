@@ -333,7 +333,6 @@ urlpatterns = [
     # Authentication
     #################
     path("login/", views.SciPostLoginView.as_view(), name="login"),
-    path("login/info/", views.raw_user_auth_info, name="login_info"),
     path("logout/", views.SciPostLogoutView.as_view(), name="logout"),
     path(
         "password_change",

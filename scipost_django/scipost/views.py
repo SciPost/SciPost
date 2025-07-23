@@ -65,8 +65,8 @@ from .decorators import has_contributor, is_contributor_user
 from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim
 from .forms import (
     SciPostAuthenticationForm,
+    SciPostMFAVerifyForm,
     SciPostPasswordResetForm,
-    UserAuthInfoForm,
     TOTPDeviceForm,
     UnavailabilityPeriodForm,
     RegistrationForm,
@@ -899,10 +899,35 @@ class SciPostLoginView(LoginView):
     """
 
     template_name = "scipost/login.html"
-    authentication_form = SciPostAuthenticationForm
 
     def get_initial(self):
         return self.request.GET
+
+    def form_valid(self, form):
+        #! Hacky implementation to handle MFA in Django... FIXME
+        # If the credentials are correct (auth form is valid),
+        # either log the user when no device exists,
+        # or render the MFA form if a device exists and the MFA code has not been sent yet.
+        # The second time around, the form will be a SciPostMFAVerifyForm,
+        # performing joined checks on the credentials and the MFA code.
+        # If both are correct, `.form_valid` will be called again, this time with the MFA form,
+        # and the user will be logged in via Django's `login` method.
+        if form.get_user().devices.exists() and not self.has_sent_mfa_code:
+            mfa_form = SciPostMFAVerifyForm(**self.get_form_kwargs())
+            return self.render_to_response(self.get_context_data(form=mfa_form))
+        else:
+            return super().form_valid(form)
+
+    def get_form_class(self):
+        return (
+            SciPostMFAVerifyForm
+            if self.has_sent_mfa_code
+            else SciPostAuthenticationForm
+        )
+
+    @property
+    def has_sent_mfa_code(self):
+        return self.request.POST.get("code", False)
 
     def get_success_url(self):
         """Add items to session variables."""
@@ -945,15 +970,6 @@ def prompt_to_login(request):
         + "?next="
         + urllib.parse.quote(request.get_full_path())
     )
-
-
-def raw_user_auth_info(request):
-    form = UserAuthInfoForm(request.POST or None)
-
-    data = {}
-    if form.is_valid():
-        data = form.get_data()
-    return JsonResponse(data)
 
 
 class SciPostLogoutView(LogoutView):
