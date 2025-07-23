@@ -2,7 +2,9 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from typing import cast
 from django.core.management.base import BaseCommand
+from django.db.models import BaseManager
 from django.utils import timezone
 
 from mails.utils import DirectMailUtil
@@ -17,8 +19,10 @@ class Command(BaseCommand):
     WEEKS_TO_SKIP = [3, 5, 8, 10]
 
     def handle(self, *args, **options):
-        submission: Submission
-        for submission in Submission.objects.seeking_assignment():
+        seeking_assignment = cast(
+            BaseManager[Submission], Submission.objects.seeking_assignment()
+        )
+        for submission in seeking_assignment:
             now = timezone.now()
             today = now.date()
 
@@ -53,9 +57,16 @@ class Command(BaseCommand):
                 continue
 
             # Send regular reminders if assignment deadline is not passed
-            if weeks_until_assignment_deadline > 0:
+            if submission.proceedings or submission.for_deadline_unenforced_collection:
                 mail = DirectMailUtil(
-                    f"authors/update_authors_assignment_stage",
+                    "authors/update_authors_assignment_stage_no_deadline",
+                    submission=submission,
+                )
+
+            # Regular submission with assignment deadline and editorial college volunteers
+            elif weeks_until_assignment_deadline > 0:
+                mail = DirectMailUtil(
+                    "authors/update_authors_assignment_stage",
                     submission=submission,
                     weeks_passed=weeks_passed,
                     weeks_until_assignment_deadline=weeks_until_assignment_deadline,

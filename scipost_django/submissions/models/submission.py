@@ -1178,6 +1178,14 @@ class Submission(models.Model):
 
         return {}
 
+    @property
+    def for_deadline_unenforced_collection(self) -> bool:
+        """
+        Check if the Submission is a candidate for inclusion in
+        a Collection that does not enforce assignment deadlines.
+        """
+        return self.collections.filter(enforce_assignment_deadline=False).exists()
+
     def edadmin_notes(self):
         """Notes to be displayed to edadmin."""
         notes: list[tuple[str, str]] = []

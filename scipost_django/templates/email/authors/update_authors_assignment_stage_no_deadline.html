@@ -1,0 +1,39 @@
+{% load common_extras %}
+
+<p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
+
+<p>We would hereby like to give you an update on your recent SciPost submission,</p>
+<p>
+  <a href="https://{{ domain }}{% url 'submissions:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.title }}</a>,
+  <br />
+  by {{ submission.author_list }}.
+</p>
+
+<p>
+  Your Submission is in the "seeking assignment" stage, where unfortunately no Editor-in-charge has yet taken charge of your Submission.
+</p>
+
+{% if submission.proceedings %}
+  <p>
+    Your submission should be picked up for editorial review by the proceeding issue organizers soon.
+    For more information about the editorial assignment timescales, please consider contacting the event organizers.
+  </p>
+{% else %}
+  <p>
+    We are currently actively looking for an Editor-in-charge and expect your submission to be sent out for editorial review soon.
+  </p>
+{% endif %}
+
+<p>
+  We thank you for your patience and understanding. If you have any questions or concerns, please do not hesitate to
+  <a href="https://{{ domain }}{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoS' %}">contact Editorial Administration</a> (login required).
+</p>
+
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}
+{% include 'email/_submission_thread_uuid.html' with submission=submission %}

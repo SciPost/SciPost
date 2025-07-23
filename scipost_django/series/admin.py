@@ -14,8 +14,6 @@ class SeriesAdmin(admin.ModelAdmin):
     ]
 
 
-
-
 class CollectionPublicationsTableAdmin(admin.StackedInline):
     model = CollectionPublicationsTable
     extra = 0
@@ -30,6 +28,10 @@ class CollectionAdmin(admin.ModelAdmin):
     inlines = [
         CollectionPublicationsTableAdmin,
     ]
+    list_filter = [
+        "enforce_assignment_deadline",
+        "enforce_expected_authors",
+    ]
     search_fields = [
         "name",
     ]
@@ -40,5 +42,3 @@ class CollectionAdmin(admin.ModelAdmin):
         "expected_authors",
         "expected_editors",
     ]
-
-

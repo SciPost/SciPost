@@ -87,6 +87,7 @@ class Collection(models.Model):
         help_text=("Special rules enforced in this Collection, affecting the editors."),
     )
 
+    enforce_assignment_deadline = models.BooleanField(default=False)
     enforce_expected_authors = models.BooleanField(
         default=True,
         help_text=(
