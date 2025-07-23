@@ -1,10 +1,12 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from typing import cast
 
 from django.core.management.base import BaseCommand
-from django.db.models import Q
+from django.db.models import BaseManager
 
+from common.utils.text import partial_name_match_regexp
 from profiles.models import Profile
 from submissions.models import Submission
 
@@ -27,12 +29,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         caller = ArxivCaller()
 
-        if options["arxiv"]:
+        if identifier := options.get("arxiv"):
             submissions = Submission.objects.filter(
-                preprint__identifier_w_vn_nr=options["arxiv"]
+                preprint__identifier_w_vn_nr=identifier
             )
         else:
-            submissions = Submission.objects.needs_conflicts_update()[:5]
+            submissions = cast(
+                BaseManager[Submission], Submission.objects.needs_conflicts_update()[:5]
+            )
 
         n_new_conflicts = 0
         for sub in submissions:
@@ -43,18 +47,14 @@ class Command(BaseCommand):
 
             # Get all possibly relevant Profiles
             # Assume the author list is purely comma-separated,
-            # with entries in format [firstname or initial[.]] lastname
-            author_profile_ids = []
-            for a in sub.author_list.split(","):
-                last = a.split()[-1]
-                first = a.split()[0].split(".")[0]
-                print("%s %s" % (first, last))
-                author_profile_ids += [
-                    p.id
-                    for p in Profile.objects.filter(
-                        last_name__endswith=last, first_name__startswith=first
-                    ).all()
-                ]
+            author_profile_ids: list[int] = []
+            for author_name in sub.author_list.split(","):
+                author_name_re = partial_name_match_regexp(author_name.strip())
+                author_profile_ids += list(
+                    Profile.objects.with_full_names()
+                    .filter(full_name_annot__unaccent__iregex=author_name_re)
+                    .values_list("id", flat=True)
+                )
             author_profile_ids_set = set(author_profile_ids)
             author_profiles = Profile.objects.filter(pk__in=author_profile_ids_set)
 
