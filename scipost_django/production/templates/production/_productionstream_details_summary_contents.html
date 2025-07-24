@@ -55,18 +55,18 @@
                   {% else %}
                     <span title="{{ productionstream.submission.proceedings.event_name }}">{{ productionstream.submission.proceedings.event_name }}</span>
                   {% endif %}
-                {% elif productionstream.submission.collections.all %}
-                  {% for collection in productionstream.submission.collections.all %}
-                    <span title="{{ collection.series.name }}">{{ collection.series.name }}</span>
-                    <br>
-                    <span title="{{ collection.name }}">{{ collection.name }}</span>
-                  {% endfor %}
                 {% else %}
                   {{ productionstream.submission.editorial_decision.for_journal }}
                   {% if "Selections" in productionstream.submission.editorial_decision.for_journal.name %}
                     - {{ productionstream.submission.acad_field }}
                   {% endif %}
                 {% endif %}
+                {% for collection in productionstream.submission.collections.all %}
+                  <br>
+                  <span title="{{ collection.series.name }}">{{ collection.series.name }}</span>
+                  <br>
+                  <span title="{{ collection.name }}">{{ collection.name }}</span>
+                {% endfor %}
             </div>
  
             <div class="col-auto text-nowrap">
