@@ -110,7 +110,7 @@
           {% endif %}
         </td>
         <td>
-          {% if not invitation.fulfilled %}
+          {% if not invitation.fulfilled and not invitation.cancelled and invitation.accepted != False %}
             <div class="d-flex flex-column justify-contents-between align-center bg-light">
               <button class="btn btn-sm btn-light"
                   hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
@@ -118,7 +118,7 @@
                   hx-include="next input[name='notify_by_email']">Cancel invitation
               </button>
               <div class="d-flex flex-row justify-content-evenly align-items-center border-secondary border-top py-1">
-                <label for="email-checkbox-{{invitation.id}}" class="text-muted">Notify by email?</label>
+                <label for="email-checkbox-{{invitation.id}}" class="text-muted">Email?</label>
                 <input id="email-checkbox-{{invitation.id}}" class="checkbox-lg" type="checkbox" name="notify_by_email" checked/>
               </div>
             </div>

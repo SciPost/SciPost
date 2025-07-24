@@ -2042,6 +2042,13 @@ def _hx_cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     except RefereeInvitation.DoesNotExist:
         return HTMXResponse("Invitation not found/accessible", tag="danger")
 
+    if invitation.fulfilled:
+        return HTMXResponse("Invitation already fulfilled", tag="danger")
+    elif invitation.cancelled:
+        return HTMXResponse("Invitation already cancelled", tag="danger")
+    elif invitation.accepted == False:
+        return HTMXResponse("Invitation already declined.", tag="danger")
+
     invitation.cancelled = True
     invitation.save()
 
