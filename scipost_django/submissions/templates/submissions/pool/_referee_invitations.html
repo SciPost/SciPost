@@ -97,20 +97,16 @@
           {% endif %}
         </td>
         <td>
-          {% if invitation.contributor %}
-            <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.contributor.id %}">Write a communication</a>
-            {% if invitation.contributor.editorial_communications|filter_for_submission:submission %}
+                      <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
+            {% if invitation.communications %}
               <br>
               <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
-                <small>Show communication ({{ invitation.contributor.editorial_communications|filter_for_submission:submission|length }})</small>
+                <small>Show communication ({{ invitation.communications|length }})</small>
               </button>
-            {% endif %}
-          {% else %}
-            (not yet registered)
-          {% endif %}
+                      {% endif %}
         </td>
         <td>
-          {% if not invitation.fulfilled and not invitation.cancelled and invitation.accepted != False %}
+          {% if not invitation.fully_treated %}
             <div class="d-flex flex-column justify-contents-between align-center bg-light">
               <button class="btn btn-sm btn-light"
                   hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
@@ -125,15 +121,13 @@
           {% endif %}
         </td>
       </tr>
-      {% if invitation.contributor %}
         <tr style="display: none;" class="pt-1 table-info" id="comm-row-{{ invitation.id }}">
           <td></td>
           <td colspan="8">
-            {% include 'submissions/_communication_thread.html' with communication=invitation.contributor.editorial_communications|filter_for_submission:submission css_class='wide' %}
+            {% include 'submissions/_communication_thread.html' with communication=invitation.communications css_class='wide' %}
             <button type="button" class="btn btn-link p-0 d-inline-block mb-2" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}"><small>Hide communication</small></button>
           </td>
         </tr>
-      {% endif %}
     {% empty %}
       <tr>
         <td class="text-center py-3" colspan="9">You do not have any referees.</td>

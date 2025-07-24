@@ -15,7 +15,7 @@ from ..managers import EditorialCommunicationQuerySet
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from scipost.models import Contributor
+    from profiles.models import Profile
     from submissions.models import Submission
 
 
@@ -25,8 +25,8 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     submission = models.ForeignKey["Submission"](
         "submissions.Submission", on_delete=models.CASCADE
     )
-    referee = models.ForeignKey["Contributor"](
-        "scipost.Contributor", on_delete=models.CASCADE, blank=True, null=True
+    referee = models.ForeignKey["Profile"](
+        "profiles.Profile", on_delete=models.CASCADE, blank=True, null=True
     )
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
@@ -42,9 +42,7 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
         """Summarize the EditorialCommunication's meta information."""
         output = self.comtype
         if self.referee is not None:
-            output += (
-                " " + self.referee.user.first_name + " " + self.referee.user.last_name
-            )
+            output += " " + self.referee.full_name
         output += " for submission {title} by {authors}".format(
             title=self.submission.title[:30], authors=self.submission.author_list[:30]
         )
@@ -54,39 +52,41 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
         """Return the url of the related Submission detail page."""
         return self.submission.get_absolute_url()
 
-    def _resolve_contributor_from_letter(self, letter: str):
-        recipients: dict[str, "Contributor | None"] = {
-            "E": self.submission.editor_in_charge,
-            "A": self.submission.submitted_by,
+    def _resolve_profile_from_letter(self, letter: str):
+        recipients: dict[str, "Profile | None"] = {
+            "A": self.submission.submitted_by.profile,
             "R": self.referee,
+            "E": self.submission.editor_in_charge.profile
+            if self.submission.editor_in_charge
+            else None,
         }
 
         return recipients.get(letter)
 
-    def _resolve_contributor_name(self, letter: str):
+    def _resolve_profile_name(self, letter: str):
         if letter == "S":
             return "SciPost Editorial Administration"
         elif letter == "E":
             return "Editor in Charge"
-        elif contributor := self._resolve_contributor_from_letter(letter):
-            return f"{contributor.profile_title} {contributor.user.last_name}"
+        elif profile := self._resolve_profile_from_letter(letter):
+            return profile.formal_name
         return "Unknown"
 
-    def _resolve_contributor_email(self, letter: str):
+    def _resolve_profile_email(self, letter: str):
         if letter == "S":
             domain = get_current_domain()
             return f"submissions@{domain}"
-        elif letter == "R" and self.referee and self.referee.profile:
+        elif letter == "R" and self.referee:
             # Attempt to get the referee's email through the invitation
             if ref_invitation := self.submission.referee_invitations.filter(
-                referee=self.referee.profile,
+                referee=self.referee,
                 cancelled=False,
             ).first():
                 return ref_invitation.email_address
 
         # In the generic case, resolve Contributor and use Profile's primary
-        if contributor := self._resolve_contributor_from_letter(letter):
-            return contributor.profile.email if contributor.profile else ""
+        if profile := self._resolve_profile_from_letter(letter):
+            return profile.email
         return ""
 
     @property
@@ -105,24 +105,24 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
 
     @property
     def author(self):
-        return self._resolve_contributor_from_letter(self.author_letter)
+        return self._resolve_profile_from_letter(self.author_letter)
 
     @property
     def recipient(self):
-        return self._resolve_contributor_from_letter(self.recipient_letter)
+        return self._resolve_profile_from_letter(self.recipient_letter)
 
     @property
     def author_name(self):
-        return self._resolve_contributor_name(self.author_letter)
+        return self._resolve_profile_name(self.author_letter)
 
     @property
     def recipient_name(self):
-        return self._resolve_contributor_name(self.recipient_letter)
+        return self._resolve_profile_name(self.recipient_letter)
 
     @property
     def author_email(self):
-        return self._resolve_contributor_email(self.author_letter)
+        return self._resolve_profile_email(self.author_letter)
 
     @property
     def recipient_email(self):
-        return self._resolve_contributor_email(self.recipient_letter)
+        return self._resolve_profile_email(self.recipient_letter)

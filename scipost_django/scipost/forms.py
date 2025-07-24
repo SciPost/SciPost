@@ -1061,9 +1061,6 @@ class ContributorMergeForm(forms.Form):
         )
         Report.objects.filter(vetted_by=contrib_from).update(vetted_by=contrib_into)
         Report.objects.filter(author=contrib_from).update(author=contrib_into)
-        EditorialCommunication.objects.filter(referee=contrib_from).update(
-            referee=contrib_into
-        )
         ThesisLink.objects.filter(requested_by=contrib_from).update(
             requested_by=contrib_into
         )

@@ -285,6 +285,7 @@ class ProfileMergeForm(forms.Form):
         # Move all invitations to the "new" profile
         profile_old.referee_invitations.all().update(referee=profile)
         profile_old.registrationinvitation_set.all().update(profile=profile)
+        profile_old.editorial_communications.all().update(referee=profile)
 
         # Move all PotentialFellowships to the "new" profile
         profile_old.potentialfellowship_set.all().update(profile=profile)

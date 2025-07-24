@@ -45,6 +45,7 @@ from mails.models import MailAddressDomain
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
     from submissions.models.referee_invitation import RefereeInvitation
+    from submissions.models.communication import EditorialCommunication
 
 
 class Profile(AnonymizableObjectMixin, models.Model):
@@ -89,6 +90,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
         potentialfellowship_set: "RelatedManager[PotentialFellowship]"
         fellowship_nominations: "RelatedManager[FellowshipNomination]"
         eponymization: "ProfileAnonymization | None"
+        editorial_communications: "RelatedManager[EditorialCommunication]"
 
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, default=TITLE_DR)
     first_name = models.CharField(max_length=64)

@@ -2259,7 +2259,7 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
     Communication may be between two of: editor-in-charge, author and referee.
     """
     referee = None
-    author, recipient = re.match(r"(\w)to(\w)", comtype).groups()
+    author_letter, recipient_letter = re.match(r"(\w)to(\w)", comtype).groups()
 
     valid_comtypes = [comtype[0] for comtype in ED_COMM_CHOICES]
 
@@ -2270,57 +2270,46 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
     if comtype not in valid_comtypes:
         raise Http404("Invalid communication type")
 
-    if author == "E":
-        submissions_qs = Submission.objects.in_pool_filter_for_eic(
-            request.user,
-            latest=False,
-            historical=True,
-        )
-    elif author == "A":
-        submissions_qs = Submission.objects.filter_for_author(request.user)
-    elif author == "R":
-        if not hasattr(request.user, "contributor"):
-            # Raise PermissionDenied to let the user know something is wrong with its account.
-            raise PermissionDenied
-
-        submissions_qs = Submission.objects.filter(
-            referee_invitations__referee=request.user.contributor.profile
-        )
-        referee = request.user.contributor
-    elif author == "S":
-        if not request.user.has_perm("scipost.can_oversee_refereeing"):
-            raise PermissionDenied
-        submissions_qs = Submission.objects.in_pool(
-            request.user,
-            historical=True,
-        )
-        referee = request.user.contributor
-    else:
-        # Invalid commtype in the url!
-        raise Http404("Invalid communication type")
+    match author_letter:
+        case "A":
+            submissions_qs = Submission.objects.filter_for_author(request.user)
+        case "E":
+            submissions_qs = Submission.objects.in_pool_filter_for_eic(
+                request.user,
+                latest=False,
+                historical=True,
+            )
+        case "R":
+            submissions_qs = Submission.objects.filter(
+                referee_invitations__referee=request.user.contributor.profile
+            )
+            referee = request.user.contributor.profile
+        case "S":
+            if not request.user.has_perm("scipost.can_oversee_refereeing"):
+                raise PermissionDenied
+            submissions_qs = Submission.objects.in_pool(
+                request.user,
+                historical=True,
+            )
+            referee = request.user.contributor.profile
+        case _:
+            # Invalid author letter
+            raise Http404("Invalid author letter")
 
     # Uniquify and get the showpiece itself or return 404
-    submissions_qs = submissions_qs.distinct()
     submission = get_object_or_404(
-        submissions_qs, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+        submissions_qs.distinct(), preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
 
-    if recipient == "R" and referee_id:
+    print(recipient_letter, referee_id)
+    if recipient_letter == "R" and referee_id:
         # Get the Contributor to communicate with if not already defined (`Eto?` communication)
         # To Fix: Assuming the Editorial Administrator won't make any `referee_id` mistakes
-        referee = get_object_or_404(
-            Contributor.objects.active()
-            .annotate(
-                invited_in_thread=Exists(
-                    RefereeInvitation.objects.filter(
-                        submission__thread_hash=submission.thread_hash,
-                        referee__contributor=OuterRef("pk"),
-                    )
-                )
-            )
-            .filter(invited_in_thread=True),
-            pk=referee_id,
-        )
+        if invitation := RefereeInvitation.objects.filter(
+            submission__thread_hash=submission.thread_hash,
+            referee__id=referee_id,
+        ).first():
+            referee = invitation.referee
 
     dummy_communication = EditorialCommunication(
         comtype=comtype, submission=submission, referee=referee
@@ -2346,16 +2335,16 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
             return redirect(submission.get_absolute_url())
 
         messages.success(request, "Communication submitted")
-        if author == "E":
+        if author_letter == "E":
             return redirect(
                 reverse(
                     "submissions:editorial_page",
                     kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
                 )
             )
-        elif author == "A":
+        elif author_letter == "A":
             return redirect(submission.get_absolute_url())
-        elif author == "S":
+        elif author_letter == "S":
             return redirect(reverse("submissions:pool:pool"))
         return redirect(submission.get_absolute_url())
 

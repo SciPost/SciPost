@@ -108,6 +108,18 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         return getattr(self.referee, "contributor", None)
 
     @property
+    def communications(self):
+        """
+        Return all EditorialCommunications related to this invitation,
+        i.e. for this submission and referee.
+        """
+        from submissions.models import EditorialCommunication
+
+        return EditorialCommunication.objects.filter(
+            submission=self.submission, referee=self.referee
+        )
+
+    @property
     def to_registered_referee(self):
         """Check if the invitation is to a registered referee."""
         return self.referee.has_active_contributor
@@ -170,6 +182,14 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
             # Refereeing deadline closing in/overdue, but invitation isn't fulfilled yet.
             return (self.submission.reporting_deadline - timezone.now()).days < 0
         return False
+
+    @property
+    def fully_treated(self):
+        """
+        Check if invitation has been fully treated,
+        i.e. either fulfilled, cancelled or declined.
+        """
+        return self.fulfilled or self.cancelled or self.accepted == False
 
     @property
     def needs_attention(self):
