@@ -72,69 +72,58 @@
           {% endif %}
         </td>
 
-        {% if not invitation.accepted == False and not invitation.cancelled %}
-          <td>
-            <div>
-              {% if invitation.auto_reminders_allowed %}
-                <div><span class="label-outline-success">On</span></div>
-                <div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=0 %}">turn off</a>)</div>
-              {% else %}
-                <div><span class="label-outline-danger">Off</span></div>
-                <div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=1 %}">turn on</a>)</div>
-              {% endif %}
-            </div>
-          </td>
-          <td>
-            {% if not invitation.fulfilled %}
-              <a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder email manually</a>
+        <td>
+          <div>
+            {% if invitation.auto_reminders_allowed %}
+              <div><span class="label-outline-success">On</span></div>
+              <div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=0 %}">turn off</a>)</div>
             {% else %}
-              <strong class="text-success">Report has been delivered</strong>
+              <div><span class="label-outline-danger">Off</span></div>
+              <div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=1 %}">turn on</a>)</div>
             {% endif %}
-          </td>
-          <td>
-            {% if invitation.nr_reminders > 0 %}
-              nr reminders sent: {{ invitation.nr_reminders }}
-              <div class="text-muted">last on {{ invitation.date_last_reminded }}</div>
+          </div>
+        </td>
+        <td>
+          {% if not invitation.fulfilled %}
+            <a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder email manually</a>
+          {% else %}
+            <strong class="text-success">Report has been delivered</strong>
+          {% endif %}
+        </td>
+        <td>
+          {% if invitation.nr_reminders > 0 %}
+            nr reminders sent: {{ invitation.nr_reminders }}
+            <div class="text-muted">last on {{ invitation.date_last_reminded }}</div>
+          {% endif %}
+        </td>
+        <td>
+          {% if invitation.contributor %}
+            <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.contributor.id %}">Write a communication</a>
+            {% if invitation.contributor.editorial_communications|filter_for_submission:submission %}
+              <br>
+              <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
+                <small>Show communication ({{ invitation.contributor.editorial_communications|filter_for_submission:submission|length }})</small>
+              </button>
             {% endif %}
-          </td>
-          <td>
-            {% if invitation.contributor %}
-              <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.contributor.id %}">Write a communication</a>
-              {% if invitation.contributor.editorial_communications|filter_for_submission:submission %}
-                <br>
-                <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
-                  <small>Show communication ({{ invitation.contributor.editorial_communications|filter_for_submission:submission|length }})</small>
-                </button>
-              {% endif %}
-            {% else %}
-              (not yet registered)
-            {% endif %}
-          </td>
-          <td>
-            {% if not invitation.fulfilled %}
+          {% else %}
+            (not yet registered)
+          {% endif %}
+        </td>
+        <td>
+          {% if not invitation.fulfilled %}
             <div class="d-flex flex-column justify-contents-between align-center bg-light">
               <button class="btn btn-sm btn-light"
-                 hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
-                 hx-target="closest div"
-                 hx-include="next input[name='notify_by_email']">Cancel invitation
+                  hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
+                  hx-target="closest div"
+                  hx-include="next input[name='notify_by_email']">Cancel invitation
               </button>
               <div class="d-flex flex-row justify-content-evenly align-items-center border-secondary border-top py-1">
                 <label for="email-checkbox-{{invitation.id}}" class="text-muted">Notify by email?</label>
                 <input id="email-checkbox-{{invitation.id}}" class="checkbox-lg" type="checkbox" name="notify_by_email" checked/>
               </div>
             </div>
-            {% endif %}
-          </td>
-        {% else %}
-          <td colspan="3"></td>
-          <td colspan="2">
-            {% if invitation.contributor %}
-              <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
-                <small>Show communication ({{ invitation.contributor.editorial_communications|filter_for_submission:submission|length }})</small>
-              </button>
-            {% endif %}
-          </td>
-        {% endif %}
+          {% endif %}
+        </td>
       </tr>
       {% if invitation.contributor %}
         <tr style="display: none;" class="pt-1 table-info" id="comm-row-{{ invitation.id }}">
