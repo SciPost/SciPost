@@ -1,14 +1,18 @@
 {% load submissions_extras %}
 
-<table class="table table-light table-hover v-center">
-  <thead class="table-light">
+<table class="table table-light table-hover v-center position-relative">
+  <thead class="table-light position-sticky top-0" style="z-index: 1;">
     <tr>
       <th></th>
       <th>Referee</th>
       <th>Invitation date</th>
       <th>Task status</th>
-      <th>Auto reminders <small>{% include 'submissions/_refinv_auto_reminders_tooltip.html' %}</small></th>
-      <th colspan="4">Actions</th>
+      <th class="text-nowrap">
+        <div>Auto <span>{% include 'submissions/_refinv_auto_reminders_tooltip.html' %}</span></div>
+        <div>reminders</div>
+      </th>
+      <th>Editorial<br/>Communications</th>
+      <th colspan="3">Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -84,35 +88,36 @@
           </div>
         </td>
         <td>
-          {% if not invitation.fulfilled %}
-            <a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder email manually</a>
-          {% else %}
-            <strong class="text-success">Report has been delivered</strong>
-          {% endif %}
-        </td>
-        <td>
-          {% if invitation.nr_reminders > 0 %}
-            nr reminders sent: {{ invitation.nr_reminders }}
-            <div class="text-muted">last on {{ invitation.date_last_reminded }}</div>
-          {% endif %}
-        </td>
-        <td>
-                      <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
+          {% if not invitation.referee.is_anonymous %}
+            <div>
+              <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write</a>
+            </div>
             {% if invitation.communications %}
-              <br>
-              <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
-                <small>Show communication ({{ invitation.communications|length }})</small>
-              </button>
-                      {% endif %}
+              <div class="mt-2">
+                <a class="text-nowrap" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
+                  Show ({{ invitation.communications|length }})
+                </a>
+              </div>
+            {% endif %}
+          {% endif %}
+        </td>
+        <td>
+          {% if not invitation.fully_treated %}
+            <div><a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder</a></div>
+          {% endif %}
+          {% if invitation.nr_reminders > 0 %}
+            <div>nr reminders sent: {{ invitation.nr_reminders }}</div>
+            <div class="text-muted">{{ invitation.date_last_reminded }}</div>
+          {% endif %}
         </td>
         <td>
           {% if not invitation.fully_treated %}
             <div class="d-flex flex-column justify-contents-between align-center bg-light">
-              <button class="btn btn-sm btn-light"
+              <a href="#" class="p-1"
                   hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
                   hx-target="closest div"
                   hx-include="next input[name='notify_by_email']">Cancel invitation
-              </button>
+              </a>
               <div class="d-flex flex-row justify-content-evenly align-items-center border-secondary border-top py-1">
                 <label for="email-checkbox-{{invitation.id}}" class="text-muted">Email?</label>
                 <input id="email-checkbox-{{invitation.id}}" class="checkbox-lg" type="checkbox" name="notify_by_email" checked/>
@@ -121,13 +126,13 @@
           {% endif %}
         </td>
       </tr>
-        <tr style="display: none;" class="pt-1 table-info" id="comm-row-{{ invitation.id }}">
-          <td></td>
-          <td colspan="8">
-            {% include 'submissions/_communication_thread.html' with communication=invitation.communications css_class='wide' %}
-            <button type="button" class="btn btn-link p-0 d-inline-block mb-2" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}"><small>Hide communication</small></button>
-          </td>
-        </tr>
+      <tr style="display: none;" class="pt-1 border-bottom border-4" id="comm-row-{{ invitation.id }}">
+        <td class="bg-secondary bg-opacity-25"></td>
+        <td colspan="8" class="bg-secondary bg-opacity-25">
+          {% include 'submissions/_communication_thread.html' with communication=invitation.communications css_class='wide' %}
+          <button type="button" class="btn btn-link p-0 d-inline-block mb-2" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}"><small>Hide communication</small></button>
+        </td>
+      </tr>
     {% empty %}
       <tr>
         <td class="text-center py-3" colspan="9">You do not have any referees.</td>
@@ -138,7 +143,7 @@
       <tr class="bg-white">
         <td class="text-center py-3" colspan="9">
           {% if invitations %}
-            <h4><a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">+ Invite an additional referee</a></h4>
+            <h4 class="my-2"><a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">+ Invite an additional referee</a></h4>
           {% else %}
             <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
             You have not invited any referees yet. <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite the first referee here</a>.
