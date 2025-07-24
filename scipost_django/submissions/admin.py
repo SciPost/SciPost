@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.contrib import admin
 from django import forms
 
+from django.db.models.query import QuerySet
 from guardian.admin import GuardedModelAdmin
 from ethics.admin import RedFlagInline
 
@@ -440,8 +441,49 @@ class ReportAdmin(admin.ModelAdmin):
 
 @admin.register(EditorialCommunication)
 class EditorialCommunicationAdmin(admin.ModelAdmin):
-    search_fields = ["submission__title", "referee__dbuser__last_name", "text"]
+    search_fields = [
+        "submission__title",
+        "submission__preprint__identifier_w_vn_nr",
+        "referee__dbuser__last_name",
+        "text",
+    ]
+    list_display = [
+        "text_trunc",
+        "author",
+        "recipient",
+        "submission_title",
+        "timestamp",
+    ]
+    list_filter = ("comtype",)
     autocomplete_fields = ["submission", "referee"]
+
+    def get_queryset(self, request) -> QuerySet:
+        return (
+            super()
+            .get_queryset(request)
+            .select_related(
+                "submission",
+                "submission__submitted_by__profile",
+                "submission__editor_in_charge__profile",
+                "referee",
+            )
+        )
+
+    def submission_title(self, obj):
+        return (
+            obj.submission.title[:50] + "..."
+            if len(obj.submission.title) > 50
+            else obj.submission.title
+        )
+
+    def text_trunc(self, obj):
+        return obj.text[:50] + "..." if len(obj.text) > 50 else obj.text
+
+    def author(self, obj):
+        return obj.author_name
+
+    def recipient(self, obj):
+        return obj.recipient_name
 
 
 class AlternativeRecommendationInline(admin.StackedInline):
