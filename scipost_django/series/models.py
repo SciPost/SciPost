@@ -7,6 +7,14 @@ from django.urls import reverse
 
 from series.managers import SeriesQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from journals.models import Publication
+    from profiles.models import Profile
+    from colleges.models import Fellowship
+    from submissions.models.submission import Submission
+
 
 class Series(models.Model):
     """
@@ -54,7 +62,7 @@ class Collection(models.Model):
     A set of Publications which forms a coherent whole.
     """
 
-    series = models.ForeignKey(
+    series = models.ForeignKey["Series"](
         "series.Series",
         blank=True,
         null=True,
@@ -95,16 +103,16 @@ class Collection(models.Model):
             "list can submit to this collection."
         ),
     )
-    expected_authors = models.ManyToManyField(
+    expected_authors = models.ManyToManyField["Profile", "Collection"](
         "profiles.Profile", blank=True, related_name="collections_authoring"
     )
-    expected_editors = models.ManyToManyField(
+    expected_editors = models.ManyToManyField["Fellowship", "Collection"](
         "colleges.Fellowship", blank=True, related_name="collections_editing"
     )
-    submissions = models.ManyToManyField(
+    submissions = models.ManyToManyField["Submission", "Collection"](
         "submissions.Submission", blank=True, related_name="collections"
     )
-    publications = models.ManyToManyField(
+    publications = models.ManyToManyField["Publication", "Collection"](
         "journals.Publication",
         through="series.CollectionPublicationsTable",
         blank=True,

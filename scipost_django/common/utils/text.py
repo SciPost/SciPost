@@ -215,13 +215,27 @@ def partial_name_match_regexp(name: str) -> str:
     """
     SEPARATORS = r"[ \-\.]"
 
-    name_cleaned = re.sub(f"(\\w){SEPARATORS}+(\\w)", r"\1 \2", name)
+    name_cleaned = re.sub(SEPARATORS, " ", name)
     name_parts = name_cleaned.split()
     name_initials = [part[0] for part in name_parts if len(part) > 1]
 
     name_parts_or_initials = name_parts + name_initials
 
-    return "^(({names_ORed}){sep_chars}?)+$".format(
+    return "^(({names_ORed}){SEPARATORS}*)+$".format(
         names_ORed="|".join(name_parts_or_initials),
-        sep_chars=SEPARATORS,
+        SEPARATORS=SEPARATORS,
     )
+
+
+def partial_names_match(partial: str, full: str, symmetric: bool = False) -> bool:
+    """
+    Check if a (partial) name matches another (full) name,
+    via the partial name matching regular expression. partial ~=< full.
+    If `symmetric` is True, it also matches for the reverse inputs (full ~=< partial).
+    """
+    match = re.match(partial_name_match_regexp(partial), full) is not None
+
+    if symmetric:
+        match |= re.match(partial_name_match_regexp(full), partial) is not None
+
+    return match

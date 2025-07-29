@@ -2,12 +2,14 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from itertools import product
 from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse, reverse_lazy
 from django.utils.timezone import timedelta
 
 from colleges.permissions import is_edadmin
 from common.forms import HTMXDynSelWidget
+from common.utils.text import partial_names_match
 from submissions.models.assignment import ConditionalAssignmentOffer
 from .appraisal import QualificationForm, ReadinessForm
 
@@ -1863,21 +1865,21 @@ class SubmissionForm(forms.ModelForm):
                 "The author list is empty, so the collection may not be validated.",
             )
 
-        clean_author_list = [name.strip() for name in str_author_list.split(",")]
-
         # Check that the collection has defined expected authors
         if collection.enforce_expected_authors:
-            expected_author_list = [
-                a.full_name for a in collection.expected_authors.all()
+            listed_names = [name.strip() for name in str_author_list.split(",")]
+            expected_names = [
+                a.full_name.strip() for a in collection.expected_authors.all()
             ]
-            if len(expected_author_list) == 0:
+            if len(expected_names) == 0:
                 self.add_error(
                     "collection",
                     "This collection has no specified authors yet, please contact techsupport.",
                 )
             # Check that at least one of the authors in the list is an expected author of the collection
             elif not any(
-                author in expected_author_list for author in clean_author_list
+                partial_names_match(listed, expected, symmetric=True)
+                for listed, expected in product(listed_names, expected_names)
             ):
                 self.add_error(
                     "collection",
@@ -3668,10 +3670,14 @@ class EICRecommendationForm(forms.ModelForm):
 
         should_mandate_remarks_for_authors = False
         if recommendation_data:
-            should_mandate_remarks_for_authors = recommendation_data == str(EIC_REC_REJECT)
+            should_mandate_remarks_for_authors = recommendation_data == str(
+                EIC_REC_REJECT
+            )
         elif recommendation_initial:
-            should_mandate_remarks_for_authors = recommendation_initial == EIC_REC_REJECT
-        
+            should_mandate_remarks_for_authors = (
+                recommendation_initial == EIC_REC_REJECT
+            )
+
         if should_mandate_remarks_for_authors:
             self.fields["remarks_for_authors"].required = True
         else:
