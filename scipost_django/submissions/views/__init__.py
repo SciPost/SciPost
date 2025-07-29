@@ -864,7 +864,7 @@ def submission_detail(request, identifier_w_vn_nr):
     if "invitations" in context and context["invitations"]:
         context["communication"] = (
             submission.editorial_communications.for_referees().filter(
-                referee__dbuser=request.user
+                referee__contributor__dbuser=request.user
             )
         )
 
