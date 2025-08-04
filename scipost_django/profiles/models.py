@@ -11,7 +11,7 @@ from django.db.models import Q, Exists, OuterRef
 
 from django.urls import reverse
 from django.db import models
-from django.db.models.functions import Concat
+from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -345,9 +345,21 @@ class ProfileEmail(models.Model):
         objects: models.Manager["ProfileEmail"]
 
     class Meta:
-        unique_together = ["profile", "email"]
         ordering = ["-primary", "-still_valid", "email"]
         default_related_name = "emails"
+
+        constraints = [
+            models.UniqueConstraint(
+                Lower("email"),
+                name="unique_profile_email",
+                violation_error_message="The email address is already associated with a profile.",
+            ),
+            models.CheckConstraint(
+                check=Q(email__regex=r"^[\w\.\-\'\+]+@[\w\.\-]+\.[a-zA-Z]{2,}$"),
+                name="valid_email_format",
+                violation_error_message="Email must be in a valid format.",
+            ),
+        ]
 
     def __str__(self):
         return self.email
