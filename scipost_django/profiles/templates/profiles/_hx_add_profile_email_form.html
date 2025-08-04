@@ -1,3 +1,5 @@
 {% load crispy_forms_tags %}
 
-{% crispy form %}
+<form hx-post="{% url "profiles:_hx_add_profile_email" profile.id %}">
+  {% crispy form %}
+</form>

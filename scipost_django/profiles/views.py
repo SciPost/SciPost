@@ -497,13 +497,6 @@ def _hx_add_profile_email(request, profile_id):
         request.POST or None,
         profile=profile,
         request=request,
-        hx_attrs={
-            "hx-post": reverse(
-                "profiles:_hx_add_profile_email", kwargs={"profile_id": profile.id}
-            ),
-            "hx-target": "next tbody",
-            "hx-swap": "beforeend",
-        },
         cancel_parent_tag="form",
     )
     if form.is_valid():
@@ -513,11 +506,15 @@ def _hx_add_profile_email(request, profile_id):
             "profiles/_hx_profile_emails_table_row.html",
             {"profile_mail": profile_email},
         )
+        response["HX-Retarget"] = f"#profile-{profile.id}-emails-table tbody"
+        response["HX-Reswap"] = "beforeend"
 
         return response
 
     return TemplateResponse(
-        request, "profiles/_hx_add_profile_email_form.html", {"form": form}
+        request,
+        "profiles/_hx_add_profile_email_form.html",
+        {"form": form, "profile": profile},
     )
 
 

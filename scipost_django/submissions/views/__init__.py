@@ -892,7 +892,9 @@ def submission_detail(request, identifier_w_vn_nr):
             "is_author_unchecked": is_author_unchecked,
             "is_submission_fellow": is_submission_fellow,
             "has_appraised_submission": has_appraised_submission,
-            "unverified_claims_exist": submission.authorshipclaim_set.filter(status=0).exists(),
+            "unverified_claims_exist": submission.authorshipclaim_set.filter(
+                status=0
+            ).exists(),
         }
     )
     return render(request, "submissions/submission_detail.html", context)
@@ -1476,14 +1478,6 @@ def _hx_add_referee_profile_email(request, profile_id):
         request.POST or None,
         profile=profile,
         request=request,
-        hx_attrs={
-            "hx-post": reverse(
-                "submissions:_hx_add_referee_profile_email",
-                kwargs={"profile_id": profile.id},
-            ),
-            "hx-target": "previous tbody",
-            "hx-swap": "beforeend",
-        },
         cancel_parent_tag="tr",
     )
 
@@ -1495,10 +1489,15 @@ def _hx_add_referee_profile_email(request, profile_id):
             {"profile_email": profile_email},
         )
 
+        response["HX-Retarget"] = f"#profile-{profile.id}-emails-table tbody"
+        response["HX-Reswap"] = "beforeend"
+
         return response
 
-    return render(
-        request, "submissions/_hx_customize_refereeing_invitation.html", {"form": form}
+    return TemplateResponse(
+        request,
+        "submissions/_hx_select_referee_add_email_form.html",
+        {"form": form, "profile": profile},
     )
 
 
