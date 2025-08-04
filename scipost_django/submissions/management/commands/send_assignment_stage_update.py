@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from typing import cast
 from django.core.management.base import BaseCommand
-from django.db.models import BaseManager
+from django.db.models.manager import BaseManager
 from django.utils import timezone
 
 from mails.utils import DirectMailUtil
