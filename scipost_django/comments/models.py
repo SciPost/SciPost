@@ -73,6 +73,14 @@ class Comment(TimeStampedModel):
     )
     anonymous = models.BooleanField(default=False, verbose_name="Publish anonymously")
 
+    # Ethics
+    gen_ai_disclosures = GenericRelation(
+        "ethics.GenAIDisclosure",
+        object_id_field="object_id",
+        content_type_field="content_type",
+        related_query_name="comment",
+    )
+
     # Categories:
     is_cor = models.BooleanField(default=False, verbose_name="correction/erratum")
     is_rem = models.BooleanField(default=False, verbose_name="remark")

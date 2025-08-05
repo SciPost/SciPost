@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from typing import TYPE_CHECKING
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils import timezone
 
@@ -65,6 +66,13 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     )
     version = models.SmallIntegerField(default=1)
     active = models.BooleanField(default=True)
+
+    gen_ai_disclosures = GenericRelation(
+        "ethics.GenAIDisclosure",
+        content_type_field="content_type",
+        object_id_field="object_id",
+        related_query_name="eic_recommendation",
+    )
 
     # Editorial Fellows who have assessed this recommendation:
     eligible_to_vote = models.ManyToManyField["EICRecommendation", "Contributor"](

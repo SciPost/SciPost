@@ -14,7 +14,7 @@ from blog import forms
 
 from profiles.models import Profile
 
-from .models import CompetingInterest, RedFlag
+from .models import CompetingInterest, GenAIDisclosure, RedFlag
 
 
 @admin.register(CompetingInterest)
@@ -42,8 +42,6 @@ class CompetingInterestAdmin(admin.ModelAdmin):
         "affected_submissions",
         "affected_publications",
     )
-
-
 
 
 class ConcerningObjectExistingFilter(admin.SimpleListFilter):
@@ -97,3 +95,40 @@ class RedFlagInline(GenericTabularInline):
         if db_field.name == "raised_by":
             kwargs["initial"] = request.user.contributor
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+@admin.register(GenAIDisclosure)
+class GenAIDisclosureAdmin(admin.ModelAdmin):
+    model = GenAIDisclosure
+    list_display = ("for_object", "was_used", "contributor", "use_details")
+    search_fields = (
+        "contributor__profile__last_name",
+        "contributor__profile__first_name",
+        "submission__title",
+        "submission__preprint__identifier_w_vn_nr",
+        "publication__title",
+        "publication__accepted_submission__preprint__identifier_w_vn_nr",
+    )
+    autocomplete_fields = ("contributor",)
+
+
+class GenAIDisclosureInline(GenericTabularInline):
+    ct_field = "content_type"
+    ct_fk_field = "object_id"
+    fk_name = "for_object"
+    model = GenAIDisclosure
+    extra = 0
+
+    fields = ["was_used", "use_details", "contributor"]
+    autocomplete_fields = ["contributor"]
+
+    # prefill the autocomplete field with the current user
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "contributor":
+            kwargs["initial"] = request.user.contributor
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def formfield_for_dbfield(self, db_field: Field, **kwargs: Any) -> Any:
+        if db_field.name == "use_details":
+            kwargs["widget"] = widgets.Textarea(attrs={"rows": 2})
+        return super().formfield_for_dbfield(db_field, **kwargs)

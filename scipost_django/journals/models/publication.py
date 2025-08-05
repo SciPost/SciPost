@@ -7,6 +7,7 @@ from string import Template as string_Template
 import re
 from typing import TYPE_CHECKING
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -192,6 +193,14 @@ class Publication(models.Model):
     latest_activity = models.DateTimeField(
         auto_now=True
     )  # Needs `auto_now` as its not explicity updated anywhere?
+
+    # Ethics
+    gen_ai_disclosures = GenericRelation(
+        "ethics.GenAIDisclosure",
+        object_id_field="object_id",
+        content_type_field="content_type",
+        related_query_name="publication",
+    )
 
     # Calculated fields
     cf_citation = models.CharField(

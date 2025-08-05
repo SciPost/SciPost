@@ -95,6 +95,12 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     # Comments can be added to a Submission
     comments = GenericRelation("comments.Comment", related_query_name="reports")
+    gen_ai_disclosures = GenericRelation(
+        "ethics.GenAIDisclosure",
+        object_id_field="object_id",
+        content_type_field="content_type",
+        related_query_name="report",
+    )
 
     # Qualities:
     validity = models.PositiveSmallIntegerField(

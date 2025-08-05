@@ -153,3 +153,44 @@ class RedFlag(models.Model):
 
     def __str__(self):
         return f"Red flag for {self.concerning_object} raised by {self.raised_by.profile} on {self.raised_on}"
+
+
+class GenAIDisclosure(models.Model):
+    """
+    Generative AI use disclosure for contributor-generated content,
+    such as submissions, publications, reports, comments, etc.
+    """
+
+    was_used = models.BooleanField(default=None, null=True, blank=True)
+    use_details = models.TextField(blank=True)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    for_object = GenericForeignKey("content_type", "object_id")
+
+    contributor = models.ForeignKey["Contributor"](
+        "scipost.Contributor",
+        on_delete=models.CASCADE,
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        default_related_name = "gen_ai_disclosures"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["content_type", "object_id"],
+                name="unique_gen_ai_disclosure_per_object",
+                violation_error_message="GenAI disclosure already exists for this object.",
+            ),
+        ]
+
+    def __str__(self):
+        content_text = f"GenAI Disclosure for {self.for_object} by {self.contributor.profile} on {self.created}"
+        match self.was_used:
+            case True:
+                return "Positive " + content_text
+            case False:
+                return "Negative " + content_text
+            case None:
+                return "Pending " + content_text

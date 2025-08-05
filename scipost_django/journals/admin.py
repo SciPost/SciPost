@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.contrib import admin, messages
 from django import forms
 
+from ethics.admin import GenAIDisclosureInline
 from journals.models import (
     Journal,
     Volume,
@@ -126,6 +127,7 @@ class PublicationAdmin(admin.ModelAdmin):
     date_hierarchy = "publication_date"
     list_filter = ["in_issue"]
     inlines = [
+        GenAIDisclosureInline,
         AuthorsInline,
         ReferenceInline,
         PubFracInline,

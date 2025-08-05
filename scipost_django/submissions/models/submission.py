@@ -453,6 +453,13 @@ class Submission(models.Model):
         related_query_name="submission",
     )
 
+    gen_ai_disclosures = GenericRelation(
+        "ethics.GenAIDisclosure",
+        object_id_field="object_id",
+        content_type_field="content_type",
+        related_query_name="submission",
+    )
+
     class Meta:
         app_label = "submissions"
         ordering = ["-submission_date"]

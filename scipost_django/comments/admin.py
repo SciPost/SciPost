@@ -6,6 +6,8 @@ from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
+from ethics.admin import GenAIDisclosureInline
+
 from .constants import STATUS_VETTED
 from .models import Comment
 
@@ -41,5 +43,6 @@ class CommentAdmin(GuardedModelAdmin):
         "vetted_by",
         "author",
     ]
-
-
+    inlines = [
+        GenAIDisclosureInline,
+    ]

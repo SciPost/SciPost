@@ -7,7 +7,7 @@ from django import forms
 
 from django.db.models.query import QuerySet
 from guardian.admin import GuardedModelAdmin
-from ethics.admin import RedFlagInline
+from ethics.admin import GenAIDisclosureInline, RedFlagInline
 
 from submissions.models import (
     SubmissionAuthorProfile,
@@ -240,7 +240,8 @@ class SubmissionAdmin(GuardedModelAdmin):
         "topics",
     ]
     inlines = [
-        RefereeIndicationInline,
+        GenAIDisclosureInline,
+        CollectionInline,
         InternalPlagiarismAssessmentInline,
         iThenticatePlagiarismAssessmentInline,
         SubmissionAuthorProfileInline,
@@ -248,10 +249,10 @@ class SubmissionAdmin(GuardedModelAdmin):
         QualificationInline,
         ReadinessInline,
         ConditionalAssignmentOfferInline,
+        RefereeIndicationInline,
         RefereeInvitationTabularInline,
         ReportAuthorStatusTabularInline,
         SubmissionTieringInline,
-        CollectionInline,
         RedFlagInline,
         SubmissionEventInline,
     ]
@@ -436,6 +437,9 @@ class ReportAdmin(admin.ModelAdmin):
         "submission",
         "vetted_by",
         "author",
+    ]
+    inlines = [
+        GenAIDisclosureInline,
     ]
 
 
