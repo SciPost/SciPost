@@ -124,7 +124,7 @@ class FellowshipDynSelForm(forms.Form):
     action_url_name = forms.CharField()
     action_url_base_kwargs = forms.JSONField(required=False)
     action_target_element_id = forms.CharField()
-    action_target_swap = forms.CharField()
+    action_target_swap = forms.CharField(initial="innerHTML")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1490,7 +1490,6 @@ def _hx_voting_round_details(request, round_id):
                 "action_url_name": "colleges:_hx_nomination_round_eligible_voter_action",
                 "action_url_base_kwargs": {"round_id": round_id, "action": "add"},
                 "action_target_element_id": f"nomination-{round.nomination.id}-round-{round_id}-voters",
-                "action_target_swap": "innerHTML",
             }
         )
         context["voter_add_form"] = voter_add_form

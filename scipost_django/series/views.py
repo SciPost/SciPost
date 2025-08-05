@@ -115,7 +115,6 @@ def _hx_collection_expected_editors(request, slug):
             "action_url_name": "series:_hx_collection_expected_editor_action",
             "action_url_base_kwargs": {"slug": collection.slug, "action": "add"},
             "action_target_element_id": "editor_fellowships",
-            "action_target_swap": "innerHTML",
         }
     )
     context = {"collection": collection, "editor_fellowship_search_form": form}
