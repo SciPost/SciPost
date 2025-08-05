@@ -9,6 +9,14 @@ from django.utils import timezone
 
 from ethics.managers import CompetingInterestQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scipost.models import Contributor
+    from profiles.models import Profile
+    from submissions.models import Submission
+    from journals.models import Publication
+
 
 class SubmissionClearance(models.Model):
     """
@@ -88,31 +96,31 @@ class CompetingInterest(models.Model):
     date_from = models.DateField(blank=True, null=True)
     date_until = models.DateField(blank=True, null=True)
 
-    profile = models.ForeignKey(
+    profile = models.ForeignKey["Profile"](
         "profiles.Profile",
         on_delete=models.CASCADE,
         related_name="competing_interests",
     )
-    related_profile = models.ForeignKey(
+    related_profile = models.ForeignKey["Profile"](
         "profiles.Profile",
         on_delete=models.CASCADE,
         related_name="related_competing_interests",
     )
 
-    declared_by = models.ForeignKey(
+    declared_by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.CASCADE,
         related_name="declared_competing_interests",
     )
     declared_on = models.DateTimeField(default=timezone.now)
 
-    affected_submissions = models.ManyToManyField(
+    affected_submissions = models.ManyToManyField["Submission", "CompetingInterest"](
         "submissions.Submission",
         blank=True,
         related_name="competing_interests",
     )
 
-    affected_publications = models.ManyToManyField(
+    affected_publications = models.ManyToManyField["Publication", "CompetingInterest"](
         "journals.Publication",
         blank=True,
         related_name="competing_interests",
@@ -135,7 +143,7 @@ class RedFlag(models.Model):
 
     description = models.TextField(blank=True)
 
-    raised_by = models.ForeignKey(
+    raised_by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.CASCADE,
         related_name="red_flags_raised",
