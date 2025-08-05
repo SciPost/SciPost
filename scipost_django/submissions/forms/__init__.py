@@ -1375,15 +1375,7 @@ class SubmissionForm(forms.ModelForm):
         ),
         required=True,
     )
-    agree_to_terms = forms.BooleanField(
-        required=False,
-        label="I have read and agree with the SciPost Terms and Conditions.",
-        help_text='Specifically, the <a href="{url}">SciPost Journals Terms and Conditions</a>, '
-        'the <a href="{url}#license_and_copyright_agreement">license and copyright agreement</a> '
-        'and the <a href="{url}#author_obligations">author obligations</a>.'
-        "".format(url="https://scipost.org/journals/journals_terms_and_conditions"),
-        # FIX  reversing on journals:journals_terms_and_conditions errors with circular import
-    )
+
     code_name = forms.CharField(
         label="Software name",
         help_text="Name of the software referenced in this submission.",
@@ -1436,7 +1428,6 @@ class SubmissionForm(forms.ModelForm):
             "code_version",
             "code_license",
             "preprint_file",
-            "agree_to_terms",
         ]
         widgets = {
             "submitted_to": forms.HiddenInput(),
@@ -1483,7 +1474,6 @@ class SubmissionForm(forms.ModelForm):
                     )
                 }
             ),
-            "agree_to_terms": forms.CheckboxInput(),
         }
         help_texts = {
             "data_repository_url": "",
@@ -1747,7 +1737,6 @@ class SubmissionForm(forms.ModelForm):
             "remarks_for_editors",
             supp_info_fieldset,
             "preprint_file",
-            "agree_to_terms",
         )
 
     def is_resubmission(self):
@@ -1953,12 +1942,6 @@ class SubmissionForm(forms.ModelForm):
             ) % self.preprint_server
             self.add_error("identifier_w_vn_nr", error_message)
         return identifier
-
-    def clean_agree_to_terms(self):
-        if not self.cleaned_data["agree_to_terms"]:
-            raise forms.ValidationError(
-                "You must agree to the terms and conditions to submit a manuscript."
-            )
 
     def clean_title(self):
         return remove_extra_spacing(self.cleaned_data["title"])

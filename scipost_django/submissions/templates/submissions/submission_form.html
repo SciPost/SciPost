@@ -42,6 +42,17 @@
           <form class="mt-4" id="full_submission_form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {% crispy form %}
+
+            <div class="row">
+              <div class="col">
+                <input type="checkbox" name="agree_to_terms" id="agree_to_terms" required>
+                <label for="agree_to_terms">I have read and agree with the SciPost Terms and Conditions.</label>
+                <div class="form-text"> Specifically, the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>,
+                  the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a>
+                  and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.</div>
+              </div>
+            </div>
+
             <input type="submit" class="btn btn-primary" value="Submit manuscript"/>
           </form>
         {% endif %}
