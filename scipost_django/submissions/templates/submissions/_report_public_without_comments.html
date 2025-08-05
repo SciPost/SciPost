@@ -93,6 +93,10 @@
             <li><a href="{% url 'journals:email_object_made_citable' type_of_object='report' object_id=report.id %}">Email report author: made citable</a></li>
           </ul>
         {% endif %}
+
+        <div class="mt-2 mb-1">
+          {% include "ethics/_gen_ai_disclosure_details_box.html" with object=report %}
+        </div>
       </div>
 
       {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}

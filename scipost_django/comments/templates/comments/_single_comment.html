@@ -12,6 +12,8 @@
 
   {% include 'comments/_comment_categories.html' with comment=comment %}
 
+  {% include "ethics/_gen_ai_disclosure_details_box.html" with object=comment %}
+
   <p class="my-2 pb-1">
     {% automarkup comment.comment_text %}
   </p>

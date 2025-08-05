@@ -123,6 +123,8 @@
     </div>
 </div>
 
+{% include "ethics/_gen_ai_disclosure_details_box.html" with object=submission %}
+
 {% if show_abstract %}
     {% if submission.pdf_refereeing_pack %}
         <p class="mt-3">
@@ -136,6 +138,6 @@
 {% endif %}
 
 {% if submission.fulfilled_expectations %}
-  <h4>Author indications on fulfilling journal expectations</h4>
+  <h4 class="mt-4">Author indications on fulfilling journal expectations</h4>
   {% include "submissions/_submission_fulfilled_expectations_checklist.html" %}
 {% endif %}

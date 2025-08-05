@@ -60,6 +60,8 @@
 
   {% include 'journals/_publication_summary.html' with publication=publication %}
 
+  {% include "ethics/_gen_ai_disclosure_details_box.html" with object=publication %}
+
   {% if publication.resources.sup_info %}
     <div class="row">
       <div class="col-12 col-md col-xl-4">
@@ -101,7 +103,7 @@
     </div>
   {% endif %}
 
-  <hr class="mt-5 mb-4"/>
+  <hr class="my-2"/>
 
   <div class="row">
     <div class="col">

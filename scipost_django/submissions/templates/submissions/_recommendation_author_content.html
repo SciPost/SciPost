@@ -27,6 +27,10 @@
       </tr>
     </table>
 
+    <div class="mb-3">
+      {% include "ethics/_gen_ai_disclosure_details_box.html" with object=recommendation %}
+    </div>
+
     <h3 class="pb-0">Remarks for authors</h3>
     <p class="ps-md-3">{{ recommendation.remarks_for_authors|default:'-' }}</p>
 
