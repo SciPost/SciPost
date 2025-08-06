@@ -45,57 +45,24 @@ class ProfileQuerySet(QuerySet):
             pass
         return None
 
-    def with_full_names(self):
-        return self.annotate(
-            full_name_annot=Concat(
-                Lower(Unaccent("first_name")),
-                Value(" "),
-                Lower(Unaccent("last_name")),
-            )
-        )
-
     def potential_duplicates(self):
         """
         Returns only potential duplicate Profiles (as identified by first and
         last names, and separately by (case-insensitive) email).
         """
         # Start by treating name duplicates, excluding marked Profile non-duplicates
-        from .models import ProfileEmail
+        profiles = self.filter(profilenonduplicates__isnull=True)
 
-        profiles = self.with_full_names().filter(profilenonduplicates__isnull=True)
-
-        duplicates_by_full_name = (
-            profiles.values("full_name_annot")
-            .annotate(nr_count=Count("full_name_annot"))
+        full_name_duplicates = (
+            profiles.values("full_name_normalized")
+            .annotate(nr_count=Count("full_name_normalized"))
             .filter(nr_count__gt=1)
-            .values("full_name_annot")
-        )
-
-        # Find Profiles whose email is used by another Profile
-        ids_of_duplicates_by_email = list(
-            ProfileEmail.objects.annotate(
-                used_by_another=Exists(
-                    ProfileEmail.objects.filter(
-                        ~Q(profile=OuterRef("profile")),
-                        email__iexact=OuterRef("email"),
-                    )
-                )
-            )
-            .filter(used_by_another=True)
-            .values_list("profile", flat=True)
-        )
-
-        ids_of_same_orcid = list(
-            profiles.values("orcid_id")
-            .annotate(asd=Count("orcid_id"))
-            .filter(asd__gt=1)
-            .values_list("id", flat=True)
+            .values("full_name_normalized")
         )
 
         return profiles.filter(
-            Q(full_name_annot__in=duplicates_by_full_name)
-            | Q(id__in=ids_of_duplicates_by_email + ids_of_same_orcid)
-        ).order_by("last_name", "first_name", "-id")
+            Q(full_name_normalized__in=full_name_duplicates)
+        ).order_by("full_name_normalized", "-id")
 
     def potential_duplicates_of(self, profile: "Profile"):
         """
@@ -108,10 +75,9 @@ class ProfileQuerySet(QuerySet):
         ).values_list("profiles", flat=True)
 
         qs = self.filter(
-            Q(first_name__unaccent__icontains=profile.first_name)
-            & Q(last_name__unaccent__icontains=profile.last_name)
-            | Q(emails__email__in=profile.emails.values("email"))
-        ).exclude(Q(id__in=profile_non_duplicates) | Q(id=profile.id))
+            Q(full_name_normalized=profile.full_name_normalized)
+            & ~(Q(id__in=profile_non_duplicates) | Q(id=profile.id))
+        )
 
         return qs
 

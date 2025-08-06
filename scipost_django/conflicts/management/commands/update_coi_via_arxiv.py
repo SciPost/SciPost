@@ -51,9 +51,9 @@ class Command(BaseCommand):
             for author_name in sub.author_list.split(","):
                 author_name_re = partial_name_match_regexp(author_name.strip())
                 author_profile_ids += list(
-                    Profile.objects.with_full_names()
-                    .filter(full_name_annot__unaccent__iregex=author_name_re)
-                    .values_list("id", flat=True)
+                    Profile.objects.filter(
+                        full_name__unaccent__iregex=author_name_re
+                    ).values_list("id", flat=True)
                 )
             author_profile_ids_set = set(author_profile_ids)
             author_profiles = Profile.objects.filter(pk__in=author_profile_ids_set)

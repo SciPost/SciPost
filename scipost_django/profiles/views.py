@@ -379,8 +379,12 @@ def _hx_profile_mark_non_duplicate(request, profile1: int, profile2: int):
 def _hx_profile_merge(
     request, to_merge: int | None = None, to_merge_into: int | None = None
 ):
-    # Update the post data with the profiles to merge
-    duplicate_profiles = Profile.objects.potential_duplicates()
+    duplicate_profiles = Profile.objects.filter(
+        # Fetch ids of potential duplicates and re-retrieve a queryset of Profiles.
+        # This is done for performance reasons since the QS is passed into the form and
+        # re-executed for each widget. Proper implementation would require a larger refactor.
+        id__in=Profile.objects.potential_duplicates()
+    ).order_by("full_name_normalized", "-id")
 
     if request.method == "POST":
         post_data = {
