@@ -25,12 +25,12 @@ $(document).ready(function() {
     }).trigger('change');
 
     $('input[name$="anonymous"]').on('change', function() {
-	$('.anonymous-alert').show()
-	    .children('h3').hide()
-	if ($(this).prop('checked')) {
-            $('.anonymous-yes').show();
-	} else {
-            $('.anonymous-no').show();
-	}
-    }).trigger('change');
-});
+        $('.anonymous-alert').show()
+            .children('span.anonymous_variant').hide()
+        if ($(this).prop('checked')) {
+                $('.anonymous-yes').show();
+        } else {
+                $('.anonymous-no').show();
+        }
+        }).trigger('change');
+    });

@@ -46,8 +46,8 @@
       {% if form.anonymous %}
         {{ form.anonymous|bootstrap }}
         <div class="anonymous-alert my-3" style="display: none;">
-          <h3 class="anonymous-yes">Your Comment will remain anonymous.</h3>
-          <h3 class="anonymous-no"><span class="text-danger">Your Comment will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
+          <span class="anonymous_variant anonymous-yes">Your Comment will remain anonymous.</span>
+          <span class="anonymous_variant anonymous-no"><span class="text-danger">Your Comment will be <span class="text-underline">signed</span>.</span> Thank you very much!</span>
         </div>
       {% endif %}
       {% crispy gen_ai_disclosure_form %}
