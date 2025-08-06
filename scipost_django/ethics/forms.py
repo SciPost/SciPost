@@ -7,8 +7,9 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
+from django.utils.html import format_html
 
-from .models import CompetingInterest
+from .models import CompetingInterest, GenAIDisclosure
 
 from profiles.models import Profile
 
@@ -105,3 +106,71 @@ class SubmissionCompetingInterestTableRowForm(SubmissionCompetingInterestForm):
 
         self.fields["related_profile"].label = "Submission author"
         self.fields["nature"].label = "Nature"
+
+
+class GenAIDisclosureForm(forms.ModelForm):
+    was_used = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=[
+            (
+                False,
+                format_html(
+                    "I declare that <strong>no</strong> generative AI tool has been used "
+                    "at any step in the preparation of this content."
+                ),
+            ),
+            (
+                True,
+                "I declare that generative AI tools have been used in the preparation of this content.",
+            ),
+        ],
+        label="Generative AI disclosure",
+        required=True,
+    )
+    use_details = forms.CharField(
+        widget=forms.Textarea(attrs={"rows": 3}),
+        label="Generative AI tool usage details",
+        help_text="Please specify which generative AI tools were used (including their version numbers or date of use), "
+        "in which parts of your submission, and for which purposes.",
+        required=False,
+    )
+
+    class Media:
+        js = ("ethics/gen_ai_disclosure_form_selector.js",)
+
+    class Meta:
+        model = GenAIDisclosure
+        fields = ["was_used", "use_details"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("was_used"), css_class="col-12"),
+                Div(Field("use_details"), css_class="col-12"),
+                css_class="row mb-0",
+            ),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        was_used = cleaned_data.get("was_used") == "True"
+        use_details = cleaned_data.get("use_details")
+
+        if was_used and not use_details:
+            self.add_error(
+                "use_details",
+                "Please provide details on the generative AI tools used.",
+            )
+
+        return cleaned_data
+
+    def save(self, commit=True, *args, **kwargs) -> GenAIDisclosure:
+        gen_ai_disclosure = super().save(commit=False)
+        for kwarg in kwargs:
+            setattr(gen_ai_disclosure, kwarg, kwargs[kwarg])
+        if commit:
+            gen_ai_disclosure.save()
+        return gen_ai_disclosure
