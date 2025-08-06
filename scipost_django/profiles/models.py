@@ -4,18 +4,19 @@ __license__ = "AGPL v3"
 
 import datetime
 import secrets
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 import uuid
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db.models import Q, Exists, OuterRef
 
 from django.urls import reverse
 from django.db import models
-from django.db.models.functions import Lower
+from django.db.models.functions import Concat, Lower
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from anonymization.mixins import AnonymizableObjectMixin
+from common.utils.lookups import ImmutableUnaccent
 from mails.utils import DirectMailUtil
 from organizations.utils import RORAPIHandler
 from scipost.behaviors import orcid_validator
@@ -95,6 +96,24 @@ class Profile(AnonymizableObjectMixin, models.Model):
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, default=TITLE_DR)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
+    full_name = models.GeneratedField(
+        expression=Concat("first_name", models.Value(" "), "last_name"),
+        output_field=models.CharField(max_length=128),
+        db_persist=True,
+    )
+    full_name_normalized = models.GeneratedField(
+        expression=ImmutableUnaccent(
+            Lower(
+                Concat(
+                    "first_name",
+                    models.Value(" "),
+                    "last_name",
+                ),
+            )
+        ),
+        output_field=models.CharField(max_length=128),
+        db_persist=True,
+    )
 
     first_name_original = models.CharField(
         max_length=64,
@@ -109,6 +128,15 @@ class Profile(AnonymizableObjectMixin, models.Model):
         default="",
         verbose_name="Last name (original)",
         help_text="Optional: Name in non-Latin alphabet",
+    )
+    full_name_original = models.GeneratedField(
+        expression=Concat(
+            "first_name_original",
+            models.Value(" "),
+            "last_name_original",
+        ),
+        output_field=models.CharField(max_length=128),
+        db_persist=True,
     )
 
     orcid_authenticated = models.BooleanField(default=False)
@@ -174,19 +202,9 @@ class Profile(AnonymizableObjectMixin, models.Model):
         )
 
     @property
-    def full_name(self):
-        """The full name: first name + last name."""
-        return f"{self.first_name} {self.last_name}"
-
-    @property
     def formal_name(self):
         """The formal name: title + last name."""
         return f"{self.get_title_display()} {self.last_name}"
-
-    @property
-    def full_name_original(self):
-        """The full name in original script: first name + last name."""
-        return f"{self.first_name_original} {self.last_name_original}"
 
     @property
     def roles(self):
