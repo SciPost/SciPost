@@ -1,4 +1,5 @@
 {% load bootstrap %}
+{% load crispy_forms_tags %}
 
 {% load static %}
 
@@ -49,6 +50,7 @@
           <h3 class="anonymous-no"><span class="text-danger">Your Comment will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
         </div>
       {% endif %}
+      {% crispy gen_ai_disclosure_form %}
       <div id="submitButton">
 	<input type="submit" value="Preview looks good; submit this Comment for vetting" class="btn btn-primary">
 	{% if form.anonymous %}

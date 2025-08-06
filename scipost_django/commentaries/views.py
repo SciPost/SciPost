@@ -15,6 +15,8 @@ from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 from django.http import Http404
 
+from ethics.forms import GenAIDisclosureForm
+
 from .models import Commentary
 from .forms import (
     DOIToQueryForm,
@@ -276,9 +278,18 @@ def comment_on_publication(request, doi_label):
         publication=publication,
         current_user=request.user,
     )
-    if form.is_valid():
+    gen_ai_disclosure_form = GenAIDisclosureForm(request.POST or None)
+    if form.is_valid() and gen_ai_disclosure_form.is_valid():
         comment = form.save()
+        gen_ai_disclosure_form.save(
+            contributor=request.user.contributor,
+            for_object=comment,
+        )
         messages.success(request, strings.acknowledge_request_commentary)
         return redirect(comment.content_object.get_absolute_url())
-    context = {"publication": publication, "form": form}
+    context = {
+        "publication": publication,
+        "form": form,
+        "gen_ai_disclosure_form": gen_ai_disclosure_form,
+    }
     return render(request, "commentaries/comment_on_publication.html", context)

@@ -662,6 +662,8 @@ class DraftPublicationForm(forms.ModelForm):
                 self.issue = None
 
         super().__init__(data, *args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
 
         if kwargs.get("instance") or self.issue or self.to_journal:
             # When updating: fix in_issue, because many fields are directly related to the issue.
@@ -737,7 +739,7 @@ class DraftPublicationForm(forms.ModelForm):
             self.first_time_fill()
             # We cannot trust the author associations ordered in Submission.
             self.instance.reset_author_associations()                
-        
+
         return self.instance
 
     def first_time_fill(self):

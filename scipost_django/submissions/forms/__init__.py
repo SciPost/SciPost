@@ -3307,6 +3307,9 @@ class ReportForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
         # Required fields on submission; optional on save as draft
         self.fields["report"].required = True
         self.fields["recommendation"].required = True
@@ -3519,6 +3522,7 @@ class EICRecommendationForm(forms.ModelForm):
         self.layout_fields["for_journal"] = Div(Field("for_journal"))
         self.layout_fields["recommendation"] = Div(Field("recommendation"))
         self.helper = FormHelper()
+        self.helper.form_tag = False
         self.helper.layout = Layout(
             Div(
                 Div(
@@ -3534,12 +3538,6 @@ class EICRecommendationForm(forms.ModelForm):
                     Field("remarks_for_authors"),
                     Field("requested_changes"),
                     Field("remarks_for_editorial_college"),
-                    css_class="col-12",
-                ),
-                ButtonHolder(
-                    Submit(
-                        "submit", "Save", css_class="btn btn-primary", required=True
-                    ),
                     css_class="col-12",
                 ),
                 css_class="row",

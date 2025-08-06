@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.views.generic.list import ListView
 
 from guardian.shortcuts import get_objects_for_user
+from ethics.forms import GenAIDisclosureForm
 import strings
 
 from .constants import EXTENTIONS_IMAGES, EXTENTIONS_PDF
@@ -52,7 +53,8 @@ class CommentListView(PaginationMixin, ListView):
 def new_comment(request, **kwargs):
     """Form view to submit new Comment."""
     form = CommentForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
+    gen_ai_disclosure_form = GenAIDisclosureForm(request.POST or None)
+    if form.is_valid() and gen_ai_disclosure_form.is_valid():
         object_id = int(kwargs["object_id"])
         type_of_object = kwargs["type_of_object"]
 
@@ -76,6 +78,11 @@ def new_comment(request, **kwargs):
         new_comment.save()
         new_comment.grant_permissions()
 
+        gen_ai_disclosure_form.save(
+            contributor=request.user.contributor,
+            for_object=new_comment,
+        )
+
         # Mails
         mail_sender = DirectMailUtil(
             "commenters/inform_commenter_comment_received", comment=new_comment
@@ -90,7 +97,7 @@ def new_comment(request, **kwargs):
 
         messages.success(request, strings.acknowledge_submit_comment)
         return redirect(_object.get_absolute_url())
-    context = {"form": form}
+    context = {"form": form, "gen_ai_disclosure_form": gen_ai_disclosure_form}
     return render(request, "comments/add_comment.html", context)
 
 
@@ -274,13 +281,19 @@ def reply_to_comment(request, comment_id):
         # No idea what this could be, but just to be sure
         is_author = related_object.author == request.user.contributor
     form = CommentForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
+    gen_ai_disclosure_form = GenAIDisclosureForm(request.POST or None)
+    if form.is_valid() and gen_ai_disclosure_form.is_valid():
         newcomment = form.save(commit=False)
         newcomment.content_object = comment
         newcomment.is_author_reply = is_author
         newcomment.author = request.user.contributor
         newcomment.save()
         newcomment.grant_permissions()
+
+        gen_ai_disclosure_form.save(
+            contributor=request.user.contributor,
+            for_object=newcomment,
+        )
 
         mail_sender = DirectMailUtil(
             "commenters/inform_commenter_comment_received", comment=newcomment
@@ -300,7 +313,12 @@ def reply_to_comment(request, comment_id):
         )
         return redirect(newcomment.content_object.get_absolute_url())
 
-    context = {"comment": comment, "is_author": is_author, "form": form}
+    context = {
+        "comment": comment,
+        "is_author": is_author,
+        "form": form,
+        "gen_ai_disclosure_form": gen_ai_disclosure_form,
+    }
     return render(request, "comments/reply_to_comment.html", context)
 
 
@@ -314,13 +332,19 @@ def reply_to_report(request, report_id):
     form = CommentForm(
         request.POST or None, request.FILES or None, is_report_comment=True
     )
-    if form.is_valid():
+    gen_ai_disclosure_form = GenAIDisclosureForm(request.POST or None)
+    if form.is_valid() and gen_ai_disclosure_form.is_valid():
         newcomment = form.save(commit=False)
         newcomment.content_object = report
         newcomment.is_author_reply = is_author
         newcomment.author = request.user.contributor
         newcomment.save()
         newcomment.grant_permissions()
+
+        gen_ai_disclosure_form.save(
+            contributor=request.user.contributor,
+            for_object=newcomment,
+        )
 
         mail_sender = DirectMailUtil(
             "eic/inform_eic_comment_received", comment=newcomment
@@ -339,7 +363,12 @@ def reply_to_report(request, report_id):
         )
         return redirect(newcomment.content_object.get_absolute_url())
 
-    context = {"report": report, "is_author": is_author, "form": form}
+    context = {
+        "report": report,
+        "is_author": is_author,
+        "form": form,
+        "gen_ai_disclosure_form": gen_ai_disclosure_form,
+    }
     return render(request, "comments/reply_to_report.html", context)
 
 

@@ -15,6 +15,8 @@ import requests
 
 import matplotlib
 
+from ethics.forms import GenAIDisclosureForm
+from ethics.models import GenAIDisclosure
 from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
 from proceedings.models import Proceedings
 from profiles.models import Profile
@@ -680,6 +682,58 @@ class DraftPublicationCreateView(PermissionsMixin, CreateView):
         kwargs["issue_id"] = self.request.GET.get("issue")
         return kwargs
 
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        form = self.get_form()
+        gen_ai_form = self.get_gen_ai_disclosure_form(
+            form.submission, request.POST or None
+        )
+
+        # Override superclass `post` to check for disclosure form validity
+        if form.is_valid() and (gen_ai_form.is_valid() if gen_ai_form else True):
+            return self.form_valid(form, gen_ai_form)
+        else:
+            return self.form_invalid(form)
+
+    def get_gen_ai_disclosure_form(
+        self, submission: Submission, data=None
+    ) -> GenAIDisclosureForm | None:
+        """
+        Returns the GenAI disclosure form for the current request.
+        If a submission disclosure exists, it initializes the form with its data.
+        """
+        self.submission_disclosure = submission.gen_ai_disclosures.first()
+        if self.submission_disclosure:
+            return GenAIDisclosureForm(
+                data,
+                initial={
+                    "was_used": self.submission_disclosure.was_used,
+                    "use_details": self.submission_disclosure.use_details,
+                }
+                if self.submission_disclosure
+                else None,
+            )
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        if (form := context.get("form")) and (submission := form.submission):
+            context["gen_ai_disclosure_form"] = self.get_gen_ai_disclosure_form(
+                submission
+            )
+        return context
+
+    def form_valid(self, form, gen_ai_form):
+        """
+        Override form_valid to set the author associations and copy the GenAI disclosure.
+        """
+        super_form_valid = super().form_valid(form)
+        if gen_ai_form and self.object and self.submission_disclosure:
+            gen_ai_form.save(
+                contributor=self.submission_disclosure.contributor,
+                for_object=self.object,
+            )
+
+        return super_form_valid
+
 
 class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
     """
@@ -701,6 +755,44 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
         if self.request.user.has_perm("scipost.can_publish_accepted_submission"):
             return publication
         raise Http404("Found Publication is not in draft")
+
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+        form = self.get_form()
+        gen_ai_form = self.get_gen_ai_disclosure_form(self.object, request.POST or None)
+
+        # Override superclass `post` to check for disclosure form validity
+        if form.is_valid() and (gen_ai_form.is_valid() if gen_ai_form else True):
+            return self.form_valid(form, gen_ai_form)
+        else:
+            return self.form_invalid(form)
+
+    def get(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["gen_ai_disclosure_form"] = self.get_gen_ai_disclosure_form(self.object)
+        return context
+
+    def get_gen_ai_disclosure_form(
+        self, publication, data=None
+    ) -> GenAIDisclosureForm | None:
+        disclosure = GenAIDisclosure.objects.filter(publication=publication).first()
+        if disclosure:
+            return GenAIDisclosureForm(
+                data,
+                instance=GenAIDisclosure.objects.filter(
+                    publication=publication
+                ).first(),
+            )
+
+    def form_valid(self, form, gen_ai_form):
+        super_form_valid = super().form_valid(form)
+        if gen_ai_form:
+            gen_ai_form.save()
+        return super_form_valid
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

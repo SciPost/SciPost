@@ -39,6 +39,7 @@ from dal import autocomplete
 import sentry_sdk
 
 from common.views import HXFormSetView, empty
+from ethics.forms import GenAIDisclosureForm
 from profiles.utils import resolve_profile
 
 from scipost.permissions import (
@@ -335,6 +336,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         """
         Redirect to `submit_choose_preprint_server` if preprint identifier is not known.
         """
+        self.gen_ai_disclosure_form = GenAIDisclosureForm()
         # Guard against inactive journals
         journal = get_object_or_404(Journal, doi_label=journal_doi_label)
         if not (journal.active or request.user.is_staff):
@@ -369,12 +371,25 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
                 redirect_url += "?thread_hash=%s" % request.GET.get("thread_hash")
             return redirect(redirect_url)
 
+    def post(
+        self, request: HttpRequest, *args: str, **kwargs: reverse_lazy
+    ) -> HttpResponse:
+        self.gen_ai_disclosure_form = GenAIDisclosureForm(request.POST or None)
+        form = self.get_form()
+
+        # Override superclass `post` to check for disclosure form validity
+        if form.is_valid() and self.gen_ai_disclosure_form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["journal"] = get_object_or_404(
             Journal, doi_label=self.kwargs.get("journal_doi_label")
         )
         context["thread_hash"] = self.request.GET.get("thread_hash")
+        context["gen_ai_disclosure_form"] = self.gen_ai_disclosure_form
         return context
 
     def get_form_kwargs(self):
@@ -387,11 +402,16 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         kwargs["initial"] = getattr(self, "initial_data", {})
         return kwargs
 
-    # @transaction.atomic
+    @transaction.atomic
     def form_valid(self, form):
         """Redirect and send out mails if all data is valid."""
         submission = form.save()
         self.submission = submission
+
+        self.gen_ai_disclosure_form.save(
+            contributor=self.request.user.contributor,
+            for_object=submission,
+        )
 
         submission.add_general_event("Submitted to %s." % str(submission.submitted_to))
 
@@ -821,6 +841,7 @@ def submission_detail(request, identifier_w_vn_nr):
         "scipost.can_submit_comments"
     ):
         context["comment_form"] = CommentForm()
+        context["gen_ai_disclosure_form"] = GenAIDisclosureForm()
 
     invited_reports = submission.reports.accepted().invited()
     contributed_reports = submission.reports.accepted().contributed()
@@ -2395,9 +2416,15 @@ def _hx_eic_recommendation_form(request, identifier_w_vn_nr):
     )
 
     form = EICRecommendationForm(request.POST or None, submission=submission)
+    gen_ai_disclosure_form = GenAIDisclosureForm(request.POST or None)
 
-    if form.is_valid():
+    if form.is_valid() and gen_ai_disclosure_form.is_valid():
         recommendation = form.save()
+        gen_ai_disclosure_form.save(
+            contributor=request.user.contributor,
+            for_object=recommendation,
+        )
+
         if form.revision_requested():
             # Send mail to authors to notify about the request for revision.
             SubmissionUtils.load(
@@ -2416,7 +2443,11 @@ def _hx_eic_recommendation_form(request, identifier_w_vn_nr):
         )
         return response
 
-    context = {"submission": submission, "form": form}
+    context = {
+        "submission": submission,
+        "form": form,
+        "gen_ai_disclosure_form": gen_ai_disclosure_form,
+    }
     return render(request, "submissions/pool/_hx_eic_recommendation_form.html", context)
 
 
@@ -2450,6 +2481,7 @@ def eic_recommendation(request, identifier_w_vn_nr):
         )
 
     form = EICRecommendationForm(request.POST or None, submission=submission)
+    gen_ai_disclosure_form = GenAIDisclosureForm(request.POST or None)
     # Find EditorialAssignment for user
     if not form.has_assignment():
         messages.warning(
@@ -2467,7 +2499,11 @@ def eic_recommendation(request, identifier_w_vn_nr):
             )
         )
 
-    context = {"submission": submission, "form": form}
+    context = {
+        "submission": submission,
+        "form": form,
+        "gen_ai_disclosure_form": gen_ai_disclosure_form,
+    }
     return render(request, "submissions/pool/recommendation_formulate.html", context)
 
 
@@ -2576,9 +2612,19 @@ def submit_report(request, identifier_w_vn_nr):
         request=request,
     )
 
+    gen_ai_disclosure_form = GenAIDisclosureForm(
+        request.POST or None,
+        instance=report_in_draft.gen_ai_disclosures.first(),
+    )
+
     # Check if data sent is valid
-    if form.is_valid():
+    if form.is_valid() and gen_ai_disclosure_form.is_valid():
         newreport = form.save()
+        gen_ai_disclosure_form.save(
+            contributor=request.user.contributor,
+            for_object=newreport,
+        )
+
         if newreport.status == STATUS_DRAFT:
             messages.success(
                 request,
@@ -2614,7 +2660,11 @@ def submit_report(request, identifier_w_vn_nr):
     elif request.POST:
         messages.error(request, "Report not submitted, please read the errors below.")
 
-    context = {"submission": submission, "form": form}
+    context = {
+        "submission": submission,
+        "form": form,
+        "gen_ai_disclosure_form": gen_ai_disclosure_form,
+    }
     return render(request, "submissions/report_form.html", context)
 
 
