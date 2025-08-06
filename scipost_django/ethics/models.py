@@ -194,3 +194,37 @@ class GenAIDisclosure(models.Model):
                 return "Negative " + content_text
             case None:
                 return "Pending " + content_text
+
+    def get_object_model_name(self):
+        """
+        Returns the model name of the object this disclosure is for.
+        """
+        match self.content_type.model_class().__name__:
+            case "Submission":
+                return "submission"
+            case "Publication":
+                return "publication"
+            case "Comment":
+                return "comment"
+            case "Report":
+                return "report"
+            case "EIC Recommendation":
+                return "recommendation"
+            case _:
+                return self.content_type.model_class().__name__.lower()
+
+    def get_content_author_name(self):
+        """
+        Returns the semantic name of the author who created the content this disclosure is for.
+        """
+        match self.content_type.model_class().__name__:
+            case "Submission" | "Publication":
+                return "author(s)"
+            case "Comment":
+                return "comment author"
+            case "Report":
+                return "referee"
+            case "EIC Recommendation":
+                return "editor-in-charge"
+            case _:
+                return self.content_type.model_class().__name__.lower() + " author"
