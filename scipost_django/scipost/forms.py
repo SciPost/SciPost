@@ -334,19 +334,75 @@ class RegistrationForm(forms.Form):
 
     def _forbid_already_registered_email(self, field: str):
         """
-        Check that the email field does not correspond to an already registered Contributor's email.
+        Check that the email field does not correspond to an existing ProfileEmail.
+        If so, reply with an appropriate error message for the following cases:
+        - Already registered account with this email address
+        - Pending registration invitation with this email address
+        - Pending registration invitation with a synonymous name
+        - Generic error message otherwise
         """
-        if ProfileEmail.objects.filter(
-            email__iexact=self.cleaned_data.get(field, ""),
-            profile__contributor__isnull=False,
-        ).exists():
-            error_message = format_html(
-                "This email address is already in use. "
-                "Have you already registered? <br/>"
-                "<a href='/password_reset/'>Reset your password</a> or "
-                "<a href='mailto:techsupport@scipost.org'>contact tech support</a>."
+        profile_email = ProfileEmail.objects.filter(
+            email__iexact=self.cleaned_data.get(field, "")
+        ).first()
+        if profile_email is None:
+            return  # No account associated with this email, no errors here
+
+        pending_reg_invitations = RegistrationInvitation.objects.sent()
+        pending_ref_invitations = RefereeInvitation.objects.awaiting_response()
+        has_been_invited = (
+            pending_reg_invitations.filter(
+                Q(profile=profile_email.profile) | Q(email=profile_email.email)
+            ).exists()
+            or pending_ref_invitations.filter(
+                Q(referee=profile_email.profile)
+                | Q(invitation_email=profile_email.email)
+            ).exists()
+        )
+        has_synonymous_been_invited = (
+            pending_reg_invitations.filter(
+                profile__full_name_normalized=profile_email.profile.full_name_normalized
             )
-            self.add_error(field, error_message)
+            .exclude(profile=profile_email.profile)
+            .exists()
+        ) or (
+            pending_ref_invitations.filter(
+                referee__full_name_normalized=profile_email.profile.full_name_normalized
+            )
+            .exclude(referee=profile_email.profile)
+            .exists()
+        )
+        has_registered = Contributor.objects.filter(
+            profile=profile_email.profile
+        ).exists()
+
+        if has_registered:
+            error_message = (
+                "There exists another account with this email address. <br />"
+                "Please <a href='/password_reset/'>reset your password</a> if it belongs to you or "
+                "<a href='mailto:techsupport@scipost.org'>contact tech support</a> if you need assistance."
+            )
+        elif has_been_invited:
+            error_message = (
+                "You have been invited to register an account with this email address. <br />"
+                "Please click the link in the invitation email you received to register. <br />"
+                "<a href='mailto:techsupport@scipost.org'>Contact tech support</a> if unable to do so."
+            )
+        elif has_synonymous_been_invited:
+            error_message = (
+                "This email address is associated to a profile for which another similarly-named profile is pending registration. <br />"
+                "If it belongs to you, please check your alternate emails accounts where a possible invitation may have been sent. <br />"
+                "<a href='mailto:techsupport@scipost.org'>Contact tech support</a> if you need assistance with this."
+            )
+        else:
+            #! FIXME: In the future it would be nice to send a kind of verification email
+            # that turns into a registration invitation upon completion. This would automate
+            # the process of claiming a profile with a reasonable test.
+            error_message = (
+                "A profile with this email address exists but is not associated to a registered account. <br />"
+                "Please <a href='mailto:techsupport@scipost.org'>contact tech support</a> verify it is yours and claim it."
+            )
+
+        self.add_error(field, format_html(error_message))
 
     def clean_institutional_email(self):
         self._forbid_already_registered_email("institutional_email")
