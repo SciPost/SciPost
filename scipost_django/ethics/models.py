@@ -200,15 +200,7 @@ class GenAIDisclosure(models.Model):
         Returns the model name of the object this disclosure is for.
         """
         match self.content_type.model_class().__name__:
-            case "Submission":
-                return "submission"
-            case "Publication":
-                return "publication"
-            case "Comment":
-                return "comment"
-            case "Report":
-                return "report"
-            case "EIC Recommendation":
+            case "EICRecommendation":
                 return "recommendation"
             case _:
                 return self.content_type.model_class().__name__.lower()
@@ -224,7 +216,17 @@ class GenAIDisclosure(models.Model):
                 return "comment author"
             case "Report":
                 return "referee"
-            case "EIC Recommendation":
-                return "editor-in-charge"
+            case "EICRecommendation":
+                return "Editor in Charge"
             case _:
                 return self.content_type.model_class().__name__.lower() + " author"
+
+    def get_authors_could_be_plural(self) -> bool:
+        """
+        Returns True if the content this disclosure is for could have multiple authors.
+        """
+        match self.content_type.model_class().__name__:
+            case "Submission" | "Publication":
+                return True
+            case _:
+                return False
