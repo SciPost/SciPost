@@ -42,7 +42,9 @@
           <form class="mt-4" id="full_submission_form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {% crispy form %}
-            {% crispy gen_ai_disclosure_form %}
+            {% if gen_ai_disclosure_form %}
+              {% crispy gen_ai_disclosure_form %}
+            {% endif %}
 
             <div class="row">
               <div class="col">

@@ -130,8 +130,9 @@ class GenAIDisclosureForm(forms.ModelForm):
     use_details = forms.CharField(
         widget=forms.Textarea(attrs={"rows": 3}),
         label="Generative AI tool usage details",
-        help_text="Please specify which generative AI tools were used (including their version numbers or date of use), "
-        "in which parts of your submission, and for which purposes.",
+        help_text="Please specify which generative AI tools were used "
+        "(including their version numbers or date of use), "
+        "in which parts, and for which purposes.",
         required=False,
     )
 
@@ -174,3 +175,51 @@ class GenAIDisclosureForm(forms.ModelForm):
         if commit:
             gen_ai_disclosure.save()
         return gen_ai_disclosure
+
+
+class GenAIDisclosureAppendageForm(GenAIDisclosureForm):
+    """
+    This form is used to append a new statement to an existing GenAIDisclosure's
+    `use_details` field, while keeping the original declaration intact.
+    """
+
+    new_details = forms.CharField(
+        widget=forms.Textarea(attrs={"rows": 3}),
+        label="Additional generative AI tool usage details",
+        help_text="Please optionally specify additional generative AI tools used "
+        "in this version to be included alongside the original declaration.",
+        required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        previous_disclosure = kwargs.pop("previous_disclosure", None)
+        if previous_disclosure:
+            kwargs["initial"] = {
+                "was_used": previous_disclosure.was_used,
+                "use_details": previous_disclosure.use_details,
+            } | kwargs.get("initial", {})
+
+        super().__init__(*args, **kwargs)
+
+        self.fields["was_used"].disabled = True
+        self.fields["use_details"].disabled = True
+
+        self.helper.layout = Layout(
+            Div(
+                Div(Field("was_used"), css_class="col-12"),
+                Div(Field("use_details"), css_class="col-12"),
+                Div(Field("new_details"), css_class="col-12"),
+                css_class="row mb-0",
+            ),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        cleaned_data["use_details"] = (
+            cleaned_data.get("use_details", "")
+            + "\n"
+            + cleaned_data.get("new_details", "")
+        ).strip()
+
+        return cleaned_data

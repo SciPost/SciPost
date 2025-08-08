@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 import datetime
 import re
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.template.response import TemplateResponse
 
@@ -39,7 +40,8 @@ from dal import autocomplete
 import sentry_sdk
 
 from common.views import HXFormSetView, empty
-from ethics.forms import GenAIDisclosureForm
+from ethics.forms import GenAIDisclosureAppendageForm, GenAIDisclosureForm
+from ethics.models import GenAIDisclosure
 from profiles.utils import resolve_profile
 
 from scipost.permissions import (
@@ -332,11 +334,43 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         self.initial_data = {}
         super().__init__(**kwargs)
 
+    def get_gen_ai_disclosure_form(
+        self, *args
+    ) -> GenAIDisclosureForm | GenAIDisclosureAppendageForm | None:
+        """
+        Return the GenAIDisclosureForm instance.
+        If this is a resubmission, display a special "appendage" version of the form,
+        such that the original declaration is kept and the new one is appended.
+        """
+        previous_submission_id = 0
+        if len(args) > 0 and (data := args[0]):
+            if data_is_resubmission_of := data.get("is_resubmission_of", None):
+                if isinstance(data_is_resubmission_of, list):
+                    data_is_resubmission_of = data_is_resubmission_of[0]
+                if isinstance(data_is_resubmission_of, str):
+                    try:
+                        previous_submission_id = int(data_is_resubmission_of)
+                    except ValueError:
+                        previous_submission_id = 0
+                else:
+                    previous_submission_id = data_is_resubmission_of
+        else:
+            previous_submission_id = self.initial_data.get("is_resubmission_of", 0)
+
+        if not previous_submission_id:
+            return GenAIDisclosureForm(*args)
+        elif previous_disclosure := GenAIDisclosure.objects.filter(
+            content_type_id=ContentType.objects.get_for_model(Submission),
+            object_id=previous_submission_id,
+        ).first():
+            return GenAIDisclosureAppendageForm(
+                *args, previous_disclosure=previous_disclosure
+            )
+
     def get(self, request, journal_doi_label):
         """
         Redirect to `submit_choose_preprint_server` if preprint identifier is not known.
         """
-        self.gen_ai_disclosure_form = GenAIDisclosureForm()
         # Guard against inactive journals
         journal = get_object_or_404(Journal, doi_label=journal_doi_label)
         if not (journal.active or request.user.is_staff):
@@ -374,12 +408,12 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     def post(
         self, request: HttpRequest, *args: str, **kwargs: reverse_lazy
     ) -> HttpResponse:
-        self.gen_ai_disclosure_form = GenAIDisclosureForm(request.POST or None)
+        gen_ai_form = self.get_gen_ai_disclosure_form(request.POST or None)
         form = self.get_form()
 
         # Override superclass `post` to check for disclosure form validity
-        if form.is_valid() and self.gen_ai_disclosure_form.is_valid():
-            return self.form_valid(form)
+        if form.is_valid() and gen_ai_form and gen_ai_form.is_valid():
+            return self.form_valid(form, gen_ai_form)
         else:
             return self.form_invalid(form)
 
@@ -389,7 +423,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
             Journal, doi_label=self.kwargs.get("journal_doi_label")
         )
         context["thread_hash"] = self.request.GET.get("thread_hash")
-        context["gen_ai_disclosure_form"] = self.gen_ai_disclosure_form
+        context["gen_ai_disclosure_form"] = self.get_gen_ai_disclosure_form()
         return context
 
     def get_form_kwargs(self):
@@ -403,12 +437,12 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         return kwargs
 
     @transaction.atomic
-    def form_valid(self, form):
+    def form_valid(self, form, gen_ai_form):
         """Redirect and send out mails if all data is valid."""
         submission = form.save()
         self.submission = submission
 
-        self.gen_ai_disclosure_form.save(
+        gen_ai_form.save(
             contributor=self.request.user.contributor,
             for_object=submission,
         )
