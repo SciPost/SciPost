@@ -7,7 +7,7 @@
         Disclosure of Generative AI use
       </div>
       <p>
-        The {{ disclosure.get_content_author_name }} disclose(s) that the following generative AI tools have been used in the preparation of this {{ disclosure.get_object_model_name }}:
+        The {{ disclosure.get_content_author_name }} disclose{{ disclosure.get_authors_could_be_plural|yesno:",s" }} that the following generative AI tools have been used in the preparation of this {{ disclosure.get_object_model_name }}:
       </p>
       <p class="mb-0">{{ disclosure.use_details|linebreaksbr }}</p>
     </div>
