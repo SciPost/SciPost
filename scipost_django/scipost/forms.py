@@ -355,7 +355,7 @@ class RegistrationForm(forms.Form):
             ).exists()
             or pending_ref_invitations.filter(
                 Q(referee=profile_email.profile)
-                | Q(invitation_email=profile_email.email)
+                | Q(email_address=profile_email.email)
             ).exists()
         )
         has_synonymous_been_invited = (
