@@ -412,7 +412,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         form = self.get_form()
 
         # Override superclass `post` to check for disclosure form validity
-        if form.is_valid() and gen_ai_form and gen_ai_form.is_valid():
+        if form.is_valid() and (gen_ai_form.is_valid() if gen_ai_form else True):
             return self.form_valid(form, gen_ai_form)
         else:
             return self.form_invalid(form)
@@ -442,10 +442,11 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         submission = form.save()
         self.submission = submission
 
-        gen_ai_form.save(
-            contributor=self.request.user.contributor,
-            for_object=submission,
-        )
+        if gen_ai_form:
+            gen_ai_form.save(
+                contributor=self.request.user.contributor,
+                for_object=submission,
+            )
 
         submission.add_general_event("Submitted to %s." % str(submission.submitted_to))
 
