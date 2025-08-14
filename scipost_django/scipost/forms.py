@@ -264,6 +264,8 @@ class RegistrationForm(forms.Form):
         """
         Check that:
         * either an organization or an address are provided
+        * the emails provided do not belong to another profile
+        * the ORCID ID provided does not belong to another profile
         """
         cleaned_data = super(RegistrationForm, self).clean()
         current_affiliation = cleaned_data.get("current_affiliation", None)
@@ -274,6 +276,11 @@ class RegistrationForm(forms.Form):
                 "You must either specify a Current Affiliation, or "
                 "fill in the institution name and address field"
             )
+
+        # Check email existing in other profiles
+        invitation_key = self.cleaned_data.get("invitation_key", "")
+        self._forbid_already_associated_email("institutional_email", invitation_key)
+        self._forbid_already_associated_email("personal_email", invitation_key)
 
         # If ORCID exists in another profile
         duplicate_orcid_profile = Profile.objects.filter(
@@ -332,18 +339,32 @@ class RegistrationForm(forms.Form):
 
         return invitation.invitation_key
 
-    def _forbid_already_registered_email(self, field: str):
+    def _forbid_already_associated_email(self, field: str, key: str = ""):
         """
-        Check that the email field does not correspond to an existing ProfileEmail.
+        Check that the email field does not correspond to an existing ProfileEmail,
+        unless it is the one the user is registering for.
         If so, reply with an appropriate error message for the following cases:
         - Already registered account with this email address
         - Pending registration invitation with this email address
         - Pending registration invitation with a synonymous name
         - Generic error message otherwise
         """
-        profile_email = ProfileEmail.objects.filter(
-            email__iexact=self.cleaned_data.get(field, "")
-        ).first()
+        # fmt: off
+        profile_trying_to_register_for = (
+            ref.referee
+            if (ref := RefereeInvitation.objects.filter(invitation_key=key).first())
+            else reg.profile
+            if (reg := RegistrationInvitation.objects.filter(invitation_key=key).first())
+            else None
+        )
+        # fmt: on
+
+        field_address = self.cleaned_data.get(field, "")
+        profile_email = (
+            ProfileEmail.objects.filter(email__iexact=field_address)
+            .exclude(profile=profile_trying_to_register_for)
+            .first()
+        )
         if profile_email is None:
             return  # No account associated with this email, no errors here
 
@@ -351,11 +372,10 @@ class RegistrationForm(forms.Form):
         pending_ref_invitations = RefereeInvitation.objects.awaiting_response()
         has_been_invited = (
             pending_reg_invitations.filter(
-                Q(profile=profile_email.profile) | Q(email=profile_email.email)
+                Q(profile=profile_email.profile) | Q(email=field_address)
             ).exists()
             or pending_ref_invitations.filter(
-                Q(referee=profile_email.profile)
-                | Q(email_address=profile_email.email)
+                Q(referee=profile_email.profile) | Q(email_address=field_address)
             ).exists()
         )
         has_synonymous_been_invited = (
@@ -405,8 +425,6 @@ class RegistrationForm(forms.Form):
         self.add_error(field, format_html(error_message))
 
     def clean_institutional_email(self):
-        self._forbid_already_registered_email("institutional_email")
-
         institutional_email = self.cleaned_data.get("institutional_email", "")
         mail_domain = institutional_email.split("@")[-1]
         if MailAddressDomain.objects.filter(
@@ -420,8 +438,6 @@ class RegistrationForm(forms.Form):
         return institutional_email
 
     def clean_personal_email(self):
-        self._forbid_already_registered_email("personal_email")
-
         personal_email = self.cleaned_data.get("personal_email", "")
         mail_domain = personal_email.split("@")[-1]
         if MailAddressDomain.objects.filter(
