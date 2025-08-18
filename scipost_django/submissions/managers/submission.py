@@ -368,12 +368,26 @@ class SubmissionQuerySet(models.QuerySet):
 
     def undergoing_voting(self, longer_than_days=None):
         from submissions.models import EICRecommendation
+        from submissions.models.submission import SubmissionEvent
 
-        ids_list = [
-            r.submission.id
-            for r in EICRecommendation.objects.put_to_voting(longer_than_days)
-        ]
-        return self.filter(id__in=ids_list)
+        qs = self.filter(
+            id__in=EICRecommendation.objects.put_to_voting().values("submission")
+        )
+
+        if longer_than_days:
+            older_than_date = timezone.now() - datetime.timedelta(days=longer_than_days)
+            qs = qs.annotate(
+                voting_event_date=models.Subquery(
+                    SubmissionEvent.objects.filter(
+                        submission=models.OuterRef("pk"),
+                        text__iregex=r"Voting on recommendation.+?started",
+                    )
+                    .order_by("-created")
+                    .values("created")[:1]
+                )
+            ).filter(voting_event_date__lt=older_than_date)
+
+        return qs
 
     def annot_qualified_expertise_by(self, fellow):
         """
@@ -428,7 +442,9 @@ class SubmissionQuerySet(models.QuerySet):
                         readiness_status__isnull=False,
                         has_clearance=True,
                     )
-                    | Q(qualification_expertise__in=Qualification.EXPERTISE_NOT_QUALIFIED)
+                    | Q(
+                        qualification_expertise__in=Qualification.EXPERTISE_NOT_QUALIFIED
+                    )
                     | Q(readiness_status=Readiness.STATUS_PERHAPS_LATER),
                     Value(False),
                     output_field=models.BooleanField(),
