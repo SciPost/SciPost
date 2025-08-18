@@ -47,6 +47,7 @@ class ConflictOfInterest(models.Model):
     header = models.CharField(max_length=265)
     url = models.URLField(blank=True)
     comment = models.TextField(blank=True)
+    resource_date = models.DateField(null=True, blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)

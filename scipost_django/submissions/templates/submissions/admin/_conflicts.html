@@ -26,6 +26,10 @@
           {{ conflict.header }}
         {% endif %}
         <br>
+        {% if conflict.resource_date %}
+          <span class="text-muted">Published on: {{ conflict.resource_date|date:"Y-m-d" }}</span>
+          <br>
+        {% endif %}
         Profiles: {{ conflict.profile }} - {{ conflict.related_profile }}
 
         {% if conflict.comment %}
