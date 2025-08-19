@@ -368,8 +368,13 @@ class RegistrationForm(forms.Form):
         if profile_email is None:
             return  # No account associated with this email, no errors here
 
-        pending_reg_invitations = RegistrationInvitation.objects.sent()
-        pending_ref_invitations = RefereeInvitation.objects.awaiting_response()
+        three_months_ago = timezone.now() - datetime.timedelta(days=90)
+        pending_reg_invitations = RegistrationInvitation.objects.sent().filter(
+            created__gt=three_months_ago
+        )
+        pending_ref_invitations = RefereeInvitation.objects.awaiting_response().filter(
+            date_invited__gt=three_months_ago
+        )
         has_been_invited = (
             pending_reg_invitations.filter(
                 Q(profile=profile_email.profile) | Q(email=field_address)
