@@ -59,6 +59,9 @@ lxml==5.3.1                                     # 2025-02-19: XML parsing, metad
 Markdown==3.7                                   # 2025-02-19
 Bleach==6.2.0                                   # 2025-02-19: HTML sanitization
 
+# Name parsing
+nameparser==1.1.3                               # 2025-08-25: Name parsing utility
+
 # Scheduled tasks
 celery==5.4.0                                   # 2025-02-19
 django-celery-results==2.5.1                    # 2025-02-19
