@@ -127,14 +127,14 @@ class ProfileCreateView(PermissionsMixin, CreateView):
         from_type = self.kwargs.get("from_type", None)
         pk = self.kwargs.get("pk", None)
 
-        # Build initial data from GET parameters of the name.
-        first_name = self.request.GET.get("first_name", None)
-        last_name = self.request.GET.get("last_name", None)
-
-        if first_name:
-            initial.update({"first_name": first_name})
-        if last_name:
-            initial.update({"last_name": last_name})
+        # Build initial data from GET parameters
+        form_fields = self.get_form_class()().fields.keys()
+        for field_name in form_fields:
+            if GET_initial := self.request.GET.get(field_name, None):
+                if "," in GET_initial:
+                    initial.update({field_name: GET_initial.split(",")})
+                else:
+                    initial.update({field_name: GET_initial})
 
         if pk and from_type:
             pk = int(pk)

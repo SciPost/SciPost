@@ -18,8 +18,9 @@
     {% else %}
       {% load crispy_forms_tags %}
       <div class="row mb-0">
-	<div class="col-9">
+	<div class="d-flex gap-2 flex-row align-items-center">
 	  <form
+        class="flex-grow-1"
 	      hx-post="{% url 'profiles:_hx_profile_dynsel_list' %}"
 	      hx-trigger="load, keyup delay:200ms, change"
 	      hx-target="#submission-{{ submission.id }}-profile-{{ order }}-dynsel-results"
@@ -28,30 +29,21 @@
 	  >
 	    <div id="profile_{{ order }}_dynsel_form">{% crispy profile_dynsel_form %}</div>
 	  </form>
-	</div>
-	<div class="col-3">
-	  <div id="submission-{{ submission.id }}-profile-{{ order }}-dynsel-results-indicator" class="htmx-indicator">
-	    <button class="btn btn-sm btn-warning" type="button" disabled>
-	      <strong>Loading results...</strong>
-	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	    </button>
-	  </div>
+    <a href="{% url "profiles:profile_create" %}{% querystring first_name=author_first_name_guess last_name=author_last_name_guess specialties=submission_specialties_serialized acad_field=submission.acad_field.id%}" class="btn btn-sm btn-secondary">
+      {% include 'bi/pencil-square.html' %}
+    </a>
+    <div id="submission-{{ submission.id }}-profile-{{ order }}-dynsel-results-indicator" class="htmx-indicator">
+      <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+    </div>
 	</div>
       </div>
       <div class="row mb-0">
-	<div class="col-9">
-	  <div id="submission-{{ submission.id }}-profile-{{ order }}-dynsel-results" class="border border-light m-0 p-1"></div>
-	</div>
-	<div class="col-3">
-	  <div id="submission-{{ submission.pk }}-author-profile-row-{{ order }}-indicator"
-	       class="htmx-indicator"
-	  >
-	    <button class="btn btn-sm btn-warning" type="button" disabled>
-	      <strong>Loading...</strong>
-	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	    </button>
-	  </div>
-	</div>
+        <div class="d-flex gap-2 flex-row align-items-center">  
+          <div id="submission-{{ submission.id }}-profile-{{ order }}-dynsel-results" class="flex-grow-1 border border-light m-0 p-1"></div>
+          <div id="submission-{{ submission.pk }}-author-profile-row-{{ order }}-indicator" class="htmx-indicator">
+            <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+          </div>
+        </div>
       </div>
     {% endif %}
   </td>

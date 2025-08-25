@@ -80,9 +80,15 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
         order=order,
         profile__isnull=False,
     ).first()
+
+    submission_specialties_serialized = ",".join([str(s.id) for s in submission.specialties.all()])
+    author_first_name_guess, *author_last_name_guess = author_string.split(" ", 1)
     context = {
         "submission": submission,
         "author_string": author_string,
+        "submission_specialties_serialized": submission_specialties_serialized,
+        "author_first_name_guess": author_first_name_guess,
+        "author_last_name_guess": author_last_name_guess[0] if author_last_name_guess else "",
         "order": order,
         "profile": profile,
     }
