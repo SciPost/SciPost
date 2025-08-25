@@ -255,7 +255,12 @@ def commentary_detail(request, arxiv_or_DOI_string):
     )
 
     form = CommentForm()
-    context = {"commentary": commentary, "form": form}
+    gen_ai_disclosure_form = GenAIDisclosureForm()
+    context = {
+        "commentary": commentary,
+        "form": form,
+        "gen_ai_disclosure_form": gen_ai_disclosure_form,
+    }
     return render(request, "commentaries/commentary_detail.html", context)
 
 

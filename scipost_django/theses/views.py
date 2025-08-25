@@ -14,6 +14,8 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 
+from ethics.forms import GenAIDisclosureForm
+
 from .models import ThesisLink
 from .forms import RequestThesisLinkForm, ThesisLinkSearchForm, VetThesisLinkForm
 
@@ -132,6 +134,11 @@ class ThesisListView(PaginationMixin, ListView):
 def thesis_detail(request, thesislink_id):
     thesislink = get_object_or_404(ThesisLink, pk=thesislink_id)
     form = CommentForm()
+    gen_ai_disclosure_form = GenAIDisclosureForm()
 
-    context = {"thesislink": thesislink, "form": form}
+    context = {
+        "thesislink": thesislink,
+        "form": form,
+        "gen_ai_disclosure_form": gen_ai_disclosure_form,
+    }
     return render(request, "theses/thesis_detail.html", context)
