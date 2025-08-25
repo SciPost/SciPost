@@ -82,20 +82,23 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
     ).first()
 
     submission_specialties_serialized = ",".join([str(s.id) for s in submission.specialties.all()])
-    author_first_name_guess, *author_last_name_guess = author_string.split(" ", 1)
+    from nameparser import HumanName
+    name = HumanName(author_string)
+    author_first_name_guess = f"{name.first} {name.middle}".strip()
+    author_last_name_guess = name.last
     context = {
         "submission": submission,
         "author_string": author_string,
         "submission_specialties_serialized": submission_specialties_serialized,
         "author_first_name_guess": author_first_name_guess,
-        "author_last_name_guess": author_last_name_guess[0] if author_last_name_guess else "",
+        "author_last_name_guess": author_last_name_guess,
         "order": order,
         "profile": profile,
     }
     if profile is None:
         profile_dynsel_form = ProfileDynSelForm(
             initial={
-                "q": author_string.rpartition(". ")[2],
+                "q": name.full_name,
                 "action_url_name": "edadmin:preassignment:_hx_author_profile_action",
                 "action_url_base_kwargs": {
                     "identifier_w_vn_nr": identifier_w_vn_nr,
