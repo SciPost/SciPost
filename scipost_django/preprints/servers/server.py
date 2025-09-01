@@ -12,8 +12,6 @@ from typing import Any, Self
 
 from nameparser import HumanName
 
-from common.utils.text import latinise, partial_name_match_regexp
-from conflicts.models import ConflictOfInterest
 from .utils import (
     AUTHOR_FIRST_LAST_NAME_FORMAT,
     JSONResponse,
@@ -81,6 +79,8 @@ class PreprintWork:
         or if the entire name is in the list of authors if the last name
         cannot be separated
         """
+        from common.utils.text import latinise, partial_name_match_regexp
+
         author_names = [
             format_person_name(author, format=AUTHOR_FIRST_LAST_NAME_FORMAT)
             for author in self.authors
@@ -111,16 +111,16 @@ class PreprintWork:
             "metadata": self.metadata,
         }
 
-    def to_coauthorship(self, **kwargs: Any) -> "Coauthorship":
-        return ConflictOfInterest(
-            **{
-                "type": ConflictOfInterest.TYPE_COAUTHOR,
-                "header": self.title,
-                "url": self.url,
-                "resource_date": self.date_published,
-                **kwargs,
-            }
-        )
+    # def to_coauthorship(self, **kwargs: Any) -> "Coauthorship":
+    #     return ConflictOfInterest(
+    #         **{
+    #             "type": ConflictOfInterest.TYPE_COAUTHOR,
+    #             "header": self.title,
+    #             "url": self.url,
+    #             "resource_date": self.date_published,
+    #             **kwargs,
+    #         }
+    #     )
 
     def __repr__(self) -> str:
         return (
