@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from multiprocessing import Pool
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -15,7 +16,7 @@ from ethics.forms import (
 
 from colleges.permissions import is_edadmin
 from colleges.models.fellowship import Fellowship
-from ethics.services import CrossrefCIChecker
+from preprints.servers.crossref import CrossrefServer
 from submissions.models import Submission
 
 
@@ -189,15 +190,38 @@ def _hx_submission_competing_interest_create(
 
 @login_required
 def _hx_submission_competing_interest_crossref_audit(request, identifier_w_vn_nr):
-    submission = get_object_or_404(
+    submission: Submission = get_object_or_404(
         Submission.objects.in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
 
-    fellow_name = request.user.contributor.profile.full_name
-    ci_checker = CrossrefCIChecker(fellow_name, submission.authors_as_list)
+    fellow_name: str = request.user.contributor.profile.full_name
 
-    context = {"submission": submission, "ci_checker": ci_checker}
+    all_works = []
+    exact_works = []
+    with Pool() as pool:
+        works_per_author = pool.starmap(
+            CrossrefServer.find_common_works_between,
+            [(fellow_name, author) for author in submission.authors_as_list],
+        )
+
+    for author, author_works in zip(submission.authors_as_list, works_per_author):
+        all_works.extend(author_works)
+        exact_works.extend(
+            [
+                work
+                for work in author_works
+                if work.contains_authors(fellow_name, author)
+            ]
+        )
+
+    context = {
+        "submission": submission,
+        "ci_checker": {
+            "possible_works": all_works,
+            "exact_works": exact_works,
+        },
+    }
     return render(
         request,
         "submissions/pool/_hx_crossref_CIs.html",
