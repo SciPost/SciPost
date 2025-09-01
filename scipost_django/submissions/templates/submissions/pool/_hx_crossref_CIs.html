@@ -35,7 +35,7 @@
           <div class="text-muted">
             by
 
-            {% for work_author in work.author_list %}
+            {% for work_author in work.authors %}
               <span class="{% if work_author in work.metadata.matched_authors %}text-warning{% endif %}">{{ work_author }}</span>
 
               {% if not forloop.last %},{% endif %}
