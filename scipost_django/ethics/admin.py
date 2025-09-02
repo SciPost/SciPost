@@ -1,20 +1,24 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-
-from typing import Any, Optional
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields import Field
-from django.forms import ChoiceField, widgets
-from django.forms.fields import TypedChoiceField
-from django.http.request import HttpRequest
-from blog import forms
+from django.forms import widgets
+from django.utils.safestring import mark_safe
 
-from profiles.models import Profile
+from preprints.servers.server import PreprintServer
 
-from .models import CompetingInterest, GenAIDisclosure, RedFlag
+from .models import (
+    CoauthoredWork,
+    Coauthorship,
+    CompetingInterest,
+    GenAIDisclosure,
+    RedFlag,
+)
+
+from typing import Any
 
 
 @admin.register(CompetingInterest)
@@ -131,4 +135,59 @@ class GenAIDisclosureInline(GenericTabularInline):
     def formfield_for_dbfield(self, db_field: Field, **kwargs: Any) -> Any:
         if db_field.name == "use_details":
             kwargs["widget"] = widgets.Textarea(attrs={"rows": 2})
+        return super().formfield_for_dbfield(db_field, **kwargs)
+
+
+@admin.register(Coauthorship)
+class CoauthorshipAdmin(admin.ModelAdmin[Coauthorship]):
+    model = Coauthorship
+    list_display = ("profile", "coauthor", "work_title_with_url", "status")
+    search_fields = (
+        "profile__last_name",
+        "coauthor__last_name",
+        "work__title",
+        "work__doi",
+        "work__identifier",
+    )
+    autocomplete_fields = (
+        "profile",
+        "coauthor",
+        "verified_by",
+        "work",
+    )
+    readonly_fields = ("created", "modified")
+    list_filter = ("status",)
+
+    def work_title_with_url(self, obj: Coauthorship):
+        if obj.work:
+            return mark_safe(
+                f'<a href="{obj.work.url}" target="_blank" rel="noopener">{obj.work.title}</a>'
+            )
+        return ""
+
+
+@admin.register(CoauthoredWork)
+class CoauthoredWorkAdmin(admin.ModelAdmin[CoauthoredWork]):
+    model = CoauthoredWork
+    list_display = (
+        "server_source",
+        "identifier_or_doi",
+        "title",
+        "authors_str",
+    )
+    list_filter = ("server_source",)
+    search_fields = ("title", "identifier", "doi")
+
+    def identifier_or_doi(self, obj: CoauthoredWork):
+        return obj.identifier or obj.doi
+
+    def formfield_for_dbfield(self, db_field: Field, **kwargs: Any) -> Any:
+        if db_field.name == "server_source":
+            kwargs["widget"] = widgets.Select(
+                choices=[("", "-" * 9)]
+                + [
+                    (server.value, server.name.title())
+                    for server in PreprintServer.__members__.values()
+                ]
+            )
         return super().formfield_for_dbfield(db_field, **kwargs)

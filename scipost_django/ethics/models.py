@@ -6,12 +6,16 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from ethics.managers import CompetingInterestQuerySet
+from preprints.servers.server import PreprintServer
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from django.db.models import BaseConstraint
+    from django.db.models.manager import RelatedManager
     from scipost.models import Contributor
     from profiles.models import Profile
     from submissions.models import Submission
@@ -230,3 +234,135 @@ class GenAIDisclosure(models.Model):
                 return True
             case _:
                 return False
+
+
+class CoauthoredWork(models.Model):
+    """
+    A work (e.g. preprint, publication, project, ...) that has multiple co-authors.
+    Serves as a related document and "proof" for substantiating a Coauthorship.
+    """
+
+    server_source = models.CharField(max_length=64)
+    work_type = models.CharField(max_length=64)
+    identifier = models.CharField(max_length=256, null=True, blank=True)
+    doi = models.CharField(max_length=256, null=True, blank=True)
+    title = models.CharField(max_length=512)
+    authors_str = models.TextField(
+        help_text="Semicolon-separated list of authors with comma-separated name parts."
+    )
+    date_published = models.DateField(null=True, blank=True)
+    date_updated = models.DateField(null=True, blank=True)
+    date_fetched = models.DateField(auto_now_add=True)
+    metadata = models.JSONField[str](default=dict, blank=True)
+
+    if TYPE_CHECKING:
+        coauthorships = RelatedManager["Coauthorship"]
+
+    class Meta:
+        constraints: list["BaseConstraint"] = [
+            models.UniqueConstraint(
+                fields=["server_source", "identifier"],
+                name="unique_coauthored_work_id",
+                nulls_distinct=True,
+                violation_error_message="A coauthored work with this server and identifier already exists.",
+            ),
+        ]
+
+    def __str__(self):
+        work_type = f" {self.work_type}" if self.work_type else ""
+        source_block = self.server_source + work_type
+        return f"[{source_block}] {self.title} by {self.authors_str[:25]}"
+
+    @cached_property
+    def server(self):
+        """Returns a PreprintServer if `server_source` corresponds to one."""
+        try:
+            return PreprintServer.from_name(self.server_source).server_class
+        except ValueError:
+            return None
+
+    @property
+    def url(self) -> str | None:
+        if self.identifier and hasattr(self.server, "identifier_to_url"):
+            return self.server.identifier_to_url(self.identifier)
+        else:
+            return self.doi_url
+
+    @property
+    def doi_url(self):
+        if self.doi:
+            return f"https://doi.org/{self.doi}"
+
+
+class Coauthorship(models.Model):
+    """
+    An instance of a (potential) coauthorship between two Profiles. The profiles may
+    share more than one coauthorship if it concerns a different work (publication).
+    """
+
+    STATUS_UNVERIFIED = "unverified"
+    STATUS_VERIFIED = "verified"
+    STATUS_DEPRECATED = "deprecated"
+    COAUTHORSHIP_STATUSES = (
+        (STATUS_UNVERIFIED, "Unverified"),
+        (STATUS_VERIFIED, "Verified"),
+        (STATUS_DEPRECATED, "Deprecated"),
+    )
+
+    profile = models.ForeignKey["Profile"](
+        "profiles.Profile",
+        on_delete=models.CASCADE,
+        related_name="coauthorships",
+    )
+    coauthor = models.ForeignKey["Profile"](
+        "profiles.Profile",
+        on_delete=models.CASCADE,
+        related_name="related_coauthorships",
+    )
+    work = models.ForeignKey[CoauthoredWork](
+        "ethics.CoauthoredWork",
+        on_delete=models.CASCADE,
+        related_name="coauthorships",
+    )
+    status = models.CharField(
+        max_length=16, choices=COAUTHORSHIP_STATUSES, default=STATUS_UNVERIFIED
+    )
+    verified_by = models.ForeignKey["Contributor"](
+        "scipost.Contributor",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="coauthorships_verified",
+    )
+
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints: list["BaseConstraint"] = [
+            models.UniqueConstraint(
+                fields=["profile", "coauthor", "work"],
+                name="unique_together_profile_coauthor_work",
+                violation_error_message="This coauthorship already exists.",
+            ),
+            models.CheckConstraint(
+                check=models.Q(profile_id__lt=models.F("coauthor_id")),
+                name="enforce_profile_ordering",
+                violation_error_message="Profile/Coauthor IDs must be in the correct order to avoid duplicates.",
+            ),
+        ]
+        ordering = ["-created"]
+
+    def verify(self, verified_by: "Contributor", commit: bool = True):
+        self.status = Coauthorship.STATUS_VERIFIED
+        self.verified_by = verified_by
+        if commit:
+            self.save()
+
+    def deprecate(self, verified_by: "Contributor", commit: bool = True):
+        self.status = Coauthorship.STATUS_DEPRECATED
+        self.verified_by = verified_by
+        if commit:
+            self.save()
+
+    def __str__(self):
+        return f"Coauthorship: {self.profile} & {self.coauthor} [{self.get_status_display()}]"
