@@ -7,12 +7,16 @@ from django.utils.http import urlencode
 from django.conf import settings
 
 from .utils import Person, format_person_name
-from .server import BasePreprintServer, BaseQuery, PreprintServer, PreprintWork
+from .server import BasePreprintServer, BaseQuery, PreprintServer
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ethics.models import CoauthoredWork
 
 
-CROSSREF_USER_AGENT = f"SciPost/c#{settings.COMMIT_HASH[:8]} (https://scipost.org)"
+CROSSREF_USER_AGENT = f"SciPost/#{settings.COMMIT_HASH[:8]} (https://scipost.org)"
+CROSSREF_MAILTO_ADDRESS = "admin@scipost.org"
 
 
 class CrossrefQuery(BaseQuery):
@@ -36,7 +40,12 @@ class CrossrefQuery(BaseQuery):
 
     def filter(self, **kwargs: str):
         for key, value in kwargs.items():
-            self.url_params.appendlist("filter", f"{key}:{value}")
+            kebab_key = key.replace("_", "-")
+            self.url_params.appendlist("filter", f"{kebab_key}:{value}")
+        return self
+
+    def select(self, *fields: str):
+        self.url_params.update({"select": ",".join(fields)})
         return self
 
     def order_by(self, key: str):
@@ -70,10 +79,31 @@ class CrossrefServer(BasePreprintServer):
         return f"https://doi.org/{identifier}"
 
     @classmethod
-    def find_common_works_between(cls, *people: Person) -> list["PreprintWork"]:
+    def find_common_works_between(
+        cls,
+        *people: Person,
+        **kwargs: dict[str, Any],
+    ) -> list["CoauthoredWork"]:
         query = CrossrefQuery().domain("works").order_by("-score")
         for person in people:
             query = query.query(author=format_person_name(person))
+
+        # Limit query to only information used in parse works
+        query = query.select("DOI", "title", "author", "published-online", "deposited")
+
+        if published_after := kwargs.get("published_after"):
+            if isinstance(published_after, str):
+                try:
+                    published_after = date.fromisoformat(published_after)
+                except ValueError:
+                    print(
+                        "Invalid date format for published_after, skipping filter. "
+                        "Please use YYYY-MM-DD."
+                    )
+
+            if isinstance(published_after, date):
+                query = query.filter(from_pub_date=published_after.isoformat())
+
         data = cls.query(query)
 
         if data and "message" in data:
@@ -86,7 +116,7 @@ class CrossrefServer(BasePreprintServer):
     @classmethod
     def query(cls, query: "CrossrefQuery") -> dict[str, Any]:
         response = requests.get(
-            f"{cls.api_url}/{query.url}",
+            f"{cls.api_url}/{query.url}&mailto={CROSSREF_MAILTO_ADDRESS}",
             headers={"User-Agent": CROSSREF_USER_AGENT},
         )
         if not response.ok:
@@ -95,8 +125,10 @@ class CrossrefServer(BasePreprintServer):
         return response.json()
 
     @classmethod
-    def parse_work(cls, data: dict[str, Any]) -> "PreprintWork | None":
-        def crossref_parse_date(field: dict[str, Any]) -> date | None:
+    def parse_work(cls, data: dict[str, Any]) -> "CoauthoredWork | None":
+        from ethics.models import CoauthoredWork
+
+        def crossref_parse_date(field: dict[str, Any] | None) -> date | None:
             if not field or "date-parts" not in field:
                 return None
             try:
@@ -111,21 +143,19 @@ class CrossrefServer(BasePreprintServer):
                 return None
             return None
 
-        author_names = [
+        doi = data.get("DOI", "")
+
+        work = CoauthoredWork(
+            server_source=PreprintServer.CROSSREF.value,
+            doi=doi,
+            title=data.get("title", [""])[0],
+            metadata=data,
+        )
+        work.authors = [
             HumanName(last=author.get("family", ""), first=author.get("given", ""))
             for author in data.get("author", [])
         ]
-        doi = data.get("DOI", "")
+        work.date_published = crossref_parse_date(data.get("published-online"))
+        work.date_updated = crossref_parse_date(data.get("deposited"))
 
-        date_published = crossref_parse_date(data.get("published-online"))
-        date_updated = crossref_parse_date(data.get("deposited"))
-
-        return PreprintWork(
-            server=PreprintServer.CROSSREF,
-            identifier=doi,
-            title=data.get("title", [""])[0],
-            authors=author_names,
-            date_published=date_published,
-            date_updated=date_updated,
-            metadata=data,
-        )
+        return work

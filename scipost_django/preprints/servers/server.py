@@ -3,21 +3,14 @@ __license__ = "AGPL v3"
 
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from datetime import date
 from enum import Enum
-from functools import cached_property
-import re
-from typing import Any, Self
 
-from nameparser import HumanName
+from .utils import JSONResponse
 
-from .utils import (
-    AUTHOR_FIRST_LAST_NAME_FORMAT,
-    JSONResponse,
-    Person,
-    format_person_name,
-)
+from typing import Any, Self, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ethics.models import CoauthoredWork
 
 
 class BaseQuery(ABC):
@@ -49,85 +42,8 @@ class BasePreprintServer(ABC):
 
     @classmethod
     @abstractmethod
-    def parse_work(cls, data: dict[str, Any]) -> "PreprintWork | None":
+    def parse_work(cls, data: dict[str, Any]) -> "CoauthoredWork | None":
         pass
-
-
-@dataclass
-class PreprintWork:
-    """
-    A common representation of a preprint/submission/publication hosted in an external preprint server.
-    Can be adapted to a SciPost Submission or a Coauthorship.
-    """
-
-    server: "PreprintServer"
-    identifier: str
-    title: str
-    authors: list[HumanName]
-    date_published: date | None
-    date_updated: date | None
-    metadata: dict[str, Any] = field(default_factory=dict[str, Any])
-
-    @property
-    def url(self):
-        if server_class := self.server.server_class:
-            return server_class.identifier_to_url(self.identifier)
-
-    def contains_authors(self, *people: Person) -> bool:
-        """
-        Return True if the author's last name is in the list of authors
-        or if the entire name is in the list of authors if the last name
-        cannot be separated
-        """
-        from common.utils.text import latinise, partial_name_match_regexp
-
-        author_names = [
-            format_person_name(author, format=AUTHOR_FIRST_LAST_NAME_FORMAT)
-            for author in self.authors
-        ]
-        to_match_names = [
-            format_person_name(person, format=AUTHOR_FIRST_LAST_NAME_FORMAT)
-            for person in people
-        ]
-
-        total_matched = 0
-        for match_name in to_match_names:
-            match_regex = partial_name_match_regexp(latinise(match_name.lower()))
-            pattern = re.compile(match_regex)
-            for author_name in author_names:
-                if pattern.match(latinise(author_name.lower())):
-                    total_matched += 1
-                    author_names.remove(author_name)
-                    break
-
-        return total_matched == len(people)
-
-    def to_submission_form_prefill_data(self) -> dict[str, Any]:
-        return {
-            "title": self.title,
-            "authors": self.authors,
-            "date_published": self.date_published,
-            "date_updated": self.date_updated,
-            "metadata": self.metadata,
-        }
-
-    # def to_coauthorship(self, **kwargs: Any) -> "Coauthorship":
-    #     return ConflictOfInterest(
-    #         **{
-    #             "type": ConflictOfInterest.TYPE_COAUTHOR,
-    #             "header": self.title,
-    #             "url": self.url,
-    #             "resource_date": self.date_published,
-    #             **kwargs,
-    #         }
-    #     )
-
-    def __repr__(self) -> str:
-        return (
-            f"<PreprintWork title={self.title}, "
-            f"authors={'; '.join(format_person_name(author) for author in self.authors)}, "
-            f"url={self.url}, date_published={self.date_published}>"
-        )
 
 
 class PreprintServer(Enum):

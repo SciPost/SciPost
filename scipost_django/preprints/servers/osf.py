@@ -4,7 +4,12 @@ from django.utils.datastructures import MultiValueDict
 from django.utils.http import urlencode
 import requests
 
-from preprints.servers.server import BasePreprintServer
+from .server import BasePreprintServer, PreprintServer
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ethics.models import CoauthoredWork
 
 
 class OSFQuery:
@@ -69,15 +74,17 @@ class OSFServer(BasePreprintServer):
             return {}
         return response.json()
 
-    # @classmethod
-    # def parse_work(cls, data: dict[str, Any]) -> "PreprintWork | None":
-    #     attributes = data.get("attributes", {})
-    #     return PreprintWork(
-    #         server=PreprintServer.OSF,
-    #         identifier=data.get("doi", ""),
-    #         title=attributes.get("title", ""),
-    #         authors=[],
-    #         date_published=attributes.get("date_created"),
-    #         date_updated=attributes.get("date_modified"),
-    #         metadata=data,
-    #     )
+    @classmethod
+    def parse_work(cls, data: dict[str, Any]) -> "CoauthoredWork | None":
+        from ethics.models import CoauthoredWork
+
+        attributes = data.get("attributes", {})
+        return CoauthoredWork(
+            server_source=PreprintServer.OSF.value,
+            identifier=data.get("doi"),
+            title=attributes.get("title", ""),
+            authors="",
+            date_published=attributes.get("date_created"),
+            date_updated=attributes.get("date_modified"),
+            metadata=data,
+        )

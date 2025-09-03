@@ -1,17 +1,24 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import re
+from nameparser import HumanName
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
-from django.utils.functional import cached_property
 
 from ethics.managers import CompetingInterestQuerySet
 from preprints.servers.server import PreprintServer
+from preprints.servers.utils import (
+    AUTHOR_FIRST_LAST_NAME_FORMAT,
+    Person,
+    format_person_name,
+)
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
+
 
 if TYPE_CHECKING:
     from django.db.models import BaseConstraint
@@ -273,13 +280,58 @@ class CoauthoredWork(models.Model):
         source_block = self.server_source + work_type
         return f"[{source_block}] {self.title} by {self.authors_str[:25]}"
 
-    @cached_property
+    @property
     def server(self):
         """Returns a PreprintServer if `server_source` corresponds to one."""
         try:
             return PreprintServer.from_name(self.server_source).server_class
         except ValueError:
             return None
+
+    @server.setter
+    def server(self, server: PreprintServer | None):
+        self.server_source = server.value if server else ""
+
+    @property
+    def authors(self) -> list[HumanName]:
+        return [
+            HumanName(author_name.strip())
+            for author_name in self.authors_str.split(";")
+        ]
+
+    @authors.setter
+    def authors(self, authors: list[HumanName]):
+        self.authors_str = "; ".join(format_person_name(author) for author in authors)
+
+    def contains_authors(self, *people: Person) -> bool:
+        """
+        Return True if all `people` are listed as authors of this work.
+        Matching is done via `partial_name_match_regexp`, matching
+        a 2+ sequence of name parts or initials thereof in any order,
+        ignoring case and accents.
+        """
+        from common.utils.text import latinise, partial_name_match_regexp
+
+        author_names = [
+            format_person_name(author, format=AUTHOR_FIRST_LAST_NAME_FORMAT)
+            for author in self.authors
+        ]
+        to_match_names = [
+            format_person_name(person, format=AUTHOR_FIRST_LAST_NAME_FORMAT)
+            for person in people
+        ]
+
+        total_matched = 0
+        for match_name in to_match_names:
+            match_regex = partial_name_match_regexp(latinise(match_name.lower()))
+            pattern = re.compile(match_regex)
+            for author_name in author_names:
+                if pattern.match(latinise(author_name.lower())):
+                    total_matched += 1
+                    author_names.remove(author_name)
+                    break
+
+        return total_matched == len(people)
 
     @property
     def url(self) -> str | None:
@@ -351,6 +403,10 @@ class Coauthorship(models.Model):
             ),
         ]
         ordering = ["-created"]
+
+    @property
+    def authors_contained(self):
+        return self.work.contains_authors(self.profile, self.coauthor)
 
     def verify(self, verified_by: "Contributor", commit: bool = True):
         self.status = Coauthorship.STATUS_VERIFIED
