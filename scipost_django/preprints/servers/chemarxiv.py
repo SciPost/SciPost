@@ -4,10 +4,13 @@ from nameparser import HumanName
 from django.utils.http import urlencode
 from django.utils.datastructures import MultiValueDict
 
-from .server import BasePreprintServer, PreprintServer, PreprintWork
+from .server import BasePreprintServer, PreprintServer
 from .utils import format_person_name, Person
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ethics.models import CoauthoredWork
 
 
 class ChemArxivQuery:
@@ -65,7 +68,9 @@ class ChemArxivServer(BasePreprintServer):
         return response.json()
 
     @classmethod
-    def find_common_works_between(cls, *people: Person) -> list["PreprintWork"]:
+    def find_common_works_between(
+        cls, *people: Person, **kwargs: dict[str, Any]
+    ) -> list["CoauthoredWork"]:
         data = cls.query(
             ChemArxivQuery().author(
                 " ".join([format_person_name(person) for person in people])
@@ -75,19 +80,20 @@ class ChemArxivServer(BasePreprintServer):
         return [parsed_work for item in items if (parsed_work := cls.parse_work(item))]
 
     @classmethod
-    def parse_work(cls, data: dict[str, Any]) -> "PreprintWork | None":
-        author_names = [
-            HumanName(
-                last=author.get("lastName", ""), first=author.get("firstName", "")
-            )
-            for author in data.get("authors", [])
-        ]
-        return PreprintWork(
-            server=PreprintServer.CHEMARXIV,
-            identifier=data.get("doi", ""),
+    def parse_work(cls, data: dict[str, Any]) -> "CoauthoredWork | None":
+        from ethics.models import CoauthoredWork
+
+        work = CoauthoredWork(
+            server_source=PreprintServer.CHEMARXIV.value,
+            work_type="preprint",
+            doi=data.get("doi"),
             title=data.get("title", ""),
-            authors=author_names,
             date_published=data.get("publishedDate"),
             date_updated=data.get("statusDate"),
             metadata=data,
         )
+        work.authors = [
+            HumanName(last=author.get("lastName"), first=author.get("firstName"))
+            for author in data.get("authors", [])
+        ]
+        return work
