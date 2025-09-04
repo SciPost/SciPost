@@ -4,7 +4,6 @@
 
 {% load scipost_extras %}
 {% load bootstrap %}
-{% load conflict_tags %}
 
 {% block breadcrumb_items %}
   {{block.super}}
@@ -79,62 +78,29 @@
     </div>
 
     <div class="col-12">
-      <h3 class="highlight mt-4">Conflicts of Interest</h3>
+      <h3 class="highlight mt-4">Fellow Coauthorships</h3>
 
       <table class="table table-hover" id="current-pool">
         <thead>
           <tr>
             <th>Fellow</th>
-            <th>Conflicts</th>
+            <th>Coauthorships</th>
           </tr>
         </thead>
         <tbody>
-          {% for fellow in eligibility_form.get_eligible_fellows %}
+          {% for fellow in eligibility_form.get_eligible_fellows_and_their_coauthorships %}
             <tr>
               <td>
                 <strong>{{ fellow }}</strong>
               </td>
               <td>
-                {% with fellow.conflict_of_interests.non_deprecated|filter_for_submission:recommendation.submission as conflicts %}
-                  {% include 'submissions/admin/_conflicts.html' with conflicts=conflicts submission=recommendation.submission %}
-                {% endwith %}
+                {% include 'submissions/admin/_coauthorships.html' with coauthorships=fellow.profile.submission_coauthorships submission=recommendation.submission %}
               </td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
 
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-12">
-      {% if coauthorships %}
-        <div class="card border-danger">
-          <div class="card-body">
-            <h3 class="card-title text-danger">The system identified the following potential coauthorships (from arXiv database)</h3>
-            <p class="card-text text-danger">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
-          </div>
-          <div class="card-body">
-            <ul class="list-group list-group-flush">
-              {% for author, entries in coauthorships.items %}
-                <li class="list-group-item pt-3">
-                  <div class="card-content">
-                    <h3>For Fellow: {{ author }}</h3>
-                  </div>
-                </li>
-                {% for entry in entries %}
-                  <li class="list-group-item">
-                    {% include 'submissions/_arxiv_queryresult.html' with item=entry id=forloop.counter id2=forloop.parentloop.counter %}
-                  </li>
-                {% endfor %}
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-      {% else %}
-        <h3 class="text-success">The system has not identified any coauthorships from the arXiv database</h3>
-      {% endif %}
     </div>
   </div>
 

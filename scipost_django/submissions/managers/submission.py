@@ -340,9 +340,9 @@ class SubmissionQuerySet(models.QuerySet):
         """Return Submission that allow for commenting."""
         return self.filter(open_for_commenting=True)
 
-    def needs_conflicts_update(self):
-        """Return set of Submissions that need an ConflictOfInterest update."""
-        return self.filter(needs_conflicts_update=True)
+    def needs_coauthorships_update(self):
+        """Return set of Submissions that need a Coauthorships update."""
+        return self.filter(needs_coauthorships_update=True)
 
     def has_editor_invitations_to_be_sent(self):
         from submissions.models import EditorialAssignment

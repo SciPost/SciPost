@@ -224,9 +224,9 @@ urlpatterns = [
         name="do_preassignment",
     ),
     path(
-        "admin/<identifier:identifier_w_vn_nr>/conflicts",
-        views.SubmissionConflictsView.as_view(),
-        name="conflicts",
+        "admin/<identifier:identifier_w_vn_nr>/fellow_coauthorships",
+        views.SubmissionFellowCoauthorshipsView.as_view(),
+        name="fellow_coauthorships",
     ),
     path(
         "admin/<identifier:identifier_w_vn_nr>/editor_invitations",

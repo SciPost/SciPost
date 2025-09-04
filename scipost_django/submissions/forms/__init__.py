@@ -3197,8 +3197,10 @@ class VotingEligibilityForm(forms.ModelForm):
             self.instance.voted_for.add(self.instance.submission.editor_in_charge)
         return self.instance
 
-    def get_eligible_fellows(self):
-        return self.fields["eligible_fellows"].queryset
+    def get_eligible_fellows_and_their_coauthorships(self):
+        return self.fields["eligible_fellows"].queryset.prefetch_related(
+            self.instance.submission.get_coauthorship_prefetch_for_profile_path()
+        )
 
 
 ############

@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
 
-from ethics.managers import CompetingInterestQuerySet
+from ethics.managers import CoauthorshipQuerySet, CompetingInterestQuerySet
 from preprints.servers.server import PreprintServer
 from preprints.servers.utils import (
     AUTHOR_FIRST_LAST_NAME_FORMAT,
@@ -388,6 +388,8 @@ class Coauthorship(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    objects = CoauthorshipQuerySet.as_manager()
 
     class Meta:
         constraints: list["BaseConstraint"] = [

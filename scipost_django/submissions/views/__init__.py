@@ -2828,9 +2828,6 @@ def prepare_for_voting(request, rec_id):
             )
         ).order_by("contributor__dbuser__last_name")
 
-        # coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
-        coauthorships = None
-
         prev_elig_id = []
         for prev_rec in recommendation.get_other_versions():
             prev_elig_id += [fellow.id for fellow in prev_rec.eligible_to_vote.all()]
@@ -2840,7 +2837,6 @@ def prepare_for_voting(request, rec_id):
         "recommendation": recommendation,
         "fellows_with_expertise": fellows_with_expertise,
         "previously_eligible_for_voting": previously_eligible_for_voting,
-        "coauthorships": coauthorships,
         "eligibility_form": eligibility_form,
     }
     return render(
@@ -2944,7 +2940,7 @@ def editor_invitations(request, identifier_w_vn_nr):
     Update/show invitations of editors for Submission.
     """
     submission = get_object_or_404(
-        Submission.objects.without_eic(),
+        Submission.objects.all(),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     assignments = submission.editorial_assignments.order_by("invitation_order")
@@ -3263,22 +3259,30 @@ class PreassignmentView(SubmissionAdminViewMixin, UpdateView):
         return kwargs
 
 
-class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
-    """List all conflicts for a certain Submission."""
+class SubmissionFellowCoauthorshipsView(SubmissionAdminViewMixin, DetailView):
+    """List all Fellow Coauthorships for a certain Submission."""
 
     permission_required = "scipost.can_run_preassignment"
-    template_name = "submissions/admin/submission_conflicts.html"
+    template_name = "submissions/admin/submission_coauthorships.html"
     editorial_page = True
     success_url = reverse_lazy("submissions:pool:pool")
 
-    def get_object(self) -> Submission:
-        obj: Submission = super().get_object()
+    # Override AdminViewMixin logic, since this is only accessible to EdAdmin
+    def get_queryset(self):
+        return super(DetailView, self).get_queryset()
 
-        obj.fellows_with_conflicts = obj.fellows.all().prefetch_related(
-            *obj.get_coi_prefetches_for_profile_path("contributor__profile")
+    def get_object(self) -> Submission:
+        submission: Submission = super().get_object()
+
+        submission.fellows_with_coauthorships = (
+            submission.fellows.all().prefetch_related(
+                submission.prefetch_submission_author_coauthorships(
+                    involving_profile_obj_path="contributor__profile"
+                )
+            )
         )
 
-        return obj
+        return submission
 
 
 class EICRecommendationDetailView(

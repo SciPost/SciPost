@@ -1,0 +1,39 @@
+{% load static %}
+
+{% if coauthorships %}
+  {{ coauthorships|length }} (potential) coauthorship{{ coauthorships|length|pluralize }} found:
+  <ul class="mt-2">
+    {% for coauthorship in coauthorships %}
+      <li class="my-1" id="coauthorship-{{ coauthorship.id }}">
+        <div class="actions status fw-bold">
+          {% if coauthorship.status == 'unverified' %}
+            <span class="text-warning" aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span>
+            Please
+            <button type="button" class="btn btn-link p-0" hx-patch="{% url 'common:empty' %}">confirm</button>
+            or
+            <button type="button" class="btn btn-link p-0 text-danger" hx-patch="{% url 'common:empty' %}">delete</button>
+            this coauthorship.
+          {% elif coauthorship.status == 'verified' %}
+            <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
+            <strong>Verified by Admin</strong>
+          {% endif %}
+        </div>
+
+        {{ coauthorship.work.work_type.title }}:
+        {% if coauthorship.work.url %}
+          <a href="{{ coauthorship.work.url }}" target="_blank">{{ coauthorship.work.title }}</a>
+        {% else %}
+          {{ coauthorship.work.title }}
+        {% endif %}
+        <br>
+        {% if coauthorship.work.date_published %}
+          <span class="text-muted">Published on: {{ coauthorship.work.date_published|date:"Y-m-d" }}</span>
+          <br>
+        {% endif %}
+        Profiles: {{ coauthorship.profile.full_name }} - {{ coauthorship.coauthor.full_name }}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <em><span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span> No coauthorships found</em>
+{% endif %}

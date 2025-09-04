@@ -2,7 +2,6 @@
 
 {% load bootstrap %}
 {% load scipost_extras %}
-{% load conflict_tags %}
 
 {% block pagetitle %}: Submission Editors{% endblock pagetitle %}
 
@@ -13,13 +12,13 @@
   {% else %}
     <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial page {{ submission.preprint.identifier_w_vn_nr }}</a>
   {% endif %}
-  <span class="breadcrumb-item">Conflicts of Interest</span>
+  <span class="breadcrumb-item">Fellow Coauthorships</span>
 {% endblock %}
 
 {% block content %}
 
 
-  <h1 class="highlight">Submission's Conflicts of Interest</h1>
+  <h1 class="highlight">Submission's Fellow Coauthorships</h1>
   <h3><a href="{{ submission.get_absolute_url }}">{{submission.title}}</a></h3>
   <h4>by {{submission.author_list}}</h4>
   <br>
@@ -32,8 +31,7 @@
   <br>
   <br>
 
-
-  <h3 class="highlight">Conflicts of Interest</h3>
+  <h3 class="highlight">Fellow Coauthorships</h3>
 
   <table class="table table-hover" id="current-pool">
     <thead>
@@ -42,13 +40,13 @@
       </tr>
     </thead>
     <tbody>
-      {% for fellow in submission.fellows_with_conflicts.all %}
+      {% for fellow in submission.fellows_with_coauthorships.all %}
         <tr>
           <td>
             <strong>{{ fellow }}</strong>
           </td>
           <td>
-            {% include 'submissions/admin/_conflicts.html' with conflicts=fellow.contributor.profile.submission_conflicts|add:fellow.contributor.profile.submission_related_conflicts %}
+            {% include 'submissions/admin/_coauthorships.html' with coauthorships=fellow.contributor.profile.submission_coauthorships %}
           </td>
         </tr>
       {% endfor %}
