@@ -42,8 +42,6 @@ from .managers import (
     AuthorshipClaimQuerySet,
 )
 
-from conflicts.models import ConflictOfInterest
-
 today = timezone.now().date()
 
 if TYPE_CHECKING:
@@ -53,6 +51,7 @@ if TYPE_CHECKING:
     from colleges.models.fellowship import Fellowship
     from submissions.models.assignment import EditorialAssignment
     from anonymization.models import ContributorAnonymization
+    from ethics.models import Coauthorship
 
 
 class AnonymousAbstractUser(AnonymousUser):
@@ -303,10 +302,12 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         self.activation_key = hashlib.sha1(salt + feed).hexdigest()
         self.key_expires = timezone.now() + datetime.timedelta(days=2)
 
-    def conflict_of_interests(self):
+    def coauthorships(self):
+        from ethics.models import Coauthorship
+
         if not self.profile:
-            return ConflictOfInterest.objects.none()
-        return ConflictOfInterest.objects.filter_for_profile(self.profile)
+            return Coauthorship.objects.none()
+        return Coauthorship.objects.involving_profile(self.profile)
 
     @classmethod
     def create_anonymous(

@@ -1,6 +1,5 @@
 {% load submissions_extras %}
 {% load request_filters %}
-{% load conflict_tags %}
 
 {% load user_groups %}
 {% is_ed_admin request.user as is_ed_admin %}
@@ -43,13 +42,13 @@
 
   <div class="col-12 col-md d-flex flex-column">
 
-    <h4>EIC conflicts of interest</h4>
+    <h4>EIC Coauthorships</h4>
 
     {% if is_ed_admin %}
 
       {% if submission.editor_in_charge %}
         <div class="overflow-scroll" style="max-height: 50vh">
-          {% include 'submissions/admin/_conflicts.html' with conflicts=submission.editor_in_charge.profile.submission_conflicts|add:submission.editor_in_charge.profile.submission_related_conflicts %}
+          {% include 'submissions/admin/_coauthorships.html' with coauthorships=submission.editor_in_charge.profile.submission_coauthorships %}
         </div>
       {% else %}
         <p>No editor in charge assigned yet.</p>
@@ -58,7 +57,7 @@
     {% endif %}
 
     <a class="mt-auto"
-       href="{% url "submissions:conflicts" submission.preprint.identifier_w_vn_nr %}">View other possible conflicts of interest</a>
+       href="{% url "submissions:fellow_coauthorships" submission.preprint.identifier_w_vn_nr %}">View other Fellow Coauthorships</a>
 
   </div>
 

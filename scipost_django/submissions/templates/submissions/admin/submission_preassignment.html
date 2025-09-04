@@ -3,7 +3,6 @@
 {% load bootstrap %}
 {% load submissions_admin %}
 {% load scipost_extras %}
-{% load conflict_tags %}
 
 {% block pagetitle %}: preassignment ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
 
@@ -28,7 +27,7 @@
   <ul>
     <li>
       <span class="text-success">{% include 'bi/arrow-right.html' %}</span>
-      <a href="{% url 'submissions:conflicts' submission.preprint.identifier_w_vn_nr %}">See conflicts of interests</a>
+      <a href="{% url 'submissions:fellow_coauthorships' submission.preprint.identifier_w_vn_nr %}">See Fellow Coauthorships</a>
     </li>
     <li>
       <span class="text-success">{% include 'bi/arrow-right.html' %}</span>

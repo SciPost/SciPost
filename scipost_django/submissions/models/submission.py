@@ -16,7 +16,6 @@ from django.utils.functional import cached_property
 from guardian.models import UserObjectPermissionBase, GroupObjectPermissionBase
 from guardian.shortcuts import assign_perm, remove_perm
 
-from conflicts.models import ConflictOfInterest
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
@@ -58,6 +57,7 @@ if TYPE_CHECKING:
     from ontology.models import AcademicField, Specialty, Topic
     from series.models import Collection
     from journals.models import Journal
+    from ethics.models import Coauthorship
 
 
 class SubmissionAuthorProfile(models.Model):
@@ -396,8 +396,8 @@ class Submission(models.Model):
     # Comments can be added to a Submission
     comments = GenericRelation("comments.Comment", related_query_name="submissions")
 
-    # Conflicts of interest
-    needs_conflicts_update = models.BooleanField(default=True)
+    # Coauthorships
+    needs_coauthorships_update = models.BooleanField(default=True)
 
     # Plagiarism
     internal_plagiarism_matches = models.JSONField(
@@ -914,80 +914,25 @@ class Submission(models.Model):
         """Generate message meant for authors only."""
         self._add_event(EVENT_FOR_AUTHOR, message)
 
-    def flag_coauthorships_arxiv(self, fellows):
-        """Identify coauthorships from arXiv, using author surname matching."""
-        coauthorships = {}
-        if self.metadata and "entries" in self.metadata:
-            author_last_names = []
-            for author in self.metadata["entries"][0]["authors"]:
-                # Gather author data to do conflict-of-interest queries with
-                author_last_names.append(author["name"].split()[-1])
-            authors_last_names_str = "+OR+".join(author_last_names)
-
-            for fellow in fellows:
-                # For each fellow found, so a query with the authors to check for conflicts
-                search_query = "au:({fellow}+AND+({authors}))".format(
-                    fellow=fellow.contributor.user.last_name,
-                    authors=authors_last_names_str,
-                )
-                queryurl = (
-                    "https://export.arxiv.org/api/query?search_query={sq}".format(
-                        sq=search_query
-                    )
-                )
-                queryurl += "&sortBy=submittedDate&sortOrder=descending&max_results=5"
-                queryurl = queryurl.replace(
-                    " ", "+"
-                )  # Fallback for some last names with spaces
-                queryresults = feedparser.parse(queryurl)
-                if queryresults.entries:
-                    coauthorships[fellow.contributor.user.last_name] = (
-                        queryresults.entries
-                    )
-        return coauthorships
-
-    def get_coi_prefetches_for_profile_path(
-        self, profile_obj_path: str = "profile"
-    ) -> "list[Prefetch[ConflictOfInterest]]":
+    def prefetch_submission_author_coauthorships(
+        self,
+        involving_profile_obj_path: str = "profile",
+    ) -> "Prefetch[Coauthorship]":
         """
-        Return a list of prefetches for COI checks on the Submission.
-        Expects a path from the object-to-fetch-cois-for to the profile object.
+        Return a list of prefetches for coauthorship checks on the Submission.
+        Expects a path from the object-to-fetch-coauthorships-for to the profile object.
         (e.g. "contributor__profile" when starting from a Fellowship queryset).
-        Produces attributes `submission_conflicts` and `submission_related_conflicts`
-        on the Profile object, each a list of ConflictOfInterest objects.
+        Produces attributes `submission_coauthorships` on the Profile object.
         """
-        COI_prefetcher: QuerySet[ConflictOfInterest] = (
-            ConflictOfInterest.objects.annotate(
-                is_related_to_submission=Exists(
-                    ConflictOfInterest.related_submissions.through.objects.filter(
-                        conflictofinterest_id=OuterRef("id"), submission_id=self.id
-                    )
-                )
-            )
-            .non_deprecated()
-            .order_by("header")
-            .distinct("header")
-            .select_related("profile", "related_profile")
-        )
+        from ethics.models import Coauthorship
 
-        return [
-            Prefetch(
-                f"{profile_obj_path}__conflicts",
-                queryset=COI_prefetcher.filter(
-                    Q(is_related_to_submission=True)
-                    | Q(related_profile__in=self.author_profiles.values("profile__id"))
-                ),
-                to_attr="submission_conflicts",
-            ),
-            Prefetch(
-                f"{profile_obj_path}__related_conflicts",
-                queryset=COI_prefetcher.filter(
-                    Q(is_related_to_submission=True)
-                    | Q(profile__in=self.author_profiles.values("profile__id"))
-                ),
-                to_attr="submission_related_conflicts",
-            ),
-        ]
+        return Prefetch(
+            f"{involving_profile_obj_path}__coauthorships",
+            queryset=Coauthorship.objects.all()
+            .involving_any_author_of(self)
+            .select_related("profile", "coauthor", "work"),
+            to_attr="submission_coauthorships",
+        )
 
     def is_sending_editorial_invitations(self):
         """Return whether editorial assignments are being sent out."""

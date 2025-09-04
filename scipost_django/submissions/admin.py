@@ -331,10 +331,10 @@ class SubmissionAdmin(GuardedModelAdmin):
             },
         ),
         (
-            "Conflicts of interest",
+            "Coauthorships",
             {
                 "classes": ("collapse",),
-                "fields": ("needs_conflicts_update",),
+                "fields": ("needs_coauthorships_update",),
             },
         ),
         (
