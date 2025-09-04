@@ -40,7 +40,6 @@ from finances.api.viewsets import (
 
 
 # Next two: old style, to be deprecated:
-from conflicts.viewsets import ConflictOfInterestViewSet
 from news.viewsets import NewsItemViewSet
 
 # Utilities
@@ -102,7 +101,6 @@ router.register("subsidies", SubsidyPublicAPIViewSet)
 
 # Next two: old style, to be deprecated:
 router.register(r"news", NewsItemViewSet)
-router.register(r"conflicts", ConflictOfInterestViewSet)
 
 
 urlpatterns = [
