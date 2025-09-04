@@ -15,8 +15,8 @@ if TYPE_CHECKING:
     from .models import CompetingInterest, Coauthorship
 
 
-class CompetingInterestQuerySet(models.QuerySet):
-    def valid_on_date(self, date: datetime.date = None):
+class CompetingInterestQuerySet(QuerySet["CompetingInterest"]):
+    def valid_on_date(self, date: datetime.date | None = None):
         """
         Filter for validity on given optional date.
         """
@@ -29,20 +29,24 @@ class CompetingInterestQuerySet(models.QuerySet):
             | Q(date_from__isnull=True, date_until__isnull=True)
         ).order_by()
 
-    def involving_profile(self, profile):
+    def involving_profile(self, profile: "Profile"):
         """
         Filter for CompetingInterests involving given Profile.
         """
         return self.filter(Q(profile=profile) | Q(related_profile=profile))
 
-    def between_profile_sets(self, profile_set_1, profile_set_2):
+    def between_profile_sets(
+        self,
+        profile_id_set_1: list[int],
+        profile_id_set_2: list[int],
+    ):
         """
         Filter for CompetingInterests between two sets of Profiles.
         """
         return self.filter(
-            Q(profile__in=profile_set_1, related_profile__in=profile_set_2)
-            | Q(profile__in=profile_set_2, related_profile__in=profile_set_1)
-)
+            Q(profile__in=profile_id_set_1, related_profile__in=profile_id_set_2)
+            | Q(profile__in=profile_id_set_2, related_profile__in=profile_id_set_1)
+        )
 
 
 class CoauthorshipQuerySet(QuerySet["Coauthorship"]):
