@@ -219,24 +219,9 @@ urlpatterns = [
         name="_hx_submission_add_specialty",
     ),
     path(
-        "admin/<identifier:identifier_w_vn_nr>/preassignment",
-        views.PreassignmentView.as_view(),
-        name="do_preassignment",
-    ),
-    path(
         "admin/<identifier:identifier_w_vn_nr>/fellow_coauthorships",
         views.SubmissionFellowCoauthorshipsView.as_view(),
         name="fellow_coauthorships",
-    ),
-    path(
-        "admin/<identifier:identifier_w_vn_nr>/editor_invitations",
-        views.editor_invitations,
-        name="editor_invitations",
-    ),
-    path(
-        "admin/<identifier:identifier_w_vn_nr>/editor_invitations/<int:assignment_id>",
-        views.send_editorial_assignment_invitation,
-        name="send_editorial_assignment_invitation",
     ),
     path(
         "admin/<identifier:identifier_w_vn_nr>/reassign_editor",
