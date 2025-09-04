@@ -125,7 +125,6 @@ INSTALLED_APPS = [
     "commentaries",
     "comments",
     "common",
-    "conflicts",
     "edadmin",
     "ethics",
     "finances",
