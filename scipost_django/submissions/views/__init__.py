@@ -2933,70 +2933,6 @@ def remind_Fellows_to_vote(request, rec_id):
     return render(request, "scipost/acknowledgement.html", context)
 
 
-@login_required
-@user_passes_test(is_edadmin_or_senior_fellow)
-def editor_invitations(request, identifier_w_vn_nr):
-    """
-    Update/show invitations of editors for Submission.
-    """
-    submission = get_object_or_404(
-        Submission.objects.all(),
-        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
-    )
-    assignments = submission.editorial_assignments.order_by("invitation_order")
-    context = {
-        "submission": submission,
-        "assignments": assignments,
-    }
-
-    if submission.editor_in_charge:
-        # Show current assignment if editor is assigned.
-        context["active_assignment"] = assignments.filter(
-            to=submission.editor_in_charge
-        )
-    else:
-        # Show formset if editor is not yet assigned.
-        formset = PreassignEditorsFormSet(request.POST or None, submission=submission)
-
-        if formset.is_valid():
-            formset.save()
-            submission.add_event_for_edadmin(
-                f"{request.user.first_name} {request.user.last_name} has edited the assignments."
-            )
-            messages.success(request, "Editor pre-assignments saved.")
-            return redirect(
-                reverse(
-                    "submissions:editor_invitations",
-                    args=(submission.preprint.identifier_w_vn_nr,),
-                )
-            )
-        elif request.method == "POST":
-            messages.warning(request, "Invalid form. Please try again.")
-        context["formset"] = formset
-    return render(
-        request, "submissions/admin/submission_preassign_editors.html", context
-    )
-
-
-@permission_required("scipost.can_assign_submissions", raise_exception=True)
-def send_editorial_assignment_invitation(request, identifier_w_vn_nr, assignment_id):
-    """Force-send invitation for EditorialAssignment."""
-    assignment = get_object_or_404(
-        EditorialAssignment.objects.preassigned(), id=assignment_id
-    )
-    is_sent = assignment.send_invitation()
-    if is_sent:
-        messages.success(request, "Invitation sent.")
-    else:
-        messages.warning(request, "Invitation not sent.")
-    return redirect(
-        reverse(
-            "submissions:editor_invitations",
-            args=(assignment.submission.preprint.identifier_w_vn_nr,),
-        )
-    )
-
-
 class SubmissionReassignmentView(
     SuccessMessageMixin, SubmissionAdminViewMixin, UpdateView
 ):
@@ -3241,23 +3177,6 @@ def _hx_submission_add_specialty(request, identifier_w_vn_nr):
         return response
 
     return TemplateResponse(request, "htmx/crispy_form.html", {"form": form})
-
-
-class PreassignmentView(SubmissionAdminViewMixin, UpdateView):
-    """Do preassignment of Submissions."""
-
-    permission_required = "scipost.can_run_preassignment"
-    queryset = Submission.objects.preassignment()
-    template_name = "submissions/admin/submission_preassignment.html"
-    form_class = SubmissionPreassignmentForm
-    editorial_page = True
-    success_url = reverse_lazy("submissions:pool:pool")
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["current_user"] = self.request.user
-        return kwargs
-
 
 class SubmissionFellowCoauthorshipsView(SubmissionAdminViewMixin, DetailView):
     """List all Fellow Coauthorships for a certain Submission."""

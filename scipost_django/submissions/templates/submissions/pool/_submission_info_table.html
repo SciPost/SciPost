@@ -53,9 +53,6 @@
 	      <a href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>
 	    </li>
 	  {% endif %}
-	  {% if request.user.contributor.is_active_senior_fellow %}
-	    <li>As Senior Fellow: <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">view/update editor invitations</strong></a></li>
-	  {% endif %}
 	{% elif submission.editor_in_charge == request.user.contributor %}
           <li>
 	    <strong>You are the EIC</strong>
