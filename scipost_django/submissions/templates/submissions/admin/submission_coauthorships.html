@@ -33,24 +33,15 @@
 
   <h3 class="highlight">Fellow Coauthorships</h3>
 
-  <table class="table table-hover" id="current-pool">
-    <thead>
-      <tr>
-        <th colspan="2">Fellow</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for fellow in submission.fellows_with_coauthorships.all %}
-        <tr>
-          <td>
-            <strong>{{ fellow }}</strong>
-          </td>
-          <td>
-            {% include 'submissions/admin/_coauthorships.html' with coauthorships=fellow.contributor.profile.submission_coauthorships %}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <ul class="list-group list-group-flush">
+  {% for fellow in submission.fellows_with_coauthorships.all %}
+    <li class="d-flex flex-column p-2 list-group-item">
+      <div class="fw-bold fs-6">{{ fellow }}</div>
+      <div>
+        {% include 'submissions/admin/_coauthorships.html' with coauthorships=fellow.contributor.profile.submission_coauthorships %}
+      </div>
+    </li>
+  {% endfor %}
+  </ul>
 
 {% endblock %}

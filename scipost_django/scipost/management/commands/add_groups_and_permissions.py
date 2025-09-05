@@ -570,6 +570,30 @@ class Command(BaseCommand):
             content_type=content_type,
         )
 
+        # Coauthorhips & Competing Interests
+        can_fetch_coauthorships, created = Permission.objects.get_or_create(
+            codename="can_fetch_coauthorships",
+            name="Can fetch coauthorships from external services",
+            content_type=content_type,
+        )
+        can_verify_coauthorships, created = Permission.objects.get_or_create(
+            codename="can_verify_coauthorships",
+            name="Can verify/deprecate coauthorships",
+            content_type=content_type,
+        )
+        can_view_coauthorships, created = Permission.objects.get_or_create(
+            codename="can_view_coauthorships",
+            name="Can view coauthorships",
+            content_type=content_type,
+        )
+        can_promote_coauthorships_to_competing_interests, created = (
+            Permission.objects.get_or_create(
+                codename="can_promote_coauthorships_to_competing_interests",
+                name="Can promote coauthorships to competing interests",
+                content_type=content_type,
+            )
+        )
+
         # API private access
         # These are likely to be granted on a per-user basis
         can_use_private_api_subsidies, created = Permission.objects.get_or_create(
@@ -738,6 +762,10 @@ class Command(BaseCommand):
                 can_view_mailing_lists,
                 can_create_affiliate_journals,
                 can_explore_graphs,
+                can_view_coauthorships,
+                can_fetch_coauthorships,
+                can_verify_coauthorships,
+                can_promote_coauthorships_to_competing_interests,
             ]
         )
 
@@ -758,6 +786,8 @@ class Command(BaseCommand):
                 can_add_potentialfellowship,
                 can_vote_on_potentialfellowship,
                 can_explore_graphs,
+                can_view_coauthorships,
+                can_fetch_coauthorships,
             ]
         )
 

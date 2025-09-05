@@ -6,9 +6,10 @@ from multiprocessing import Pool
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from ethics.models import SubmissionClearance, CompetingInterest
+from ethics.models import Coauthorship, SubmissionClearance, CompetingInterest
 from ethics.forms import (
     SubmissionCompetingInterestForm,
     SubmissionCompetingInterestTableRowForm,
@@ -17,6 +18,7 @@ from ethics.forms import (
 from colleges.permissions import is_edadmin
 from colleges.models.fellowship import Fellowship
 from preprints.servers.crossref import CrossrefServer
+from scipost.permissions import HTMXResponse, permission_required_htmx
 from submissions.models import Submission
 
 
@@ -227,3 +229,63 @@ def _hx_submission_competing_interest_crossref_audit(request, identifier_w_vn_nr
         "submissions/pool/_hx_crossref_CIs.html",
         context,
     )
+
+
+@login_required
+@permission_required_htmx("scipost.can_verify_coauthorships")
+@permission_required_htmx("scipost.can_promote_coauthorships_to_competing_interests")
+def _hx_coauthorship_verify(request, pk):
+    try:
+        coauthorship = Coauthorship.objects.get(pk=pk)
+        coauthorship.verify(request.user.contributor)
+        competing_interest = CompetingInterest.from_coauthorship(coauthorship)
+        competing_interest.save()
+        coauthorship.competing_interest = competing_interest
+        coauthorship.save()
+    except Coauthorship.DoesNotExist:
+        return HTMXResponse("Coauthorship not found", tag="danger")
+
+    response = TemplateResponse(
+        request,
+        "submissions/admin/_coauthorship_verification.html",
+        context={"coauthorship": coauthorship},
+    )
+    return response
+
+
+@login_required
+@permission_required_htmx("scipost.can_verify_coauthorships")
+def _hx_coauthorship_deprecate(request, pk):
+    try:
+        coauthorship = Coauthorship.objects.get(pk=pk)
+        coauthorship.deprecate(request.user.contributor)
+    except Coauthorship.DoesNotExist:
+        return HTMXResponse("Coauthorship not found", tag="danger")
+
+    response = TemplateResponse(
+        request,
+        "submissions/admin/_coauthorship_verification.html",
+        context={"coauthorship": coauthorship},
+    )
+    return response
+
+
+@login_required
+@permission_required_htmx("scipost.can_verify_coauthorships")
+@permission_required_htmx("scipost.can_promote_coauthorships_to_competing_interests")
+def _hx_coauthorship_reset_status(request, pk):
+    try:
+        coauthorship = Coauthorship.objects.get(pk=pk)
+        coauthorship.reset_status(request.user.contributor)
+        if ci := coauthorship.competing_interest:
+            ci.delete()
+
+    except Coauthorship.DoesNotExist:
+        return HTMXResponse("Coauthorship not found", tag="danger")
+
+    response = TemplateResponse(
+        request,
+        "submissions/admin/_coauthorship_verification.html",
+        context={"coauthorship": coauthorship},
+    )
+    return response

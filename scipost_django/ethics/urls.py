@@ -59,4 +59,19 @@ urlpatterns = [
             ],
         ),
     ),
+    path(
+        "coauthorships/<int:pk>/verify",
+        views._hx_coauthorship_verify,
+        name="_hx_coauthorship_verify",
+    ),
+    path(
+        "coauthorships/<int:pk>/deprecate",
+        views._hx_coauthorship_deprecate,
+        name="_hx_coauthorship_deprecate",
+    ),
+    path(
+        "coauthorships/<int:pk>/reset_status",
+        views._hx_coauthorship_reset_status,
+        name="_hx_coauthorship_reset_status",
+    ),
 ]

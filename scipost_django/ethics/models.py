@@ -17,7 +17,7 @@ from preprints.servers.utils import (
     format_person_name,
 )
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 
 if TYPE_CHECKING:
@@ -139,10 +139,28 @@ class CompetingInterest(models.Model):
 
     comments = models.TextField(blank=True)
 
+    if TYPE_CHECKING:
+        coauthorship: "Coauthorship | None"
+
     objects = CompetingInterestQuerySet.as_manager()
 
     def __str__(self):
         return f"{self.profile} - {self.related_profile} ({self.get_nature_display()})"
+
+    @classmethod
+    def from_coauthorship(cls, coauthorship: "Coauthorship", **kwargs: Any):
+        """
+        Create a CompetingInterest instance from a Coauthorship instance.
+        """
+        ci = cls(
+            nature=cls.COAUTHOR,
+            date_from=coauthorship.work.date_published or timezone.now().date(),
+            profile=coauthorship.profile,
+            related_profile=coauthorship.coauthor,
+            declared_by=coauthorship.verified_by,
+            **kwargs,
+        )
+        return ci
 
 
 class RedFlag(models.Model):
@@ -376,6 +394,13 @@ class Coauthorship(models.Model):
         on_delete=models.CASCADE,
         related_name="coauthorships",
     )
+    competing_interest = models.OneToOneField["CompetingInterest"](
+        "ethics.CompetingInterest",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="coauthorship",
+    )
     status = models.CharField(
         max_length=16, choices=COAUTHORSHIP_STATUSES, default=STATUS_UNVERIFIED
     )
@@ -419,6 +444,12 @@ class Coauthorship(models.Model):
     def deprecate(self, verified_by: "Contributor", commit: bool = True):
         self.status = Coauthorship.STATUS_DEPRECATED
         self.verified_by = verified_by
+        if commit:
+            self.save()
+
+    def reset_status(self, commit: bool = True):
+        self.status = Coauthorship.STATUS_UNVERIFIED
+        self.verified_by = None
         if commit:
             self.save()
 
