@@ -40,14 +40,14 @@
     <div>{% include "submissions/pool/_submission_refereeing_history_card.html" %}</div>
   </div>
 
-  <div class="col-12 col-md d-flex flex-column">
+  <div class="col-12 col-md-6 d-flex flex-column">
 
     <h4>EIC Coauthorships</h4>
 
     {% if is_ed_admin %}
 
       {% if submission.editor_in_charge %}
-        <div class="overflow-scroll" style="max-height: 50vh">
+        <div style="max-height: 50vh; overflow-y: auto;">
           {% include 'submissions/admin/_coauthorships.html' with coauthorships=submission.editor_in_charge.profile.submission_coauthorships %}
         </div>
       {% else %}

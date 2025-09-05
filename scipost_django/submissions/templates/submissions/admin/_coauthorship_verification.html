@@ -1,0 +1,35 @@
+<div id="coauthorship-{{ coauthorship.id }}-verification"
+     hx-target="this"
+     hx-swap="outerHTML"
+     class="d-flex flex-column gap-1 ms-auto">
+
+  {% if coauthorship.status == 'unverified' %}
+    <button class="btn btn-sm btn-outline-secondary text-body text-nowrap"
+            hx-patch="{% url "ethics:_hx_coauthorship_verify" coauthorship.id %}">
+      <span class="text-primary me-1"
+            aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span>
+      Verify
+    </button>
+    <button class="btn btn-sm btn-outline-secondary text-body text-nowrap"
+            hx-patch="{% url "ethics:_hx_coauthorship_deprecate" coauthorship.id %}">
+      <span class="text-warning me-1"
+            aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
+      Deprecate
+    </button>
+  {% else %}
+    <span class="fs-4 text-nowrap">{{ coauthorship.get_status_display }}
+      <span class="text-primary"
+            title="By {{ coauthorship.verified_by.profile.first_name }} on {{ coauthorship.modified|date:'Y-m-d' }}"
+            data-bs-toggle="tooltip"
+            aria-hidden="true">{% include "bi/info-circle-fill.html" %}</span>
+
+    </span>
+    <button class="btn btn-sm btn-outline-secondary text-body text-nowrap"
+            hx-patch="{% url "ethics:_hx_coauthorship_reset_status" coauthorship.id %}">
+      <span>{% include 'bi/arrow-left.html' %}</span>
+      Revoke
+    </button>
+
+  {% endif %}
+
+</div>

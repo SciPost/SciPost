@@ -219,7 +219,7 @@ urlpatterns = [
         name="_hx_submission_add_specialty",
     ),
     path(
-        "admin/<identifier:identifier_w_vn_nr>/fellow_coauthorships",
+        "admin/<identifier:identifier_w_vn_nr>/coauthorships/fellows",
         views.SubmissionFellowCoauthorshipsView.as_view(),
         name="fellow_coauthorships",
     ),

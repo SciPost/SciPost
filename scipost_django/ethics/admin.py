@@ -21,6 +21,14 @@ from .models import (
 from typing import Any
 
 
+class CoauthorshipInline(admin.TabularInline[Coauthorship]):
+    model = Coauthorship
+    extra = 0
+    fields = ("profile", "coauthor", "work", "status", "verified_by", "created")
+    readonly_fields = ("created", "modified")
+    autocomplete_fields = ("profile", "coauthor", "work", "verified_by")
+
+
 @admin.register(CompetingInterest)
 class CompetingInterestAdmin(admin.ModelAdmin):
     search_fields = (
@@ -46,6 +54,7 @@ class CompetingInterestAdmin(admin.ModelAdmin):
         "affected_submissions",
         "affected_publications",
     )
+    inlines = [CoauthorshipInline]
 
 
 class ConcerningObjectExistingFilter(admin.SimpleListFilter):
@@ -154,6 +163,7 @@ class CoauthorshipAdmin(admin.ModelAdmin[Coauthorship]):
         "coauthor",
         "verified_by",
         "work",
+        "competing_interest",
     )
     readonly_fields = ("created", "modified")
     list_filter = ("status",)
