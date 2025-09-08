@@ -8,7 +8,9 @@
       <li id="coauthorship-{{ coauthorship.id }}"
           class="d-flex flex-row flex-grow-1 p-1 gap-2">
 
-        <div class="d-flex flex-column justify-content-center p-0">{% include 'bi/arxiv.html' %}</div>
+        <div class="d-flex flex-column justify-content-center p-0">
+          {% include 'preprints/server_icons/'|add:coauthorship.work.server_source|add:'.html' %}
+        </div>
 
         <div class="d-flex flex-column justify-content-center gap-1"
              style="min-width: 0">
