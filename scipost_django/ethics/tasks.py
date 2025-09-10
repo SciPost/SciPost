@@ -43,7 +43,7 @@ def fetch_potential_coauthorships_for_profiles_from_preprint_server(
         found_works = find_common_works_between(
             profile,
             coauthor,
-            # published_after=five_years_ago,
+            published_after=five_years_ago,
             **kwargs,
         )
         nr_total_works_found += len(found_works)
