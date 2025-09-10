@@ -297,20 +297,7 @@ def _hx_fetch_coauthorships_for_submission_authors(
     if not submission or not profile:
         return HTMXResponse("Submission or profile not found", tag="danger")
 
-    # Find the names of all preprint servers serving the submission's academic field
-    # If a preprint server is served by another, use the "served by" name
-    # TODO: OSF is named OSFPreprints and will fail; it doesn't have an implementation anyway
-    preprint_servers = [
-        server_name
-        for server_name in submission.acad_field.preprint_servers.all()
-        .annotate(server_name=Lower(Coalesce("served_by__name", "name")))
-        .values_list("server_name", flat=True)
-        if server_name in PreprintServer.mapping().keys()
-    ]
-
-    # Always add Crossref as a source
-    preprint_servers.append(PreprintServer.CROSSREF.value)
-
+    preprint_servers = submission.get_coauthorship_preprint_servers()
     try:
         task = celery_fetch_potential_coauthorships_for_profile_and_submission_authors.delay(
             profile.id,

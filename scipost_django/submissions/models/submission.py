@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from django.db.models.functions import Coalesce, Lower
 import feedparser
 import uuid
 
@@ -1110,6 +1111,27 @@ class Submission(models.Model):
                 fellows = fellows.regular_or_senior()
 
         return fellows.distinct()
+
+    def get_coauthorship_preprint_servers(self) -> list[str]:
+        from preprints.servers.server import PreprintServer
+
+        """Returns a list of preprint servers for coauthorship checks."""
+        # Find the names of all preprint servers serving the submission's academic field
+        # If a preprint server is served by another, use the "served by" name
+        # TODO: OSF is named OSFPreprints and will fail; it doesn't have an implementation anyway
+        preprint_servers = [
+            server_name
+            for server_name in self.acad_field.preprint_servers.all()
+            .annotate(server_name=Lower(Coalesce("served_by__name", "name")))
+            .values_list("server_name", flat=True)
+            .distinct()
+            if server_name in PreprintServer.mapping().keys()
+        ]
+
+        # Always add Crossref as a source
+        preprint_servers.append(PreprintServer.CROSSREF.value)
+
+        return preprint_servers
 
     @property
     def editorial_decision(self) -> "EditorialDecision | None":
