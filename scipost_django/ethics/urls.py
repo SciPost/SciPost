@@ -74,4 +74,14 @@ urlpatterns = [
         views._hx_coauthorship_reset_status,
         name="_hx_coauthorship_reset_status",
     ),
+    path(
+        "coauthorships/for_submission/<str:identifier_w_vn_nr>/against_profile/<int:profile_pk>/_hx_fetch",
+        views._hx_fetch_coauthorships_for_submission_authors,
+        name="_hx_fetch_coauthorships_for_submission_authors",
+    ),
+    path(
+        "coauthorships/for_submission/<str:identifier_w_vn_nr>/against_profile/<int:profile_pk>/_hx_list",
+        views._hx_list_coauthorships_for_submission_authors,
+        name="_hx_list_coauthorships_for_submission_authors",
+    ),
 ]
