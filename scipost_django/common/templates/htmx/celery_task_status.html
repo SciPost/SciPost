@@ -1,0 +1,40 @@
+<div class="p-2 d-flex flex-column"
+     hx-swap="outerHTML"
+     hx-trigger="every {{ refresh_interval }}s"
+     hx-get="{% url 'common:hx_celery_task_status' task_id=task.task_id %}">
+
+  <div class="fs-6">{{ message }}</div>
+
+  {% if task_progress_percent %}
+    <div class="p-1 d-flex flex-row justify-content-center align-items-center bg-{{ bg_color }} text-white fw-bold"
+         id="celery-task-progress-{{ task.task_id }}"
+         role="progressbar"
+         style="width: {{ task_progress_percent }}%;
+                transition: width 0.5s ease"
+         aria-valuenow="{{ task_progress_percent }}"
+         aria-valuemin="0"
+         aria-valuemax="100">
+      <span>
+
+        {% if task.status == "PROGRESS" %}
+          {{ task_progress_percent|floatformat:0 }}%
+        {% elif task.status == "SUCCESS" %}
+          Completed
+        {% elif task.status == "FAILURE" %}
+          Failed
+        {% else %}
+          {{ task.status }}
+        {% endif %}
+
+      </span>
+    </div>
+  {% endif %}
+
+  {% if task.status == "FAILURE" %}
+    <div class="text-danger">
+      <strong>Error:</strong>
+      <pre>{{ task_result.exc_message|join:"\n " }}</pre>
+    </div>
+  {% endif %}
+
+</div>
