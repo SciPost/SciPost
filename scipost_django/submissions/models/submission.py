@@ -58,15 +58,16 @@ if TYPE_CHECKING:
     from series.models import Collection
     from journals.models import Journal
     from ethics.models import Coauthorship
+    from profiles.models import Profile
 
 
 class SubmissionAuthorProfile(models.Model):
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission",
         on_delete=models.CASCADE,
         related_name="author_profiles",
     )
-    profile = models.ForeignKey(
+    profile = models.ForeignKey["Profile"](
         "profiles.Profile",
         on_delete=models.PROTECT,
         blank=True,
