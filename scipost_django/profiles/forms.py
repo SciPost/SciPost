@@ -16,6 +16,7 @@ from django.urls import reverse
 
 from colleges.models.fellowship import Fellowship
 from common.forms import ModelChoiceFieldwithid
+from ethics.models import Coauthorship
 from invitations.models import RegistrationInvitation
 from ontology.models.specialty import Specialty
 from ontology.models.topic import Topic
@@ -275,6 +276,47 @@ class ProfileMergeForm(forms.Form):
 
         # Move all affiliations to the "new" profile
         profile_old.affiliations.all().update(profile=profile)
+        profile_old.submission_clearances.all().update(profile=profile)
+        profile_old.competing_interests.all().update(profile=profile)
+        profile_old.related_competing_interests.all().update(related_profile=profile)
+
+        # Move all coauthorships to the "new" profile, making sure that the IDs remain ordered
+        coauthorships_of_old_profile_only = list(
+            Coauthorship.objects.all()
+            .involving_profile(profile_old)
+            .not_involving_profile(profile)
+        )
+        for co in coauthorships_of_old_profile_only:
+            merged_profile_key = "profile" if co.profile == profile_old else "coauthor"
+            other_profile_key = "coauthor" if co.profile == profile_old else "profile"
+
+            setattr(co, merged_profile_key, profile)
+
+            if co.profile.id > co.coauthor.id:
+                # Ensure profile is always the smaller id, for consistency
+                co.profile, co.coauthor = co.coauthor, co.profile
+
+            try:
+                co.save()
+            except Coauthorship.IntegrityError:
+                # This coauthorship already exists on the new profile
+                # Keep the one most recently modified
+                existing = (
+                    Coauthorship.objects.all()
+                    .between_profiles(profile, getattr(co, other_profile_key))
+                    .get(work=co.work)
+                )
+                if existing.modified < co.modified:
+                    existing.status = co.status
+                    existing.verified_by = co.verified_by
+                    existing.modified = co.modified
+                    existing.save()
+                co.delete()
+
+        # Move all collections the profile is an expected author of
+        for collection in profile_old.collections_authoring.all():
+            collection.expected_authors.add(profile)
+            collection.expected_authors.remove(profile_old)
 
         # Move all SubmissionAuthorProfile instances to the "new" profile
         profile_old.submissionauthorprofile_set.all().update(profile=profile)
@@ -295,6 +337,8 @@ class ProfileMergeForm(forms.Form):
 
         # Move all Nomination instances to the "new" profile
         profile.fellowship_nominations.add(*profile_old.fellowship_nominations.all())
+
+        profile_old.individual_budgets.all().update(holder=profile)
 
         profile_old.delete()
         return Profile.objects.get(
