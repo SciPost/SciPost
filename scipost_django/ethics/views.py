@@ -199,47 +199,6 @@ def _hx_submission_competing_interest_create(
 
 
 @login_required
-def _hx_submission_competing_interest_crossref_audit(request, identifier_w_vn_nr):
-    submission: Submission = get_object_or_404(
-        Submission.objects.in_pool(request.user),
-        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
-    )
-
-    fellow_name: str = request.user.contributor.profile.full_name
-
-    all_works = []
-    exact_works = []
-    with Pool() as pool:
-        works_per_author = pool.starmap(
-            CrossrefServer.find_common_works_between,
-            [(fellow_name, author) for author in submission.authors_as_list],
-        )
-
-    for author, author_works in zip(submission.authors_as_list, works_per_author):
-        all_works.extend(author_works)
-        exact_works.extend(
-            [
-                work
-                for work in author_works
-                if work.contains_authors(fellow_name, author)
-            ]
-        )
-
-    context = {
-        "submission": submission,
-        "ci_checker": {
-            "possible_works": all_works,
-            "exact_works": exact_works,
-        },
-    }
-    return render(
-        request,
-        "submissions/pool/_hx_crossref_CIs.html",
-        context,
-    )
-
-
-@login_required
 @permission_required_htmx("scipost.can_verify_coauthorships")
 @permission_required_htmx("scipost.can_promote_coauthorships_to_competing_interests")
 def _hx_coauthorship_verify(request, pk):
