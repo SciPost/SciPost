@@ -24,14 +24,34 @@
   {% endif %}
 
   {% if not clearance and readiness and readiness != "perhaps_later" %}
-    <div id="submission-{{ submission.id }}-crossref-CI-audit"
-         class="col-12"
-         hx-get="{% url 'ethics:_hx_submission_competing_interest_crossref_audit' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-         hx-trigger="revealed once">
-      <div class="btn btn-secondary htmx-indicator">
-        Searching CrossRef for common works ...
-      </div>
-    </div>
-  {% endif %}
+    <details style="max-height: 50vh;
+                    overflow-y: auto"
+             class="bg-white border border-secondary">
+      <summary class="d-flex flex-row justify-content-between align-items-center">
+        <div>
+          <strong>Possible coauthorships with submission authors</strong>
+          <br />
+          <small class="text-muted">Click to view details</small>
+        </div>
+        <div style="max-width: 600px"
+             class="ms-auto coauthorship-fetch-button">
+          <span id="coauthorship-{{ submission.id }}-fetch-indicator"
+                class="htmx-indicator"
+                role="status"
+                aria-hidden="true">
+            <span class="spinner-grow spinner-grow-sm"></span></span>
+            <button class="btn btn-secondary btn-sm"
+                    hx-indicator="#coauthorship-{{ submission.id }}-fetch-indicator"
+                    hx-post="{% url 'ethics:_hx_fetch_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr fellow.contributor.profile.id %}"
+                    hx-target="closest .coauthorship-fetch-button">Update records</button>
+          </div>
+        </summary>
 
-</div>
+        <div hx-get="{% url 'ethics:_hx_list_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr request.user.contributor.profile.id %}"
+             hx-trigger="intersect once, task-completed from:closest details"
+             hx-swap="innerHTML"></div>
+
+      </details>
+    {% endif %}
+
+  </div>
