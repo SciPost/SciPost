@@ -1,10 +1,12 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import json
 from typing import Any, Dict
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
+from django.db.models.base import Model as Model
 from django.db.models.query import QuerySet
 from django.forms import formset_factory, modelformset_factory
 from django.forms.forms import BaseForm
@@ -17,6 +19,8 @@ from django.utils.html import format_html
 from django.views import View
 from django.views.generic import FormView, ListView
 from django.views.generic.detail import SingleObjectMixin
+
+from django_celery_results.models import TaskResult
 
 from scipost.permissions import HTMXResponse
 
@@ -347,3 +351,68 @@ class HXFormSetView(View):
         response["HX-Retarget"] = f"#{formset.prefix}-formset-forms"
         response["HX-Reswap"] = "beforeend"
         return response
+
+
+class HXCeleryTaskStatusView(SingleObjectMixin, View):
+    """
+    View to check the status of a Celery task and return an appropriate response.
+    """
+
+    model = TaskResult
+    template_name = "htmx/celery_task_status.html"
+    slug_url_kwarg = "task_id"
+    success_url = None  # URL to redirect to on success, if any
+
+    def get(self, request, *args, **kwargs):
+        self.object: TaskResult = self.get_object()
+        return self.get_response(request, *args, **kwargs)
+
+    def get_slug_field(self):
+        return "task_id"
+
+    def get_response(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        response = render(request, self.template_name, context)
+
+        if context["task"].status in ("SUCCESS", "FAILURE"):
+            response["HX-Trigger"] = "task-completed"
+            if success_url := self.get_success_url():
+                response["HX-Redirect"] = success_url
+
+        return response
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context["task"] = self.object
+        context["task_result"] = json.loads(self.object.result or "{}")
+
+        context["refresh_interval"] = 0
+        match self.object.status:
+            case "PENDING":
+                context["message"] = "Task is still pending..."
+                context["bg_color"] = "warning"
+            case "STARTED":
+                context["message"] = "Task has started..."
+            case "SUCCESS":
+                context["message"] = "Task completed successfully."
+                context["task_progress_percent"] = 100
+                context["bg_color"] = "success"
+            case "FAILURE":
+                context["message"] = "Task failed."
+                context["task_progress_percent"] = 100
+                context["bg_color"] = "danger"
+            case "PROGRESS":
+                context["message"] = "Task in progress."
+                context["refresh_interval"] = 2
+                context["bg_color"] = "primary"
+                context["task_progress_percent"] = (
+                    context["task_result"].get("progress", 0) * 100
+                )
+
+            case _:
+                context["message"] = f"Task status: {self.object.status}"
+        return context
+
+    def get_success_url(self):
+        return self.success_url

@@ -19,4 +19,9 @@ urlpatterns = [
         views.HXDynselSelectOptionView.as_view(),
         name="hx_dynsel_select_option",
     ),
+    path(
+        "hx/celery/task/<uuid:task_id>/status",
+        views.HXCeleryTaskStatusView.as_view(),
+        name="hx_celery_task_status",
+    ),
 ]
