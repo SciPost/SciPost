@@ -19,7 +19,7 @@
   {% else %}
     <span class="fs-4 text-nowrap">{{ coauthorship.get_status_display }}
       <span class="text-primary"
-            title="By {{ coauthorship.verified_by.profile.first_name }} on {{ coauthorship.modified|date:'Y-m-d' }}"
+            title="By {{ coauthorship.verified_by.profile.first_name|default:"EdAdmin" }} on {{ coauthorship.modified|date:'Y-m-d' }}"
             data-bs-toggle="tooltip"
             aria-hidden="true">{% include "bi/info-circle-fill.html" %}</span>
 
