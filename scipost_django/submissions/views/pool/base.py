@@ -117,7 +117,7 @@ def _hx_submission_tab(request, identifier_w_vn_nr, tab):
         if submission.editor_in_charge:
             prefetch_related_objects(
                 [submission.editor_in_charge],
-                submission.get_coauthorship_prefetch_for_profile_path(),
+                submission.prefetch_submission_author_coauthorships(),
             )
     return render(request, "submissions/pool/_hx_submission_tab.html", context)
 

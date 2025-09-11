@@ -3199,7 +3199,7 @@ class VotingEligibilityForm(forms.ModelForm):
 
     def get_eligible_fellows_and_their_coauthorships(self):
         return self.fields["eligible_fellows"].queryset.prefetch_related(
-            self.instance.submission.get_coauthorship_prefetch_for_profile_path()
+            self.instance.submission.prefetch_submission_author_coauthorships()
         )
 
 
