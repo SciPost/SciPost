@@ -1186,6 +1186,13 @@ def update_orcid_from_authentication(request):
             "Please try to authenticate again."
         )
 
+    # Unlink any other profile that may have been linked to this ORCID
+    # to avoid DB integrity issues
+    Profile.objects.filter(orcid_id=orcid).exclude(id=contributor.profile.id).update(
+        orcid_authenticated=False,
+        orcid_id=None,
+    )
+
     contributor.profile.orcid_authenticated = True
     contributor.profile.orcid_id = orcid
 
