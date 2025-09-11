@@ -12,7 +12,7 @@
           {% include 'preprints/server_icons/'|add:coauthorship.work.server_source|add:'.html' %}
         </div>
 
-        <div class="d-flex flex-column justify-content-center gap-1"
+        <div class="d-flex flex-column justify-content-center gap-1 flex-grow-1"
              style="min-width: 0">
           <div class="d-flex align-items-center">
 
@@ -20,6 +20,7 @@
 
               {% if coauthorship.work.url %}
                 <a href="{{ coauthorship.work.url }}"
+                   title="{{ coauthorship.work.title }}"
                    target="_blank">{{ coauthorship.work.title }}</a>
               {% else %}
                 {{ coauthorship.work.title }}
@@ -35,7 +36,8 @@
 
           {% if coauthorship.work.authors_str %}
             <div class="d-flex align-items-center">
-              <div class="text-truncate flex-grow-1">by {{ coauthorship.work.authors_str }}</div>
+              <div class="text-truncate flex-grow-1"
+                   title="{{ coauthorship.work.authors_str }}">by {{ coauthorship.work.authors_str }}</div>
             </div>
           {% endif %}
 
