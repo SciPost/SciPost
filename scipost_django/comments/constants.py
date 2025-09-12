@@ -11,6 +11,7 @@ STATUS_PENDING = 0
 STATUS_UNCLEAR = -1
 STATUS_INCORRECT = -2
 STATUS_NOT_USEFUL = -3
+STATUS_DUPLICATE = -4 
 COMMENT_STATUS = (
     (STATUS_VETTED, "Vetted"),
     (STATUS_PENDING, "Not yet vetted (pending)"),
@@ -44,4 +45,5 @@ COMMENT_REFUSAL_CHOICES = (
     (STATUS_UNCLEAR, "unclear"),
     (STATUS_INCORRECT, "incorrect"),
     (STATUS_NOT_USEFUL, "not useful"),
+    (STATUS_DUPLICATE, "duplicate"),
 )
