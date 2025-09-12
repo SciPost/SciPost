@@ -1,8 +1,13 @@
 <p>Dear {{ assignment.to.profile.get_title_display }} {{ assignment.to.user.last_name }},</p>
 
 <p>
-  We have deprecated your assignment as Editor-in-charge of Submission<br />
+  Thank you very much for your efforts as Editor in charge of Submission<br />
   {{ assignment.submission.title }} by {{ assignment.submission.author_list }}.
+</p>
+
+<p>
+  We have deprecated your assignment as Editor-in-charge. 
+  Please feel free to contact us in case you have any questions or comments.
 </p>
 
 <p>To see your current active assignments, check <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}?editor_in_charge=on.">the Pool</a>.</p>
