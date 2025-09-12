@@ -93,13 +93,17 @@ class ArxivServer(BasePreprintServer):
     def parse_work(cls, data: dict[str, Any]) -> "CoauthoredWork | None":
         from ethics.models import CoauthoredWork
 
-        id_match = re.search(ARXIV_PREPRINT_IDENTIFIER, data.get("link", ""))
-        identifier = id_match.group(0) if id_match else None
+        identifier_wo_vn_nr = doi = None
+        if id_match := re.search(ARXIV_PREPRINT_IDENTIFIER, data.get("link", "")):
+            identifier = id_match.group(0)
+            identifier_wo_vn_nr = re.sub(r"v[0-9]+$", "", identifier)
+            doi = "https://doi.org/10.48550/arXiv." + identifier_wo_vn_nr
+
         work = CoauthoredWork(
             server_source=PreprintServer.ARXIV.value,
             work_type="preprint",
-            identifier=identifier,
-            doi="https://doi.org/10.48550/" + identifier if identifier else None,
+            identifier=identifier_wo_vn_nr,
+            doi=doi,
             title=data.get("title", ""),
             metadata=data,
         )
