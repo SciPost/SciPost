@@ -32,7 +32,7 @@
                     <div class="col-auto">
                         <a href="{% firstof productionstream.submission.preprint.url productionstream.submission.get_absolute_url %}"
                            target="_blank">
-                            <span style="pointer-events: none;">
+                            <span style="pointer-events: none; font-size: 3em">
                                 {% if productionstream.submission.preprint.is_arXiv %}
                                     {% include 'preprints/server_icons/arxiv.html' %}
                                 {% else %}
