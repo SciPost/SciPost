@@ -1,35 +1,57 @@
 <div id="coauthorship-{{ coauthorship.id }}-verification"
      hx-target="this"
      hx-swap="outerHTML"
-     class="d-flex flex-column gap-1 ms-auto">
+     class="d-flex flex-row gap-1 ms-auto">
 
-  {% if coauthorship.status == 'unverified' %}
-    <button class="btn btn-sm btn-outline-secondary text-body text-nowrap"
-            hx-patch="{% url "ethics:_hx_coauthorship_verify" coauthorship.id %}">
-      <span class="text-primary me-1"
-            aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span>
-      Verify
+  {% if coauthorship.status == 'verified' %}
+    <button disabled
+            class="pe-auto btn btn-sm btn-success text-body text-nowrap"
+            title="By {{ coauthorship.verified_by.profile.first_name|default:"EdAdmin" }} on {{ coauthorship.modified|date:'Y-m-d' }}"
+            data-bs-toggle="tooltip">
+      <span class="text-white"
+            aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
     </button>
+  {% elif coauthorship.status == 'deprecated' %}
     <button class="btn btn-sm btn-outline-secondary text-body text-nowrap"
-            hx-patch="{% url "ethics:_hx_coauthorship_deprecate" coauthorship.id %}">
-      <span class="text-warning me-1"
-            aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
-      Deprecate
+            hx-patch="{% url "ethics:_hx_coauthorship_reset_status" coauthorship.id %}"
+            title="Revoke deprecation"
+            data-bs-toggle="tooltip">
+      <span>{% include 'bi/arrow-counterclockwise.html' %}</span>
     </button>
   {% else %}
-    <span class="fs-4 text-nowrap">{{ coauthorship.get_status_display }}
-      <span class="text-primary"
-            title="By {{ coauthorship.verified_by.profile.first_name|default:"EdAdmin" }} on {{ coauthorship.modified|date:'Y-m-d' }}"
-            data-bs-toggle="tooltip"
-            aria-hidden="true">{% include "bi/info-circle-fill.html" %}</span>
-
-    </span>
     <button class="btn btn-sm btn-outline-secondary text-body text-nowrap"
-            hx-patch="{% url "ethics:_hx_coauthorship_reset_status" coauthorship.id %}">
-      <span>{% include 'bi/arrow-left.html' %}</span>
-      Revoke
+            hx-patch="{% url "ethics:_hx_coauthorship_verify" coauthorship.id %}"
+            title="Verify"
+            data-bs-toggle="tooltip">
+      <span class="text-success"
+            aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
     </button>
-
   {% endif %}
+
+  {% if coauthorship.status == 'deprecated' %}
+    <button disabled
+            class="pe-auto btn btn-sm btn-warning text-body text-nowrap"
+            title="By {{ coauthorship.verified_by.profile.first_name|default:"EdAdmin" }} on {{ coauthorship.modified|date:'Y-m-d' }}"
+            data-bs-toggle="tooltip">
+      <span class="text-white"
+            aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
+    </button>
+  {% elif coauthorship.status == 'verified' %}
+    <button class="btn btn-sm btn-outline-secondary text-body text-nowrap"
+            hx-patch="{% url "ethics:_hx_coauthorship_reset_status" coauthorship.id %}"
+            title="Revoke verification"
+            data-bs-toggle="tooltip">
+      <span>{% include 'bi/arrow-counterclockwise.html' %}</span>
+    </button>
+  {% else %}
+    <button class="btn btn-sm btn-outline-secondary text-body text-nowrap"
+            hx-patch="{% url "ethics:_hx_coauthorship_deprecate" coauthorship.id %}"
+            title="Deprecate"
+            data-bs-toggle="tooltip">
+      <span class="text-warning"
+            aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
+    </button>
+  {% endif %}
+
 
 </div>

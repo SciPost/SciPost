@@ -429,7 +429,7 @@ class Coauthorship(models.Model):
                 violation_error_message="Profile/Coauthor IDs must be in the correct order to avoid duplicates.",
             ),
         ]
-        ordering = ["-created"]
+        ordering = ["-status", "-work__date_published", "work__title"]
 
     @property
     def authors_contained(self):

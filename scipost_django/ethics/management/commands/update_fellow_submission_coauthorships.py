@@ -21,7 +21,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         submissions: list[Submission] = list(
             Submission.objects.all()
-            .seeking_assignment()
+            .stage_preassignment_completed()
             .needs_coauthorships_update()
             .prefetch_related("fellows")[:5]
         )

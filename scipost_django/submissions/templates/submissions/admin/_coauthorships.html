@@ -2,41 +2,52 @@
 
 {% if coauthorships %}
   {{ coauthorships|length }} (potential) coauthorship{{ coauthorships|length|pluralize }} found:
-  <ul class="mt-2 list-unstyled d-flex flex-column gap-1">
+  <ul class="mt-1 list-unstyled d-flex flex-column gap-1">
 
     {% for coauthorship in coauthorships %}
-      <li id="coauthorship-{{ coauthorship.id }}"
-          class="d-flex flex-row flex-grow-1 p-1 gap-2">
+      <li id="coauthorship-{{ coauthorship.id }}" 
+          class="d-flex flex-row flex-grow-1 p-1 gap-2 {% if forloop.counter|divisibleby:2 %}bg-secondary bg-opacity-25{% endif %}">
 
-        <div class="d-flex flex-column p-0">
-          {% include 'preprints/server_icons/'|add:coauthorship.work.server_source|add:'.html' %}
-        </div>
-
-        <div class="d-flex flex-column gap-1 flex-grow-1"
+        <div class="d-flex flex-column flex-grow-1"
              style="min-width: 0">
-          <div class="d-flex align-items-center">
 
-            <div class="fw-bold text-truncate flex-grow-1">
+          <div class="d-flex flex-row">
+            <div class="d-flex flex-column">
+              
+              <div class="d-flex align-items-center">
+                <span title="{{ coauthorship.work.server_source }}"
+                      data-bs-toggle="tooltip"
+                      class="d-flex me-2 flex-shrink-0">
+                  {% include 'preprints/server_icons/'|add:coauthorship.work.server_source|add:'.html' %}
+                </span>
 
-              {% if coauthorship.work.url %}
-                <a href="{{ coauthorship.work.url }}"
-                   title="{{ coauthorship.work.title }}"
-                   target="_blank">{{ coauthorship.work.title }}</a>
-              {% else %}
-                {{ coauthorship.work.title }}
-              {% endif %}
+                <div class="fw-bold text-truncate flex-grow-1">
 
+                  {% if coauthorship.work.url %}
+                    <a href="{{ coauthorship.work.url }}"
+                       title="{{ coauthorship.work.title }}"
+                       target="_blank">{{ coauthorship.work.title }}</a>
+                  {% else %}
+                    {{ coauthorship.work.title }}
+                  {% endif %}
+
+                </div>
+
+                {% if coauthorship.work.date_published %}
+                  <div class="text-muted flex-shrink-0 ms-2">{{ coauthorship.work.date_published|date:"Y-m-d" }}</div>
+                {% endif %}
+              </div>
+
+              <div>
+                between <span class="fw-bold">{{ coauthorship.profile }}</span>
+                and <span class="fw-bold">{{ coauthorship.coauthor }}</span>
+              </div>
             </div>
 
-            {% if coauthorship.work.date_published %}
-              <div class="text-muted flex-shrink-0 ms-2">{{ coauthorship.work.date_published|date:"Y-m-d" }}</div>
+            {% if perms.scipost.can_verify_coauthorships %}
+              {% include 'submissions/admin/_coauthorship_verification.html' %}
             {% endif %}
 
-          </div>
-
-          <div>
-            between <span class="fw-bold">{{ coauthorship.profile }}</span>
-            and <span class="fw-bold">{{ coauthorship.coauthor }}</span>
           </div>
 
           {% if coauthorship.work.authors_str %}
@@ -51,12 +62,9 @@
 
         </div>
 
-        {% if perms.scipost.can_verify_coauthorships %}
-          {% include 'submissions/admin/_coauthorship_verification.html' %}
-        {% endif %}
-
       </li>
     {% endfor %}
+
 
 
   </ul>
