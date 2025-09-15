@@ -31,10 +31,10 @@
 </p>
 <p>
   The submission is currently a candidate for publication in <a href="https://{{ domain }}{% url 'scipost:journal_detail' invitation.submission.submitted_to.doi_label %}">{{ invitation.submission.submitted_to }}</a>, for which you are advised to review its <a href="https://{{ domain }}{% url 'journal:about' invitation.submission.submitted_to.doi_label %}#criteria">acceptance criteria</a>.
-  {% if invitation.submission.submitted_to.alternative_journals.all %}
+  {% if invitation.submission.get_allowed_alternative_journals.all %}
   <p>You may also deem that the submission is better suited to one of the following alternative journals, whose acceptance criteria are linked below:</p>
     <ul>
-    {% for alternative_journal in invitation.submission.submitted_to.alternative_journals.all %}
+    {% for alternative_journal in invitation.submission.get_allowed_alternative_journals.all %}
       <li>
         <a href="https://{{ domain }}{% url 'journal:about' alternative_journal.doi_label %}#criteria">{{ alternative_journal }}</a>
       </li>

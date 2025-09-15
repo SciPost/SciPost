@@ -277,7 +277,7 @@ class ConditionalAssignmentOfferInlineForm(forms.ModelForm):
         if condition_type == "JournalTransfer":
             alternative_journal_id = forms.ModelChoiceField(
                 label="Alternative journal",
-                queryset=self.submission.submitted_to.alternative_journals.all(),
+                queryset=self.submission.get_allowed_alternative_journals().all(),
             )
             extra_fields["alternative_journal_id"] = alternative_journal_id
 

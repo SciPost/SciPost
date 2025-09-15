@@ -896,6 +896,14 @@ class Submission(models.Model):
         """Return the latest publicly-visible version in the thread of this Submission."""
         return self.thread.first()
 
+    def get_allowed_alternative_journals(self):
+        """Return the list of alternative journals allowed for this submission."""
+        qs = self.submitted_to.alternative_journals.all()
+        for collection in self.collections.all():
+            if collection.allowed_in_journals.exists():
+                qs = qs.filter(id__in=collection.allowed_in_journals.all())
+        return qs
+
     def _add_event(self, sort, message):
         event = SubmissionEvent(submission=self, event=sort, text=message)
         event.save()

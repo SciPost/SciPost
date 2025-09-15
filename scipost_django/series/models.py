@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from profiles.models import Profile
     from colleges.models import Fellowship
     from submissions.models.submission import Submission
+    from journals.models.journal import Journal
 
 
 class Series(models.Model):
@@ -108,6 +109,12 @@ class Collection(models.Model):
     )
     expected_editors = models.ManyToManyField["Fellowship", "Collection"](
         "colleges.Fellowship", blank=True, related_name="collections_editing"
+    )
+    allowed_in_journals = models.ManyToManyField["Journal", "Collection"](
+        "journals.Journal",
+        blank=True,
+        related_name="collections_allowed",
+        help_text="Limits the related submissions' alternative journals to this set.",
     )
     submissions = models.ManyToManyField["Submission", "Collection"](
         "submissions.Submission", blank=True, related_name="collections"

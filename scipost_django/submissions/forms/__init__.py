@@ -3562,9 +3562,9 @@ class EICRecommendationForm(forms.ModelForm):
 
         # Determine help points for the journal selection
         alternative_journal_ids = (
-            self.submission.submitted_to.alternative_journals.active().values_list(
-                "id", flat=True
-            )
+            self.submission.get_allowed_alternative_journals()
+            .active()
+            .values_list("id", flat=True)
         )
         for_journal_qs = Journal.objects.filter(
             id__in=list(alternative_journal_ids) + [self.submission.submitted_to.id]
@@ -3917,9 +3917,9 @@ class RecommendationVoteForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         alt_journal_ids = list(
-            self.recommendation.for_journal.alternative_journals.active().values_list(
-                "id", flat=True
-            )
+            self.recommendation.submission.get_allowed_alternative_journals()
+            .active()
+            .values_list("id", flat=True)
         )
         self.fields["alternative_for_journal"].queryset = Journal.objects.filter(
             id__in=[self.recommendation.for_journal.id] + alt_journal_ids

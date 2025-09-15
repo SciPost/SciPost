@@ -241,7 +241,7 @@ class JournalTransferCondition(BaseAssignmentCondition):
 
         if (
             self.alternative_journal
-            not in offer.submission.submitted_to.alternative_journals.all()
+            not in offer.submission.get_allowed_alternative_journals().all()
         ):
             raise ValueError(
                 "The alternative journal is not valid for the current journal."
