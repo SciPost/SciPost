@@ -321,6 +321,31 @@ class CoauthoredWork(models.Model):
     def authors(self, authors: list[HumanName]):
         self.authors_str = "; ".join(format_person_name(author) for author in authors)
 
+    def map_people_to_author_idxs(self, *people: Person) -> dict[Person, int]:
+        from common.utils.text import latinise, partial_name_match_regexp
+
+        author_names = [
+            format_person_name(author, format=AUTHOR_FIRST_LAST_NAME_FORMAT)
+            for author in self.authors
+        ]
+        to_match_names = {
+            person: format_person_name(person, format=AUTHOR_FIRST_LAST_NAME_FORMAT)
+            for person in people
+        }
+
+        people_mapping: dict[Person, int] = {}
+        for person, match_name in to_match_names.items():
+            match_regex = partial_name_match_regexp(latinise(match_name.lower()))
+            pattern = re.compile(match_regex)
+            for i, author_name in enumerate(author_names):
+                if i in people_mapping.values():
+                    continue
+                if pattern.match(latinise(author_name.lower())):
+                    people_mapping[person] = i
+                    break
+
+        return people_mapping
+
     def contains_authors(self, *people: Person) -> bool:
         """
         Return True if all `people` are listed as authors of this work.
@@ -328,28 +353,7 @@ class CoauthoredWork(models.Model):
         a 2+ sequence of name parts or initials thereof in any order,
         ignoring case and accents.
         """
-        from common.utils.text import latinise, partial_name_match_regexp
-
-        author_names = [
-            format_person_name(author, format=AUTHOR_FIRST_LAST_NAME_FORMAT)
-            for author in self.authors
-        ]
-        to_match_names = [
-            format_person_name(person, format=AUTHOR_FIRST_LAST_NAME_FORMAT)
-            for person in people
-        ]
-
-        total_matched = 0
-        for match_name in to_match_names:
-            match_regex = partial_name_match_regexp(latinise(match_name.lower()))
-            pattern = re.compile(match_regex)
-            for author_name in author_names:
-                if pattern.match(latinise(author_name.lower())):
-                    total_matched += 1
-                    author_names.remove(author_name)
-                    break
-
-        return total_matched == len(people)
+        return len(people) == len(self.map_people_to_author_idxs(*people))
 
     @property
     def url(self) -> str | None:
@@ -410,6 +414,8 @@ class Coauthorship(models.Model):
         null=True,
         related_name="coauthorships_verified",
     )
+    _cf_profile_idx_in_authors_str = models.IntegerField(null=True, blank=True)
+    _cf_coauthor_idx_in_authors_str = models.IntegerField(null=True, blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -430,6 +436,22 @@ class Coauthorship(models.Model):
             ),
         ]
         ordering = ["-status", "-work__date_published", "work__title"]
+
+    @property
+    def profile_idx_in_authors_str(self):
+        if self._cf_profile_idx_in_authors_str is None:
+            idx_map = self.work.map_people_to_author_idxs(self.profile)
+            self._cf_profile_idx_in_authors_str = idx_map.get(self.profile, -1)
+            self.save(update_fields=["_cf_profile_idx_in_authors_str"])
+        return self._cf_profile_idx_in_authors_str
+
+    @property
+    def coauthor_idx_in_authors_str(self):
+        if self._cf_coauthor_idx_in_authors_str is None:
+            idx_map = self.work.map_people_to_author_idxs(self.coauthor)
+            self._cf_coauthor_idx_in_authors_str = idx_map.get(self.coauthor, -1)
+            self.save(update_fields=["_cf_coauthor_idx_in_authors_str"])
+        return self._cf_coauthor_idx_in_authors_str
 
     @property
     def authors_contained(self):

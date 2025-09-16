@@ -1,4 +1,5 @@
 {% load static %}
+{% load common_extras %}
 
 {% if coauthorships %}
   {{ coauthorships|length }} (potential) coauthorship{{ coauthorships|length|pluralize }} found:
@@ -53,10 +54,28 @@
           {% if coauthorship.work.authors_str %}
             <details tabindex="0">
               <summary class="d-flex justify-content-between align-items-center">
-                <span class="text-truncate details-preview mb-0">by {{ coauthorship.work.authors_str }}</span>
+                <span class="text-truncate details-preview mb-0">by 
+                  {% for author in coauthorship.work.authors_str|split_strip:";" %}
+                    {% if forloop.counter0 == coauthorship.profile_idx_in_authors_str or forloop.counter0 == coauthorship.coauthor_idx_in_authors_str %}
+                      <span class="text-warning">{{ author }}</span>
+                    {% else %}
+                      {{ author }}
+                    {% endif %}
+                    {% if not forloop.last %}; {% endif %}
+                  {% endfor %}
+                </span>
                 <span class="text-muted details-preview">(expand)</span>
               </summary>
-              <span class="text-wrap">by {{ coauthorship.work.authors_str }}</span>
+              <span class="text-wrap">by 
+                {% for author in coauthorship.work.authors_str|split_strip:";" %}
+                    {% if forloop.counter0 == coauthorship.profile_idx_in_authors_str or forloop.counter0 == coauthorship.coauthor_idx_in_authors_str %}
+                      <span class="text-warning">{{ author }}</span>
+                    {% else %}
+                      {{ author }}
+                    {% endif %}
+                    {% if not forloop.last %}; {% endif %}
+                  {% endfor %}
+              </span>
             </details>
           {% endif %}
 
