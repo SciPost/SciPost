@@ -32,35 +32,31 @@
   {% for contributor_to_vet in contributors_to_vet %}
     {% if not forloop.first %}<hr class="small">{% endif %}
     <div class="row">
-      <div class="col-md-6">
+      <div class="col">
         {% include "scipost/_private_info_as_table.html" with contributor=contributor_to_vet %}
       </div>
-      <div class="col-md-6">
-	{% if user.is_superuser %}
-	  <ul class="list list-unstyled mb-2">
-	    <li class="list-unstyled-item mb-1">
-	      <a href="{{ contributor_to_vet.user|get_admin_url }}"
-		 target="_blank" class="btn btn-sm btn-danger">
-		Edit User object in admin (su only)
-	      </a>
-	    </li>
-	    <li class="list-unstyled-item mb-1">
-	      <a href="{{ contributor_to_vet|get_admin_url }}"
-		 target="_blank" class="btn btn-sm btn-danger">
-		Edit Contributor object in admin (su only)
-	      </a>
-	    </li>
-	    {% if contributor_to_vet.profile %}
-	      <li class="list-unstyled-item mb-1">
-		<a href="{{ contributor_to_vet.profile|get_admin_url }}"
-		   target="_blank" class="btn btn-sm btn-danger">
-		  Edit Profile object in admin (su only)
-		</a>
-	      </li>
-	    {% endif %}
-	  </ul>
-	{% endif %}
-        {% include "scipost/_hx_vet_registration_request_ack_form.html" with form=form contributor=contributor_to_vet %}
+      <div class="ms-auto col-6">
+        <div class="row">
+          <div class="ms-auto col">
+            {% include "scipost/_hx_vet_registration_request_ack_form.html" with form=form contributor=contributor_to_vet %}
+          </div>
+          <div class="col-auto">
+            {% if user.is_superuser %}
+              <div class="border border-danger rounded-3 p-2">
+                <span class="fs-4 text-danger">Superuser Edit</span>
+                <ul class="mt-2 d-flex flex-column gap-2 list-unstyled m-0 align-items-stretch">
+                  <li><a href="{{ contributor_to_vet.user|get_admin_url }}" target="_blank" class="btn btn-sm btn-light"> User</a></li>
+                  <li><a href="{{ contributor_to_vet|get_admin_url }}" target="_blank" class="btn btn-sm btn-light">Contributor</a></li>
+                  {% if contributor_to_vet.profile %}
+                    <li><a href="{{ contributor_to_vet.profile|get_admin_url }}" target="_blank" class="btn btn-sm btn-light"> Profile</a></li>
+                    <hr class="my-1">
+                    <li><a href="{{ contributor_to_vet.profile.emails.first.domain|get_admin_url }}" target="_blank" class="btn btn-sm btn-light"> Email Domain</a></li>
+                  {% endif %}
+                </ul>
+              </div>
+            {% endif %}
+          </div>
+        </div>
       </div>
     </div>
   {% empty %}

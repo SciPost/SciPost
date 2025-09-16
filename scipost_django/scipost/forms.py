@@ -737,7 +737,7 @@ class VetRegistrationForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("decision"),
+            Field("decision", css_class="d-flex flex-row flex-wrap gap-3"),
         )
 
         if self.data.get("decision") == "False":
