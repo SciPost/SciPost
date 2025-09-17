@@ -483,6 +483,28 @@ def _hx_profile_specialties(request, profile_id):
     return render(request, "profiles/_hx_profile_specialties.html", context)
 
 
+@permission_required_htmx(
+    "scipost.can_create_registration_invitations",
+    "You do not have permission to invite contributors.",
+)
+def _hx_generate_contributor_invitation_link(request, pk):
+    profile = get_object_or_404(Profile, pk=pk)
+
+    invitation = (
+        RegistrationInvitation.objects.filter(profile=profile)
+        .not_expired()
+        .no_response()
+        .first()
+    ) or RegistrationInvitation.from_user_to_profile(request.user, profile)
+
+    return HttpResponse(
+        '<pre><a href="{url}">{domain}{url}</a></pre>'.format(
+            domain=request.build_absolute_uri("/").rstrip("/"),
+            url=invitation.get_registration_url(),
+        )
+    )
+
+
 def _hx_add_profile_email(request, profile_id):
     """
     Add an email address to a Profile.

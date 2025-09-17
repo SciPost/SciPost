@@ -33,6 +33,9 @@ class RegistrationInvitationQuerySet(models.QuerySet):
             ]
         )
 
+    def not_expired(self):
+        return self.filter(key_expires__gt=models.functions.Now())
+
     def sent(self):
         return self.filter(
             status__in=[constants.STATUS_SENT, constants.STATUS_SENT_AND_EDITED]

@@ -62,6 +62,11 @@ urlpatterns = [
                 path(
                     "delete/", views.ProfileDeleteView.as_view(), name="profile_delete"
                 ),
+                path(
+                    "_hx_generate_contributor_invitation_link",
+                    views._hx_generate_contributor_invitation_link,
+                    name="_hx_generate_contributor_invitation_link",
+                ),
                 path("", views.ProfileDetailView.as_view(), name="profile_detail"),
             ]
         ),

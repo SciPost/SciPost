@@ -9,7 +9,10 @@ import string
 
 from django.db import models, IntegrityError
 from django.conf import settings
+from django.urls import reverse_lazy
 from django.utils import timezone
+
+from profiles.models import Profile
 
 from . import constants
 from .managers import RegistrationInvitationQuerySet, CitationNotificationQuerySet
@@ -17,7 +20,7 @@ from .managers import RegistrationInvitationQuerySet, CitationNotificationQueryS
 from scipost.constants import TITLE_CHOICES
 
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from scipost_django.profiles.models import Profile
@@ -123,6 +126,38 @@ class RegistrationInvitation(models.Model):
     @property
     def has_responded(self):
         return self.status in [constants.STATUS_DECLINED, constants.STATUS_REGISTERED]
+
+    def get_registration_url(self):
+        return reverse_lazy("scipost:invitation", args=[self.invitation_key])
+
+    @staticmethod
+    def from_user_to_profile(
+        user,
+        profile: "Profile",
+        commit: bool = True,
+        **kwargs: Any,
+    ) -> "RegistrationInvitation":
+        """
+        Create a RegistrationInvitation instance sent from a user to a profile.
+        """
+
+        defaults: dict[str, Any] = dict(
+            profile=profile,
+            title=profile.title,
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            email=profile.email,
+            created_by=user,
+            invited_by=user,
+        )
+
+        invitation = RegistrationInvitation(**(defaults | kwargs))
+        invitation.refresh_keys(force_new_key=True)
+
+        if commit:
+            invitation.save()
+
+        return invitation
 
 
 class CitationNotification(models.Model):
