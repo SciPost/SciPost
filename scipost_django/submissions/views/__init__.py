@@ -1340,7 +1340,6 @@ def cycle_form_submit(request, identifier_w_vn_nr):
     form = SubmissionCycleChoiceForm(request.POST or None, instance=submission)
     if form.is_valid():
         submission = form.save()
-        submission.cycle.reset_refereeing_round()
         messages.success(
             request,
             (
@@ -1358,6 +1357,7 @@ def cycle_form_submit(request, identifier_w_vn_nr):
                 )
             )
         else:
+            submission.cycle.reset_refereeing_round()
             # Reinvite only if not direct-cycle.
             submission.cycle.reinvite_referees(form.cleaned_data["referees_reinvite"])
             submission.add_general_event(
