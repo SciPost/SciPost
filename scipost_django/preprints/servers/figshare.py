@@ -55,6 +55,7 @@ class FigshareServer(BasePreprintServer):
         timeline = data.get("timeline", {})
         work = CoauthoredWork(
             server_source=PreprintServer.FIGSHARE.value,
+            identifier=data.get("doi", ""),
             doi=data.get("doi", ""),
             title=data.get("title", ""),
             metadata=data,
