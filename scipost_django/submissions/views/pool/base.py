@@ -115,10 +115,9 @@ def _hx_submission_tab(request, identifier_w_vn_nr, tab):
         context["remark_form"] = RemarkForm()
     if tab == "refereeing":
         if submission.editor_in_charge:
-            prefetch_related_objects(
-                [submission.editor_in_charge],
-                submission.prefetch_submission_author_coauthorships(),
-            )
+            submission.editor_in_charge = submission.custom_prefetch_submission_author_and_contributor_coauthorships(
+                [submission.editor_in_charge]
+            )[0]
     return render(request, "submissions/pool/_hx_submission_tab.html", context)
 
 

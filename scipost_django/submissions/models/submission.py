@@ -330,7 +330,7 @@ class Submission(models.Model):
         related_name="successor",
     )
     thread_hash = models.UUIDField(default=uuid.uuid4)
-    followup_of = models.ManyToManyField["Submission", "Publication"](
+    followup_of = models.ManyToManyField["Publication", "Submission"](
         "journals.Publication",
         blank=True,
         related_name="followups",
@@ -341,7 +341,7 @@ class Submission(models.Model):
     )
 
     auto_updated_fellowship = models.BooleanField(default=True)
-    fellows = models.ManyToManyField["Submission", "Fellowship"](
+    fellows = models.ManyToManyField["Fellowship", "Submission"](
         "colleges.Fellowship", blank=True, related_name="pool"
     )
 
@@ -916,25 +916,95 @@ class Submission(models.Model):
         """Generate message meant for authors only."""
         self._add_event(EVENT_FOR_AUTHOR, message)
 
-    def prefetch_submission_author_coauthorships(
+    def custom_prefetch_submission_author_and_contributor_coauthorships(
         self,
-        involving_profile_obj_path: str = "profile",
-    ) -> "Prefetch[Coauthorship]":
+        qs: QuerySet["Contributor"] | list["Contributor"],
+    ) -> list["Contributor"]:
         """
-        Return a list of prefetches for coauthorship checks on the Submission.
-        Expects a path from the object-to-fetch-coauthorships-for to the profile object.
-        (e.g. "contributor__profile" when starting from a Fellowship queryset).
-        Produces attributes `submission_coauthorships` on the Profile object.
+        Custom implementation akin to a Django prefetch_related call.
+        It will "prefetch" coauthorships between the submission authors
+        and the given Contributor queryset/list, returning the Contributor objects with
+        an additional attribute `submission_coauthorships` containing the
+        relevant Coauthorship objects.
         """
         from ethics.models import Coauthorship
+        from profiles.models import Profile
 
-        return Prefetch(
-            f"{involving_profile_obj_path}__coauthorships",
-            queryset=Coauthorship.objects.all()
+        contributors = list(qs)
+        profile_map = {
+            profile.pk: profile
+            for profile in Profile.objects.filter(
+                id__in=[c.profile_id for c in contributors]
+            )
+        }
+        coauthorships_qs = (
+            Coauthorship.objects.all()
             .involving_any_author_of(self)
-            .select_related("profile", "coauthor", "work"),
-            to_attr="submission_coauthorships",
+            .filter(
+                Q(profile__in=profile_map.keys()) | Q(coauthor__in=profile_map.keys())
+            )
+            .select_related("profile", "coauthor", "work")
         )
+        submission_coauthorship_map = {co.pk: co for co in coauthorships_qs}
+        for contributor in contributors:
+            contributor.profile = profile_map[contributor.profile_id]
+            contributor.profile.submission_coauthorships = [
+                coauthorship
+                for coauthorship in submission_coauthorship_map.values()
+                if coauthorship.profile_id == contributor.profile.id
+                or coauthorship.coauthor_id == contributor.profile.id
+            ]
+
+        return contributors
+
+    def custom_prefetch_submission_author_and_fellow_coauthorships(
+        self,
+        qs: QuerySet["Fellowship"] | list["Fellowship"],
+    ) -> list["Fellowship"]:
+        """
+        Custom implementation akin to a Django prefetch_related call.
+        It will "prefetch" coauthorships between the submission authors
+        and the given Fellowship queryset/list, returning the Fellowship objects with
+        an additional attribute `submission_coauthorships` containing the
+        relevant Coauthorship objects.
+        """
+        from ethics.models import Coauthorship
+        from scipost.models import Contributor
+        from profiles.models import Profile
+
+        fellows = list(qs)
+        contributor_map = {
+            contributor.pk: contributor
+            for contributor in Contributor.objects.filter(
+                id__in=[f.contributor_id for f in fellows]
+            )
+        }
+        profile_map = {
+            profile.pk: profile
+            for profile in Profile.objects.filter(
+                id__in=[c.profile_id for c in contributor_map.values()]
+            )
+        }
+        coauthorships_qs = (
+            Coauthorship.objects.all()
+            .involving_any_author_of(self)
+            .filter(
+                Q(profile__in=profile_map.keys()) | Q(coauthor__in=profile_map.keys())
+            )
+            .select_related("profile", "coauthor", "work")
+        )
+        submission_coauthorship_map = {co.pk: co for co in coauthorships_qs}
+        for fellow in fellows:
+            fellow.contributor = contributor_map[fellow.contributor_id]
+            fellow.contributor.profile = profile_map[fellow.contributor.profile_id]
+            fellow.contributor.profile.submission_coauthorships = [
+                coauthorship
+                for coauthorship in submission_coauthorship_map.values()
+                if coauthorship.profile_id == fellow.contributor.profile.id
+                or coauthorship.coauthor_id == fellow.contributor.profile.id
+            ]
+
+        return fellows
 
     def is_sending_editorial_invitations(self):
         """Return whether editorial assignments are being sent out."""

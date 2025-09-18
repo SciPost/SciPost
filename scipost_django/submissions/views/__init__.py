@@ -3178,6 +3178,7 @@ def _hx_submission_add_specialty(request, identifier_w_vn_nr):
 
     return TemplateResponse(request, "htmx/crispy_form.html", {"form": form})
 
+
 class SubmissionFellowCoauthorshipsView(SubmissionAdminViewMixin, DetailView):
     """List all Fellow Coauthorships for a certain Submission."""
 
@@ -3194,10 +3195,8 @@ class SubmissionFellowCoauthorshipsView(SubmissionAdminViewMixin, DetailView):
         submission: Submission = super().get_object()
 
         submission.fellows_with_coauthorships = (
-            submission.fellows.all().prefetch_related(
-                submission.prefetch_submission_author_coauthorships(
-                    involving_profile_obj_path="contributor__profile"
-                )
+            submission.custom_prefetch_submission_author_and_fellow_coauthorships(
+                submission.fellows.all()
             )
         )
 

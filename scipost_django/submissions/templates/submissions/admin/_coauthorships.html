@@ -7,13 +7,13 @@
 
     {% for coauthorship in coauthorships %}
       <li id="coauthorship-{{ coauthorship.id }}" 
+          style="min-width: 0;"
           class="d-flex flex-row flex-grow-1 p-1 gap-2 {% if forloop.counter|divisibleby:2 %}bg-secondary bg-opacity-25{% endif %}">
 
-        <div class="d-flex flex-column flex-grow-1"
-             style="min-width: 0">
+        <div class="d-flex flex-column flex-grow-1" style="min-width: 0;">
 
           <div class="d-flex flex-row">
-            <div class="d-flex flex-column">
+            <div class="d-flex flex-column flex-grow-1" style="min-width: 0;">
               
               <div class="d-flex align-items-center">
                 <span title="{{ coauthorship.work.server_source }}"
@@ -22,7 +22,7 @@
                   {% include 'preprints/server_icons/'|add:coauthorship.work.server_source|add:'.html' %}
                 </span>
 
-                <div class="fw-bold text-truncate flex-grow-1">
+                <div class="fw-bold flex-grow-1 text-truncate">
 
                   {% if coauthorship.work.url %}
                     <a href="{{ coauthorship.work.url }}"
@@ -39,7 +39,7 @@
                 {% endif %}
               </div>
 
-              <div>
+              <div class="text-truncate">
                 between <span class="fw-bold">{{ coauthorship.profile }}</span>
                 and <span class="fw-bold">{{ coauthorship.coauthor }}</span>
               </div>
