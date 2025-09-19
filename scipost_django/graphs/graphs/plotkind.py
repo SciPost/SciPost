@@ -257,12 +257,34 @@ class MapPlot(PlotKind):
         # Draw the world map
         fig = super().get_figure(**kwargs)
         ax = fig.add_subplot(111)
-        BASE_WORLD.plot(
-            ax=ax,
-            color="#4161a4",
-            edgecolor=ax.get_facecolor(),
-            linewidth=0.25,
-        )
+
+        if country_filter := self.options.get("country_filter", None):
+            country_filter = [
+                code.strip().upper()
+                for code in country_filter.split(",")
+                if code.strip()
+            ]
+            map_country_filter = BASE_WORLD["ISO_A2_EH"].isin(country_filter)
+            BASE_WORLD[map_country_filter].plot(
+                ax=ax,
+                color="#4161a4",
+                edgecolor=ax.get_facecolor(),
+                linewidth=0.25,
+            )
+            BASE_WORLD[~map_country_filter].plot(
+                ax=ax,
+                color="#4161a4",
+                edgecolor=ax.get_facecolor(),
+                linewidth=0.25,
+                alpha=0.2,
+            )
+        else:
+            BASE_WORLD.plot(
+                ax=ax,
+                color="#4161a4",
+                edgecolor=ax.get_facecolor(),
+                linewidth=0.25,
+            )
 
         return fig
 
@@ -280,14 +302,20 @@ class MapPlot(PlotKind):
         from math import log10
 
         # Create a horizontal colorbar axis
-        cax: Axes = fig.add_axes((0.385, 0.2, 0.45, 0.02))
+        if self.options.get("country_filter", None):
+            # Full width, at bottom
+            cax = fig.add_axes((0.1, -0.1, 0.8, 0.02))
+        else:
+            # Fit inside the plot
+            cax: Axes = fig.add_axes((0.385, 0.2, 0.45, 0.02))
+
         cax.tick_params(axis="x", length=2, direction="out", which="major")
         cax.tick_params(axis="x", length=1.5, direction="out", which="minor")
         cax.grid(False)
 
         # rectangle below the colormap with a color of `dark_blue` and a white border
-        cax0 = cax.get_position()
-        cax0 = fig.add_axes([cax0.x0 - 0.02, cax0.y0, 0.02 * 7 / 15, 0.02])
+        cax_pos = cax.get_position()
+        cax0 = fig.add_axes([cax_pos.x0 - 0.02, cax_pos.y0, 0.02 * 7 / 15, 0.02])
         cax0.set_facecolor(color="#4161a4")
         cax0.set_xlim(-1 / 2, 1 / 2)
         cax0.set_xticks([0])
@@ -295,9 +323,10 @@ class MapPlot(PlotKind):
         cax0.tick_params(axis="x", length=2, direction="out", which="major")
         cax0.tick_params(axis="x", length=1.5, direction="out", which="minor")
         cax0.grid(False)
+        cax.add_child_axes(cax0)
 
         vmin, vmax = vlim
-        should_log = log10(vmax - vmin) > 2
+        should_log = (vmax - vmin > 0) and log10(vmax - vmin) > 2
         if should_log:
             norm = LogNorm(vmax=vmax)
         else:
@@ -338,21 +367,68 @@ class MapPlot(PlotKind):
             return fig
 
         df_agg = pd.DataFrame({"ISO_A2_EH": countries, "agg": agg})
+
+        if country_filter := self.options.get("country_filter", None):
+            country_filter = [
+                code.strip().upper()
+                for code in country_filter.split(",")
+                if code.strip()
+            ]
+            df_agg = df_agg[df_agg["ISO_A2_EH"].isin(country_filter)]
+
         vmin, vmax = df_agg["agg"].min(), df_agg["agg"].max()
 
         cax, norm = self.draw_colorbar(fig, (vmin, vmax))
+        if not df_agg.empty:
+            BASE_WORLD.merge(df_agg, left_on="ISO_A2_EH", right_on="ISO_A2_EH").plot(
+                ax=ax,
+                column="agg",
+                legend=True,
+                legend_kwds={"orientation": "horizontal"},
+                edgecolor=ax.get_facecolor(),
+                linewidth=0.25,
+                cax=cax,
+                norm=norm,
+                cmap=LinearSegmentedColormap.from_list("custom", OKLCH),
+            )
+        else:
+            cax.set_visible(False)
+            cax.child_axes[0].set_visible(False)
 
-        BASE_WORLD.merge(df_agg, left_on="ISO_A2_EH", right_on="ISO_A2_EH").plot(
-            ax=ax,
-            column="agg",
-            legend=True,
-            legend_kwds={"orientation": "horizontal"},
-            edgecolor=ax.get_facecolor(),
-            linewidth=0.25,
-            cax=cax,
-            norm=norm,
-            cmap=LinearSegmentedColormap.from_list("custom", OKLCH),
-        )
+        # Fit shown map to the filtered countries
+        if country_filter:
+            mx, my, Mx, My = BASE_WORLD[
+                BASE_WORLD["ISO_A2_EH"].isin(country_filter)
+            ].total_bounds  # (minx, miny, maxx, maxy)
+            plot_width, plot_height = ax.get_figure().get_size_inches()
+            plot_aspect = plot_width / plot_height
+
+            world_width = Mx - mx
+            world_height = My - my
+            world_aspect = world_width / world_height
+
+            map_extent_x = (
+                world_width
+                if world_aspect > plot_aspect
+                else (world_height * plot_aspect)
+            )
+            map_extent_y = (
+                world_height
+                if world_aspect < plot_aspect
+                else (world_width / plot_aspect)
+            )
+
+            cx = (mx + Mx) / 2
+            cy = (my + My) / 2
+            MARGIN_FACTOR = 1.05  # Add a bit of margin
+            ax.set_xlim(
+                cx - map_extent_x * MARGIN_FACTOR / 2,
+                cx + map_extent_x * MARGIN_FACTOR / 2,
+            )
+            ax.set_ylim(
+                cy - map_extent_y * MARGIN_FACTOR / 2,
+                cy + map_extent_y * MARGIN_FACTOR / 2,
+            )
 
         ax.set_title(plot_title)
         cax.set_title(color_plot_title, fontsize="small")
@@ -427,6 +503,11 @@ class MapPlot(PlotKind):
             help_text="Ignored if aggregation method is Count",
         )
         country_key = forms.ChoiceField(label="Country", required=False, choices=[])
+        country_filter = forms.CharField(
+            label="Limit to countries",
+            required=False,
+            help_text="US,CA,FR,... (ISO A2 codes)",
+        )
 
     @classmethod
     def get_plot_options_form_layout_row_content(cls):
@@ -525,7 +606,6 @@ class BarPlot(PlotKind):
         if (order_by := self.options.get("order_by")) and (
             ordering := self.options.get("ordering")
         ):
-
             match order_by:
                 case "group":
                     order_by = group_key
