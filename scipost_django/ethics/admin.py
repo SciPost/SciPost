@@ -150,7 +150,18 @@ class GenAIDisclosureInline(GenericTabularInline):
 @admin.register(Coauthorship)
 class CoauthorshipAdmin(admin.ModelAdmin[Coauthorship]):
     model = Coauthorship
-    list_display = ("profile", "coauthor", "work_title_with_url", "status")
+    exclude = (
+        "_cf_profile_idx_in_authors_str",
+        "_cf_coauthor_idx_in_authors_str",
+    )
+    list_display = (
+        "profile",
+        "coauthor",
+        "work_title_with_url",
+        "status",
+        "created",
+        "modified",
+    )
     search_fields = (
         "profile__last_name",
         "coauthor__last_name",
