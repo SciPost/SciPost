@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ...scipost.models import Contributor
+    from profiles.models import Profile
 
 
 class SubmissionQuerySet(models.QuerySet):
@@ -161,40 +162,31 @@ class SubmissionQuerySet(models.QuerySet):
     def latest(self):
         return self.exclude(status=self.model.RESUBMITTED)
 
+    @staticmethod
+    def Q_profile_possibly_in_author_list(profile: "Profile"):
+        """
+        Return Submissions for which the profile is possibly in the author list.
+        """
+        first_name_initial = initialize(profile.first_name)
+        return Q(author_list__unaccent__icontains=profile.last_name) & (
+            Q(author_list__unaccent__icontains=profile.first_name)
+            | Q(author_list__unaccent__contains=first_name_initial)
+        )
+
     def with_potential_unclaimed_author(self, contributor: "Contributor"):
         """
         Return Submissions for which the contributor could potentially be an author.
         """
-        return (
-            self.filter(
-                Q(author_list__unaccent__icontains=contributor.user.last_name)
-                & (
-                    Q(author_list__unaccent__icontains=contributor.user.first_name)
-                    | Q(
-                        author_list__unaccent__icontains=initialize(
-                            contributor.user.first_name
-                        )
-                    )
-                )
-            )
-            .exclude(authors=contributor)
+        qs = (
+            self.exclude(authors=contributor)
             .exclude(authors_claims=contributor)
             .exclude(authors_false_claims=contributor)
         )
 
-    def remove_COI(self, contributor: "Contributor"):
-        """
-        Filter on basic conflicts of interest.
+        if profile := contributor.profile:
+            qs = qs.filter(self.Q_profile_possibly_in_author_list(profile))
 
-        Prevent conflicts of interest by filtering out submissions
-        which are possibly related to user.
-        """
-        return self.exclude(authors=contributor).exclude(
-            models.Q(
-                author_list__unaccent__icontains=contributor.user.last_name
-            ),  # TODO: replace by Profiles-based checks
-            ~models.Q(authors_false_claims=contributor),
-        )
+        return qs
 
     def in_pool(self, user, latest: bool = True, historical: bool = False):
         """
@@ -246,7 +238,19 @@ class SubmissionQuerySet(models.QuerySet):
         ).exclude(
             competing_interests__related_profile=user.contributor.profile,
         )
-        return qs.remove_COI(user.contributor)
+
+        # Exclude Submissions where the contributor is a real author, claims authorship,
+        # or their name could be in the author list but also has not claimed the association is false.
+        qs = qs.exclude(
+            Q(authors_claims=user.contributor)
+            | Q(authors=user.contributor)
+            | (
+                self.Q_profile_possibly_in_author_list(user.contributor.profile)
+                & ~Q(authors_false_claims=user.contributor)
+            )
+        )
+
+        return qs
 
     def in_pool_filter_for_eic(
         self,
