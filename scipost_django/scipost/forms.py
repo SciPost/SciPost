@@ -585,7 +585,7 @@ class UpdateUserDataForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["last_name"].widget.attrs["readonly"] = True
+        self.fields["last_name"].widget.attrs["disabled"] = True
 
     def clean_last_name(self):
         """Make sure the `last_name` cannot be saved via this form."""
