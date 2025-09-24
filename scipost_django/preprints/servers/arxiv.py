@@ -62,8 +62,8 @@ class ArxivServer(BasePreprintServer):
     def find_common_works_between(
         cls, *people: Person, **kwargs: dict[str, Any]
     ) -> list["CoauthoredWork"]:
-        serialized_authors = ";".join([format_person_name(person) for person in people])
-        query = QueryFragment("au:" + serialized_authors)
+        serialized_authors = "; ".join(map(format_person_name, people))
+        query = QueryFragment("au: " + serialized_authors)
 
         if published_after := kwargs.get("published_after"):
             if isinstance(published_after, str):
