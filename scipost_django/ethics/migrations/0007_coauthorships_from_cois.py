@@ -5,9 +5,12 @@ from django.db.models import F, Q, Exists, OuterRef, Subquery
 
 
 def migrate_cois_to_coauthorships(apps, schema_editor):
-    ConflictOfInterest = apps.get_model("conflicts", "ConflictOfInterest")
-    Coauthorship = apps.get_model("ethics", "Coauthorship")
-    CoauthoredWork = apps.get_model("ethics", "CoauthoredWork")
+    try:
+        ConflictOfInterest = apps.get_model("conflicts", "ConflictOfInterest")
+        Coauthorship = apps.get_model("ethics", "Coauthorship")
+        CoauthoredWork = apps.get_model("ethics", "CoauthoredWork")
+    except LookupError:
+        return
 
     cois = ConflictOfInterest.objects.annotate(
         same_author=Q(profile__id=F("related_profile__id")),
