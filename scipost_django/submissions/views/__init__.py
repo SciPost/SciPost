@@ -479,6 +479,9 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         """Add warnings as messages to make those more explicit."""
         for error_messages in form.errors.values():
             messages.warning(self.request, *error_messages)
+
+        # If the form is invalid, we have not created a submission object
+        self.object = None
         return super().form_invalid(form)
 
     def get_success_url(self):
