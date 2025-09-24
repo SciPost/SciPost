@@ -1,19 +1,26 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from itertools import chain
 from html2text import HTML2Text
+import os
 import json
 import re
-import inspect
 
 from django.conf import settings
+from django.template import Context, Template
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
-from django.template.loader import get_template
 
 from common.utils import get_current_domain
+from common.utils.models import model_eval_attr
 
 from .exceptions import ConfigurationError
+
+from typing import Any, Iterable, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from journals.models import Journal
 
 
 class MailEngine:
@@ -22,31 +29,26 @@ class MailEngine:
     the MailLog table.
     """
 
-    _required_parameters = ["recipient_list", "subject"]
-    _possible_parameters = [
-        "recipient_list",
-        "subject",
-        "from_email",
-        "from_name",
-        "cc",
-        "bcc",
-        "html_message",
-        "message",
-    ]
-    _email_fields = ["recipient_list", "from_email", "cc", "bcc"]
+    _parameters: dict[str, type] = {
+        "recipient_list": list,
+        "subject": str,
+        "from_email": str,
+        "from_name": str,
+        "cc": list,
+        "bcc": list,
+        "html_message": str,
+        "message": str,
+    }
+    _parameters_required = ["recipient_list", "subject"]
+    _parameters_email = ["from_email", "recipient_list", "cc", "bcc"]
+
     _processed_template = False
     _mail_sent = False
 
     def __init__(
         self,
-        mail_code,
-        subject="",
-        recipient_list=None,
-        cc=None,
-        bcc=None,
-        from_email="",
-        from_name="",
-        **kwargs,
+        mail_code: str,
+        **kwargs: Any,
     ):
         """
         Start engine with specific mail_code. Any other keyword argument that is passed will
@@ -65,281 +67,348 @@ class MailEngine:
         -- from_name (str, optional): Display name for from address.
         """
 
-        self.mail_code = mail_code
-        self.extra_config = {
-            "cc": cc,
-            "bcc": bcc,
-            "subject": subject,
-            "from_name": from_name,
-            "from_email": from_email,
-            "recipient_list": recipient_list,
+        self.base_mail_code = mail_code
+
+        self.mail_config_overrides = {
+            key: option
+            for key, option in kwargs.items()
+            if key in self._parameters and option
         }
-        self.template_variables = kwargs
-        # Add the 'domain' template variable to all templates using the Sites framework:
-        self.template_variables["domain"] = get_current_domain()
+
+        # Construct template variables, append keyword arguments, default to object instance.
+        self.template_variables: dict[str, Any] = {"domain": get_current_domain()}
+        self.template_variables.update(kwargs)
+        self.template_variables.setdefault("object", self.get_object())
+
+    @property
+    def context(self) -> Context:
+        """Return the context used for rendering the template."""
+        return Context(self.template_variables)
 
     def __repr__(self):
         return '<%(cls)s code="%(code)s", validated=%(validated)s sent=%(sent)s>' % {
             "cls": self.__class__.__name__,
-            "code": self.mail_code,
+            "code": getattr(self, "mail_code", self.base_mail_code),
             "validated": hasattr(self, "mail_data"),
             "sent": self._mail_sent,
         }
 
-    def validate(self, render_template=False):
-        """Check if MailEngine is valid and ready for sending."""
-        self._read_configuration_file()
-        self._detect_and_save_object()
-        self._check_template_exists()
-        self._validate_configuration()
-        self._validate_email_fields()
-        self.render_subject()
+    def process(self, render_template: bool = False):
+        """
+        Process and save the mail config.
+        Prepares the MailEngine for sending the mail.
+        """
+        config_path, template_path = self.get_mail_template_paths(self.base_mail_code)
+        print(f"Using mail config: {config_path}, template: {template_path}")
+        config = self.load_mail_config(config_path)
+        config |= self.mail_config_overrides
+        config = self.process_email_parameters(config, self.get_object())
+        self.validate_mail_config(config)
+
         if render_template:
-            self.render_template()
+            template = self.load_mail_template(template_path)
+            message, html = self.render_template(template, self.context)  # type: ignore
+            subject = self.render_subject(config["subject"])
 
-    def render_only(self):
-        """Render template. To be used in mail backend only."""
-        if not hasattr(self, "mail_data"):
-            self.mail_data = {}
-        self._check_template_exists()
-        self.render_template()
-        return self.mail_data["message"], self.mail_data.get("html_message", "")
+            config |= {
+                "message": message,
+                "html_message": html,
+                "subject": subject,
+            }
+            self._processed_template = True
 
-    def render_template(self, html_message=None):
+        self.mail_config = config
+
+    def render_template(self, template: str | Template, context: Context | None = None):
         """
-        Render the template associated with the mail_code. If html_message is given,
-        use this as a template instead.
+        Render the message and html_message of the mail from a template and context.
+        Returns a tuple of (message, html_message).
         """
-        if html_message:
-            self.mail_data["html_message"] = html_message
-        else:
-            self.mail_data["html_message"] = self._template.render(
-                self.template_variables
-            )  # Damn slow.
+        if isinstance(template, str):
+            template = Template(template)
 
-        # Transform to non-HTML version.
-        handler = HTML2Text()
-        self.mail_data["message"] = handler.handle(self.mail_data["html_message"])
-        self._processed_template = True
+        # Render HTML and plain text version of the mail.
+        html_message = template.render(context or self.context)
+        message = HTML2Text().handle(html_message)
 
-    def render_subject(self):
+        return message, html_message
+
+    def render_subject(self, subject: str, context: Context | None = None) -> str:
         """Render the subject str of the mail as if it were a template."""
-        from django.template import Template, Context
-        if subject := self.mail_data.get("subject", ""):
-            subject = Template(subject).render(Context(self.template_variables))
-
-        self.mail_data["subject"] = subject
+        return Template(subject).render(context or self.context)
 
     def send_mail(self):
         """Send the mail."""
         if self._mail_sent:
             # Prevent double sending when using a Django form.
             return
-        elif not hasattr(self, "mail_data"):
+        elif not hasattr(self, "mail_config"):
             raise ValueError(
-                "The mail: %s could not be sent because the data didn't validate."
-                % self.mail_code
+                "The mail: %s could not be sent because there exists no mail_config."
+                % self.base_mail_code
             )
         email = EmailMultiAlternatives(
-            self.mail_data["subject"],
-            self.mail_data.get("message", ""),
+            self.mail_config["subject"],
+            self.mail_config.get("message", ""),
             "%s <%s>"
             % (
-                self.mail_data.get("from_name", "SciPost"),
-                self.mail_data.get("from_email", "noreply@%s" % get_current_domain()),
+                self.mail_config.get("from_name", "SciPost"),
+                self.mail_config.get("from_email", "noreply@%s" % get_current_domain()),
             ),
-            self.mail_data["recipient_list"],
-            cc=self.mail_data["cc"],
-            bcc=self.mail_data["bcc"],
+            self.mail_config["recipient_list"],
+            cc=self.mail_config["cc"],
+            bcc=self.mail_config["bcc"],
             reply_to=[
-                self.mail_data.get("from_email", "noreply@%s" % get_current_domain())
+                self.mail_config.get("from_email", "noreply@%s" % get_current_domain())
             ],
+            #! FIXME: Blatant abuse of the headers, needs reworking.
             headers={
                 "delayed_processing": not self._processed_template,
                 "context": self.template_variables,
-                "mail_code": self.mail_code,
+                "mail_code": self.base_mail_code,
             },
         )
 
         # Send html version if available
-        if "html_message" in self.mail_data:
-            email.attach_alternative(self.mail_data["html_message"], "text/html")
+        if "html_message" in self.mail_config:
+            email.attach_alternative(self.mail_config["html_message"], "text/html")
 
         email.send(fail_silently=False)
         self._mail_sent = True
 
-        if "object" in self.template_variables and hasattr(
-            self.template_variables["object"], "mail_sent"
-        ):
-            self.template_variables["object"].mail_sent()
+        # Call mail_sent method on the object if it exists.
+        if (object := self.get_object()) and hasattr(object, "mail_sent"):
+            object.mail_sent()
 
-    def _detect_and_save_object(self):
+    def get_mail_template_paths(self, base_mail_code: str) -> tuple[str, str]:
         """
-        Detect if less than or equal to one object exists and save it, else raise exception.
-        Stick to Django's convention of saving it as a central `object` variable.
+        Find and return the most applicable path for the config and template files,
+        depending on the provided base_mail_code and the object instance.
         """
-        object = None
-        context_object_name = None
+        possible_codes: list[str] = [base_mail_code]
+        suffixes: list[str] = []
 
-        if "object" in self.template_variables:
-            object = self.template_variables["object"]
-            context_object_name = object._meta.model_name
-        elif "instance" in self.template_variables:
-            object = self.template_variables["instance"]
-            context_object_name = object._meta.model_name
-        else:
-            for key, var in self.template_variables.items():
-                if isinstance(var, models.Model):
-                    if object:
-                        raise ValueError(
-                            "Multiple db instances are given. Please specify which object to use."
-                        )
-                    else:
-                        object = var
-        if object:
-            self.template_variables["object"] = object
+        object = self.get_object()
 
-            if (
-                context_object_name
-                and context_object_name not in self.template_variables
-            ):
-                self.template_variables[context_object_name] = object
+        # Determine journal and add journal-specific suffixes
+        journal: "Journal | None" = None
+        match str(object.__class__.__name__):
+            case "Submission":
+                journal = object.submitted_to
+            case "Journal":
+                journal = object
+            case "RefereeInvitation":
+                journal = object.submission.submitted_to
+            case _:
+                journal = getattr(object, "journal", None)
 
-    def _read_configuration_file(self):
-        """Retrieve default configuration for specific mail_code."""
-        json_location = "%s/templates/email/%s.json" % (
-            settings.BASE_DIR,
-            self.mail_code,
+        if journal:
+            suffixes.append(journal.doi_label)
+
+        for suffix in suffixes:
+            possible_codes.append(f"{base_mail_code}_{suffix}")
+
+        # Reverse the order such that the most specific code is first
+        possible_codes.reverse()
+
+        # Find and return the first existing configuration and template file
+        EMAIL_TEMPLATE_PATH = f"{settings.BASE_DIR}/templates/email"
+        config_path = next(
+            (
+                path
+                for code in possible_codes
+                if (path := f"{EMAIL_TEMPLATE_PATH}/{code}.json")
+                and os.path.exists(path)
+            )
+        )
+        template_path = next(
+            (
+                path
+                for code in possible_codes
+                if (path := f"{EMAIL_TEMPLATE_PATH}/{code}.html")
+                and os.path.exists(path)
+            )
         )
 
+        return config_path, template_path
+
+    def get_object(self) -> models.Model | None:
+        """
+        Search the template variables for a database instance named "object" or "instance",
+        or any variable that is a Django model instance.
+        Raise an error when multiple instances are found.
+        """
+        object_var = self.template_variables.get("object", None)
+        instance_var = self.template_variables.get("instance", None)
+
+        if object := object_var or instance_var:
+            return object
+
+        for variable in self.template_variables.values():
+            if isinstance(variable, models.Model):
+                if object is not None:
+                    raise ValueError(
+                        "Multiple db instances are given. "
+                        "Please specify which object to use."
+                    )
+
+                object = variable
+
+        return object
+
+    @staticmethod
+    def load_mail_config(mail_path: str) -> dict[str, Any]:
         try:
-            with open(json_location, "r") as f:
-                self.default_data = json.loads(f.read())
+            with open(mail_path, "r") as f:
+                return json.load(f)
         except OSError:
             raise ImportError(
-                "No configuration file found. Mail code: %s" % self.mail_code
+                f"Configuration file is malformed. Mail path: {mail_path}"
             )
 
-        # Check if configuration file is valid.
-        if "subject" not in self.default_data:
-            raise ConfigurationError('key "subject" is missing.')
-        if "recipient_list" not in self.default_data:
-            raise ConfigurationError('key "recipient_list" is missing.')
+    @staticmethod
+    def load_mail_template(mail_path: str) -> Template:
+        try:
+            with open(mail_path, "r") as f:
+                return Template(f.read())
+        except OSError:
+            raise ImportError(f"Template file is malformed. Mail path: {mail_path}")
 
-        # Set mail data to default data when keys are missing.
-        self.mail_data = {**self.default_data, **getattr(self, "mail_data", {})}
+    @classmethod
+    def validate_mail_config(cls, mail_config: dict[str, Any]):
+        """
+        Validate the mail configuration dictionary.
+        Specifically, this checks for:
+        - Presence of all required parameters.
+        - Absence of unknown parameters.
+        - Correct types for all parameters.
+        """
+        errors: list[str] = []
 
-        # Overwrite mail data if parameters are given.
-        for key, val in self.extra_config.items():
-            if val or key not in self.mail_data:
-                self.mail_data[key] = val
+        # Check that all required parameters are given
+        for key in cls._parameters_required:
+            if not (value := mail_config.get(key, None)):
+                errors.append(f'option "{key}"={value} may not be empty (or falsey).')
 
-    def _check_template_exists(self):
-        """Save template or raise TemplateDoesNotExist."""
-        self._template = get_template("email/%s.html" % self.mail_code)
+        for key, option in mail_config.items():
+            # Check that no unknown options are given
+            if key not in cls._parameters:
+                errors.append(f'option "{key}" is not recognized.')
 
-    def _validate_configuration(self):
-        """Check if all required data is given via either configuration or extra parameters."""
-
-        # Check data is complete
-        if not all(key in self.mail_data for key in self._required_parameters):
-            txt = "Not all required parameters are given in the configuration file or on instantiation."
-            txt += " Check required parameters: {}".format(self._required_parameters)
-            raise ConfigurationError(txt)
-
-        # Check if data is overcomplete/
-        if not all(key in self._possible_parameters for key in self.mail_data.keys()):
-            txt = "Configuration file may only contain the following parameters: {}.".format(
-                self._possible_parameters
-            )
-            raise ConfigurationError(txt)
-
-        # Check all configuration value types
-        for email_key in ["subject", "from_email", "from_name"]:
-            if email_key in self.mail_data and self.mail_data[email_key]:
-                if not isinstance(self.mail_data[email_key], str):
-                    raise ConfigurationError(
-                        '"%(key)s" argument must be a string'
-                        % {
-                            "key": email_key,
-                        }
-                    )
-        for email_key in ["recipient_list", "cc", "bcc"]:
-            if email_key in self.mail_data and self.mail_data[email_key]:
-                if not isinstance(self.mail_data[email_key], list):
-                    raise ConfigurationError(
-                        '"%(key)s" argument must be a list'
-                        % {
-                            "key": email_key,
-                        }
-                    )
-
-    def _validate_email_fields(self):
-        """Validate all email addresses in the mail config."""
-        for email_key in self._email_fields:
-            if emails := self.mail_data.get(email_key, None):
-                was_list = isinstance(emails, list)
-                emails = emails if was_list else [emails]
-
-                valid_emails: list[str | list[str]] = [
-                    valid_entry
-                    for entry in emails
-                    if (valid_entry := self._validate_email_addresses(entry))
-                ]
-
-                # Chain list of lists to a single list.
-                flattened_valid_emails = []
-                for entry in valid_emails:
-                    if isinstance(entry, list):
-                        flattened_valid_emails.extend(entry)
-                    else:
-                        flattened_valid_emails.append(entry)
-
-                # Remove duplicate recipients from email list
-                valid_emails = list(set(flattened_valid_emails))
-
-                if len(valid_emails) == 0:
-                    raise ConfigurationError(
-                        "No valid email addresses found for %s." % email_key
-                    )
-
-                self.mail_data[email_key] = (
-                    valid_emails if was_list else valid_emails[0]
+            # Check that all option types are correct
+            option_type = cls._parameters.get(key)
+            if option_type and not isinstance(option, option_type):
+                errors.append(
+                    f'option "{key}"={option} must be of type {option_type.__name__}, '
+                    f"not {type(option).__name__}."
                 )
 
-    def _validate_email_addresses(self, entry):
+        if errors:
+            raise ConfigurationError(
+                f"The mail configuration is invalid: \n{'-\n'.join(errors)}"
+            )
+
+    @classmethod
+    def process_email_parameters(
+        cls, mail_config: dict[str, Any], object: models.Model | None = None
+    ) -> dict[str, Any]:
         """
-        Return email address given raw email, email prefix or database relation given in `entry`.
+        Process email-related parameters in the mail configuration.
+        This includes converting email containers to actual email addresses.
         """
-        # Separate entry from possible filter function.
-        entry, filter_func = entry.split("|") if "|" in entry else (entry, "")
-        filter_func, args = (
-            filter_func.split(":") if ":" in filter_func else (filter_func, "email")
-        )
+        for key in cls._parameters_email:
+            option = mail_config.get(key, [])
+            addresses = cls._email_container_to_addresses(option, object)
+            mail_config[key] = list(set(addresses))  # Remove duplicates
 
-        # Email string
-        if re.match("[^@]+@[^@]+\.[^@]+", entry):
-            return entry
-        # Domain prefixed `[recipient]@`
-        elif re.match("[^@]+@$", entry):
-            return f"{entry}{get_current_domain()}"
-        # Database relation
-        elif obj := self.template_variables["object"]:
-            obj = self.template_variables["object"]
+            # Flatten non-list parameters to str
+            if cls._parameters.get(key) is str:
+                if len(mail_config[key]) == 1:
+                    mail_config[key] = mail_config[key][0]
+                else:
+                    raise ValueError(
+                        f'Expected a single email address for "{key}", '
+                        f"but got multiple/none: {mail_config[key]}"
+                    )
 
-            # Recurse through object properties to get the email address.
-            for attr in entry.split("."):
-                try:
-                    obj = getattr(obj, attr)
-                    if isinstance(obj, models.Manager):
-                        obj = list(obj.values_list(args, flat=True))
-                    elif inspect.ismethod(obj):
-                        obj = obj()
-                except AttributeError:
-                    # Allow None values
-                    if filter_func == "None":
-                        return None
-                    raise KeyError("The property (%s) does not exist." % entry)
-            return obj
+        return mail_config
 
-        raise KeyError("Neither an email address nor db instance is given.")
+    @classmethod
+    def _email_container_to_addresses(
+        cls,
+        container: str | Iterable[str],
+        object: models.Model | None,
+    ) -> list[str]:
+        """
+        Processes an "email container" into a list of email addresses.
+        An email container can be:
+        - A single email address: "<email@example.com>"
+        - A domain prefixed email address: "<recipient>@"
+        - An attribute path on the object, with optional filter functions:
+          "object.attribute|filter_func:args|filter_func2"
+        - A list of any of the above.
+        """
+        MAIL_REGEX = r"^[\w\.\-'\+]+@[\w\.\-]+\.[a-zA-Z]{2,}$"
+        DOMAIN_MAILBOX_REGEX = r"^[\w\.\-'\+]+@$"
+        ATTRIBUTE_PATH_REGEX = r"^([\w\.]+)(?:\|([^\:]+(?:\:.+))?)*$"
+
+        if not isinstance(container, str):
+            return list(
+                chain.from_iterable(
+                    cls._email_container_to_addresses(entry, object)
+                    for entry in container
+                )
+            )
+        elif re.match(MAIL_REGEX, container):
+            return [container]
+        elif re.match(DOMAIN_MAILBOX_REGEX, container):
+            return [container + get_current_domain()]
+        elif m := re.match(ATTRIBUTE_PATH_REGEX, container):
+            if object is None:
+                raise ValueError(
+                    "No object is given, so attribute paths cannot be resolved."
+                )
+
+            # Extract the attribute path and any filter functions with arguments.
+            attribute_path, *filter_strs = m.groups()
+
+            filters_and_args: list[tuple[str, tuple[str, ...]]] = []
+            for filter_str in filter_strs:
+                if not filter_str:
+                    continue
+
+                match filter_str.split(":"):
+                    case [func, args]:
+                        args = tuple(args.split(","))
+                    case [func]:
+                        args = ()
+                    case _:
+                        raise ValueError(f"Invalid filter format: {filter_str}")
+
+                filters_and_args.append((func, args))
+
+            # Attempt to retrieve the attribute from the object recursively.
+            # If it does not exist, raise an error unless a "None" filter is applied.
+            try:
+                attribute = model_eval_attr(object, attribute_path)
+            except AttributeError:
+                # Ignore the error if applying any "None" filter functions.
+                if any(f == "None" for f, _ in filters):
+                    return []
+                raise KeyError(
+                    f"The property ({attribute_path}) does not exist on {object}."
+                )
+
+            # Apply all filters sequentially, with optional arguments.
+            for filter_func, args in filters_and_args:
+                if getattr(attribute, filter_func, None):
+                    attribute = getattr(attribute, filter_func)(*args)
+
+            # Attribute can now be none, or another email container
+            if attribute is None:
+                return []
+            else:
+                return cls._email_container_to_addresses(attribute, object)
+
+        else:
+            raise KeyError(f'Unknown email container format: "{container}".')

@@ -27,10 +27,7 @@ class MailLogFilesTests(TestCase):
                 continue
             try:
                 engine = MailEngine(mail_code)
-                engine._read_configuration_file()
-                engine._detect_and_save_object()
-                engine._check_template_exists()
-                engine._validate_configuration()
+                engine.process(render_template=False)
             except Exception as e:
                 self.fail('Mail ("{}") configuration invalid:\n{}'.format(mail_code, e))
             i += 1

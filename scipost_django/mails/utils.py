@@ -11,7 +11,7 @@ class DirectMailUtil:
     def __init__(self, mail_code, delayed_processing=True, **kwargs):
         # Set the data as initials
         self.engine = MailEngine(mail_code, **kwargs)
-        self.engine.validate(render_template=not delayed_processing)
+        self.engine.process(render_template=not delayed_processing)
 
     def send_mail(self):
         return self.engine.send_mail()

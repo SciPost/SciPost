@@ -34,15 +34,17 @@ class Command(BaseCommand):
             help="The id in the `MailLog` table for a specific mail, Leave blank to send all",
         )
 
-    def _render_mail(self, mail):
+    def _render_mail(self, mail: MailLog):
         """
         Render the templates for the mail if not done yet.
         """
         engine = MailEngine(mail.mail_code, **mail.get_full_context())
-        message, html_message = engine.render_only()
+        engine.process(render_template=True)
 
-        MailLog.objects.filter(id=mail.id).update(
-            body=message, body_html=html_message, status="rendered"
+        MailLog.objects.filter(pk=mail.pk).update(
+            body=engine.mail_config.get("message", ""),
+            body_html=engine.mail_config.get("html_message", ""),
+            status="rendered",
         )
 
     def _send_mail(self, connection, mail_log: "MailLog", recipients, **kwargs):
