@@ -202,7 +202,6 @@ class MailEditorSubview:
             self.context["object"] = None
         return render(self.request, self.template_name, self.context)
 
-    @property
     def is_valid(self):
         """See if data is returned and valid."""
         if self._is_valid:
@@ -213,7 +212,7 @@ class MailEditorSubview:
 
     def send_mail(self):
         """Send email as returned by user."""
-        if not self.is_valid:
+        if not self.is_valid():
             raise ValueError(
                 "The mail: %s could not be sent because the data didn't validate."
                 % self.mail_code

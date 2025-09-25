@@ -99,7 +99,6 @@ class MailEngine:
         Prepares the MailEngine for sending the mail.
         """
         config_path, template_path = self.get_mail_template_paths(self.base_mail_code)
-        print(f"Using mail config: {config_path}, template: {template_path}")
         config = self.load_mail_config(config_path)
         config |= self.mail_config_overrides
         config = self.process_email_parameters(config, self.get_object())
