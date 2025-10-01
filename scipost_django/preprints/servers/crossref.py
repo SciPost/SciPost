@@ -156,7 +156,9 @@ class CrossrefServer(BasePreprintServer):
             HumanName(last=author.get("family", ""), first=author.get("given", ""))
             for author in data.get("author", [])
         ]
-        work.date_published = crossref_parse_date(data.get("published-online"))
+        work.date_published = crossref_parse_date(
+            data.get("published-online") or data.get("published-print")
+        )
         work.date_updated = crossref_parse_date(data.get("deposited"))
 
         return work
