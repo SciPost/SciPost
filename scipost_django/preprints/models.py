@@ -8,7 +8,9 @@ import requests
 from django.urls import reverse
 from django.db import models
 
+from SciPost_v1.settings.base import get_secret
 from common.utils import get_current_domain
+from preprints.servers.crossref import CROSSREF_USER_AGENT
 from submissions.exceptions import PreprintDocumentNotFoundError
 
 
@@ -61,7 +63,11 @@ class Preprint(models.Model):
             # return file directly since the url isn't yet publicly accessible
             return self._file.read()
         url = self.citation_pdf_url
-        response = requests.get(url)
+        headers = {"User-Agent": CROSSREF_USER_AGENT}
+        if captcha_auth := get_secret("PREPRINT_SERVER_CAPTCHA_AUTH"):
+            headers |= {"Cookie": f"captchaAuth={captcha_auth}"}
+
+        response = requests.get(url, headers=headers)
         if response.status_code != 200 or not response.headers.get("Content-Type") in [
             "application/pdf",
             "application/octet-stream",
@@ -75,7 +81,7 @@ class Preprint(models.Model):
         if self._file:  # means this is a SciPost-hosted preprint
             return self.get_absolute_url()
         elif self.is_arXiv:
-            return "%s.pdf" % self.get_absolute_url().replace("/abs/", "/pdf/")
+            return self.get_absolute_url().replace("/abs/", "/pdf/")
         # Match SocArXiv preprints
         elif m := re.match(r"https://doi.org/10.31235/osf.io/(\w*?)$", self.url):
             return "https://osf.io/%s/download" % m.group(1)
