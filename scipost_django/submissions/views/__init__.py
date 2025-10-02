@@ -2576,7 +2576,12 @@ def reformulate_eic_recommendation(request, identifier_w_vn_nr):
     form = EICRecommendationForm(
         request.POST or None, submission=submission, reformulate=True
     )
-    context = {"submission": submission, "form": form}
+    gen_ai_disclosure_form = GenAIDisclosureForm(request.POST or None)
+    context = {
+        "submission": submission,
+        "form": form,
+        "gen_ai_disclosure_form": gen_ai_disclosure_form,
+    }
     return render(
         request, "submissions/pool/recommendation_formulate_rewrite.html", context
     )
