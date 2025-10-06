@@ -400,6 +400,7 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
         "referee__first_name",
         "referee__last_name",
         "email_address",
+        "invitation_key",
     ]
     list_display = ("__str__", "accepted", "fulfilled", "cancelled")
     list_filter = (
