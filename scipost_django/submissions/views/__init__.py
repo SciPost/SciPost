@@ -650,13 +650,17 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
             mail_sender_authors.send_mail()
 
             # Email all referees (if outstanding), cancel all outstanding
-            for invitation in submission.referee_invitations.outstanding():
-                mail_util = DirectMailUtil(
-                    "referees/inform_referee_manuscript_withdrawn",
-                    invitation=invitation,
-                )
-                mail_util.send_mail()
-            submission.referee_invitations.outstanding().update(cancelled=True)
+            invitations = RefereeInvitation.objects.filter(
+                submission__thread_hash=submission.thread_hash
+            ).outstanding()
+            for invitation in invitations:
+                if invitation.date_invited is not None:
+                    mail_util = DirectMailUtil(
+                        "referees/inform_referee_manuscript_withdrawn",
+                        invitation=invitation,
+                    )
+                    mail_util.send_mail()
+            invitations.update(cancelled=True)
 
             # All done.
             submission.add_general_event(
@@ -3489,12 +3493,14 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
     )
 
     # Cancel outstanding refereeing invitations
-    for invitation in submission.referee_invitations.outstanding():
+    invitations = RefereeInvitation.objects.filter(
+        submission__thread_hash=submission.thread_hash
+    ).outstanding()
+    for invitation in invitations:
         SubmissionUtils.load({"invitation": invitation})
         if invitation.date_invited is not None:
             SubmissionUtils.send_ref_cancellation_email()
-        invitation.cancelled = True
-        invitation.save()
+    invitations.update(cancelled=True)
 
     # Update Editorial Assignment statuses.
     EditorialAssignment.objects.filter(

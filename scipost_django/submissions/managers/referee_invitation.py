@@ -29,8 +29,15 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return self.filter(accepted=False)
 
     def outstanding(self):
-        return (
-            self.filter(cancelled=False).exclude(accepted=False).exclude(fulfilled=True)
+        """Return invitations that have not reached one of the terminal states:
+        - cancelled
+        - declined
+        - fulfilled (whether accepted or not)
+        """
+        return self.exclude(
+            models.Q(cancelled=True)
+            | models.Q(accepted=False)
+            | models.Q(fulfilled=True)
         )
 
     def in_process(self):
