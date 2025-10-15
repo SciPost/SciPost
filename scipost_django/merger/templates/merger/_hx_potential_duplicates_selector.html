@@ -1,0 +1,91 @@
+<form hx-get="{% url "merger:duplicates" content_type.model %}"
+      hx-target="#potential-duplicates-selector"
+      hx-include='this'
+      hx-trigger="change, htmx:afterSwap from:#object-compare-actions delay:500ms">
+
+  <div class="row">
+    <div class="col">
+      <select class="form-select"
+              name="group"
+              id="object-merger-group-select">
+        <option value="" disabled 
+          {% if not selected_group %}selected{% endif %}
+          >Select a group</option>
+
+        {% for group, group_duplicates in potential_duplicates.items %}
+          <option value="{{ group }}" 
+            {% if group == selected_group %}selected{% endif %}
+            >{{ group }} ({{ group_duplicates|length }})</option>
+        {% endfor %}
+
+
+
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-2">
+    <div class="col-12 col-md d-flex align-items-center">
+      <label for="object-merger-object-a-select"
+             class="me-2">Merge:</label>
+      <select class="form-select"
+              name="object_a_pk"
+              id="object-merger-object-a-select">
+
+        {% for obj in selected_group_duplicates %}
+          <option value="{{ obj.pk }}" 
+            {% if obj == object_a %}selected{% endif %}
+  
+            {% if obj == object_b %}disabled{% endif %}
+            >{{ obj }} ({{ obj.pk }})</option>
+        {% endfor %}
+
+
+
+      </select>
+    </div>
+
+    <div class="col-12 col-md d-flex align-items-center">
+      <label for="object-merger-object-b-select"
+             class="me-2">Keep:</label>
+      <select class="form-select"
+              name="object_b_pk"
+              id="object-merger-object-b-select">
+
+        {% for obj in selected_group_duplicates %}
+          <option value="{{ obj.pk }}" 
+            {% if obj == object_b %}selected{% endif %}
+  
+            {% if obj == object_a %}disabled{% endif %}
+            >{{ obj }} ({{ obj.pk }})</option>
+        {% endfor %}
+
+
+
+      </select>
+    </div>
+
+  </div>
+</form>
+
+{% if object_a and object_b %}
+  {% if not non_duplicate_declaration %}
+    <div id="object-compare-actions"
+         class="d-flex flex-row justify-content-between align-items-stretch gap-3 mb-3">
+      <a class="flex-grow-1 btn btn-sm btn-secondary"
+         hx-disinherit="true"
+         href="{% url "merger:duplicates" content_type.model selected_group object_b.pk object_a.pk %}">
+        <span class="me-2">{% include "bi/arrow-clockwise.html" %}</span>
+        Swap Order
+      </a>
+    </div>
+  {% else %}
+    <div class="bg-warning bg-opacity-25 p-2 mb-2">
+      <div class="d-flex justify-content-between">
+        <span class="fw-bold">Non Duplicate Declaration by {{ non_duplicate_declaration.marked_by.profile.full_name }}</span>
+        <span>{{ non_duplicate_declaration.created|date:"Y-m-d" }}</span>
+      </div>
+      <p class="mb-0">{{ non_duplicate_declaration.description }}</p>
+    </div>
+  {% endif %}
+{% endif %}

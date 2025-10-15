@@ -169,6 +169,12 @@ class Command(BaseCommand):
             content_type=content_type,
         )
 
+        # Object Merger
+        can_compare_objects, created = Permission.objects.get_or_create(
+            codename="can_compare_objects",
+            name="Can compare objects for potential duplicates",
+            content_type=content_type,
+        )
         can_merge_profiles, created = Permission.objects.get_or_create(
             codename="can_merge_profiles",
             name="Can merge Profiles",
