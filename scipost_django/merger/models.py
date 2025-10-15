@@ -194,6 +194,7 @@ class MergeHistoryRecord(models.Model):
         Serialize an object and its related objects to a dictionary.
         """
         data = {
+            "str": str(obj),
             "object": serialize("json", [obj]),
             "related": {},
         }
