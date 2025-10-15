@@ -11,6 +11,7 @@ from django.core.serializers import serialize
 
 from typing import TYPE_CHECKING, Any, Iterable, Self, TypeVar
 
+from merger.managers import NonDuplicateMarkQuerySet
 from merger.utils import get_field_name, resolve_field_value
 
 M = TypeVar("M", bound=models.Model)
@@ -44,6 +45,8 @@ class NonDuplicateMark(models.Model):
     object_b = GenericForeignKey("content_type", "object_b_pk")
 
     created = models.DateTimeField(auto_now_add=True)
+
+    objects = NonDuplicateMarkQuerySet.as_manager()
 
     class Meta:
         constraints: list[models.BaseConstraint] = [

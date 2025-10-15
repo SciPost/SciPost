@@ -59,15 +59,13 @@ class ProfileQuerySet(QuerySet):
         """
         Returns only potential duplicate Profiles of the specified Profile.
         """
-        from profiles.models import ProfileNonDuplicates
+        from merger.models import NonDuplicateMark
 
-        profile_non_duplicates = ProfileNonDuplicates.objects.filter(
-            id__in=profile.profilenonduplicates_set.values("id")
-        ).values_list("profiles", flat=True)
-
-        qs = self.filter(
-            Q(full_name_normalized=profile.full_name_normalized)
-            & ~(Q(id__in=profile_non_duplicates) | Q(id=profile.id))
+        profile_non_duplicates = NonDuplicateMark.objects.involving(profile)
+        qs = (
+            self.all()
+            .filter(full_name_normalized=profile.full_name_normalized)
+            .exclude(id__in=profile_non_duplicates)
         )
 
         return qs
