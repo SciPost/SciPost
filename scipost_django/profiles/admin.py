@@ -6,7 +6,7 @@ from django.contrib import admin
 
 from ethics.admin import RedFlagInline
 
-from .models import Profile, ProfileEmail, ProfileNonDuplicates, Affiliation
+from .models import Profile, ProfileEmail, Affiliation
 
 
 class ProfileEmailInline(admin.TabularInline):
@@ -41,10 +41,3 @@ class ProfileAdmin(admin.ModelAdmin):
             if original_obj.orcid_id != obj.orcid_id:
                 obj.orcid_authenticated = False
         obj.save()
-
-
-@admin.register(ProfileNonDuplicates)
-class ProfileNonDuplicatesAdmin(admin.ModelAdmin):
-    autocomplete_fields = [
-        "profiles",
-    ]

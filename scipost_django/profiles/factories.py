@@ -7,7 +7,7 @@ import random
 import factory
 from common.faker import LazyRandEnum, fake
 from ontology.factories import SpecialtyFactory, TopicFactory
-from profiles.constants import AFFILIATION_CATEGORIES, PROFILE_NON_DUPLICATE_REASONS
+from profiles.constants import AFFILIATION_CATEGORIES
 from scipost.constants import TITLE_CHOICES
 
 from .models import *
@@ -49,23 +49,6 @@ class ProfileFactory(factory.django.DjangoModelFactory):
                 self.topics.add(topic)
         else:
             self.topics.add(*TopicFactory.create_batch(random.randint(1, 3)))
-
-
-class ProfileNonDuplicatesFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ProfileNonDuplicates
-
-    reason = LazyRandEnum(PROFILE_NON_DUPLICATE_REASONS)
-
-    @factory.post_generation
-    def profiles(self, create, extracted, **kwargs):
-        if not create:
-            return
-        if extracted:
-            for profile in extracted:
-                self.profiles.add(profile)
-        else:
-            self.profiles.add(*ProfileFactory.create_batch(random.randint(1, 3)))
 
 
 class ProfileEmailFactory(factory.django.DjangoModelFactory):

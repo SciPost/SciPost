@@ -11,12 +11,6 @@ class TestProfileFactory(TestCase):
         self.assertIsNotNone(profile)
 
 
-class TestProfileNonDuplicatesFactory(TestCase):
-    def test_can_create_profile_non_duplicates(self):
-        profile_non_duplicate = ProfileNonDuplicatesFactory()
-        self.assertIsNotNone(profile_non_duplicate)
-
-
 class TestProfileEmailFactory(TestCase):
     def test_can_create_profile_emails(self):
         profile_email = ProfileEmailFactory()

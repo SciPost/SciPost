@@ -5,12 +5,6 @@ __license__ = "AGPL v3"
 DIFFERENT_PEOPLE = "DifferentPeople"
 MULTIPLE_ALLOWED = "MultipleAllowed"
 
-PROFILE_NON_DUPLICATE_REASONS = (
-    (DIFFERENT_PEOPLE, "These are different people"),
-    (MULTIPLE_ALLOWED, "Multiple Profiles allowed for this person"),
-)
-
-
 AFFILIATION_CATEGORY_EMPLOYED_PROF_FULL = "employed_prof_full"
 AFFILIATION_CATEGORY_EMPLOYED_PROF_ASSOCIATE = "employed_prof_associate"
 AFFILIATION_CATEGORY_EMPLOYED_PROF_ASSISTANT = "employed_prof_assistant"

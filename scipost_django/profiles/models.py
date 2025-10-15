@@ -30,7 +30,6 @@ from submissions.models.submission import Submission
 from theses.models import ThesisLink
 
 from .constants import (
-    PROFILE_NON_DUPLICATE_REASONS,
     AFFILIATION_CATEGORIES,
     AFFILIATION_CATEGORY_UNSPECIFIED,
 )
@@ -486,34 +485,6 @@ def get_profiles(slug):
     )
     profile_id_list = [tbl.profile.id for tbl in publications.all()]
     return Profile.objects.filter(id__in=profile_id_list).distinct()
-
-
-class ProfileNonDuplicates(models.Model):
-    """
-    Sets of Profiles which are not duplicates of each other,
-    and thus can be filtered out of any dynamically generated list of potential duplicates.
-    """
-
-    profiles = models.ManyToManyField("profiles.Profile")
-    reason = models.CharField(max_length=32, choices=PROFILE_NON_DUPLICATE_REASONS)
-
-    class Meta:
-        verbose_name = "Profile non-duplicates"
-        verbose_name_plural = "Profile non-duplicates"
-
-    def __str__(self):
-        return "%s, %s (%i)" % (
-            self.profiles.first().last_name,
-            self.profiles.first().first_name,
-            self.profiles.count(),
-        )
-
-    @property
-    def full_name(self):
-        return "%s%s" % (
-            self.profiles.first().last_name,
-            self.profiles.first().first_name,
-        )
 
 
 ################
