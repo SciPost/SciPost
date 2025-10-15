@@ -8,12 +8,19 @@ from django.db.models import Count, Q
 from django.db.models.functions import Concat, Lower
 from django.utils import timezone
 
+from common.utils.models import qs_duplicates_group_by_key
+
 from .constants import (
     NORMAL_CONTRIBUTOR,
     NEWLY_REGISTERED,
     DOUBLE_ACCOUNT,
     AUTHORSHIP_CLAIM_PENDING,
 )
+
+from typing import Any, Mapping, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from profiles.models import Profile
 
 
 class ContributorQuerySet(models.QuerySet):
@@ -28,6 +35,15 @@ class ContributorQuerySet(models.QuerySet):
     def active(self):
         """Return all validated and vetted Contributors."""
         return self.filter(dbuser__is_active=True, status=NORMAL_CONTRIBUTOR)
+
+    def get_potential_duplicates(self) -> "Mapping[Any, list[Profile]]":
+        return {
+            group: list(items)
+            for group, items in qs_duplicates_group_by_key(
+                self.select_related("profile"),
+                "profile__full_name_normalized",
+            )
+        }
 
     def nonduplicates(self):
         """
