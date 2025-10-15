@@ -12,4 +12,9 @@ urlpatterns = [
         views.PotentialDuplicatesView.as_view(),
         name="duplicates",
     ),
+    re_path(
+        r"^(?P<content_type>[^/]+)/compare(?:/(?P<object_a_pk>\d+)/(?P<object_b_pk>\d+))?/?$",
+        views.HXCompareView.as_view(),
+        name="compare",
+    ),
 ]

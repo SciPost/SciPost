@@ -1,0 +1,15 @@
+{% if field_values %}
+  <ul class="list-unstyled mb-0">
+    {% for field_value in field_values %}
+      <li>
+
+        {% if field_value.get_absolute_url %}
+          <a href="{{ field_value.get_absolute_url }}">{{ field_value }}</a>
+        {% else %}
+          {{ field_value }}
+        {% endif %}
+
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

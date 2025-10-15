@@ -1,0 +1,29 @@
+{% for field, object_values in object_field_values.items %}
+  {% with object_a_values=object_values.0 object_b_values=object_values.1 %}
+
+    {% if object_a_values and object_a_values.0 or object_a_values.0 == False or object_b_values and object_b_values.0 or object_b_values.0 == False %}
+
+      <div class="mb-1">
+        <details open>
+          <summary class="list-triangle d-flex justify-content-between align-items-center bg-light {% if object_a_values == object_b_values %}bg-opacity-50{% else %}{% endif %}">
+            <span>{{ field.verbose_name|default:field.name|title }}</span>
+            {% if object_a_values != object_b_values %}
+            <span class="badge bg-warning bg-opacity-75">Different</span>
+            {% else %}
+            <span class="badge bg-primary bg-opacity-75">Identical</span>
+            {% endif %}
+          </summary>
+
+          <div class="ms-3 p-1 row">
+            {% for values_of_object in object_values %}
+            <div class="col-12 col-md">{% include "merger/_hx_field_values.html" with field_values=values_of_object %}</div>
+            {% endfor %}
+          </div>
+
+        </details>
+      </div>
+
+    {% endif %}
+
+  {% endwith %}
+{% endfor %}
