@@ -77,7 +77,7 @@
                     {% if nr_potential_duplicate_profiles > 0 %}
  
                         <li>
-                            <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> <a href="{% url 'profiles:duplicates' %}">Check for duplicate Profiles ({{ nr_potential_duplicate_profiles }} to handle)</a>
+                            <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> <a href="{% url 'merger:duplicates' 'profile' %}">Check for duplicate Profiles ({{ nr_potential_duplicate_profiles }} to handle)</a>
                         </li>
  
                     {% else %}

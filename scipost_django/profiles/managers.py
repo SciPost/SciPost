@@ -55,25 +55,6 @@ class ProfileQuerySet(QuerySet):
             for group, items in qs_duplicates_group_by_key(self, "full_name_normalized")
         }
 
-    def potential_duplicates(self):
-        """
-        Returns only potential duplicate Profiles (as identified by first and
-        last names, and separately by (case-insensitive) email).
-        """
-        # Start by treating name duplicates, excluding marked Profile non-duplicates
-        profiles = self.filter(profilenonduplicates__isnull=True)
-
-        full_name_duplicates = (
-            profiles.values("full_name_normalized")
-            .annotate(nr_count=Count("full_name_normalized"))
-            .filter(nr_count__gt=1)
-            .values("full_name_normalized")
-        )
-
-        return profiles.filter(
-            Q(full_name_normalized__in=full_name_duplicates)
-        ).order_by("full_name_normalized", "-id")
-
     def potential_duplicates_of(self, profile: "Profile"):
         """
         Returns only potential duplicate Profiles of the specified Profile.
