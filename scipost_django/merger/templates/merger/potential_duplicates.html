@@ -1,0 +1,37 @@
+{% extends 'merger/base.html' %}
+
+{% block title %}Potential {{ model_name }} Duplicates{% endblock %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">
+    <a href="{% url 'merger:duplicates' content_type.model %}">Duplicate {{ model_name_plural|title }}</a>
+  </span>
+
+  {% if object_a and object_b %}
+    <span class="breadcrumb-item">
+      <a class="active"
+         href="{% url 'merger:duplicates' content_type.model object_a.pk object_b.pk %}">Compare</a>
+    </span>
+  {% endif %}
+
+{% endblock %}
+
+
+{% block content %}
+  <div hx-indicator="#potential-duplicates-loading-indicator">
+    <div class="d-flex flex-row text-nowrap justify-content-between mb-3">
+      <h1 class='m-0'>Potential {{ model_name.title }} Duplicates</h1>
+      <div id="potential-duplicates-loading-indicator"
+           class="htmx-indicator p-2 d-flex justify-content-center align-items-center bg-primary bg-opacity-25">
+        <span class="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"></span>
+        <span>Loading</span>
+      </div>
+    </div>
+
+    <div id="potential-duplicates-selector">{% include "merger/_hx_potential_duplicates_selector.html" %}</div>
+
+  </div>
+{% endblock %}
