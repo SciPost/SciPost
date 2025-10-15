@@ -1,3 +1,4 @@
+import json
 from django.contrib import admin
 
 from merger.models import NonDuplicateMark, MergeHistoryRecord
@@ -26,7 +27,7 @@ class NonDuplicateMarkAdmin(admin.ModelAdmin):
 class MergeHistoryRecordAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "deprecated",
+        "deprecated_str",
         "kept",
         "performed_by",
         "created",
@@ -40,3 +41,15 @@ class MergeHistoryRecordAdmin(admin.ModelAdmin):
     )
     autocomplete_fields = ("performed_by",)
     readonly_fields = ("created",)
+
+    def deprecated_str(self, obj):
+        if obj.deprecated:
+            return str(obj.deprecated)
+        elif (
+            (snapshot := json.loads(obj.deprecated_snapshot))
+            and isinstance(snapshot, dict)
+            and (snapshot_str := snapshot.get("str"))
+        ):
+            return f"Deleted (was: {snapshot_str})"
+        else:
+            return f"Deleted (pk={obj.deprecated_object_pk})"
