@@ -310,7 +310,7 @@ urlpatterns = [
     ),
     path(
         "_hx_vet_registration_request_ack_form/<int:contributor_id>",
-        views._hx_vet_registration_request_ack_form, # type: ignore
+        views._hx_vet_registration_request_ack_form,  # type: ignore
         name="_hx_vet_registration_request_ack_form",
     ),
     path(
@@ -489,30 +489,6 @@ urlpatterns = [
         "vet_authorship_claim/<int:claim_id>/<int:claim>",
         views.vet_authorship_claim,
         name="vet_authorship_claim",
-    ),
-    #
-    #######################
-    # Potential duplicates
-    #######################
-    path(
-        "contributor_duplicates/<str:group_by>",
-        views.contributor_duplicates,
-        name="contributor_duplicates",
-    ),
-    path(
-        "_hx_contributor_duplicate_merger",
-        views.ContributorDuplicateListView.as_view(),
-        name="_hx_contributor_duplicate_merger",
-    ),
-    path(
-        "_hx_contributor_comparison",
-        views._hx_contributor_comparison,
-        name="_hx_contributor_comparison",
-    ),
-    path(
-        "_hx_contributor_merge/<int:to_merge>/<int:to_merge_into>",
-        views._hx_contributor_merge,
-        name="_hx_contributor_merge",
     ),
     #
     ###################
