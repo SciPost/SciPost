@@ -75,7 +75,6 @@ from .forms import (
     reg_ref_dict,
     UpdatePersonalDataForm,
     UpdateUserDataForm,
-    ContributorMergeForm,
     EmailGroupMembersForm,
     EmailParticularForm,
     SendPrecookedEmailForm,
@@ -1810,126 +1809,6 @@ def contributor_info(request, contributor_id):
         "contributor_authorreplies": contributor_authorreplies,
     }
     return render(request, "scipost/contributor_info.html", context)
-
-
-@permission_required("scipost.can_vet_registration_requests")
-def contributor_duplicates(request, group_by: str):
-    return render(
-        request, "scipost/contributor_duplicates.html", {"group_by": group_by}
-    )
-
-
-class ContributorDuplicateListView(PermissionsMixin, ListView):
-    """
-    List Contributors with potential (not yet handled) duplicates.
-    Two sources of duplicates are separately considered:
-
-    * duplicate full names (last name + first name)
-    * duplicate email addresses.
-
-    """
-
-    permission_required = "scipost.can_vet_registration_requests"
-    model = Contributor
-    template_name = "scipost/_hx_contributor_duplicate_merger.html"
-
-    def get_queryset(self):
-        queryset = Contributor.objects.all()
-        if self.request.GET.get("kind") == "names":
-            queryset = queryset.with_duplicate_names()
-        elif self.request.GET.get("kind") == "emails":
-            queryset = queryset.with_duplicate_email()
-        else:
-            queryset = queryset.with_duplicate_names()
-        return queryset
-
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context["duplicate_contributors"] = context.pop("object_list")
-
-        if len(context["duplicate_contributors"]) > 1:
-            initial = {
-                "to_merge": context["duplicate_contributors"][0].id,
-                "to_merge_into": context["duplicate_contributors"][1].id,
-            }
-            context["form"] = ContributorMergeForm(
-                initial=initial, queryset=self.get_queryset()
-            )
-        return context
-
-
-@transaction.atomic
-@permission_required_htmx(
-    "scipost.can_merge_contributors",
-    "You are not allowed to merge Contributors.",
-)
-def _hx_contributor_comparison(request):
-    """
-    Handles the merging of data from one Contributor instance to another,
-    to solve one person - multiple registrations issues.
-
-    Both instances are preserved, but the merge_from instance's
-    status is set to DOUBLE_ACCOUNT and its User is set to inactive.
-
-    If both Contributor instances were active, then the account owner
-    is emailed with information about the merge.
-    """
-
-    if request.method == "GET":
-        try:
-            context = {
-                "contributor_to_merge": get_object_or_404(
-                    Contributor, pk=int(request.GET["to_merge"])
-                ),
-                "contributor_to_merge_into": get_object_or_404(
-                    Contributor, pk=int(request.GET["to_merge_into"])
-                ),
-            }
-        except ValueError:
-            raise Http404
-
-    return render(request, "scipost/_hx_contributor_comparison.html", context)
-
-
-@transaction.atomic
-@permission_required_htmx(
-    "scipost.can_merge_contributors",
-    "You are not allowed to merge Contributors.",
-)
-def _hx_contributor_merge(request, to_merge: int, to_merge_into: int):
-    """
-    Confirms the merging of data from one Contributor instance to another,
-    to solve one person - multiple registrations issues.
-    """
-
-    post_data = {
-        **(request.POST or {}),
-        "to_merge": to_merge,
-        "to_merge_into": to_merge_into,
-    }
-
-    merge_form = ContributorMergeForm(
-        post_data,
-        queryset=Contributor.objects.filter(id__in=[to_merge, to_merge_into]),
-    )
-
-    if request.method == "POST":
-        if merge_form.is_valid():
-            contributor = merge_form.save()
-            messages.success(request, "Contributors merged successfully.")
-            return HTMXResponse(
-                f"Contributors {to_merge} and {to_merge_into} merged into {contributor.id}.",
-            )
-        elif to_merge == to_merge_into:
-            return HTMXResponse(
-                "Cannot merge a Contributor into itself.",
-                tag="danger",
-            )
-
-    return HTMXResponse(
-        "Failed to merge contributors.",
-        tag="danger",
-    )
 
 
 ####################

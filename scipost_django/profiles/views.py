@@ -297,8 +297,6 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        contributors_w_duplicate_email = Contributor.objects.with_duplicate_email()
-        contributors_w_duplicate_names = Contributor.objects.with_duplicate_names()
         contributors_wo_profile = Contributor.objects.nonduplicates().filter(
             profile__isnull=True
         )
@@ -306,6 +304,12 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
             [
                 len(profiles)
                 for profiles in Profile.objects.get_potential_duplicates().values()
+            ]
+        )
+        nr_potential_duplicate_contributors = sum(
+            [
+                len(contributors)
+                for contributors in Contributor.objects.get_potential_duplicates().values()
             ]
         )
 
@@ -324,8 +328,7 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
                     initial={"text": self.request.GET.get("text")}
                 ),
                 "academic_fields": academic_fields,
-                "nr_contributors_w_duplicate_emails": contributors_w_duplicate_email.count(),
-                "nr_contributors_w_duplicate_names": contributors_w_duplicate_names.count(),
+                "nr_potential_duplicate_contributors": nr_potential_duplicate_contributors,
                 "nr_contributors_wo_profile": contributors_wo_profile.count(),
                 "nr_potential_duplicate_profiles": nr_potential_duplicate_profiles,
                 "next_contributor_wo_profile": contributors_wo_profile.first(),

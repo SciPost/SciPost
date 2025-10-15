@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from itertools import chain
 from django.contrib.postgres.lookups import Unaccent
 from django.db import models
 from django.db.models import Count, Q
@@ -39,9 +40,17 @@ class ContributorQuerySet(models.QuerySet):
     def get_potential_duplicates(self) -> "Mapping[Any, list[Profile]]":
         return {
             group: list(items)
-            for group, items in qs_duplicates_group_by_key(
-                self.select_related("profile"),
-                "profile__full_name_normalized",
+            for group, items in chain(
+                qs_duplicates_group_by_key(
+                    self.select_related("profile"),
+                    "profile__full_name_normalized",
+                ),
+                qs_duplicates_group_by_key(
+                    self.select_related("dbuser").annotate(
+                        lower_email=Lower("dbuser__email")
+                    ),
+                    "lower_email",
+                ),
             )
         }
 
@@ -68,51 +77,6 @@ class ContributorQuerySet(models.QuerySet):
         return self.filter(dbuser__is_active=True, status=NEWLY_REGISTERED).exclude(
             status=DOUBLE_ACCOUNT
         )
-
-    def with_duplicate_names(self):
-        """
-        Returns only potential duplicate Contributors (as identified by first and
-        last names).
-        Admins and superusers are explicitly excluded.
-        """
-        contribs = (
-            self.exclude(status=DOUBLE_ACCOUNT)
-            .exclude(dbuser__is_superuser=True)
-            .exclude(dbuser__is_staff=True)
-            .exclude(profile__isnull=True)
-            .annotate(
-                full_name=Concat(
-                    Lower(Unaccent("profile__last_name")),
-                    Lower(Unaccent("profile__first_name")),
-                )
-            )
-        )
-        duplicates = (
-            contribs.values("full_name")
-            .annotate(nr_count=Count("full_name"))
-            .filter(nr_count__gt=1)
-            .values_list("full_name", flat=True)
-        )
-        return contribs.filter(full_name__in=duplicates).order_by("full_name", "-id")
-
-    def with_duplicate_email(self):
-        """
-        Return Contributors having duplicate emails.
-        """
-        qs = (
-            self.exclude(status=DOUBLE_ACCOUNT)
-            .exclude(dbuser__is_superuser=True)
-            .exclude(dbuser__is_staff=True)
-            .exclude(dbuser__email="")
-            .annotate(lower_email=Lower("dbuser__email"))
-        )
-        duplicates = (
-            qs.values("lower_email")
-            .annotate(Count("id"))
-            .filter(id__count__gt=1)
-            .values_list("lower_email", flat=True)
-        )
-        return qs.filter(lower_email__in=duplicates)
 
     def specialties_overlap(self, specialties_slug_list):
         """
