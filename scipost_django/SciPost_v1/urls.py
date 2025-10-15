@@ -111,6 +111,7 @@ urlpatterns = [
     path("theses/", include("theses.urls", namespace="theses")),
     path("thesis/", include("theses.urls", namespace="_theses")),
     path("mails/", include("mails.urls", namespace="mails")),
+    path("merger/", include("merger.urls", namespace="merger")),
     path("news/", include("news.urls", namespace="news")),
     path("ontology/", include("ontology.urls", namespace="ontology")),
     path("organizations/", include("organizations.urls", namespace="organizations")),
