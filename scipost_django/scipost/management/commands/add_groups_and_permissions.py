@@ -752,6 +752,7 @@ class Command(BaseCommand):
                 can_mark_profile_emails_primary,
                 can_mark_profile_emails_recovery,
                 can_delete_profile_emails,
+                can_compare_objects,
                 can_merge_profiles,
                 can_merge_contributors,
                 can_manage_ontology,

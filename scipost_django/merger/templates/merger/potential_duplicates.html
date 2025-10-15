@@ -33,5 +33,10 @@
 
     <div id="potential-duplicates-selector">{% include "merger/_hx_potential_duplicates_selector.html" %}</div>
 
+    <div id="object-compare"
+         hx-get="{% url 'merger:compare' content_type.model %}"
+         hx-include="#potential-duplicates-selector"
+         hx-trigger="load once, htmx:afterSwap from:#potential-duplicates-selector"></div>
+
   </div>
 {% endblock %}

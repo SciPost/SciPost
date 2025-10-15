@@ -5,12 +5,13 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import BadRequest
 from django.db.models import Model
+from django.db.models.fields.generated import GeneratedField
 from django.http import Http404, HttpRequest, HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 
 from .models import NonDuplicateMark
-from .utils import M
+from .utils import M, FieldOrRel, FieldValues, resolve_field_value
 
 from typing import Any
 
@@ -121,6 +122,44 @@ class BaseComparisonView(PermissionRequiredMixin, TemplateView):
             object_a_pk=object_a.pk,
             object_b_pk=object_b.pk,
         ).first()
+
+    def get_object_field_data(
+        self, object: Model, use_display: bool = True
+    ) -> dict[FieldOrRel, tuple[str, FieldValues]]:
+        """
+        Return a list of fields, ordered by type (fields, Any-to-1 and 1-to-Any relations).
+        """
+
+        def _sort_field_on_type(field: FieldOrRel) -> int:
+            """Sort fields by type:
+            - fields
+            - 1-to-1 and many-to-1,
+            - 1-to-many and many-to-many.
+            """
+            if field.is_relation:
+                if field.many_to_many or field.one_to_many:
+                    return 2
+                else:
+                    return 1
+            return 0
+
+        model_fields = object._meta.get_fields(
+            include_parents=True, include_hidden=False
+        )
+
+        model_fields = sorted(model_fields, key=_sort_field_on_type)
+
+        resolved_fields = {}
+        for field in model_fields:
+            # We don't care about GeneratedFields or "calculated fields" (cf_)
+            if isinstance(field, GeneratedField) or field.name.startswith("cf_"):
+                continue
+
+            resolved_fields[field] = resolve_field_value(
+                object, field, use_display=use_display
+            )
+
+        return resolved_fields
 
 
 class PotentialDuplicatesView(BaseComparisonView):
@@ -264,3 +303,51 @@ class PotentialDuplicatesView(BaseComparisonView):
         if not model:
             raise BadRequest("No model could be resolved for this content type.")
         return model
+
+
+class HXCompareView(BaseComparisonView):
+    """
+    Side-by-side comparison of two objects of the same content type.
+    """
+
+    template_name = "merger/_hx_compare.html"
+
+    def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        content_type = self.get_content_type()
+
+        try:
+            object_a, object_b = self.get_objects()
+            non_duplicate_declaration = self.get_non_duplicate_declaration(
+                object_a, object_b
+            )
+        except (BadRequest, Http404, KeyError):
+            return {"content_type": content_type}
+
+        context |= {
+            "content_type": content_type,
+            "objects": [object_a, object_b],
+            "object_a": object_a,
+            "object_b": object_b,
+            "non_duplicate_declaration": non_duplicate_declaration,
+        }
+
+        if model := content_type.model_class():
+            obj_a_field_groups = self.get_object_field_data(object_a)
+            obj_b_field_groups = self.get_object_field_data(object_b)
+
+            object_field_values = {
+                field: (object_a_val, object_b_val)
+                for (field, (_, object_a_val)), (_, (_, object_b_val)) in zip(
+                    obj_a_field_groups.items(), obj_b_field_groups.items()
+                )
+            }
+
+            context |= {
+                "model_name": model._meta.verbose_name,
+                "model_name_plural": model._meta.verbose_name_plural,
+                "object_field_values": object_field_values,
+            }
+
+        return context
