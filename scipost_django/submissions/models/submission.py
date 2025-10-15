@@ -84,7 +84,7 @@ class SubmissionAuthorProfile(models.Model):
         )
 
     def __str__(self):
-        return str(self.profile)
+        return f"Author #{self.order} ({self.profile}) of ({self.submission.preprint.identifier_w_vn_nr}) {self.submission.title[:30]}..."
 
     def save(self, *args, **kwargs):
         """Auto increment order number if not explicitly set."""
