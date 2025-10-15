@@ -138,6 +138,7 @@ INSTALLED_APPS = [
     "mailing_lists",
     "mails",
     "markup",
+    "merger",
     "news",
     "ontology",
     "organizations",
