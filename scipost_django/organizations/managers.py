@@ -3,11 +3,15 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from itertools import chain
 
+from django.contrib.postgres.lookups import Unaccent
 from django.db import models
 from django.db.models import Q, Exists, OuterRef
+from django.db.models.functions import Lower
 from django.utils import timezone
 
+from common.utils.models import qs_duplicates_group_by_key
 from finances.constants import (
     SUBSIDY_PROMISED,
     SUBSIDY_INVOICED,
@@ -15,6 +19,11 @@ from finances.constants import (
     SUBSIDY_WITHDRAWN,
 )
 from finances.models.subsidy import Subsidy
+
+from typing import Any, Mapping, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from organizations.models import Organization
 
 
 class OrganizationQuerySet(models.QuerySet):
@@ -115,6 +124,23 @@ class OrganizationQuerySet(models.QuerySet):
             .order_by(models.F("total_yearly_coverage").desc(nulls_last=True))
             .distinct()
         )
+
+    def get_potential_duplicates(self) -> "Mapping[Any, list[Organization]]":
+        """
+        Returns a mapping of potential duplicate Organization, keyed by the normalized name.
+        """
+        orgs = self.annotate(
+            name_normalized=Lower(Unaccent(models.F("name"))),
+            ror_id=models.F("ror_json__id"),
+        )
+
+        return {
+            group: list(items)
+            for group, items in chain(
+                qs_duplicates_group_by_key(orgs, "name_normalized"),
+                qs_duplicates_group_by_key(orgs, "ror_id"),
+            )
+        }
 
     def annot_has_current_subsidy(self):
         """

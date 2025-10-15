@@ -1,12 +1,25 @@
 import importlib
+from itertools import groupby
 
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
-from django.db.models import F, Q, Field, ForeignObjectRel, Model, QuerySet
+from django.db.models import (
+    F,
+    Q,
+    Count,
+    Field,
+    ForeignObjectRel,
+    Model,
+    QuerySet,
+    Subquery,
+    OuterRef,
+)
 from django.db.models.fields.related import RelatedField
 
 from typing import Any, TypeVar
 
 TQuery = TypeVar("TQuery", bound=Q | F)
+M = TypeVar("M", bound=Model)
 
 
 def get_current_domain():
@@ -136,3 +149,54 @@ def parametrize_query(query: TQuery, obj: Model) -> TQuery:
 
     # Reconstruct the query obj exactly as it was, but with the evaluated attributes
     return symbol(*parameterized_args, **kwargs)
+
+
+def qs_duplicates_group_by_key(qs: QuerySet[M], key: str) -> "groupby[str, M]":
+    """
+    Groups a queryset by a given key and returns an iterator of groups with more than one item.
+    Useful for finding potential duplicates based on a specific field.
+    """
+    from merger.models import NonDuplicateMark
+
+    def not_fully_marked(among: list[M]):
+        def item_not_fully_marked(item: M) -> bool:
+            non_duplicate_marks = getattr(item, "nr_non_duplicate_marks", 0) or 0
+            return non_duplicate_marks < len(among) - 1
+
+        return item_not_fully_marked
+
+    groups = list(
+        qs.values(key)
+        .annotate(nr_count=Count(key))
+        .filter(nr_count__gt=1)
+        .values_list(key, flat=True)
+    )
+    duplicates = (
+        qs.annotate(
+            nr_non_duplicate_marks=Subquery(
+                NonDuplicateMark.objects.filter(
+                    Q(object_a_pk=OuterRef("pk")) | Q(object_b_pk=OuterRef("pk")),
+                    content_type=ContentType.objects.get_for_model(qs.model),
+                )
+                .values("content_type")
+                .annotate(count=Count("content_type"))
+                .values("count")[:1]
+            )
+        )
+        .filter(**{key + "__in": groups})
+        .order_by(key, "-id")
+    )
+    groups = groupby(
+        duplicates, key=lambda c: model_eval_attr(c, key.replace("__", "."))
+    )
+
+    groups_not_fully_marked = (
+        # Return the same iterator structure as groupby, but filtering
+        # out items that are fully marked as non-duplicates within their group
+        (group, filtered)
+        # Groupby iterator has to be exhausted to get its length for the filter
+        for group, item_list in [(group, list(items)) for group, items in groups]
+        if (filtered := list(filter(not_fully_marked(among=item_list), item_list)))
+    )
+
+    return groups_not_fully_marked

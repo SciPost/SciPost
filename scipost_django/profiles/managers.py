@@ -21,9 +21,10 @@ from django.db.models import (
 from django.db.models.functions import Cast, Concat, Lower
 from django.utils import timezone
 
+from common.utils.models import qs_duplicates_group_by_key
 from ethics.models import CompetingInterest
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Mapping
 
 if TYPE_CHECKING:
     from profiles.models import Profile
@@ -44,6 +45,15 @@ class ProfileQuerySet(QuerySet):
         except self.model.MultipleObjectsReturned:
             pass
         return None
+
+    def get_potential_duplicates(self) -> "Mapping[Any, list[Profile]]":
+        """
+        Returns a mapping of potential duplicate Profiles, keyed by the normalized full name.
+        """
+        return {
+            group: list(items)
+            for group, items in qs_duplicates_group_by_key(self, "full_name_normalized")
+        }
 
     def potential_duplicates(self):
         """
