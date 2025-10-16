@@ -7,6 +7,11 @@ from django.utils import timezone
 
 from .constants import SUBSIDY_WITHDRAWN, SUBSIDY_TYPE_INDIVIDUAL_BUDGET
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from finances.models.pubfrac import PubFrac
+
 
 class SubsidyQuerySet(models.QuerySet):
     def obtained(self):
@@ -60,9 +65,22 @@ class SubsidyAttachmentQuerySet(models.QuerySet):
         )
 
 
-class PubFracQuerySet(models.QuerySet):
+class PubFracQuerySet(models.QuerySet["PubFrac"]):
     def uncompensated(self):
         return self.filter(compensated_by__isnull=True)
 
     def compensated(self):
         return self.exclude(compensated_by__isnull=True)
+
+    def duplicate_of(self, pubfrac: "PubFrac") -> "PubFrac | None":
+        """
+        Returns a duplicate PubFrac instance if it exists, None otherwise.
+        """
+        return (
+            self.filter(
+                organization=pubfrac.organization,
+                publication=pubfrac.publication,
+            )
+            .exclude(pk=pubfrac.pk)
+            .first()
+        )

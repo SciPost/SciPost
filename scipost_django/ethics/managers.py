@@ -83,3 +83,18 @@ class CoauthorshipQuerySet(QuerySet["Coauthorship"]):
         return self.filter(
             Q(profile__in=author_profile_ids) | Q(coauthor__in=author_profile_ids)
         )
+
+    def duplicate_of(self, coauthorship: "Coauthorship"):
+        """
+        Return a duplicate of the given Coauthorship,
+        i.e. with the same profile, coauthor and work but a different PK.
+        """
+        return (
+            self.filter(
+                profile=coauthorship.profile,
+                coauthor=coauthorship.coauthor,
+                work=coauthorship.work,
+            )
+            .exclude(pk=coauthorship.pk)
+            .first()
+        )
