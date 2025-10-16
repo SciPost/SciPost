@@ -1,0 +1,47 @@
+<tr hx-get="{% url "merger:merge_preview_field" content_type.model field.name %}"
+    hx-swap="outerHTML"
+    hx-include="#merge-header, input[name='field_{{ field.name }}_strategy']"
+    hx-vals='{"content_type": "{{ content_type.model }}"}'
+    hx-trigger="change from:input[name='field_{{ field.name }}_strategy']">
+  <th>
+    <div class="d-flex flex-column text-nowrap">
+      <input type="hidden"
+             name="field_name"
+             value="{{ field.name }}" />
+      <span>{{ field.verbose_name|default:field.name|title }}</span>
+
+      {% if not field.primary_key and changes|length > 1 %}
+        {% for strategy in field.merge_strategies %}
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="fw-normal">
+              <input type="radio" name="field_{{ field.name }}_strategy" id="field_{{ field.name }}_strategy_{{ strategy.value }}" value="{{ strategy.value }}" 
+                {% if field.selected_strategy == strategy %}checked{% endif %}/>
+              <label for="field_{{ field.name }}_strategy_{{ strategy.value }}">{{ strategy.get_display_name }}</label>
+            </span>
+            <span class="text-primary" title="{{ strategy.description }}" data-bs-toggle="tooltip">{% include "bi/question-circle-fill.html" %}</span>
+          </div>
+        {% endfor %}
+      {% else %}
+        <input type="hidden" name="field_{{ field.name }}_strategy" value="{{ field.merge_strategies.0.value }}" />
+      {% endif %}
+
+    </div>
+  </th>
+
+  <td>
+    <div class="d-flex flex-column">
+
+      {% if changes|length > 10 %}
+        <details>
+          <summary class="mb-2 list-triangle">
+            <span class="text-muted">Expand/Collapse ({{ changes|length }} items)</span>
+          </summary>
+          {% include "merger/_hx_merge_changes.html" %}
+        </details>
+      {% else %}
+        {% include "merger/_hx_merge_changes.html" %}
+      {% endif %}
+
+    </div>
+  </td>
+</tr>

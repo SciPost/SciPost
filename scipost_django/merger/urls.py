@@ -23,4 +23,14 @@ urlpatterns = [
         views.HXCompareView.as_view(),
         name="compare",
     ),
+    re_path(
+        r"^(?P<content_type>[^/]+)/merge/preview/(?P<field_name>[^/]+)(?:/(?P<object_a_pk>\d+)/(?P<object_b_pk>\d+))?/?$",
+        views.HXMergePreviewFieldView.as_view(),
+        name="merge_preview_field",
+    ),
+    re_path(
+        r"^(?P<content_type>[^/]+)/merge(?:/(?P<object_a_pk>\d+)/(?P<object_b_pk>\d+))?/?$",
+        views.HXMergeView.as_view(),
+        name="merge",
+    ),
 ]
