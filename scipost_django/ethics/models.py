@@ -457,6 +457,29 @@ class Coauthorship(models.Model):
     def authors_contained(self):
         return self.work.contains_authors(self.profile, self.coauthor)
 
+    def resolve_inconsistencies(self, commit: bool = True):
+        """
+        Re-order profile and coauthor to ensure profile_id < coauthor_id.
+        Ensure that there are no profile-coauthor-work duplicates.
+        """
+        if self.profile_id > self.coauthor_id:
+            self.profile_id, self.coauthor_id = self.coauthor_id, self.profile_id
+
+        if duplicate := Coauthorship.objects.duplicate_of(self):
+            self, to_delete = sorted((duplicate, self), key=lambda x: x.created)
+
+            if to_delete.status == Coauthorship.STATUS_VERIFIED:
+                self.status = Coauthorship.STATUS_VERIFIED
+                self.verified_by = to_delete.verified_by
+                self.competing_interest = to_delete.competing_interest
+
+            to_delete.delete()
+
+        if self and commit:
+            self.save()
+
+        return self
+
     def verify(self, verified_by: "Contributor", commit: bool = True):
         self.status = Coauthorship.STATUS_VERIFIED
         self.verified_by = verified_by
