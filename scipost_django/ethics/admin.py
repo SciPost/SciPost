@@ -79,6 +79,7 @@ class ConcerningObjectExistingFilter(admin.SimpleListFilter):
 @admin.register(RedFlag)
 class RedFlagAdmin(admin.ModelAdmin):
     model = RedFlag
+    autocomplete_fields = ("raised_by",)
     list_display = (
         "description",
         "raised_by",
