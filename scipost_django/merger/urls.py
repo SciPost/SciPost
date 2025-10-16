@@ -7,6 +7,12 @@ from . import views
 app_name = "merger"
 
 urlpatterns = [
+    # Needs to be above duplicates because "invalidate" would be treated as a group
+    re_path(
+        r"^(?P<content_type>[^/]+)/duplicates/invalidate(?:/(?P<object_a_pk>\d+)/(?P<object_b_pk>\d+))?/?$",
+        views.HXNonDuplicateMarkCreateView.as_view(),
+        name="mark_non_duplicate",
+    ),
     re_path(
         r"^(?P<content_type>[^/]+)/duplicates(?:/(?P<group>[^/]+))?(?:/(?P<object_a_pk>\d+)/(?P<object_b_pk>\d+))?/?$",
         views.PotentialDuplicatesView.as_view(),

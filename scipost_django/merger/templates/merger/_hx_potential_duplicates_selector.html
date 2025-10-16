@@ -72,6 +72,13 @@
   {% if not non_duplicate_declaration %}
     <div id="object-compare-actions"
          class="d-flex flex-row justify-content-between align-items-stretch gap-3 mb-3">
+      <button class="flex-grow-1 btn btn-sm btn-warning"
+              hx-target="closest div"
+              hx-post="{% url "merger:mark_non_duplicate" content_type.model object_a.pk object_b.pk %}"
+              hx-prompt="What is the reason/source for marking these as definitively not duplicates?">
+        <span class="me-2">{% include "bi/exclamation-triangle-fill.html" %}</span>
+        Not Duplicates
+      </button>
       <a class="flex-grow-1 btn btn-sm btn-secondary"
          hx-disinherit="true"
          href="{% url "merger:duplicates" content_type.model selected_group object_b.pk object_a.pk %}">
