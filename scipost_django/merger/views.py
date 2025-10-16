@@ -13,6 +13,8 @@ from django.views.generic import TemplateView
 from .models import NonDuplicateMark
 from .utils import M, FieldOrRel, FieldValues, resolve_field_value
 
+from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
+
 from typing import Any
 
 
@@ -351,3 +353,33 @@ class HXCompareView(BaseComparisonView):
             }
 
         return context
+
+
+class HXNonDuplicateMarkCreateView(BaseComparisonView):
+    """
+    View for creating a NonDuplicateMark object.
+    """
+
+    permission_required = "scipost.can_mark_non_duplicates"
+
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        if request.headers.get("HX-Request") != "true":
+            raise BadRequest("This view is only accessible via HTMX.")
+
+        if not request.user.has_perm("scipost.can_mark_non_duplicates"):
+            return HTMXPermissionsDenied(
+                "You do not have permission to mark non-duplicates."
+            )
+
+        NonDuplicateMark.objects.bulk_create(
+            NonDuplicateMark.from_objects(
+                *self.get_objects(),
+                marked_by=request.user.contributor,
+                description=request.headers.get("HX-Prompt"),
+            )
+        )
+
+        return HTMXResponse(
+            "Objects marked as non-duplicates.",
+            tag="success",
+        )

@@ -175,6 +175,11 @@ class Command(BaseCommand):
             name="Can compare objects for potential duplicates",
             content_type=content_type,
         )
+        can_mark_non_duplicates, created = Permission.objects.get_or_create(
+            codename="can_mark_non_duplicates",
+            name="Can mark objects as non-duplicates of each other",
+            content_type=content_type,
+        )
         can_merge_profiles, created = Permission.objects.get_or_create(
             codename="can_merge_profiles",
             name="Can merge Profiles",
@@ -753,6 +758,7 @@ class Command(BaseCommand):
                 can_mark_profile_emails_recovery,
                 can_delete_profile_emails,
                 can_compare_objects,
+                can_mark_non_duplicates,
                 can_merge_profiles,
                 can_merge_contributors,
                 can_manage_ontology,
