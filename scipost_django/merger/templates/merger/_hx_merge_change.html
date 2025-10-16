@@ -1,0 +1,17 @@
+<span class="d-flex flex-row gap-2">
+
+  <span class="text-{{ change_type.color }}"
+        title="To be {{ change_type.value }}"
+        data-bs-toggle="tooltip">{% include change_type.icon_path %}</span>
+
+  <span>
+
+    {% if value and value.get_absolute_url %}
+      <a href="{{ value.get_absolute_url }}">{{ value }}</a>
+    {% else %}
+      {{ value }}
+    {% endif %}
+
+  </span>
+
+</span>

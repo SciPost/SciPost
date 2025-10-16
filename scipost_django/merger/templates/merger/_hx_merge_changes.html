@@ -1,0 +1,17 @@
+<div class="d-flex justify-content-between align-items-center">
+  <div class="d-flex flex-column">
+
+    {% for change_type, value in changes %}
+      {% include "merger/_hx_merge_change.html" %}
+    {% endfor %}
+
+  </div>
+
+  {% comment %} If one-to-one, provide shortcut to merge {% endcomment %}
+
+  {% if field.one_to_one and changes.0.1.pk and changes.1.1.pk %}
+    <a href="{% url "merger:merge" field.name changes.0.1.pk changes.1.1.pk %}"
+       class="btn btn-sm btn-secondary">Merge</a>
+  {% endif %}
+
+</div>

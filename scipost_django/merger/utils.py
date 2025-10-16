@@ -1,3 +1,5 @@
+import enum
+
 from django.db.models import Model, Field, ForeignObjectRel
 
 from typing import Any, TypeVar
@@ -54,3 +56,43 @@ def resolve_field_value(
         field_nameval = (display_name, [get_field_value(object, field_name)])
 
     return field_nameval
+
+
+class MergeChangeType(enum.Enum):
+    UNCHANGED = "unchanged"
+    ADDED = "added"
+    REMOVED = "removed"
+    ORPHANED = "orphaned"
+    DELETED = "deleted"
+
+    @property
+    def icon(self) -> str:
+        match self:
+            case self.UNCHANGED:
+                return "circle-fill"
+            case self.ADDED:
+                return "plus-circle-fill"
+            case self.REMOVED:
+                return "dash-circle-fill"
+            case self.ORPHANED:
+                return "slash-circle-fill"
+            case self.DELETED:
+                return "exclamation-circle-fill"
+
+    @property
+    def icon_path(self) -> str:
+        return f"bi/{self.icon}.html"
+
+    @property
+    def color(self) -> str:
+        match self:
+            case self.UNCHANGED:
+                return "dark"
+            case self.ADDED:
+                return "success"
+            case self.REMOVED:
+                return "danger"
+            case self.ORPHANED:
+                return "warning"
+            case self.DELETED:
+                return "danger"
