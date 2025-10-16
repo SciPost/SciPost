@@ -1,0 +1,81 @@
+{% extends 'merger/base.html' %}
+
+{% load scipost_extras %}
+
+{% block title %}Merging {{ model_name_plural }}{% endblock %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">
+    <a href="{% url 'merger:duplicates' content_type.model %}">Duplicate {{ model_name_plural|title }}</a>
+  </span>
+  <span class="breadcrumb-item">
+    <a href="{% url 'merger:duplicates' content_type.model object_from.pk object_to.pk %}">Compare</a>
+  </span>
+  <span class="breadcrumb-item">
+    <a href="#" class="active">Merge Preview</a>
+  </span>
+{% endblock %}
+
+{% block content %}
+  <div class="row position-sticky top-0 bg-white p-2 border-bottom border-2 border-secondary"
+       style="z-index: 1">
+    <div id="merge-header"
+         class="d-flex flex-column gap-2">
+
+         <div class="d-flex flex-row justify-content-between align-items-center">
+          <h1 class="m-0 text-nowrap">Merging {{ model_name_plural.title }}</h1>
+
+
+          <button hx-post="{% url 'merger:merge' content_type.model object_from.pk object_to.pk %}"
+                  hx-include="#merge-field-options"
+                  hx-prompt="Optionally attach any details about this merge:"
+                  class="btn btn-sm btn-primary">Merge</button>
+         </div>
+
+         <div class="d-flex flex-row flex-wrap align-items-center gap-2">
+          <span class="fs-5 text-nowrap">
+            <input type="hidden"
+                  name="object_a_pk"
+                  value="{{ object_from.pk }}" />
+            <a class="text-muted"
+              href="{{ object_from.get_absolute_url }}">{{ object_from }}</a>
+          </span>
+          {% include "bi/arrow-right.html" %}
+          <span class="fs-5 text-nowrap">
+            <input type="hidden"
+                  name="object_b_pk"
+                  value="{{ object_to.pk }}" />
+            <a href="{{ object_to.get_absolute_url }}">{{ object_to }}</a>
+          </span>
+
+          <div id="merge-loading-indicator"
+              class="htmx-indicator ms-auto p-2 d-flex justify-content-center align-items-center bg-primary bg-opacity-25">
+            <span class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"></span>
+            <span>Loading</span>
+          </div>
+
+          <a href="{% url 'merger:merge' content_type.model object_to.pk object_from.pk %}"
+              class="btn btn-sm btn-secondary">Swap</a>
+
+        </div>
+
+    </div>
+  </div>
+
+  <table hx-indicator="#merge-loading-indicator"
+         hx-sync="this:replace"
+         id="merge-field-options"
+         class="table table-striped">
+
+    {% for field, object_changes in object_field_changes.items %}
+      {% with field_name=object_changes.0 changes=object_changes.1 %}
+        {% include "merger/_hx_merge_field.html" %}
+      {% endwith %}
+    {% endfor %}
+
+  </table>
+
+{% endblock %}

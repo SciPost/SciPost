@@ -85,6 +85,11 @@
         <span class="me-2">{% include "bi/arrow-clockwise.html" %}</span>
         Swap Order
       </a>
+      <a class="flex-grow-1 btn btn-sm btn-primary"
+         href="{% url "merger:merge" content_type.model object_a.pk object_b.pk %}">
+        <span class="me-2">{% include "bi/search.html" %}</span>
+        Preview Merge
+      </a>
     </div>
   {% else %}
     <div class="bg-warning bg-opacity-25 p-2 mb-2">
