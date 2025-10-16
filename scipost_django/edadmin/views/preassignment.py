@@ -76,7 +76,7 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
     author_string = submission.authors_as_list[order - 1]
-    profile = submission.author_profiles.filter(
+    author_profile = submission.author_profiles.filter(
         order=order,
         profile__isnull=False,
     ).first()
@@ -93,9 +93,9 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
         "author_first_name_guess": author_first_name_guess,
         "author_last_name_guess": author_last_name_guess,
         "order": order,
-        "profile": profile,
+        "author_profile": author_profile,
     }
-    if profile is None:
+    if author_profile is None:
         profile_dynsel_form = ProfileDynSelForm(
             initial={
                 "q": name.full_name,

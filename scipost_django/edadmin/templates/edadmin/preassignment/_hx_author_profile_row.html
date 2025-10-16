@@ -1,15 +1,15 @@
 <tr id="submission-{{ submission.pk }}-author-profile-row-{{ order }}"
-    class="{% if profile %}bg-success{% else %}bg-warning{% endif %} bg-opacity-10"
+    class="{% if author_profile %}bg-success{% else %}bg-warning{% endif %} bg-opacity-10"
 >
   <td>{{ author_string }}</td>
   <td>{{ order }}</td>
   <td>
-    {{ profile }}
+    {{ author_profile.profile }}
   </td>
   <td>
-    {% if profile %}
+    {% if author_profile %}
       <button class="ms-4 px-1 py-0 btn btn-small btn-danger text-white"
-	      hx-get="{% url 'edadmin:preassignment:_hx_author_profile_action' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr order=order profile_id=profile.pk action='unmatch' %}"
+	      hx-get="{% url 'edadmin:preassignment:_hx_author_profile_action' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr order=order profile_id=author_profile.pk action='unmatch' %}"
 	      hx-target="#submission-{{ submission.pk }}-author-profile-row-{{ order }}"
 	      hx-swap="outerHTML"
       >
