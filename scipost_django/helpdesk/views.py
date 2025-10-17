@@ -389,7 +389,7 @@ def _hx_ticket_search_form(request, filter_set: str, queue_slug=None):
         form.apply_filter_set(
             {
                 "show_email_unknown": True,
-                "show_with_CI": True,
+                "show_with_CoI": True,
                 "show_unavailable": True,
             },
             none_on_empty=True,

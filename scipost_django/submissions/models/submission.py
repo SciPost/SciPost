@@ -1153,7 +1153,7 @@ class Submission(models.Model):
         """
         fellows = (
             Fellowship.objects.active()
-            .without_competing_interests_against_submission_authors_of(self)
+            .without_conflicts_of_interest_against_submission_authors_of(self)
             .without_authorship_of_submission(self)
         )
 

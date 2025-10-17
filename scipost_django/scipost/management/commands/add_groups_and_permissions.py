@@ -576,7 +576,7 @@ class Command(BaseCommand):
             content_type=content_type,
         )
 
-        # Coauthorhips & Competing Interests
+        # Coauthorhips & Conflicts of Interest
         can_fetch_coauthorships, created = Permission.objects.get_or_create(
             codename="can_fetch_coauthorships",
             name="Can fetch coauthorships from external services",
@@ -592,10 +592,10 @@ class Command(BaseCommand):
             name="Can view coauthorships",
             content_type=content_type,
         )
-        can_promote_coauthorships_to_competing_interests, created = (
+        can_promote_coauthorships_to_conflicts_of_interest, created = (
             Permission.objects.get_or_create(
-                codename="can_promote_coauthorships_to_competing_interests",
-                name="Can promote coauthorships to competing interests",
+                codename="can_promote_coauthorships_to_conflicts_of_interest",
+                name="Can promote coauthorships to conflicts of interest",
                 content_type=content_type,
             )
         )
@@ -773,7 +773,7 @@ class Command(BaseCommand):
                 can_view_coauthorships,
                 can_fetch_coauthorships,
                 can_verify_coauthorships,
-                can_promote_coauthorships_to_competing_interests,
+                can_promote_coauthorships_to_conflicts_of_interest,
             ]
         )
 

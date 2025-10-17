@@ -1416,12 +1416,12 @@ def _hx_nomination_round_eligible_voter_action(
     fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
 
     if action == "add":
-        if round.nomination.profile.has_competing_interest_with(
+        if round.nomination.profile.has_conflict_of_interest_with(
             fellowship.contributor.profile
         ):
             messages.error(
                 request,
-                f"{fellowship} has a competing interest with the nominee and cannot be added to the voters list.",
+                f"{fellowship} has a conflict of interest with the nominee and cannot be added to the voters list.",
             )
         else:
             round.eligible_to_vote.add(fellowship)
@@ -1450,7 +1450,7 @@ def _hx_nomination_round_add_eligible_voter_set(request, round_id, voter_set_nam
         Fellowship.objects.active()
         .exclude(status=Fellowship.STATUS_GUEST)
         .filter(college=round.nomination.college)
-        .no_competing_interests_with(round.nomination.profile)
+        .no_conflicts_of_interest_with(round.nomination.profile)
     )
 
     if voter_set_name.startswith("specialty__"):

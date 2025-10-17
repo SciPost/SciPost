@@ -2,7 +2,7 @@
 
 <div class="border border-danger p-2">
   <h3>
-    Declare a competing interest
+    Declare a conflict of interest
     <a class="ms-4 px-1 py-0 btn btn-sm btn-warning text-white"
        hx-get="{% url 'ethics:_hx_submission_ethics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
        hx-target="#submission-{{ submission.pk }}-ethics"
@@ -11,9 +11,9 @@
     </a>
   </h3>
   <form class="mt-2"
-	hx-post="{% url 'ethics:_hx_submission_competing_interest_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+	hx-post="{% url 'ethics:_hx_submission_conflict_of_interest_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
 	hx-target="#search-results"
-	hx-confirm="Declare this competing interest?"
+	hx-confirm="Declare this conflict of interest?"
   >
     {% crispy form %}
   </form>

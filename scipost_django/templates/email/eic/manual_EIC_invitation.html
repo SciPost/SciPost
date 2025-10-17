@@ -15,7 +15,7 @@
 
   {% if not qualification or not readiness %}
     {% comment %} For fellows who haven't yet appraised {% endcomment %}
-    Based on your previous commitments as EIC, we believe that you might be well suited to take charge of this submission. Considering the time that has passed since the paper was initially submitted, we would like to ask you to consider supervising the submission via the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">Submissions Pool</a>. Please also indicate in the pool if you are unable to take on this task, be it due to qualifications or possible competing interests, as this will help us accelerate the process and find a suitable EIC.
+    Based on your previous commitments as EIC, we believe that you might be well suited to take charge of this submission. Considering the time that has passed since the paper was initially submitted, we would like to ask you to consider supervising the submission via the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">Submissions Pool</a>. Please also indicate in the pool if you are unable to take on this task, be it due to qualifications or possible conflicts of interest, as this will help us accelerate the process and find a suitable EIC.
   {% else %}
     {% comment %} For fellows who have appraised {% endcomment %}
     We noticed that, at the time of submission, you mentioned that

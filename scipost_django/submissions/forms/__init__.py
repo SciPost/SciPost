@@ -2089,9 +2089,9 @@ class SubmissionForm(forms.ModelForm):
             author_profile.submission = submission
         SubmissionAuthorProfile.objects.bulk_create(previous_profiles)
 
-        # Add competing interests from previous submission
-        submission.competing_interests.add(
-            *previous_submission.competing_interests.all()
+        # Add conflicts of interest from previous submission
+        submission.conflicts_of_interest.add(
+            *previous_submission.conflicts_of_interest.all()
         )
 
 
@@ -2657,10 +2657,10 @@ class InviteRefereeSearchFrom(forms.Form):
         initial=False,
         label="Hide unavailable",
     )
-    hide_with_CI = forms.BooleanField(
+    hide_with_CoI = forms.BooleanField(
         required=False,
         initial=False,
-        label="Hide those with competing interests",
+        label="Hide those with conflicts of interest",
     )
     show_email_unknown = forms.BooleanField(
         required=False,
@@ -2720,7 +2720,7 @@ class InviteRefereeSearchFrom(forms.Form):
         )
         div_block_options = Div(
             Div(Field("hide_unavailable"), css_class="col-auto"),
-            Div(Field("hide_with_CI"), css_class="col-auto"),
+            Div(Field("hide_with_CoI"), css_class="col-auto"),
             Div(Field("show_email_unknown"), css_class="col-auto"),
             css_class="row mb-0",
         )
@@ -2829,17 +2829,17 @@ class InviteRefereeSearchFrom(forms.Form):
         )
         warned_against_invitation_expression = Q(id__isnull=True)
 
-        # Filter to only those without competing interests, if the option is selected
-        if self.cleaned_data.get("hide_with_CI"):
+        # Filter to only those without conflicts of interest, if the option is selected
+        if self.cleaned_data.get("hide_with_CoI"):
             can_be_sent_invitation_expression &= ~Q(
-                has_any_competing_interest_with_submission=True
+                has_any_conflict_of_interest_with_submission=True
             )
             warned_against_invitation_expression |= Q(is_submission_author=False) & Q(
                 last_name_matches=True
             )
 
             profiles = (
-                profiles.without_competing_interests_against_submission_authors_of(
+                profiles.without_conflicts_of_interest_against_submission_authors_of(
                     self.submission,
                     purpose=CoauthorshipExclusionPurpose.REFEREEING,
                 )

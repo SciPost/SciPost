@@ -72,10 +72,10 @@ flowchart LR
     PrePass(["Preassignment<br>passed"])
     subgraph Assignment
         ScrList(["Submission listed<br>in Fellow's pool ✉<small>F</small>"])
-        ScrList --> ScrAppr(["<br>&nbsp;Fellows appraise their<br><ul><li>qualification</li><li>competing interests</li><li>readiness to take charge</li></ul>"])
+        ScrList --> ScrAppr(["<br>&nbsp;Fellows appraise their<br><ul><li>qualification</li><li>conflicts of interest</li><li>readiness to take charge</li></ul>"])
         style ScrAppr text-align:left
         ScrAppr --> ScrNotQual("Fellows not sufficiently<br>qualified")
-        ScrAppr --> ScrConf("Fellows have a<br>competing interest")
+        ScrAppr --> ScrConf("Fellows have a<br>conflict of interest")
         ScrAppr --> ScrDecl("Fellows not ready<br>to take charge")
         ScrAppr --> ScrNoAns(Fellows unresponsive)
         ScrNotQual --> NoEiC(No Editor-in-charge<br>found)

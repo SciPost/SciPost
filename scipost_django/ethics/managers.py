@@ -13,13 +13,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from submissions.models.submission import Submission
     from profiles.models import Profile
-    from .models import CompetingInterest, Coauthorship
+    from .models import ConflictOfInterest, Coauthorship
 
 
 class CoauthorshipExclusionPurpose(enum.Enum):
     """
-    Enum for varying exclusion duration due to (coauthorship) competing interests.
-    According to current by-laws (2025), coauthorships lead to competing interests
+    Enum for varying exclusion duration due to (coauthorship) conflicts of interest.
+    According to current by-laws (2025), coauthorships lead to conflicts of interest
     for 5 years when taking charge, and 3 years when refereeing.
     """
 
@@ -41,7 +41,7 @@ class CoauthorshipExclusionPurpose(enum.Enum):
         return datetime.timedelta(days=self.offset_years * 365)
 
 
-class CompetingInterestQuerySet(QuerySet["CompetingInterest"]):
+class ConflictOfInterestQuerySet(QuerySet["ConflictOfInterest"]):
     def annot_date_expiry(self, purpose: CoauthorshipExclusionPurpose):
         """
         Annotate `date_expiry` as `date_from` + `offset_years` for the given purpose,
@@ -82,7 +82,7 @@ class CompetingInterestQuerySet(QuerySet["CompetingInterest"]):
 
     def involving_profile(self, profile: "Profile"):
         """
-        Filter for CompetingInterests involving given Profile.
+        Filter for conflicts of interest involving given Profile.
         """
         return self.filter(Q(profile=profile) | Q(related_profile=profile))
 
@@ -92,7 +92,7 @@ class CompetingInterestQuerySet(QuerySet["CompetingInterest"]):
         profile_id_set_2: list[int],
     ):
         """
-        Filter for CompetingInterests between two sets of Profiles.
+        Filter for conflicts of interest between two sets of Profiles.
         """
         return self.filter(
             Q(profile__in=profile_id_set_1, related_profile__in=profile_id_set_2)

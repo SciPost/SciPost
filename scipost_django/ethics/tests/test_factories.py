@@ -3,25 +3,25 @@ __license__ = "AGPL v3"
 
 from django.test import TestCase
 from ..factories import (
-    CompetingInterestFactory,
+    ConflictofInterestFactory,
     ProfileRedFlagFactory,
     SubmissionClearanceFactory,
     SubmissionRedFlagFactory,
 )
 
 
-class TestCompetingInterestFactory(TestCase):
-    def test_can_create_competing_interests(self):
-        competing_interest = CompetingInterestFactory()
+class TestConflictofInterestFactory(TestCase):
+    def test_can_create_conflicts_of_interest(self):
+        conflict_of_interest = ConflictofInterestFactory()
 
-        self.assertIsNotNone(competing_interest)
+        self.assertIsNotNone(conflict_of_interest)
 
-    def test_competing_interest_declaration_by_either_party(self):
-        competing_interest = CompetingInterestFactory()
+    def test_conflict_of_interest_declaration_by_either_party(self):
+        conflict_of_interest = ConflictofInterestFactory()
 
         self.assertIn(
-            competing_interest.declared_by.profile,
-            [competing_interest.profile, competing_interest.related_profile],
+            conflict_of_interest.declared_by.profile,
+            [conflict_of_interest.profile, conflict_of_interest.related_profile],
         )
 
 

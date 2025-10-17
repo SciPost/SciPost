@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django import template
 
-from ..models import SubmissionClearance, CompetingInterest
+from ..models import SubmissionClearance, ConflictOfInterest
 
 register = template.Library()
 
@@ -18,12 +18,12 @@ def get_profile_clearance(clearances, profile):
 
 
 @register.simple_tag
-def get_profile_competing_interests(competing_interests, profile):
+def get_profile_conflicts_of_interest(conflicts_of_interest, profile):
     """
-    Return all CompetingInterest for this Submission, Profile parameters.
+    Return all ConflictOfInterest for this Submission, Profile parameters.
     """
     from django.db.models import Q
 
-    return competing_interests.filter(
+    return conflicts_of_interest.filter(
         Q(profile=profile) | Q(related_profile=profile),
     )

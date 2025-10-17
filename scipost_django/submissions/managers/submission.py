@@ -191,7 +191,7 @@ class SubmissionQuerySet(models.QuerySet):
     def in_pool(self, user, latest: bool = True, historical: bool = False):
         """
         Filter for Submissions (current or historical) in user's pool,
-        excluding COIs and possible authorship.
+        excluding CoIs and possible authorship.
 
         If `historical==False`: only submissions UNDER_CONSIDERATION,
         otherwise show full history.
@@ -202,7 +202,7 @@ class SubmissionQuerySet(models.QuerySet):
         For Senior Fellows, exclude INCOMING status;
         for other Fellows, also exclude PREASSIGNMENT.
         """
-        from ethics.models import CompetingInterest
+        from ethics.models import ConflictOfInterest
         from submissions.models.submission import Submission, SubmissionAuthorProfile
 
         contributor: Contributor | None = getattr(user, "contributor", None)
@@ -219,8 +219,8 @@ class SubmissionQuerySet(models.QuerySet):
                     fellowship_id__in=contributor.fellowships.active(),
                 )
             ),
-            has_nonexpired_competing_interest_with_authors=Exists(
-                CompetingInterest.objects.all()
+            has_nonexpired_conflict_of_interest_with_authors=Exists(
+                ConflictOfInterest.objects.all()
                 .annotate(
                     submission_id=models.OuterRef("id"),  # to use in subquery below
                     involves_author=models.Exists(
@@ -237,8 +237,8 @@ class SubmissionQuerySet(models.QuerySet):
             ),
         )
 
-        # remove Submissions for which a competing interest exists:
-        qs = qs.exclude(has_nonexpired_competing_interest_with_authors=True)
+        # remove Submissions for which a conflict of interest exists:
+        qs = qs.exclude(has_nonexpired_conflict_of_interest_with_authors=True)
 
         # Exclude Submissions where the contributor is a real author, claims authorship,
         # or their name could be in the author list but also has not claimed the association is false.

@@ -6,7 +6,7 @@
         <span class="text-success">
  
           {% include "bi/check-square-fill.html" %}
-          &nbsp;You are free of competing interests
+          &nbsp;You are free of conflicts of interest
         </span>
         <a class="text-danger ms-4"
            hx-get="{% url 'ethics:_hx_submission_clearance_revoke' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
@@ -19,7 +19,7 @@
 	
         <div class="col-8 d-flex flex-column justify-content-between">
           <div>
-            Do you have any competing interests?
+            Do you have any conflicts of interest?
             <ul>
               <li>No coauthorship with any author in the past 5 years</li>
               <li>No personal/hierarchical relationship with any author</li>
@@ -36,12 +36,12 @@
               <a class="btn btn-sm btn-primary text-white my-1 w-100"
                  hx-get="{% url 'ethics:_hx_submission_clearance_assert' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
                  hx-target="closest .row"
-                 hx-confirm="Are you sure that you have carefully read the by-laws (3.5), that you know what consists a competing interest, and that you don't have any with regards to this Submission?">No competing interests</a>
+                 hx-confirm="Are you sure that you have carefully read the by-laws (3.5), that you know what consists a conflict of interest, and that you don't have any with regards to this Submission?">No conflicts of interest</a>
  
               <div class="col">
                 <a class="btn btn-sm btn-secondary my-1 w-100"
-                   hx-get="{% url 'ethics:_hx_submission_competing_interest_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-                   hx-target="#submission-{{ submission.pk }}-competing-interest-form">Declare competing interest</a>
+                   hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_form' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+                   hx-target="#submission-{{ submission.pk }}-conflict-of-interest-form">Declare conflict of interest</a>
               </div>
             </div>
           </div>
@@ -53,7 +53,7 @@
   
   </div>
   
-  <div id="submission-{{ submission.pk }}-competing-interest-form"
+  <div id="submission-{{ submission.pk }}-conflict-of-interest-form"
    class="col-12"></div>
 </div>
 

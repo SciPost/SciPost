@@ -171,7 +171,7 @@
 	    <th>Currently<br>available</th>
 	    <th>Specialties</th>
 	    <th>Qualification</th>
-	    <th>Competing<br>interests</th>
+	    <th>Conflicts of<br>interest</th>
 	    <th>Readiness to take charge</th>
 	    <th>Actions</th>
 	  </tr>
@@ -195,8 +195,8 @@
 		    <span class="text-success">all clear</span>
 		    &nbsp;<em>(asserted by {{ clearance.asserted_by }})</em>
 		  {% else %}
-		    {% get_profile_competing_interests submission.competing_interests fellowship.contributor.profile as ci_qs %}
-		    {% if ci_qs %}
+		    {% get_profile_conflicts_of_interest submission.conflicts_of_interest fellowship.contributor.profile as coi_qs %}
+		    {% if coi_qs %}
 		      <table class="table table-bordered bg-danger bg-opacity-10 mb-0">
 			<thead>
 			  <tr>
@@ -207,12 +207,12 @@
 			  </tr>
 			</thead>
 			<tbody>
-			  {% for ci in ci_qs %}
+			  {% for coi in coi_qs %}
 			    <tr>
 			      <td>
-				{{ ci.related_profile }}
+				{{ coi.related_profile }}
 				<br>
-				<em>({{ ci.get_nature_display }})</em>
+				<em>({{ coi.get_nature_display }})</em>
 			      </td>
 			    </tr>
 			  {% endfor %}

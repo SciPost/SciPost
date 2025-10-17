@@ -12,10 +12,10 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
-from ethics.models import Coauthorship, SubmissionClearance, CompetingInterest
+from ethics.models import Coauthorship, SubmissionClearance, ConflictOfInterest
 from ethics.forms import (
-    SubmissionCompetingInterestForm,
-    SubmissionCompetingInterestTableRowForm,
+    SubmissionConflictOfInterestForm,
+    SubmissionConflictOfInterestTableRowForm,
 )
 
 from colleges.permissions import is_edadmin
@@ -40,14 +40,14 @@ def _hx_submission_ethics(request, identifier_w_vn_nr):
         profile=request.user.contributor.profile,
         submission=submission,
     ).first()
-    competing_interest = CompetingInterest.objects.filter(
+    conflict_of_interest = ConflictOfInterest.objects.filter(
         profile=request.user.contributor.profile,
         affected_submissions=submission,
     ).first()
     context = {
         "submission": submission,
         "clearance": clearance,
-        "competing_interest": competing_interest,
+        "conflict_of_interest": conflict_of_interest,
     }
     return render(request, "ethics/_hx_submission_ethics.html", context)
 
@@ -64,7 +64,7 @@ def _hx_submission_clearance_assert(request, identifier_w_vn_nr):
         asserted_by=request.user.contributor,
     )
     response = HttpResponse()
-    response["HX-Trigger"] = "CI-clearance-asserted"
+    response["HX-Trigger"] = "coi-clearance-asserted"
     return response
 
 
@@ -88,12 +88,12 @@ def _hx_submission_clearance_revoke(request, identifier_w_vn_nr):
 
 
 #######################
-# Competing interests #
+# Conflicts of Interest #
 #######################
 
 
 @login_required
-def _hx_submission_competing_interest_form(request, identifier_w_vn_nr):
+def _hx_submission_conflict_of_interest_form(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission.objects.in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
@@ -104,7 +104,7 @@ def _hx_submission_competing_interest_form(request, identifier_w_vn_nr):
     }
     if submission.author_profiles.count() == 1:
         initial["related_profile"] = submission.author_profiles.first().profile
-    form = SubmissionCompetingInterestForm(
+    form = SubmissionConflictOfInterestForm(
         request.POST or None,
         submission=submission,
         initial=initial,
@@ -121,26 +121,26 @@ def _hx_submission_competing_interest_form(request, identifier_w_vn_nr):
     }
     return render(
         request,
-        "ethics/_hx_submission_competing_interest_form.html",
+        "ethics/_hx_submission_conflict_of_interest_form.html",
         context,
     )
 
 
 @login_required
 @user_passes_test(is_edadmin)
-def _hx_submission_competing_interest_delete(request, identifier_w_vn_nr, pk):
+def _hx_submission_conflict_of_interest_delete(request, identifier_w_vn_nr, pk):
     submission = get_object_or_404(
         Submission,
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
-    competing_interest = get_object_or_404(CompetingInterest, pk=pk)
-    competing_interest.affected_submissions.remove(submission)
+    conflict_of_interest = get_object_or_404(ConflictOfInterest, pk=pk)
+    conflict_of_interest.affected_submissions.remove(submission)
     # submission.fellows.add(request.user.contributor.session_fellowship(request))
     if (
-        competing_interest.affected_submissions.count() == 0
-        and competing_interest.affected_publications.count() == 0
+        conflict_of_interest.affected_submissions.count() == 0
+        and conflict_of_interest.affected_publications.count() == 0
     ):
-        competing_interest.delete()
+        conflict_of_interest.delete()
     context = {
         "submission": submission,
     }
@@ -155,7 +155,7 @@ def _hx_submission_competing_interest_delete(request, identifier_w_vn_nr, pk):
 
 @login_required
 @user_passes_test(is_edadmin)
-def _hx_submission_competing_interest_create(
+def _hx_submission_conflict_of_interest_create(
     request, identifier_w_vn_nr, fellowship_id
 ):
     submission = get_object_or_404(
@@ -169,7 +169,7 @@ def _hx_submission_competing_interest_create(
     }
     if submission.author_profiles.count() == 1:
         initial["related_profile"] = submission.author_profiles.first().profile
-    form = SubmissionCompetingInterestTableRowForm(
+    form = SubmissionConflictOfInterestTableRowForm(
         request.POST or None,
         submission=submission,
         initial=initial,
@@ -193,21 +193,21 @@ def _hx_submission_competing_interest_create(
     }
     return render(
         request,
-        "ethics/_hx_submission_competing_interest_create.html",
+        "ethics/_hx_submission_conflict_of_interest_create.html",
         context,
     )
 
 
 @login_required
 @permission_required_htmx("scipost.can_verify_coauthorships")
-@permission_required_htmx("scipost.can_promote_coauthorships_to_competing_interests")
+@permission_required_htmx("scipost.can_promote_coauthorships_to_conflicts_of_interest")
 def _hx_coauthorship_verify(request, pk):
     try:
         coauthorship = Coauthorship.objects.get(pk=pk)
         coauthorship.verify(request.user.contributor)
-        competing_interest = CompetingInterest.from_coauthorship(coauthorship)
-        competing_interest.save()
-        coauthorship.competing_interest = competing_interest
+        conflict_of_interest = ConflictOfInterest.from_coauthorship(coauthorship)
+        conflict_of_interest.save()
+        coauthorship.conflict_of_interest = conflict_of_interest
         coauthorship.save()
     except Coauthorship.DoesNotExist:
         return HTMXResponse("Coauthorship not found", tag="danger")
@@ -239,13 +239,13 @@ def _hx_coauthorship_deprecate(request, pk):
 
 @login_required
 @permission_required_htmx("scipost.can_verify_coauthorships")
-@permission_required_htmx("scipost.can_promote_coauthorships_to_competing_interests")
+@permission_required_htmx("scipost.can_promote_coauthorships_to_conflicts_of_interest")
 def _hx_coauthorship_reset_status(request, pk):
     try:
         coauthorship = Coauthorship.objects.get(pk=pk)
         coauthorship.reset_status(request.user.contributor)
-        if ci := coauthorship.competing_interest:
-            ci.delete()
+        if coi := coauthorship.conflict_of_interest:
+            coi.delete()
 
     except Coauthorship.DoesNotExist:
         return HTMXResponse("Coauthorship not found", tag="danger")

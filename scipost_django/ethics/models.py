@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
 
-from ethics.managers import CoauthorshipQuerySet, CompetingInterestQuerySet
+from ethics.managers import CoauthorshipQuerySet, ConflictOfInterestQuerySet
 from preprints.servers.server import PreprintServer
 from preprints.servers.utils import (
     AUTHOR_FIRST_LAST_NAME_FORMAT,
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 class SubmissionClearance(models.Model):
     """
-    Assertion that a Profile has no competing interests with regards to a Submission.
+    Assertion that a Profile has no conflicts of interest with regards to a Submission.
     """
 
     profile = models.ForeignKey(
@@ -68,9 +68,9 @@ class SubmissionClearance(models.Model):
         return f"{self.profile} clearance for {self.submission}"
 
 
-class CompetingInterest(models.Model):
+class ConflictOfInterest(models.Model):
     """
-    Competing interest relating two Profiles, affecting Submissions and Publications.
+    Conflict of Interest relating two Profiles, affecting Submissions and Publications.
     """
 
     COAUTHOR = "coauthor"
@@ -110,31 +110,31 @@ class CompetingInterest(models.Model):
     profile = models.ForeignKey["Profile"](
         "profiles.Profile",
         on_delete=models.CASCADE,
-        related_name="competing_interests",
+        related_name="conflicts_of_interest",
     )
     related_profile = models.ForeignKey["Profile"](
         "profiles.Profile",
         on_delete=models.CASCADE,
-        related_name="related_competing_interests",
+        related_name="related_conflicts_of_interest",
     )
 
     declared_by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.CASCADE,
-        related_name="declared_competing_interests",
+        related_name="declared_conflicts_of_interest",
     )
     declared_on = models.DateTimeField(default=timezone.now)
 
-    affected_submissions = models.ManyToManyField["Submission", "CompetingInterest"](
+    affected_submissions = models.ManyToManyField["Submission", "ConflictOfInterest"](
         "submissions.Submission",
         blank=True,
-        related_name="competing_interests",
+        related_name="conflicts_of_interest",
     )
 
-    affected_publications = models.ManyToManyField["Publication", "CompetingInterest"](
+    affected_publications = models.ManyToManyField["Publication", "ConflictOfInterest"](
         "journals.Publication",
         blank=True,
-        related_name="competing_interests",
+        related_name="conflicts_of_interest",
     )
 
     comments = models.TextField(blank=True)
@@ -142,7 +142,7 @@ class CompetingInterest(models.Model):
     if TYPE_CHECKING:
         coauthorship: "Coauthorship | None"
 
-    objects = CompetingInterestQuerySet.as_manager()
+    objects = ConflictOfInterestQuerySet.as_manager()
 
     def __str__(self):
         return f"{self.profile} - {self.related_profile} ({self.get_nature_display()})"
@@ -150,9 +150,9 @@ class CompetingInterest(models.Model):
     @classmethod
     def from_coauthorship(cls, coauthorship: "Coauthorship", **kwargs: Any):
         """
-        Create a CompetingInterest instance from a Coauthorship instance.
+        Create a ConflictOfInterest instance from a Coauthorship instance.
         """
-        ci = cls(
+        coi = cls(
             nature=cls.COAUTHOR,
             date_from=coauthorship.work.date_published or timezone.now().date(),
             profile=coauthorship.profile,
@@ -160,7 +160,7 @@ class CompetingInterest(models.Model):
             declared_by=coauthorship.verified_by,
             **kwargs,
         )
-        return ci
+        return coi
 
 
 class RedFlag(models.Model):
@@ -398,8 +398,8 @@ class Coauthorship(models.Model):
         on_delete=models.CASCADE,
         related_name="coauthorships",
     )
-    competing_interest = models.OneToOneField["CompetingInterest"](
-        "ethics.CompetingInterest",
+    conflict_of_interest = models.OneToOneField["ConflictOfInterest"](
+        "ethics.ConflictOfInterest",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -471,7 +471,7 @@ class Coauthorship(models.Model):
             if to_delete.status == Coauthorship.STATUS_VERIFIED:
                 self.status = Coauthorship.STATUS_VERIFIED
                 self.verified_by = to_delete.verified_by
-                self.competing_interest = to_delete.competing_interest
+                self.conflict_of_interest = to_delete.conflict_of_interest
 
             to_delete.delete()
 

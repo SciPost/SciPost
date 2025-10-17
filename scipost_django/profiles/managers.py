@@ -23,7 +23,7 @@ from django.utils import timezone
 
 from common.utils.models import qs_duplicates_group_by_key
 from ethics.managers import CoauthorshipExclusionPurpose
-from ethics.models import CompetingInterest
+from ethics.models import ConflictOfInterest
 
 from typing import TYPE_CHECKING, Any, Mapping
 
@@ -79,42 +79,42 @@ class ProfileQuerySet(QuerySet):
         """
         return self.filter(specialties__slug__in=specialties_slug_list)
 
-    def annot_has_competing_interests_with(self, profile):
+    def annot_has_conflicts_of_interest_with(self, profile):
         """
         Annotates the queryset with a boolean indicating whether each Profile
-        has a competing interest with the specified profile.
+        has a conflict of interest with the specified profile.
         """
         return self.annotate(
-            has_competing_interest=Exists(
-                CompetingInterest.objects.filter(
+            has_conflict_of_interest=Exists(
+                ConflictOfInterest.objects.filter(
                     Q(profile=OuterRef("pk"), related_profile=profile)
                     | Q(profile=profile, related_profile=OuterRef("pk"))
                 )
             )
         )
 
-    def annot_has_competing_interests_with_any(self, profiles):
+    def annot_has_conflicts_of_interest_with_any(self, profiles):
         """
         Annotates the queryset with a boolean indicating whether each Profile
-        has a competing interest with any of the specified profiles.
+        has a conflict of interest with any of the specified profiles.
         """
         return self.annotate(
-            has_competing_interest=Exists(
-                CompetingInterest.objects.filter(
+            has_conflict_of_interest=Exists(
+                ConflictOfInterest.objects.filter(
                     Q(profile=OuterRef("pk"), related_profile__in=profiles)
                     | Q(profile__in=profiles, related_profile=OuterRef("pk"))
                 )
             )
         )
 
-    def annot_has_competing_interests_with_submission_authors(
+    def annot_has_conflicts_of_interest_with_submission_authors(
         self,
         submission,
         purpose=CoauthorshipExclusionPurpose.TAKING_CHARGE,
     ):
         """
         Annotates the queryset with a boolean indicating whether each Profile
-        has a competing interest with any of the authors of the specified submission.
+        has a conflict of interest with any of the authors of the specified submission.
         This also includes a boolean indicating whether the Profile is one of the authors.
         """
         submission_authors = submission.author_profiles.values_list(
@@ -122,8 +122,8 @@ class ProfileQuerySet(QuerySet):
         )
         return self.annotate(
             is_submission_author=Q(id__in=submission_authors),
-            has_competing_interest_with_submission_authors=Exists(
-                CompetingInterest.objects.all()
+            has_conflict_of_interest_with_submission_authors=Exists(
+                ConflictOfInterest.objects.all()
                 .annot_date_expiry(purpose)
                 .valid_on_date()
                 .filter(
@@ -138,34 +138,34 @@ class ProfileQuerySet(QuerySet):
                 )
             ),
             # The flag is an "OR" of the two flags above
-            has_any_competing_interest_with_submission=ExpressionWrapper(
+            has_any_conflict_of_interest_with_submission=ExpressionWrapper(
                 Q(is_submission_author=True)
-                | Q(has_competing_interest_with_submission_authors=True),
+                | Q(has_conflict_of_interest_with_submission_authors=True),
                 output_field=models.BooleanField(),
             ),
         )
 
-    def no_competing_interests_with(self, profile: "Profile"):
+    def no_conflicts_of_interest_with(self, profile: "Profile"):
         """
-        Returns all Profiles which have no competing interests with the specified profile.
+        Returns all Profiles which have no conflicts of interest with the specified profile.
         """
-        CI_profiles = CompetingInterest.objects.involving_profile(profile).values_list(
+        CI_profiles = ConflictOfInterest.objects.involving_profile(profile).values_list(
             "profile", "related_profile"
         )
         # Unpack the collection of id-two-tuples into two tuples of ids
-        profile_CI, related_CI = tuple(zip(*CI_profiles)) or ((), ())
+        profile_CoI, related_CoI = tuple(zip(*CI_profiles)) or ((), ())
 
-        return self.exclude(id__in=profile_CI + related_CI + (profile.id,))
+        return self.exclude(id__in=profile_CoI + related_CoI + (profile.id,))
 
-    def without_competing_interests_against_submission_authors_of(
+    def without_conflicts_of_interest_against_submission_authors_of(
         self, submission, **kwargs
     ):
         """
-        Returns all Fellowships whose profiles have no competing interests with any of the authors of the specified submission.
+        Returns all Fellowships whose profiles have no conflicts of interest with any of the authors of the specified submission.
         """
-        return self.annot_has_competing_interests_with_submission_authors(
+        return self.annot_has_conflicts_of_interest_with_submission_authors(
             submission, **kwargs
-        ).filter(has_any_competing_interest_with_submission=False)
+        ).filter(has_any_conflict_of_interest_with_submission=False)
 
     def search(self, query: str):
         """

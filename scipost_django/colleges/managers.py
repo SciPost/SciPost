@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 from django.db import models
 from django.db.models import F, Q, CharField, Value
 from django.utils import timezone
-from ethics.models import CompetingInterest
+from ethics.models import ConflictOfInterest
 from scipost.models import Contributor
 
 from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
@@ -92,37 +92,37 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
         """Return ordered queryset explicitly, since this may have big effect on performance."""
         return self.order_by("contributor__dbuser__last_name")
 
-    def no_competing_interests_with(self, profile: "Profile"):
+    def no_conflicts_of_interest_with(self, profile: "Profile"):
         """
-        Returns all Fellowships whose profiles have no competing interests with the specified profile.
+        Returns all Fellowships whose profiles have no conflicts of interest with the specified profile.
         """
         from profiles.models import Profile
 
-        clear_profiles = Profile.objects.no_competing_interests_with(profile)
+        clear_profiles = Profile.objects.no_conflicts_of_interest_with(profile)
         return self.filter(contributor__profile__pk__in=clear_profiles)
 
-    def without_competing_interests_against_submission_authors_of(
+    def without_conflicts_of_interest_against_submission_authors_of(
         self, submission: "Submission"
     ):
         """
-        Returns all Fellowships whose profiles have no competing interests with any of the authors of the specified submission.
+        Returns all Fellowships whose profiles have no conflicts of interest with any of the authors of the specified submission.
         """
         fellow_profile_ids = self.values_list("contributor__profile", flat=True)
         submission_author_profile_ids = submission.author_profiles.all().values_list(
             "profile_id", flat=True
         )
 
-        fellow_author_cis = CompetingInterest.objects.between_profile_sets(
+        fellow_author_cois = ConflictOfInterest.objects.between_profile_sets(
             fellow_profile_ids, submission_author_profile_ids
         )
 
-        CI_profiles = fellow_author_cis.values_list("profile", "related_profile")
+        CI_profiles = fellow_author_cois.values_list("profile", "related_profile")
         # Unpack the collection of id-two-tuples into two tuples of ids
-        profile_CI, related_CI = tuple(zip(*CI_profiles)) or ((), ())
+        profile_CoI, related_CoI = tuple(zip(*CI_profiles)) or ((), ())
 
         return self.exclude(
-            contributor__profile__id__in=profile_CI
-            + related_CI
+            contributor__profile__id__in=profile_CoI
+            + related_CoI
             + tuple(submission_author_profile_ids)
         )
 

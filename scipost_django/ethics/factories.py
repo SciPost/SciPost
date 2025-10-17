@@ -11,12 +11,12 @@ from common.faker import LazyAwareDate, LazyRandEnum, fake
 from scipost.factories import ContributorFactory
 from submissions.models.submission import Submission
 
-from .models import CompetingInterest, RedFlag, SubmissionClearance
+from .models import ConflictofInterest, RedFlag, SubmissionClearance
 
 
-class CompetingInterestFactory(factory.django.DjangoModelFactory):
+class ConflictofInterestFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = CompetingInterest
+        model = ConflictofInterest
         django_get_or_create = (
             "profile",
             "related_profile",
@@ -32,7 +32,7 @@ class CompetingInterestFactory(factory.django.DjangoModelFactory):
             profile=random.choice([self.profile, self.related_profile])
         )
     )
-    nature = LazyRandEnum(CompetingInterest.NATURE_CHOICES)
+    nature = LazyRandEnum(ConflictofInterest.NATURE_CHOICES)
     date_from = factory.Faker("date_time_this_decade")
     date_until = factory.LazyAttribute(
         lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")

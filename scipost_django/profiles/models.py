@@ -296,13 +296,13 @@ class Profile(AnonymizableObjectMixin, models.Model):
         """
         return ThesisLink.objects.filter(author_as_cont__profile=self)
 
-    def has_competing_interest_with(self, profile):
+    def has_conflict_of_interest_with(self, profile):
         """
-        Returns True if this Profile has a CompetingInterest with the given Profile.
+        Returns True if this Profile has a ConflictOfInterest with the given Profile.
         """
-        from ethics.models import CompetingInterest
+        from ethics.models import ConflictOfInterest
 
-        return CompetingInterest.objects.filter(
+        return ConflictOfInterest.objects.filter(
             Q(profile=self, related_profile=profile)
             | Q(related_profile=self, profile=profile)
         ).exists()

@@ -7,7 +7,7 @@ from django.db.models import Q, Avg, Count, Exists, OuterRef, Prefetch, Subquery
 from django.db.models.functions import Concat
 from django.utils import timezone
 
-from ethics.models import CompetingInterest, SubmissionClearance
+from ethics.models import ConflictOfInterest, SubmissionClearance
 from ontology.models.topic import TopicInterest
 from scipost.models import UnavailabilityPeriod
 from submissions.constants import EVENT_FOR_EDADMIN
@@ -172,18 +172,18 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
                 to_attr="submission_overlapping_topics",
             ),
             Prefetch(
-                "contributor__profile__competing_interests",
-                queryset=CompetingInterest.objects.filter(
+                "contributor__profile__conflicts_of_interest",
+                queryset=ConflictOfInterest.objects.filter(
                     affected_submissions=submission
                 ),
-                to_attr="submission_competing_interests",
+                to_attr="submission_conflicts_of_interest",
             ),
             Prefetch(
-                "contributor__profile__related_competing_interests",
-                queryset=CompetingInterest.objects.filter(
+                "contributor__profile__related_conflicts_of_interest",
+                queryset=ConflictOfInterest.objects.filter(
                     affected_submissions=submission
                 ),
-                to_attr="submission_competing_interests_related",
+                to_attr="submission_conflicts_of_interest_related",
             ),
         )
         .order_by("contributor__profile__last_name")

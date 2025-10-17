@@ -771,7 +771,7 @@ class FellowshipNominationSearchForm(forms.Form):
 
         nominations = (
             FellowshipNomination.objects.filter(
-                profile__in=Profile.objects.no_competing_interests_with(
+                profile__in=Profile.objects.no_conflicts_of_interest_with(
                     self.user.contributor.profile
                 )
             )

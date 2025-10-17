@@ -13,7 +13,7 @@ from preprints.servers.server import PreprintServer
 from .models import (
     CoauthoredWork,
     Coauthorship,
-    CompetingInterest,
+    ConflictOfInterest,
     GenAIDisclosure,
     RedFlag,
 )
@@ -29,8 +29,8 @@ class CoauthorshipInline(admin.TabularInline[Coauthorship]):
     autocomplete_fields = ("profile", "coauthor", "work", "verified_by")
 
 
-@admin.register(CompetingInterest)
-class CompetingInterestAdmin(admin.ModelAdmin):
+@admin.register(ConflictOfInterest)
+class ConflictOfInterestAdmin(admin.ModelAdmin):
     search_fields = (
         "profile__last_name",
         "related_profile__last_name",
@@ -175,7 +175,7 @@ class CoauthorshipAdmin(admin.ModelAdmin[Coauthorship]):
         "coauthor",
         "verified_by",
         "work",
-        "competing_interest",
+        "conflict_of_interest",
     )
     readonly_fields = ("created", "modified")
     list_filter = ("status",)

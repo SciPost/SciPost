@@ -58,9 +58,9 @@
         &nbsp;<em>(asserted by {{ fellowship.contributor.profile.submission_clearance.0.asserted_by }})</em>
       {% else %}
 
-        {% with submission_competing_interests=fellowship.contributor.profile.submission_competing_interests|add:fellowship.contributor.profile.submission_competing_interests_related %}
+        {% with submission_conflicts_of_interest=fellowship.contributor.profile.submission_conflicts_of_interest|add:fellowship.contributor.profile.submission_conflicts_of_interest_related %}
 
-          {% if submission_competing_interests %}
+          {% if submission_conflicts_of_interest %}
             <table class="table table-bordered bg-danger bg-opacity-10 mb-0">
               <thead>
                 <tr>
@@ -74,19 +74,19 @@
               </thead>
               <tbody>
 
-                {% for ci in submission_competing_interests %}
+                {% for coi in submission_conflicts_of_interest %}
                   <tr>
                     <td>
-                      {{ ci.related_profile }}
+                      {{ coi.related_profile }}
                       <br />
-                      <em>({{ ci.get_nature_display }})</em>
+                      <em>({{ coi.get_nature_display }})</em>
                     </td>
                     <td>
 
                       {% if "edadmin" in user_roles %}
                         <a class="btn btn-sm btn-danger px-1 py-0"
-                           hx-get="{% url 'ethics:_hx_submission_competing_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=ci.pk %}"
-                           hx-confirm="Delete this competing interest?"
+                           hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=coi.pk %}"
+                           hx-confirm="Delete this conflict of interest?"
                            hx-target="#submission-{{ submission.pk }}-fellows-details">
                           {% include "bi/trash-fill.html" %}
                         </a>
@@ -112,8 +112,8 @@
       <td>
         <div class="d-flex gap-1">
           <a class="btn btn-sm btn-danger px-1 py-0"
-             title="Declare competing interest"
-             hx-get="{% url 'ethics:_hx_submission_competing_interest_create' submission.preprint.identifier_w_vn_nr fellowship.id %}"
+             title="Declare conflict of interest"
+             hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_create' submission.preprint.identifier_w_vn_nr fellowship.id %}"
              hx-target="closest tr">{% include "bi/plus-square-fill.html" %}</a>
           <a class="btn btn-sm btn-danger px-1 py-0"
              hx-get="{% url 'colleges:_hx_submission_remove_fellowship' submission.preprint.identifier_w_vn_nr fellowship.id %}"

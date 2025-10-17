@@ -68,8 +68,8 @@
       <div class="text-danger">This person does not accept refereeing requests</div>
     {% endif %}
 
-    {% if profile.has_submission_competing_interests %}
-      <div class="text-danger">This person has a competing interest with the submission</div>
+    {% if profile.has_submission_conflicts_of_interest %}
+      <div class="text-danger">This person has a conflict of interest with the submission</div>
     {% endif %}
 
     {% if profile.is_submission_author %}

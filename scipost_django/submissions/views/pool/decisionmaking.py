@@ -69,7 +69,7 @@ def _hx_recommendation_grant_voting_right(
         recommendation.eligible_to_vote.add(contributor_id)
     elif spec_slug:
         conflicted_fellows_ids = [
-            ci.fellowship.id for ci in submission.competing_interests.all()
+            coi.fellowship.id for coi in submission.conflicts_of_interest.all()
         ]
         voting_fellows_to_add = (
             submission.fellows.active()
@@ -77,7 +77,7 @@ def _hx_recommendation_grant_voting_right(
                 contributor__profile__specialties__slug=spec_slug,
             )
             .exclude(
-                contributor__profile__competing_interests__affected_submissions=submission,
+                contributor__profile__conflicts_of_interest__affected_submissions=submission,
             )
             .exclude(
                 contributor__id__in=[

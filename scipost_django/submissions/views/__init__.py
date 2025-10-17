@@ -909,9 +909,9 @@ def submission_detail(request, identifier_w_vn_nr):
             context["can_read_editorial_information"] = False
         else:
             # User may read eg. Editorial Recommendations if they are in the Fellowship
-            # and they have no competing interests against the authors of the Submission.
+            # and they have no conflicts of interest against the authors of the Submission.
             context["can_read_editorial_information"] = (
-                submission.fellows.without_competing_interests_against_submission_authors_of(
+                submission.fellows.without_conflicts_of_interest_against_submission_authors_of(
                     submission
                 )
                 .filter(contributor__dbuser=request.user)
@@ -1443,7 +1443,7 @@ def _hx_select_referee_search_form(request, identifier_w_vn_nr, filter_set: str)
         form.apply_filter_set(
             {
                 "show_email_unknown": True,
-                "show_with_CI": True,
+                "show_with_CoI": True,
                 "show_unavailable": True,
             },
             none_on_empty=True,
@@ -1642,15 +1642,15 @@ def invite_referee(
             )
         )
 
-    # Guard against profiles with competing interests
+    # Guard against profiles with conflicts of interest
     if not (
         Profile.objects.filter(pk=profile.pk)
-        .without_competing_interests_against_submission_authors_of(submission)
+        .without_conflicts_of_interest_against_submission_authors_of(submission)
         .exists()
     ):
         messages.error(
             request,
-            "This Profile has a competing interest with the authors of the Submission.",
+            "This Profile has a conflict of interest with the authors of the Submission.",
         )
         return redirect(
             reverse(
@@ -1782,14 +1782,14 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
             tag="danger",
         )
 
-    # Guard against profiles with competing interests
+    # Guard against profiles with conflicts of interest
     if not (
         Profile.objects.filter(pk=profile.pk)
-        .without_competing_interests_against_submission_authors_of(submission)
+        .without_conflicts_of_interest_against_submission_authors_of(submission)
         .exists()
     ):
         return HTMXResponse(
-            "This Profile has a competing interest with the authors of the Submission.",
+            "This Profile has a conflict of interest with the authors of the Submission.",
             tag="danger",
         )
 

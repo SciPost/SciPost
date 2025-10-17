@@ -9,14 +9,14 @@ from crispy_forms.layout import Layout, Div, Field, HTML, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from django.utils.html import format_html
 
-from .models import CompetingInterest, GenAIDisclosure
+from .models import ConflictOfInterest, GenAIDisclosure
 
 from profiles.models import Profile
 
 
-class SubmissionCompetingInterestForm(forms.ModelForm):
+class SubmissionConflictOfInterestForm(forms.ModelForm):
     class Meta:
-        model = CompetingInterest
+        model = ConflictOfInterest
         fields = [
             "profile",
             "related_profile",
@@ -86,7 +86,7 @@ class SubmissionCompetingInterestForm(forms.ModelForm):
         )
 
 
-class SubmissionCompetingInterestTableRowForm(SubmissionCompetingInterestForm):
+class SubmissionConflictOfInterestTableRowForm(SubmissionConflictOfInterestForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

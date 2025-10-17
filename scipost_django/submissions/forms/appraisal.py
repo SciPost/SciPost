@@ -31,9 +31,9 @@ class QualificationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.fields["expertise_level"].label = (
-            "Your expertise level for this Submission"
-        )
+        self.fields[
+            "expertise_level"
+        ].label = "Your expertise level for this Submission"
         self.helper.layout = Layout(
             Field("submission"),
             Field("fellow"),
@@ -196,7 +196,8 @@ class RadioAppraisalForm(forms.Form):
                 self.add_error("expertise_level", f"{reason} to {action}.")
             if not self.has_clearance:  # If the fellow has no clearance
                 self.add_error(
-                    "readiness", f"You must declare no competing interests to {action}."
+                    "readiness",
+                    f"You must declare no conflicts of interest to {action}.",
                 )
 
     def save(self):
@@ -234,7 +235,7 @@ class RadioAppraisalForm(forms.Form):
     @property
     def has_clearance(self):
         """
-        Returns True if the fellow has clearance (no Competing Interest) with the submission.
+        Returns True if the fellow has clearance (no Conflict of Interest) with the submission.
         """
         return SubmissionClearance.objects.filter(
             profile=self.fellow.contributor.profile,
@@ -288,9 +289,9 @@ class ConditionalAssignmentOfferInlineForm(forms.ModelForm):
         self.initial["offered_by"] = self.offered_by
 
         self.fields["condition_type"].label = "Condition for assignment"
-        self.fields["condition_type"].choices = (
-            ConditionalAssignmentOffer.CONDITION_CHOICES
-        )
+        self.fields[
+            "condition_type"
+        ].choices = ConditionalAssignmentOffer.CONDITION_CHOICES
 
         # If the form is readonly, disable all fields
         for field in self.fields:
@@ -333,7 +334,7 @@ class ConditionalAssignmentOfferInlineForm(forms.ModelForm):
         if not has_clearance:
             self.add_error(
                 None,
-                "You must first declare no competing interests with this submission.",
+                "You must first declare no conflicts of interest with this submission.",
             )
 
         return super().clean()

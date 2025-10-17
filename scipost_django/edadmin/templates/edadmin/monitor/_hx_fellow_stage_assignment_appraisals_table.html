@@ -6,7 +6,7 @@
     <tr>
       <th>Submission<br>&nbsp;</th>
       <th>Qualification<br>&nbsp;</th>
-      <th>Competing<br>interests</th>
+      <th>Conflicts of<br>interest</th>
       <th>Readiness<br>to&nbsp;take&nbsp;charge</th>
     </tr>
   </thead>
@@ -30,9 +30,9 @@
 	  {% if clearance %}
 	    <span class="text-success">all clear</span>
 	  {% else %}
-	    {% get_profile_competing_interests submission.competing_interests fellowship.contributor.profile as ci_qs %}
+	    {% get_profile_conflicts_of_interest submission.conflicts_of_interest fellowship.contributor.profile as ci_qs %}
 	    {% if ci_qs %}
-	      <span class="text-danger">has competing interest</span
+	      <span class="text-danger">has conflict of interest</span>
 	    {% else %}
 	      <em class="text-danger">unknown</em>
 	    {% endif %}
