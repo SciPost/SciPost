@@ -730,7 +730,7 @@ class Submission(models.Model):
     def preassignment_tasks_done(self):
         return self.enough_author_profiles_matched
 
-    @property
+    @cached_property
     def recommendation(self):
         return self.eicrecommendations.active().first()
 

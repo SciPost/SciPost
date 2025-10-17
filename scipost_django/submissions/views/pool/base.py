@@ -74,6 +74,12 @@ def pool_hx_submission_list(request):
         submissions = form.search_results(request.user)
     else:
         submissions = Submission.objects.in_pool(request.user)[:16]
+
+    submissions = (
+        submissions.all()
+        .select_related("preprint", "editor_in_charge")
+        .prefetch_related("red_flags", "specialties")
+    )
     paginator = Paginator(submissions, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
