@@ -190,7 +190,8 @@ class SubmissionQuerySet(models.QuerySet):
 
     def in_pool(self, user, latest: bool = True, historical: bool = False):
         """
-        Filter for Submissions (current or historical) in user's pool.
+        Filter for Submissions (current or historical) in user's pool,
+        excluding COIs and possible authorship.
 
         If `historical==False`: only submissions UNDER_CONSIDERATION,
         otherwise show full history.
@@ -200,16 +201,56 @@ class SubmissionQuerySet(models.QuerySet):
 
         For Senior Fellows, exclude INCOMING status;
         for other Fellows, also exclude PREASSIGNMENT.
-
-        Finally, filter out the COI.
         """
-        if not (
-            hasattr(user, "contributor")
-            and (user.contributor.is_ed_admin or user.contributor.is_active_fellow)
-        ):
+        from ethics.models import CompetingInterest
+        from submissions.models.submission import Submission, SubmissionAuthorProfile
+
+        contributor: Contributor | None = getattr(user, "contributor", None)
+        if contributor is None:
             return self.none()
 
-        qs = self
+        if not (contributor.is_ed_admin or contributor.is_active_fellow):
+            return self.none()
+
+        qs = self.annotate(
+            fellowship_in_submission_fellowships=Exists(
+                Submission.fellows.through.objects.filter(
+                    submission_id=models.OuterRef("pk"),
+                    fellowship_id__in=contributor.fellowships.active(),
+                )
+            ),
+            has_nonexpired_competing_interest_with_authors=Exists(
+                CompetingInterest.objects.all()
+                .annotate(
+                    submission_id=models.OuterRef("id"),  # to use in subquery below
+                    involves_author=models.Exists(
+                        SubmissionAuthorProfile.objects.filter(
+                            Q(profile_id=models.OuterRef("profile_id"))
+                            | Q(profile_id=models.OuterRef("related_profile_id")),
+                            submission_id=models.OuterRef("submission_id"),
+                        )
+                    ),
+                )
+                .filter(involves_author=True)
+                .involving_profile(contributor.profile)
+                .valid_on_date()
+            ),
+        )
+
+        # remove Submissions for which a competing interest exists:
+        qs = qs.exclude(has_nonexpired_competing_interest_with_authors=True)
+
+        # Exclude Submissions where the contributor is a real author, claims authorship,
+        # or their name could be in the author list but also has not claimed the association is false.
+        qs = qs.exclude(
+            Q(authors_claims=contributor)
+            | Q(authors=contributor)
+            | (
+                self.Q_profile_possibly_in_author_list(contributor.profile)
+                & ~Q(authors_false_claims=contributor)
+            )
+        )
+
         if latest:
             qs = qs.latest()
         if not historical:
@@ -217,38 +258,15 @@ class SubmissionQuerySet(models.QuerySet):
 
         # for non-EdAdmin, filter: in Submission's Fellowship
         if not user.contributor.is_ed_admin:
-            f_ids = user.contributor.fellowships.active()
-            qs = qs.filter(fellows__in=f_ids).distinct()
+            qs = qs.filter(fellowship_in_submission_fellowships=True)
 
         if user.contributor.is_scipost_admin:
             pass
         # Fellows can't see incoming and (non-Senior) preassignment
         elif user.contributor.is_active_senior_fellow:
-            qs = qs.exclude(
-                status__in=[
-                    self.model.INCOMING,
-                ]
-            )
+            qs = qs.exclude(status__in=[self.model.INCOMING])
         elif user.contributor.is_active_fellow:
             qs = qs.exclude(status__in=[self.model.INCOMING, self.model.PREASSIGNMENT])
-
-        # remove Submissions for which a competing interest exists:
-        qs = qs.exclude(
-            competing_interests__profile=user.contributor.profile,
-        ).exclude(
-            competing_interests__related_profile=user.contributor.profile,
-        )
-
-        # Exclude Submissions where the contributor is a real author, claims authorship,
-        # or their name could be in the author list but also has not claimed the association is false.
-        qs = qs.exclude(
-            Q(authors_claims=user.contributor)
-            | Q(authors=user.contributor)
-            | (
-                self.Q_profile_possibly_in_author_list(user.contributor.profile)
-                & ~Q(authors_false_claims=user.contributor)
-            )
-        )
 
         return qs
 

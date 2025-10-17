@@ -54,6 +54,15 @@ class SubmissionCompetingInterestForm(forms.ModelForm):
                 css_class="row mb-0",
             ),
             Div(
+                HTML(
+                    """<span class="text-primary me-2">{% include 'bi/exclamation-circle-fill.html' %}</span>
+                    When declaring a "Coauthor" relationship, please use the last day of the collaboration
+                    as the "Date From" field and leave the "Date Until" field blank.
+                    """
+                ),
+                css_class="bg-primary bg-opacity-10 p-2 mb-2 rounded",
+            ),
+            Div(
                 Div(
                     Field("profile"),
                     Field("declared_by"),

@@ -10,6 +10,7 @@ from django.utils.timezone import timedelta
 from colleges.permissions import is_edadmin
 from common.forms import HTMXDynSelWidget
 from common.utils.text import partial_names_match
+from ethics.managers import CoauthorshipExclusionPurpose
 from submissions.models.assignment import ConditionalAssignmentOffer
 from .appraisal import QualificationForm, ReadinessForm
 
@@ -2837,10 +2838,12 @@ class InviteRefereeSearchFrom(forms.Form):
                 last_name_matches=True
             )
 
-            profiles = profiles.annot_has_competing_interests_with_submission_authors(
-                self.submission
+            profiles = (
+                profiles.without_competing_interests_against_submission_authors_of(
+                    self.submission,
+                    purpose=CoauthorshipExclusionPurpose.REFEREEING,
+                )
             )
-            profiles = profiles.exclude(has_any_competing_interest_with_submission=True)
 
         # Filter out unavailable referees if the option is selected
         if self.cleaned_data.get("hide_unavailable"):
