@@ -356,6 +356,9 @@ class ProfileEmail(models.Model):
         related_name="profile_emails_added",
     )
 
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
     objects = ProfileEmailQuerySet.as_manager()
 
     if TYPE_CHECKING:
@@ -386,6 +389,10 @@ class ProfileEmail(models.Model):
         self.verification_token = secrets.token_urlsafe(40)
         self.token_expiration = timezone.now() + datetime.timedelta(hours=48)
         self.save()
+
+    @property
+    def was_ever_modified(self):
+        return (self.modified - self.created).total_seconds() > 5
 
     @property
     def has_token_expired(self):

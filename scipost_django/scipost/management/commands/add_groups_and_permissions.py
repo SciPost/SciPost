@@ -163,6 +163,13 @@ class Command(BaseCommand):
             name="Can mark emails of Profiles as recovery addresses",
             content_type=content_type,
         )
+        can_view_profile_email_creation_dates, created = (
+            Permission.objects.get_or_create(
+                codename="can_view_profile_email_creation_dates",
+                name="Can view creation/modification dates of Profile emails",
+                content_type=content_type,
+            )
+        )
         can_delete_profile_emails, created = Permission.objects.get_or_create(
             codename="can_delete_profile_emails",
             name="Can delete emails of Profiles",
@@ -658,6 +665,7 @@ class Command(BaseCommand):
                 can_validate_profile_emails,
                 can_mark_profile_emails_primary,
                 can_mark_profile_emails_recovery,
+                can_view_profile_email_creation_dates,
                 can_delete_profile_emails,
                 can_compare_objects,
                 can_mark_non_duplicates,
@@ -752,6 +760,7 @@ class Command(BaseCommand):
                 can_validate_profile_emails,
                 can_mark_profile_emails_primary,
                 can_mark_profile_emails_recovery,
+                can_view_profile_email_creation_dates,
                 can_delete_profile_emails,
                 can_compare_objects,
                 can_mark_non_duplicates,
@@ -802,6 +811,7 @@ class Command(BaseCommand):
         SeniorFellow.permissions.set(
             [
                 can_view_fellowships_monitor,
+                can_view_profile_email_creation_dates,
             ]
         )
 

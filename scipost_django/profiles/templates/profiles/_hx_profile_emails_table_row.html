@@ -39,12 +39,26 @@
 
   </td>
   <td>
+    <div class="d-flex flex-row align-items-center justify-content-between">
+        <span>{{ profile_mail.added_by|default:"Unknown" }}</span>
 
-    {% if profile_mail.added_by %}{{ profile_mail.added_by }}{% endif %}
+        {% if is_mail_owner or perms.scipost.can_view_profile_email_creation_dates %}
+          <div class="d-flex flex-column align-items-end">
+            <span class="text-muted">
+              {% if profile_mail.created %}
+                Added {{ profile_mail.created|timesince }} ago
+              {% endif %}
+            </span>
+            {% if profile_mail.modified and profile_mail.was_ever_modified %}
+              <span class="text-muted">
+                Modified {{ profile_mail.modified|timesince }} ago
+              </span>
+            {% endif %}
+          </div>
+        {% endif %}
 
+    </div>
   </td>
-
-
 
   <td>
     <div class="dropdown">
