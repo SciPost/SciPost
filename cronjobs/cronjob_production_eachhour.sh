@@ -7,7 +7,6 @@ source ../venv-3.13/bin/activate
 
 # Do tasks
 python manage.py check_celery --settings=SciPost_v1.settings.production_do1
-python manage.py update_fellow_submission_coauthorships --settings=SciPost_v1.settings.production_do1
 python manage.py advance_git_repos --settings=SciPost_v1.settings.production_do1
 
 # Do a update_index of the last hour

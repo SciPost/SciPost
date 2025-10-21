@@ -1,17 +1,10 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-from typing import cast
-
 from django.core.management.base import BaseCommand
-from django.db.models.functions import Coalesce, Lower
-from django.db.models.manager import BaseManager
-
-from common.utils.text import partial_name_match_regexp
 from ethics.tasks import (
     celery_fetch_potential_coauthorships_for_profile_and_submission_authors,
 )
-from profiles.models import Profile
 from submissions.models import Submission
 
 
@@ -23,7 +16,7 @@ class Command(BaseCommand):
             Submission.objects.all()
             .stage_preassignment_completed()
             .needs_coauthorships_update()
-            .prefetch_related("fellows")[:5]
+            .prefetch_related("fellows")[:1]
         )
 
         for submission in submissions:
