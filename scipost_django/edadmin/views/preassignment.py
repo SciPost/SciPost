@@ -150,7 +150,7 @@ def _hx_author_profile_action(
             messages.error(
                 request,
                 "This profile has potential duplicates which belong to Fellows. Please "
-                f'<a href="{reverse("profiles:duplicates", args=(profile.id, potential_duplicate_fellow.id))}">resolve the duplicates</a> '
+                f'<a href="{reverse("merger:duplicates", args=("profile", profile.pk, potential_duplicate_fellow.pk))}">resolve the duplicates</a> '
                 "before matching. ",
             )
             author_profile.profile = None
