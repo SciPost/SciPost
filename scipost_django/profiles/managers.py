@@ -67,6 +67,7 @@ class ProfileQuerySet(QuerySet):
             self.all()
             .filter(full_name_normalized=profile.full_name_normalized)
             .exclude(id__in=profile_non_duplicates)
+            .exclude(id=profile.id)
         )
 
         return qs
