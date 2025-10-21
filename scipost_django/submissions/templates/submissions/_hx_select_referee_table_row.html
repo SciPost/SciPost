@@ -1,24 +1,12 @@
+{% load common_extras %}
+
 <tr>
   <td style="max-width:200px;" class="text-truncate overflow-hidden">
-    <a title={{ profile }} href="{{ profile.get_absolute_url }}">{{ profile }}</a>
-  </td>
-  <td>
-
-    {% if profile.contributor %}
-      <span class="text-success">{% include "bi/check-circle-fill.html" %}</span>
-    {% else %}
-      <span class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
-    {% endif %}
-
-  </td>
-  <td>
-
-    {% if profile.accepts_refereeing_requests %}
-      <span class="text-success">{% include "bi/check-circle-fill.html" %}</span>
-    {% else %}
-      <span class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
-    {% endif %}
-
+    <div class="d-flex flex-column">
+      <a title={{ profile }} href="{{ profile.get_absolute_url }}">
+        <span>{{ profile }}</span>
+      </a>
+    </div>
   </td>
   <td>
 
@@ -37,72 +25,136 @@
     </table>
 
   </td>
-  <td style="min-width:330px;">
-    <div class="d-flex">
+
+  <td style="min-width:150px; max-width:250px;">
+    {% if profile.invitations_sent_5y %}
+      <div class="d-flex flex-row w-100 bg-light rounded overflow-hidden" style="height:14px; z-index:2;">
+        {% if not profile.invitations_accepted_5y and not profile.invitations_declined_5y and not profile.invitations_cancelled_5y and not profile.invitations_fulfilled_5y %}
+          <span style="width:100%; font-size: 10px; z-index: 1;"
+                class="d-flex justify-content-center align-items-center"
+                title="Sent: {{ profile.invitations_sent_5y }}"
+                data-bs-placement="top"
+                data-bs-toggle="tooltip">
+                {{ profile.invitations_sent_5y }}</span>
+        {% endif %}
+        
+        {% if profile.invitations_cancelled_5y %}
+          <div style="width:{{ profile.invitations_cancelled_5y|multiply:100|int_divide:profile.invitations_sent_5y }}%;"
+              class="bg-secondary d-flex justify-content-center align-items-center" 
+              title="Cancelled: {{ profile.invitations_cancelled_5y }}" 
+              data-bs-placement="top"
+              data-bs-toggle="tooltip">
+              <span style="font-size: 10px;">{{ profile.invitations_cancelled_5y }}</span>
+          </div>
+        {% endif %}
+
+        {% if profile.invitations_declined_5y %}
+          <div style="width:{{ profile.invitations_declined_5y|multiply:100|int_divide:profile.invitations_sent_5y }}%;"
+                class="bg-danger d-flex justify-content-center align-items-center"
+                title="Declined: {{ profile.invitations_declined_5y }}" 
+                data-bs-placement="top"
+                data-bs-toggle="tooltip">
+                <span style="font-size: 10px;" class="text-white">{{ profile.invitations_declined_5y }}</span>
+          </div>
+        {% endif %}
+
+        {% if profile.invitations_accepted_5y %}
+          <div style="width:{{ profile.invitations_accepted_5y|multiply:100|int_divide:profile.invitations_sent_5y }}%;"
+                class="bg-primary d-flex justify-content-center align-items-center"
+                title="Accepted: {{ profile.invitations_accepted_5y }}" 
+                data-bs-placement="top"
+                data-bs-toggle="tooltip">
+                <span style="font-size: 10px;" class="text-white">{{ profile.invitations_accepted_5y }}</span>
+          </div>
+        {% endif %}
+
+        {% if profile.invitations_fulfilled_5y %}
+          <div style="width:{{ profile.invitations_fulfilled_5y|multiply:100|int_divide:profile.invitations_sent_5y }}%;"
+                class="bg-success d-flex justify-content-center align-items-center"
+                title="Fulfilled: {{ profile.invitations_fulfilled_5y }}" 
+                data-bs-placement="top"
+                data-bs-toggle="tooltip">
+                <span style="font-size: 10px;" class="text-white">{{ profile.invitations_fulfilled_5y }}</span>
+          </div>
+        {% endif %}
+
+      </div>
+    {% endif %}
+  </td>
+
+  <td>
+    <div class="btn-group" role="group">
       <button id="ref-inv-{{ profile.id }}-send-btn"
               type="button"
               class="btn btn-sm btn-light me-2"
               hx-get="{% url 'submissions:_hx_add_referee_profile_email' profile_id=profile.id %}"
               hx-target="closest tr"
-              hx-swap="afterend">Add Email</button>
-
-      <button id="ref-inv-{{ profile.id }}-send-btn" type="button" class="me-2 btn btn-sm btn-{% if profile.warned_against_invitation %}warning{% else %}light{% endif %}" 
-        {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
-         hx-get="{% url 'submissions:_hx_customize_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" 
-         hx-target="closest tr" 
-         hx-swap="afterend"
-         {% if not profile.can_be_sent_invitation %}disabled{% endif %}
-         >Customize Invitation</button>
-      <button id="ref-inv-{{ profile.id }}-send-btn" type="button" class="ms-auto btn btn-sm btn-{% if profile.warned_against_invitation %}warning{% else %}primary{% endif %}" 
-        {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
-         hx-get="{% url 'submissions:_hx_quick_invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" 
-         hx-target="closest td" 
-         hx-swap="outerHTML"
-         {% if not profile.can_be_sent_invitation %}disabled{% endif %}
-         >Quick Send</button>
+              title="Add Email to Profile"
+              data-bs-toggle="tooltip"
+              hx-swap="afterend"><span>{% include "bi/plus.html" %}</span></button>
+      <button id="ref-inv-{{ profile.id }}-send-btn" type="button" class="ms-auto text-white btn btn-sm btn-{% if profile.warned_against_invitation %}warning{% else %}primary{% endif %}" 
+          {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
+          hx-get="{% url 'submissions:_hx_quick_invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" 
+          hx-target="closest td" 
+          hx-swap="outerHTML"
+          title="Quick send<br/><small>with auto-reminders<br/>and default template</small>"
+          data-bs-toggle="tooltip"
+          data-bs-html="true"
+          {% if not profile.can_be_sent_invitation %}disabled{% endif %}
+          >{% include "bi/send-fill.html" %}</button>
+      <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <button id="ref-inv-{{ profile.id }}-send-btn" type="button" class="dropdown-item me-2 btn btn-sm btn-{% if profile.warned_against_invitation %}warning{% else %}light{% endif %}" 
+          {% if profile.warned_against_invitation %}hx-confirm="Do you want to send an invitation to this referee despite the warning?"{% endif %}
+          hx-get="{% url 'submissions:_hx_customize_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id %}" 
+          hx-target="closest tr" 
+          hx-swap="afterend"
+          {% if not profile.can_be_sent_invitation %}disabled{% endif %}
+          >Customize Invitation</button>
+        </li>
+      </ul>
     </div>
+  </td>
 
-    {% if profile.already_invited %}<div class="text-warning">This person has already been invited</div>{% endif %}
+  <td class="p-0">
+    {% if profile.already_invited or not profile.accepts_refereeing_requests or profile.has_submission_conflicts_of_interest or profile.is_submission_author or profile.last_name_matches or profile.contributor and not profile.contributor.is_currently_available %}
+      <div 
+      class="bg-warning d-flex px-1 justify-content-center align-items-center"
+      title="
+        {% if profile.already_invited %}
+          <div>This person has already been invited</div>
+        {% endif %}
 
-    {% if not profile.accepts_refereeing_requests %}
-      <div class="text-danger">This person does not accept refereeing requests</div>
-    {% endif %}
+        {% if not profile.accepts_refereeing_requests %}
+          <div>This person does not accept refereeing requests</div>
+        {% endif %}
 
-    {% if profile.has_submission_conflicts_of_interest %}
-      <div class="text-danger">This person has a conflict of interest with the submission</div>
-    {% endif %}
+        {% if profile.has_submission_conflicts_of_interest %}
+          <div>This person has a conflict of interest with the submission</div>
+        {% endif %}
 
-    {% if profile.is_submission_author %}
-      <div class="text-danger">This person is an author of the submission</div>
-    {% elif profile.last_name_matches %}
-      <div class="text-warning">This person could be an author of the submission (last name matches)</div>
-    {% endif %}
+        {% if profile.is_submission_author %}
+          <div>This person is an author of the submission</div>
+        {% elif profile.last_name_matches %}
+          <div>This person could be an author of the submission (last name matches)</div>
+        {% endif %}
 
-    {% if profile.contributor and not profile.contributor.is_currently_available %}
-      <div class="text-warning">
-        This person is not currently available, but will be after
-        <time datetime="{{ profile.contributor.available_again_after_date }}">
-          {{ profile.contributor.available_again_after_date }}
-        </time>
+        {% if profile.contributor and not profile.contributor.is_currently_available %}
+          <div>
+            This person is not currently available, but will be after
+            <time datetime='{{ profile.contributor.available_again_after_date }}'>
+              {{ profile.contributor.available_again_after_date }}
+            </time>
+          </div>
+        {% endif %}
+      "
+      data-bs-toggle="tooltip"
+      data-bs-html="true">
+        <span class="fs-4 text-white">
+          {% include "bi/exclamation-triangle-fill.html" %}
+        </span>
       </div>
     {% endif %}
-
   </td>
 </tr>
-
-{% if profile.invitations_sent_5y %} 
-  <tr>
-    <td colspan="5">
-      <div class="ms-4 text-muted">
-        {% include "bi/arrow-return-right.html" %}
-        &nbsp;
-        Responsiveness (last 5 years) --
-        Sent: {{ profile.invitations_sent_5y }},&nbsp;
-        Accepted: {{ profile.invitations_accepted_5y }},&nbsp;
-        Declined: {{ profile.invitations_declined_5y }},&nbsp;
-        Cancelled: {{ profile.invitations_cancelled_5y }},&nbsp;
-        Fulfilled: {{ profile.invitations_fulfilled_5y }}
-      </div>
-    </td>
-  </tr>
-{% endif %}
