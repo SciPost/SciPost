@@ -2671,17 +2671,16 @@ class InviteRefereeSearchFrom(forms.Form):
     orderby = forms.ChoiceField(
         label="Order by",
         choices=[
-            ("", "-----"),
-            ("last_name", "Name"),
+            ("last_name,first_name", "Last Name"),
+            ("first_name,last_name", "First Name"),
         ],
-        initial="",
         required=False,
     )
     ordering = forms.ChoiceField(
         label="Ordering",
         choices=[
-            ("-", "Descending"),
             ("+", "Ascending"),
+            ("-", "Descending"),
         ],
         required=False,
     )
@@ -2867,6 +2866,58 @@ class InviteRefereeSearchFrom(forms.Form):
         if specialties := self.cleaned_data.get("specialties"):
             profiles = profiles.filter(specialties__in=specialties)
 
+        profiles = profiles.annotate(
+            can_be_sent_invitation=ExpressionWrapper(
+                can_be_sent_invitation_expression,
+                output_field=BooleanField(),
+            ),
+            warned_against_invitation=ExpressionWrapper(
+                warned_against_invitation_expression,
+                output_field=BooleanField(),
+            ),
+        )
+
+        Q_last_5y = Q(
+            referee_invitations__date_invited__gt=timezone.now()
+            - timedelta(days=365 * 5),
+        )
+        # Add invitation statistics
+        profiles = profiles.annotate(
+            invitations_sent_5y=Count(
+                "referee_invitations",
+                filter=Q_last_5y,
+            ),
+            invitations_accepted_5y=Count(
+                "referee_invitations",
+                filter=Q_last_5y
+                & Q(
+                    referee_invitations__accepted=True,
+                    referee_invitations__cancelled=False,
+                    referee_invitations__fulfilled=False,
+                ),
+            ),
+            invitations_declined_5y=Count(
+                "referee_invitations",
+                filter=Q_last_5y
+                & Q(
+                    referee_invitations__accepted=False,
+                    referee_invitations__cancelled=False,
+                ),
+            ),
+            invitations_fulfilled_5y=Count(
+                "referee_invitations",
+                filter=Q_last_5y
+                & Q(
+                    referee_invitations__fulfilled=True,
+                    referee_invitations__cancelled=False,
+                ),
+            ),
+            invitations_cancelled_5y=Count(
+                "referee_invitations",
+                filter=Q_last_5y & Q(referee_invitations__cancelled=True),
+            ),
+        )
+
         # Ordering of referees
         # Only order if both fields are set
         if (orderby_value := self.cleaned_data.get("orderby")) and (
@@ -2883,54 +2934,6 @@ class InviteRefereeSearchFrom(forms.Form):
                     for order_part in orderby_value.split(",")
                 ]
             )
-
-        profiles = profiles.annotate(
-            can_be_sent_invitation=ExpressionWrapper(
-                can_be_sent_invitation_expression,
-                output_field=BooleanField(),
-            ),
-            warned_against_invitation=ExpressionWrapper(
-                warned_against_invitation_expression,
-                output_field=BooleanField(),
-            ),
-        )
-
-        invitations_last_5y = RefereeInvitation.objects.filter(
-            referee=OuterRef("id"),
-            date_invited__gt=timezone.now() - timedelta(days=365 * 5),
-        )
-        # Add invitation statistics
-        profiles = profiles.annotate(
-            invitations_sent_5y=Subquery(
-                invitations_last_5y.values("referee")
-                .annotate(count=Count("referee"))
-                .values("count"),
-            ),
-            invitations_accepted_5y=Subquery(
-                invitations_last_5y.filter(accepted=True, cancelled=False)
-                .values("referee")
-                .annotate(count=Count("referee"))
-                .values("count"),
-            ),
-            invitations_declined_5y=Subquery(
-                invitations_last_5y.filter(accepted=False, cancelled=False)
-                .values("referee")
-                .annotate(count=Count("referee"))
-                .values("count"),
-            ),
-            invitations_fulfilled_5y=Subquery(
-                invitations_last_5y.filter(fulfilled=True, cancelled=False)
-                .values("referee")
-                .annotate(count=Count("referee"))
-                .values("count"),
-            ),
-            invitations_cancelled_5y=Subquery(
-                invitations_last_5y.filter(cancelled=True)
-                .values("referee")
-                .annotate(count=Count("referee"))
-                .values("count"),
-            ),
-        )
 
         return profiles
 
