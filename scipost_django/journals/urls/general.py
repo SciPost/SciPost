@@ -101,6 +101,11 @@ urlpatterns = [
         name="reset_authors",
     ),
     path(
+        "admin/<publication_doi_label:doi_label>/authors/<int:author_order>/remove",
+        journals_views.delete_author_profile,
+        name="delete_author_profile",
+    ),
+    path(
         "admin/<publication_doi_label:doi_label>/manage_metadata/",
         journals_views.manage_metadata,
         name="manage_metadata",

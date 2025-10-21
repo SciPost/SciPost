@@ -14,23 +14,7 @@
       </label>
     </td>
     <td>
-
-      {% if not author.profile %}
-
-        {% if author.profile_matches %}
-          <span class="badge bg-danger text-white"
-                title="There are potentially {{ author.profile_matches.count }} profiles matching this author."
-                data-bs-html="true"
-                data-bs-toggle="tooltip">{% include "bi/people-fill.html" %}</span>
-        {% else %}
-          <a class="badge bg-light text-dark"
-             href="{{ author.new_profile_url }}"
-             target="_blank"
-             hx-prompt="Enter a string"
-             hx-confirm="Are you sure?">Create a profile</a>
-        {% endif %}
-
-      {% else %}
+      <div class="d-flex gap-4 align-items-center">
 
         {% if author.profile.contributor %}
           <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.full_name }}</a>
@@ -38,13 +22,38 @@
           <a href="{{ author.profile.get_absolute_url }}">{{ author.profile.full_name }}</a>
         {% endif %}
 
-        {% if author.profile.full_name != author.name_tex %}
-          <span class="badge bg-warning text-dark"
-                title="The name in the tex file is different from the name in the profile."
-                data-bs-html="true"
-                data-bs-toggle="tooltip">!</span>
-        {% endif %}
-      {% endif %}
+        <div class="d-flex gap-2">
 
+          {% if author.profile and author.profile.full_name != author.name_tex %}
+            <span class="badge bg-warning text-dark"
+                  title="The name in the tex file is different from the name in the profile."
+                  data-bs-toggle="tooltip">!</span>
+          {% endif %}
+
+          {% if not author.profile and author.profile_matches %}
+            <span class="badge bg-danger text-white"
+                  title="There are potentially {{ author.profile_matches.count }} profiles matching this author."
+                  data-bs-toggle="tooltip">{% include "bi/people-fill.html" %}</span>
+          {% endif %}
+
+        </div>
+      </div>
+
+    </td>
+    <td>
+      <div class="d-flex gap-2 justify-content-center align-items-center">
+        <a class="text-dark fs-3 d-flex align-items-center"
+          href="{{ author.new_profile_url }}"
+          target="_blank"
+          title="Create a profile with this name"
+          data-bs-toggle="tooltip">
+          {% include "bi/user-circle-fill.html" %}</a>
+
+        <a class="text-dark fs-3 d-flex align-items-center"
+          href="{% url "journals:delete_author_profile" doi_label=publication.doi_label author_order=author_id %}"
+          title="Remove profile association"
+          data-bs-toggle="tooltip">
+          {% include "bi/x-circle-fill.html" %}</a>
+      </div>
     </td>
   </tr>

@@ -1057,6 +1057,7 @@ def add_author(request: HttpRequest, doi_label: str) -> HttpResponse:
                 },
                 "author_id": selected_author_id,
                 "selected_author_id": selected_author_id,
+                "publication": publication,
             },
         )
         response["HX-Retarget"] = f"#author_list_tr_{selected_author_id}"
@@ -1071,16 +1072,10 @@ def add_author(request: HttpRequest, doi_label: str) -> HttpResponse:
     }
     for i, (name, superscripts) in enumerate(publication.tex_author_info, 1):
         publication_author = publication_authors.get(i)
-        profile_matches: QuerySet[Profile] = (
+        profile_matches: QuerySet[Profile] | None = (
             Profile.objects.search(name) if publication_author is None else None
         )
-        profile = (
-            publication_author.profile
-            if publication_author
-            else profile_matches.first()
-            if profile_matches
-            else None
-        )
+        profile = publication_author.profile if publication_author else None
 
         first_name_tex, last_name_tex = name.split(" ", 1)
         new_profile_url = (
@@ -1104,6 +1099,28 @@ def add_author(request: HttpRequest, doi_label: str) -> HttpResponse:
         "author_list": authors,
     }
     return render(request, "journals/add_author.html", context)
+
+
+@permission_required("scipost.can_draft_publication", return_403=True)
+@transaction.atomic
+def delete_author_profile(
+    request: HttpRequest, doi_label: str, author_order: int
+) -> HttpResponse:
+    """
+    Delete the Profile association for a given author in a Publication.
+    Redirects to main add authors page to rerender the whole table.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.is_draft and not request.user.has_perm(
+        "scipost.can_publish_accepted_submission"
+    ):
+        raise Http404("You do not have permission to edit this non-draft Publication")
+
+    PublicationAuthorsTable.objects.filter(
+        publication=publication, order=author_order
+    ).delete()
+
+    return redirect(reverse("journals:add_author", kwargs={"doi_label": doi_label}))
 
 
 @permission_required("scipost.can_draft_publication", return_403=True)

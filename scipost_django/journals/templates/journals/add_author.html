@@ -29,12 +29,13 @@
   <div class="row position-relative">
     <div class="col-12 col-md">
       <h3>List of authors</h3>
-      <table class="table ms-4" id="add_author_list">
+      <table class="table ms-4" id="add_author_table">
         <tr>
           <th></th>
           <th>#</th>
           <th>Author</th>
           <th>Profile</th>
+          <th></th>
         </tr>
 
         {% for author in author_list %}
@@ -61,8 +62,7 @@
                  form="add_author_form" />
           <a class="btn btn-secondary"
              title="Fetch author list data from git"
-             href="{% url 'journals:reset_authors' doi_label=publication.doi_label %}"> Reset
-          </a>
+             href="{% url 'journals:reset_authors' doi_label=publication.doi_label %}">Reset</a>
         </div>
       </div>
     </div>
