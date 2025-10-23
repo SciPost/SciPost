@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Registration unsuccessful",
     "recipient_list": [
-        "contributor.profile.email"
+        "contributor.dbuser.email"
     ],
     "from_name": "SciPost Registrations",
     "from_email": "registration@"

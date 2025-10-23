@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: new email activation link",
     "recipient_list": [
-        "user.email"
+        "contributor.dbuser.email"
     ],
     "bcc": [
         "registration@"
