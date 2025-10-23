@@ -223,7 +223,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
 
     @property
     def email(self):
-        return getattr(self.emails.filter(primary=True).first(), "email", "")
+        return getattr(self.emails.filter(primary=True).first(), "email", None)
 
     @property
     def has_active_contributor(self):
