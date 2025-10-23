@@ -1,9 +1,7 @@
-<p>
-    Dear {% for author in proofs.stream.submission.authors.all %}{{ author.profile.get_title_display }} {{ author.user.last_name }}{% if not forloop.last %}, {% elif proofs.stream.submission.authors.count > 1 %} and {% endif %}{% endfor %},
-</p>
+<p>Dear authors,</p>
 
 <p>
-    The SciPost production team has finished the proofs of your manuscript (version {{ proofs.version }}). You can find the proofs on your <a href="https://{{ domain }}{{ proofs.stream.submission.get_absolute_url }}">submission's page</a>.
+  The SciPost production team has finished the proofs of your manuscript (version {{ proofs.version }}). You can find the proofs on your <a href="https://{{ domain }}{{ proofs.stream.submission.get_absolute_url }}">Submission's page</a>.
 </p>
 
 <p>
@@ -11,12 +9,13 @@
 </p>
 
 <p>
-  Sincerely,<br>
+  Sincerely,
+  <br />
 
-  {{ proofs.stream.supervisor.user.first_name }} {{ proofs.stream.supervisor.user.last_name }},<br>
+  {{ proofs.stream.supervisor.user.contributor.profile.full_name }},
+  <br />
   SciPost Production
 </p>
 
 {% include 'email/_footer.html' %}
-
 {% include 'email/_submission_thread_uuid.html' with submission=proofs.stream.submission %}

@@ -1,5 +1,5 @@
 <p>
-  Dear {{ contactrole.contact.get_title_display }} {{ contactrole.contact.user.last_name }},
+  Dear {{ contactrole.contact.user.first_name }} {{ contactrole.contact.user.last_name }},
 </p>
 <p>
   Your organization ({{ contactrole.organization }}) has been sponsoring SciPost (see details at <a href="https://{{ domain }}{{ contactrole.organization.get_absolute_url }}">this link</a>), for which we are extremely grateful.

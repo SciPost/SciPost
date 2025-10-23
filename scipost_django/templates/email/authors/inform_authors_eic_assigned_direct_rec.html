@@ -1,22 +1,24 @@
-<p>
-  Dear {{ assignment.submission.submitted_by.profile.get_title_display }} {{ assignment.submission.submitted_by.user.last_name }},
-</p>
+<p>Dear {{ assignment.submission.submitted_by.profile.formal_name }},</p>
+
 <p>
   For your information, your Submission
-  <br><br>
-  {{ assignment.submission.title }}
-  <br>by {{ assignment.submission.author_list }}<br>
-  (see <a href="https://{{ domain }}{{ assignment.submission.get_absolute_url }}">https://{{ domain }}{{ assignment.submission.get_absolute_url }}</a>).
+  <br />
+  <a href="https://{{ domain }}{{ assignment.submission.get_absolute_url }}">{{ assignment.submission.title }}</a>,
+  <br />
+  by {{ assignment.submission.author_list }}
+  <br />
+  has been assigned to an editor.
 </p>
 
-<p>has been assigned to an editor. The editor chose to directly formulate an Editorial Recommendation.</p>
-<p>You will be informed shortly by email about the status of this Editorial Recommendation.</p>
+<p>
+  The editor chose to directly formulate an Editorial Recommendation. You will be informed shortly by email about the status of this Editorial Recommendation.
+</p>
 
 <p>
   Sincerely,
-  <br>
+  <br />
   The SciPost Team.
 </p>
-{% include 'email/_footer.html' %}
 
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=assignment.submission %}

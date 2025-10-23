@@ -1,17 +1,25 @@
 {% load automarkup %}
-<p>Dear {{ object.submitted_by.profile.get_title_display }} {{ object.submitted_by.user.last_name }},</p>
-<p>We regret to inform you that your recent Submission to {{ object.submitted_to }},</p>
-<p>{{ object.title }}</p>
-<p>by {{ object.author_list }}</p>
-<p>has not passed the admission step.</p>
+<p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
+
+<p>
+  We regret to inform you that your recent Submission to {{ submission.submitted_to }},
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>,
+  <br />
+  by {{ submission.author_list }}
+  <br />
+  has not passed the admission step.
+</p>
 
 {% if rejection_email_text %}
   <p>{% automarkup rejection_email_text %}</p>
 {% endif %}
 
-<p>Sincerely,</p>
-<p>The SciPost Team.</p>
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team.
+</p>
 
 {% include 'email/_footer.html' %}
-
-{% include 'email/_submission_thread_uuid.html' with submission=object %}
+{% include 'email/_submission_thread_uuid.html' with submission=submission %}

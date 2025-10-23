@@ -1,18 +1,20 @@
-<p>
-  Dear {{ invitation.referee.formal_name }},
-</p>
+<p>Dear {{ invitation.referee.formal_name }},</p>
+
 <p>
   This is a simple email to remind you of the approaching deadline (in one week) to send a Report on
-  <br><br>
-  {{ invitation.submission.title }}
-  <br>by {{ invitation.submission.author_list }}<br>
-  (see <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">https://{{ domain }}{{ invitation.submission.get_absolute_url }}</a> - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
+  <br />
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>,
+  <br />
+  by {{ invitation.submission.author_list }}
+  <br />
+  (first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
+
 <p>
   Thank you in advance,
-  <br>
+  <br />
   The SciPost Team.
 </p>
-{% include 'email/_footer.html' %}
 
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

@@ -1,20 +1,25 @@
-<p>
-  Dear {{ submission.submitted_by.profile.get_title_display }} {{ submission.submitted_by.user.last_name }},
-</p>
+<p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
+
 <p>
   We hereby confirm your acceptance of our publication offer of your Submission
-</p>
-<p>{{ submission.title }}</p>
-<p>by {{ submission.author_list }}</p>
-<p>
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>,
+  <br />
+  by {{ submission.author_list }}
+  <br />
   in {{ submission.editorial_decision.for_journal }}.
 </p>
+
 <p>
   Your manuscript will now be taken charge of by our production team,
   which will soon send you proofs to check before final publication.
 </p>
-<p>Sincerely,</p>
-<p>The SciPost Team.</p>
-{% include 'email/_footer.html' %}
 
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=submission %}

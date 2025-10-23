@@ -5,10 +5,16 @@
 {% get_fellow_readiness submission fellowship as readiness %}
 {% get_profile_clearance submission.clearances fellowship.contributor.profile as clearance %}
 
-<p>Dear {{ fellowship.contributor.profile.get_title_display }} {{ fellowship.contributor.profile.last_name }},</p>
+<p>Dear {{ fellowship.contributor.profile.formal_name }},</p>
 
 <p>
-  We are writing this email to point your attention to the following SciPost submission entitled <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a> by {{ submission.author_list }}. This submission has been waiting for an Editor in Charge (EIC) for some time now, prompting us to help guide the process along.
+  We are writing this email to point your attention to the following SciPost submission
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>
+  <br />
+  by {{ submission.author_list }}.
+  <br />
+  This submission has been waiting for an Editor in Charge (EIC) for some time now, prompting us to help guide the process along.
 </p>
 
 <p>
@@ -44,9 +50,10 @@
 <p>
   With kind regards,
   <br />
-  {{ signee.first_name }} {{ signee.last_name }}, on behalf of the SciPost EdAdmin Team.
+  on behalf of the SciPost EdAdmin Team,
+  <br />
+  {{ signee_profile.full_name }}
 </p>
 
 {% include 'email/_footer.html' %}
-
 {% include 'email/_submission_thread_uuid.html' with submission=submission %}

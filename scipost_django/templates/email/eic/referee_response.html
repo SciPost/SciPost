@@ -1,12 +1,18 @@
-<p>Dear {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},</p>
+<p>Dear {{ invitation.submission.editor_in_charge.profile.formal_name }},</p>
 
 <p>
-    Referee {{ invitation.referee.formal_name }} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{ invitation.get_refusal_reason_display }}{% if invitation.other_refusal_reason %}, {{ invitation.other_refusal_reason }}{% endif %}){% endif %} to referee Submission
-</p>
-<p>
-  {{ invitation.submission.title }}
-  <br/>
-  by {{ invitation.submission.author_list }}.
+  Referee {{ invitation.referee.full_name }} has
+
+  {% if invitation.accepted %}
+    accepted
+  {% else %}
+    declined (due to reason: {{ invitation.get_refusal_reason_display }} {% if invitation.other_refusal_reason %}, {{ invitation.other_refusal_reason }}{% endif %})
+  {% endif %}
+
+  to referee Submission <br/>
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>,
+  <br />
+  by {{ invitation.submission.author_list }}
 </p>
 
 {% if not invitation.accepted %}
@@ -16,10 +22,10 @@
 {% endif %}
 
 <p>
-  Many thanks for your collaboration,<br/>
+  Many thanks for your collaboration,
+  <br />
   The SciPost Team.
 </p>
 
 {% include 'email/_footer.html' %}
-
 {% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

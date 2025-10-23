@@ -2,10 +2,11 @@
 
 <p>
   Your Report on Submission
-  {{ report.submission.title }}
+  <br />
+  <a href="https://{{ domain }}{{ report.submission.get_absolute_url }}">{{ report.submission.title }}</a>,
   <br />
   by {{ report.submission.author_list }}
-
+  <br />
   {% if publication.citation %}
     (published as {{ publication.citation }}, <a href="https://doi.org/{{ publication.doi_string }}">doi:{{ publication.doi_string }}</a>)
   {% endif %}
@@ -30,3 +31,4 @@
 {% endif %}
 
 {% include 'email/_footer.html' %}
+{% include 'email/_submission_thread_uuid.html' with submission=report.submission %}

@@ -60,6 +60,5 @@ Dear {{ citation_notification.contributor.profile.formal_name }},
     </p>
 {% endif %}
 
-
-
 {% include 'email/_footer.html' %}
+{% include 'email/_submission_thread_uuid.html' with submission=object.submission %}

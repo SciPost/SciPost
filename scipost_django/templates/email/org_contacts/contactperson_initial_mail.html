@@ -1,7 +1,7 @@
 {% load static %}
 
 <p>
-  Dear {% if contactperson %}{{ contactperson.get_title_display }} {{ contactperson.last_name }}{% else %}colleagues{% endif %},
+  Dear {% if contactperson %}{{ contactperson.formal_name }}{% else %}colleagues{% endif %},
 </p>
 
 <p>

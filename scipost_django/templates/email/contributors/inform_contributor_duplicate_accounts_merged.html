@@ -1,11 +1,11 @@
 <p>
-  Dear {{ object.duplicate_of.profile.get_title_display }} {{ object.duplicate_of.user.last_name }},
+  Dear {{ contributor_into.profile.full_name }},
 </p>
 <p>
-  We noticed that you had two separate registrations at SciPost, and have consolidated your two accounts into a single active one, namely your account with username <strong><em style="color: green;">{{ object.duplicate_of.user.username }}</em></strong>.
+  We noticed that you had two separate registrations at SciPost, and have consolidated your two accounts into a single active one, namely your account with username <strong><em style="color: green;">{{ contributor_into.user.username }}</em></strong>.
 </p>
 <p>
-  Your alternate account with username <strong><em style="color: red;">{{ object.user.username }}</em></strong> has been deactivated, but all the data associated to it has been transferred to your active account.
+  Your alternate account with username <strong><em style="color: red;">{{ contributor_from.user.username }}</em></strong> has been deactivated, but all the data associated to it has been transferred to your active account.
 </p>
 <p>
   Please get in touch with us at <a href="mailto:techsupport@{{ domain }}">SciPost techsupport</a> (or by simply replying to this email) if you have any questions.

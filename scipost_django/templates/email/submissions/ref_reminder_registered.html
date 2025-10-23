@@ -3,7 +3,7 @@
 <p>
   On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to cordially remind you of our recent request to referee
   <br />
-  <strong>{{ invitation.submission.title }}</strong>
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>,
   <br />
   by {{ invitation.submission.author_list }}.
 </p>
@@ -36,3 +36,4 @@
 </p>
 
 {% include email/_footer.html %}
+{% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

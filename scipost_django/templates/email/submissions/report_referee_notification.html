@@ -3,7 +3,7 @@
 <p>
   Many thanks for your Report on Submission
   <br />
-  <strong>{{ report.submission.title }}</strong>
+  <a href="https://{{ domain }}{{ report.submission.get_absolute_url }}">{{ report.submission.title }}</a>,
   <br />
   by {{ report.submission.author_list }}.
 </p>
@@ -81,3 +81,4 @@
 {% endif %}
 
 {% include "email/_footer.html" %}
+{% include 'email/_submission_thread_uuid.html' with submission=report.submission %}

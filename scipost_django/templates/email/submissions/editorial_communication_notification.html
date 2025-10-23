@@ -3,9 +3,9 @@
 <p>
   Please find here a communication ({{ communication.get_comtype_display }}) concerning Submission:
   <br />
-  <strong>{{ communication.submission.title }}</strong>
+  <a href="https://{{ domain }}{{ communication.submission.get_absolute_url }}">{{ communication.submission.title }}</a>,
   <br />
-  by {{ communication.submission.author_list }}.
+  by {{ communication.submission.author_list }}
 </p>
 
 <p>
@@ -34,3 +34,4 @@
 </p>
 
 {% include "email/_footer.html" %}
+{% include 'email/_submission_thread_uuid.html' with submission=communication.submission %}

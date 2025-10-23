@@ -3,9 +3,9 @@
 <p>
   The Editorial College of SciPost has taken a decision regarding your recent Submission,
   <br />
-  <strong>{{ recommendation.submission.title }}</strong>
+  <a href="https://{{ domain }}{{ recommendation.submission.get_absolute_url }}">{{ recommendation.submission.title }}</a>,
   <br />
-  by {{ recommendation.submission.author_list }}.
+  by {{ recommendation.submission.author_list }}
 </p>
 
 {% if recommendation.recommendation == 1 %}
@@ -37,3 +37,4 @@
 </p>
 
 {% include "email/_footer.html" %}
+{% include 'email/_submission_thread_uuid.html' with submission=recommendation.submission %}

@@ -3,7 +3,7 @@
 <p>
   We are happy to inform you that your Submission to {{ publication.get_journal.name }},
   <br />
-  <strong>{{ publication.accepted_submission.title }}</strong>
+  <a href="https://{{ domain }}{{ publication.accepted_submission.get_absolute_url }}">{{ publication.accepted_submission.title }}</a>,
   <br />
   by {{ publication.accepted_submission.author_list }}
   <br />

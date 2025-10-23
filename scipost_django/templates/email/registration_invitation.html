@@ -3,7 +3,7 @@
     <br>
 {% endif %}
 
-Dear {% if registration_invitation.message_style == 'F' %}{{ registration_invitation.get_title_display }} {{ registration_invitation.last_name }}{% else %}{{ registration_invitation.first_name }}{% endif %},
+Dear {% if registration_invitation.message_style == 'F' %}{{ registration_invitation.formal_name }}{% else %}{{ registration_invitation.first_name }}{% endif %},
 
 <br><br>
 

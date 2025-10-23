@@ -1,9 +1,11 @@
 {% load common_extras %}
 
 <p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
-<p>We would hereby like to give you an update on your recent SciPost submission,</p>
+
 <p>
-  <a href="https://{{ domain }}{% url 'submissions:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.title }}</a>,
+  We would hereby like to give you an update on your recent SciPost submission,
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>,
   <br />
   by {{ submission.author_list }}.
 </p>
@@ -24,7 +26,7 @@
     However, some of our Fellows would be willing to immediately take charge of your Submission under certain conditions.
     Please find a summary of these offers below:
   </p>
- 
+
   {% regroup submission.conditional_assignment_offers.offered|dictsort:"offered_on" by condition_details as offers_by_type %}
   <ul>
 
@@ -45,6 +47,7 @@
 {% endif %}
 
 {% if submission.nearing_default_assignment_deadline %}
+  <!-- Less than two weeks before assignment deadline -->
   <p>
     We strive to assign an Editor in Charge within a week of submission. If that is not possible, we continue searching for an appropriate and available editor for up to {{ default_assignment_period_weeks }} weeks for submissions to {{ submission.submitted_to.name }}. Since {{ weeks_passed }} week{{ weeks_passed|pluralize }} {{ weeks_passed|pluralize:"has,have" }} already passed, we would like to further present you with the following options:
     <ul>
@@ -77,8 +80,11 @@
   We thank you for your patience and understanding. If you have any questions or concerns, please do not hesitate to <a href="https://{{ domain }}{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoS' %}">contact Editorial Administration</a> (login required).
 </p>
 
-<p>Sincerely,</p>
-<p>The SciPost Team</p>
-{% include 'email/_footer.html' %}
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team
+</p>
 
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=submission %}

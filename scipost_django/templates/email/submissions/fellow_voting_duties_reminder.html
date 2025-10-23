@@ -1,9 +1,9 @@
-<p>Dear {{ fellow.profile.full_name }},</p>
+<p>Dear {{ fellow.profile.formal_name }},</p>
 
 <p>
-  You have a pending voting duty for the following submission:
+  You have a pending voting duty for the following Submission:
   <br />
-  <strong>{{ recommendation.submission.title }}</strong>
+  <a href="https://{{ domain }}{{ recommendation.submission.get_absolute_url }}">{{ recommendation.submission.title }}</a>,
   <br />
   by {{ recommendation.submission.author_list }}.
 </p>
@@ -21,3 +21,6 @@
   <br />
   The SciPost Team.
 </p>
+
+{% include 'email/_footer.html' %}
+{% include 'email/_submission_thread_uuid.html' with submission=recommendation.submission %}

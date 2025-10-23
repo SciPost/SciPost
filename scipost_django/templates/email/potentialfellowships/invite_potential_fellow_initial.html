@@ -1,4 +1,4 @@
-<p>Dear {{ potential_fellowship.get_title_display }} {{ potential_fellowship.last_name }}</p>
+<p>Dear {{ potential_fellowship.profile.formal_name }},</p>
 
 <p>
   Hopefully you're aware of <a href="https://{{ domain }}{% url 'scipost:index' %}">SciPost</a> and of its mission to establish a healthier community-run, open and not-for-profit infrastructure for scientific publishing (see our <a href="https://{{ domain }}{% url 'scipost:about' %}">about page</a> for a quick introduction or reminder).

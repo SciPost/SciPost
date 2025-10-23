@@ -1,27 +1,28 @@
-<p>
-  Re: job {{ job_application.job_opening }}
-</p>
-<p>
-  Dear {{ job_application.get_title_display }} {{ job_application.last_name }},
-</p>
+<p>Re: job {{ job_application.job_opening }}</p>
+
+<p>Dear {{ job_application.formal_name }},</p>
+
 <p>
   We hereby acknowledge your application to the job of {{ job_application.job_opening.title }}
   at SciPost.
 </p>
+
 <p>
   <strong style="color: red;">Action required</strong>: you need to click on the following
   verification link (to certify your email):
 </p>
+
 <p>
   <a href="https://{{ domain }}{% url 'careers:job_application_verify' uuid=job_application.uuid %}">
-    https://{{ domain }}{% url 'careers:job_application_verify' uuid=job_application.uuid %}</a>
+  https://{{ domain }}{% url 'careers:job_application_verify' uuid=job_application.uuid %}</a>
 </p>
+
 <p>
   We thank you very much for your interest, and will keep you updated on the
   selection procedure as soon as possible.
 </p>
-<p>
-  The SciPost Team
-</p>
+
+<p>The SciPost Team</p>
+
 
 {% include 'email/_footer.html' %}

@@ -1,13 +1,16 @@
 {% load automarkup %}
-<p>
-  Dear {{ decision.submission.submitted_by.profile.get_title_display }} {{ decision.submission.submitted_by.user.last_name }},
-</p>
+<p>Dear {{ decision.submission.submitted_by.profile.formal_name }},</p>
+
 <p>
   The Editorial College of SciPost has come to a decision regarding your Submission
+  <br />
+  <a href="https://{{ domain }}{{ decision.submission.get_absolute_url }}">{{ decision.submission.title }}</a>,
+  <br />
+  by {{ decision.submission.author_list }}.
 </p>
-<p>{{ decision.submission.title }}</p>
-<p>by {{ decision.submission.author_list }}.</p>
+
 {% if decision.publish %}
+
   {% if decision.for_journal.name == 'SciPost Selections' %}
     <p>
       We are pleased to let you know that your manuscript has been accepted for publication
@@ -34,19 +37,19 @@
   {% elif decision.for_journal.name|add:" Core" == decision.submission.submitted_to.name %}
     <!-- This is a special case for when a submission gets upgraded from a Core to a flagship journal -->
     <p>
-      The Editorial College has considered your submission for publication 
-      in the journal to which you had submitted, namely {{ decision.submission.submitted_to.name }}. 
-      After deliberating, the College has pointed out that your manuscript would be more appropriate 
-      for publication in {{ decision.for_journal.name }}, our flagship title 
+      The Editorial College has considered your submission for publication
+      in the journal to which you had submitted, namely {{ decision.submission.submitted_to.name }}.
+      After deliberating, the College has pointed out that your manuscript would be more appropriate
+      for publication in {{ decision.for_journal.name }}, our flagship title
       in the field of {{ decision.for_journal.college.acad_field.name }}.
     </p>
     <p>
       The present email is thus to formally offer you immediate acceptance in this journal.
-      You can inform us of choice by going to your personal page: under the Submissions tab, 
-      you will find links to accept this offer or to turn it down (you will also find 
-      these links on the submission page of this manuscript). 
-      <strong>We will await your confirmation of acceptance of this publication offer 
-        before initiating production of the proofs of your paper.</strong>
+      You can inform us of choice by going to your personal page: under the Submissions tab,
+      you will find links to accept this offer or to turn it down (you will also find
+      these links on the submission page of this manuscript).
+      <strong>We will await your confirmation of acceptance of this publication offer
+      before initiating production of the proofs of your paper.</strong>
     </p>
   {% else %}
     <p>
@@ -66,7 +69,7 @@
       the Submissions tab, you will find links to accept this offer or
       to turn it down (you will also find these links on the submission page of this manuscript).
       <strong>We will await your confirmation of acceptance of this publication offer
-	before initiating production of the proofs of your paper.</strong>
+      before initiating production of the proofs of your paper.</strong>
     </p>
     <p>
       If you decide to turn this offer down, the appropriate course of action would
@@ -76,33 +79,35 @@
       and you will be free to submit it elsewhere.
     </p>
   {% endif %}
+
 {% else %}
-    <p>
-      We are sorry to inform you that your Submission has not been accepted for publication.
-    </p>
-    <p>
-      You can view more details at the Submission's page at
-      <a href="https://{{ domain }}{{ decision.submission.get_absolute_url }}">https://{{ domain }}{{ decision.submission.get_absolute_url }}</a> .
-      Note that these details are viewable only by the registered authors of the submission.
-    </p>
-    <p>
-      This Submission Page has now been removed from general public view; if you wish,
-      you can email us and request to make it publicly visible again.
-    </p>
-    <p>
-      This completes the editorial procedure on our side, and you are now free to submit
-      your manuscript elsewhere.
-    </p>
+  <p>We are sorry to inform you that your Submission has not been accepted for publication.</p>
+  <p>
+    You can view more details on the <a href="https://{{ domain }}{{ decision.submission.get_absolute_url }}">Submission page</a>.
+    Note that these details are viewable only by the registered authors of the submission.
+  </p>
+  <p>
+    This Submission Page has now been removed from general public view; if you wish,
+    you can email us and request to make it publicly visible again.
+  </p>
+  <p>
+    This completes the editorial procedure on our side, and you are now free to submit
+    your manuscript elsewhere.
+  </p>
 {% endif %}
+
 {% if decision.remarks_for_authors %}
   <p><strong>Further remarks from Editorial Administration:</strong></p>
-  <div class="mx-2 mb-4">
-    {% automarkup decision.remarks_for_authors %}
-  </div>
+  <div class="mx-2 mb-4">{% automarkup decision.remarks_for_authors %}</div>
 {% endif %}
-<p>We thank you very much for your contribution.</p>
-<p>Sincerely,</p>
-<p>The SciPost Team.</p>
-{% include 'email/_footer.html' %}
 
+<p>We thank you very much for your contribution.</p>
+
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=decision.submission %}

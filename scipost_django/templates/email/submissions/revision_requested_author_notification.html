@@ -3,7 +3,7 @@
 <p>
   The Editor-in-charge of your recent Submission to {{ recommendation.submission.submitted_to.name }}:
   <br />
-  <strong>{{ recommendation.submission.title }}</strong>
+  <a href="https://{{ domain }}{{ recommendation.submission.get_absolute_url }}">{{ recommendation.submission.title }}</a>,
   <br />
   by {{ recommendation.submission.author_list }}
   <br />
@@ -51,3 +51,4 @@
 </p>
 
 {% include "email/_footer.html" %}
+{% include 'email/_submission_thread_uuid.html' with submission=recommendation.submission %}

@@ -3,7 +3,7 @@
 <p>
   We are pleased to inform you that your recent Submission to {{ assignment.submission.submitted_to.name }}
   <br />
-  <strong>{{ assignment.submission.title }}</strong>
+  <a href="https://{{ domain }}{{ assignment.submission.get_absolute_url }}">{{ assignment.submission.title }}</a>,
   <br />
   by {{ assignment.submission.author_list }}
   <br />
@@ -50,3 +50,4 @@
 </p>
 
 {% include 'email/_footer.html' %}
+{% include 'email/_submission_thread_uuid.html' with submission=assignment.submission %}
