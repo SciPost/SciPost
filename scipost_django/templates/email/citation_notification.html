@@ -1,5 +1,5 @@
 
-Dear {{ object.get_title }} {{ object.last_name }},
+Dear {{ citation_notification.contributor.profile.formal_name }},
 
 <br>
 <br>
@@ -7,42 +7,42 @@ Dear {{ object.get_title }} {{ object.last_name }},
 <p>
     We would like to notify you that your work has been cited in
 
-    {% if object.related_notifications.for_publications %}
-        {% if object.related_notifications.for_publications|length > 1 %}{{ object.related_notifications.for_publications|length }} papers{% else %}a paper{% endif %}
+    {% if citation_notification.related_notifications.for_publications %}
+        {% if citation_notification.related_notifications.for_publications|length > 1 %}{{ citation_notification.related_notifications.for_publications|length }} papers{% else %}a paper{% endif %}
         published by SciPost:
 
         <ul>
-            {% for notification in object.related_notifications.for_publications %}
+            {% for notification in citation_notification.related_notifications.for_publications %}
                 <li>
-                    <a href="https://doi.org/{{ object.publication.doi_string }}">{{ object.publication.citation }}</a>
+                    <a href="https://doi.org/{{ citation_notification.publication.doi_string }}">{{ citation_notification.publication.citation }}</a>
                     <br>
-                    {{ object.publication.title }}
+                    {{ citation_notification.publication.title }}
                     <br>
-                    <i>by {{ object.publication.author_list }}</i>
+                    <i>by {{ citation_notification.publication.author_list }}</i>
                 </li>
             {% endfor %}
         </ul>
     {% endif %}
 
-    {% if object.related_notifications.for_submissions %}
-        {% if object.related_notifications.for_submissions|length > 1 %}{{ object.related_notifications.for_submissions|length }} manuscripts{% else %}a manuscript{% endif %}
+    {% if citation_notification.related_notifications.for_submissions %}
+        {% if citation_notification.related_notifications.for_submissions|length > 1 %}{{ citation_notification.related_notifications.for_submissions|length }} manuscripts{% else %}a manuscript{% endif %}
         submitted to SciPost,
 
         <ul>
-            {% for notification in object.related_notifications.for_submissions %}
+            {% for notification in citation_notification.related_notifications.for_submissions %}
                 <li>
-                    {{ object.submission.title }}
+                    {{ citation_notification.submission.title }}
                     <br>
-                    <i>by {{ object.submission.author_list }}</i>
+                    <i>by {{ citation_notification.submission.author_list }}</i>
                     <br>
-                    <a href="https://{{ domain }}/{{ object.submission.get_absolute_url }}">View the submission's page</a>
+                    <a href="https://{{ domain }}/{{ citation_notification.submission.get_absolute_url }}">View the submission's page</a>
                 </li>
             {% endfor %}
         </ul>
     {% endif %}
 </p>
 
-{% if object.related_notifications.for_publications %}
+{% if citation_notification.related_notifications.for_publications %}
     <p>We hope you will find this paper of interest to your own research.</p>
 {% else %}
     <p>You might for example consider reporting or commenting on the above submission before the refereeing deadline.</p>
@@ -54,9 +54,9 @@ Dear {{ object.get_title }} {{ object.last_name }},
     The SciPost Team
 </p>
 
-{% if object.get_first_related_contributor and object.get_first_related_contributor.activation_key %}
+{% if citation_notification.get_first_related_contributor and citation_notification.get_first_related_contributor.activation_key %}
     <p style="font-size: 10px;">
-        Don\'t want to receive such emails? <a href="https://{{ domain }}{% url 'scipost:unsubscribe' object.get_first_related_contributor.id object.get_first_related_contributor.activation_key %}">Unsubscribe</a>
+        Don\'t want to receive such emails? <a href="https://{{ domain }}{% url 'scipost:unsubscribe' citation_notification.get_first_related_contributor.id citation_notification.get_first_related_contributor.activation_key %}">Unsubscribe</a>
     </p>
 {% endif %}
 

@@ -1,11 +1,11 @@
 <p>
-  Dear {{ object.contact.get_title_display }} {{ object.contact.user.last_name }},
+  Dear {{ contactrole.contact.get_title_display }} {{ contactrole.contact.user.last_name }},
 </p>
 <p>
-  Your organization ({{ object.organization }}) has been sponsoring SciPost (see details at <a href="https://{{ domain }}{{ object.organization.get_absolute_url }}">this link</a>), for which we are extremely grateful.
+  Your organization ({{ contactrole.organization }}) has been sponsoring SciPost (see details at <a href="https://{{ domain }}{{ contactrole.organization.get_absolute_url }}">this link</a>), for which we are extremely grateful.
 </p>
 <p>
-  Your latest sponsorship period ends on {{ object.organization.latest_subsidy_date_until }}. We would be extremely grateful for your continued support, and would hereby like to enquire whether we can start the renewal procedure.
+  Your latest sponsorship period ends on {{ contactrole.organization.latest_subsidy_date_until }}. We would be extremely grateful for your continued support, and would hereby like to enquire whether we can start the renewal procedure.
 </p>
 <p>
   On behalf of the SciPost Foundation,<br><br>

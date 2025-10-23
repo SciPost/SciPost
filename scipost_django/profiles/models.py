@@ -444,8 +444,7 @@ class ProfileEmail(models.Model):
         if self.has_token_expired:
             self.reset_verification_token()
 
-        mail_sender = DirectMailUtil("profiles/verify_profile_email", object=self)
-        mail_sender.send_mail()
+        DirectMailUtil("profiles/verify_profile_email", profile_email=self).send_mail()
 
     def get_verification_url(self):
         return reverse(

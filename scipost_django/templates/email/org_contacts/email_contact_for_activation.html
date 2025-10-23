@@ -1,20 +1,28 @@
-<p>Dear {{ contact.get_title_display }} {{ contact.user.last_name }},</p>
+<p>Dear {{ contact.user.first_name }} {{ contact.user.last_name }},</p>
 
 <p>
-    Many thanks for sponsoring SciPost. We have now created a personal account for you on {{ domain }}, which will allow you to access all relevant information and functionalities related to sponsoring.
+  Many thanks for sponsoring SciPost. We have now created a personal account for you on {{ domain }},
+  which will allow you to access all relevant information and functionalities related to sponsoring.
 </p>
+
 <p>
-    In order to activate your account, please navigate to <a href="https://{{ domain }}{% url 'organizations:activate_account' contact.activation_key %}?email={{ contact.user.email }}">this link</a>. You will be asked to choose a password, after which you will be able to login (your username being defined as your email address).
+  In order to activate your account, please navigate to
+  <a href="https://{{ domain }}{% url 'organizations:activate_account' contact.activation_key %}?email={{ contact.user.email }}">this link</a>.
+  You will be asked to choose a password, after which you will be able to login (your username being defined as your email address).
 </p>
+
 <p>
-    After logging in, you will find a “Org dashboard” link in the top menu, which will take you to your info page, where you will find further links for managing your account and the associated data (in particular, the public visibility settings of your sponsorship amounts and associated documents).
+  After logging in, you will find a "Org dashboard" link in the top menu, which will take you to your info page,
+  where you will find further links for managing your account and the associated data
+  (in particular, the public visibility settings of your sponsorship amounts and associated documents).
 </p>
+
+<p>We are very pleased to welcome you to SciPost, and will be happy to answer any questions you might have.</p>
+
 <p>
-    We are very pleased to welcome you to SciPost, and will be happy to answer any questions you might have.
-</p>
-<p>
-    Sincerely,<br><br>
-    SciPost and its Sponsors Board
+  Sincerely,
+  <br />
+  SciPost and its Sponsors Board
 </p>
 
 {% include 'email/_footer.html' %}

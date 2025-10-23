@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Request received",
     "recipient_list": [
-        "user.email"
+        "contributor.user.email"
     ],
     "bcc": [
         "registration@"

@@ -1,7 +1,8 @@
 {
     "subject": "SciPost: duplicate accounts merged",
     "recipient_list": [
-        "user.email"
+        "contributor_into.dbuser.email",
+        "contributor_from.dbuser.email"
     ],
     "bcc": [
         "admin@"

@@ -94,6 +94,7 @@ class CitationNotificationsProcessView(
     queryset = CitationNotification.objects.unprocessed()
     success_url = reverse_lazy("invitations:citation_notification_list")
     mail_code = "citation_notification"
+    context_object_name = "citation_notification"
 
     def can_send_mail(self):
         """

@@ -2435,7 +2435,7 @@ class SubmissionPreassignmentForm(forms.ModelForm):
             self.instance.add_general_event("Submission failed preassignment.")
             mail_sender = DirectMailUtil(
                 "preassignment_failed",
-                instance=self.instance,
+                submission=self.instance,
                 message_for_authors=self.cleaned_data["message_for_authors"],
                 header_template="submissions/admin/preassignment_failed.html",
             )

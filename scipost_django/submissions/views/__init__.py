@@ -1249,7 +1249,7 @@ def assignment_failed(request, identifier_w_vn_nr):
     mail_editor_view = MailEditorSubview(
         request,
         mail_code="authors/submissions_assignment_failed",
-        instance=submission,
+        submission=submission,
         header_template="submissions/admin/editorial_assignment_failed.html",
     )
     if mail_editor_view.is_valid():

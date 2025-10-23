@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: current assignments, pending tasks",
     "recipient_list": [
-        "user.email"
+        "fellow.profile.email"
     ],
     "bcc": [
         "edadmin@"

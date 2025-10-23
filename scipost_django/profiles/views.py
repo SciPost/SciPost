@@ -781,6 +781,7 @@ class ProfileSendEmailView(PermissionsMixin, MailView):
     permission_required = "scipost.can_email_profiles"
     queryset = Profile.objects.all()
     mail_code = "profiles/profile_send_mail"
+    context_object_name = "profile"
 
     def get_success_url(self):
         return self.object.get_absolute_url()

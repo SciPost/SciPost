@@ -69,7 +69,7 @@ class Command(BaseCommand):
             rendered_table=rendered_table,
             start=start,
             end=end,
-            object=Group.objects.get(name="Human Resources Administrators"),
+            group=Group.objects.get(name="Human Resources Administrators"),
         )
         mail_request.send_mail()
 

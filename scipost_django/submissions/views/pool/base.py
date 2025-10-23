@@ -357,7 +357,7 @@ class EICManualEICInvitationEmailView(PermissionsMixin, MailView):
 
         config["fellowship"] = self.fellowship
         config["submission"] = self.submission
-        config["signee"] = self.request.user.contributor.profile
+        config["signee_profile"] = self.request.user.contributor.profile
 
         return config
 

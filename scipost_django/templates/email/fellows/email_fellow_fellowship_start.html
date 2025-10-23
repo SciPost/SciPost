@@ -1,10 +1,10 @@
-<p>Dear {{ object.contributor.profile.formal_name }},</p>
+<p>Dear {{ fellowship.contributor.profile.formal_name }},</p>
 
 <p>
-  Many thanks for accepting to become {{ object.guest|yesno:"a Guest,an" }} Editorial Fellow at {% if not object.hosted_journal %}SciPost{% else %}{{ object.hosted_journal.name_prose }}{% endif %}! We wish you a very warm welcome, and very much appreciate your willingness to help out.
+  Many thanks for accepting to become {{ fellowship.guest|yesno:"a Guest,an" }} Editorial Fellow at {% if not fellowship.hosted_journal %}SciPost{% else %}{{ fellowship.hosted_journal.name_prose }}{% endif %}! We wish you a very warm welcome, and very much appreciate your willingness to help out.
 </p>
 <p>
-  Your account has now been given Fellow-level rights{% if object.hosted_journal %} on the SciPost platform, which hosts {{ object.hosted_journal.name_prose }}{% endif %}, so you now have access to a few additional Fellows-only pages.{% if not object.guest %} We have also included you in our list of Fellows at our <a href="https://{{ domain }}{% url 'colleges:colleges' %}">Colleges page</a>.{% endif %}
+  Your account has now been given Fellow-level rights{% if fellowship.hosted_journal %} on the SciPost platform, which hosts {{ fellowship.hosted_journal.name_prose }}{% endif %}, so you now have access to a few additional Fellows-only pages.{% if not fellowship.guest %} We have also included you in our list of Fellows at our <a href="https://{{ domain }}{% url 'colleges:colleges' %}">Colleges page</a>.{% endif %}
 </p>
 <p>
   This email is meant as a quick helper to make sure everything is set up properly, and to help you start finding your way around our systems.
@@ -25,10 +25,10 @@
 </p>
 <h3>What happens now?</h3>
 <p>
-  As new Submissions come in for {% if object.guest and object.collections_editing.all.first %}your {{ object.collections_editing.all.first }} collection{% elif object.guest and object.proceedings.all.first %}your proceedings issue{% else %}which your specialties match{% endif %}, you will see them in the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">submissions pool</a> and will be able to select which Submissions you take charge of.{% if object.hosted_journal %} For {{ object.hosted_journal.name_prose }}, the assignment of an Editor to a specific Submission should be done in coordination with the Journal's Senior Fellows.{% elif object.proceedings.all.first or object.collections_editing.all.first %} You and your{% if object.collections_editing.all.first %} collection{% elif object.proceedings.all.first %} event{% endif %} co-organizers can decide how to divide the work among yourselves.{% endif %} Once you do take charge of one, you will be given access to that Submission's Editorial Page from which you will be able to run the refereeing process.
+  As new Submissions come in for {% if fellowship.guest and fellowship.collections_editing.all.first %}your {{ fellowship.collections_editing.all.first }} collection{% elif fellowship.guest and fellowship.proceedings.all.first %}your proceedings issue{% else %}which your specialties match{% endif %}, you will see them in the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">submissions pool</a> and will be able to select which Submissions you take charge of.{% if fellowship.hosted_journal %} For {{ fellowship.hosted_journal.name_prose }}, the assignment of an Editor to a specific Submission should be done in coordination with the Journal's Senior Fellows.{% elif fellowship.proceedings.all.first or fellowship.collections_editing.all.first %} You and your{% if fellowship.collections_editing.all.first %} collection{% elif fellowship.proceedings.all.first %} event{% endif %} co-organizers can decide how to divide the work among yourselves.{% endif %} Once you do take charge of one, you will be given access to that Submission's Editorial Page from which you will be able to run the refereeing process.
 </p>
 <p>
-  {% if object.guest %}
+  {% if fellowship.guest %}
     After the refereeing process is complete, with as many refereeing rounds as you deem appropriate, you can formulate an Editorial Recommendation to accept or reject a submission. The SciPost Editorial College will then vote on your recommendation (we remind you that publication decisions are taken by the College, as a collective).
   {% else %}
     You will also regularly be invited to vote on Editorial Recommendations on Submissions which have undergone our refereeing process (we remind you that publication decisions are taken by the College as a collective). You can find a list of Recommendations you have been invited to vote on in the submissions pool. You can also request access to any vote on Submissions in your specialties from the submissions pool.
@@ -38,10 +38,10 @@
   Everything is more or less self-explanatory, but you are most welcome to email our Editorial Administration at edadmin@{{ domain }} if you have any questions.
 </p>
 <p>
-  Once per week, you will also receive an email containing a weekly summary of tasks or activities relevant to your activities as {% if object.guest %}Guest {% endif %}Fellow. This email contains handy direct links to the instances concerned.
+  Once per week, you will also receive an email containing a weekly summary of tasks or activities relevant to your activities as {% if fellowship.guest %}Guest {% endif %}Fellow. This email contains handy direct links to the instances concerned.
 </p>
 
-{% if not object.guest %}
+{% if not fellowship.guest %}
   <p>
     At least once per year, you will be invited to a Virtual General Meeting where SciPost Administration, Advisory Board and Editorial Colleges gather to discuss important points about our activities. You will receive separate email communications concerning these. You can find links to past meetings on our site's top navbar, under the "Logged in as ..." submenu.
   </p>
