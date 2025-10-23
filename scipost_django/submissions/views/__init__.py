@@ -110,8 +110,7 @@ from ..forms import (
     SubmissionTargetJournalForm,
     SubmissionTargetProceedingsForm,
     SubmissionPreprintFileForm,
-    SubmissionPreassignmentForm,
-    PreassignEditorsFormSet,
+        PreassignEditorsFormSet,
     SubmissionReassignmentForm,
 )
 
