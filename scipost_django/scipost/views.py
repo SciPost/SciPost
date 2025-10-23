@@ -64,6 +64,7 @@ from .constants import SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR
 from .decorators import has_contributor, is_contributor_user
 from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim
 from .forms import (
+    REGISTRATION_REFUSAL_CHOICES,
     SciPostAuthenticationForm,
     SciPostMFAVerifyForm,
     SciPostPasswordResetForm,
@@ -755,8 +756,6 @@ def _hx_vet_registration_request_ack_form(request, contributor_id):
     """Form view to vet new Registration requests."""
     form = VetRegistrationForm(request.POST or None, contributor_id=contributor_id)
 
-    print(request.POST)
-
     if request.POST.get("submit") is None:
         return TemplateResponse(
             request,
@@ -767,7 +766,6 @@ def _hx_vet_registration_request_ack_form(request, contributor_id):
     contributor = Contributor.objects.get(pk=contributor_id)
 
     if request.POST.get("submit") and form.is_valid():
-        domain = get_current_domain()
         if form.promote_to_registered_contributor():
             contributor.status = NORMAL_CONTRIBUTOR
             contributor.vetted_by = request.user.contributor
@@ -790,7 +788,7 @@ def _hx_vet_registration_request_ack_form(request, contributor_id):
             DirectMailUtil(
                 "registration/registration_unsuccessful",
                 contributor=contributor,
-                reason=ref_reason,
+                reason=dict(REGISTRATION_REFUSAL_CHOICES).get(ref_reason, "Unknown"),
                 further_explanations=form.cleaned_data.get("email_response_field"),
             ).send_mail()
 
