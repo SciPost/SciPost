@@ -206,7 +206,7 @@ class Journal(models.Model):
     def series_uniquely_contained(self):
         return Series.objects.of_single_journal().filter(container_journals=self)
 
-    @property
+    @cached_property
     def expectations(self):
         """Return a list of tuples with the acceptance expectations for this Journal."""
         sections = self.acceptance_criteria.get("sections", [])

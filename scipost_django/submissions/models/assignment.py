@@ -235,6 +235,7 @@ class JournalTransferCondition(BaseAssignmentCondition):
     def accept(self, offer: "ConditionalAssignmentOffer"):
         """
         Accept the offer, transferring the submission to the alternative journal.
+        Also clears out any fulfilled expectations on the submission, as these may no longer be valid.
         """
         if self.alternative_journal is None:
             raise ValueError("The journal for this transfer is not found.")
@@ -248,6 +249,7 @@ class JournalTransferCondition(BaseAssignmentCondition):
             )
 
         offer.submission.submitted_to = self.alternative_journal
+        offer.submission.fulfilled_expectations = ""
         offer.submission.save()
 
         super().accept(offer)
