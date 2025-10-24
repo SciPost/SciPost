@@ -26,6 +26,7 @@
       <table class="table">
         <thead>
           <tr>
+            <th>Vetted</th>
             <th>Name</th>
             <th>Email</th>
             <th>Date requested</th>
@@ -36,6 +37,13 @@
         <tbody>
           {% for contributor in inactive_contributors %}
             <tr>
+              <td>
+                {% if contributor.status == "normal" %}
+                  <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
+                {% else %}
+                  <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+                {% endif %}
+              </td>
               <td>{{contributor.user.first_name}} {{contributor.user.last_name}}</td>
               <td>{{contributor.user.email}}</td>
               <td>{{contributor.user.date_joined|timesince}} ago</td>

@@ -70,7 +70,9 @@ class ContributorQuerySet(models.QuerySet):
 
     def awaiting_validation(self):
         """Filter Contributors that have not been validated by the user."""
-        return self.filter(dbuser__is_active=False, status=NEWLY_REGISTERED)
+        return self.filter(
+            dbuser__is_active=False, status__in=[NEWLY_REGISTERED, NORMAL_CONTRIBUTOR]
+        )
 
     def awaiting_vetting(self):
         """Filter Contributors that have not been vetted through."""
