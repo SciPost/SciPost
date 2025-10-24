@@ -1,10 +1,10 @@
 {
     "subject": "SciPost: job application",
     "recipient_list": [
-	"email"
+	    "job_application.email"
     ],
     "bcc": [
-	"admin@"
+	    "admin@"
     ],
     "from_name": "SciPost Admin",
     "from_email": "admin@"

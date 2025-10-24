@@ -1,10 +1,10 @@
 {
-    "subject": "Welcome to {{ object.hosted_journal.name_prose|default:\"SciPost\" }}'s Editorial College",
+    "subject": "Welcome to {{ fellowship.hosted_journal.name_prose|default:\"SciPost\" }}'s Editorial College",
     "recipient_list": [
-	"contributor.profile.email"
+	    "fellowship.contributor.profile.email"
     ],
     "bcc": [
-	"admin@"
+	    "admin@"
     ],
     "from_name": "SciPost Admin",
     "from_email": "admin@"

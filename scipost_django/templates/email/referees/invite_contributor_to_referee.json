@@ -1,10 +1,10 @@
 {
     "subject": "SciPost: refereeing request",
     "recipient_list": [
-        "email_address"
+        "invitation.email_address"
     ],
     "bcc": [
-        "submission.editor_in_charge.profile.email",
+        "invitation.submission.editor_in_charge.profile.email",
         "edadmin@"
     ],
     "from_name": "SciPost Refereeing",

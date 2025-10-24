@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: manuscript withdrawn",
     "recipient_list": [
-        "editor_in_charge.profile.email"
+        "submission.editor_in_charge.profile.email"
     ],
     "bcc": [
         "edadmin@"

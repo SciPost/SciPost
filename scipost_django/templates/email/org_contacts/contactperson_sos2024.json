@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Sustain Our Services",
     "recipient_list": [
-        "email"
+        "contactperson.email"
     ],
     "bcc": [
         "sponsors@"

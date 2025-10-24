@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Comment delivered",
     "recipient_list": [
-        "core_content_object.editor_in_charge.profile.email"
+        "comment.core_content_object.editor_in_charge.profile.email"
     ],
     "bcc": [
         "edadmin@"

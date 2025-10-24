@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: new editorial assignment",
     "recipient_list": [
-        "to.profile.email"
+        "assignment.to.profile.email"
     ],
     "bcc": [
         "edadmin@"

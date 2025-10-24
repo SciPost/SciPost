@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: citation notification",
     "recipient_list": [
-        "contributor.profile.email"
+        "citation_notification.contributor.profile.email"
     ],
     "bcc": [
         "admin@"

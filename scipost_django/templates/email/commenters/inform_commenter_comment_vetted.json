@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Comment vetted and posted",
     "recipient_list": [
-        "author.profile.email"
+        "comment.author.profile.email"
     ],
     "bcc": [
         "edadmin@"

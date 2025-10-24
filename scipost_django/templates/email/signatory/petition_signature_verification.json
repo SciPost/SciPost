@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Petition signature verification",
     "recipient_list": [
-        "email"
+        "signature.signatory.profile.email"
     ],
     "from_name": "SciPost Petitions",
     "from_email": "petitions@"

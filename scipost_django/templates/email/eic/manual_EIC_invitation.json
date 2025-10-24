@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Invitation to take charge of a Submission",
     "recipient_list": [
-        "contributor.profile.email"
+        "fellowship.contributor.profile.email"
     ],
     "bcc": [
         "submissions@"

@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Update on your submission seeking assignment",
     "recipient_list": [
-        "submitted_by.profile.email"
+        "submission.submitted_by.profile.email"
     ],
     "bcc": [
         "submissions@"
