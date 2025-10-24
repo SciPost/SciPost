@@ -34,10 +34,6 @@ class ConflictOfInterestAdmin(admin.ModelAdmin):
     search_fields = (
         "profile__last_name",
         "related_profile__last_name",
-        "affected_submissions__title",
-        "affected_submissions__preprint__identifier_w_vn_nr",
-        "affected_publications__title",
-        "affected_publications__doi_label",
     )
     list_filter = ("nature",)
     list_display = (
@@ -51,8 +47,6 @@ class ConflictOfInterestAdmin(admin.ModelAdmin):
         "profile",
         "related_profile",
         "declared_by",
-        "affected_submissions",
-        "affected_publications",
     )
     inlines = [CoauthorshipInline]
 

@@ -2089,10 +2089,6 @@ class SubmissionForm(forms.ModelForm):
             author_profile.submission = submission
         SubmissionAuthorProfile.objects.bulk_create(previous_profiles)
 
-        # Add conflicts of interest from previous submission
-        submission.conflicts_of_interest.add(
-            *previous_submission.conflicts_of_interest.all()
-        )
 
 
 class SubmissionReportsForm(forms.ModelForm):

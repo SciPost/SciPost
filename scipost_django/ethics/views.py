@@ -40,10 +40,13 @@ def _hx_submission_ethics(request, identifier_w_vn_nr):
         profile=request.user.contributor.profile,
         submission=submission,
     ).first()
-    conflict_of_interest = ConflictOfInterest.objects.filter(
-        profile=request.user.contributor.profile,
-        affected_submissions=submission,
-    ).first()
+    conflict_of_interest = (
+        ConflictOfInterest.objects.all()
+        .involving_profile(request.user.contributor.profile)
+        .involving_any_submission_author_of(submission)
+        .valid_on_date()
+        .first()
+    )
     context = {
         "submission": submission,
         "clearance": clearance,
@@ -110,8 +113,7 @@ def _hx_submission_conflict_of_interest_form(request, identifier_w_vn_nr):
         initial=initial,
     )
     if form.is_valid():
-        instance = form.save()
-        instance.affected_submissions.add(submission)
+        form.save()
         response = HttpResponse()
         response["HX-Trigger-After-Settle"] = "search-conditions-updated"
         return response
@@ -134,13 +136,8 @@ def _hx_submission_conflict_of_interest_delete(request, identifier_w_vn_nr, pk):
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
     conflict_of_interest = get_object_or_404(ConflictOfInterest, pk=pk)
-    conflict_of_interest.affected_submissions.remove(submission)
-    # submission.fellows.add(request.user.contributor.session_fellowship(request))
-    if (
-        conflict_of_interest.affected_submissions.count() == 0
-        and conflict_of_interest.affected_publications.count() == 0
-    ):
-        conflict_of_interest.delete()
+    conflict_of_interest.delete()
+
     context = {
         "submission": submission,
     }
@@ -175,8 +172,7 @@ def _hx_submission_conflict_of_interest_create(
         initial=initial,
     )
     if form.is_valid():
-        instance = form.save()
-        instance.affected_submissions.add(submission)
+        form.save()
         response = render(
             request,
             "submissions/pool/_submission_fellows.html",

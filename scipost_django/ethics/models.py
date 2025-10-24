@@ -125,18 +125,6 @@ class ConflictOfInterest(models.Model):
     )
     declared_on = models.DateTimeField(default=timezone.now)
 
-    affected_submissions = models.ManyToManyField["Submission", "ConflictOfInterest"](
-        "submissions.Submission",
-        blank=True,
-        related_name="conflicts_of_interest",
-    )
-
-    affected_publications = models.ManyToManyField["Publication", "ConflictOfInterest"](
-        "journals.Publication",
-        blank=True,
-        related_name="conflicts_of_interest",
-    )
-
     comments = models.TextField(blank=True)
 
     if TYPE_CHECKING:
