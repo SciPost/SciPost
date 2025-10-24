@@ -1,11 +1,11 @@
 {
     "subject": "SciPost: editorial decision",
     "recipient_list": [
-	"submission.submitted_by.user.email"
+	"submission.submitted_by.profile.email"
     ],
     "bcc": [
 	"edadmin@",
-	"submission.editor_in_charge.user.email"
+	"submission.editor_in_charge.profile.email"
     ],
     "from_name": "SciPost Editorial Administration",
     "from_email": "edadmin@"

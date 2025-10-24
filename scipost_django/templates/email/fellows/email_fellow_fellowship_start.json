@@ -1,7 +1,7 @@
 {
     "subject": "Welcome to {{ object.hosted_journal.name_prose|default:\"SciPost\" }}'s Editorial College",
     "recipient_list": [
-	"contributor.user.email"
+	"contributor.profile.email"
     ],
     "bcc": [
 	"admin@"

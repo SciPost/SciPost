@@ -1,10 +1,10 @@
 {
     "subject": "SciPost: authors replied to your Report",
     "recipient_list": [
-        "author.user.email"
+        "author.profile.email"
     ],
     "bcc": [
-        "submission.editor_in_charge.user.email",
+        "submission.editor_in_charge.profile.email",
         "edadmin@"
     ],
     "from_name": "SciPost Refereeing",

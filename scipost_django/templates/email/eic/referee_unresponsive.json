@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: unresponsive referee",
     "recipient_list": [
-        "submission.editor_in_charge.user.email"
+        "submission.editor_in_charge.profile.email"
     ],
     "bcc": [
         "edadmin@"

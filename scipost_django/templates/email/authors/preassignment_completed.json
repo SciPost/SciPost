@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Submission preassignment completed",
     "recipient_list": [
-        "submitted_by.user.email"
+        "submitted_by.profile.email"
     ],
     "bcc": [
         "submissions@"

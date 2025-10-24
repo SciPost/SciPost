@@ -1,11 +1,11 @@
 {
     "subject": "SciPost: acceptance of publication offer",
     "recipient_list": [
-	"submitted_by.user.email"
+	"submitted_by.profile.email"
     ],
     "bcc": [
 	"edadmin@",
-	"editor_in_charge.user.email"
+	"editor_in_charge.profile.email"
     ],
     "from_name": "SciPost Editorial Administration",
     "from_email": "edadmin@"

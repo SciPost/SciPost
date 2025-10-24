@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Sponsors",
     "recipient_list": [
-        "contact.user.email"
+        "contact.email"
     ],
     "bcc": [
         "sponsors@"
