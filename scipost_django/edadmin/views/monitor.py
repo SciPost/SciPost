@@ -12,6 +12,7 @@ from edadmin.forms.monitor import EdAdminFellowshipSearchForm
 
 from colleges.models import College, Fellowship
 from colleges.permissions import is_edadmin_or_senior_fellow
+from submissions.models.submission import Submission
 
 
 @login_required
@@ -63,6 +64,9 @@ def _hx_fellow_stage_assignment_appraisals_table(request, fellowship_id: int):
     fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
     context = {
         "fellowship": fellowship,
+        "submissions_in_assignment": Submission.objects.all()
+        .annot_authors_have_nonexpired_coi_with_profile(fellowship.contributor.profile)
+        .in_stage_assignment(),
     }
     return render(
         request,

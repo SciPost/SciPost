@@ -177,7 +177,7 @@
 	  </tr>
 	</thead>
 	<tbody>
-	  {% for fellowship in submission.fellows.select_related_contributor__dbuser_and_profile %}
+	  {% for fellowship in submission_fellows %}
 	    {% if fellowship.contributor not in recommendation.eligible_to_vote.all  %}
 	      <tr>
 		<td>{{ fellowship.contributor }}</td>
@@ -195,15 +195,12 @@
 		    <span class="text-success">all clear</span>
 		    &nbsp;<em>(asserted by {{ clearance.asserted_by }})</em>
 		  {% else %}
-		    {% get_profile_conflicts_of_interest submission.conflicts_of_interest fellowship.contributor.profile as coi_qs %}
+		    {% with coi_qs=fellowship.contributor.profile.submission_conflicts_of_interest|add:fellowship.contributor.profile.submission_conflicts_of_interest_related %}
 		    {% if coi_qs %}
 		      <table class="table table-bordered bg-danger bg-opacity-10 mb-0">
 			<thead>
 			  <tr>
 			    <th>Related Profile / <em>(nature)</em></th>
-			    {% if "edadmin" in user_roles %}
-			      <th>Actions</th>
-			    {% endif %}
 			  </tr>
 			</thead>
 			<tbody>
@@ -221,6 +218,7 @@
 		    {% else %}
 		      <em class="text-danger">unknown</em>
 		    {% endif %}
+        {% endwith %}
 		  {% endif %}
 		</td>
 		<td>{% get_fellow_readiness_status_display submission fellowship %}</td>

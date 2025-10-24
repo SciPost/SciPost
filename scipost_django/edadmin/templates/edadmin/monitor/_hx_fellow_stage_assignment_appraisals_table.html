@@ -11,7 +11,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for submission in fellowship.pool.in_stage_assignment.all %}
+    {% for submission in submissions_in_assignment %}
       <tr>
 	<td>
 	  <a class="text-info" href="{{ submission.get_absolute_url }}" target="_blank">{{ submission.title }}</a>
@@ -30,11 +30,10 @@
 	  {% if clearance %}
 	    <span class="text-success">all clear</span>
 	  {% else %}
-	    {% get_profile_conflicts_of_interest submission.conflicts_of_interest fellowship.contributor.profile as ci_qs %}
-	    {% if ci_qs %}
+	    {% if submission.authors_have_nonexpired_coi_with_profile %}
 	      <span class="text-danger">has conflict of interest</span>
 	    {% else %}
-	      <em class="text-danger">unknown</em>
+	      <em class="text-warning">unknown</em>
 	    {% endif %}
 	  {% endif %}
 	</td>

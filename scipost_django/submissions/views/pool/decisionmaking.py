@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, render
 
 from colleges.permissions import (
@@ -11,6 +11,7 @@ from colleges.permissions import (
     is_edadmin,
     is_edadmin_or_senior_fellow,
 )
+from ethics.models import ConflictOfInterest
 from scipost.permissions import HTMXResponse
 from submissions.forms import RecommendationRemarkForm
 
@@ -34,10 +35,29 @@ def _hx_recommendation_voting_details_contents(
         Submission.objects.in_pool(request.user, historical=True),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
+    submission_authors = submission.author_profiles.values_list("profile", flat=True)
     recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
     context = {
         "submission": submission,
         "recommendation": recommendation,
+        "submission_fellows": submission.fellows.all()
+        .select_related_contributor__dbuser_and_profile()
+        .prefetch_related(
+            Prefetch(
+                "contributor__profile__conflicts_of_interest",
+                queryset=ConflictOfInterest.objects.filter(
+                    related_profile__in=submission_authors
+                ),
+                to_attr="submission_conflicts_of_interest",
+            ),
+            Prefetch(
+                "contributor__profile__related_conflicts_of_interest",
+                queryset=ConflictOfInterest.objects.filter(
+                    profile__in=submission_authors
+                ),
+                to_attr="submission_conflicts_of_interest_related",
+            ),
+        ),
     }
     return render(
         request,
@@ -68,22 +88,11 @@ def _hx_recommendation_grant_voting_right(
     if contributor_id:
         recommendation.eligible_to_vote.add(contributor_id)
     elif spec_slug:
-        conflicted_fellows_ids = [
-            coi.fellowship.id for coi in submission.conflicts_of_interest.all()
-        ]
         voting_fellows_to_add = (
             submission.fellows.active()
-            .filter(
-                contributor__profile__specialties__slug=spec_slug,
-            )
-            .exclude(
-                contributor__profile__conflicts_of_interest__affected_submissions=submission,
-            )
-            .exclude(
-                contributor__id__in=[
-                    c.id for c in recommendation.eligible_to_vote.all()
-                ],
-            )
+            .filter(contributor__profile__specialties__slug=spec_slug)
+            .without_conflicts_of_interest_against_submission_authors_of(submission)
+            .exclude(contributor__id__in=recommendation.eligible_to_vote.all())
         )
         if status:
             if status == "senior":

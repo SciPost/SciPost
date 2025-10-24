@@ -202,8 +202,7 @@ class SubmissionQuerySet(models.QuerySet):
         For Senior Fellows, exclude INCOMING status;
         for other Fellows, also exclude PREASSIGNMENT.
         """
-        from ethics.models import ConflictOfInterest
-        from submissions.models.submission import Submission, SubmissionAuthorProfile
+        from submissions.models.submission import Submission
 
         contributor: Contributor | None = getattr(user, "contributor", None)
         if contributor is None:
@@ -212,33 +211,21 @@ class SubmissionQuerySet(models.QuerySet):
         if not (contributor.is_ed_admin or contributor.is_active_fellow):
             return self.none()
 
-        qs = self.annotate(
-            fellowship_in_submission_fellowships=Exists(
-                Submission.fellows.through.objects.filter(
-                    submission_id=models.OuterRef("pk"),
-                    fellowship_id__in=contributor.fellowships.active(),
+        qs = (
+            self.all()
+            .annot_authors_have_nonexpired_coi_with_profile(contributor.profile)
+            .annotate(
+                fellowship_in_submission_fellowships=Exists(
+                    Submission.fellows.through.objects.filter(
+                        submission_id=models.OuterRef("pk"),
+                        fellowship_id__in=contributor.fellowships.active(),
+                    )
                 )
-            ),
-            has_nonexpired_conflict_of_interest_with_authors=Exists(
-                ConflictOfInterest.objects.all()
-                .annotate(
-                    submission_id=models.OuterRef("id"),  # to use in subquery below
-                    involves_author=models.Exists(
-                        SubmissionAuthorProfile.objects.filter(
-                            Q(profile_id=models.OuterRef("profile_id"))
-                            | Q(profile_id=models.OuterRef("related_profile_id")),
-                            submission_id=models.OuterRef("submission_id"),
-                        )
-                    ),
-                )
-                .filter(involves_author=True)
-                .involving_profile(contributor.profile)
-                .valid_on_date()
-            ),
+            )
         )
 
         # remove Submissions for which a conflict of interest exists:
-        qs = qs.exclude(has_nonexpired_conflict_of_interest_with_authors=True)
+        qs = qs.exclude(authors_have_nonexpired_coi_with_profile=True)
 
         # Exclude Submissions where the contributor is a real author, claims authorship,
         # or their name could be in the author list but also has not claimed the association is false.
@@ -410,6 +397,33 @@ class SubmissionQuerySet(models.QuerySet):
             ).filter(voting_event_date__lt=older_than_date)
 
         return qs
+
+    def annot_authors_have_nonexpired_coi_with_profile(self, profile: "Profile"):
+        """
+        Annotate Submissions with a boolean indicating if there is a non-expired conflict of interest
+        with any of the authors.
+        """
+        from ethics.models import ConflictOfInterest
+        from submissions.models.submission import SubmissionAuthorProfile
+
+        return self.annotate(
+            authors_have_nonexpired_coi_with_profile=Exists(
+                ConflictOfInterest.objects.all()
+                .annotate(
+                    submission_id=models.OuterRef("id"),  # to use in subquery below
+                    involves_author=models.Exists(
+                        SubmissionAuthorProfile.objects.filter(
+                            Q(profile_id=models.OuterRef("profile_id"))
+                            | Q(profile_id=models.OuterRef("related_profile_id")),
+                            submission_id=models.OuterRef("submission_id"),
+                        )
+                    ),
+                )
+                .filter(involves_author=True)
+                .involving_profile(profile)
+                .valid_on_date()
+            ),
+        )
 
     def annot_qualified_expertise_by(self, fellow):
         """

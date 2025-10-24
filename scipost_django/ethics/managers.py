@@ -80,6 +80,16 @@ class ConflictOfInterestQuerySet(QuerySet["ConflictOfInterest"]):
             | Q(date_from__isnull=True, date_expiry__isnull=True)
         ).order_by()
 
+    def involving_any_submission_author_of(self, submission: "Submission"):
+        """
+        Filter for conflicts of interest involving any author of the given submission.
+        """
+        author_profile_ids = submission.author_profiles.values("profile")
+        return self.filter(
+            Q(profile__in=author_profile_ids)
+            | Q(related_profile__in=author_profile_ids)
+        )
+
     def involving_profile(self, profile: "Profile"):
         """
         Filter for conflicts of interest involving given Profile.
