@@ -392,7 +392,7 @@ class MailEngine:
                 attribute = model_eval_attr(object, attribute_path)
             except AttributeError:
                 # Ignore the error if applying any "None" filter functions.
-                if any(f == "None" for f, _ in filters):
+                if any(f == "None" for f, _ in filters_and_args):
                     return []
                 raise KeyError(
                     f"The property ({attribute_path}) does not exist on {object}."
