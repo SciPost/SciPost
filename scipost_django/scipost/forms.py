@@ -282,6 +282,18 @@ class RegistrationForm(forms.Form):
         self._forbid_already_associated_email("institutional_email", invitation_key)
         self._forbid_already_associated_email("personal_email", invitation_key)
 
+        # Check institutional email is not of a "personal" domain, unless invited
+        institutional_email = self.cleaned_data.get("institutional_email", "")
+        institutional_address_domain_is_personal = MailAddressDomain.objects.filter(
+            domain__iexact=institutional_email.split("@")[-1],
+            kind=MailAddressDomain.KIND_PERSONAL,
+        ).exists()
+        if not invitation_key and institutional_address_domain_is_personal:
+            self.add_error(
+                "institutional_email",
+                "Please do not use a personal address for academic credential verification purposes.",
+            )
+
         # If ORCID exists in another profile
         duplicate_orcid_profile = Profile.objects.filter(
             orcid_id=cleaned_data.get("orcid_id", "")
@@ -428,19 +440,6 @@ class RegistrationForm(forms.Form):
             )
 
         self.add_error(field, format_html(error_message))
-
-    def clean_institutional_email(self):
-        institutional_email = self.cleaned_data.get("institutional_email", "")
-        mail_domain = institutional_email.split("@")[-1]
-        if MailAddressDomain.objects.filter(
-            domain__iexact=mail_domain, kind=MailAddressDomain.KIND_PERSONAL
-        ).exists():
-            self.add_error(
-                "institutional_email",
-                "Please do not use a personal address for academic credential verification purposes.",
-            )
-
-        return institutional_email
 
     def clean_personal_email(self):
         personal_email = self.cleaned_data.get("personal_email", "")
