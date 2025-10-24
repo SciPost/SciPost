@@ -158,7 +158,7 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
 
         # Send mail
         DirectMailUtil(
-            mail_code="eic/assignment_request",
+            "eic/assignment_request",
             assignment=self,
         ).send_mail()
 

@@ -59,11 +59,10 @@ def petition(request, slug):
             signature.signatory = request.user.contributor
             signature.verified = True
             signature.save()
-            mail_util = DirectMailUtil(
+            DirectMailUtil(
                 "signatory/thank_SPB_signature",
                 signature=signature,
-            )
-            mail_util.send_mail()
+            ).send_mail()
         else:
             # Generate verification key and link
             salt = ""
@@ -75,12 +74,11 @@ def petition(request, slug):
             verification_key = hashlib.sha1(salt + verificationsalt).hexdigest()
             signature.verification_key = verification_key
             signature.save()
-            mail_util = DirectMailUtil(
+            DirectMailUtil(
                 "signatory/petition_signature_verification",
                 signature=signature,
                 email=form.cleaned_data["email"],
-            )
-            mail_util.send_mail()
+            ).send_mail()
         messages.success(request, message)
         return redirect(petition.get_absolute_url())
 

@@ -110,7 +110,7 @@ from ..forms import (
     SubmissionTargetJournalForm,
     SubmissionTargetProceedingsForm,
     SubmissionPreprintFileForm,
-        PreassignEditorsFormSet,
+    PreassignEditorsFormSet,
     SubmissionReassignmentForm,
 )
 
@@ -456,20 +456,20 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 
         if form.is_resubmission():
             # Send emails
-            mail_util = DirectMailUtil(
-                "eic/submission_reappointment", submission=submission
-            )
-            mail_util.send_mail()
-            mail_util = DirectMailUtil(
-                "authors/acknowledge_resubmission", submission=submission
-            )
-            mail_util.send_mail()
+            DirectMailUtil(
+                "eic/submission_reappointment",
+                submission=submission,
+            ).send_mail()
+            DirectMailUtil(
+                "authors/acknowledge_resubmission",
+                submission=submission,
+            ).send_mail()
         else:
             # Send emails
-            mail_util = DirectMailUtil(
-                "authors/acknowledge_submission", submission=submission
-            )
-            mail_util.send_mail()
+            DirectMailUtil(
+                "authors/acknowledge_submission",
+                submission=submission,
+            ).send_mail()
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -636,16 +636,14 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
 
             # Inform EIC
             if submission.editor_in_charge:
-                mail_sender_eic = DirectMailUtil(
+                DirectMailUtil(
                     "eic/inform_eic_manuscript_withdrawn", submission=submission
-                )
-                mail_sender_eic.send_mail()
+                ).send_mail()
 
             # Confirm withdrawal to authors
-            mail_sender_authors = DirectMailUtil(
+            DirectMailUtil(
                 "authors/inform_authors_manuscript_withdrawn", submission=submission
-            )
-            mail_sender_authors.send_mail()
+            ).send_mail()
 
             # Email all referees (if outstanding), cancel all outstanding
             invitations = RefereeInvitation.objects.filter(
@@ -653,11 +651,10 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
             ).outstanding()
             for invitation in invitations:
                 if invitation.date_invited is not None:
-                    mail_util = DirectMailUtil(
+                    DirectMailUtil(
                         "referees/inform_referee_manuscript_withdrawn",
                         invitation=invitation,
-                    )
-                    mail_util.send_mail()
+                    ).send_mail()
             invitations.update(cancelled=True)
 
             # All done.
@@ -1851,7 +1848,7 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
             )
         )
         mail_request = DirectMailUtil(
-            mail_code="referees/invite_unregistered_to_referee",
+            "referees/invite_unregistered_to_referee",
             invitation=referee_invitation,
         )
 
@@ -2007,15 +2004,16 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         else:
             subject_eic = "SciPost: Referee declines to review"
             subject_referee = "SciPost: Confirmation declined invitation"
-        mail_util = DirectMailUtil(
-            "eic/referee_response", invitation=invitation, subject=subject_eic
-        )
-        mail_util.send_mail()
-        mail_util = DirectMailUtil(
+        DirectMailUtil(
+            "eic/referee_response",
+            invitation=invitation,
+            subject=subject_eic,
+        ).send_mail()
+        DirectMailUtil(
             "referees/confirmation_invitation_response",
             invitation=invitation,
             subject=subject_referee,
-        )
+        ).send_mail()
 
         # Add SubmissionEvents
         invitation.submission.add_event_for_author(
@@ -2066,12 +2064,11 @@ def decline_ref_invitation(request, invitation_key):
         invitation.other_refusal_reason = form.cleaned_data["other_refusal_reason"]
         invitation.save()
 
-        mail_util = DirectMailUtil(
+        DirectMailUtil(
             "eic/referee_response",
             invitation=invitation,
             subject="SciPost: Referee declines to review",
-        )
-        mail_util.send_mail()
+        ).send_mail()
 
         # Add SubmissionEvents
         invitation.submission.add_event_for_author(

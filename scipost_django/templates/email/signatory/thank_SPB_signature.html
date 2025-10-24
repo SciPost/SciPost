@@ -1,19 +1,26 @@
 {% load static %}
+
 <p>Dear {{ signature.signatory.profile.formal_name }},</p>
+
 <p>Many thanks for signing the petition!</p>
-<p>One quick and easy way to help us further is to get your colleagues to also sign. Please consider doing this, via word-of-mouth or email!</p>
+<p>
+  One quick and easy way to help us further is to get your colleagues to also sign. Please consider doing this, via word-of-mouth or email!
+</p>
+
 <p>
   One less quick but even more effective way to further help SciPost convince
   your institution, library and/or funding agency to become Sponsors
   is to send a personalized email to one of their representatives; you can use our
-  <a href="mailto:?subject=Petition to support SciPost&amp;body=[PLEASE FILL IN THE TO FIELD ABOVE (keeping sponsors@{{ domain }} in cc)]%0D%0A%0D%0ADear ...%0D%0A%0D%0A[PLEASE WRITE A PERSONALIZED MESSAGE]%0D%0A%0D%0AHere under, you will find basic information about SciPost and how you can support it.%0D%0A%0D%0ASincerely,%0D%0A[YOUR SIGNATURE]%0D%0A%0D%0A%0D%0A%0D%0ASciPost (https://{{ domain }}) is a top-quality next-generation Open Access publication portal managed by professional scientists. Its principles, ideals and implementation can be found at https://{{ domain }}{% url 'scipost:about' %} and https://{{ domain }}{% url 'scipost:FAQ' %}.%0D%0A%0D%0ASciPost follows a different funding model than most traditional publishers. It operates on an entirely not-for-profit basis, and charges neither subscription fees nor article processing charges; instead, its activities are financed through a cost-slashing consortial model.%0D%0A%0D%0ABy making a small financial commitment, the institutions and organizations that benefit from SciPost’s activities can become Sponsors. This enables SciPost to perform all of its publication-related activities, maintain its online portal and implement its long-term development plan. Details of the consortial funding scheme and how to join can be found at https://{{ domain }}{% url 'sponsors:sponsors' %} or by emailing sponsors@{{ domain }}.%0D%0A&amp;cc=sponsors@{{ domain }}">template</a> as a start.</p>
+  <a href="mailto:?subject=Petition to support SciPost&amp;body=[PLEASE FILL IN THE TO FIELD ABOVE (keeping sponsors@{{ domain }} in cc)]%0D%0A%0D%0ADear ...%0D%0A%0D%0A[PLEASE WRITE A PERSONALIZED MESSAGE]%0D%0A%0D%0AHere under, you will find basic information about SciPost and how you can support it.%0D%0A%0D%0ASincerely,%0D%0A[YOUR SIGNATURE]%0D%0A%0D%0A%0D%0A%0D%0ASciPost (https://{{ domain }}) is a top-quality next-generation Open Access publication portal managed by professional scientists. Its principles, ideals and implementation can be found at https://{{ domain }}{% url 'scipost:about' %} and https://{{ domain }}{% url 'scipost:FAQ' %}.%0D%0A%0D%0ASciPost follows a different funding model than most traditional publishers. It operates on an entirely not-for-profit basis, and charges neither subscription fees nor article processing charges; instead, its activities are financed through a cost-slashing consortial model.%0D%0A%0D%0ABy making a small financial commitment, the institutions and organizations that benefit from SciPost’s activities can become Sponsors. This enables SciPost to perform all of its publication-related activities, maintain its online portal and implement its long-term development plan. Details of the consortial funding scheme and how to join can be found at https://{{ domain }}{% url 'sponsors:sponsors' %} or by emailing sponsors@{{ domain }}.%0D%0A&amp;cc=sponsors@{{ domain }}">template</a> as a start.
+</p>
+
 <p>
   You can also point them towards details of our consortial funding scheme on our <a href="https://{{ domain }}{% url 'sponsors:sponsors' %}">Sponsors page</a>, and our <a href="https://{{ domain }}{% static 'scipost/SPB/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> summarizing the scheme, which is expounded in detail in the draft <a href="https://{{ domain }}{% static 'scipost/SPB/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement</a>.
 </p>
+
 <p>
-  We are very grateful for your help.
-</p>
-<p>
+  We are very grateful for your help,
+  <br />
   The SciPost Team
 </p>
 

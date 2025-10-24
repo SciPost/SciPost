@@ -155,5 +155,6 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
 
         DirectMailUtil(
             "submissions/editorial_communication_notification",
-            {"communication": self, "domain": get_current_domain()},
+            communication=self,
+            domain=get_current_domain(),
         ).send_mail()

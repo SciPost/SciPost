@@ -3,7 +3,7 @@
 <p>
   A Report has been posted on your recent Submission to {{ report.submission.submitted_to.owner }}
   <br />
-  <strong>{{ report.submission.title }}</strong>
+  <a href="https://{{ domain }}{{ report.submission.get_absolute_url }}">{{ report.submission.title }}</a>,
   <br />
   by {{ report.submission.author_list }}.
 </p>
