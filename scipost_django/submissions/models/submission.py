@@ -1151,11 +1151,7 @@ class Submission(models.Model):
         which have at least one Specialty in common with the Submission.
         - For a Proceedings Submission, this is the guest Editor of the Proceedings.
         """
-        fellows = (
-            Fellowship.objects.active()
-            .without_conflicts_of_interest_against_submission_authors_of(self)
-            .without_authorship_of_submission(self)
-        )
+        fellows = Fellowship.objects.active()
 
         expected_editor_ids = list(
             filter(
