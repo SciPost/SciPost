@@ -47,14 +47,14 @@ def _hx_recommendation_voting_details_contents(
                 "contributor__profile__conflicts_of_interest",
                 queryset=ConflictOfInterest.objects.filter(
                     related_profile__in=submission_authors
-                ),
+                ).annot_submission_exempted(submission),
                 to_attr="submission_conflicts_of_interest",
             ),
             Prefetch(
                 "contributor__profile__related_conflicts_of_interest",
                 queryset=ConflictOfInterest.objects.filter(
                     profile__in=submission_authors
-                ),
+                ).annot_submission_exempted(submission),
                 to_attr="submission_conflicts_of_interest_related",
             ),
         ),

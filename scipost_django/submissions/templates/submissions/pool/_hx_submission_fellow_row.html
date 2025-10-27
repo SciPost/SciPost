@@ -61,23 +61,24 @@
         {% with submission_conflicts_of_interest=fellowship.contributor.profile.submission_conflicts_of_interest|add:fellowship.contributor.profile.submission_conflicts_of_interest_related %}
 
           {% if submission_conflicts_of_interest %}
-            <table class="table table-bordered bg-danger bg-opacity-10 mb-0">
+            <table class="table table-bordered bg-opacity-10 mb-0">
               <thead>
                 <tr>
-                  <th>
+                  <th colspan="2">
                     Related Profile / <em>(nature)</em>
                   </th>
-
-                  {% if "edadmin" in user_roles %}<th>Actions</th>{% endif %}
-
                 </tr>
               </thead>
               <tbody>
 
                 {% for coi in submission_conflicts_of_interest %}
-                  <tr>
+                  <tr class="{% if coi.submission_exempted %}table-success{% else %}table-danger{% endif %}">
                     <td>
-                      {{ coi.related_profile }}
+                      {% if fellowship.contributor.profile == coi.related_profile %}
+                        {{ coi.profile }}
+                      {% else %}
+                        {{ coi.related_profile }}
+                      {% endif %}
                       <br />
                       <em>({{ coi.get_nature_display }})</em>
                     </td>
@@ -89,6 +90,17 @@
                            hx-confirm="Delete this conflict of interest?"
                            hx-target="#submission-{{ submission.pk }}-fellows-details">
                           {% include "bi/trash-fill.html" %}
+                        </a>
+                        <a class="btn btn-sm btn-secondary px-1 py-0"
+                           title="{% if coi.submission_exempted %}Revoke exemption{% else %}Grant exemption from this conflict of interest{% endif %}"
+                           data-bs-toggle="tooltip"
+                           hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_exemption_toggle' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=coi.pk %}"
+                           hx-target="#submission-{{ submission.pk }}-fellows-details">
+                          {% if coi.submission_exempted %}
+                            {% include "bi/x-circle-fill.html" %}
+                          {% else %}
+                            {% include "bi/exclamation-circle-fill.html" %}
+                          {% endif %}
                         </a>
                       {% endif %}
 

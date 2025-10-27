@@ -418,10 +418,17 @@ class SubmissionQuerySet(models.QuerySet):
                             submission_id=models.OuterRef("submission_id"),
                         )
                     ),
+                    submission_exempted=Exists(
+                        ConflictOfInterest.exempted_submissions.through.objects.filter(
+                            conflictofinterest_id=models.OuterRef("pk"),
+                            submission_id=models.OuterRef("submission_id"),
+                        )
+                    ),
                 )
                 .filter(involves_author=True)
                 .involving_profile(profile)
                 .valid_on_date()
+                .exclude(submission_exempted=True)
             ),
         )
 

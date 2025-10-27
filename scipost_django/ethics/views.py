@@ -152,6 +152,33 @@ def _hx_submission_conflict_of_interest_delete(request, identifier_w_vn_nr, pk):
 
 @login_required
 @user_passes_test(is_edadmin)
+def _hx_submission_conflict_of_interest_exemption_toggle(
+    request, identifier_w_vn_nr, pk
+):
+    submission = get_object_or_404(
+        Submission,
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+    conflict_of_interest = get_object_or_404(ConflictOfInterest, pk=pk)
+
+    if conflict_of_interest.exempted_submissions.filter(id=submission.id).exists():
+        conflict_of_interest.exempted_submissions.remove(submission)
+    else:
+        conflict_of_interest.exempted_submissions.add(submission)
+
+    context = {
+        "submission": submission,
+    }
+    response = render(
+        request,
+        "submissions/pool/_submission_fellows.html",
+        context,
+    )
+    return response
+
+
+@login_required
+@user_passes_test(is_edadmin)
 def _hx_submission_conflict_of_interest_create(
     request, identifier_w_vn_nr, fellowship_id
 ):

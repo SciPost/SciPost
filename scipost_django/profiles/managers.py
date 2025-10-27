@@ -137,6 +137,8 @@ class ProfileQuerySet(QuerySet):
                         related_profile=OuterRef("pk"),
                     )
                 )
+                .annot_submission_exempted(submission)
+                .exclude(submission_exempted=True)
             ),
             # The flag is an "OR" of the two flags above
             has_any_conflict_of_interest_with_submission=ExpressionWrapper(

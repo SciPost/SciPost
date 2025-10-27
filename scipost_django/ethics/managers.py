@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 import enum
 import datetime
 
-from django.db.models import F, Case, QuerySet, Q, When, fields
+from django.db.models import F, Case, Exists, OuterRef, QuerySet, Q, When, fields
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -60,6 +60,20 @@ class ConflictOfInterestQuerySet(QuerySet["ConflictOfInterest"]):
                 ),
                 default=F("date_until"),
             ),
+        )
+
+    def annot_submission_exempted(self, submission: "Submission"):
+        """
+        Annotate whether the given submission is to be exempted
+        from these conflicts of interest.
+        """
+        return self.annotate(
+            submission_exempted=Exists(
+                self.model.exempted_submissions.through.objects.filter(
+                    conflictofinterest_id=OuterRef("pk"),
+                    submission_id=submission.pk,
+                )
+            )
         )
 
     def valid_on_date(self, date: datetime.date | None = None):

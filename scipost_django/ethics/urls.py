@@ -51,6 +51,11 @@ urlpatterns = [
                     views._hx_submission_conflict_of_interest_delete,
                     name="_hx_submission_conflict_of_interest_delete",
                 ),
+                path(
+                    "_hx_submission_conflict_of_interest_exemption_toggle/<int:pk>",
+                    views._hx_submission_conflict_of_interest_exemption_toggle,
+                    name="_hx_submission_conflict_of_interest_exemption_toggle",
+                ),
             ],
         ),
     ),

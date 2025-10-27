@@ -177,7 +177,7 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
                     related_profile__in=submission.author_profiles.values_list(
                         "profile", flat=True
                     )
-                ),
+                ).annot_submission_exempted(submission),
                 to_attr="submission_conflicts_of_interest",
             ),
             Prefetch(
@@ -186,7 +186,7 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
                     profile__in=submission.author_profiles.values_list(
                         "profile", flat=True
                     )
-                ),
+                ).annot_submission_exempted(submission),
                 to_attr="submission_conflicts_of_interest_related",
             ),
         )
