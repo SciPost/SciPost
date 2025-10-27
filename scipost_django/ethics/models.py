@@ -127,6 +127,12 @@ class ConflictOfInterest(models.Model):
 
     comments = models.TextField(blank=True)
 
+    exempted_submissions = models.ManyToManyField["Submission", "ConflictOfInterest"](
+        "submissions.Submission",
+        blank=True,
+        related_name="exempted_cois",
+    )
+
     if TYPE_CHECKING:
         coauthorship: "Coauthorship | None"
 

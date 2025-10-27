@@ -47,6 +47,7 @@ class ConflictOfInterestAdmin(admin.ModelAdmin):
         "profile",
         "related_profile",
         "declared_by",
+        "exempted_submissions",
     )
     inlines = [CoauthorshipInline]
 

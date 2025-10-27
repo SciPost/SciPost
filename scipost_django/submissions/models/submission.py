@@ -48,7 +48,7 @@ from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django.db.models.manager import RelatedManager
+    from django.db.models.manager import RelatedManager, ManyToManyRelatedManager
     from submissions.models import EditorialDecision, RefereeInvitation, Report
     from submissions.models.assignment import ConditionalAssignmentOffer
     from scipost.models import Contributor
@@ -60,6 +60,7 @@ if TYPE_CHECKING:
     from journals.models import Journal
     from ethics.models import Coauthorship
     from profiles.models import Profile
+    from ethics.models import ConflictOfInterest
 
 
 class SubmissionAuthorProfile(models.Model):
@@ -265,6 +266,7 @@ class Submission(models.Model):
         editorial_assignments: "RelatedManager[EditorialAssignment]"
         reports: "RelatedManager[Report]"
         conditional_assignment_offers: "RelatedManager[ConditionalAssignmentOffer]"
+        exempted_cois: "ManyToManyRelatedManager[ConflictOfInterest, Submission]"
 
     # Fields
     preprint = models.OneToOneField(
