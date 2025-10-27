@@ -104,17 +104,9 @@ def _hx_recommendation_grant_voting_right(
         recommendation.eligible_to_vote.add(
             *[f.contributor.id for f in voting_fellows_to_add.all()]
         )
-    context = {
-        "submission": submission,
-        "recommendation": recommendation,
-    }
-    return render(
-        request,
-        (
-            "submissions/pool/decisionmaking/"
-            "_hx_recommendation_voting_details_contents.html"
-        ),
-        context,
+
+    return _hx_recommendation_voting_details_contents(
+        request, identifier_w_vn_nr, rec_id
     )
 
 
@@ -139,17 +131,9 @@ def _hx_recommendation_revoke_voting_right(
         recommendation.eligible_to_vote.remove(*voting_fellows_to_remove.all())
     elif contributor_id:
         recommendation.eligible_to_vote.remove(contributor_id)
-    context = {
-        "submission": submission,
-        "recommendation": recommendation,
-    }
-    return render(
-        request,
-        (
-            "submissions/pool/decisionmaking/"
-            "_hx_recommendation_voting_details_contents.html"
-        ),
-        context,
+
+    return _hx_recommendation_voting_details_contents(
+        request, identifier_w_vn_nr, rec_id
     )
 
 
