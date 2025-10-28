@@ -2050,11 +2050,10 @@ class SubmissionForm(forms.ModelForm):
             open_for_reporting=False, status=Submission.RESUBMITTED
         )
 
-        # Copy Topics
+        # Copy related objects
         submission.topics.add(*previous_submission.topics.all())
-
-        # Copy Collections
         submission.collections.add(*previous_submission.collections.all())
+        submission.followup_of.add(*previous_submission.followup_of.all())
 
         # Open for comments (reports: opened upon cycle choice) and copy EIC info
         Submission.objects.filter(id=submission.id).update(
@@ -2088,7 +2087,6 @@ class SubmissionForm(forms.ModelForm):
             author_profile.pk = None
             author_profile.submission = submission
         SubmissionAuthorProfile.objects.bulk_create(previous_profiles)
-
 
 
 class SubmissionReportsForm(forms.ModelForm):
