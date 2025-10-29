@@ -182,6 +182,21 @@ class Command(BaseCommand):
             name="Can compare objects for potential duplicates",
             content_type=content_type,
         )
+        can_compare_profiles, created = Permission.objects.get_or_create(
+            codename="can_compare_profiles",
+            name="Can compare profiles",
+            content_type=content_type,
+        )
+        can_compare_contributors, created = Permission.objects.get_or_create(
+            codename="can_compare_contributors",
+            name="Can compare contributors",
+            content_type=content_type,
+        )
+        can_compare_organizations, created = Permission.objects.get_or_create(
+            codename="can_compare_organizations",
+            name="Can compare organizations",
+            content_type=content_type,
+        )
         can_mark_non_duplicates, created = Permission.objects.get_or_create(
             codename="can_mark_non_duplicates",
             name="Can mark objects as non-duplicates of each other",
@@ -667,8 +682,11 @@ class Command(BaseCommand):
                 can_mark_profile_emails_recovery,
                 can_view_profile_email_creation_dates,
                 can_delete_profile_emails,
-                can_compare_objects,
                 can_mark_non_duplicates,
+                can_compare_objects,
+                can_compare_profiles,
+                can_compare_contributors,
+                can_compare_organizations,
                 can_merge_objects,
                 can_manage_ontology,
                 can_manage_organizations,
@@ -762,8 +780,11 @@ class Command(BaseCommand):
                 can_mark_profile_emails_recovery,
                 can_view_profile_email_creation_dates,
                 can_delete_profile_emails,
-                can_compare_objects,
                 can_mark_non_duplicates,
+                can_compare_objects,
+                can_compare_profiles,
+                can_compare_contributors,
+                can_compare_organizations,
                 can_merge_objects,
                 can_manage_ontology,
                 can_manage_organizations,

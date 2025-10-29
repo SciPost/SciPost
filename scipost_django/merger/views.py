@@ -177,8 +177,6 @@ class BaseComparisonView(PermissionRequiredMixin, TemplateView):
 
 
 class PotentialDuplicatesView(BaseComparisonView):
-    permission_required = "scipost.can_compare_objects"
-
     def get_template_names(self) -> list[str]:
         if self.request.headers.get("HX-Request") == "true":
             return ["merger/_hx_potential_duplicates_selector.html"]
