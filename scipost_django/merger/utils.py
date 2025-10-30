@@ -2,7 +2,13 @@ import enum
 
 from django.contrib.contenttypes.fields import GenericRel
 from django.db import transaction
-from django.db.models import Model, Field, ForeignObjectRel
+from django.db.models import (
+    ManyToManyField,
+    ManyToManyRel,
+    Model,
+    Field,
+    ForeignObjectRel,
+)
 
 from typing import Any, TypeVar
 
@@ -286,26 +292,35 @@ class MergeStrategy(enum.Enum):
 
 @transaction.atomic
 def merge_objects(
-    object_from: Model,
-    object_to: Model,
+    object_from: M,
+    object_to: M,
     field_strategies: dict[FieldOrRel, MergeStrategy],
     dry_run: bool = False,
 ) -> None:
-    def _set_resolve_save(obj: Model, field: FieldOrRel, value: Any) -> Model:
+    def _set_resolve_save(
+        obj: M,
+        field: FieldOrRel,
+        value: Any,
+    ) -> M:
+        field_name = get_field_name(field)
+
         # Special handling for GenericRel, which needs to
         # set the object_id field instead of the object itself
-        print(f"Setting {field.name} to {value} on {obj}")
         if isinstance(field, GenericRel):
-            setattr(
-                obj,
-                field.remote_field.object_id_field_name,
-                value.pk if value else None,
-            )
-        else:
-            setattr(obj, get_field_name(field), value)
+            value = value.pk if value else None
+            field_name = field.remote_field.object_id_field_name
+        # Special handling for many to many relations/fields
+        elif field.many_to_many:
+            if not isinstance(field, ManyToManyRel):  # Forward relation
+                field_name = field.m2m_field_name()
+            else:  # Reverse relation
+                field_name = field.remote_field.m2m_reverse_field_name()
+
+        setattr(obj, field_name, value)
 
         if resolve_inconsistencies := getattr(obj, "resolve_inconsistencies", None):
             obj = resolve_inconsistencies(commit=False)
+
         if not dry_run:
             obj.save()
         else:
@@ -374,21 +389,41 @@ def merge_objects(
                 _set_resolve_save(to_val, field.remote_field, object_to)
 
         elif field.many_to_many:
+            through_model = None
+            if isinstance(field, ManyToManyField):  # Forward relation
+                m2m_field_name = field.m2m_field_name()
+                through_model = field.remote_field.through
+            elif isinstance(field, ManyToManyRel):  # Reverse relation
+                # translate field to forward and get its reverse name
+                through_model = field.through
+                m2m_field_name = field.remote_field.m2m_reverse_field_name()
+
+            if through_model is None:
+                raise ValueError("Through model could not be determined.")
+
             # When accessing the model via the `through` attribute,
             # we get a table with two forward foreign keys. No complications.
-            remote_field_name = get_field_name(field.remote_field)
-            m2m_field_descriptor = getattr(object_to, remote_field_name, None)
-            if through_model := getattr(m2m_field_descriptor, "through", None):
-                # We do this to get them as objects of the through "invisible" model
-                # instead of resolved instances of the related model
-                for through_from_val in through_model.objects.filter(
-                    **{remote_field_name: object_from}
-                ):
-                    _handle_deprecation(deprecation, through_from_val, field)
-                for through_to_val in through_model.objects.filter(
-                    **{remote_field_name: object_to}
-                ):
-                    _set_resolve_save(through_to_val, field, object_to)
+            # We do this to get them as objects of the through "invisible" model
+            # instead of resolved instances of the related model
+            through_from_vals = through_model.objects.filter(
+                **{m2m_field_name: object_from}
+            )
+            through_to_vals = through_model.objects.filter(
+                **{m2m_field_name: object_to}
+            )
+
+            # Replace is like KEEP but with swapped values,
+            # and acts the same for single- and multi-valued fields
+            if retainment == MergeStrategy.FieldRetainment.REPLACE:
+                through_to_vals, through_from_vals = through_from_vals, through_to_vals
+            elif retainment == MergeStrategy.FieldRetainment.COMBINE:
+                # Combine is like KEEP but with added values from "from" that are not in "to"
+                through_to_vals = list(set(through_to_vals) | set(through_from_vals))
+
+            for through_from_val in through_from_vals:
+                _handle_deprecation(deprecation, through_from_val, field)
+            for through_to_val in through_to_vals:
+                _set_resolve_save(through_to_val, field, object_to)
 
         elif field.one_to_one:
             # One to one is a special case of many to one, and we
