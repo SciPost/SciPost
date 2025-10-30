@@ -2,13 +2,14 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 import datetime
-from time import sleep
-from typing import Any, Sequence
-from profiles.models import Profile
-from ethics.models import CoauthoredWork, Coauthorship, PreprintServer
 
 from SciPost_v1.celery import app
+
+from ethics.models import CoauthoredWork, Coauthorship, PreprintServer
+from profiles.models import Profile
 from submissions.models.submission import Submission
+
+from typing import Any, Sequence
 
 
 def fetch_potential_coauthorships_for_profiles_from_preprint_server(
@@ -37,40 +38,37 @@ def fetch_potential_coauthorships_for_profiles_from_preprint_server(
     preprint_server = PreprintServer.from_name(preprint_server_source)
     five_years_ago = datetime.date.today() - datetime.timedelta(days=5 * 365)
 
-    if find_common_works_between := getattr(
-        preprint_server.server_class, "find_common_works_between", None
-    ):
-        found_works = find_common_works_between(
-            profile,
-            coauthor,
-            published_after=five_years_ago,
-            **kwargs,
-        )
-        nr_total_works_found += len(found_works)
+    found_works = preprint_server.server_class.find_common_works_between(
+        profile,
+        coauthor,
+        published_after=five_years_ago,
+        **kwargs,
+    )
+    nr_total_works_found += len(found_works)
 
-        # By using `update_conflicts` any rows failing uniqueness will be retrieved
-        # and updated with the newly fetched values. The function returns them such that
-        # Coauthorships can be created for them in the next step.
-        works = CoauthoredWork.objects.bulk_create(
-            found_works,
-            update_conflicts=True,
-            update_fields=[
-                "work_type",
-                "title",
-                "authors_str",
-                "date_updated",
-                "date_published",
-                "metadata",
-            ],
-            unique_fields=["server_source", "identifier"],
-        )
+    # By using `update_conflicts` any rows failing uniqueness will be retrieved
+    # and updated with the newly fetched values. The function returns them such that
+    # Coauthorships can be created for them in the next step.
+    works = CoauthoredWork.objects.bulk_create(
+        found_works,
+        update_conflicts=True,
+        update_fields=[
+            "work_type",
+            "title",
+            "authors_str",
+            "date_updated",
+            "date_published",
+            "metadata",
+        ],
+        unique_fields=["server_source", "identifier"],
+    )
 
-        coauthorships.extend(
-            Coauthorship(work=work, profile=profile, coauthor=coauthor)
-            for work in works
-            if work.pk is not None  # Make sure works were created successfully
-            and work.contains_authors(profile, coauthor)
-        )
+    coauthorships.extend(
+        Coauthorship(work=work, profile=profile, coauthor=coauthor)
+        for work in works
+        if work.pk is not None  # Make sure works were created successfully
+        and work.contains_authors(profile, coauthor)
+    )
 
     nr_works_matching_all = len(coauthorships)
     #! Will have conflicts if the work is already linked to the profiles,

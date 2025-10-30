@@ -80,9 +80,7 @@ class CrossrefServer(BasePreprintServer):
 
     @classmethod
     def find_common_works_between(
-        cls,
-        *people: Person,
-        **kwargs: dict[str, Any],
+        cls, *people: Person, **kwargs: Any
     ) -> list["CoauthoredWork"]:
         query = CrossrefQuery().domain("works").order_by("-score")
         for person in people:

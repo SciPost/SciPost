@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from abc import ABC, abstractmethod
 from enum import Enum
 
-from .utils import JSONResponse
+from .utils import JSONResponse, Person
 
 from typing import Any, Self, TYPE_CHECKING
 
@@ -45,6 +45,13 @@ class BasePreprintServer(ABC):
     def parse_work(cls, data: dict[str, Any]) -> "CoauthoredWork | None":
         pass
 
+    @classmethod
+    @abstractmethod
+    def find_common_works_between(
+        cls, *people: Person, **kwargs: Any
+    ) -> list["CoauthoredWork"]:
+        return []
+
 
 class PreprintServer(Enum):
     CROSSREF = "crossref"
@@ -75,8 +82,8 @@ class PreprintServer(Enum):
         }
 
     @property
-    def server_class(self) -> type[BasePreprintServer] | None:
-        return self.mapping().get(self.value)
+    def server_class(self) -> type[BasePreprintServer]:
+        return self.mapping()[self.value]
 
     @classmethod
     def from_name(cls, name: str) -> "PreprintServer":

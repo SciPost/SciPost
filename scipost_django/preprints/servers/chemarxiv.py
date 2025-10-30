@@ -69,7 +69,7 @@ class ChemArxivServer(BasePreprintServer):
 
     @classmethod
     def find_common_works_between(
-        cls, *people: Person, **kwargs: dict[str, Any]
+        cls, *people: Person, **kwargs: Any
     ) -> list["CoauthoredWork"]:
         data = cls.query(
             ChemArxivQuery().author(

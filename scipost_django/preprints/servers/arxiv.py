@@ -60,7 +60,7 @@ class ArxivServer(BasePreprintServer):
 
     @classmethod
     def find_common_works_between(
-        cls, *people: Person, **kwargs: dict[str, Any]
+        cls, *people: Person, **kwargs: Any
     ) -> list["CoauthoredWork"]:
         serialized_authors = "; ".join(map(format_person_name, people))
         query = QueryFragment("au: " + serialized_authors)
