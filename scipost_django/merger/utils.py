@@ -289,6 +289,7 @@ def merge_objects(
     object_from: Model,
     object_to: Model,
     field_strategies: dict[FieldOrRel, MergeStrategy],
+    dry_run: bool = False,
 ) -> None:
     def _set_resolve_save(obj: Model, field: FieldOrRel, value: Any) -> Model:
         # Special handling for GenericRel, which needs to
@@ -305,7 +306,14 @@ def merge_objects(
 
         if resolve_inconsistencies := getattr(obj, "resolve_inconsistencies", None):
             obj = resolve_inconsistencies(commit=False)
-        obj.save()
+        if not dry_run:
+            obj.save()
+        else:
+            print(
+                f"Setting ({type(obj).__name__}-{obj.pk}).{field_name} = "
+                f"{type(value).__name__}-{value.pk if hasattr(value, 'pk') else value}"
+            )
+
         return obj
 
     def _handle_deprecation(
@@ -315,11 +323,15 @@ def merge_objects(
     ):
         match deprecation:
             case MergeStrategy.RelationDeprecation.ORPHAN:
-                print(f"Orphaning {obj} due to deprecation strategy.")
-                _set_resolve_save(obj, field, None)
+                if not dry_run:
+                    _set_resolve_save(obj, field, None)
+                else:
+                    print(f"Orphaning {obj} due to deprecation strategy.")
             case MergeStrategy.RelationDeprecation.DELETE:
-                print(f"Deleting {obj} due to deprecation strategy.")
-                obj.delete()
+                if not dry_run:
+                    obj.delete()
+                else:
+                    print(f"Deleting {obj} due to deprecation strategy.")
             case None:
                 pass
 
@@ -403,6 +415,7 @@ def merge_objects(
                     forward_object_from,
                     forward_object_to,
                     {field.remote_field: strategy},
+                    dry_run=dry_run,
                 )
 
             else:  # Forward FK, like many-to-one FFK.
