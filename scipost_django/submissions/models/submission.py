@@ -58,6 +58,7 @@ if TYPE_CHECKING:
     from ontology.models import AcademicField, Specialty, Topic
     from series.models import Collection
     from journals.models import Journal
+    from preprints.models import Preprint
     from ethics.models import Coauthorship
     from profiles.models import Profile
     from ethics.models import ConflictOfInterest
@@ -269,7 +270,7 @@ class Submission(models.Model):
         exempted_cois: "ManyToManyRelatedManager[ConflictOfInterest, Submission]"
 
     # Fields
-    preprint = models.OneToOneField(
+    preprint = models.OneToOneField["Preprint"](
         "preprints.Preprint", on_delete=models.CASCADE, related_name="submission"
     )
 

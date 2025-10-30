@@ -60,11 +60,10 @@ class Command(BaseCommand):
                 or assignments_upcoming_deadline
                 or fellowship.nr_visible > nr_appraised
             ):
-                mail_sender = DirectMailUtil(
+                DirectMailUtil(
                     "fellows/email_fellow_tasklist",
                     # Render immediately, because m2m/querysets cannot be saved for later rendering:
                     delayed_processing=False,
-                    object=fellowship.contributor,
                     fellow=fellowship.contributor,
                     nr_nominations_to_vote_on=nr_nominations_to_vote_on,
                     recs_to_vote_on=recs_to_vote_on,
@@ -74,7 +73,6 @@ class Command(BaseCommand):
                     nr_appraised=nr_appraised,
                     nr_appraisals_required=(fellowship.nr_visible - nr_appraised),
                     assignments_upcoming_deadline=assignments_upcoming_deadline,
-                )
-                mail_sender.send_mail()
+                ).send_mail()
                 count += 1
         self.stdout.write(self.style.SUCCESS("Emailed {} fellows.".format(count)))

@@ -4,7 +4,7 @@
 
 <p>We would hereby like to give you an update on your recent SciPost submission,</p>
 <p>
-  <a href="https://{{ domain }}{% url 'submissions:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.title }}</a>,
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>,
   <br />
   by {{ submission.author_list }}.
 </p>

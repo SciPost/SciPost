@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: ticket followup",
     "recipient_list": [
-        "ticket.defined_by.email"
+        "followup.ticket.defined_by.contributor.profile.email"
     ],
     "bcc": [
         "admin@",

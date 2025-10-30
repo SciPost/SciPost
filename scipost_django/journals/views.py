@@ -15,6 +15,7 @@ import requests
 
 import matplotlib
 
+from mails.utils import DirectMailUtil
 from ethics.forms import GenAIDisclosureForm
 from ethics.models import GenAIDisclosure
 from scipost.permissions import HTMXPermissionsDenied, HTMXResponse
@@ -103,7 +104,6 @@ from .forms import (
 )
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .services import update_citedby
-from .utils import JournalUtils
 
 from comments.models import Comment
 from common.utils import get_current_domain
@@ -2405,21 +2405,16 @@ def email_object_made_citable(request, **kwargs):
         return redirect(redirect_to)
 
     if type_of_object == "report":
-        JournalUtils.load(
-            {
-                "report": _object,
-                "publication_citation": publication_citation,
-                "publication_doi": publication_doi,
-            }
-        )
-        JournalUtils.email_report_made_citable()
+        DirectMailUtil(
+            "journals/report_made_citable",
+            report=_object,
+            publication=publication,
+        ).send_mail()
     else:
-        JournalUtils.load(
-            {
-                "comment": _object,
-            }
-        )
-        JournalUtils.email_comment_made_citable()
+        DirectMailUtil(
+            "journals/comment_made_citable",
+            comment=_object,
+        ).send_mail()
     messages.success(request, "Email sent")
     return redirect(redirect_to)
 

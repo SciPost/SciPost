@@ -1,0 +1,32 @@
+<p>Dear {{ invitation.referee.formal_name }},</p>
+
+<p>
+  On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }},
+  we would like to inform you that your report on
+  <br />
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>,
+  <br />
+  by {{ invitation.submission.author_list }}
+  <br />
+  is no longer required.
+</p>
+
+<p>
+  We very much hope we can count on your expertise
+  at some other point in the future.
+</p>
+
+<p>
+  Many thanks for your time,
+  The SciPost Team
+</p>
+
+{% if not invitation.to_registered_referee %}
+  <p>
+    P.S.: We would nevertheless like to renew our invitation to become a Contributor on SciPost (since our records show that you are not yet registered).
+    Your partially pre-filled <a href="https://{{ domain }}/{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">registration form</a> is still available after which your registration will be activated, giving you full access to the portal's facilities (in particular allowing you to provide future referee reports).
+  </p>
+{% endif %}
+
+{% include "email/_footer.html" %}
+{% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

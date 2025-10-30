@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: Commentary Page activated",
+    "recipient_list": [
+        "commentary.requested_by.profile.email"
+    ],
+    "bcc": [
+        "commentaries@"
+    ],
+    "from_name": "SciPost Editorial Administration",
+    "from_email": "edadmin@"
+}

@@ -1,4 +1,4 @@
-<p>Dear {{ fellow.profile.get_title_display }} {{ fellow.user.last_name }},</p>
+<p>Dear {{ fellow.profile.formal_name }},</p>
 
 <p>Please find below a summary of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention on any point in need of attention. Your good work as an Editorial Fellow is greatly appreciated!</p>
 
@@ -55,7 +55,7 @@
     <ul>
       {% for assignment in assignments_ongoing %}
           <li>
-            <h3><a href="https://{{ domain }}{% url 'submissions:submission' assignment.submission.preprint.identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
+            <h3><a href="https://{{ domain }}{{ assignment.submission.get_absolute_url }}">{{ assignment.submission.title }}</a></h3>
             <p>
               <em>by {{ assignment.submission.author_list }}</em>
             </p>
@@ -102,4 +102,5 @@
     Many thanks for your valuable work,<br>
     SciPost Editorial Administration
 </p>
+
 {% include 'email/_footer.html' %}

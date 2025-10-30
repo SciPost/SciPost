@@ -1,12 +1,10 @@
-<p>
-  Dear {{ report.author.profile.get_title_display }} {{ report.author.user.last_name }},
-</p>
-
-<p>We hereby confirm reception of your Report on Submission</p>
+<p>Dear {{ report.author.profile.formal_name }},</p>
 
 <p>
-  {{ report.submission.title }}
-  <br/>
+  We hereby confirm reception of your Report on Submission
+  <br />
+  <a href="https://{{ domain }}{{ report.submission.get_absolute_url }}">{{ report.submission.title }}</a>,
+  <br />
   by {{ report.submission.author_list }}.
 </p>
 
@@ -16,9 +14,9 @@
 
 <p>
   Many thanks again,
-  <br/>
+  <br />
   The SciPost Team.
 </p>
-{% include 'email/_footer.html' %}
 
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=report.submission %}

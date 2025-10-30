@@ -1,7 +1,7 @@
-<p>Dear {{ object.nomination.profile.get_title_display }} {{ object.nomination.profile.last_name }},</p>
+<p>Dear {{ fellowship_invitation.nomination.profile.formal_name }},</p>
 
 <p>
-  We are sending you this email to formally invite you to join <a href="https://{{ domain }}/">SciPost</a>'s Editorial College in {{ object.nomination.college.name }}.
+  We are sending you this email to formally invite you to join <a href="https://{{ domain }}/">SciPost</a>'s Editorial College in {{ fellowship_invitation.nomination.college.name }}.
 </p>
 
 <p>
@@ -20,7 +20,7 @@
   We would be very happy to provide you with more information should you require it. Could we kindly ask you to give us a response (by replying to this email) within the next couple of weeks?
 </p>
 
-{% if not object.nomination.profile.contributor %}
+{% if not fellowship_invitation.nomination.profile.contributor %}
   <p>
     Additionally, regardless of your response, we would like to cordially invite you to become a SciPost Contributor by registering on our website. This will allow you to submit your own articles, deliver reports, comment on articles, and perform all duties as Fellow should you also accept that role. For your convenience, we have prepared a pre-filled <a href="https://{{ domain }}/invitation/{{ registration_invitation.invitation_key }}">registration form</a> for you.
   </p>

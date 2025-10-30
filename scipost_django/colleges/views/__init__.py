@@ -346,6 +346,7 @@ class FellowshipStartEmailView(PermissionsMixin, MailView):
     queryset = Fellowship.objects.all()
     mail_code = "fellows/email_fellow_fellowship_start"
     success_url = reverse_lazy("colleges:fellowships")
+    context_object_name = "fellowship"
 
     def form_valid(self, form):
         """Create an event associated to this outgoing email."""
@@ -372,7 +373,8 @@ def email_College_Fellows(request, college):
     Send an email to all Fellows within a College.
     """
     user_ids = [
-        f.contributor.dbuser.id for f in college.fellowships.regular_or_senior().active()
+        f.contributor.dbuser.id
+        for f in college.fellowships.regular_or_senior().active()
     ]
     form = EmailUsersForm(request.POST or None, initial={"users": user_ids})
     if form.is_valid():
@@ -787,6 +789,7 @@ class PotentialFellowshipInitialEmailView(PermissionsMixin, MailView):
     queryset = PotentialFellowship.objects.all()
     mail_code = "potentialfellowships/invite_potential_fellow_initial"
     success_url = reverse_lazy("colleges:potential_fellowships")
+    context_object_name = "potential_fellowship"
 
     def form_valid(self, form):
         """Create an event associated to this outgoing email."""
@@ -1199,6 +1202,7 @@ class FellowshipInvitationEmailInitialView(PermissionsMixin, MailView):
     queryset = FellowshipInvitation.objects.all()
     mail_code = "fellowship_nominees/fellowship_invitation_initial"
     success_url = reverse_lazy("colleges:nominations")
+    context_object_name = "fellowship_invitation"
 
     def get_mail_config(self):
         config = super().get_mail_config()
@@ -1244,6 +1248,7 @@ class FellowshipInvitationEmailReminderView(PermissionsMixin, MailView):
     queryset = FellowshipInvitation.objects.all()
     mail_code = "fellowship_nominees/fellowship_invitation_reminder"
     success_url = reverse_lazy("colleges:nominations")
+    context_object_name = "fellowship_invitation"
 
     def get_mail_config(self):
         config = super().get_mail_config()

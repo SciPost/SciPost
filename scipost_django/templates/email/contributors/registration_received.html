@@ -1,7 +1,9 @@
-<p>Dear {{ contributor.profile.get_title_display }} {{ contributor.user.last_name }},</p>
+<p>Dear {{ contributor.profile.formal_name }},</p>
+
 <p>
   Your request for registration to the SciPost publication portal has been received. You now need to validate your email by visiting this link within the next 48 hours:
 </p>
+
 <p>
   <a href="https://{{ domain }}{% url 'scipost:activation' contributor.id contributor.activation_key %}">Activate your account</a>
 </p>

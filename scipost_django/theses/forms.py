@@ -10,6 +10,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
+from mails.utils import DirectMailUtil
 from scipost.models import Contributor
 from scipost.utils import build_absolute_uri_using_site
 from common.utils import get_current_domain
@@ -88,51 +89,42 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
         super(VetThesisLinkForm, self).__init__(*args, **kwargs)
         self.order_fields(["action_option", "refusal_reason", "justification"])
 
-    def vet_request(self, thesislink, user):
-        mail_params = {
-            "vocative_title": thesislink.requested_by.profile.get_title_display(),
+    def vet_request(self, thesislink: ThesisLink, user):
+        mail_context = {
             "thesislink": thesislink,
-            "full_url": build_absolute_uri_using_site(thesislink.get_absolute_url()),
+            "domain": get_current_domain(),
         }
-        action = int(self.cleaned_data["action_option"])
-
-        if action == VetThesisLinkForm.ACCEPT or action == VetThesisLinkForm.MODIFY:
-            thesislink.vetted = True
-            thesislink.vetted_by = Contributor.objects.get(dbuser=user)
-            thesislink.save()
-
-            subject_line = "SciPost Thesis Link activated"
-            if action == VetThesisLinkForm.ACCEPT:
-                message_plain = render_to_string(
-                    "theses/thesislink_accepted.txt", mail_params
+        match action_id := int(self.cleaned_data["action_option"]):
+            case self.ACCEPT:
+                mail_code = "theses/thesislink_vetting_accepted.html"
+                thesislink.vetted = True
+                thesislink.vetted_by = user.contributor
+            case self.MODIFY:
+                mail_code = "theses/thesislink_vetting_modified.html"
+                thesislink.vetted = True
+                thesislink.vetted_by = user.contributor
+            case self.REFUSE:
+                mail_code = "theses/thesislink_vetting_rejected.html"
+                refusal_reason = dict(self.fields["refusal_reason"].choices)[
+                    int(self.cleaned_data["refusal_reason"])
+                ]
+                justification = self.cleaned_data["justification"]
+                mail_context.update(
+                    {
+                        "refusal_reason": refusal_reason,
+                        "justification": justification,
+                    }
                 )
-            elif action == VetThesisLinkForm.MODIFY:
-                message_plain = render_to_string(
-                    "theses/thesislink_modified.txt", mail_params
-                )
+            case _:
+                raise ValueError("Invalid action option selected")
 
-        elif action == VetThesisLinkForm.REFUSE:
-            refusal_reason = int(self.cleaned_data["refusal_reason"])
-            refusal_reason = dict(self.fields["refusal_reason"].choices)[refusal_reason]
-            mail_params["refusal_reason"] = refusal_reason
-            mail_params["justification"] = self.cleaned_data["justification"]
+        DirectMailUtil(
+            mail_code,
+            **mail_context,
+        ).send_mail()
 
-            message_plain = render_to_string(
-                "theses/thesislink_refused.txt", mail_params
-            )
-            subject_line = "SciPost Thesis Link"
-
+        if action_id == self.REFUSE:
             thesislink.delete()
-
-        domain = get_current_domain()
-        email = EmailMessage(
-            subject_line,
-            message_plain,
-            f"SciPost Theses <theses@{domain}>",
-            [thesislink.requested_by.user.email],
-            [f"theses@{domain}"],
-            reply_to=[f"theses@{domain}"],
-        ).send(fail_silently=False)
 
 
 class ThesisLinkSearchForm(forms.Form):

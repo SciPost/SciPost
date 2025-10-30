@@ -32,7 +32,6 @@ from submissions.forms import (
     SubmissionPoolSearchForm,
     EditorialAssignmentForm,
 )
-from submissions.utils import SubmissionUtils
 
 
 @login_required
@@ -295,19 +294,23 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
         assignment = form.save()
         if form.has_accepted_invite():
             # Fellow accepted to do a normal refereeing cycle.
-            SubmissionUtils.load({"assignment": assignment})
-            SubmissionUtils.send_EIC_appointment_email()
+            DirectMailUtil(
+                "submissions/assignment_editor_notification",
+                assignment=assignment,
+            ).send_mail()
 
             if form.is_normal_cycle():
                 # Inform authors about new status.
-                SubmissionUtils.send_author_assignment_passed_email()
+                DirectMailUtil(
+                    "submissions/assignment_passed_author_notification",
+                    assignment=assignment,
+                ).send_mail()
             else:
                 # Inform authors about new status.
-                mail_sender = DirectMailUtil(
+                DirectMailUtil(
                     "authors/inform_authors_eic_assigned_direct_rec",
                     assignment=assignment,
-                )
-                mail_sender.send_mail()
+                ).send_mail()
 
             submission.add_general_event("The Editor-in-charge has been assigned.")
             msg = "Thank you for becoming Editor-in-charge of this submission."
@@ -354,7 +357,7 @@ class EICManualEICInvitationEmailView(PermissionsMixin, MailView):
 
         config["fellowship"] = self.fellowship
         config["submission"] = self.submission
-        config["signee"] = self.request.user.contributor.profile
+        config["signee_profile"] = self.request.user.contributor.profile
 
         return config
 

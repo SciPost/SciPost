@@ -1,0 +1,40 @@
+<p>Dear {{ recommendation.submission.submitted_by.profile.formal_name }},</p>
+
+<p>
+  The Editorial College of SciPost has taken a decision regarding your recent Submission,
+  <br />
+  <a href="https://{{ domain }}{{ recommendation.submission.get_absolute_url }}">{{ recommendation.submission.title }}</a>,
+  <br />
+  by {{ recommendation.submission.author_list }}
+</p>
+
+{% if recommendation.recommendation == 1 %}
+  <p>
+    We are pleased to inform you that your Submission has been accepted for publication in <strong>{{ recommendation.get_for_journal_display }}</strong>.
+  </p>
+
+  <p>
+    Your manuscript will now be taken charge of by our production team, who will soon send you proofs to check before final publication.
+  </p>
+{% else %}
+  <p>We are sorry to inform you that your Submission has not been accepted for publication.</p>
+
+  <p>
+    You can view more details at the <a href="https://{{ domain }}/ {% url "submissions:submission" recommendation.submission.preprint.identifier_w_vn_nr %}">Submission page</a>.
+    Note that these details are viewable only by the registered authors of the submission.
+  </p>
+
+  <p>
+    This Submission Page has now been removed from general public view.
+    If you wish, you can email us and request to make it publicly visible again.
+  </p>
+{% endif %}
+
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team.
+</p>
+
+{% include "email/_footer.html" %}
+{% include 'email/_submission_thread_uuid.html' with submission=recommendation.submission %}

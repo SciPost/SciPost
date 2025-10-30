@@ -22,7 +22,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         submission: Submission
         for submission in Submission.objects.open_for_reporting():
-
             invitations_w_auto_reminders = (
                 submission.referee_invitations.auto_reminders_allowed()
             )
@@ -77,8 +76,7 @@ class Command(BaseCommand):
                 )
                 if workdays_until_deadline == 5:
                     for invitation in invitations_w_auto_reminders.in_process():
-                        mail_sender = DirectMailUtil(
+                        DirectMailUtil(
                             "referees/remind_referee_deadline_1week",
                             invitation=invitation,
-                        )
-                        mail_sender.send_mail()
+                        ).send_mail()

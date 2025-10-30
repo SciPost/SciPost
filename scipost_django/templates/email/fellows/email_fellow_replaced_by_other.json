@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: assignment cancelled",
     "recipient_list": [
-        "to.user.email"
+        "to.profile.email"
     ],
     "bcc": [
         "edadmin@"

@@ -1,10 +1,10 @@
 {
     "subject": "SciPost: Editor assigned",
     "recipient_list": [
-        "submission.submitted_by.user.email"
+        "assignment.submission.submitted_by.profile.email"
     ],
     "bcc": [
-        "to.user.email",
+        "assignment.to.profile.email",
         "edadmin@"
     ],
     "from_name": "SciPost Refereeing",

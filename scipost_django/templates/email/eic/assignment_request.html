@@ -1,25 +1,26 @@
+<p>Dear {{ assignment.to.profile.formal_name }},</p>
+
 <p>
-    Dear {{ object.to.profile.get_title_display }} {{ object.to.user.last_name }},
-</p>
-<p>
-    We have received a Submission to SciPost for which we would like you to consider becoming Editor-in-charge:
-</p>
-<p>
-    {{ object.submission.title }}<br>
-    by {{ object.submission.author_list }}
+  We have received a Submission to SciPost for which we would like you to consider becoming Editor-in-charge:
+  <br />
+  <a href="https://{{ domain }}{{ assignment.submission.get_absolute_url }}">{{ assignment.submission.title }}</a>,
+  <br />
+  by {{ assignment.submission.author_list }}.
 </p>
 
 <p>
-    Please visit the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">Submissions Pool</a> in order to accept or decline (it is important for you to inform us even if you decline, since this affects the result of the assignment process).
+  Please visit the <a href="https://{{ domain }}{% url 'submissions:pool:pool' %}">Submissions Pool</a> in order to accept or decline (it is important for you to inform us even if you decline, since this affects the result of the assignment process).
 </p>
+
 <p>
   Note that this assignment request is automatically deprecated if another Fellow takes charge of this Submission or if assignment fails in the meantime.
 </p>
+
 <p>
-  Many thanks in advance for your collaboration,<br>
+  Many thanks in advance for your collaboration,
+  <br />
   The SciPost Team.
 </p>
 
 {% include 'email/_footer.html' %}
-
-{% include 'email/_submission_thread_uuid.html' with submission=object.submission %}
+{% include 'email/_submission_thread_uuid.html' with submission=assignment.submission %}

@@ -1,0 +1,22 @@
+<p>Dear {{ thesislink.requested_by.profile.formal_name }},</p>
+
+<p>
+  The Thesis Link you have requested, concerning thesis with title `{{ thesislink.title }}' by {{ thesislink.author }},
+  has not been activated for the following reason:
+  <br />
+  {{ refusal_reason }}.
+</p>
+
+{% if justification %}
+  <p>
+    Further explanations:
+    <br />
+    {{ justification }}
+  </p>
+{% endif %}
+
+<p>
+  Thank you for your interest,
+  <br />
+  The SciPost Team
+</p>

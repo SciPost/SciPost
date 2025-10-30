@@ -1,0 +1,12 @@
+{
+    "subject": "SciPost: Refereeing request reminder (including registration invitation)",
+    "recipient_list": [
+        "invitation.email_address"
+    ],
+    "bcc": [
+        "invitation.submission.editor_in_charge.profile.email",
+        "edadmin@"
+    ],
+    "from_name": "SciPost Refereeing",
+    "from_email": "refereeing@"
+}

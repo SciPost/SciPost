@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Your proofs have been produced",
     "recipient_list": [
-        "stream.submission.submitted_by.user.email"
+        "proofs.stream.submission.submitted_by.profile.email"
     ],
     "from_name": "SciPost Production",
     "from_email": "proofs@"

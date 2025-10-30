@@ -1,18 +1,22 @@
-<p>
-  Dear {{ submission.submitted_by.profile.get_title_display }} {{ submission.submitted_by.user.last_name }},
-</p>
+<p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
+
 <p>
   We would like to inform you that a Comment has been posted on your recent Submission
-  <br><br>
-  {{ submission.title }}
-  <br>by {{ submission.author_list }}<br>
-  (see <a href="https://{{ domain }}{{ submission.get_absolute_url }}">https://{{ domain }}{{ submission.get_absolute_url }}</a> - first submitted {{ submission.original_submission_date|date:"d M Y" }}).
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>,
+  <br />
+  by {{ submission.author_list }}.
 </p>
-<p>
-  You can view it <a href="https://{{ domain }}{{ comment.get_absolute_url }}">here</a>, embedded within your <a href="https://{{ domain }}/submission/{{ submission.get_absolute_url }}">Submission\'s Page</a>.
-</p>
-<p>Sincerely,</p>
-<p>The SciPost Team</p>
-{% include 'email/_footer.html' %}
 
+<p>
+  You can view it <a href="https://{{ domain }}{{ comment.get_absolute_url }}">here</a>, embedded within your <a href="https://{{ domain }}{{ submission.get_absolute_url }}">Submission page</a>.
+</p>
+
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=submission %}

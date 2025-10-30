@@ -1,0 +1,19 @@
+<p>Dear {{ signature.signatory.profile.formal_name }},</p>
+
+<p>
+  Please click on the link below to confirm your signature of the petition:
+  <br />
+
+  <p>
+    <a style="font-weight: bold; font-size: 1.5em"
+       href="https://{{ domain }}{{ object.get_verification_url }}">Confirm Signature</a>
+  </p>
+</p>
+
+<p>
+  We are very grateful for your help.
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}

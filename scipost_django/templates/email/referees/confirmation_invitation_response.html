@@ -1,33 +1,44 @@
-<p>
-  Dear {{ invitation.referee.formal_name }},
-</p>
+<p>Dear {{ invitation.referee.formal_name }},</p>
 
 <p>
-  We hereby confirm your choice to {% if invitation.accepted %}accept{% else %}decline (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
-</p>
-{% if invitation.other_refusal_reason %}
-  <p>Your "other" refusal reason states: {{ invitation.other_refusal_reason }}</p>
-{% endif %}
-<p>
-  {{ invitation.submission.title }}
-  <br/>
-  by {{ invitation.submission.author_list }}.
-</p>
+  We hereby confirm your choice to
 
-<p>
   {% if invitation.accepted %}
+    accept
+  {% else %}
+    decline (due to reason: {{ invitation.get_refusal_reason_display }} {% if invitation.other_refusal_reason %}, {{ invitation.other_refusal_reason }}{% endif %})
+  {% endif %}
+
+  to referee Submission
+  <br />
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>,
+  <br />
+  by {{ invitation.submission.author_list }}
+</p>
+
+{% if invitation.accepted %}
+  <p>
     We will look forward to receiving your Report
+
     {% if invitation.submission.reporting_deadline %}
-    by the reporting deadline {{ invitation.submission.reporting_deadline|date:'Y-m-d' }}
-    {% endif %}.
-    <br/>
+      by the reporting deadline {{ invitation.submission.reporting_deadline|date:'Y-m-d' }}
+    {% endif %}
+
+    .
+  </p>
+{% endif %}
+
+<p>
+
+  {% if invitation.accepted %}
     Many thanks for your collaboration,
   {% else %}
     Nonetheless, we thank you very much for considering this refereeing invitation,
   {% endif %}
-  <br/>The SciPost Team.
+
+  <br />
+  The SciPost Team
 </p>
 
 {% include 'email/_footer.html' %}
-
 {% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

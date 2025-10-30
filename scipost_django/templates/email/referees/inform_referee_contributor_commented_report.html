@@ -1,20 +1,25 @@
-<p>
-  Dear {{ report.author.profile.get_title_display }} {{ report.author.user.last_name }},
-</p>
+<p>Dear {{ report.author.profile.formal_name }},</p>
+
 <p>
   For your information, a Contributor Comment has been posted on your recent Report on
-  <br><br>
-  {{ report.submission.title }}
-  <br>by {{ report.submission.author_list }}<br>
-  (see <a href="https://{{ domain }}{{ report.submission.get_absolute_url }}">https://{{ domain }}{{ report.submission.get_absolute_url }}</a> - first submitted {{ report.submission.original_submission_date|date:"d M Y" }}).
+  <br />
+  <a href="https://{{ domain }}{{ report.submission.get_absolute_url }}">{{ report.submission.title }}</a>
+  <br />
+  by {{ report.submission.author_list }}
+  <br />
+  (first submitted {{ report.submission.original_submission_date|date:"d M Y" }}).
 </p>
+
 <p>
   You can view your Report and the associated Comment directly at
   <a href="https://{{ domain }}{{ report.get_absolute_url }}">this link</a>.
 </p>
-<p>
-  We thank you very much for your contribution.<br/><br/>The SciPost Team.
-</p>
-{% include 'email/_footer.html' %}
 
+<p>
+  We thank you very much for your contribution.
+  <br />
+  The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=report.submission %}

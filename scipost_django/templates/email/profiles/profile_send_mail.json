@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: ",
     "recipient_list": [
-        "emails|values_list:email"
+        "profile.emails|values_list:email"
     ],
     "bcc": [
         "edadmin@"

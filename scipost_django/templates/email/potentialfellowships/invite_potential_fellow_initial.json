@@ -1,7 +1,7 @@
 {
     "subject": "Invitation to become a Fellow at SciPost",
     "recipient_list": [
-        "profile.email"
+        "potential_fellowship.profile.email"
     ],
     "bcc": [
         "admin@"

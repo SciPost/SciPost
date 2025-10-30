@@ -3,32 +3,34 @@
 <p>
   The authors of submission
   <br />
-  <br />
   <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
   <br />
   by {{ invitation.submission.author_list }}
   <br />
   (see <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">https://{{ domain }}{{ invitation.submission.get_absolute_url }}</a> - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
+
 <p>
   have submitted a new (revised) version of their manuscript to SciPost. On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to invite you to review this new version.
 </p>
+
 <p>
   Your report can be submitted by clicking on the <a href="https://{{ domain }}{% url 'submissions:submit_report' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr %}">Contribute a Report</a> link on the <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">Submission's Page</a>{% if invitation.submission.reporting_deadline %} before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'N j, Y' }}){% endif %}.
 </p>
+
 <p>
   You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:editorial_procedure' %}">editorial procedure</a>, <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
 </p>
+
 <p>
   If you are unable to review this version, you may <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline</a>.
 </p>
+
 <p>
   We would be extremely grateful for your contribution, and thank you in advance for your consideration.
-  <br />
   <br />
   The SciPost Team.
 </p>
 
 {% include 'email/_footer.html' %}
-
 {% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

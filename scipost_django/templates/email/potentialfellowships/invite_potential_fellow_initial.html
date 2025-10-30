@@ -1,18 +1,38 @@
-<p>Dear {{ object.profile.get_title_display }} {{ object.profile.last_name }},</p>
+<p>Dear {{ potential_fellowship.profile.formal_name }},</p>
 
-<p>Hopefully you're aware of <a href="https://{{ domain }}{% url 'scipost:index' %}">SciPost</a> and of its mission to establish a healthier community-run, open and not-for-profit infrastructure for scientific publishing (see our <a href="https://{{ domain }}{% url 'scipost:about' %}">about page</a> for a quick introduction or reminder).</p>
+<p>
+  Hopefully you're aware of <a href="https://{{ domain }}{% url 'scipost:index' %}">SciPost</a> and of its mission to establish a healthier community-run, open and not-for-profit infrastructure for scientific publishing (see our <a href="https://{{ domain }}{% url 'scipost:about' %}">about page</a> for a quick introduction or reminder).
+</p>
 
-{% if object.profile.acad_field %}{% if object.profile.acad_field.slug != 'physics' %}<p>Having successfully initiated our activities in the field of Physics, we would now like to bring the benefits of our approach to scientists in other fields of science, in particular {{ object.profile.acad_field }}. We are therefore launching <a href="https://{{ domain }}{% url 'journals:journals' %}?field={{ object.profile.acad_field }}">new journals in {{ object.profile.acad_field }}</a>, aiming to achieve the same success we have had with our <a href="https://{{ domain }}{% url 'journals:journals' %}?field=physics">Physics journals</a>.{% endif %}{% endif %}
+{% if potential_fellowship.profile.acad_field %}
 
-<p>On behalf of the SciPost Foundation and in view of your professional expertise and reputation, I hereby would like to invite you to join the {{ object.college }} by becoming one of our Editorial Fellows.</p>
+  {% if potential_fellowship.profile.acad_field.slug != 'physics' %}
+    <p>
+      Having successfully initiated our activities in the field of Physics, we would now like to bring the benefits of our approach to scientists in other fields of science, in particular {{ potential_fellowship.profile.acad_field }}. We are therefore launching <a href="https://{{ domain }}{% url 'journals:journals' %}?field={{ potential_fellowship.profile.acad_field }}">new journals in {{ potential_fellowship.profile.acad_field }}</a>, aiming to achieve the same success we have had with our <a href="https://{{ domain }}{% url 'journals:journals' %}?field=physics">Physics journals</a>.
+    {% endif %}
+  {% endif %}
 
-<p>Academic reputation is the most important criterion guiding our considerations of who should belong to our Editorial Colleges. The current list of Colleges and their Fellows can be found at <a href="https://{{ domain }}{% url 'colleges:colleges' %}">this page</a>. Our ambition is none other than to assemble the most reputed editorial team of any publishing system available worldwide.</p>
+  <p>
+    On behalf of the SciPost Foundation and in view of your professional expertise and reputation, I hereby would like to invite you to join the {{ potential_fellowship.college }} by becoming one of our Editorial Fellows.
+  </p>
 
-<p>We do not pose any conditions on your involvement, and you will always remain in complete control of your level of commitment (a couple of hours per month would already be significant). Functioning of the Colleges proceeds according to the <a href="https://{{ domain }}{% url 'scipost:EdCol_by-laws' %}">by-laws</a>, and a short summary of the editorial workflow can be found at <a href="https://{{ domain }}{% url 'submissions:editorial_workflow' %}">this page</a>.</p>
+  <p>
+    Academic reputation is the most important criterion guiding our considerations of who should belong to our Editorial Colleges. The current list of Colleges and their Fellows can be found at <a href="https://{{ domain }}{% url 'colleges:colleges' %}">this page</a>. Our ambition is none other than to assemble the most reputed editorial team of any publishing system available worldwide.
+  </p>
 
-<p>I would be very happy to provide you with more information should you require it. Could I beg you to give us a response (by replying to this email) within the next couple of weeks?</p>
+  <p>
+    We do not pose any conditions on your involvement, and you will always remain in complete control of your level of commitment (a couple of hours per month would already be significant). Functioning of the Colleges proceeds according to the <a href="https://{{ domain }}{% url 'scipost:EdCol_by-laws' %}">by-laws</a>, and a short summary of the editorial workflow can be found at <a href="https://{{ domain }}{% url 'submissions:editorial_workflow' %}">this page</a>.
+  </p>
 
-<p>Many thanks in advance,</p>
-<p>Prof. J.-S. Caux,<br/>on behalf of the SciPost Foundation</p>
+  <p>
+    I would be very happy to provide you with more information should you require it. Could I beg you to give us a response (by replying to this email) within the next couple of weeks?
+  </p>
 
-{% include 'email/_footer.html' %}
+  <p>Many thanks in advance,</p>
+  <p>
+    Prof. J.-S. Caux,
+    <br />
+    on behalf of the SciPost Foundation
+  </p>
+
+  {% include 'email/_footer.html' %}

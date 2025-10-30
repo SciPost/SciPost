@@ -2,8 +2,9 @@
     The following Publication is drafted and ready for publication.
 </p>
 <p>
-    <a href="https://{{ domain }}/{{ object.get_absolute_url }}">{{ object.title }}</a><br>
-    by {{ object.author_list }}
+    <a href="https://{{ domain }}/{{ publication.get_absolute_url }}">{{ publication.title }}</a>
+    <br>
+    by {{ publication.author_list }}
 </p>
 <p>
     Please review the Publication and proceed with the publication process.
@@ -15,4 +16,4 @@
 
 {% include 'email/_footer.html' %}
 
-{% include 'email/_submission_thread_uuid.html' with submission=object.accepted_submission %}
+{% include 'email/_submission_thread_uuid.html' with submission=publication.accepted_submission %}

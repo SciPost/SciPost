@@ -1,0 +1,39 @@
+<p>Dear {{ invitation.referee.formal_name }},</p>
+
+<p>
+  On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to cordially remind you of our recent request to referee
+  <br />
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>,
+  <br />
+  by {{ invitation.submission.author_list }}.
+</p>
+
+<p>
+  Please <a href="https://{{ domain }}/{% url "submissions:accept_or_decline_ref_invitations" invitation.invitation_key %}">accept or decline the invitation</a> (login required) as soon as possible (ideally within the next 2 days) in order to ensure rapid processing of the submission.
+</p>
+
+<p>
+  Your report can thereafter be submitted by simply clicking on
+  the "Contribute a Report" link at the <a href="https://{{ domain }}/{% url "submissions:submission" invitation.submission.preprint.identifier_w_vn_nr %}">Submission page</a>
+
+  {% if invitation.submission.reporting_deadline %}
+    before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:"%Y-%m-%d" }})
+  {% endif %}
+
+  ; your report will be automatically recognized as an invited report.
+</p>
+
+<p>
+  You might want to make sure you are familiar with our  <a href="https://{{ domain }}/journals/journals_terms_and_conditions">refereeing code of conduct</a> and with the <a href="https://{{ domain }}/submissions/editorial_procedure">editorial procedure</a>.
+</p>
+
+<p>
+  We very much hope we can count on your expertise,
+  <br />
+  and many thanks in advance,
+  <br />
+  The SciPost Team
+</p>
+
+{% include email/_footer.html %}
+{% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

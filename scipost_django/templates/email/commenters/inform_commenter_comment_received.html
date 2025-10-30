@@ -1,6 +1,7 @@
 {% load automarkup %}
 
-<p>Dear {{ comment.author.profile.get_title_display }} {{ comment.author.user.last_name }},</p>
+<p>Dear {{ comment.author.profile.formal_name }},</p>
+
 <p>
   We hereby confirm reception of your {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %}, concerning
   <br/>
@@ -13,17 +14,18 @@
     by {{ comment.core_content_object.author }}.
   {% endif %}
 </p>
+
 <p>
   We copy it below for your convenience.
   <br>
   Your {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} will be made visible after vetting by the editorial team, at which point you will receive an email update from us.
 </p>
+
 <p>
   Thank you for your contribution,<br><br>
   The SciPost Team.
 </p>
 
-<br>
 <p>
   Comment:
   <br>

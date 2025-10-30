@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Worklogs report",
     "recipient_list": [
-        "user_set|values_list:email"
+        "group.user_set|values_list:email"
     ],
     "bcc": [
         "admin@"

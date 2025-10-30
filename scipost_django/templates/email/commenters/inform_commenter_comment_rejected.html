@@ -1,6 +1,7 @@
 {% load automarkup %}
 
-<p>Dear {{ comment.author.profile.get_title_display }} {{ comment.author.user.last_name }},</p>
+<p>Dear {{ comment.author.profile.formal_name }},</p>
+
 <p>
   The {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} you have submitted, concerning
   <br/>
@@ -8,9 +9,11 @@
   <br/>
   has been rejected for the following reason: {{ comment.get_status_display }}.
 </p>
+
 <p>
   We copy it below for your convenience.
 </p>
+
 <p>
   Thank you for your contribution,<br><br>
   The SciPost Team.
@@ -21,7 +24,6 @@
 {% endif %}
 
 <p>
-  <br>
   Comment:
   <br>
   {% automarkup comment.comment_text %}

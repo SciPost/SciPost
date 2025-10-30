@@ -1,46 +1,60 @@
 <p>Dear {{ invitation.referee.formal_name }},</p>
+
 <p>
   On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to invite you to referee a Submission to the Journal of Robustness Reports, a diamond open-access journal dedicated to reanalyses of published findings:
-  <br />
   <br />
   <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
   <br />
   by {{ invitation.submission.author_list }}
   <br />
 </p>
+
 <p>
-  The submitted manuscript provides a concise reanalysis of original findings using an alternative analysis methodology. Specifically, we'd like you to assess (1) whether or not the alternative analysis is plausible; (2) whether the associated conclusions are reasonable; and (3) whether the tone is sufficiently constructive.
+  The submitted manuscript provides a concise reanalysis of original findings using an alternative analysis methodology. 
+  Specifically, we'd like you to assess (1) whether or not the alternative analysis is plausible; (2) whether the associated conclusions are reasonable; and (3) whether the tone is sufficiently constructive.
 </p>
+
 <p>
-  To ensure timely processing, we would appreciate a response, confirming whether you are willing to take on this task, within the <strong>next few days</strong>. If you have any questions concerning this submission, do not hesitate to reach out to the handling editor.
+  To ensure timely processing, we would appreciate a response, confirming whether you are willing to take on this task, within the <strong>next few days</strong>. 
+  If you have any questions concerning this submission, do not hesitate to reach out to the handling editor.
 </p>
+
 <p>
   The deadline to provide the review is <strong>30 days</strong> after confirmation.
 </p>
+
 <p>
   If you are <strong>not</strong> able to provide a Report, you can let us know by simply <a href="https://{{ domain }}/submissions/decline_ref_invitation/{{ invitation.invitation_key }}">clicking here</a>.
 </p>
+
 <p>
   If you are able to provide a Report, you can confirm this after <a href="https://{{ domain }}/invitation/{{ invitation.invitation_key }}">registering</a> and logging in (you will automatically be prompted for a confirmation).
 </p>
+
 <p>
-  Our records show you are not yet registered as a Contributor on SciPost, which is required to deliver reports. For your convenience, we have prepared a pre-filled <a href="https://{{ domain }}/invitation/{{ invitation.invitation_key }}">registration form</a> for you.
+  Our records show you are not yet registered as a Contributor on SciPost, which is required to deliver reports. 
+  For your convenience, we have prepared a pre-filled <a href="https://{{ domain }}/invitation/{{ invitation.invitation_key }}">registration form</a> for you.
 </p>
+
 <p>
-  You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:editorial_procedure' %}">editorial procedure</a>, <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
+  You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:editorial_procedure' %}">editorial procedure</a>, 
+  <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
 </p>
+
 <p>
-  The submission is currently a candidate for publication in <a href="https://{{ domain }}{% url 'scipost:journal_detail' invitation.submission.submitted_to.doi_label %}">{{ invitation.submission.submitted_to }}</a>, for which you are advised to review its <a href="https://{{ domain }}{% url 'journal:about' invitation.submission.submitted_to.doi_label %}#criteria">acceptance criteria</a>.
+  The submission is currently a candidate for publication in 
+  <a href="https://{{ domain }}{% url 'scipost:journal_detail' invitation.submission.submitted_to.doi_label %}">{{ invitation.submission.submitted_to }}</a>, 
+  for which you are advised to review its <a href="https://{{ domain }}{% url 'journal:about' invitation.submission.submitted_to.doi_label %}#criteria">acceptance criteria</a>.
 </p>
+
 <p>
   We very much hope that we can count on your expertise,
   <br />
   Many thanks in advance,
   <br />
-  <br />
   The SciPost Team
 </p>
 
-{% include 'email/_footer.html' %}
 
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

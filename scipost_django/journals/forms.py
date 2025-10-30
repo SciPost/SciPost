@@ -45,7 +45,6 @@ from .models import (
     Volume,
     PublicationAuthorsTable,
 )
-from .utils import JournalUtils
 from .validators import doi_validator
 
 
@@ -1026,8 +1025,7 @@ class DraftPublicationApprovalForm(forms.ModelForm):
         self.instance.status = PUBLICATION_PREPUBLISHED
         if commit:
             self.instance.save()
-            mail_sender = DirectMailUtil("publication_ready", instance=self.instance)
-            mail_sender.send_mail()
+            DirectMailUtil("publication_ready", publication=self.instance).send_mail()
         return self.instance
 
 
@@ -1143,8 +1141,10 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
             self.tag_publication()
 
             # Email authors
-            JournalUtils.load({"publication": self.instance})
-            JournalUtils.send_authors_paper_published_email()
+            DirectMailUtil(
+                "journals/paper_published_notification",
+                publication=self.instance,
+            ).send_mail()
 
         return self.instance
 

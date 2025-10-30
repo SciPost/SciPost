@@ -1,0 +1,84 @@
+<p>Dear {{ report.author.profile.formal_name }},</p>
+
+<p>
+  Many thanks for your Report on Submission
+  <br />
+  <a href="https://{{ domain }}{{ report.submission.get_absolute_url }}">{{ report.submission.title }}</a>,
+  <br />
+  by {{ report.submission.author_list }}.
+</p>
+
+{% if report.status == 'vetted' %}
+  <p>
+    Your Report has been vetted through and is viewable at the <a href="https://{{ domain }}/{% url "submissions:submission" report.submission.preprint.identifier_w_vn_nr %}">Submission page</a>.
+  </p>
+
+  {% if not report.anonymous %}
+    <p>
+      Please note that your Report is not anonymous and thus your identity will be publicly visible.
+      You may anonymize your Report within 24 hours at the <a href="https://{{ domain }}/{% url "submissions:submission" report.submission.preprint.identifier_w_vn_nr %}/#report_{{ report.report_nr }}">Submission's page</a>.
+      If you choose to do so, your identity will be immediately hidden from the public.
+      However, kindly understand that SciPost cannot guarantee that this information
+      has not already been saved by unaffiliated third-parties during the time in which is was public.
+    </p>
+  {% endif %}
+
+{% else %}
+
+  <p>
+    Your Report has been reviewed by the Editor-in-charge of the Submission,
+    who decided not to admit it for online posting, citing the reason:
+    {{ report.get_status_display }}.
+
+    {% if email_response %}
+      <p>
+        Additional info from the Editor-in-charge:
+        <br />
+        {{ email_response }}
+      </p>
+    {% endif %}
+
+  </p>
+  <p>
+    We copy the text entries of your report below the signature for your convenience,
+    should you ever wish to reformulate it and resubmit it.
+  </p>
+{% endif %}
+
+<p>
+  Thank you again very much for your contribution.
+  <br />
+  The SciPost Team
+</p>
+
+{% if report.status != 'vetted' %}
+  <p>The text entries of your Report:</p>
+  <p>
+    <strong>Strengths</strong>:
+    <br />
+    {{ report.strengths|linebreaks }}
+  </p>
+  <p>
+    <strong>Weaknesses</strong>:
+    <br />
+    {{ report.weaknesses|linebreaks }}
+  </p>
+  <p>
+    <strong>Report</strong>:
+    <br />
+    {{ report.report|linebreaks }}
+  </p>
+  <p>
+    <strong>Requested changes</strong>:
+    <br />
+    {{ report.requested_changes|linebreaks }}
+  </p>
+  <p>
+    <strong>Remarks for Editors</strong>:
+    <br />
+    {{ report.remarks_for_editors|linebreaks }}
+  </p>
+{% endif %}
+
+{% include "email/_footer.html" %}
+{% include 'email/_submission_thread_uuid.html' with submission=report.submission %}

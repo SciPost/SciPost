@@ -1,28 +1,37 @@
 {% load static %}
+
 <p>
-  Dear {% if contactperson %}{{ contactperson.get_title_display }} {{ contactperson.last_name }}{% else %}colleagues{% endif %},
+  Dear {% if contactperson %}{{ contactperson.formal_name }}{% else %}colleagues{% endif %},
 </p>
+
 <p>
   You might by now have heard of SciPost, a scientists-driven not-for-profit initiative whose mission is to provide an improved academic publishing infrastructure.
 </p>
+
 <p>
   The site is anchored at <a href="https://{{ domain }}{% url 'scipost:index' %}">SciPost.org</a>. Many further details about SciPost, its principles, ideals and implementation can be found at the <a href="https://{{ domain }}{% url 'scipost:about' %}">about page</a> and <a href="https://{{ domain }}{% url 'scipost:FAQ' %}">our FAQ</a>.
 </p>
+
 <p>
   You can also find a summary of how your organization has benefitted from our activities at <a href="https://{{ domain }}{{ contactperson.organization.get_absolute_url }}">this link</a>. There, you will find an overview of publications, authors and Fellows (our editors) which have an affiliation to your organization.
 </p>
+
 <p>
   As explained on our <a href="https://{{ domain }}{% url 'finances:business_model' %}">business model</a> page, SciPost follows a completely different funding model than traditional publishers, and provides a cost-slashing alternative to existing platforms. SciPost charges neither subscription fees, nor article processing charges; its activities are instead collectively financed by a worldwide consortium of Sponsors, formed by institutions and organizations which directly or indirectly benefit from SciPost’s activities.
 </p>
+
 <p>
   A short summary, together with motivations for your organization to become a sponsor, are given in <a href="https://{{ domain }}{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">our one-page prospectus</a>.
 </p>
+
 <p>
   In <a href="https://{{ domain }}{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">the agreement template</a>, you will find many more specific details about our operations, requirements and funding strategy.
 </p>
+
 <p>
   It would be a privilege to welcome your organization as a Sponsor. I am hereby contacting you to enquire whether your institution would consider joining? If you are interested, you can simply get in touch via this address (sponsors@{{ domain }}). I sincerely hope that SciPost will be able to count on your support.
 </p>
+
 
 <p>
     On behalf of the SciPost Foundation,<br><br>
@@ -40,3 +49,4 @@
     fax: +31 (0)20 5255778<br>
     ---------------------------------------------
 </p>
+

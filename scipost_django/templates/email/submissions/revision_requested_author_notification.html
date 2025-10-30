@@ -1,0 +1,54 @@
+<p>Dear {{ recommendation.submission.submitted_by.profile.formal_name }},</p>
+
+<p>
+  The Editor-in-charge of your recent Submission to {{ recommendation.submission.submitted_to.name }}:
+  <br />
+  <a href="https://{{ domain }}{{ recommendation.submission.get_absolute_url }}">{{ recommendation.submission.title }}</a>,
+  <br />
+  by {{ recommendation.submission.author_list }}
+  <br />
+  has formulated an Editorial Recommendation, asking for a {{ recommendation.get_recommendation_short_display|lower }}.
+</p>
+
+{% if recommendation.remarks_for_authors %}
+  <p>
+    Remarks for authors from the Editor-in-charge:
+    <br />
+    {{ recommendation.remarks_for_authors }}
+  </p>
+{% endif %}
+
+{% if recommendation.requested_changes %}
+  <p>
+    Requested changes:
+    <br />
+    {{ recommendation.requested_changes }}
+  </p>
+{% endif %}
+
+{% if recommendation.for_journal != recommendation.submission.submitted_to %}
+  <p>
+    Moreover, the Editor-in-charge recommends you to submit your modified manuscript to <strong>{{ recommendation.for_journal }}</strong> instead. You can find more information on {{ recommendation.for_journal }}, including its acceptance criteria, at its <a href="https://{{ domain }}/{% url 'journal:about' recommendation.for_journal.doi_label %}">about page</a>.
+  </p>
+{% endif %}
+
+<p>
+  You can view the full recommendation at the <a href="https://{{ domain }}/{{ recommendation.submission.get_absolute_url }}">Submission page</a>. Note that the recommendation is viewable only by the registered authors of the submission.
+</p>
+
+<p>
+  To resubmit your paper, please first update the version on the preprint server you used to submit the manuscript (e.g. arXiv); after appearance, go to the <a href="https://{{ domain }}/{% url 'submissions:submit_manuscript' %}">submit page</a> and fill in the forms. Your submission will be automatically recognized as a resubmission.
+</p>
+
+<p>
+  We remind you that you can reply to the referee report(s) directly from the <a href="https://{{ domain }}/{{ recommendation.submission.get_absolute_url }}">Submission page</a>, using the "Reply to the above Report" link below each report.
+</p>
+
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team.
+</p>
+
+{% include "email/_footer.html" %}
+{% include 'email/_submission_thread_uuid.html' with submission=recommendation.submission %}

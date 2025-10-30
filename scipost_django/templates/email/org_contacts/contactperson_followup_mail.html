@@ -1,6 +1,6 @@
 {% load static %}
 <p>
-  Dear {% if contactperson %}{{ contactperson.get_title_display }} {{ contactperson.last_name }}{% else %}colleagues{% endif %},
+  Dear {% if contactperson %}{{ contactperson.formal_name }}{% else %}colleagues{% endif %},
 </p>
 <p>
   We recently contacted you concerning SciPost, to probe your organization's interest in becoming a Sponsor. With this follow-up email, I would simply like to check whether you got the original message.

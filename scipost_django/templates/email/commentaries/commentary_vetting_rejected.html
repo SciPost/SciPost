@@ -1,0 +1,20 @@
+<p>Dear {{ commentary.requested_by.profile.formal_name }},</p>
+
+<p>
+  The Commentary Page you have requested, concerning publication with title {{ commentary.title }} by {{ commentary.author_list }}, has not been activated for the following reason: {{ refusal_reason }}.
+</p>
+
+{% if further_explanation %}
+  <p>
+    Further explanations:
+    {{ further_explanation }}
+  </p>
+{% endif %}
+
+<p>
+  Thank you for your contribution,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}

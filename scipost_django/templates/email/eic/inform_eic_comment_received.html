@@ -1,21 +1,22 @@
-<p>Dear {{ comment.core_content_object.editor_in_charge.profile.get_title_display }} {{ comment.core_content_object.editor_in_charge.user.last_name }},</p>
+<p>Dear {{ comment.core_content_object.editor_in_charge.profile.formal_name }},</p>
+
+<p>{{ comment.author.profile.formal_name }} has delivered a Comment for Submission:</p>
 
 <p>
-    {{ comment.author.profile.get_title_display }} {{ comment.author.user.last_name }} has delivered a Comment for Submission:
+  {{ comment.core_content_object.title }}
+  <br />
+  by {{ comment.core_content_object.author_list }}.
 </p>
-<p>
-    {{ comment.core_content_object.title }}
-    <br/>
-    by {{ comment.core_content_object.author_list }}.
-</p>
+
 <p>
   This Comment now requires vetting, which you can perform from <a href="https://{{ domain }}{% url 'submissions:editorial_page' comment.core_content_object.preprint.identifier_w_vn_nr %}">the editorial page</a> (please be careful when doing this, avoiding for example to vet doubly-submitted comments, or comments with improper language etc; in case you have any doubt, please contact our <a href="mailto:edadmin@{{ domain }}">editorial administration</a>).
 </p>
+
 <p>
-  Many thanks in advance for your collaboration,<br>
+  Many thanks in advance for your collaboration,
+  <br />
   The SciPost Team.
 </p>
 
 {% include 'email/_footer.html' %}
-
 {% include 'email/_submission_thread_uuid.html' with submission=comment.core_content_object %}

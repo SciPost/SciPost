@@ -1,0 +1,12 @@
+<p>Dear {{ thesislink.requested_by.profile.formal_name }},</p>
+
+<p>
+  The Thesis Link you have requested, concerning thesis with title `{{ thesislink.title }}' by {{ thesislink.author }},
+  has been activated at (with slight modifications to your submitted details) https://{{ domain }}{{ thesislink.get_absolute_url }}.
+</p>
+
+<p>
+  Thank you for your contribution,
+  <br />
+  The SciPost Team
+</p>

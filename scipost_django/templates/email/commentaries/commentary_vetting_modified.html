@@ -1,0 +1,15 @@
+<p>Dear {{ commentary.requested_by.profile.formal_name }},</p>
+
+<p>
+  The Commentary Page you have requested, concerning publication with title {{ commentary.title }} by {{ commentary.author_list }}, has been activated (with slight modifications to your submitted details).
+  <br />
+  You are now welcome to submit your comments.
+</p>
+
+<p>
+  Thank you for your contribution,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}

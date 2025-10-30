@@ -1,0 +1,32 @@
+<p>Dear {{ publication.accepted_submission.submitted_by.formal_name }},</p>
+
+<p>
+  We are happy to inform you that your Submission to {{ publication.get_journal.name }},
+  <br />
+  <a href="https://{{ domain }}{{ publication.accepted_submission.get_absolute_url }}">{{ publication.accepted_submission.title }}</a>,
+  <br />
+  by {{ publication.accepted_submission.author_list }}
+  <br />
+  has been published online with reference {{ publication.doi_label }}.
+</p>
+
+{% if publication.accepted_submission.preprint.is_arXiv %}
+  <p>
+    To facilitate dissemination of your paper, we will also automatically
+    update the arXiv Journal-ref with this information (this update usually
+    takes place within one week; you do not need to take action).
+  </p>
+{% endif %}
+
+<p>
+  We warmly congratulate you on this achievement and thank you
+  for entrusting us with the task of publishing your research
+</p>
+
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}

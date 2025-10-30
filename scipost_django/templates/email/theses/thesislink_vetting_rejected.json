@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: Thesis Page not activated",
+    "recipient_list": [
+        "thesislink.requested_by.profile.email"
+    ],
+    "bcc": [
+        "theses@"
+    ],
+    "from_name": "SciPost Editorial Administration",
+    "from_email": "edadmin@"
+}

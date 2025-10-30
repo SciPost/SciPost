@@ -1,17 +1,32 @@
 {% load automarkup %}
-<p>Dear {{ object.submitted_by.profile.get_title_display }} {{ object.submitted_by.user.last_name }},</p>
-<p>We would like to inform you that your recent Submission to {{ object.submitted_to }},</p>
-<p>{{ object.title }}</p>
-<p>by {{ object.author_list }}</p>
-<p>has gone through Preassignment, and moved on to the Assignment stage (during which an Editor-in-charge is sought).</p>
+<p>Dear {{ object.submitted_by.profile.formal_name }},</p>
+
+<p>
+  We would like to inform you that your recent Submission to {{ object.submitted_to }},
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>,
+  <br />
+  by {{ submission.author_list }}
+  <br />
+  has gone through Preassignment, and moved on to the Assignment stage (during which an Editor-in-charge is sought).
+</p>
+
 {% if comments_for_authors %}
   {% automarkup comments_for_authors %}
 {% endif %}
+
 <p>We will keep you updated on further processing within the next 5 working days.</p>
-<p>You can track your Submission at any time from your <a href="https://{{ domain  }}{% url 'scipost:personal_page' %}">personal page</a>.</p>
-<p>Sincerely,</p>
-<p>The SciPost Team.</p>
+
+<p>
+  You can track your Submission at any time from your <a href="https://{{ domain }}{% url 'scipost:personal_page' %}">personal page</a>.
+</p>
+
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team.
+</p>
+
 
 {% include 'email/_footer.html' %}
-
 {% include 'email/_submission_thread_uuid.html' with submission=object %}

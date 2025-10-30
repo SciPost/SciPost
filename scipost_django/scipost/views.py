@@ -25,7 +25,7 @@ from django.contrib.auth.views import (
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core import mail
 from django.core.exceptions import PermissionDenied
-from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
@@ -64,6 +64,7 @@ from .constants import SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR
 from .decorators import has_contributor, is_contributor_user
 from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim
 from .forms import (
+    REGISTRATION_REFUSAL_CHOICES,
     SciPostAuthenticationForm,
     SciPostMFAVerifyForm,
     SciPostPasswordResetForm,
@@ -755,8 +756,6 @@ def _hx_vet_registration_request_ack_form(request, contributor_id):
     """Form view to vet new Registration requests."""
     form = VetRegistrationForm(request.POST or None, contributor_id=contributor_id)
 
-    print(request.POST)
-
     if request.POST.get("submit") is None:
         return TemplateResponse(
             request,
@@ -767,7 +766,6 @@ def _hx_vet_registration_request_ack_form(request, contributor_id):
     contributor = Contributor.objects.get(pk=contributor_id)
 
     if request.POST.get("submit") and form.is_valid():
-        domain = get_current_domain()
         if form.promote_to_registered_contributor():
             contributor.status = NORMAL_CONTRIBUTOR
             contributor.vetted_by = request.user.contributor
@@ -775,24 +773,10 @@ def _hx_vet_registration_request_ack_form(request, contributor_id):
             group = Group.objects.get(name="Registered Contributors")
             contributor.user.groups.add(group)
 
-            email_text = (
-                "Dear "
-                + contributor.profile.get_title_display()
-                + " "
-                + contributor.user.last_name
-                + ", \n\nYour registration to the SciPost publication portal has been accepted. "
-                "You can now login at https://" + domain + " and contribute. \n\n"
-            )
-            email_text += "Thank you very much in advance, \nThe SciPost Team."
-            emailmessage = EmailMessage(
-                "SciPost registration accepted",
-                email_text,
-                "SciPost registration <registration@%s>" % domain,
-                [contributor.user.email],
-                bcc=["registration@%s" % domain],
-                reply_to=["registration@%s" % domain],
-            )
-            emailmessage.send(fail_silently=False)
+            DirectMailUtil(
+                "registration/registration_successful",
+                contributor=contributor,
+            ).send_mail()
 
             return HTMXResponse(
                 "SciPost Registration request vetted.",
@@ -800,33 +784,15 @@ def _hx_vet_registration_request_ack_form(request, contributor_id):
             )
         else:
             ref_reason = form.cleaned_data["refusal_reason"]
-            email_text = (
-                "Dear "
-                + contributor.profile.get_title_display()
-                + " "
-                + contributor.user.last_name
-                + ", \n\nYour registration to the SciPost publication portal has been turned down,"
-                " the reason being: "
-                + reg_ref_dict[ref_reason]
-                + ". You can however still view "
-                "all SciPost contents, just not submit papers, comments or votes. We nonetheless "
-                "thank you for your interest.\n\nThe SciPost Team."
-            )
-            if form.cleaned_data["email_response_field"]:
-                email_text += (
-                    "\n\nFurther explanations: "
-                    + form.cleaned_data["email_response_field"]
-                )
-            emailmessage = EmailMessage(
-                "SciPost registration: unsuccessful",
-                email_text,
-                "SciPost registration <registration@%s>" % domain,
-                [contributor.user.email],
-                bcc=["registration@%s" % domain],
-                reply_to=["registration@%s" % domain],
-            )
-            emailmessage.send(fail_silently=False)
-            contributor.status = form.cleaned_data["refusal_reason"]
+
+            DirectMailUtil(
+                "registration/registration_unsuccessful",
+                contributor=contributor,
+                reason=dict(REGISTRATION_REFUSAL_CHOICES).get(ref_reason, "Unknown"),
+                further_explanations=form.cleaned_data.get("email_response_field"),
+            ).send_mail()
+
+            contributor.status = ref_reason
             contributor.save()
 
             return HTMXResponse(

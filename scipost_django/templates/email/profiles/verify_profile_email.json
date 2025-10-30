@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Email address verification",
     "recipient_list": [
-        "email"
+        "profile_email.email"
     ],
     "bcc": [
         "registration@"

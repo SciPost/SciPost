@@ -1,24 +1,21 @@
-<p>
-  Dear {{ invitation.referee.formal_name }}
-</p>
+<p>Dear {{ invitation.referee.formal_name }}</p>
 
 <p>
-  This is a simple email to inform you that the authors of
-</p>
-<p>
-  {{ invitation.submission.title }}
-  <br>
+  This is a simple email to inform you that the authors of the Submission
+  <br />
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>,
+  <br />
   by {{ invitation.submission.author_list }}
-</p>
-<p>
+  <br />
   have withdrawn their manuscript. Your report is thus no longer needed. We apologize
   for any inconvenience to you.
 </p>
+
 <p>
   Sincerely,
-  <br>
+  <br />
   The SciPost Team.
 </p>
-{% include 'email/_footer.html' %}
 
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

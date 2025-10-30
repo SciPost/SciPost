@@ -1,6 +1,0 @@
-Dear {{ vocative_title }} {{ thesislink.requested_by.user.last_name }},
-
-The Thesis Link you have requested, concerning thesis with title `{{ thesislink.title }}' by {{ thesislink.author }}, has been activated at {{ full_url }}.
-
-Thank you for your contribution,
-The SciPost Team

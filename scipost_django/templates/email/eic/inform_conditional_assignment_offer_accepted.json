@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Authors have accepted your conditional assignment offer",
     "recipient_list": [
-        "offered_by.profile.email"
+        "offer.offered_by.profile.email"
     ],
     "bcc": [
         "submissions@"

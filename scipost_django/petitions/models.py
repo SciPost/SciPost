@@ -61,3 +61,12 @@ class PetitionSignatory(models.Model):
             self.first_name,
             self.petition.slug,
         )
+
+    def get_verification_url(self):
+        return reverse(
+            "petitions:verify_signature",
+            kwargs={
+                "slug": self.petition.slug,
+                "verification_key": self.verification_key,
+            },
+        )

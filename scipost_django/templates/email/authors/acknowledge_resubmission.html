@@ -1,16 +1,23 @@
-<p>Dear {{ submission.submitted_by.profile.get_title_display }} {{ submission.submitted_by.user.last_name }},</p>
+<p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
+
 <p>
   We have received your Resubmission to SciPost
-  <br><br>
-  {{ submission.title }}
-  <br>by {{ submission.author_list }}.
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>,
+  <br />
+  by {{ submission.author_list }}
 </p>
 
 <p>Your manuscript will soon be handled by the Editor-in-charge.</p>
-<p>You can track your Submission at any time from your <a href="https://{{ domain }}{% url 'scipost:personal_page' %}">personal page</a>.</p>
-<p>With many thanks,</p>
-<p>The SciPost Team</p>
+<p>
+  You can track your Submission at any time from your <a href="https://{{ domain }}{% url 'scipost:personal_page' %}">personal page</a>.
+</p>
+
+<p>
+  With many thanks,
+  <br />
+  The SciPost Team
+</p>
 
 {% include 'email/_footer.html' %}
-
 {% include 'email/_submission_thread_uuid.html' with submission=submission %}

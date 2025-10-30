@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: referee accepts to review",
     "recipient_list": [
-        "submission.editor_in_charge.user.email"
+        "invitation.submission.editor_in_charge.profile.email"
     ],
     "bcc": [
         "edadmin@"

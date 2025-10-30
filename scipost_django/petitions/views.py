@@ -7,7 +7,6 @@ import random
 import string
 
 from django.contrib import messages
-from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Context, Template
 
@@ -60,10 +59,10 @@ def petition(request, slug):
             signature.signatory = request.user.contributor
             signature.verified = True
             signature.save()
-            mail_util = DirectMailUtil(
-                "signatory/thank_SPB_signature", object=signature
-            )
-            mail_util.send_mail()
+            DirectMailUtil(
+                "signatory/thank_SPB_signature",
+                signature=signature,
+            ).send_mail()
         else:
             # Generate verification key and link
             salt = ""
@@ -75,39 +74,11 @@ def petition(request, slug):
             verification_key = hashlib.sha1(salt + verificationsalt).hexdigest()
             signature.verification_key = verification_key
             signature.save()
-            message += "\n<p>You will receive an email with a verification link.</p>"
-            email_text = (
-                "Please click on the link below to confirm "
-                "your signature of the petition: \n"
-                "https://"
-                + domain
-                + "/petitions/"
-                + petition.slug
-                + "/verify_signature/"
-                + verification_key
-                + ".\n"
-            )
-            email_text_html = (
-                "<p>Please click on the link below to confirm "
-                "your signature of the petition:</p>"
-                '<p><a href="https://'
-                + domain
-                + "/petitions/{{ slug }}/verify_signature"
-                '/{{ key }}">confirm your signature</a></p>'
-            )
-            html_template = Template(email_text_html)
-            html_version = html_template.render(
-                Context({"slug": petition.slug, "key": verification_key})
-            )
-            emailmessage = EmailMultiAlternatives(
-                "Petition signature verification",
-                email_text,
-                "SciPost petitions<petitions@%s>" % domain,
-                [form.cleaned_data["email"]],
-                bcc=["petitions@%s" % domain],
-            )
-            emailmessage.attach_alternative(html_version, "text/html")
-            emailmessage.send()
+            DirectMailUtil(
+                "signatory/petition_signature_verification",
+                signature=signature,
+                email=form.cleaned_data["email"],
+            ).send_mail()
         messages.success(request, message)
         return redirect(petition.get_absolute_url())
 

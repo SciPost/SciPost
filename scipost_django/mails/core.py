@@ -101,7 +101,7 @@ class MailEngine:
         config_path, template_path = self.get_mail_template_paths(self.base_mail_code)
         config = self.load_mail_config(config_path)
         config |= self.mail_config_overrides
-        config = self.process_email_parameters(config, self.get_object())
+        config = self.process_email_parameters(config, self.template_variables)
         self.validate_mail_config(config)
 
         if render_template:
@@ -309,7 +309,9 @@ class MailEngine:
 
     @classmethod
     def process_email_parameters(
-        cls, mail_config: dict[str, Any], object: models.Model | None = None
+        cls,
+        mail_config: dict[str, Any],
+        object: dict[str, Any] | models.Model | None = None,
     ) -> dict[str, Any]:
         """
         Process email-related parameters in the mail configuration.
@@ -336,7 +338,7 @@ class MailEngine:
     def _email_container_to_addresses(
         cls,
         container: str | Iterable[str],
-        object: models.Model | None,
+        object: dict[str, Any] | models.Model | None,
     ) -> list[str]:
         """
         Processes an "email container" into a list of email addresses.
@@ -392,7 +394,7 @@ class MailEngine:
                 attribute = model_eval_attr(object, attribute_path)
             except AttributeError:
                 # Ignore the error if applying any "None" filter functions.
-                if any(f == "None" for f, _ in filters):
+                if any(f == "None" for f, _ in filters_and_args):
                     return []
                 raise KeyError(
                     f"The property ({attribute_path}) does not exist on {object}."

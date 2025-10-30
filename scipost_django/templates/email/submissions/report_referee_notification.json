@@ -1,0 +1,12 @@
+{
+    "subject": "SciPost: Report acknowledgement",
+    "recipient_list": [
+        "report.author.profile.email"
+    ],
+    "bcc": [
+        "report.submission.editor_in_charge.profile.email",
+        "edadmin@"
+    ],
+    "from_name": "SciPost Refereeing",
+    "from_email": "refereeing@"
+}

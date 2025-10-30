@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from typing import Any
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -15,8 +16,6 @@ from django.views.generic.list import ListView
 from django.utils.decorators import method_decorator
 from django.http import Http404
 
-from ethics.forms import GenAIDisclosureForm
-
 from .models import Commentary
 from .forms import (
     DOIToQueryForm,
@@ -29,6 +28,8 @@ from .forms import (
     CommentSciPostPublication,
 )
 
+from mails.utils import DirectMailUtil
+from ethics.forms import GenAIDisclosureForm
 from comments.models import Comment
 from comments.forms import CommentForm
 from common.utils import get_current_domain
@@ -144,36 +145,24 @@ def vet_commentary_requests(request, commentary_id=None):
     )
     if form.is_valid():
         domain = get_current_domain()
-
-        # Get commentary
         commentary = form.get_commentary()
-        email_context = {"commentary": commentary, "domain": domain}
 
-        # Retrieve email_template for action
-        if form.commentary_is_accepted():
-            email_template = "commentaries/vet_commentary_email_accepted.html"
-        elif form.commentary_is_refused():
-            email_template = "commentaries/vet_commentary_email_rejected.html"
+        # For a modified commentary, redirect to request_commentary_form
+        if form.commentary_is_modified():
+            return redirect(
+                reverse("commentaries:modify_commentary_request", args=(commentary.pk,))
+            )
+
+        email_context: dict[str, Any] = {"commentary": commentary, "domain": domain}
+        email_code = "commentaries/commentary_vetting_accepted.html"
+        if form.commentary_is_refused():
+            email_code = "commentaries/commentary_vetting_rejected.html"
             email_context["refusal_reason"] = form.get_refusal_reason()
             email_context["further_explanation"] = form.cleaned_data[
                 "email_response_field"
             ]
-        elif form.commentary_is_modified():
-            # For a modified commentary, redirect to request_commentary_form
-            return redirect(
-                reverse("commentaries:modify_commentary_request", args=(commentary.id,))
-            )
 
-        # Send email and process form
-        email_text = render_to_string(email_template, email_context)
-        email_args = (
-            "SciPost Commentary Page activated",
-            email_text,
-            commentary.requested_by.user.email,
-            ["commentaries@%s" % domain],
-        )
-        emailmessage = EmailMessage(*email_args, reply_to=["commentaries@%s" % domain])
-        emailmessage.send(fail_silently=False)
+        DirectMailUtil(email_code, **email_context).send_mail()
         commentary = form.process_commentary()
 
         messages.success(request, "SciPost Commentary request vetted.")
@@ -186,11 +175,9 @@ def vet_commentary_requests(request, commentary_id=None):
 @permission_required("scipost.can_vet_commentary_requests", raise_exception=True)
 def modify_commentary_request(request, commentary_id):
     """Modify a commentary request after vetting with status 'modified'."""
-    commentary = get_object_or_404(
-        (
-            Commentary.objects.awaiting_vetting().exclude(
-                requested_by=request.user.contributor
-            )
+    commentary: Commentary = get_object_or_404(
+        Commentary.objects.awaiting_vetting().exclude(
+            requested_by=request.user.contributor
         ),
         id=commentary_id,
     )
@@ -198,24 +185,16 @@ def modify_commentary_request(request, commentary_id):
     if form.is_valid():
         domain = get_current_domain()
 
-        # Process commentary data
         commentary = form.save(commit=False)
         commentary.vetted = True
+        commentary.vetted_by = request.user.contributor
         commentary.save()
 
-        # Send email and process form
-        email_template = "commentaries/vet_commentary_email_modified.html"
-        email_text = render_to_string(
-            email_template, {"commentary": commentary, "domain": domain}
-        )
-        email_args = (
-            "SciPost Commentary Page activated",
-            email_text,
-            commentary.requested_by.user.email,
-            ["commentaries@%s" % domain],
-        )
-        emailmessage = EmailMessage(*email_args, reply_to=["commentaries@%s" % domain])
-        emailmessage.send(fail_silently=False)
+        DirectMailUtil(
+            "commentaries/commentary_vetting_modified.html",
+            commentary=commentary,
+            domain=domain,
+        ).send_mail()
 
         messages.success(request, "SciPost Commentary request modified and vetted.")
         return redirect(reverse("commentaries:vet_commentary_requests"))

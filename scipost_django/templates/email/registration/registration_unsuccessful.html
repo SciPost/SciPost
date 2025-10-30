@@ -1,0 +1,17 @@
+<p>Dear {{ contributor.profile.formal_name }},</p>
+
+<p>
+  Your registration to the SciPost publication portal has been turned down, the reason being: <strong>{{ reason }}</strong>.
+  <br />
+  You can however still view all SciPost contents, just not submit papers, comments or votes.
+</p>
+
+{% if further_explanations %}<p>{{ further_explanations }}</p>{% endif %}
+
+<p>
+  We nonetheless thank you for your interest,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}

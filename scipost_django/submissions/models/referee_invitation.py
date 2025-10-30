@@ -9,6 +9,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from mails.utils import DirectMailUtil
+
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..managers import RefereeInvitationQuerySet
@@ -226,3 +228,15 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         self.nr_reminders += 1
         self.date_last_reminded = timezone.now()
         self.save()
+
+    def cancel(self, should_send_email: bool = False, commit: bool = True):
+        """Cancel the invitation, optionally sending an email."""
+        if should_send_email:
+            DirectMailUtil(
+                "submissions/ref_invitation_cancellation",
+                invitation=self,
+            ).send_mail()
+
+        self.cancelled = True
+        if commit:
+            self.save()

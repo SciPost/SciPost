@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: Confirmation accepted invitation",
     "recipient_list": [
-        "email_address"
+        "invitation.email_address"
     ],
     "bcc": [
         "submissions@"

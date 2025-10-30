@@ -1,23 +1,26 @@
+<p>Dear {{ invitation.submission.editor_in_charge.profile.formal_name }},</p>
+
 <p>
-  Dear {{ invitation.submission.editor_in_charge.profile.formal_name }},
-</p>
-<p>
-  Referee {{ invitation.referee.full_name }}, whom you invited to referee
-  Submission
-  <br><br>
-  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
-  <br>by {{ invitation.submission.author_list }}<br>
-  (see <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">https://{{ domain }}{{ invitation.submission.get_absolute_url }}</a> - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}),<br>
+  Referee {{ invitation.referee.full_name }}, whom you invited to referee Submission
+  <br />
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>,
+  <br />
+  by {{ invitation.submission.author_list }}
+  <br />
   has failed to respond to the invitation (after being sent {{ invitation.nr_reminders }} reminders).
 </p>
+
 <p>
   Unless you are confident that this referee will really deliver a Report, and to ensure that this Submission does not suffer from unnecessary delays in processing, you should ideally invite a replacement referee using the tools on the <a href="https://{{ domain }}{% url 'submissions:editorial_page' invitation.submission.preprint.identifier_w_vn_nr %}">Editorial page</a>.
 </p>
+
+<p>We are very grateful for your prompt action.</p>
+
 <p>
-  We are very grateful for your prompt action.
-  <br><br>
+  Many thanks for your collaboration,
+  <br />
   SciPost Editorial Administration
 </p>
-{% include 'email/_footer.html' %}
 
+{% include 'email/_footer.html' %}
 {% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

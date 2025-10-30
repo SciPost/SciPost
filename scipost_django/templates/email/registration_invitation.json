@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: invitation",
     "recipient_list": [
-        "email"
+        "registration_invitation.email"
     ],
     "bcc": [
         "admin@"

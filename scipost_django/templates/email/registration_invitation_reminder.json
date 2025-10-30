@@ -1,10 +1,10 @@
 {
     "subject": "RE: SciPost: invitation",
     "recipient_list": [
-        "email"
+        "registration_invitation.email"
     ],
     "bcc": [
-        "invited_by.email",
+        "registration_invitation.invited_by.email",
         "admin@"
     ],
     "from_name": "SciPost Registration",
