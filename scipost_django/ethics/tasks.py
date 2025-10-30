@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 import datetime
 
 from SciPost_v1.celery import app
+from common.utils.db import postgres_lock
 
 from ethics.models import CoauthoredWork, Coauthorship, PreprintServer
 from profiles.models import Profile
@@ -44,24 +45,31 @@ def fetch_potential_coauthorships_for_profiles_from_preprint_server(
         published_after=five_years_ago,
         **kwargs,
     )
+    found_works.sort(key=lambda w: (w.server_source, w.identifier))
     nr_total_works_found += len(found_works)
 
-    # By using `update_conflicts` any rows failing uniqueness will be retrieved
-    # and updated with the newly fetched values. The function returns them such that
-    # Coauthorships can be created for them in the next step.
-    works = CoauthoredWork.objects.bulk_create(
-        found_works,
-        update_conflicts=True,
-        update_fields=[
-            "work_type",
-            "title",
-            "authors_str",
-            "date_updated",
-            "date_published",
-            "metadata",
-        ],
-        unique_fields=["server_source", "identifier"],
-    )
+    # Use a lock to avoid race conditions when upserting works
+    with postgres_lock(
+        f"celery_fetch_potential_coauthorships_coauthored_works_{preprint_server_source}",
+        max_retries=20,
+        retry_delay=0.5,
+    ):
+        # By using `update_conflicts` any rows failing uniqueness will be retrieved
+        # and updated with the newly fetched values. The function returns them such that
+        # Coauthorships can be created for them in the next step.
+        works = CoauthoredWork.objects.bulk_create(
+            found_works,
+            update_conflicts=True,
+            update_fields=[
+                "work_type",
+                "title",
+                "authors_str",
+                "date_updated",
+                "date_published",
+                "metadata",
+            ],
+            unique_fields=["server_source", "identifier"],
+        )
 
     coauthorships.extend(
         Coauthorship(work=work, profile=profile, coauthor=coauthor)
