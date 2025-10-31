@@ -1,7 +1,7 @@
 <p>Dear {{ invitation.referee.formal_name }},</p>
 
 <p>
-  We have received a Submission to {% if invitation.submission.submitted_to.doi_label == "MigPol" %}Migration Politics{% else %}SciPost{% endif %} which, in view of your expertise and On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to invite you to referee:
+  We have received a Submission to {% if invitation.submission.submitted_to.doi_label == "MigPol" %}Migration Politics{% else %}SciPost{% endif %} which, in view of your expertise and on behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to invite you to referee:
   <br />
   <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
   <br />
