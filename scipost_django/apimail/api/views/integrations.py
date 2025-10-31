@@ -6,6 +6,31 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
+NestedStrDict = dict[str, "str | NestedStrDict"]
+
+
+class MailgunEventData(NestedStrDict):
+    """
+    A class to wrap the event data dict and return "unknown" for missing keys.
+    """
+
+    def __init__(self, data: NestedStrDict):
+        self.data = data
+
+    def __getitem__(self, key: str):
+        key_parts = key.split(".")
+        value = self.data
+        for part in key_parts:
+            if isinstance(value, dict) and part in value:
+                value = value[part]
+            else:
+                return "unknown"
+
+        if isinstance(value, dict):
+            return MailgunEventData(value)
+        else:
+            return value
+
 
 def mailgun_webhook_is_signed(timestamp, token, signature):
     """
@@ -22,18 +47,18 @@ def mailgun_webhook_is_signed(timestamp, token, signature):
     return encoded_token == signature
 
 
-def send_mailgun_alert_slack_message(event_data: dict):
+def send_mailgun_alert_slack_message(event_data: MailgunEventData):
     """
     Format mailgun event data and send an alert to Slack
     """
     import requests
 
-    event = event_data.get("event", "unknown")
-    reason = event_data.get("reason", "unknown")
-    recipient = event_data.get("message", {}).get("headers", {}).get("to", "unknown")
-    sender = event_data.get("message", {}).get("headers", {}).get("from", "unknown")
-    subject = event_data.get("message", {}).get("headers", {}).get("subject", "unknown")
-    error_description = event_data.get("delivery-status", {}).get("message", "unknown")
+    event = event_data["event"]
+    reason = event_data["reason"]
+    recipient = event_data["message.headers.to"]
+    sender = event_data["message.headers.from"]
+    subject = event_data["message.headers.subject"]
+    error_description = event_data["delivery-status.message"]
 
     # Ignore spam email directed to SciPost
     bad_keywords = ["spam", "scam", "phishing", "fraud", "viral"]
@@ -73,7 +98,7 @@ def mailgun_webhook(request):
         return HttpResponse(status=403)
 
     # Apply custom integrations here
-    event_data = data.get("event-data", {})
+    event_data = MailgunEventData(data.get("event-data", {}))
     send_mailgun_alert_slack_message(event_data)
 
     return HttpResponse(status=200)
