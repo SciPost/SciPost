@@ -1182,17 +1182,30 @@ class ConfirmationForm(forms.Form):
 
 
 class SciPostPasswordResetForm(PasswordResetForm):
-    def clean(self):
-        super_clean = super().clean()
+    def clean_email(self):
+        email = self.cleaned_data["email"]
 
-        users = self.get_users(self.cleaned_data.get("email"))
-        if len(list(users)) == 0:
+        matching_users = list(self.get_users(email))
+
+        if not matching_users:
             self.add_error(
                 "email",
-                "There is no user associated with this recovery email address.",
+                "There is no active account associated with this email address.",
             )
 
-        return super_clean
+        for user in matching_users:
+            if not user.recovery_email_matches:
+                password_reset_domain = user.password_reset_email.split("@")[-1]
+                censored_recovery_email = (
+                    user.password_reset_email[0] + "*****@" + password_reset_domain
+                )
+                self.add_error(
+                    "email",
+                    "The email address you have entered is not set as your recovery email. "
+                    f"Please enter your full recovery email address ({censored_recovery_email}) to reset your password.",
+                )
+
+        return email
 
     def get_newly_registered_contributors(self, email: str):
         """
@@ -1204,7 +1217,7 @@ class SciPostPasswordResetForm(PasswordResetForm):
 
     def get_users(self, email: str):
         """
-        Return users with the given email address as recovery email or primary email,
+        Return users associated with the given email address,
         who are also active and have a usable password.
         """
         matched_active_users = (
@@ -1215,11 +1228,32 @@ class SciPostPasswordResetForm(PasswordResetForm):
                         kind=ProfileEmail.KIND_RECOVERY,
                     ).values("email")[:1]
                 ),
-                # If there is no recovery email, use the User's email (primary)
-                password_reset_email=Coalesce("recovery_email", "email"),
+                primary_email=Subquery(
+                    ProfileEmail.objects.filter(
+                        profile__contributor__dbuser=OuterRef("pk"),
+                        primary=True,
+                    ).values("email")[:1]
+                ),
+                # Default to primary or login email if no recovery email is set
+                password_reset_email=Coalesce(
+                    "recovery_email",
+                    "primary_email",
+                    "email",
+                ),
+                # Determine which address was entered
+                recovery_email_matches=Q(recovery_email__iexact=email),
+                primary_email_matches=Q(primary_email__iexact=email),
+                login_email_matches=Q(email__iexact=email),
+                password_reset_email_matches=Q(password_reset_email__iexact=email),
+                other_email_matches=Q(
+                    contributor__profile__emails__email__iexact=email
+                ),
             )
-            .filter(password_reset_email__iexact=email)
+            # Must either match the login email (on User) or any ProfileEmail
+            .filter(Q(login_email_matches=True) | Q(other_email_matches=True))
             .filter(is_active=True)
+            .order_by("id")
+            .distinct("id")
         )
 
         return (u for u in matched_active_users if u.has_usable_password())
