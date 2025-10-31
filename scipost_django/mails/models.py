@@ -53,6 +53,9 @@ class MailLog(models.Model):
     )
 
     mail_code = models.CharField(max_length=254, blank=True)
+    message_id = models.CharField(
+        max_length=254, null=True, blank=True, help_text="The Message-ID header"
+    )
 
     body = models.TextField()
     body_html = models.TextField(blank=True)
@@ -70,6 +73,17 @@ class MailLog(models.Model):
     latest_activity = models.DateTimeField(auto_now=True)
 
     objects = MailLogQuerySet.as_manager()
+
+    class Meta:
+        ordering = ["-created"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["message_id"],
+                name="unique_message_id",
+                violation_error_message="Message-ID header must be unique",
+                nulls_distinct=True,
+            ),
+        ]
 
     def __str__(self):
         nr_recipients = self.get_number_of_recipients()
