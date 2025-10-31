@@ -1,18 +1,31 @@
 {% include 'scipost/personal_page/_hx_tablist.html' with selected='email_preferences' %}
 
 
-<div class="row mb-0">
+<div class="row">
   <div class="col-12">
     <div class="card bg-light">
       <div class="card-body">
         <h2 class="card-title">Email Preferences</h2>
-        <ul class="mb-0">
-        </ul>
       </div>
     </div>
   </div>
 </div>
 
+<div class="row mb-0">
+  <div class="col">
+    <details class="bg-info bg-opacity-25 p-2" open>
+      <summary class="fs-5 list-triangle d-flex gap-2">
+        <span>{% include "bi/info-circle-fill.html" %}</span>
+        <span>Email Types</span>
+      </summary>
+      <ul class="list-unstyled m-0 p-1 d-flex flex-column gap-1">
+        <li><strong>Primary:</strong> Used for all communications and login purposes.</li>
+        <li><strong>Alternative:</strong> Past addresses of any kind, or additional addresses you wish to associate with your profile.</li>
+        <li><strong>Recovery:</strong> Special type, exclusively for account recovery and verification purposes. Must not be affiliated with any institution (e.g., Gmail, Yahoo, etc.).</li>
+      </ul>
+    </details>
+  </div>
+</div>
 
 <div class="row mb-0">
   <div class="col-12">
