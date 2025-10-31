@@ -18,13 +18,7 @@ class Command(BaseCommand):
     help = "Sends an email to Fellows with current and upcoming tasks list"
 
     def handle(self, *args, **kwargs):
-        fellowships = Fellowship.objects.active().annotate(
-            nr_visible=Count(
-                "pool",
-                filter=Q(pool__status=Submission.SEEKING_ASSIGNMENT),
-                distinct=True,
-            ),
-        )
+        fellowships = Fellowship.objects.active()
         count = 0
 
         for fellowship in fellowships:
@@ -34,9 +28,14 @@ class Command(BaseCommand):
                 .exclude(votes__fellow=fellowship)
                 .count()
             )
+            visible_in_pool = (
+                fellowship.pool.all()
+                .in_pool(fellowship.contributor.user)
+                .filter(status=Submission.SEEKING_ASSIGNMENT)
+            )
+            nr_visible = visible_in_pool.count()
             nr_appraised = (
-                fellowship.pool.filter(status=Submission.SEEKING_ASSIGNMENT)
-                .annot_fully_appraised_by(fellowship)
+                visible_in_pool.annot_fully_appraised_by(fellowship)
                 .filter(is_fully_appraised=True)
                 .count()
             )
@@ -58,7 +57,7 @@ class Command(BaseCommand):
                 or assignments_ongoing_with_required_actions
                 or assignments_to_consider
                 or assignments_upcoming_deadline
-                or fellowship.nr_visible > nr_appraised
+                or nr_visible > nr_appraised
             ):
                 DirectMailUtil(
                     "fellows/email_fellow_tasklist",
@@ -69,9 +68,9 @@ class Command(BaseCommand):
                     recs_to_vote_on=recs_to_vote_on,
                     assignments_ongoing=assignments_ongoing,
                     assignments_to_consider=assignments_to_consider,
-                    nr_visible=fellowship.nr_visible,
+                    nr_visible=nr_visible,
                     nr_appraised=nr_appraised,
-                    nr_appraisals_required=(fellowship.nr_visible - nr_appraised),
+                    nr_appraisals_required=(nr_visible - nr_appraised),
                     assignments_upcoming_deadline=assignments_upcoming_deadline,
                 ).send_mail()
                 count += 1

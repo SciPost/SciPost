@@ -30,7 +30,8 @@ def tasklist(request):
 
     if fellow := request.user.contributor.session_fellowship(request):
         context["submissions_to_appraise"] = (
-            fellow.pool.filter(status=Submission.SEEKING_ASSIGNMENT)
+            fellow.pool.in_pool(fellow.contributor.user)
+            .filter(status=Submission.SEEKING_ASSIGNMENT)
             .annot_fully_appraised_by(fellow)
             .filter(is_fully_appraised=False)
         )
