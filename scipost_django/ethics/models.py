@@ -6,6 +6,7 @@ from nameparser import HumanName
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
@@ -127,10 +128,11 @@ class ConflictOfInterest(models.Model):
 
     comments = models.TextField(blank=True)
 
-    exempted_submissions = models.ManyToManyField["Submission", "ConflictOfInterest"](
-        "submissions.Submission",
+    exempted_submission_threads = ArrayField(
+        base_field=models.UUIDField(max_length=64),
         blank=True,
-        related_name="exempted_cois",
+        default=list,
+        help_text="List of submission thread hashes for which this conflict of interest is exempted.",
     )
 
     if TYPE_CHECKING:

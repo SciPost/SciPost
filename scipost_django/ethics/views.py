@@ -161,10 +161,12 @@ def _hx_submission_conflict_of_interest_exemption_toggle(
     )
     conflict_of_interest = get_object_or_404(ConflictOfInterest, pk=pk)
 
-    if conflict_of_interest.exempted_submissions.filter(id=submission.id).exists():
-        conflict_of_interest.exempted_submissions.remove(submission)
+    if submission.thread_hash in conflict_of_interest.exempted_submission_threads:
+        conflict_of_interest.exempted_submission_threads.remove(submission.thread_hash)
     else:
-        conflict_of_interest.exempted_submissions.add(submission)
+        conflict_of_interest.exempted_submission_threads.append(submission.thread_hash)
+
+    conflict_of_interest.save()
 
     context = {
         "submission": submission,

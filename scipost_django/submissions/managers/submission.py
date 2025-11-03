@@ -418,11 +418,10 @@ class SubmissionQuerySet(models.QuerySet):
                             submission_id=models.OuterRef("submission_id"),
                         )
                     ),
-                    submission_exempted=Exists(
-                        ConflictOfInterest.exempted_submissions.through.objects.filter(
-                            conflictofinterest_id=models.OuterRef("pk"),
-                            submission_id=models.OuterRef("submission_id"),
-                        )
+                    submission_exempted=Q(
+                        exempted_submission_threads__contains=[
+                            models.OuterRef("thread_hash")
+                        ]
                     ),
                 )
                 .filter(involves_author=True)

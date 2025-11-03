@@ -68,11 +68,8 @@ class ConflictOfInterestQuerySet(QuerySet["ConflictOfInterest"]):
         from these conflicts of interest.
         """
         return self.annotate(
-            submission_exempted=Exists(
-                self.model.exempted_submissions.through.objects.filter(
-                    conflictofinterest_id=OuterRef("pk"),
-                    submission_id=submission.pk,
-                )
+            submission_exempted=Q(
+                exempted_submission_threads__contains=[submission.thread_hash]
             )
         )
 
