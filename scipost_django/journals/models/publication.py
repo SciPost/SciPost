@@ -644,6 +644,10 @@ class Publication(models.Model):
         """
         Returns a list of tuples with the author name and a list of superscripts.
         """
+        RE_ORCIDLINK = r"(?:\\orcidlink\{.*?\}\\?\W?)"
+        RE_SUPERSCRIPT = r"(?:\\textsuperscript\{(.*?)\})"
+        RE_LATEX_ACCENTS = r"(?:(?:\\(?:`|'|^|\"|~|\.|=|b|c|d|H|k|r|u|v)\{?\w\}?|t{\w{2,}}|o\{?\}?|l\{?\}?)|\{?\\i\}?)"
+        RE_AUTHOR_NAME = rf"(?:[^\\]|{RE_LATEX_ACCENTS})+"
 
         authors_block = re.search(
             r"%+ TODO: AUTHORS(.*?)%+ END TODO: AUTHORS",
@@ -658,8 +662,8 @@ class Publication(models.Model):
 
         def extract_author_info(line: str) -> tuple[str, list[str]]:
             """Extracts the superscripts from a text."""
-            author_match = re.match(r"^(?:\\orcidlink\{.*?\}\\?\W?)?([^\\]+)", line)
-            superscripts_match = re.match(r".*?\\textsuperscript\{(.*?)\}", line)
+            author_match = re.match(rf"^{RE_ORCIDLINK}?({RE_AUTHOR_NAME})", line)
+            superscripts_match = re.match(RE_SUPERSCRIPT, line)
 
             author_text = author_match.group(1) if author_match else ""
             superscripts_text = (
