@@ -16,7 +16,7 @@
   </blockquote>
 </p>
 
-{% if communication.recipient_letter == "E" or communication.recipient_letter =="S" %}
+{% if communication.recipient_letter == "E" or communication.recipient_letter == "S" %}
   <p>
     You can take follow-up actions from the <a href="https://{{ domain }}/ {% url "submissions:editorial_page" communication.submission.preprint.identifier_w_vn_nr %}">Editorial page</a>.
   </p>

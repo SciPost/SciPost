@@ -4,10 +4,8 @@
         "communication.recipient_email"
     ],
     "bcc": [
-        "submissions@"
-        {% if communication.author_letter == "E" %}
-            ,"{{ communication.author_email }}"
-        {% endif %}
+        "submissions@",
+        "communication.author_email"
     ],
     "from_name": "SciPost Editorial Administration",
     "from_email": "edadmin@"
