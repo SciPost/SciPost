@@ -68,7 +68,7 @@ class MailEngine:
         """
 
         self.base_mail_code = mail_code
-
+        self.mail_config = {}
         self.mail_config_overrides = {
             key: option
             for key, option in kwargs.items()

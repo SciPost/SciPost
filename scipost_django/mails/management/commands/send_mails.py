@@ -44,6 +44,7 @@ class Command(BaseCommand):
         MailLog.objects.filter(pk=mail.pk).update(
             body=engine.mail_config.get("message", ""),
             body_html=engine.mail_config.get("html_message", ""),
+            subject=engine.mail_config.get("subject", ""),
             status="rendered",
         )
 
