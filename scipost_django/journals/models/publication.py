@@ -662,8 +662,8 @@ class Publication(models.Model):
 
         def extract_author_info(line: str) -> tuple[str, list[str]]:
             """Extracts the superscripts from a text."""
-            author_match = re.match(rf"^{RE_ORCIDLINK}?({RE_AUTHOR_NAME})", line)
-            superscripts_match = re.match(RE_SUPERSCRIPT, line)
+            author_match = re.search(rf"{RE_ORCIDLINK}?({RE_AUTHOR_NAME})", line)
+            superscripts_match = re.search(RE_SUPERSCRIPT, line)
 
             author_text = author_match.group(1) if author_match else ""
             superscripts_text = (
