@@ -4,7 +4,8 @@
         "recommendation.submission.submitted_by.profile.email"
     ],
     "bcc": [
-        "edadmin@"
+        "edadmin@",
+        "recommendation.submission.editor_in_charge.profile.email"
     ],
     "from_name": "SciPost Editorial Administration",
     "from_email": "submissions@"
