@@ -99,7 +99,7 @@ class MailEngine:
         Prepares the MailEngine for sending the mail.
         """
         config_path, template_path = self.get_mail_template_paths(self.base_mail_code)
-        config = self.load_mail_config(config_path)
+        config = self.load_mail_config(config_path, self.context)
         config |= self.mail_config_overrides
         config = self.process_email_parameters(config, self.template_variables)
         self.validate_mail_config(config)
@@ -107,12 +107,10 @@ class MailEngine:
         if render_template:
             template = self.load_mail_template(template_path)
             message, html = self.render_template(template, self.context)  # type: ignore
-            subject = self.render_subject(config["subject"])
 
             config |= {
                 "message": message,
                 "html_message": html,
-                "subject": subject,
             }
             self._processed_template = True
 
@@ -256,10 +254,15 @@ class MailEngine:
         return object
 
     @staticmethod
-    def load_mail_config(mail_path: str) -> dict[str, Any]:
+    def load_mail_config(
+        mail_path: str, context: dict[str, Any] | Context | None = None
+    ) -> dict[str, Any]:
         try:
             with open(mail_path, "r") as f:
-                return json.load(f)
+                config = f.read()
+                if context:
+                    config = Template(config).render(context)
+                return json.loads(config)
         except OSError:
             raise ImportError(
                 f"Configuration file is malformed. Mail path: {mail_path}"
