@@ -22,8 +22,8 @@
   </p>
 {% elif communication.recipient_letter == "R" or communication.recipient_letter == "A" %}
   <p>
-    To reply to the {{ communication.get_author_type_display }}, please visit <a href="https://{{ domain }}/{{ communication.get_reply_url }}">draft a new communication</a>.
-    You can find all previous communications between you and the {{ communication.get_author_type_display }}, as well as other communications tools, on the <a href="https://{{ domain }}/{{ communication.submission.get_absolute_url }}">Submission page</a>.
+    To reply to the {{ communication.get_author_type_display }}, please visit <a href="https://{{ domain }}{{ communication.get_reply_url }}">draft a new communication</a>.
+    You can find all previous communications between you and the {{ communication.get_author_type_display }}, as well as other communications tools, on the <a href="https://{{ domain }}{{ communication.submission.get_absolute_url }}">Submission page</a>.
   </p>
 {% endif %}
 

@@ -35,7 +35,7 @@ Dear {{ citation_notification.contributor.profile.formal_name }},
                     <br>
                     <i>by {{ citation_notification.submission.author_list }}</i>
                     <br>
-                    <a href="https://{{ domain }}/{{ citation_notification.submission.get_absolute_url }}">View the submission's page</a>
+                    <a href="https://{{ domain }}{{ citation_notification.submission.get_absolute_url }}">View the submission's page</a>
                 </li>
             {% endfor %}
         </ul>

@@ -74,7 +74,7 @@ Dear {% if registration_invitation.message_style == 'F' %}{{ registration_invita
                     <br>
                     <i>by {{ notification.submission.author_list }}</i>
                     <br>
-                    <a href="https://{{ domain }}/{{ notification.submission.get_absolute_url }}">View the submission's page</a>
+                    <a href="https://{{ domain }}{{ notification.submission.get_absolute_url }}">View the submission's page</a>
                 </li>
             {% endfor %}
         </ul>
