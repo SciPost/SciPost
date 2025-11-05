@@ -693,8 +693,7 @@ class Publication(models.Model):
         author_entries: list[PublicationAuthorsTable] = []
         author_names = [name for name, _ in self.tex_author_info]
         for i, name in enumerate(author_names):
-            profile_matches = list(Profile.objects.search(name))
-            profile = profile_matches[0] if profile_matches else None
+            profile = Profile.objects.search(name).first()
 
             author_entries.append(
                 PublicationAuthorsTable(
