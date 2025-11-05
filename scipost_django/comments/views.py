@@ -147,8 +147,9 @@ def vet_submitted_comment(request, comment_id):
                 if not comment.is_author_reply:
                     mail_sender = DirectMailUtil(
                         "authors/inform_authors_comment_received",
-                        submission=content_object,
+                        object=comment,
                         comment=comment,
+                        submission=content_object,
                     )
                     mail_sender.send_mail()
             elif isinstance(content_object, Report):
@@ -194,8 +195,9 @@ def vet_submitted_comment(request, comment_id):
                     if not comment.is_author_reply:
                         mail_sender = DirectMailUtil(
                             "authors/inform_authors_comment_received",
-                            submission=core_content_object,
+                            object=comment,
                             comment=comment,
+                            submission=core_content_object,
                         )
                         mail_sender.send_mail()
 

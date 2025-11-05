@@ -2912,9 +2912,9 @@ def remind_Fellows_to_vote(request, rec_id):
             fellows.append(fellow)
             DirectMailUtil(
                 "submissions/fellow_voting_duties_reminder",
-                fellow=fellow,
-                recommendation=recommendation,
                 object=recommendation,
+                recommendation=recommendation,
+                fellow=fellow,
             ).send_mail()
 
     ack_message = "Email reminders have been sent to: <ul>"

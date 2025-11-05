@@ -2407,6 +2407,7 @@ def email_object_made_citable(request, **kwargs):
     if type_of_object == "report":
         DirectMailUtil(
             "journals/report_made_citable",
+            object=_object,
             report=_object,
             publication=publication,
         ).send_mail()
