@@ -64,9 +64,11 @@ class ModelEmailBackend(FileBackend):
             status = "not_rendered"
             context = email_message.extra_headers.get("context", {})
             mail_code = email_message.extra_headers.get("mail_code", "")
+            message_id = email_message.extra_headers.get("Message-ID", None)
         else:
             status = "rendered"
             context = {}
+            message_id = None
 
         mail_log = MailLog.objects.create(
             body=body,
@@ -78,6 +80,7 @@ class ModelEmailBackend(FileBackend):
             from_email=from_email,
             status=status,
             mail_code=mail_code,
+            message_id=message_id,
         )
 
         for key, var in context.items():

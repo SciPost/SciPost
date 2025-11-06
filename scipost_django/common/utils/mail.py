@@ -1,4 +1,5 @@
 # MARKED FOR DEPRECATION
+from email.utils import make_msgid
 from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 from common.utils.models import get_current_domain
@@ -46,6 +47,7 @@ class BaseMailUtil(object):
             recipients,
             bcc=bcc_list,
             reply_to=[cls.mail_sender],
+            headers={"Message-ID": make_msgid(domain=get_current_domain())},
         )
         email.attach_alternative(html_message, "text/html")
         email.send(fail_silently=False)

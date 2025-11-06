@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from email.utils import make_msgid
 import bleach
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
@@ -1157,6 +1158,7 @@ class EmailUsersForm(forms.Form):
                     connection=connection,
                     cc=addresses_cc,
                     bcc=addresses_bcc,
+                    headers={"Message-ID": make_msgid(domain=domain)},
                 )
                 message.attach_alternative(html_version, "text/html")
                 message.send()

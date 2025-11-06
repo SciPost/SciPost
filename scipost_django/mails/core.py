@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from email.utils import make_msgid
 from itertools import chain
 from html2text import HTML2Text
 import os
@@ -144,25 +145,25 @@ class MailEngine:
                 "The mail: %s could not be sent because there exists no mail_config."
                 % self.base_mail_code
             )
+        domain = get_current_domain()
         email = EmailMultiAlternatives(
             self.mail_config["subject"],
             self.mail_config.get("message", ""),
             "%s <%s>"
             % (
                 self.mail_config.get("from_name", "SciPost"),
-                self.mail_config.get("from_email", "noreply@%s" % get_current_domain()),
+                self.mail_config.get("from_email", "noreply@%s" % domain),
             ),
             self.mail_config["recipient_list"],
             cc=self.mail_config["cc"],
             bcc=self.mail_config["bcc"],
-            reply_to=[
-                self.mail_config.get("from_email", "noreply@%s" % get_current_domain())
-            ],
+            reply_to=[self.mail_config.get("from_email", "noreply@%s" % domain)],
             #! FIXME: Blatant abuse of the headers, needs reworking.
             headers={
                 "delayed_processing": not self._processed_template,
                 "context": self.template_variables,
                 "mail_code": self.base_mail_code,
+                "Message-ID": make_msgid(domain=domain),
             },
         )
 

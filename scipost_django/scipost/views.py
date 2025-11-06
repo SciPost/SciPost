@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from email.utils import make_msgid
 import urllib
 
 from django.db.models.functions import Cast, Coalesce
@@ -1847,6 +1848,7 @@ def email_group_members(request):
                             "SciPost Admin <admin@%s>" % domain,
                             [member.email],
                             connection=connection,
+                            headers={"Message-ID": make_msgid(domain=domain)},
                         )
                         message.attach_alternative(html_version, "text/html")
                         message.send()
@@ -1887,6 +1889,7 @@ def email_particular(request):
                 "SciPost Admin <admin@%s>" % domain,
                 [form.cleaned_data["email_address"]],
                 bcc=["admin@%s" % domain],
+                headers={"Message-ID": make_msgid(domain=domain)},
             )
             message.attach_alternative(html_version, "text/html")
             message.send()
@@ -1935,6 +1938,7 @@ def send_precooked_email(request):
             SciPost_from_addresses_dict[form.cleaned_data["from_address"]],
             [form.cleaned_data["email_address"]],
             bcc=["admin@%s" % domain],
+            headers={"Message-ID": make_msgid(domain=domain)},
         )
         message.attach_alternative(html_version, "text/html")
         message.send()

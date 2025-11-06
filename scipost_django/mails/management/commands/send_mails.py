@@ -54,6 +54,12 @@ class Command(BaseCommand):
         """
         from django.core.mail import EmailMultiAlternatives
 
+        headers: dict[str, str] = {}
+        # Add Message-ID header if available to help with identifying emails
+        # after being sent and reported on through MailGun
+        if mail_log.message_id:
+            headers["Message-ID"] = mail_log.message_id
+
         mail = EmailMultiAlternatives(
             mail_log.subject,
             mail_log.body,
@@ -63,6 +69,7 @@ class Command(BaseCommand):
             cc=mail_log.cc_recipients,
             bcc=mail_log.bcc_recipients,
             reply_to=(mail_log.from_email,),
+            headers=headers,
             **kwargs,
         )
         # Attach the HTML version *ONLY* if one exists
