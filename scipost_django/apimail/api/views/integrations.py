@@ -26,11 +26,11 @@ class MailgunEventData(NestedStrDict):
     """
 
     def __init__(self, data: NestedStrDict):
-        self.data = data
+        self.update(data)
 
     def __getitem__(self, key: str):
         key_parts = key.split(".")
-        value = self.data
+        value = self.copy()
         for part in key_parts:
             if isinstance(value, dict) and part in value:
                 value = value[part]
