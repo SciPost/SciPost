@@ -1,0 +1,24 @@
+<p>Dear {{ sender.formal_name }},</p>
+
+<p>
+  We regret to inform you that your email to {{ recipient.full_name }} ({{ mail_log.to_recipients.0 }}) has failed to be delivered.
+</p>
+
+{{ resend_instructions|safe }}
+
+<p>
+  Best regards,
+  <br />
+  The SciPost Team.
+</p>
+
+<p>
+  PS. Although strictly informational, and not directly actionable, you can find the exact (technical) reason for the delivery failure below:
+  <br />
+  <strong>Reason:</strong> {{ reason }}
+  <br />
+  <strong>Error Description:</strong> {{ error_description }}
+</p>
+
+
+{% include 'email/_footer.html' %}

@@ -74,6 +74,9 @@ class MailLog(models.Model):
 
     objects = MailLogQuerySet.as_manager()
 
+    if TYPE_CHECKING:
+        context: RelatedManager["MailLogRelation"]
+
     class Meta:
         ordering = ["-created"]
         constraints = [

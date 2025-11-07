@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: Email delivery failure notification",
+    "recipient_list": [
+        "sender.email"
+    ],
+    "bcc": [
+        "mail_log.from_email"
+    ],
+    "from_name": "SciPost Admin",
+    "from_email": "admin@"
+}
