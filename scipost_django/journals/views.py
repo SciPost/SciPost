@@ -701,24 +701,20 @@ class DraftPublicationCreateView(PermissionsMixin, CreateView):
         Returns the GenAI disclosure form for the current request.
         If a submission disclosure exists, it initializes the form with its data.
         """
-        self.submission_disclosure = submission.gen_ai_disclosures.first()
-        if self.submission_disclosure:
+        if submission_disclosure := submission.gen_ai_disclosures.first():
             return GenAIDisclosureForm(
                 data,
                 initial={
-                    "was_used": self.submission_disclosure.was_used,
-                    "use_details": self.submission_disclosure.use_details,
-                }
-                if self.submission_disclosure
-                else None,
+                    "was_used": submission_disclosure.was_used,
+                    "use_details": submission_disclosure.use_details,
+                },
             )
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         if (form := context.get("form")) and (submission := form.submission):
-            context["gen_ai_disclosure_form"] = self.get_gen_ai_disclosure_form(
-                submission
-            )
+            gen_ai_form = self.get_gen_ai_disclosure_form(submission)
+            context["gen_ai_disclosure_form"] = gen_ai_form
         return context
 
     def form_valid(self, form, gen_ai_form):
@@ -726,9 +722,13 @@ class DraftPublicationCreateView(PermissionsMixin, CreateView):
         Override form_valid to set the author associations and copy the GenAI disclosure.
         """
         super_form_valid = super().form_valid(form)
-        if gen_ai_form and self.object and self.submission_disclosure:
+        if (
+            gen_ai_form
+            and self.object
+            and (submission_disclosure := submission.gen_ai_disclosures.first())
+        ):
             gen_ai_form.save(
-                contributor=self.submission_disclosure.contributor,
+                contributor=submission_disclosure.contributor,
                 for_object=self.object,
             )
 
