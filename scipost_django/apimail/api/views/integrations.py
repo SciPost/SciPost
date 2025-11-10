@@ -6,8 +6,9 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.decorators.csrf import csrf_exempt
-from django.template import Template
+from django.template import Context, Template
 
+from common.utils.models import get_current_domain
 from mails.models import MailLog
 from mails.utils import DirectMailUtil
 
@@ -111,12 +112,21 @@ def alert_sender_on_perm_failure(event_data: MailgunEventData):
         "referees/invite_contributor_to_referee",
         "referees/invite_unregistered_to_referee",
     ]:
-        invitation = mail_log.context.get("invitation").get_item()
+        invitation = mail_log.context.get(name="invitation").get_item()
         sender: "Profile" = invitation.submission.editor_in_charge.profile
         recipient: "Profile" = invitation.referee
-        resend_instructions = Template(f"""<p>
+        context = {
+            "domain": get_current_domain(),
+            "url": reverse_lazy(
+                "submissions:editorial_page",
+                kwargs={
+                    "identifier_w_vn_nr": invitation.submission.preprint.identifier_w_vn_nr
+                },
+            ),
+        }
+        resend_instructions = Template("""<p>
             You are advised to cancel the existing invitation and send a new one to another email address from the 
-            <a href="{reverse_lazy("submissions:editorial_page", kwargs={"identifier_w_vn_nr": invitation.submission.preprint.identifier_w_vn_nr})}">editorial page</a>.
+            <a href="{{ domain }}{{ url }}">editorial page</a>.
             </p>""")
     else:
         # Temporarily disable other mail codes from sending delivery failure notifications
@@ -125,15 +135,14 @@ def alert_sender_on_perm_failure(event_data: MailgunEventData):
     DirectMailUtil(
         mail_code="delivery_failure_notification",
         to_recipients=[sender.email],
-        context={
-            "mail_log": mail_log,
-            "sender": sender,
-            "recipient": recipient,
-            "error_description": error_description,
-            "reason": reason,
-            "resend_instructions": resend_instructions,
-        },
-    )
+        object=mail_log,
+        mail_log=mail_log,
+        sender=sender,
+        recipient=recipient,
+        error_description=error_description,
+        reason=reason,
+        resend_instructions=resend_instructions.render(context=Context(context)),
+    ).send_mail()
 
 
 @csrf_exempt
