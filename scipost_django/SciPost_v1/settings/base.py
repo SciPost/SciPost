@@ -592,7 +592,7 @@ ED_ASSIGMENT_DT_DELTA = timedelta(hours=6)
 
 
 # Mailgun credentials
-MAILGUN_API_KEY = ""
+MAILGUN_API_KEY = get_secret("MAILGUN_API_KEY")
 MAILGUN_STORED_MESSAGES_RETENTION_DAYS = 3
 
 
