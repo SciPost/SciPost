@@ -65,6 +65,7 @@ def send_mailgun_alert_slack_message(event_data: MailgunEventData):
     import requests
 
     event = event_data["event"]
+    severity = event_data["severity"]
     reason = event_data["reason"]
     recipient = event_data["message.headers.to"]
     sender = event_data["message.headers.from"]
@@ -74,17 +75,18 @@ def send_mailgun_alert_slack_message(event_data: MailgunEventData):
     # Ignore spam email directed to SciPost
     bad_keywords = ["spam", "scam", "phishing", "fraud", "viral"]
     error_contains_keyword = any(k in error_description.lower() for k in bad_keywords)
-    if "scipost" in recipient and error_contains_keyword:
+    is_spam_to_scipost = "scipost" in recipient and error_contains_keyword
+    is_perm_failure = event == "failed" and severity == "permanent"
+    if is_spam_to_scipost or not is_perm_failure:
         return
 
-    if event == "failed" and (event_data.get("severity", "unknown") == "permanent"):
-        message = f"[{event.upper()} / {reason}] {subject}\n{sender} -> {recipient}\nError: {error_description}"
+    message = f"[{event.upper()} / {reason}] {subject}\n{sender} -> {recipient}\nError: {error_description}"
 
-        requests.post(
-            settings.SLACK_WEBHOOK_URL_MAILGUN_ALERTS,
-            json={"text": message},
-            headers={"Content-type": "application/json"},
-        )
+    requests.post(
+        settings.SLACK_WEBHOOK_URL_MAILGUN_ALERTS,
+        json={"text": message},
+        headers={"Content-type": "application/json"},
+    )
 
 
 def alert_sender_on_perm_failure(event_data: MailgunEventData):
@@ -92,11 +94,14 @@ def alert_sender_on_perm_failure(event_data: MailgunEventData):
     Send an email to the sender when a permanent failure occurs.
     """
     event = event_data["event"]
+    severity = event_data["severity"]
     reason = event_data["reason"]
     error_description = event_data["delivery-status.message"]
     message_id = event_data["message.headers.message-id"]
 
-    if not (event == "failed" and (event_data.get("severity") == "permanent")):
+    is_perm_failure = event == "failed" and severity == "permanent"
+    is_scipost_email = message_id.endswith("scipost.org")
+    if not is_perm_failure or not is_scipost_email:
         return
 
     if not (mail_log := MailLog.objects.filter(message_id=f"<{message_id}>").first()):
