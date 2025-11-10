@@ -712,6 +712,27 @@ class DraftPublicationForm(forms.ModelForm):
         del self.fields["acceptance_date"]
         del self.fields["publication_date"]
 
+    def clean_doi_label(self):
+        doi_label = self.cleaned_data.get("doi_label")
+        base_doi_label = doi_label.rsplit("-", 1)[0]
+
+        if (
+            self.submission.followup_of.exists()
+            and not self.submission.followup_of.filter(
+                doi_label__startswith=base_doi_label
+            ).exists()
+        ):
+            raise forms.ValidationError(
+                "The DOI label does not match the DOI label of any Publications it is following up on. "
+                "Expected to start with one of: {}.".format(
+                    ", ".join(
+                        pub.doi_label for pub in self.submission.followup_of.all()
+                    )
+                )
+            )
+
+        return doi_label
+
     def clean(self):
         data = super().clean()
         if not self.instance.id:
@@ -806,6 +827,13 @@ class DraftPublicationForm(forms.ModelForm):
             self.to_journal = self.instance.in_issue
         if self.to_journal:
             self.prefill_with_journal(self.to_journal)
+
+        if follow_up_pub := self.submission.followup_of.first():
+            self.fields["doi_label"].initial = (
+                follow_up_pub.doi_label.split("-")[0] + "-VERSION"
+            )
+            self.fields["paper_nr"].initial = follow_up_pub.paper_nr
+            self.fields["paper_nr_suffix"].initial = "VERSION"
 
     def prefill_with_issue(self, issue):
         # Determine next available paper number:
