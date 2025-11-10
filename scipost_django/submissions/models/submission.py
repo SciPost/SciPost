@@ -270,6 +270,7 @@ class Submission(models.Model):
         reports: "RelatedManager[Report]"
         conditional_assignment_offers: "RelatedManager[ConditionalAssignmentOffer]"
         exempted_cois: "ManyToManyRelatedManager[ConflictOfInterest, Submission]"
+        publications: "RelatedManager[Publication]"
 
     # Fields
     preprint = models.OneToOneField["Preprint"](
@@ -867,6 +868,39 @@ class Submission(models.Model):
             .order_by("author_id", "-date_submitted")
             .distinct("author_id")
             .count()
+        )
+
+    @property
+    def latest_publications_followed_up_on(self):
+        return (
+            self.followup_of.published()
+            .order_by(
+                "accepted_submission__thread_hash",
+                "-accepted_submission__submission_date",
+            )
+            .distinct("accepted_submission__thread_hash")
+        )
+
+    @property
+    def latest_followup_publications(self):
+        from journals.models import Publication
+
+        # We need the eventual Publications whose Submissions
+        # indicated that they are a follow-up to a Submission in this thread.
+        # So we reverse the traditional relationship on Submission
+        # Submission ----followup_of--> Publication (--> accepted_submission),
+        # and end up with "the hash of the submission whose publication is a follow-up of another, is my own".
+        # publication.accepted_submission.followup_of.accepted_submission.thread_hash == this.thread_hash
+        return (
+            Publication.objects.filter(
+                accepted_submission__followup_of__accepted_submission__thread_hash=self.thread_hash
+            )
+            .published()
+            .order_by(
+                "accepted_submission__thread_hash",
+                "-accepted_submission__submission_date",
+            )
+            .distinct("accepted_submission__thread_hash")
         )
 
     @property

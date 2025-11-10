@@ -115,6 +115,22 @@
                         </tr>
                     {% endif %}
                 {% endwith %}
+                {% with followed_up_publications=submission.latest_publications_followed_up_on %}
+                    {% if followed_up_publications %}
+                        <tr class="text-wrap">
+                            <td class="align-top">Follows up on:</td>
+                            <td>
+                              <ul class="m-0 p-0">
+                                {% for publication in followed_up_publications %}
+                                  <li>
+                                    <a href="{{ publication.get_absolute_url }}" target="_blank">{{ publication.citation }}</a>
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endwith %}
             </tbody>
         </table>
     </div>

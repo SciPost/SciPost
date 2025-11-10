@@ -107,11 +107,21 @@
 	  </h4>
 	{% endif %}
 
+	{% if submission.latest_followup_publications %}
+	  <div class="mb-2 w-100 d-inline-flex flex-column border border-2 border-warning p-2">
+	    <span class="fs-4">Follow-up(s) to this Submission thread have been published:</span>
+	    <ul class="mb-0">
+	      {% for publication in submission.latest_followup_publications %}
+	      	<li><a href="{{ publication.get_absolute_url }}">
+	      	  {{ publication.citation }}</a></li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+	{% endif %}
+  
 	{% if submission.thread_full.first.publications.published %}
-	  <div class="d-inline-flex flex-column border border-2 border-success p-2">
-	    <h4 class="text-primary">
-              This Submission thread is now published as
-	    </h4>
+	  <div class="mb-2 w-100 d-inline-flex flex-column border border-2 border-success p-2">
+	    <span class="fs-4">This Submission thread is now published as</span>
 	    <ul class="mb-0">
 	      {% for publication in submission.thread_full.first.publications.published %}
 	      	<li><a href="{{ publication.get_absolute_url }}">
