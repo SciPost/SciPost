@@ -10,13 +10,13 @@
 
 {% if report.status == 'vetted' %}
   <p>
-    Your Report has been vetted through and is viewable at the <a href="https://{{ domain }}/{% url "submissions:submission" report.submission.preprint.identifier_w_vn_nr %}">Submission page</a>.
+    Your Report has been vetted through and is viewable at the <a href="https://{{ domain }}{% url "submissions:submission" report.submission.preprint.identifier_w_vn_nr %}">Submission page</a>.
   </p>
 
   {% if not report.anonymous %}
     <p>
       Please note that your Report is not anonymous and thus your identity will be publicly visible.
-      You may anonymize your Report within 24 hours at the <a href="https://{{ domain }}/{% url "submissions:submission" report.submission.preprint.identifier_w_vn_nr %}/#report_{{ report.report_nr }}">Submission's page</a>.
+      You may anonymize your Report within 24 hours at the <a href="https://{{ domain }}{% url "submissions:submission" report.submission.preprint.identifier_w_vn_nr %}/#report_{{ report.report_nr }}">Submission's page</a>.
       If you choose to do so, your identity will be immediately hidden from the public.
       However, kindly understand that SciPost cannot guarantee that this information
       has not already been saved by unaffiliated third-parties during the time in which is was public.

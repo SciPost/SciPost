@@ -10,7 +10,7 @@
 
 <p>
   We would also like to renew our invitation to become a Contributor on SciPost (since our records show that you are not yet registered).
-  Your partially pre-filled <a href="https://{{ domain }}/{% url "scipost:invitation" invitation.invitation_key %}">registration form</a> is still available and, upon filling it, your registration will be activated, giving you full access to the portals facilities (in particular allowing you to provide referee reports).
+  Your partially pre-filled <a href="https://{{ domain }}{% url "scipost:invitation" invitation.invitation_key %}">registration form</a> is still available and, upon filling it, your registration will be activated, giving you full access to the portals facilities (in particular allowing you to provide referee reports).
 </p>
 
 <p>
@@ -18,13 +18,13 @@
 </p>
 <p>
   If you are <strong>not able</strong> to provide a Report,
-  you can quickly let us know by clicking <a href="https://{{ domain }}/{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline referee invitation</a>.
+  you can quickly let us know by clicking <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline referee invitation</a>.
 </p>
 <p>
   If you are able to provide a Report, you can confirm this after registering
   and logging in (you will automatically be prompted for a confirmation).
   Your report can thereafter be submitted by simply clicking on
-  the "Contribute a Report" link at the <a href="https://{{ domain }}/{% url "submissions:submission" invitation.submission.preprint.identifier_w_vn_nr %}">Submission page</a>
+  the "Contribute a Report" link at the <a href="https://{{ domain }}{% url "submissions:submission" invitation.submission.preprint.identifier_w_vn_nr %}">Submission page</a>
 
   {% if invitation.submission.reporting_deadline %}
     before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:"%Y-%m-%d" }})

@@ -24,7 +24,7 @@
 {% if not invitation.to_registered_referee %}
   <p>
     P.S.: We would nevertheless like to renew our invitation to become a Contributor on SciPost (since our records show that you are not yet registered).
-    Your partially pre-filled <a href="https://{{ domain }}/{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">registration form</a> is still available after which your registration will be activated, giving you full access to the portal's facilities (in particular allowing you to provide future referee reports).
+    Your partially pre-filled <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">registration form</a> is still available after which your registration will be activated, giving you full access to the portal's facilities (in particular allowing you to provide future referee reports).
   </p>
 {% endif %}
 
