@@ -20,7 +20,9 @@
   <p>
     We will look forward to receiving your Report
 
-    {% if invitation.submission.reporting_deadline %}
+    {% if invitation.intended_delivery_date %}
+      by your intended delivery date {{ invitation.intended_delivery_date|date:'Y-m-d' }}
+    {% elif invitation.submission.reporting_deadline %}
       by the reporting deadline {{ invitation.submission.reporting_deadline|date:'Y-m-d' }}
     {% endif %}
 
