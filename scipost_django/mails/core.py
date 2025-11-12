@@ -347,13 +347,14 @@ class MailEngine:
         """
         Processes an "email container" into a list of email addresses.
         An email container can be:
-        - A single email address: "<email@example.com>"
+        - A single email address: "Mr Example <email@example.com>"
         - A domain prefixed email address: "<recipient>@"
         - An attribute path on the object, with optional filter functions:
           "object.attribute|filter_func:args|filter_func2"
         - A list of any of the above.
         """
-        MAIL_REGEX = r"^[\w\.\-'\+]+@[\w\.\-]+\.[a-zA-Z]{2,}$"
+        MAIL_REGEX = r"[\w\.\-'\+]+@[\w\.\-]+\.[a-zA-Z]{2,}"
+        NAMED_MAIL_REGEX = rf"[^\n<]*<({MAIL_REGEX})>"
         DOMAIN_MAILBOX_REGEX = r"^[\w\.\-'\+]+@$"
         ATTRIBUTE_PATH_REGEX = r"^([\w\.]+)(?:\|([^\:]+(?:\:.+))?)*$"
 
@@ -364,8 +365,10 @@ class MailEngine:
                     for entry in container
                 )
             )
-        elif re.match(MAIL_REGEX, container):
+        elif re.match(rf"^{MAIL_REGEX}$", container):
             return [container]
+        elif m := re.match(rf"^{NAMED_MAIL_REGEX}$", container):
+            return [m.group(1)]
         elif re.match(DOMAIN_MAILBOX_REGEX, container):
             return [container + get_current_domain()]
         elif m := re.match(ATTRIBUTE_PATH_REGEX, container):
