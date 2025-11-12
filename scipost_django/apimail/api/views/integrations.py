@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 import json
+from textwrap import dedent
 from django.conf import settings
 from django.http import HttpResponse
 from django.urls import reverse_lazy
@@ -65,24 +66,31 @@ def send_mailgun_alert_slack_message(event_data: MailgunEventData):
     """
     import requests
 
+    event_id = event_data["id"]
     event = event_data["event"]
     severity = event_data["severity"]
     reason = event_data["reason"]
     recipient = event_data["message.headers.to"]
     sender = event_data["message.headers.from"]
     subject = event_data["message.headers.subject"]
-    error_description = event_data["delivery-status.message"]
+    error_message = event_data["delivery-status.message"]
+    error_description = event_data["delivery-status.description"]
 
     # Ignore spam email directed to SciPost
     bad_keywords = ["spam", "scam", "phishing", "fraud", "viral"]
-    error_contains_keyword = any(k in error_description.lower() for k in bad_keywords)
+    error_contains_keyword = any(k in error_message.lower() for k in bad_keywords)
     is_spam_to_scipost = "scipost" in recipient and error_contains_keyword
     is_perm_failure = event == "failed" and severity == "permanent"
     if is_spam_to_scipost or not is_perm_failure:
         return
 
-    message = f"[{event.upper()} / {reason}] {subject}\n{sender} -> {recipient}\nError: {error_description}"
-
+    message = dedent(f"""
+                           [{event_id} / {event.upper()} / {reason}] 
+                           {sender} -> {recipient}
+                           {subject}
+                           Error: {error_message}
+                           Description: {error_description}
+                           """)
     requests.post(
         settings.SLACK_WEBHOOK_URL_MAILGUN_ALERTS,
         json={"text": message},
@@ -172,4 +180,4 @@ def mailgun_webhook(request):
     for integration in INTEGRATIONS:
         integration(event_data)
 
-    return HttpResponse(status=200)
+    return HttpResponse("OK", status=200)
