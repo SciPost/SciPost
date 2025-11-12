@@ -8,6 +8,10 @@ table.submission_header {
     position: relative;
     border: 0.5rem solid #f4f4f4;
 
+    & ol {
+        counter-reset: none;
+    }
+
     &:before {
         content: '';
         width: 4px;
