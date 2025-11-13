@@ -11,10 +11,11 @@ from django.db.models import Q, QuerySet
 from django.template import Template, loader
 from django.utils import timezone
 
+from .task_elements import TaskBadge
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
-    from tasks.tasks.task_action import TaskAction
+    from .task_action import TaskAction
 
 
 @dataclass
@@ -28,8 +29,24 @@ class Task:
         return [action(self) for action in self.kind.actions]
 
     @property
-    def as_html(self) -> str:
+    def badges(self) -> Collection["TaskBadge"]:
+        badges = [badge(self) for badge in getattr(self.kind, "badges", [])]
+        if self.due_date:
+            badges.insert(
+                0,
+                TaskBadge(
+                    name="due_date",
+                    field_name="Due",
+                    value=self.due_date.strftime("%Y-%m-%d"),
+                    color_name="warning",
+                )
+                if self.due_date
+                else None,
+            )
+        return badges
 
+    @property
+    def as_html(self) -> str:
         return self.kind.template().render({"task": self})
 
     @property

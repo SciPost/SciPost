@@ -8,12 +8,13 @@ from django.db.models import (
     Q,
     DateTimeField,
     Exists,
+    IntegerField,
     OuterRef,
     QuerySet,
     Subquery,
     Sum,
 )
-from django.db.models.functions import Cast, Coalesce
+from django.db.models.functions import Cast, Coalesce, ExtractDay, ExtractIsoYear
 from django.urls import reverse_lazy
 from django.utils import timezone
 from finances.constants import SUBSIDY_RECEIVED, SUBSIDY_WITHDRAWN
@@ -25,6 +26,7 @@ from scipost.templatetags.user_groups import (
 from guardian.shortcuts import get_objects_for_user
 from tasks.tasks.task import TaskKind
 from tasks.tasks.task_action import ViewAction
+from tasks.tasks.task_elements import TaskBadge
 
 from typing import TYPE_CHECKING
 
@@ -266,6 +268,18 @@ class RenewSponsorshipTask(TaskKind):
             content="Renew",
         ),
     ]
+    badges = [
+        TaskBadge.default_builder(
+            "latest_yearly_sponsorship_amount",
+            field_name="Yearly Amount",
+            color_name="primary",
+        ),
+        TaskBadge.default_builder(
+            "latest_year_of_sponsorship",
+            field_name="Year",
+            color_name="success",
+        ),
+    ]
 
     @staticmethod
     def is_user_eligible(user):
@@ -290,6 +304,7 @@ class RenewSponsorshipTask(TaskKind):
                             Q(date_until__lt=timezone.now())
                             | Q(renewal_action_date__lt=timezone.now())
                         )
+                        & Q(amount__gt=0)
                     )
                 ),
                 is_current_sponsor=Exists(
@@ -298,6 +313,25 @@ class RenewSponsorshipTask(TaskKind):
                         date_from__lte=timezone.now(),
                         date_until__gte=timezone.now(),
                     )
+                ),
+                latest_yearly_sponsorship_amount=Subquery(
+                    Subsidy.objects.filter(organization=OuterRef("id"), renewable=True)
+                    .order_by("-date_from")
+                    .annotate(
+                        yearly_amount=Cast(
+                            F("amount")
+                            * 365.0
+                            / ExtractDay(F("date_until") - F("date_from")),
+                            output_field=IntegerField(),
+                        )
+                    )
+                    .values("yearly_amount")[:1]
+                ),
+                latest_year_of_sponsorship=Subquery(
+                    Subsidy.objects.filter(organization=OuterRef("id"), renewable=True)
+                    .annotate(year_until=ExtractIsoYear("date_until"))
+                    .order_by("-year_until")
+                    .values("year_until")[:1]
                 ),
             )
             .filter(Q(has_older_renewable_subsidy=True) & Q(is_current_sponsor=False))

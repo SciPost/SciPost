@@ -2,10 +2,13 @@
   <div class="flex-grow-1">
     <h3 class="fs-5">{{ task.title }}</h3>
 
-    {% if task.due_date %}
-      <span class="badge rounded-pill bg-primary bg-opacity-75">Due: {{ task.due_date|timeuntil }}</span>
+    {% if task.badges %}
+      <div class="d-flex flex-row gap-2">
+        {% for badge in task.badges %}
+          {{ badge.as_html|safe }}
+        {% endfor %}
+      </div>
     {% endif %}
-
   </div>
 
   <div class="btn-group"
