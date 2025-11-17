@@ -1196,7 +1196,7 @@ class SciPostPasswordResetForm(PasswordResetForm):
             )
 
         for user in matching_users:
-            if not user.recovery_email_matches:
+            if not user.password_reset_email_matches:
                 password_reset_domain = user.password_reset_email.split("@")[-1]
                 censored_recovery_email = (
                     user.password_reset_email[0] + "*****@" + password_reset_domain
