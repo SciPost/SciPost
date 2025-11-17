@@ -72,7 +72,7 @@ class MailFormView(MailViewBase, UpdateView):
                 request.POST or None,
                 csp_nonce=self.request.csp_nonce,
                 mail_code=self.get_mail_code(),
-                instance=self.object,
+                object=self.object,
                 **self.get_mail_config(),
                 **self.mail_variables,
             )
@@ -139,7 +139,10 @@ class MailView(MailViewBase, UpdateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["mail_code"] = self.get_mail_code()
-        kwargs["instance"] = self.get_object()
+        if object := self.get_object():
+            kwargs["object"] = object
+            if object_name := self.get_context_object_name(object):
+                kwargs[object_name] = object
         kwargs["csp_nonce"] = self.request.csp_nonce
         kwargs["user"] = self.request.user
         kwargs.update(**self.get_mail_config())
