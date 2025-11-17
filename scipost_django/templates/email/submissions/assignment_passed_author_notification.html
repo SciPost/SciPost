@@ -14,7 +14,7 @@
   A Submission Page has been activated at <a href="https://{{ domain }}{{ assignment.submission.get_absolute_url }}">https://{{ domain }}{{ assignment.submission.get_absolute_url }}</a>
 
   {% if assignment.submission.reporting_deadline %}
-    and a refereeing round has been started, with deadline currently set at {{ assignment.submission.reporting_deadline|date:"%Y-%m-%d" }}
+    and a refereeing round has been started, with deadline currently set at {{ assignment.submission.reporting_deadline|date:"Y-m-d" }}
   {% endif %}
 
   .
