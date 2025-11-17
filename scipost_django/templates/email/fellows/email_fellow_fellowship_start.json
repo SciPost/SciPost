@@ -1,5 +1,5 @@
 {
-    "subject": "Welcome to {{ fellowship.hosted_journal.name_prose|default:\"SciPost\" }}'s Editorial College",
+    "subject": "Welcome to {{ fellowship.hosted_journal.name_prose|default:'SciPost' }}'s Editorial College",
     "recipient_list": [
 	    "fellowship.contributor.profile.email"
     ],
