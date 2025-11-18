@@ -190,14 +190,6 @@
 <!-- Editorial Assignment / Appraisal -->
 
 {% if submission.in_stage_assignment %}
-  {% get_editor_invitations submission request.user as invitations %}
-
-  {% if invitations %}
-    <div class="border border-warning mt-1 py-1 px-2">
-      <span class="mt-1 px-1 text-danger">{% include 'bi/exclamation.html' %}</span>
-      You are invited to become Editor-in-charge of this Submission. <a href="{% url 'submissions:pool:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">You can reply to this invitation here</a>.
-    </div>
-  {% endif %}
 
   {% if session_fellowship %}
     <section id="submission-{{ submission.id }}-appraisal"

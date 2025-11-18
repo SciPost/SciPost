@@ -150,24 +150,6 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     def completed(self):
         return self.status == self.STATUS_COMPLETED
 
-    def send_invitation(self):
-        """Send invitation and update status."""
-        if self.status != self.STATUS_PREASSIGNED:
-            # Only send if status is appropriate to prevent double sending
-            return False
-
-        # Send mail
-        DirectMailUtil(
-            "eic/assignment_request",
-            assignment=self,
-        ).send_mail()
-
-        EditorialAssignment.objects.filter(id=self.id).update(
-            date_invited=timezone.now(), status=self.STATUS_INVITED
-        )
-
-        return True
-
 
 class BaseAssignmentCondition(abc.ABC):
     """

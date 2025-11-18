@@ -14,39 +14,6 @@ from journals.models import Publication
 
 
 @app.task(bind=True)
-def send_editorial_assignment_invitations(self):
-    """
-    Send next queued editorial assignment invitation emails.
-    """
-    qs = (
-        Submission.objects.seeking_assignment()
-        .has_editor_invitations_to_be_sent()
-        .distinct()
-    )
-    submission_ids = qs.values_list("id", flat=True)
-    submissions_count = len(submission_ids)
-
-    count = 0
-    for submission_id in submission_ids:
-        self.update_state(
-            state="PROGRESS",
-            meta={
-                "progress": round(100 * count / submissions_count),
-                "total_count": submissions_count,
-            },
-        )
-
-        # Get EditorialAssignment to send or nothing.
-        ed_assignment = EditorialAssignment.objects.next_invitation_to_be_sent(
-            submission_id
-        )
-        if ed_assignment:
-            if ed_assignment.send_invitation():
-                count += 1
-    return {"new_invites": count}
-
-
-@app.task(bind=True)
 def submit_submission_document_for_plagiarism(self):
     """Upload a new Submission document to iThenticate."""
     submissions_to_upload = (
