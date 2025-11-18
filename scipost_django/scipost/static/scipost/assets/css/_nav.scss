@@ -2,7 +2,7 @@
     color: $scipost-blue50;
 }
 
-.nav-pills .nav-link {
+.nav-pills .nav-link:not(.disabled) {
     color: $scipost-blue50;
 
     &.active {

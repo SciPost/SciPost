@@ -69,5 +69,8 @@ def _hx_submission_tab_contents_edadmin(request, identifier_w_vn_nr):
     )
     context = {
         "submission": submission,
+        "subtab": "preassignment"
+        if submission.status == Submission.PREASSIGNMENT
+        else "incoming",
     }
     return render(request, "edadmin/_hx_submission_tab_contents_edadmin.html", context)
