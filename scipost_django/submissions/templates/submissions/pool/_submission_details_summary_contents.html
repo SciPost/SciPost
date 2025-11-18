@@ -165,11 +165,12 @@
     </ul>
 
     {% if submission.cycle.has_required_actions %}
-
       {% if "edadmin" in user_roles %}
         <details class="bg-danger bg-opacity-10">
           <summary class="bg-danger bg-opacity-25 p-2">Required actions</summary>
-          <div class="p-2">{% include 'submissions/pool/_required_actions_ul.html' with submission=submission %}</div>
+          <div class="p-2">
+            {% include "submissions/_cycle_required_actions.html" with actions=submission.cycle.required_actions %}
+          </div>
         </details>
       {% endif %}
     {% endif %}

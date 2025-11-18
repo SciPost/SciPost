@@ -313,7 +313,7 @@ container border border-warning border-3
         {% endif %}
         Required actions
       </h3>
-      {{ submission.cycle.required_actions }}
+      {% include "submissions/_cycle_required_actions.html" with actions=submission.cycle.required_actions %}
     </div>
   {% endif %}
 

@@ -8,66 +8,21 @@ import json
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html, format_html_join, html_safe
+from django.utils.functional import cached_property
+from django.utils.html import format_html
 
 from common.utils import get_current_domain
 
 from . import constants
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator
 
 if TYPE_CHECKING:
     from submissions.models.submission import Submission
 
 
-@html_safe
-class RequiredActionsDict(dict):
-    """
-    A collection of required actions.
-
-    This dict, meant for the editors-in-charge, knows how to display itself in
-    various formats. Its keys are the action-codes, while its values are the texts
-    to present to the user.
-    """
-
-    def as_data(self):
-        return {f: e.as_data() for f, e in self.items()}
-
-    def as_list_text(self):
-        return [e.__str__() for e in self.values()]
-
-    def get_json_data(self, escape_html=False):
-        return {f: e.get_json_data(escape_html) for f, e in self.items()}
-
-    def as_json(self, escape_html=False):
-        return json.dumps(self.get_json_data(escape_html))
-
-    def as_ul(self):
-        if not self:
-            return '<div class="no-actions-msg">No required actions.</div>'
-        return format_html(
-            '<ul class="actions-list">{}</ul>',
-            format_html_join("", "<li>{}</li>", self.values()),
-        )
-
-    def as_text(self):
-        return " ".join([action.as_text() for action in self.values()])
-
-    def __getitem__(self, action):
-        return super().__getitem__(action.id)
-
-    def __setitem__(self, action, val):
-        super().__setitem__(action.id, val)
-
-    def __contains__(self, value):
-        return value.id in list(self.keys())
-
-    def __str__(self):
-        return self.as_ul()
-
-
 class BaseAction:
-    """An item in the RequiredActionsDict  for the Submission refereeing cycle."""
+    """A pending action for the Submission's refereeing cycle."""
 
     txt = ""
     url = "#"
@@ -76,10 +31,18 @@ class BaseAction:
 
     def __init__(self, object=None, **kwargs):
         self._objects = [object] if object else []
+        if "submission" in kwargs:
+            self.submission = kwargs.pop("submission")
         self.id = (
             "%s.%i" % (object.__class__.__name__, object.id)
             if object
             else self.__class__.__name__
+        )
+
+    def __eq__(self, other):
+        return (
+            getattr(self, "submission", 0) == getattr(other, "submission", 0)
+            and self.id == other.id
         )
 
     def __repr__(self):
@@ -247,13 +210,19 @@ class BaseCycle(abc.ABC):
 
     def __init__(self, submission: "Submission"):
         self._submission = submission
-        self._required_actions = None
+        self._required_actions: list["BaseAction"] = []
+        self._actions_exhausted = False
 
     @property
-    def required_actions(self):
-        if self._required_actions is None:
-            self.update_required_actions()
-        return self._required_actions
+    def required_actions(self) -> Generator["BaseAction", None, None]:
+        if self._required_actions and self._actions_exhausted:
+            yield from self._required_actions
+
+        else:
+            for action in self.yield_required_actions():
+                self._required_actions.append(action)
+                yield action
+            self._actions_exhausted = True
 
     @property
     def days_for_refereeing(self):
@@ -268,26 +237,23 @@ class BaseCycle(abc.ABC):
             return self._submission.proceedings.minimum_referees
         return 3  # Three by default
 
+    @cached_property
     def has_required_actions(self):
-        return bool(self.required_actions)
+        return bool(next(iter(self.required_actions), None))
 
-    def add_action(self, action):
-        if action not in self.required_actions:
-            self.required_actions[action] = action
-        self.required_actions[action].submission = self._submission
-
-    def update_required_actions(self):
+    def yield_required_actions(self) -> Generator["BaseAction", None, None]:
         """Gather the required actions list and populate self._required_actions."""
-        self._required_actions = RequiredActionsDict()
-
         # Comments requiring vetting (including replies and recursive comments)
-        comments_to_vet = self._submission.comments_set_complete().awaiting_vetting()
-        for comment in comments_to_vet:
-            self.add_action(VettingAction(comment))
+        yield from (
+            VettingAction(comment, submission=self._submission)
+            for comment in self._submission.comments_set_complete().awaiting_vetting()
+        )
 
-        reports_to_vet = self._submission.reports.awaiting_vetting()
-        for report in reports_to_vet:
-            self.add_action(VettingAction(report))
+        # Reports requiring vetting
+        yield from (
+            VettingAction(report, submission=self._submission)
+            for report in self._submission.reports.awaiting_vetting()
+        )
 
         # If this cycle is not the latest one in the thread, return early, skipping other actions
         if not self._submission.is_latest:
@@ -295,17 +261,17 @@ class BaseCycle(abc.ABC):
 
         if not self._submission.refereeing_cycle:
             # Submission is a resubmission: EIC has to determine which cycle to proceed with.
-            self.add_action(CycleChoiceAction())
+            yield CycleChoiceAction(submission=self._submission)
             return  # If no cycle is chosen. Make this a first priority!
 
         # The EIC is late with formulating a Recommendation.
         if self._submission.eic_recommendation_required:
             if self._submission.reporting_deadline_has_passed:
-                action = NoEICRecommendationAction()
+                action = NoEICRecommendationAction(submission=self._submission)
                 action.needs_referees = (
                     not self._submission.reports.non_draft().exists()
                 )
-                self.add_action(action)
+                yield action
 
         if self.can_invite_referees and self._submission.in_stage_in_refereeing:
             # Referees required in this cycle.
@@ -333,22 +299,31 @@ class BaseCycle(abc.ABC):
             # Only show the action if reports don't suffice
             # and there are not enough active invitations (pending or accepted)
             if not (reports_and_accepted_suffice or has_enough_invitations):
-                self.add_action(
-                    NeedRefereesAction(
-                        number_of_invitations=nr_active_invitations,
-                        minimum_number_of_referees=self.minimum_number_of_referees,
-                    )
+                yield NeedRefereesAction(
+                    number_of_invitations=nr_active_invitations,
+                    minimum_number_of_referees=self.minimum_number_of_referees,
+                    submission=self._submission,
                 )
 
         referee_invitations = self._submission.referee_invitations.needs_attention()
         for referee_invitation in referee_invitations:
             if referee_invitation.needs_response:
                 # Invited, but no response
-                self.add_action(NoRefereeResponseAction(referee_invitation))
+                yield NoRefereeResponseAction(
+                    referee_invitation,
+                    submission=self._submission,
+                )
             elif referee_invitation.is_overdue:
-                self.add_action(OverdueAction(referee_invitation))
+                yield OverdueAction(
+                    referee_invitation,
+                    submission=self._submission,
+                )
+
             elif referee_invitation.needs_fulfillment_reminder:
-                self.add_action(DeadlineAction(referee_invitation))
+                yield DeadlineAction(
+                    referee_invitation,
+                    submission=self._submission,
+                )
 
     def as_text(self):
         """Return a *short* description of the current status of the submission cycle."""
@@ -406,9 +381,9 @@ class BaseCycle(abc.ABC):
                     )
                 )
 
-        if not self.required_actions and not texts:
+        if not self.has_required_actions and not texts:
             texts.append("No action required.")
-        elif self.required_actions:
+        elif self.has_required_actions:
             texts.append("<strong>Please see your required actions below.</strong>")
         return format_html(" ".join(texts))
 
@@ -486,10 +461,17 @@ class DirectCycle(BaseCycle):
 
     can_invite_referees = False
 
-    def update_required_actions(self):
+    def yield_required_actions(self):
         """Gather the required actions list and populate self._required_actions."""
-        super().update_required_actions()
+        actions = []
+        for action in super().yield_required_actions():
+            actions.append(action)
+            yield action
 
         # Always show `EICRec required` action disregarding the refereeing deadline.
-        if self._submission.eic_recommendation_required:
-            self.add_action(NoEICRecommendationAction())
+        no_recom_action = NoEICRecommendationAction(submission=self._submission)
+        if (
+            self._submission.eic_recommendation_required
+            and no_recom_action not in actions
+        ):
+            yield no_recom_action

@@ -104,16 +104,7 @@
 
                     </td>
                     <td>
-                      <ul class="m-0">
-
-                        {% for code, action in submission.cycle.required_actions.items %}
-                          <li>{{ action|safe }}</li>
-                        {% empty %}
-                          <li>No action required. Great job!</li>
-                        {% endfor %}
-
-
-                      </ul>
+                      {% include "submissions/_cycle_required_actions.html" with actions=submission.cycle.required_actions %}
                     </td>
                   </tr>
                 {% endfor %}

@@ -61,13 +61,7 @@
             </p>
             {% if assignment.submission.cycle.has_required_actions %}
                 <h3>Required actions (go to the <a href="https://{{ domain }}{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial page</a> to carry them out):</h3>
-                <ul>
-                  {% for code, action in assignment.submission.cycle.required_actions.items %}
-                      <li>{{ action|safe }}</li>
-                  {% empty %}
-                      <li>No action required. Great job!</li>
-                  {% endfor %}
-                </ul>
+                {% include "submissions/_cycle_required_actions.html" with actions=submission.cycle.required_actions %}
             {% else %}
                 <p>No action required. Great job!</p>
             {% endif %}

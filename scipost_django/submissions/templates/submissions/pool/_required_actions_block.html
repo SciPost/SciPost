@@ -4,13 +4,7 @@
       <h3 class="my-1">Required actions:</h3>
     </div>
     <div class="card-body">
-      <ul class="mb-0">
-        {% for code, action in submission.cycle.required_actions.items %}
-          <li>{{ action }}</li>
-        {% empty %}
-          <li>No actions required</li>
-        {% endfor %}
-      </ul>
+      {% include "submissions/_cycle_required_actions.html" with actions=submission.cycle.required_actions %}
     </div>
   </div>
 {% endif %}

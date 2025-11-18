@@ -1,0 +1,9 @@
+{% if actions %}
+  <ul class="actions-list">
+    {% for action in actions %}
+      <li>{{ action|safe }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="no-actions-msg">No required actions.</div>
+{% endif %}

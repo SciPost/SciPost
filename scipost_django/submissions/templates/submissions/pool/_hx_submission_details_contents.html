@@ -43,7 +43,7 @@
           {% endif %}
           Required actions
 	</h3>
-	{{ submission.cycle.required_actions }}
+	  {% include "submissions/_cycle_required_actions.html" with actions=submission.cycle.required_actions %}
       </div>
       <h4>
 	<a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
