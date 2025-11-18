@@ -1202,12 +1202,10 @@ class Submission(models.Model):
 
         return preprint_servers
 
-    @property
+    @cached_property
     def editorial_decision(self) -> "EditorialDecision | None":
         """Returns the latest EditorialDecision (if it exists)."""
-        if self.editorialdecision_set.nondeprecated().exists():
-            return self.editorialdecision_set.nondeprecated().latest_version()
-        return None
+        return self.editorialdecision_set.nondeprecated().latest_version()
 
     @cached_property
     def special_considerations(self) -> dict[str, dict[str, list[str]]]:

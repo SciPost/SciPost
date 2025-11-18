@@ -7,7 +7,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import prefetch_related_objects
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
 from mails.views import MailView
@@ -76,8 +75,16 @@ def pool_hx_submission_list(request):
 
     submissions = (
         submissions.all()
-        .select_related("preprint", "editor_in_charge")
-        .prefetch_related("red_flags", "specialties")
+        .select_related(
+            "preprint",
+            "editor_in_charge",
+            "submitted_by__profile",
+        )
+        .prefetch_related(
+            "red_flags",
+            "specialties",
+            "submitted_by__profile__red_flags",
+        )
     )
     paginator = Paginator(submissions, 16)
     page_nr = request.GET.get("page")
