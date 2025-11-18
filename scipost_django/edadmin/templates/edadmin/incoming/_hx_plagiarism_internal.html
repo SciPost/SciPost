@@ -1,13 +1,7 @@
-<details class="border border-2">
-  <summary class="bg-primary bg-opacity-10 p-2">
-    <h2>
-      Internal plagiarism checks&emsp;
-      {% if submission.internal_plagiarism_assessment %}
-	{% include "edadmin/incoming/plagiarism_assessment_status_span.html" with assessment=submission.internal_plagiarism_assessment %}
-      {% else %}
-	<span class="text-danger">[not started]</span>
-      {% endif %}
-    </h2>
+<details class="border">
+  <summary class="p-2 bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
+    <span class="fs-3">Internal Plagiarism check</span>
+    {% include "edadmin/incoming/plagiarism_assessment_status_span.html" with assessment=submission.internal_plagiarism_assessment %}
   </summary>
   <details open>
     <summary class="m-2 p-2">

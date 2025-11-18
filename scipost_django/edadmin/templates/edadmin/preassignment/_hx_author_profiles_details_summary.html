@@ -1,3 +1,8 @@
 {% with submission.authors_as_list|length as nr_authors %}
-  <h2>Author Profiles <small class="{% if matches == nr_authors %}bg-success{% else %}bg-warning{% endif %} ms-4 p-1 text-white">matched: {{ matches }} out of {{ nr_authors }}</small></h2>
+  <div class="d-flex justify-content-between align-items-center">
+    <span class="fs-3">Author Profiles</span> 
+    <span class="{% if matches == nr_authors %}bg-success{% else %}bg-warning{% endif %} p-1 text-white">
+      {{ matches }} / {{ nr_authors }}
+    </span>
+  </div>
 {% endwith %}
