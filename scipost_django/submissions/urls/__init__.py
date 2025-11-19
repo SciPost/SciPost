@@ -224,6 +224,11 @@ urlpatterns = [
         name="fellow_coauthorships",
     ),
     path(
+        "admin/<identifier:identifier_w_vn_nr>/coauthorships/fellows/_hx_list",
+        views._hx_submission_fellows_coauthorships_list,
+        name="_hx_submission_fellows_coauthorships_list",
+    ),
+    path(
         "admin/<identifier:identifier_w_vn_nr>/reassign_editor",
         views.SubmissionReassignmentView.as_view(),
         name="reassign_submission",

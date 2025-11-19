@@ -3188,16 +3188,30 @@ class SubmissionFellowCoauthorshipsView(SubmissionAdminViewMixin, DetailView):
     def get_queryset(self):
         return super(DetailView, self).get_queryset()
 
-    def get_object(self) -> Submission:
-        submission: Submission = super().get_object()
 
-        submission.fellows_with_coauthorships = (
+@permission_required_htmx("scipost.can_run_preassignment")
+def _hx_submission_fellows_coauthorships_list(request, identifier_w_vn_nr):
+    """Render the Fellow Coauthorships list for a certain Submission."""
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    fellows_with_coauthorships = (
             submission.custom_prefetch_submission_author_and_fellow_coauthorships(
                 submission.fellows.all()
             )
         )
 
-        return submission
+    return render(
+        request,
+        "submissions/admin/_submission_fellows_coauthorships_list.html",
+        {
+            "submission": submission,
+            "fellows_with_coauthorships": fellows_with_coauthorships,
+        },
+    )
+
+
 
 
 class EICRecommendationDetailView(

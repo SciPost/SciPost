@@ -3,63 +3,55 @@
 {% load bootstrap %}
 {% load scipost_extras %}
 
-{% block pagetitle %}: Submission Editors{% endblock pagetitle %}
+{% block pagetitle %}
+  : Submission Editors
+{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-  {{block.super}}
+  {{ block.super }}
+
   {% if submission.status == 'incoming' %}
-    <a href="{% url 'submissions:do_preassignment' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Preassignment {{ submission.preprint.identifier_w_vn_nr }}</a>
+    <a href="{% url 'submissions:do_preassignment' submission.preprint.identifier_w_vn_nr %}"
+       class="breadcrumb-item">Preassignment {{ submission.preprint.identifier_w_vn_nr }}</a>
   {% else %}
-    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial page {{ submission.preprint.identifier_w_vn_nr }}</a>
+    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}"
+       class="breadcrumb-item">Editorial page {{ submission.preprint.identifier_w_vn_nr }}</a>
   {% endif %}
+
   <span class="breadcrumb-item">Fellow Coauthorships</span>
 {% endblock %}
+
 
 {% block content %}
 
 
   <h1 class="highlight">Submission's Fellow Coauthorships</h1>
-  <h3><a href="{{ submission.get_absolute_url }}">{{submission.title}}</a></h3>
-  <h4>by {{submission.author_list}}</h4>
-  <br>
+  <h3>
+    <a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a>
+  </h3>
+  <h4>by {{ submission.author_list }}</h4>
+  <br />
 
   <h3>Submission summary</h3>
   {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=0 %}
 
-  <br>
+  <br />
   <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a>
-  <br>
-  <br>
+  <br />
+  <br />
 
   <h3 class="highlight">Fellow Coauthorships</h3>
 
-  <ul class="list-group list-group-flush">
-  {% for fellow in submission.fellows_with_coauthorships %}
-    <li class="d-flex flex-column p-2 list-group-item">
-      <details open>
-        <summary class="d-flex list-triangle align-items-center flex-row">
-          <span class="fw-bold fs-6">{{ fellow.contributor.profile }}</span>
-          <div style="max-width: 600px"
-              class="ms-auto coauthorship-fetch-button">
-            <span id="coauthorship-{{ fellow.id }}-fetch-indicator"
-                  class="htmx-indicator"
-                  role="status"
-                  aria-hidden="true">
-              <span class="spinner-grow spinner-grow-sm"></span></span>
-              <button class="btn btn-light btn-sm"
-                      hx-indicator="#coauthorship-{{ fellow.id }}-fetch-indicator"
-                      hx-post="{% url 'ethics:_hx_fetch_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr fellow.contributor.profile.id %}"
-                      hx-target="closest .coauthorship-fetch-button">Update records</button>
-          </div>
-        </summary>
-      <div hx-get="{% url 'ethics:_hx_list_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr fellow.contributor.profile.id %}"
-           hx-trigger="task-completed from:closest li"
-           hx-swap="innerHTML">
-        {% include 'submissions/admin/_coauthorships.html' with coauthorships=fellow.contributor.profile.submission_coauthorships %}
-      </div>
-      </details>
-    </li>
-  {% endfor %}
-  </ul>
+  <div hx-get="{% url 'submissions:_hx_submission_fellows_coauthorships_list' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+       hx-indicator="#submission-{{ submission.pk }}-fellow-coauthorships-loading-indicator"
+       hx-trigger="load"></div>
+
+  <div id="submission-{{ submission.pk }}-fellow-coauthorships-loading-indicator"
+       class="w-100 bg-primary bg-opacity-10 p-3 mb-3  htmx-indicator">
+    <span>Loading...</span>
+    <div class="spinner-grow spinner-grow-sm ms-2"
+         role="status"
+         aria-hidden="true"></div>
+  </div>
 
 {% endblock %}
