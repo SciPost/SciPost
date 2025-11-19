@@ -3,7 +3,13 @@
 {% if submission.stage_preassignment_completed %}
   <div class="p-2 border bg-secondary bg-opacity-10 d-flex justify-content-between align-items-center">
     <span class="fs-3">Preassignment</span>
-    <span class="bg-success text-white px-2 py-1">Passed</span>
+
+    {% if submission.status == submission.PREASSIGNMENT_FAILED %}
+      <span class="bg-danger text-white px-2 py-1">Failed</span>
+    {% else %}
+      <span class="bg-success text-white px-2 py-1">Passed</span>
+    {% endif %}
+
   </div>
 {% elif submission.preassignment_tasks_done %}
   <details open
