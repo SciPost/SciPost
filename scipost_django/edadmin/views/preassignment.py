@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
@@ -81,8 +82,11 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
         profile__isnull=False,
     ).first()
 
-    submission_specialties_serialized = ",".join([str(s.id) for s in submission.specialties.all()])
+    submission_specialties_serialized = ",".join(
+        [str(s.id) for s in submission.specialties.all()]
+    )
     from nameparser import HumanName
+
     name = HumanName(author_string)
     author_first_name_guess = f"{name.first} {name.middle}".strip()
     author_last_name_guess = name.last
@@ -115,9 +119,6 @@ def _hx_author_profile_row(request, identifier_w_vn_nr, order: int):
         "edadmin/preassignment/_hx_author_profile_row.html",
         context,
     )
-    response["HX-Trigger-After-Settle"] = (
-        f"submission-{submission.pk}-author-profiles-details-updated"
-    )
     return response
 
 
@@ -133,6 +134,7 @@ def _hx_author_profile_action(
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
+    author_matching_completeness = submission.enough_author_profiles_matched
     author_profile, created = SubmissionAuthorProfile.objects.get_or_create(
         submission=submission,
         order=order,
@@ -161,14 +163,15 @@ def _hx_author_profile_action(
     elif action == "unmatch":
         author_profile.profile = None
     author_profile.save()
-    response = redirect(
-        reverse(
-            "edadmin:preassignment:_hx_author_profile_row",
-            kwargs={
-                "identifier_w_vn_nr": identifier_w_vn_nr,
-                "order": order,
-            },
+    response = _hx_author_profile_row(request, identifier_w_vn_nr, order)
+    trigger_events = [f"submission-{submission.pk}-author-profiles-details-updated"]
+    if submission.enough_author_profiles_matched != author_matching_completeness:
+        trigger_events.append(
+            f"submission-{submission.pk}-author-profiles-completeness-changed"
         )
+
+    response["HX-Trigger-After-Settle"] = json.dumps(
+        {event: "" for event in trigger_events}
     )
     return response
 
