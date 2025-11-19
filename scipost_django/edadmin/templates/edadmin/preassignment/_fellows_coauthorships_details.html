@@ -1,0 +1,55 @@
+{% if submission.needs_coauthorships_update %}
+
+  <div id="submission-{{ submission.id }}-author-profiles-details"
+       class="border">
+    <div class="bg-secondary bg-opacity-10 p-2 d-flex justify-content-between align-items-center"
+         id="submission-{{ submission.pk }}-author-profiles-details-summary">
+      <span class="fs-3">Fellow Coauthorships</span>
+
+      {% if submission.enough_author_profiles_matched %}
+        <span class="bg-warning text-white px-2 py-1"
+              title="The coauthorship information is being updated, please check back later.<br/> You can refresh the status by clicking on the Preassignment tab."
+              data-bs-toggle="tooltip"
+              data-bs-html="true">Update in Progress</span>
+      {% else %}
+        <span class="bg-secondary px-2 py-1">Author profiles missing</span>
+      {% endif %}
+
+    </div>
+  </div>
+
+{% else %}
+  <details id="submission-{{ submission.id }}-author-profiles-details"
+           class="border">
+    <summary class="bg-primary bg-opacity-10 p-2 d-flex justify-content-between align-items-center"
+             id="submission-{{ submission.pk }}-author-profiles-details-summary">
+      <span class="fs-3">Fellow Coauthorships</span>
+
+      {% if submission.fellows_coauthorships_checked %}
+        <span class="bg-success text-white px-2 py-1">Checked</span>
+      {% else %}
+        <span class="bg-warning text-white px-2 py-1">Ongoing</span>
+      {% endif %}
+
+    </summary>
+
+    <div hx-get="{% url 'submissions:_hx_submission_fellows_coauthorships_list' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+         style="max-height: 50vh;
+                overflow-y: auto"
+         hx-trigger="intersect once, submission-{{ submission.id }}-fellows-coauthorships-updated from:body"></div>
+
+    <div class="d-flex justify-content-between p-2"
+         hx-swap="outerHTML">
+      <button class="btn btn-warning text-white"
+              hx-post="{% url "submissions:_hx_submission_fellows_coauthorships_deprecate_undecided" submission.preprint.identifier_w_vn_nr %}">
+        Deprecate undecided
+      </button>
+      <button class="btn btn-primary"
+              hx-post="{% url "submissions:_hx_submission_fellows_coauthorships_all_checked" submission.preprint.identifier_w_vn_nr %}">
+        Continue
+      </button>
+    </div>
+
+  </details>
+
+{% endif %}

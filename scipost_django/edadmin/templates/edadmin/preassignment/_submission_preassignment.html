@@ -1,8 +1,11 @@
 <div class="d-flex flex-column gap-2">
-  
+
   {% include "edadmin/preassignment/_author_profiles_details.html" with submission=submission %}
+
+  {% include "edadmin/preassignment/_fellows_coauthorships_details.html" with submission=submission %}
 
   <div id="submission-{{ submission.pk }}-preassignment-decision"
        hx-get="{% url 'edadmin:preassignment:_hx_submission_preassignment_decision' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-       hx-trigger="load, submission-{{ submission.pk }}-author-profiles-completeness-changed from:body"></div>
+       hx-trigger="load, submission-{{ submission.pk }}-author-profiles-completeness-changed from:body, submission-{{ submission.pk }}-fellows-coauthorships-checked from:body">
+  </div>
 </div>

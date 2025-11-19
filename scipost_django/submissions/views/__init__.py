@@ -31,6 +31,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.timezone import timedelta
+from django.views.decorators.http import require_POST
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -41,7 +42,7 @@ import sentry_sdk
 
 from common.views import HXFormSetView, empty
 from ethics.forms import GenAIDisclosureAppendageForm, GenAIDisclosureForm
-from ethics.models import GenAIDisclosure
+from ethics.models import Coauthorship, GenAIDisclosure
 from profiles.utils import resolve_profile
 
 from scipost.permissions import (
@@ -3197,10 +3198,10 @@ def _hx_submission_fellows_coauthorships_list(request, identifier_w_vn_nr):
     )
 
     fellows_with_coauthorships = (
-            submission.custom_prefetch_submission_author_and_fellow_coauthorships(
-                submission.fellows.all()
-            )
+        submission.custom_prefetch_submission_author_and_fellow_coauthorships(
+            submission.fellows.all()
         )
+    )
 
     return render(
         request,
@@ -3212,6 +3213,61 @@ def _hx_submission_fellows_coauthorships_list(request, identifier_w_vn_nr):
     )
 
 
+@permission_required_htmx("scipost.can_run_preassignment")
+@require_POST
+def _hx_submission_fellows_coauthorships_deprecate_undecided(
+    request, identifier_w_vn_nr
+):
+    """Mark all undecided Fellow Coauthorships as deprecated"""
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    fellows_with_coauthorships = (
+        submission.custom_prefetch_submission_author_and_fellow_coauthorships(
+            submission.fellows.all()
+        )
+    )
+
+    coauthorships = []
+    for fellow in fellows_with_coauthorships:
+        for coauthorship in fellow.contributor.profile.submission_coauthorships:
+            if coauthorship.status == Coauthorship.STATUS_UNVERIFIED:
+                coauthorship.deprecate(request.user.contributor, commit=False)
+                coauthorships.append(coauthorship)
+
+    Coauthorship.objects.bulk_update(
+        coauthorships, ["status", "verified_by", "modified"]
+    )
+
+    response = HTMXResponse(
+        "Successfully deprecated undecided coauthorships.", tag="success"
+    )
+    response["HX-Trigger"] = f"submission-{submission.id}-fellows-coauthorships-updated"
+    return response
+
+
+@permission_required_htmx("scipost.can_run_preassignment")
+@require_POST
+def _hx_submission_fellows_coauthorships_all_checked(request, identifier_w_vn_nr):
+    """Mark the Submission as having its Fellow Coauthorships checked."""
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    if submission.fellows_coauthorships_checked:
+        return HTMXResponse(
+            "Fellow Coauthorships have already been marked as checked.",
+            tag="info",
+        )
+
+    submission.add_event_for_edadmin(
+        "Fellow Coauthorships have been checked by "
+        f"{request.user.contributor.profile.full_name}."
+    )
+    response = HTMXResponse("Marked as checked.", tag="success")
+    response["HX-Trigger"] = f"submission-{submission.id}-fellows-coauthorships-checked"
+    return response
 
 
 class EICRecommendationDetailView(

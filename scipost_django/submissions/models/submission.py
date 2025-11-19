@@ -730,8 +730,16 @@ class Submission(models.Model):
         )
 
     @property
+    def fellows_coauthorships_checked(self):
+        return self.events.filter(
+            text__icontains="Fellow Coauthorships have been checked",
+        ).exists()
+
+    @property
     def preassignment_tasks_done(self):
-        return self.enough_author_profiles_matched
+        return (
+            self.enough_author_profiles_matched and self.fellows_coauthorships_checked
+        )
 
     @cached_property
     def recommendation(self):

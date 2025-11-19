@@ -163,6 +163,11 @@ def _hx_author_profile_action(
     elif action == "unmatch":
         author_profile.profile = None
     author_profile.save()
+
+    if submission.enough_author_profiles_matched:
+        # Reset the fellowship for the submission to remove authors matched
+        submission.fellows.set(submission.get_default_fellowship())
+
     response = _hx_author_profile_row(request, identifier_w_vn_nr, order)
     trigger_events = [f"submission-{submission.pk}-author-profiles-details-updated"]
     if submission.enough_author_profiles_matched != author_matching_completeness:
@@ -203,10 +208,6 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
                 submission=submission,
                 comments_for_authors=form.cleaned_data["comments_for_authors"],
             )
-
-            # Reset the fellowship for the submission
-            # This is done to remove authors matched during preassignment
-            submission.fellows.set(submission.get_default_fellowship())
 
         else:  # inadmissible, inform authors and set status to PREASSIGNMENT_FAILED
             submission.status = Submission.PREASSIGNMENT_FAILED

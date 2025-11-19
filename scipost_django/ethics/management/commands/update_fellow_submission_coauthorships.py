@@ -14,12 +14,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         submissions: list[Submission] = list(
             Submission.objects.all()
-            .stage_preassignment_completed()
             .needs_coauthorships_update()
             .prefetch_related("fellows")[:1]
         )
 
         for submission in submissions:
+            if not submission.enough_author_profiles_matched:
+                continue
+
             preprint_servers = submission.get_coauthorship_preprint_servers()
 
             fellow_profile_ids: list[int] = list(

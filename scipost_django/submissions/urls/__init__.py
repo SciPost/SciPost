@@ -229,6 +229,16 @@ urlpatterns = [
         name="_hx_submission_fellows_coauthorships_list",
     ),
     path(
+        "admin/<identifier:identifier_w_vn_nr>/coauthorships/fellows/_hx_deprecate_undecided",
+        views._hx_submission_fellows_coauthorships_deprecate_undecided,
+        name="_hx_submission_fellows_coauthorships_deprecate_undecided",
+    ),
+    path(
+        "admin/<identifier:identifier_w_vn_nr>/coauthorships/fellows/_hx_all_checked",
+        views._hx_submission_fellows_coauthorships_all_checked,
+        name="_hx_submission_fellows_coauthorships_all_checked",
+    ),
+    path(
         "admin/<identifier:identifier_w_vn_nr>/reassign_editor",
         views.SubmissionReassignmentView.as_view(),
         name="reassign_submission",
