@@ -39,6 +39,11 @@ class Task:
                     field_name="Due",
                     value=self.due_date.strftime("%Y-%m-%d"),
                     color_name="warning",
+                    color_func=lambda _: "danger"
+                    if self.due_date <= timezone.now()
+                    else "warning"
+                    if self.due_date <= timezone.now() + timezone.timedelta(days=15)
+                    else "success",
                 )
                 if self.due_date
                 else None,

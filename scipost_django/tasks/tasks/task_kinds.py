@@ -14,7 +14,7 @@ from django.db.models import (
     Subquery,
     Sum,
 )
-from django.db.models.functions import Cast, Coalesce, ExtractDay, ExtractIsoYear
+from django.db.models.functions import Cast, Coalesce, ExtractDay, ExtractIsoYear, Now
 from django.urls import reverse_lazy
 from django.utils import timezone
 from finances.constants import SUBSIDY_RECEIVED, SUBSIDY_WITHDRAWN
@@ -272,12 +272,16 @@ class RenewSponsorshipTask(TaskKind):
         TaskBadge.default_builder(
             "latest_yearly_sponsorship_amount",
             field_name="Yearly Amount",
-            color_name="primary",
+            unit="€",
+            color_func=lambda v: "success" if v and v >= 5000 else "warning",
         ),
         TaskBadge.default_builder(
             "latest_year_of_sponsorship",
             field_name="Year",
-            color_name="success",
+            color_func=lambda v: "success"
+            if v and v >= timezone.now().year
+            else "warning",
+        ),
         ),
     ]
 

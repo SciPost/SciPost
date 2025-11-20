@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from common.utils.models import model_eval_attr
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
     from .task import Task
@@ -16,33 +16,37 @@ class TaskBadge:
     name: str
     field_name: str
     value: str
+    unit: str = ""
     color_name: str = "secondary"
+    color_func: Callable[[Any], str] | None = None
+
+    BADGE_TEMPLATE = '<span class="badge rounded-pill text-white {color_class}">{field_name}: {value} {unit}</span>'
 
     def as_html(self) -> str:
-        badge_template = '<span class="badge rounded-pill text-white bg-{color_name} bg-opacity-75">{field_name}: {value}</span>'
-        return badge_template.format(
-            color_name=self.color_name,
-            field_name=self.field_name,
-            value=self.value,
-        )
+        color_class = self.get_color_class(self.value)
+        return self.BADGE_TEMPLATE.format(color_class=color_class, **self.__dict__)
+
+    def get_color_class(self, value: Any = None) -> str:
+        if self.color_func is None or value is None:
+            return f"bg-{self.color_name} bg-opacity-75"
+
+        color_eval = self.color_func(value)
+        return f"bg-{color_eval} bg-opacity-75"
 
     @classmethod
     def default_builder(
         cls,
         property_key: str,
-        name: str | None = None,
-        field_name: str | None = None,
-        color_name: str = "secondary",
+        **kwargs: Any,
     ):
         def badge(task: "Task") -> TaskBadge:
+            value = model_eval_attr(obj=task.data["object"], attr_path=property_key)
+
             last_property = property_key.split(".")[-1].replace("_", " ")
-            name_final = name or f"{task.kind.__name__}_{last_property}"
-            field_name_final = field_name or last_property.title()
-            return cls(
-                name=name_final,
-                field_name=field_name_final,
-                value=model_eval_attr(obj=task.data["object"], attr_path=property_key),
-                color_name=color_name,
-            )
+
+            kwargs.setdefault("name", f"{task.kind.__name__}_{last_property}")
+            kwargs.setdefault("field_name", last_property.title())
+
+            return cls(value=value, **kwargs)
 
         return badge
