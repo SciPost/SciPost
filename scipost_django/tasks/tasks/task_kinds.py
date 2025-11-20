@@ -9,6 +9,7 @@ from django.db.models import (
     DateTimeField,
     Exists,
     IntegerField,
+    Max,
     OuterRef,
     QuerySet,
     Subquery,
@@ -18,6 +19,7 @@ from django.db.models.functions import Cast, Coalesce, ExtractDay, ExtractIsoYea
 from django.urls import reverse_lazy
 from django.utils import timezone
 from finances.constants import SUBSIDY_RECEIVED, SUBSIDY_WITHDRAWN
+from organizations.constants import ORGANIZATION_EVENT_EMAIL_SENT
 from scipost.templatetags.user_groups import (
     is_active_fellow,
     is_ed_admin,
@@ -282,6 +284,17 @@ class RenewSponsorshipTask(TaskKind):
             if v and v >= timezone.now().year
             else "warning",
         ),
+        TaskBadge.default_builder(
+            "days_since_last_email_sent",
+            field_name="Contacted",
+            unit="d",
+            color_func=lambda v: "secondary"
+            if v is None
+            else "success"
+            if v <= 7
+            else "warning"
+            if v <= 14
+            else "danger",
         ),
     ]
 
@@ -336,6 +349,13 @@ class RenewSponsorshipTask(TaskKind):
                     .annotate(year_until=ExtractIsoYear("date_until"))
                     .order_by("-year_until")
                     .values("year_until")[:1]
+                ),
+                last_email_sent_date=Max(
+                    "organizationevent__noted_on",
+                    filter=Q(organizationevent__event=ORGANIZATION_EVENT_EMAIL_SENT),
+                ),
+                days_since_last_email_sent=ExtractDay(
+                    Now() - F("last_email_sent_date")
                 ),
             )
             .filter(Q(has_older_renewable_subsidy=True) & Q(is_current_sponsor=False))
