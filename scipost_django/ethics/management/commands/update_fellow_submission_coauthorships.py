@@ -11,14 +11,22 @@ from submissions.models import Submission
 class Command(BaseCommand):
     """Compare submission fellows and authors for potential coauthorships."""
 
+    SUBMISSIONS_PROCESSED_PER_RUN = 1
+
     def handle(self, *args, **options):
         submissions: list[Submission] = list(
             Submission.objects.all()
+            .stage_incoming_completed()
             .needs_coauthorships_update()
-            .prefetch_related("fellows")[:1]
+            .prefetch_related("fellows")
+            .order_by("latest_activity")
         )
 
+        submissions_processed = 0
         for submission in submissions:
+            if submissions_processed >= self.SUBMISSIONS_PROCESSED_PER_RUN:
+                break
+
             if not submission.enough_author_profiles_matched:
                 continue
 
@@ -39,3 +47,5 @@ class Command(BaseCommand):
 
             submission.needs_coauthorships_update = False
             submission.save()
+
+            submissions_processed += 1
