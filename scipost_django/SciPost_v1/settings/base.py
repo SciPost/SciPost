@@ -585,6 +585,7 @@ CELERY_IMPORTS = (
     "submissions.tasks",
     "ethics.tasks",
 )
+CELERY_RESULT_EXTENDED = True
 
 
 # Automation.
