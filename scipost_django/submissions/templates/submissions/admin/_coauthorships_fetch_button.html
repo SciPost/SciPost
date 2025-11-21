@@ -1,6 +1,10 @@
 <div style="max-width: 600px"
      class="ms-auto coauthorship-fetch-button">
 
+  {% if fellow.submission_coauthorships_latest_fetch_date %}
+    <small class="text-muted">Last checked: {{ fellow.submission_coauthorships_latest_fetch_date|timesince }} ago</small>
+  {% endif %}
+
   <span id="coauthorship-{{ fellow.id }}-fetch-indicator"
         class="htmx-indicator"
         role="status"

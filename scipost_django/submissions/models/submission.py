@@ -3,20 +3,22 @@ __license__ = "AGPL v3"
 
 
 import datetime
-from django.db.models.functions import Coalesce, Lower
-import feedparser
 import uuid
 
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import Q, Exists, OuterRef, Prefetch, QuerySet
+from django.db.models import F, Q, Func, OuterRef, QuerySet, Subquery
+from django.db.models.functions import Cast, Coalesce, Lower
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+from django_celery_results.models import TaskResult
+
 from guardian.models import UserObjectPermissionBase, GroupObjectPermissionBase
 from guardian.shortcuts import assign_perm, remove_perm
 
+from common.utils.db import SplitString, GetElement
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
@@ -982,6 +984,46 @@ class Submission(models.Model):
         from ethics.models import Coauthorship
         from scipost.models import Contributor
         from profiles.models import Profile
+
+        qs = qs.annotate(
+            submission_coauthorships_latest_fetch_date=Subquery(
+                TaskResult.objects.filter(
+                    task_name="ethics.tasks.celery_fetch_potential_coauthorships_for_profile_and_submission_authors"
+                )
+                # Convert the task_arg = `"(<profile_id>, <submission_id>)"` string into usable integers
+                .annotate(
+                    task_args_arr=SplitString(
+                        Func(
+                            F("task_args"),
+                            template="""TRIM(BOTH '(")' FROM %(expressions)s)""",
+                        ),
+                        delimiter=", ",
+                    ),
+                    profile_id=Cast(
+                        GetElement(
+                            "task_args_arr",
+                            index=1,
+                            output_field=models.CharField(),
+                        ),
+                        models.IntegerField(),
+                    ),
+                    submission_id=Cast(
+                        GetElement(
+                            "task_args_arr",
+                            index=2,
+                            output_field=models.CharField(),
+                        ),
+                        models.IntegerField(),
+                    ),
+                )
+                .filter(
+                    profile_id__in=OuterRef("contributor__profile_id"),
+                    submission_id=self.pk,
+                )
+                .order_by("-date_done")
+                .values("date_done")[:1]
+            )
+        )
 
         fellows = list(qs)
         contributor_map = {
