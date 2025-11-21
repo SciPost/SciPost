@@ -1,0 +1,15 @@
+<div style="max-width: 600px"
+     class="ms-auto coauthorship-fetch-button">
+
+  <span id="coauthorship-{{ fellow.id }}-fetch-indicator"
+        class="htmx-indicator"
+        role="status"
+        aria-hidden="true">
+    <span class="spinner-grow spinner-grow-sm"></span>
+  </span>
+
+  <button class="btn btn-light btn-sm"
+          hx-indicator="#coauthorship-{{ fellow.id }}-fetch-indicator"
+          hx-post="{% url 'ethics:_hx_fetch_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr fellow.contributor.profile.id %}"
+          hx-target="closest .coauthorship-fetch-button">Update</button>
+</div>

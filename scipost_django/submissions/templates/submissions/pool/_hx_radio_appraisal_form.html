@@ -33,25 +33,14 @@
           <br />
           <small class="text-muted">Click to view details</small>
         </div>
-        <div style="max-width: 600px"
-             class="ms-auto coauthorship-fetch-button">
-          <span id="coauthorship-{{ submission.id }}-fetch-indicator"
-                class="htmx-indicator"
-                role="status"
-                aria-hidden="true">
-            <span class="spinner-grow spinner-grow-sm"></span></span>
-            <button class="btn btn-secondary btn-sm"
-                    hx-indicator="#coauthorship-{{ submission.id }}-fetch-indicator"
-                    hx-post="{% url 'ethics:_hx_fetch_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr fellow.contributor.profile.id %}"
-                    hx-target="closest .coauthorship-fetch-button">Update records</button>
-          </div>
-        </summary>
+        {% include "submissions/admin/_coauthorships_fetch_button.html" with fellow=fellow %}
+      </summary>
 
-        <div hx-get="{% url 'ethics:_hx_list_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr request.user.contributor.profile.id %}"
-             hx-trigger="intersect once, task-completed from:closest details"
-             hx-swap="innerHTML"></div>
+      <div hx-get="{% url 'ethics:_hx_list_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr request.user.contributor.profile.id %}"
+           hx-trigger="intersect once, task-completed from:closest details"
+           hx-swap="innerHTML"></div>
 
-      </details>
-    {% endif %}
+    </details>
+  {% endif %}
 
-  </div>
+</div>
