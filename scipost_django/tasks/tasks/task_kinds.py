@@ -307,6 +307,10 @@ class RenewSponsorshipTask(TaskKind):
         from organizations.models import Organization
         from finances.models import Subsidy
 
+        # Adjust the date_until by subtracting one day for correct year extraction
+        # in the case of mismatched timezones and end-of-year dates.
+        date_until_adj = F("date_until") - timezone.timedelta(days=1)
+
         return (
             Organization.objects.all()
             .annotate(
@@ -338,7 +342,7 @@ class RenewSponsorshipTask(TaskKind):
                         yearly_amount=Cast(
                             F("amount")
                             * 365.0
-                            / ExtractDay(F("date_until") - F("date_from")),
+                            / ExtractDay(date_until_adj - F("date_from")),
                             output_field=IntegerField(),
                         )
                     )
@@ -346,7 +350,7 @@ class RenewSponsorshipTask(TaskKind):
                 ),
                 latest_year_of_sponsorship=Subquery(
                     Subsidy.objects.filter(organization=OuterRef("id"), renewable=True)
-                    .annotate(year_until=ExtractIsoYear("date_until"))
+                    .annotate(year_until=ExtractIsoYear(date_until_adj))
                     .order_by("-year_until")
                     .values("year_until")[:1]
                 ),
