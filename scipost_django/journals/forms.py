@@ -830,11 +830,13 @@ class DraftPublicationForm(forms.ModelForm):
             self.prefill_with_journal(self.to_journal)
 
         if self.submission and (follow_up_pub := self.submission.followup_of.first()):
+            version = self.submission.code_metadata.get("code_version", "[VERSION]")
+            suffix = "v" + version
+            self.fields["paper_nr_suffix"].initial = suffix
             self.fields["doi_label"].initial = (
-                follow_up_pub.doi_label.split("-")[0] + "-VERSION"
+                follow_up_pub.doi_label.split("-")[0] + "-" + suffix
             )
             self.fields["paper_nr"].initial = follow_up_pub.paper_nr
-            self.fields["paper_nr_suffix"].initial = "VERSION"
 
     def prefill_with_issue(self, issue):
         # Determine next available paper number:
