@@ -14,13 +14,13 @@ ISSUE_DOI_LABEL_REGEX = r"({})\.\w+(\.[0-9]+)?".format(JOURNAL_DOI_LABEL_REGEX)
 DOI_DISPATCH_PATTERN = (
     r"(?P<journal_tag>{})".format(JOURNAL_DOI_LABEL_REGEX)
     + r"(\.(?P<part_1>\w+)"  #! Why words and not just digits?
-    + r"(\.(?P<part_2>[0-9]+)"  # Any number of digits
-    + r"(\.(?P<part_3>[0-9]{3,})"  # At least 3 digits
+    + r"(\.(?P<part_2>\d+)"  # Any number of digits
+    + r"(\.(?P<part_3>\d{3,})"  # At least 3 digits
     + r")?)?)?"  # Each part is nested in the previous one and optional
     + r"(-(?P<suffix>{}))?".format(  # Suffix can have multiple formats
         "|".join(
             [
-                "[rv][0-9]+(\.[0-9]+)?",  # Code base releases/article versions r###.### or v###.###
+                r"[rv]\d+(\.\d+)?",  # Code base releases/article versions r###.### or v###.###
                 r"\w+",  # Other word suffixes (no dots)
             ]
         )
