@@ -20,7 +20,7 @@ DOI_DISPATCH_PATTERN = (
     + r"(-(?P<suffix>{}))?".format(  # Suffix can have multiple formats
         "|".join(
             [
-                "r[0-9]+(\.[0-9]+)?",  # Code base releases r###.###
+                "[rv][0-9]+(\.[0-9]+)?",  # Code base releases/article versions r###.### or v###.###
                 r"\w+",  # Other word suffixes (no dots)
             ]
         )
