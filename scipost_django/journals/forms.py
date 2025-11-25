@@ -817,13 +817,6 @@ class DraftPublicationForm(forms.ModelForm):
             self.fields["acceptance_date"].initial = self.submission.acceptance_date
             self.fields["publication_date"].initial = timezone.now()
 
-            if follow_up_pub := self.submission.followup_of.first():
-                self.fields["doi_label"].initial = (
-                    follow_up_pub.doi_label.split("-")[0] + "-VERSION"
-                )
-                self.fields["paper_nr"].initial = follow_up_pub.paper_nr
-                self.fields["paper_nr_suffix"].initial = "VERSION"
-
         # Fill data for Publications grouped by Issues (or Issue+Volume).
         if hasattr(self.instance, "in_issue") and self.instance.in_issue:
             self.issue = self.instance.in_issue
@@ -835,6 +828,13 @@ class DraftPublicationForm(forms.ModelForm):
             self.to_journal = self.instance.in_issue
         if self.to_journal:
             self.prefill_with_journal(self.to_journal)
+
+        if self.submission and (follow_up_pub := self.submission.followup_of.first()):
+            self.fields["doi_label"].initial = (
+                follow_up_pub.doi_label.split("-")[0] + "-VERSION"
+            )
+            self.fields["paper_nr"].initial = follow_up_pub.paper_nr
+            self.fields["paper_nr_suffix"].initial = "VERSION"
 
     def prefill_with_issue(self, issue):
         # Determine next available paper number:
