@@ -15,6 +15,7 @@ import requests
 
 import matplotlib
 
+from ethics.mixins import GenAIFormViewInjectorMixin
 from mails.utils import DirectMailUtil
 from ethics.forms import GenAIDisclosureForm
 from ethics.models import GenAIDisclosure
@@ -666,7 +667,9 @@ class PublicationGrantsRemovalView(PermissionsMixin, DetailView):
         )
 
 
-class DraftPublicationCreateView(PermissionsMixin, CreateView):
+class DraftPublicationCreateView(
+    GenAIFormViewInjectorMixin, PermissionsMixin, CreateView
+):
     """
     Create a draft of a Publication.
     """
@@ -682,60 +685,32 @@ class DraftPublicationCreateView(PermissionsMixin, CreateView):
         kwargs["issue_id"] = self.request.GET.get("issue")
         return kwargs
 
-    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        form = self.get_form()
-        gen_ai_form = self.get_gen_ai_disclosure_form(
-            form.submission, request.POST or None
-        )
+    def get_gen_ai_disclosure(self) -> GenAIDisclosure | None:
+        identifier_w_vn_nr = self.kwargs.get("identifier_w_vn_nr")
+        return GenAIDisclosure.objects.filter(
+            submission__preprint__identifier_w_vn_nr=identifier_w_vn_nr
+        ).first()
 
-        # Override superclass `post` to check for disclosure form validity
-        if form.is_valid() and (gen_ai_form.is_valid() if gen_ai_form else True):
-            return self.form_valid(form, gen_ai_form)
-        else:
-            return self.form_invalid(form)
+    def get_gen_ai_disclosure_contributor(self):
+        if disclosure := self.get_gen_ai_disclosure():
+            return disclosure.contributor
 
-    def get_gen_ai_disclosure_form(
-        self, submission: Submission, data=None
-    ) -> GenAIDisclosureForm | None:
-        """
-        Returns the GenAI disclosure form for the current request.
-        If a submission disclosure exists, it initializes the form with its data.
-        """
-        if submission_disclosure := submission.gen_ai_disclosures.first():
+    def get_gen_ai_disclosure_form(self):
+        if disclosure := self.get_gen_ai_disclosure():
             return GenAIDisclosureForm(
-                data,
+                self.request.POST or None,
                 initial={
-                    "was_used": submission_disclosure.was_used,
-                    "use_details": submission_disclosure.use_details,
+                    "was_used": disclosure.was_used,
+                    "use_details": disclosure.use_details,
                 },
             )
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        if (form := context.get("form")) and (submission := form.submission):
-            gen_ai_form = self.get_gen_ai_disclosure_form(submission)
-            context["gen_ai_disclosure_form"] = gen_ai_form
-        return context
-
-    def form_valid(self, form, gen_ai_form):
-        """
-        Override form_valid to set the author associations and copy the GenAI disclosure.
-        """
-        super_form_valid = super().form_valid(form)
-        if (
-            gen_ai_form
-            and self.object
-            and (submission_disclosure := submission.gen_ai_disclosures.first())
-        ):
-            gen_ai_form.save(
-                contributor=submission_disclosure.contributor,
-                for_object=self.object,
-            )
-
-        return super_form_valid
+        return None
 
 
-class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
+class DraftPublicationUpdateView(
+    GenAIFormViewInjectorMixin, PermissionsMixin, UpdateView
+):
     """
     Any Production Officer or Administrator can draft a new publication without publishing here.
     The actual publishing is done at a later stage, after the draft has been finished.
@@ -756,43 +731,18 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
             return publication
         raise Http404("Found Publication is not in draft")
 
-    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        self.object = self.get_object()
-        form = self.get_form()
-        gen_ai_form = self.get_gen_ai_disclosure_form(self.object, request.POST or None)
+    def get_gen_ai_disclosure(self) -> GenAIDisclosure | None:
+        return GenAIDisclosure.objects.filter(publication=self.object).first()
 
-        # Override superclass `post` to check for disclosure form validity
-        if form.is_valid() and (gen_ai_form.is_valid() if gen_ai_form else True):
-            return self.form_valid(form, gen_ai_form)
-        else:
-            return self.form_invalid(form)
+    def get_gen_ai_disclosure_contributor(self) -> Contributor | None:
+        if disclosure := self.get_gen_ai_disclosure():
+            return disclosure.contributor
+        return None
 
-    def get(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        self.object = self.get_object()
-        return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context["gen_ai_disclosure_form"] = self.get_gen_ai_disclosure_form(self.object)
-        return context
-
-    def get_gen_ai_disclosure_form(
-        self, publication, data=None
-    ) -> GenAIDisclosureForm | None:
-        disclosure = GenAIDisclosure.objects.filter(publication=publication).first()
-        if disclosure:
-            return GenAIDisclosureForm(
-                data,
-                instance=GenAIDisclosure.objects.filter(
-                    publication=publication
-                ).first(),
-            )
-
-    def form_valid(self, form, gen_ai_form):
-        super_form_valid = super().form_valid(form)
-        if gen_ai_form:
-            gen_ai_form.save()
-        return super_form_valid
+    def get_gen_ai_disclosure_form(self) -> GenAIDisclosureForm | None:
+        if disclosure := self.get_gen_ai_disclosure():
+            return GenAIDisclosureForm(self.request.POST or None, instance=disclosure)
+        return None
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
