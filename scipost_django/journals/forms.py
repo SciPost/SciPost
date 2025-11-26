@@ -921,6 +921,9 @@ class DraftAccompanyingPublicationForm(forms.Form):
 
     def save(self, *args, **kwargs):
         anchor = self.cleaned_data["anchor"]
+        base_doi = anchor.doi_label
+        if anchor_suffix := anchor.paper_nr_suffix:
+            base_doi = base_doi[: -(len(anchor_suffix) + 1)]
         # Create a new Publication based on the anchor data
         companion = Publication(
             accepted_submission=anchor.accepted_submission,
@@ -934,7 +937,7 @@ class DraftAccompanyingPublicationForm(forms.Form):
             abstract=self.cleaned_data["abstract"],
             acad_field=anchor.acad_field,
             approaches=anchor.approaches,
-            doi_label=f"{anchor.doi_label}-{self.cleaned_data['doi_label_suffix']}",
+            doi_label=f"{base_doi}-{self.cleaned_data['doi_label_suffix']}",
             submission_date=anchor.submission_date,
             acceptance_date=anchor.acceptance_date,
             publication_date=anchor.publication_date,
