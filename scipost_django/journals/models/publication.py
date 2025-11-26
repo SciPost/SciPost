@@ -605,7 +605,7 @@ class Publication(models.Model):
         return Publication.objects.filter(
             models.Q(doi_label=doi_anchor)
             | models.Q(doi_label__startswith=f"{doi_anchor}-")
-        ).order_by("doi_label")
+        ).order_by("-publication_date", "pubtype", "doi_label")
 
     @cached_property
     def tex_contents(self) -> str | None:

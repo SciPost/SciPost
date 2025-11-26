@@ -56,7 +56,8 @@
     </ul>
   </div>
 </div>
-{% if publication.bundle.all|length > 1 %}
+
+{% if publication.bundle.all %}
   <div class="row border border-primary p-2">
     <div class="col-lg-4">
       <h3 class="py-2">
@@ -73,24 +74,29 @@
 	  <th></th>
 	  <th>DOI</th>
 	  <th>Type</th>
+	  <th>Published on</th>
 	</thead>
 	{% for item in publication.bundle.all %}
-	  <tr{% if item.doi_label == publication.doi_label %} class="bg-light bg-success"{% endif %}>
-	    <td>
-	      {% if item.doi_label == publication.doi_label %}
-		<span class="text-success">
-		  {% include 'bi/arrow-right-square-fill.html' %}
-		</span>
-	      {% endif %}
-	    </td>
-	    <td><a href="{{ item.get_absolute_url }}">{{ item.doi_string }}</a></td>
-	    <td>{{ item.get_pubtype_display }}</td>
-	  </tr>
+    {% if perms.scipost.can_draft_publication or item.status == 'pub' %}
+      <tr{% if item.doi_label == publication.doi_label %} class="bg-light bg-success"{% endif %}>
+        <td>
+          {% if item.doi_label == publication.doi_label %}
+      <span class="text-success">
+        {% include 'bi/arrow-right-square-fill.html' %}
+      </span>
+          {% endif %}
+        </td>
+        <td><a href="{{ item.get_absolute_url }}">{{ item.doi_string }}</a></td>
+        <td>{{ item.get_pubtype_display }}</td>
+        <td>{{ item.publication_date|date:'Y-m-d' }}</td>
+      </tr>
+      {% endif %}
 	{% endfor %}
       </table>
     </div>
   </div>
 {% endif %}
+
 <div class="row">
   <div class="col-12">
     {% if publication.in_issue.proceedings %}
