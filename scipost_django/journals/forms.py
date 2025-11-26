@@ -7,6 +7,7 @@ import os
 import random
 import re
 import string
+from django.db import transaction
 import gitlab
 
 from datetime import datetime
@@ -919,6 +920,7 @@ class DraftAccompanyingPublicationForm(forms.Form):
             ButtonHolder(Submit("submit", "Submit", css_class="btn btn-primary")),
         )
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         anchor = self.cleaned_data["anchor"]
         base_doi = anchor.doi_label
@@ -979,13 +981,18 @@ class DraftAccompanyingPublicationForm(forms.Form):
             )
 
         # Add DOI of each companion to the anchor's metadata and vice versa
-        anchor.metadata["citation_list"].append(
-            {
-                "doi": companion.doi_string,
-                "key": "ref" + str(len(anchor.metadata["citation_list"]) + 1),
-            }
-        )
-        anchor.save()
+        try:
+            anchor.metadata["citation_list"].append(
+                {
+                    "doi": companion.doi_string,
+                    "key": "ref" + str(len(anchor.metadata["citation_list"]) + 1),
+                }
+            )
+            anchor.save()
+        except KeyError:
+            raise ValueError(
+                "Please first add a citation list to the anchor publication."
+            )
 
         companion.metadata.setdefault("citation_list", [])
         companion.metadata["citation_list"].append(
