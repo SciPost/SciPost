@@ -32,9 +32,10 @@ class GenAIFormViewInjectorMixin(ModelFormMixin):
         gen_ai_form = self.get_gen_ai_disclosure_form()
 
         # Override superclass `post` to check for disclosure form validity
-        if form.is_valid() and gen_ai_form.is_valid():
+        if form.is_valid() and (gen_ai_form.is_valid() if gen_ai_form else True):
             response = self.form_valid(form)
-            self.gen_ai_form_valid(gen_ai_form)
+            if gen_ai_form:
+                self.gen_ai_form_valid(gen_ai_form)
             return response
         else:
             return self.form_invalid(form)
