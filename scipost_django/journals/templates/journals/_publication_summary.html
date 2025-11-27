@@ -57,7 +57,7 @@
   </div>
 </div>
 
-{% if publication.bundle.all %}
+{% if publication.bundle.all|length > 1 %}
   <div class="row border border-primary p-2">
     <div class="col-lg-4">
       <h3 class="py-2">
