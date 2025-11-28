@@ -25,7 +25,11 @@ class GenAIFormViewInjectorMixin(ModelFormMixin):
         return Contributor.objects.get(user=self.request.user)
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
-        self.object = None  # Required to set by SingleObjectMixin
+        try:
+            self.object = self.get_object()  # Required to set by SingleObjectMixin
+        except AttributeError:
+            self.object = None
+
         self.request = request
 
         form = self.get_form()
