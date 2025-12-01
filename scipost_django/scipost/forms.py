@@ -295,6 +295,13 @@ class RegistrationForm(forms.Form):
                 "Please do not use a personal address for academic credential verification purposes.",
             )
 
+        personal_email = self.cleaned_data.get("personal_email", "")
+        if personal_email.lower() == institutional_email.lower():
+            self.add_error(
+                "personal_email",
+                "Your personal (recovery) email address must be different from your institutional email address.",
+            )
+
         # If ORCID exists in another profile
         duplicate_orcid_profile = Profile.objects.filter(
             orcid_id=cleaned_data.get("orcid_id", "")
