@@ -302,55 +302,58 @@ class RenewSponsorshipTask(TaskKind):
     def is_user_eligible(user):
         return is_financial_admin(user)
 
+    @staticmethod
+    def get_task_map(obj) -> dict:
+        return {"object": obj, "due_date": obj.due_date}
+
     @classmethod
     def get_queryset(cls) -> "QuerySet":
         from organizations.models import Organization
         from finances.models import Subsidy
 
-        # Adjust the date_until by subtracting one day for correct year extraction
-        # in the case of mismatched timezones and end-of-year dates.
-        date_until_adj = F("date_until") - timezone.timedelta(days=1)
+        renewal_action_date = F("date_until") - timezone.timedelta(days=365 // 2)
+
+        org_renewable_subsidies = Subsidy.objects.filter(
+            organization=OuterRef("id"), renewable=True
+        )
 
         return (
             Organization.objects.all()
             .annotate(
                 has_older_renewable_subsidy=Exists(
-                    Subsidy.objects.annotate(
-                        renewal_action_date=F("date_from")
-                        - timezone.timedelta(days=122)
-                    ).filter(
-                        Q(organization=OuterRef("id"))
-                        & Q(renewable=True)
-                        & (
-                            Q(date_until__lt=timezone.now())
-                            | Q(renewal_action_date__lt=timezone.now())
-                        )
-                        & Q(amount__gt=0)
+                    org_renewable_subsidies.filter(
+                        date_until__lt=timezone.now(), amount__gt=0
                     )
                 ),
                 is_current_sponsor=Exists(
-                    Subsidy.objects.filter(
-                        organization=OuterRef("id"),
+                    org_renewable_subsidies.all()
+                    .annotate(renewal_action_date=renewal_action_date)
+                    .filter(
                         date_from__lte=timezone.now(),
-                        date_until__gte=timezone.now(),
+                        renewal_action_date__gte=timezone.now(),
                     )
                 ),
                 latest_yearly_sponsorship_amount=Subquery(
-                    Subsidy.objects.filter(organization=OuterRef("id"), renewable=True)
-                    .order_by("-date_from")
+                    org_renewable_subsidies.all()
                     .annotate(
                         yearly_amount=Cast(
                             F("amount")
                             * 365.0
-                            / ExtractDay(date_until_adj - F("date_from")),
+                            / (1 + ExtractDay(F("date_until") - F("date_from"))),
                             output_field=IntegerField(),
                         )
                     )
+                    .order_by("-date_from")
                     .values("yearly_amount")[:1]
                 ),
                 latest_year_of_sponsorship=Subquery(
-                    Subsidy.objects.filter(organization=OuterRef("id"), renewable=True)
-                    .annotate(year_until=ExtractIsoYear(date_until_adj))
+                    org_renewable_subsidies.annotate(
+                        # Adjust the date_until by subtracting two days for correct year extraction
+                        # in the case of mismatched timezones and end-of-year dates.
+                        year_until=ExtractIsoYear(
+                            F("date_until") - timezone.timedelta(days=2)
+                        )
+                    )
                     .order_by("-year_until")
                     .values("year_until")[:1]
                 ),
@@ -361,6 +364,13 @@ class RenewSponsorshipTask(TaskKind):
                 days_since_last_email_sent=ExtractDay(
                     Now() - F("last_email_sent_date")
                 ),
+                latest_renewal_action_date=Subquery(
+                    org_renewable_subsidies.all()
+                    .annotate(renewal_action_date=renewal_action_date)
+                    .order_by("-renewal_action_date")
+                    .values("renewal_action_date")[:1]
+                ),
+                due_date=Cast(F("latest_renewal_action_date"), DateTimeField()),
             )
             .filter(Q(has_older_renewable_subsidy=True) & Q(is_current_sponsor=False))
         )
