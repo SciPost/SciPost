@@ -94,10 +94,11 @@
           {% if is_mail_owner or perms.scipost.can_mark_profile_emails_primary or perms.scipost.can_validate_profile_emails %}
             <button type="button"
                     class="dropdown-item"
-                    {% if profile_mail.primary %}disabled{% endif %}
                     hx-target="closest table"
                     hx-swap="outerHTML"
-                    hx-patch="{% url 'profiles:_hx_profile_email_mark_primary' profile_mail.id %}">Set Primary</button>
+                    hx-patch="{% url 'profiles:_hx_profile_email_mark_primary' profile_mail.id %}"
+                    {% if profile_mail.primary %}disabled{% endif %}
+                    >Set Primary</button>
           {% endif %}
         </li>
         <li>
@@ -113,12 +114,13 @@
         <li>
           {% if perms.scipost.can_delete_profile_emails %}
             <button type="button"
-                    class="dropdown-item"
-                    hx-target="closest tr"
+                    class="dropdown-item {% if not profile_mail.primary %}text-danger{% endif %}"
+                    hx-target="closest table"
+                    hx-swap="outerHTML"
                     hx-delete="{% url 'profiles:_hx_profile_email_delete' profile_mail.id %}"
-                    hx-confirm="Are you sure you want to delete this email?">
-              <span class="text-danger">Delete</span>
-            </button>
+                    hx-confirm="Are you sure you want to delete this email?"
+                    {% if profile_mail.primary %}disabled{% endif %}
+                    >Delete</button>
           {% endif %}
         </li>
       </ul>

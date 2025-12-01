@@ -676,9 +676,21 @@ def verify_profile_email(request, email_id, token: str):
 def _hx_profile_email_delete(request, email_id):
     """Delete ProfileEmail."""
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
-    if request.method == "DELETE":
+    if request.method != "DELETE":
+        raise BadRequest("Invalid request method")
+
+    if profile_email.primary:
+        messages.error(request, "Cannot delete the primary email address.")
+    elif profile_email.profile.emails.count() <= 1:
+        messages.error(request, "Cannot delete the only email address.")
+    else:
         profile_email.delete()
-    return HttpResponse("")
+
+    return TemplateResponse(
+        request,
+        "profiles/_hx_profile_emails_table.html",
+        {"profile": profile_email.profile},
+    )
 
 
 class AffiliationCreateView(UserPassesTestMixin, CreateView):
