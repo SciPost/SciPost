@@ -20,10 +20,10 @@ from graphs.forms import PlotOptionsForm
 
 
 def graphs(request):
-
     premade_graph_options: list[dict[str, str]] = [
         {
             "model_field_plotter": "Submission",
+            "model_field_plotter_per_thread": "first",
             "plot_kind": "bar",
             "bar_plot_direction": "vertical",
             "bar_plot_group_key": "submission_date__year",
@@ -31,7 +31,7 @@ def graphs(request):
             "bar_plot_order_by": "group",
             "bar_plot_ordering": "asc",
             "theme": "light",
-            "title": "Submissions per year",
+            "title": "(Initial) Submissions per year",
         },
         {
             "model_field_plotter": "Publication",
@@ -142,7 +142,6 @@ class PlotView(View):
         return self.render_to_response(self.get_context_data())
 
     def download(self, file_type):
-
         figure = self.form.render_figure()
         bytes_io = io.BytesIO()
 
@@ -198,7 +197,6 @@ class PlotView(View):
 
 
 class PlotOptionsFormView(View):
-
     def post(self, request):
         plot_options_form = PlotOptionsForm(request.POST)
 
