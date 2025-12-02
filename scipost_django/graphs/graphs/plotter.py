@@ -235,6 +235,7 @@ class SubmissionsPlotter(ModelFieldPlotter):
             ("submission_date", ("date", "Submission date")),
             ("submission_date__year", ("int", "Year submitted")),
             ("status", ("str", "Status")),
+            ("final_thread_status", ("str", "Final status (in thread)")),
             ("topics__name", ("str", "Topics")),
             ("acad_field__name", ("str", "Academic field")),
             ("specialties__name", ("str", "Specialties")),
@@ -277,6 +278,11 @@ class SubmissionsPlotter(ModelFieldPlotter):
             qs = qs.filter(specialties__in=specialties)
 
         qs = qs.annotate(
+            final_thread_status=models.Subquery(
+                Submission.objects.filter(thread_hash=models.OuterRef("thread_hash"))
+                .order_by("-submission_date")
+                .values("status")[:1]
+            ),
             preassignment_completed_date=models.Subquery(
                 SubmissionEvent.objects.filter(
                     submission=models.OuterRef("id"),
