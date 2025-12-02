@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from itertools import groupby
 from django import forms
 from django.db.models import Q, Avg, Count, Sum
 from matplotlib.figure import Figure
@@ -555,31 +556,79 @@ class BarPlot(PlotKind):
             ax.set(**{f"{value_label_axis}label": agg_value_key_label.capitalize()})
 
         try:
-            groups, vals = self.get_data()
+            data = self.get_data()
         except Exception as e:
             PlotKind.display_plotting_error(ax, e)
             return fig
 
-        match self.options.get("direction", "vertical"):
-            case "vertical":
-                ax.bar(groups, vals)
-                # Compare the width of the bars to the width of the labels
-                # Rotate the labels if they are wider than the bars
-                labels_overflow_bar = any(
-                    label.get_window_extent().width > bar.get_window_extent().width
-                    for label, bar in zip(ax.get_xticklabels(), ax.patches)
+        direction = self.options.get("direction", "vertical")
+        draw_func = ax.bar if direction == "vertical" else ax.barh
+
+        match data:
+            case (xs,), ys:  # simple bar plot
+                draw_func(xs, ys)
+                unique_xs = xs
+            case (xs, ss), ys:  # stacked bar plot
+                grouped_data_by_s = groupby(
+                    sorted(zip(xs, ss, ys), key=lambda tup: tup[1]),
+                    key=lambda tup: tup[1],
                 )
-                if labels_overflow_bar:
-                    ax.set_xticklabels(groups, rotation=45, ha="right")
-            case "horizontal":
-                ax.barh(groups, vals)
+
+                # create a list of unique elems from xs keeping the order
+                unique_xs = []
+                for xi in xs:
+                    if xi not in unique_xs:
+                        unique_xs.append(xi)
+
+                bottoms = [0] * len(unique_xs)
+                for s, stacked_vals in grouped_data_by_s:
+                    if not (stacked_vals := list(stacked_vals)):
+                        continue
+
+                    cat_x, _, cat_y = zip(*stacked_vals)
+                    y = [0] * len(unique_xs)
+
+                    # Create each bar segment at the correct position
+                    bottom_addition = [0] * len(unique_xs)
+                    for x0, y0 in zip(cat_x, cat_y):
+                        i = unique_xs.index(x0)
+                        y[i] = y0
+                        bottom_addition[i] = y0
+
+                    draw_func(unique_xs, y, bottom=bottoms, label=s)
+
+                    bottoms = [b + ba for b, ba in zip(bottoms, bottom_addition)]
+
+                ax.legend(
+                    title=self.plotter.get_model_field_display(
+                        self.options.get("stack_on")
+                    )
+                    or "Category"
+                )
+                pass
+            case _:
+                raise ValueError("Invalid data format returned from get_data()")
+
+        if direction == "vertical":
+            # Compare the width of the bars to the width of the labels
+            # Rotate the labels if they are wider than the bars
+            labels_overflow_bar = any(
+                label.get_window_extent().width > bar.get_window_extent().width
+                for label, bar in zip(ax.get_xticklabels(), ax.patches)
+            )
+            if labels_overflow_bar:
+                ax.set_xticklabels(unique_xs, rotation=45, ha="right")
 
         return fig
 
-    def get_data(self):
+    def get_data(self) -> tuple[list[list[str]], list[Any]]:
         agg_value_key = self.options.get("agg_value_key", "id") or "id"
         group_key = self.options.get("group_key")
         direction = self.options.get("direction", "vertical") or "vertical"
+        stack_on = self.options.get("stack_on")
+
+        if stack_on == "id":
+            stack_on = None
 
         if group_key is None:
             raise ValueError("Group key not set. Cannot plot a bar plot.")
@@ -596,9 +645,11 @@ class BarPlot(PlotKind):
             case _:
                 raise ValueError("Invalid aggregation function")
 
+        group_on_keys = list(filter(None, [group_key, stack_on]))
+
         qs = (
             self.plotter.get_queryset()
-            .values(group_key)
+            .values(*group_on_keys)
             .annotate(agg=agg_func)
             .exclude(**{group_key: None})
         )
@@ -622,19 +673,25 @@ class BarPlot(PlotKind):
             qs = qs.order_by(ordering + order_by)
 
         if qs.exists():
-            groups, vals = zip(*qs.values_list(group_key, "agg"))
+            *groups, vals = zip(*qs.values_list(*group_on_keys, "agg"))
+            vals = list(vals)
 
             # Attempt to convert the group values to display labels if possible
             try:
-                field_choices = self.plotter.model._meta.get_field(group_key).choices
-                group_display_labels = dict(field_choices)
-                groups = [group_display_labels.get(group, group) for group in groups]
+                labeled_groups: list[list[str]] = []
+                for group_on_key, group in zip(group_on_keys, zip(*groups)):
+                    group_display_labels: dict[str, str] = dict(
+                        self.plotter.model._meta.get_field(group_on_key).choices
+                    )
+                    labeled_groups.append(
+                        [group_display_labels.get(g, g) for g in group]
+                    )
             except Exception:
-                groups = [str(group) for group in groups]
+                labeled_groups = [[str(g) for g in group] for group in groups]
 
-            return groups, vals
+            return labeled_groups, vals
         else:
-            return [], []
+            return [[]], []
 
     class Options(PlotKind.Options):
         prefix = "bar_plot_"
@@ -668,6 +725,12 @@ class BarPlot(PlotKind):
             required=False,
             initial="count",
             widget=forms.RadioSelect,
+        )
+        stack_on = forms.ChoiceField(
+            label="Stack on",
+            required=False,
+            initial="",
+            choices=[],
         )
         order_by = forms.ChoiceField(
             label="Order by",

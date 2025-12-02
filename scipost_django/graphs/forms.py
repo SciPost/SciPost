@@ -151,6 +151,7 @@ class PlotOptionsForm(InitialCoalescedForm):
         "agg_value_key": ["int", "float"],
         "timeline_key": ["date", "datetime"],
         "group_key": ["str", "int", "country"],
+        "stack_on": ["str", "int", "country"],
         "country_key": ["country"],
     }
 
@@ -246,7 +247,6 @@ class PlotOptionsForm(InitialCoalescedForm):
             self.plot_kind_select_form: self.plot_kind_select_form.kind_class,
             self.generic_plot_options_form: None,
         }.items():
-
             # If the form already has a layout, append it to the dynamic layout
             if helper := getattr(form, "helper", None):
                 self.helper.layout.append(helper.layout)
@@ -255,7 +255,6 @@ class PlotOptionsForm(InitialCoalescedForm):
             # Otherwise, construct a layout from the form fields
             layout = Layout()
             if object_class not in (None, None.__class__):
-
                 # Add the principal field to the layout
                 # This is usually the selector that will determine the other option fields
                 principal_field_name = next(iter(form.fields.keys()))
