@@ -2283,10 +2283,14 @@ class SubmissionTargetJournalForm(forms.ModelForm):
         )
 
     def save(self):
+        self.instance: Submission
         journal = self.cleaned_data["submitted_to"]
-        keep_fellows = self.cleaned_data["keep_manually_added_fellows"]
+        if journal != self.instance.submitted_to:
+            self.instance.fulfilled_expectations = ""
+            self.save()
 
-        self.instance.set_target_journal(journal, keep_fellows)
+            keep_fellows = self.cleaned_data["keep_manually_added_fellows"]
+            self.instance.set_target_journal(journal, keep_fellows)
 
 
 class SubmissionTargetProceedingsForm(forms.ModelForm):
