@@ -154,9 +154,9 @@ def vet_commentary_requests(request, commentary_id=None):
             )
 
         email_context: dict[str, Any] = {"commentary": commentary, "domain": domain}
-        email_code = "commentaries/commentary_vetting_accepted.html"
+        email_code = "commentaries/commentary_vetting_accepted"
         if form.commentary_is_refused():
-            email_code = "commentaries/commentary_vetting_rejected.html"
+            email_code = "commentaries/commentary_vetting_rejected"
             email_context["refusal_reason"] = form.get_refusal_reason()
             email_context["further_explanation"] = form.cleaned_data[
                 "email_response_field"
