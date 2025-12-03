@@ -218,7 +218,7 @@ class VetCommentaryForm(forms.Form):
         (REFUSAL_UNTRACEBLE, "this paper cannot be traced"),
         (
             REFUSAL_ARXIV_EXISTS,
-            "there exists a more revent version of this arXiv preprint",
+            "there exists a more recent version of this arXiv preprint",
         ),
         (
             REFUSAL_OUT_OF_SCOPE,
