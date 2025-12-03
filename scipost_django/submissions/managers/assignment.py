@@ -71,7 +71,7 @@ class EditorialAssignmentQuerySet(models.QuerySet):
         return self.filter(status=self.model.STATUS_ACCEPTED)
 
     def with_required_actions(self):
-        ids = [o.id for o in self if o.submission.cycle.has_required_actions()]
+        ids = [o.id for o in self if o.submission.cycle.has_required_actions]
         return self.filter(id__in=ids)
 
     def accepted(self):
