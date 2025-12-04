@@ -14,7 +14,7 @@
         <td>
             {% for author in submission.authors.all %}
                 {% if not forloop.first %}<span class="text-blue">&middot;</span>{% endif %}
-                <a href="{% url 'scipost:contributor_info' author.id %}">{{ author.user.first_name }} {{ author.user.last_name }}</a>
+                <a href="{% url 'scipost:contributor_info' author.id %}">{{ author.profile.full_name }}</a>
             {% empty %}
                 (none claimed)
             {% endfor %}
@@ -86,7 +86,7 @@
                 </tr>
                 <tr>
                     <td>Submitted by:</td>
-                    <td>{{ submission.submitted_by }}</td>
+                    <td>{{ submission.submitted_by.profile.full_name }}</td>
                 </tr>
                 <tr>
                     <td>Submitted to:</td>
@@ -115,22 +115,24 @@
                         </tr>
                     {% endif %}
                 {% endwith %}
-                {% with followed_up_publications=submission.latest_publications_followed_up_on %}
-                    {% if followed_up_publications %}
-                        <tr class="text-wrap">
-                            <td class="align-top">Follows up on:</td>
-                            <td>
-                              <ul class="m-0 p-0">
-                                {% for publication in followed_up_publications %}
-                                  <li>
-                                    <a href="{{ publication.get_absolute_url }}" target="_blank">{{ publication.citation }}</a>
-                                  </li>
-                                {% endfor %}
-                              </ul>
-                            </td>
-                        </tr>
-                    {% endif %}
-                {% endwith %}
+                {% if not hide_follow_ups %}
+                  {% with followed_up_publications=submission.latest_publications_followed_up_on %}
+                      {% if followed_up_publications %}
+                          <tr class="text-wrap">
+                              <td class="align-top">Follows up on:</td>
+                              <td>
+                                <ul class="m-0 p-0">
+                                  {% for publication in followed_up_publications %}
+                                    <li>
+                                      <a href="{{ publication.get_absolute_url }}" target="_blank">{{ publication.citation }}</a>
+                                    </li>
+                                  {% endfor %}
+                                </ul>
+                              </td>
+                          </tr>
+                      {% endif %}
+                  {% endwith %}
+                {% endif %}
             </tbody>
         </table>
     </div>
