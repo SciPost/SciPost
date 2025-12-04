@@ -1304,7 +1304,29 @@ def personal_page_hx_edadmin(request):
 
 @login_required
 def personal_page_hx_refereeing(request):
-    context = {"contributor": request.user.contributor}
+    referee_invitations = (
+        RefereeInvitation.objects.filter(
+            referee=request.user.contributor.profile,
+            date_invited__isnull=False,
+        )
+        .select_related(
+            "submission",
+            "submission__submitted_to",
+            "submission__preprint",
+            "submission__submitted_by__profile",
+            "submission__acad_field",
+        )
+        .prefetch_related(
+            "submission__authors__profile",
+            "submission__specialties",
+            "submission__collections",
+        )
+        .order_by("-date_invited")
+    )
+    context = {
+        "contributor": request.user.contributor,
+        "referee_invitations": referee_invitations,
+    }
     return render(request, "scipost/personal_page/_hx_refereeing.html", context)
 
 

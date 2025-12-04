@@ -1,87 +1,105 @@
 {% include 'scipost/personal_page/_hx_tablist.html' with selected='refereeing' %}
-
-{% include 'submissions/_refereeing_invitations_ongoing.html' with contributor=request.user.contributor %}
-
 <div class="p-3 bg-warning bg-opacity-10">
   <p class="mb-0">
     In order to protect your privacy, we regularly purge information about your anonymous refereeing contributions a few months after processing (e.g. publication/rejection).
     Therefore, refereeing invitations and authored reports on past submissions may be permanently hidden. You may <a href="mailto:techsupport@scipost.org">contact techsupport</a> or <a href="{% url "helpdesk:ticket_create" %}">open a helpdesk ticket</a>  if you wish to retrieve your past contributions.
   </p>
 </div>
+<h3 class="highlight">Refereeing Invitations</h3>
+<ul class="d-flex flex-column gap-2 list-unstyled">
 
-<div class="row">
-  <div class="col-12">
-    <h3 class="highlight">Refereeing Invitations</h3>
-    {% if contributor.profile.referee_invitations.all %}
-      <details class="p-2">
-	<summary>See all your refereeing invitations ({{ contributor.profile.referee_invitations.all|length }})</summary>
-	<ul class="list-group list-group-flush ms-md-4">
-          {% for invitation in contributor.profile.referee_invitations.all %}
-            <li class="list-group-item py-2">
-              {% include 'submissions/_submission_li.html' with submission=invitation.submission %}
-              <table>
-		<tr>
-                  <th style='min-width: 100px;'>Status:</th>
-                  <td>{{ invitation.get_status_display }}</td>
-		</tr>
-		{% if invitation.accepted is not None %}
-                  <tr>
-                    <th>{{ invitation.accepted|yesno:'Accepted,Declined' }}:</th>
-                    <td>{{ invitation.date_responded }}</td>
-                  </tr>
-		{% endif %}
-		{% if invitation.related_report %}
-                  <tr>
-                    <th>Report:</th>
-                    <td><a href="{{ invitation.related_report.get_absolute_url }}">{{ invitation.related_report.citation|default:'Link' }}</a></td>
-                  </tr>
-		{% endif %}
-              </table>
-            </li>
-	  {% empty %}
-	    <li>None found</li>
-          {% endfor %}
-	</ul>
-      </details>
-    {% else %}
-      <p><em>No refereeing invitation found</em></p>
-    {% endif %}
-  </div>
-</div>
-
-
-
-{% if contributor.reports.non_draft.all %}
-  <div class="row">
-    <div class="col-12">
-      <h3 class="highlight">Finished reports</h3>
-
-      <ul class="list-group list-group-flush">
-        {% for report in contributor.reports.non_draft.all %}
-          <li class="list-group-item">
-            <div class="card-body px-0 {% block cardblock_class_block %}{% endblock %}">
-              <h3>Report on Submission <a href="{{ report.submission.get_absolute_url }}">{{ report.submission.title }}</a></h3>
-              <table>
-                <tr>
-                  <th style='min-width: 100px;'>Received:</th><td>{{ report.date_submitted|date:'Y-n-j' }}<td>
-                </tr>
-                <tr>
-                  <th>Status:</th><td {% if report.status == 'vetted' %}class="text-success"{% elif report.status == 'unvetted' %}class="text-danger"{% endif %}>{{report.get_status_display}}</td>
-                </tr>
-                {% if report.doi_label %}
-                  <tr>
-                    <th>DOI:</th>
-                    <td>{{ report.doi_string }}</td>
-                  </tr>
-                {% endif %}
-                <tr>
-                  <th>Anonymous:</th><td>{{report.anonymous|yesno:'Yes,No'}}</td>{% if report.anonymous %}<td>You can <a href="{% url 'journals:sign_existing_report' report_id=report.id %}">click here to sign (de-anonymize) this Report</a> (leads to confirmation page){% endif %}</td>
-                </tr>
-              </table>
+  {% for invitation in referee_invitations %}
+    <li class="d-flex flex-column">
+      <details class="border border-2 rounded" 
+        {% if not invitation.accepted == False and not invitation.fulfilled and not invitation.cancelled %}open{% endif %}
+        >
+        <summary class="p-1 px-3 bg-primary bg-opacity-10 rounded">
+          <div class="d-flex flex-row justify-content-between align-items-center">
+            <div>
+              <span class="fs-4 text-truncate me-2">{{ invitation.submission.title }}</span>
+              <a href="{{ invitation.submission.get_absolute_url }}"
+                 class="fs-4 text-truncate">{% include "bi/box-arrow-up-right.html" %}</a>
             </div>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </div>
-{% endif %}
+            <div class="d-flex flex-row-reverse gap-2 align-items-center">
+              <time class="badge bg-primary bg-opacity-75 text-light"
+                    datetime="{{ invitation.date_invited|date:"c" }}">{{ invitation.date_invited|date:"Y-m-d" }}</time>
+              <span class="fs-2">
+                {% include "submissions/_refereeing_invitation_status_icon.html" with invitation=invitation %}
+              </span>
+              <span class="fs-2 text-dark">
+
+                {% if invitation.fulfilled %}
+                  {% with report=invitation.related_report %}
+
+                    {% if report.anonymous %}
+                      <span data-bs-toggle="tooltip"
+                            title="by Anonymous">{% include "bi/question-circle-fill.html" %}</span>
+                    {% else %}
+                      <span data-bs-toggle="tooltip"
+                            title="by {{ report.author }}">{% include "bi/user-circle-fill.html" %}</span>
+                    {% endif %}
+
+                  {% endwith %}
+                {% endif %}
+
+              </span>
+            </div>
+          </div>
+        </summary>
+
+        <div class="row m-1">
+          <div class="col">
+            {% include "submissions/_submission_summary.html" with hide_title=True hide_follow_ups=True hide_specialties_add=True submission=invitation.submission %}
+          </div>
+          {% comment %} Invitation actions (for recipient) {% endcomment %}
+          <ul class="col-auto list-unstyled d-flex flex-column-reverse gap-2 align-items-start border-start border-2 py-2">
+
+            {% if invitation.cancelled %}
+              {% comment %} Nothing {% endcomment %}
+            {% elif invitation.accepted == None %}
+              <li class="w-100">
+                <a class="w-100 btn btn-primary"
+                   href="{% url 'submissions:accept_or_decline_ref_invitations' invitation_id=invitation.id %}">
+                  Accept/Decline
+                </a>
+              </li>
+            {% elif invitation.accepted %}
+
+              {% if invitation.fulfilled %}
+                <li class="w-100">
+                  <a class="w-100 btn btn-primary"
+                     href="{{ invitation.related_report.get_absolute_url }}">View Report</a>
+                </li>
+              {% else %}
+                <li class="w-100">
+                  <a class="w-100 btn btn-primary"
+                     href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">
+
+                    {% if invitation.related_report.status == 'draft' %}
+                      Continue Report
+                    {% else %}
+                      Write Report
+                    {% endif %}
+
+                  </a>
+                </li>
+              {% endif %}
+            {% endif %}
+
+            <li class="w-100">
+              <a class="w-100 btn btn-light"
+                 href="{% url 'submissions:communication' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr comtype='RtoE' referee_id=contributor.id %}">Write to EIC</a>
+            </li>
+
+            {% if invitation.accepted and not invitation.fulfilled %}
+              <li>{% include "scipost/personal_page/_invitation_intended_delivery_date_btn.html" %}</li>
+            {% endif %}
+
+          </ul>
+        </div>
+      </details>
+    </li>
+  {% endfor %}
+
+
+</ul>
