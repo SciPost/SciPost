@@ -1,0 +1,14 @@
+<button class="w-100 btn btn-light d-flex gap-2"
+        hx-target="this"
+        hx-swap="outerHTML"
+        hx-get="{% url 'submissions:_hx_report_intended_delivery_form' invitation_id=invitation.id %}">
+  <div class="d-flex flex-column align-items-start">
+    <span>Intended Delivery</span>
+
+    {% if invitation.intended_delivery_date %}
+      <small class="text-muted">{{ invitation.intended_delivery_date|date:"d F Y" }}</small>
+    {% endif %}
+
+  </div>
+  <span>{% include "bi/pencil-square.html" %}</span>
+</button>

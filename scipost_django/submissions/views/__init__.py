@@ -2157,13 +2157,10 @@ def _hx_report_intended_delivery_form(request, invitation_id):
             request,
             f"Intended delivery date updated to {invitation.intended_delivery_date}.",
         )
-        return HttpResponse(
-            '<a class="d-inline-block" hx-get="{url}">Change intended delivery date</a>'.format(
-                url=reverse_lazy(
-                    "submissions:_hx_report_intended_delivery_form",
-                    kwargs={"invitation_id": invitation_id},
-                )
-            )
+        return TemplateResponse(
+            request,
+            "scipost/personal_page/_invitation_intended_delivery_date_btn.html",
+            {"invitation": invitation},
         )
     context = {"invitation": invitation, "form": form}
     return render(request, "htmx/crispy_form.html", context)
