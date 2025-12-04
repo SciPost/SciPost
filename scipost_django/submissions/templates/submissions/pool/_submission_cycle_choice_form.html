@@ -58,25 +58,9 @@
                 </div>
                 <div class="ms-auto d-flex flex-column align-items-end">
                   <div>Response: 
-                    {% if invitation.accepted %}
-                      <span title="Accepted" class="text-success">{% include "bi/check-circle-fill.html" %}</span>
-                    {% elif invitation.cancelled %}
-                      <span title="Cancelled" class="text-black">{% include "bi/circle-fill.html" %}</span>
-                    {% elif invitation.accepted == False %}
-                      <span title="Refused" class="text-danger">{% include "bi/x-circle-fill.html" %}</span>
-                    {% elif not invitation.accepted %}
-                      <span title="Pending" class="text-warning">{% include "bi/question-circle-fill.html" %}</span>
-                    {% endif %}
+                    {% include "submissions/_refereeing_invitation_status_icon.html" with invitation=invitation %}
                   </div>
-                  {% if invitation.accepted %}
-                    <div>Fulfilled: 
-                      {% if not invitation.fulfilled or invitation.cancelled %}
-                        <span title="Undelivered" class="text-black">{% include "bi/circle-fill.html" %}</span>
-                      {% elif invitation.fulfilled %}
-                        <span title="Fulfilled" class="text-success">{% include "bi/check-circle-fill.html" %}</span>
-                      {% endif %}
-                    </div>
-                  {% elif invitation.accepted == False %}
+                  {% if invitation.accepted == False %}
                     <span>{{ invitation.get_refusal_reason_display }}</span>
                   {% endif %}
                 </div>
