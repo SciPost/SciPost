@@ -19,7 +19,7 @@
 </p>
 
 <p>
-  Please respond to this invitation: <a href="https://{{ domain }}{% url 'submissions:accept_or_decline_ref_invitations' %}">accept</a> (login required) or <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline</a>.
+  Please respond to this invitation: <a href="https://{{ domain }}{% url "submissions:accept_or_decline_ref_invitations" invitation.id %}">accept</a> (login required) or <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline</a>.
   If you accept, your report can be submitted by simply clicking on the "Contribute a Report" link on <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">the Submission Page</a>
 
   {% if invitation.submission.reporting_deadline %}

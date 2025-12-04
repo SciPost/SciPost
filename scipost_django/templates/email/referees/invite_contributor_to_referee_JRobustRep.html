@@ -19,7 +19,7 @@
 </p>
 
 <p>
-  The deadline to provide the review is <strong>30 days</strong> after confirmation. Please respond to this invitation as soon as possible (ideally within the next 2 working days): <a href="https://{{ domain }}{% url 'submissions:accept_or_decline_ref_invitations' %}">accept</a> (login required) or <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline</a>.
+  The deadline to provide the review is <strong>30 days</strong> after confirmation. Please respond to this invitation as soon as possible (ideally within the next 2 working days): <a href="https://{{ domain }}{% url "submissions:accept_or_decline_ref_invitations" invitation.id %}">accept</a> (login required) or <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline</a>.
 </p>
 
 <p>

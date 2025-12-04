@@ -1,7 +1,15 @@
 <p>Dear {{ invitation.referee.formal_name }},</p>
 
 <p>
-  We have received a Submission to {% if invitation.submission.submitted_to.doi_label == "MigPol" %}Migration Politics{% else %}SciPost{% endif %} which, in view of your expertise and on behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to invite you to referee:
+  We have received a Submission to
+
+  {% if invitation.submission.submitted_to.doi_label == "MigPol" %}
+    Migration Politics
+  {% else %}
+    SciPost
+  {% endif %}
+
+  which, in view of your expertise and on behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to invite you to referee:
   <br />
   <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
   <br />
@@ -11,8 +19,14 @@
 </p>
 
 <p>
-  Please respond to this invitation as soon as possible (ideally within the next 2 working days): <a href="https://{{ domain }}{% url 'submissions:accept_or_decline_ref_invitations' %}">accept</a> (login required) or <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline</a>. 
-  If you accept, your report can be submitted by simply clicking on the "Contribute a Report" link on <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">the Submission Page</a>{% if invitation.submission.reporting_deadline %} before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'d-m-Y' }}){% endif %}; your report will be automatically recognized as an invited report.
+  Please respond to this invitation as soon as possible (ideally within the next 2 working days): <a href="https://{{ domain }}{% url "submissions:accept_or_decline_ref_invitations" invitation.id %}">accept</a> (login required) or <a href="https://{{ domain }}{% url 'submissions:decline_ref_invitation' invitation.invitation_key %}">decline</a>.
+  If you accept, your report can be submitted by simply clicking on the "Contribute a Report" link on <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">the Submission Page</a>
+
+  {% if invitation.submission.reporting_deadline %}
+    before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'d-m-Y' }})
+  {% endif %}
+
+  ; your report will be automatically recognized as an invited report.
 </p>
 
 <p>
@@ -25,17 +39,23 @@
 
 <p>
   The submission is currently a candidate for publication in <a href="https://{{ domain }}{% url 'scipost:journal_detail' invitation.submission.submitted_to.doi_label %}">{{ invitation.submission.submitted_to }}</a>, for which you are advised to review its <a href="https://{{ domain }}{% url 'journal:about' invitation.submission.submitted_to.doi_label %}#criteria">acceptance criteria</a>.
+
   {% if invitation.submission.submitted_to.alternative_journals.all %}
-  <p>You may also deem that the submission is better suited to one of the following alternative journals, whose acceptance criteria are linked below:</p>
+    <p>
+      You may also deem that the submission is better suited to one of the following alternative journals, whose acceptance criteria are linked below:
+    </p>
 
     <ul>
-    {% for alternative_journal in invitation.submission.submitted_to.alternative_journals.all %}
-      <li>
-        <a href="https://{{ domain }}{% url 'journal:about' alternative_journal.doi_label %}#criteria">{{ alternative_journal }}</a>
-      </li>
-    {% endfor %}
+
+      {% for alternative_journal in invitation.submission.submitted_to.alternative_journals.all %}
+        <li>
+          <a href="https://{{ domain }}{% url 'journal:about' alternative_journal.doi_label %}#criteria">{{ alternative_journal }}</a>
+        </li>
+      {% endfor %}
+
     </ul>
   {% endif %}
+
 </p>
 
 <p>
