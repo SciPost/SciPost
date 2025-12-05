@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from ethics.models import CoauthoredWork
 
 # fmt: off
-ARXIV_GROUPS = ["astro-ph", "cond-mat", "gr-qc", "hep-ex", "hep-lat", "hep-ph", "hep-th", "math-ph", "nlin", "nucl-ex", "nucl-th", "physics", "quant-ph", "math", "CoRR", "q-bio", "q-fin", "stat", "eess", "econ"]
+ARXIV_GROUPS = ["astro-ph", "cond-mat", "gr-qc", "hep-ex", "hep-lat", "hep-ph", "hep-th", "math-ph", "nlin", "nucl-ex", "nucl-th", "physics", "quant-ph", "math", "cs", "q-bio", "q-fin", "stat", "eess", "econ"]
 NEW_ARXIV_PATTERN = r"[0-9]{4}\.[0-9]{4,}(?:v[0-9]+)?"  # Match arXiv ids
 OLD_ARXIV_PATTERN = (
     rf"(?:{'|'.join(ARXIV_GROUPS)})"    # Match the arXiv group, e.g. "astro-ph"
