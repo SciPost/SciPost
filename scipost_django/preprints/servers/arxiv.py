@@ -14,13 +14,14 @@ if TYPE_CHECKING:
     from ethics.models import CoauthoredWork
 
 # fmt: off
-ARXIV_GROUPS = ["astro-ph", "cond-mat", "gr-qc", "hep-ex", "hep-lat", "hep-ph", "hep-th", "math-ph", "nlin", "nucl-ex", "nucl-th", "physics", "quant-ph", "math", "cs", "q-bio", "q-fin", "stat", "eess", "econ"]
-NEW_ARXIV_PATTERN = r"[0-9]{4}\.[0-9]{4,}(?:v[0-9]+)?"  # Match arXiv ids
+CURRENT_GROUPS = ["astro-ph", "cond-mat", "gr-qc", "hep-ex", "hep-lat", "hep-ph", "hep-th", "math-ph", "nlin", "nucl-ex", "nucl-th", "physics", "quant-ph", "math", "cs", "q-bio", "q-fin", "stat", "eess", "econ"]
+ARCHIVED_GROUPS = ["acc-phys", "adap-org", "alg-geom", "ao-sci", "atom-ph", "bayes-an", "chao-dyn", "chem-ph", "cmp-lg", "comp-gas", "dg-ga", "funct-an", "mtrl-th", "patt-sol", "plasm-ph", "q-alg", "solv-int", "supr-cond"]
+NEW_ARXIV_PATTERN = r"[0-9]{4}\.[0-9]{4,}(?:v[0-9]+)?"      # Match arXiv ids
 OLD_ARXIV_PATTERN = (
-    rf"(?:{'|'.join(ARXIV_GROUPS)})"    # Match the arXiv group, e.g. "astro-ph"
-    + r"(?:\.\w{2})?"                   # Match the subclass identifier, e.g. "astro-ph.CO" or "math.NT"
-    + r"\/\d{7,}"                       # Match YY MM NNN format, e.g. "/9812123"
-    + r"(?:v[0-9]+)?"                   # Match the version number, e.g. "v2"
+    rf"(?:{'|'.join(CURRENT_GROUPS + ARCHIVED_GROUPS)})"    # Match the arXiv group, e.g. "astro-ph"
+    + r"(?:\.\w{2})?"                                       # Match the subclass identifier, e.g. "astro-ph.CO" or "math.NT"
+    + r"\/\d{7,}"                                           # Match YY MM NNN format, e.g. "/9812123"
+    + r"(?:v[0-9]+)?"                                       # Match the version number, e.g. "v2"
 )
 ARXIV_PREPRINT_IDENTIFIER = rf"(?:{NEW_ARXIV_PATTERN}|{OLD_ARXIV_PATTERN})"
 # fmt: on
