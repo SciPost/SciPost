@@ -2,16 +2,26 @@
 
 {% with strength=value|multiply:5|int_divide:max %}
 
-  {% if strength == 0 %}
-    <span title="{{ value }}" class="text-secondary">{% include "bi/reception-0.html" %}</span>
-  {% elif strength == 1 %}
-    <span title="{{ value }}" class="text-success">{% include "bi/reception-1.html" %}</span>
-  {% elif strength == 2 %}
-    <span title="{{ value }}" class="text-primary">{% include "bi/reception-2.html" %}</span>
-  {% elif strength == 3 %}
-    <span title="{{ value }}" class="text-warning">{% include "bi/reception-3.html" %}</span>
-  {% elif strength >= 4 %}
-    <span title="{{ value }}" class="text-danger">{% include "bi/reception-4.html" %}</span>
-  {% endif %}
+  <span data-bs-toggle="tooltip" title="{{ value }} {{ unit|default:"item" }}{{ value|pluralize }}" 
+    {% if strength == 0 %} 
+      class="text-secondary"
+    {% elif strength == 1 %}
+      class="text-success"
+    {% elif strength == 2 %}
+      class="text-primary"
+    {% elif strength == 3 %}
+      class="text-warning"
+    {% elif strength >= 4 %}
+      class="text-danger"
+    {% endif %}>
+
+    {% if strength > 4 %}
+      {% include "bi/reception-4.html" %}
+    {% else %}
+      {% with strength_str=strength|stringformat:"d" %}
+        {% include "bi/reception-"|add:strength_str|add:".html" %}
+      {% endwith %}
+    {% endif %}
+    </span>
 
 {% endwith %}
