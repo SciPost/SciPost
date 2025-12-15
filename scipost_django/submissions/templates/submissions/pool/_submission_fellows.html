@@ -14,9 +14,7 @@
         <div id="submission-{{ submission.pk }}-add-fellow">
           <button class="btn btn-sm btn-primary m-2"
                   hx-get="{% url 'colleges:_hx_submission_add_fellowship' submission.preprint.identifier_w_vn_nr %}"
-                  hx-target="#submission-{{ submission.pk }}-add-fellow">
-            Add a Fellow to this Submission's fellowship
-          </button>
+                  hx-target="#submission-{{ submission.pk }}-add-fellow">Add Fellow</button>
         </div>
 
         {% if "edadmin" in user_roles %}
@@ -29,9 +27,9 @@
     <table class="table table-striped">
       <thead>
         <tr>
+          <th></th>
+          <th></th>
           <th>Fellow</th>
-          <th>Status</th>
-          <th class="text-truncate">Available</th>
 
           {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}<th>Workload</th>{% endif %}
 

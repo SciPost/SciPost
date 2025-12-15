@@ -3,21 +3,21 @@
 
 <tr>
   <td>
-    <a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor }}</a>
-  </td>
-  <td>{{ fellowship.get_status_display }}</td>
-  <td>
 
     {% if fellowship.is_currently_available %}
-      <span class="text-success">{% include "bi/check-square-fill.html" %}</span>
+      <span title="Available" data-bs-toggle="tooltip" class="text-success">{% include "bi/check-square-fill.html" %}</span>
     {% else %}
-      <span class="text-danger">{% include "bi/x-square-fill.html" %}</span>
+      <span title="Unavailable" data-bs-toggle="tooltip" class="text-danger">{% include "bi/x-square-fill.html" %}</span>
     {% endif %}
 
   </td>
+  <td><span title="{{ fellowship.get_status_display }}" data-bs-toggle="tooltip">{{ fellowship.get_status_display|first|upper }}</span></td>
+  <td>
+    <a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor }}</a>
+  </td>
 
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
-    <td>{% include "icons/reception.html" with value=fellowship.nr_ongoing_editorial_assignments max=4 %}</td>
+    <td>{% include "icons/reception.html" with value=fellowship.nr_ongoing_editorial_assignments max=4 unit="submissions" %}</td>
   {% endif %}
 
   <td>
@@ -54,8 +54,10 @@
     <td>
 
       {% if fellowship.contributor.profile.submission_clearance.0 %}
-        <span class="text-success">all clear</span>
-        &nbsp;<em>(asserted by {{ fellowship.contributor.profile.submission_clearance.0.asserted_by }})</em>
+        <div class="text-success">all clear</div>
+        {% if fellowship.contributor.profile.submission_clearance.0.asserted_by != fellowship.contributor %}
+          <div class="text-muted">asserted by {{ fellowship.contributor.profile.submission_clearance.0.asserted_by }}</div>
+        {% endif %}
       {% else %}
 
         {% with submission_conflicts_of_interest=fellowship.contributor.profile.submission_conflicts_of_interest|add:fellowship.contributor.profile.submission_conflicts_of_interest_related %}
