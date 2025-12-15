@@ -5,24 +5,40 @@
   <hr />
   <div class="tab-content">
 
-    <h2>This Submission's Fellowship</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2>This Submission's Fellowship</h2>
+
+
+      {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
+        <div class="d-flex align-items-center gap-2">
+          <a href="{% url "submissions:fellow_coauthorships" submission.preprint.identifier_w_vn_nr %}">
+            <div class="btn btn-sm btn-light position-relative"
+                 id="submission-{{ submission.pk }}-view-coauthorships">
+              <span>View Coauthorships</span>
+
+              {% if submission_fellow_undecided_coauthorships_count %}
+                <div class="badge bg-warning position-absolute top-0 start-0 translate-middle">
+                  {{ submission_fellow_undecided_coauthorships_count }} undecided
+                </div>
+              {% endif %}
+
+            </div>
+          </a>
+
+          <div id="submission-{{ submission.pk }}-add-fellow">
+            <button class="btn btn-sm btn-primary"
+                    hx-get="{% url 'colleges:_hx_submission_add_fellowship' submission.preprint.identifier_w_vn_nr %}"
+                    hx-target="#submission-{{ submission.pk }}-add-fellow">Add Fellow</button>
+          </div>
+
+          {% include "submissions/_hx_submission_autoupdate_fellowship.html" %}
+
+        </div>
+      {% endif %}
+
+    </div>
 
     {% get_annotated_submission_fellows_queryset submission as fellows_qs %}
-
-    {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
-      <div class="d-flex justify-content-between align-items-center">
-        <div id="submission-{{ submission.pk }}-add-fellow">
-          <button class="btn btn-sm btn-primary m-2"
-                  hx-get="{% url 'colleges:_hx_submission_add_fellowship' submission.preprint.identifier_w_vn_nr %}"
-                  hx-target="#submission-{{ submission.pk }}-add-fellow">Add Fellow</button>
-        </div>
-
-        {% if "edadmin" in user_roles %}
-          {% include "submissions/_hx_submission_autoupdate_fellowship.html" %}
-        {% endif %}
-
-      </div>
-    {% endif %}
 
     <table class="table table-striped">
       <thead>

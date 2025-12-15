@@ -134,6 +134,12 @@ class CoauthorshipQuerySet(QuerySet["Coauthorship"]):
         """
         return self.filter(Q(profile=profile) | Q(coauthor=profile))
 
+    def involving_profiles(self, profiles: list["Profile"] | QuerySet["Profile"]):
+        """
+        Return all instances matching at least one of the given Profiles.
+        """
+        return self.filter(Q(profile__in=profiles) | Q(coauthor__in=profiles))
+
     def not_involving_profile(self, profile: "Profile"):
         """
         Filter for Coauthorships not involving given Profile.

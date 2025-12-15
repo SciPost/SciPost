@@ -20,6 +20,7 @@ from colleges.permissions import (
     fellowship_required,
     fellowship_or_admin_required,
 )
+from ethics.models import Coauthorship
 from mails.utils import DirectMailUtil
 from scipost.permissions import HTMXResponse, permission_required_htmx
 from submissions.models import (
@@ -125,11 +126,7 @@ def _hx_submission_tab(request, identifier_w_vn_nr, tab):
     }
     if tab == "remarks":
         context["remark_form"] = RemarkForm()
-    if tab == "refereeing":
-        if submission.editor_in_charge:
-            submission.editor_in_charge = submission.custom_prefetch_submission_author_and_contributor_coauthorships(
-                [submission.editor_in_charge]
-            )[0]
+
     return render(request, "submissions/pool/_hx_submission_tab.html", context)
 
 
@@ -142,6 +139,12 @@ def _hx_submission_fellows_tab(request, identifier_w_vn_nr):
     )
     context = {
         "submission": submission,
+        "submission_fellow_undecided_coauthorships_count": (
+            Coauthorship.objects.involving_any_author_of(submission)
+            .involving_profiles(submission.author_profiles.values("profile"))
+            .unverified()
+            .count()
+        ),
     }
     return render(request, "submissions/pool/_submission_fellows.html", context)
 
