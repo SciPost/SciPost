@@ -96,10 +96,8 @@ class SubmissionClearanceInline(admin.TabularInline):
 class SubmissionAuthorProfileInline(admin.TabularInline):
     model = SubmissionAuthorProfile
     extra = 0
-    autocomplete_fields = [
-        "profile",
-        "affiliations",
-    ]
+    exclude = ["affiliations"]
+    autocomplete_fields = ["profile"]
 
 
 class SubmissionTieringInline(admin.StackedInline):
