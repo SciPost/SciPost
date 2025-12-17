@@ -162,6 +162,15 @@ class CoauthorshipQuerySet(QuerySet["Coauthorship"]):
             Q(profile__in=author_profile_ids) | Q(coauthor__in=author_profile_ids)
         )
 
+    def involving_any_fellow_of(self, submission: "Submission"):
+        """
+        Return all instances involving any fellow of the given submission.
+        """
+        fellow_profile_ids = submission.fellows.values("contributor__profile")
+        return self.filter(
+            Q(profile__in=fellow_profile_ids) | Q(coauthor__in=fellow_profile_ids)
+        )
+
     def duplicate_of(self, coauthorship: "Coauthorship"):
         """
         Return a duplicate of the given Coauthorship,

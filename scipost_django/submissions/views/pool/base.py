@@ -140,8 +140,9 @@ def _hx_submission_fellows_tab(request, identifier_w_vn_nr):
     context = {
         "submission": submission,
         "submission_fellow_undecided_coauthorships_count": (
-            Coauthorship.objects.involving_any_author_of(submission)
-            .involving_profiles(submission.author_profiles.values("profile"))
+            Coauthorship.objects.all()
+            .involving_any_author_of(submission)
+            .involving_any_fellow_of(submission)
             .unverified()
             .count()
         ),
