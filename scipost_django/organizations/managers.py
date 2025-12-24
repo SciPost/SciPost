@@ -40,9 +40,10 @@ class OrganizationQuerySet(models.QuerySet):
         """
         Organizations which have a Subsidy which is ongoing (date_until <= today).
         """
-        return self.filter(
-            subsidy__status__in=[SUBSIDY_PROMISED, SUBSIDY_INVOICED, SUBSIDY_RECEIVED],
-            subsidy__date_until__gte=datetime.date.today(),
+        return (
+            self.all()
+            .filter(subsidy__date_until__gte=datetime.date.today())
+            .exclude(subsidy__status=SUBSIDY_WITHDRAWN)
         )
 
     def with_subsidy_above_and_up_to(self, min_amount, max_amount=None):
