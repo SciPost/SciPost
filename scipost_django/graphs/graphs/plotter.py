@@ -172,7 +172,6 @@ class PublicationPlotter(ModelFieldPlotter):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        qs = qs.filter(pubtype="article")
 
         qs = qs.annotate(
             acceptance_duration=ExtractDay(
