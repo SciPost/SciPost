@@ -4,11 +4,16 @@ __license__ = "AGPL v3"
 
 import copy
 import datetime
+from typing import Any, TypeVar, Generic
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout
 from django.contrib.sessions.backends.cache import SessionStore
+from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import EmailValidator
+from django.db.models import Q, Model, QuerySet
+
+M = TypeVar("M", bound=Model)
 
 
 class HTMXInlineCRUDModelForm(forms.ModelForm):
@@ -159,3 +164,133 @@ class FormOptionsStorageMixin(forms.Form):
             if session_value := session_store.get(session_key):
                 self.fields[field_key].initial = session_value
 
+
+class SearchForm(Generic[M], forms.Form):
+    queryset: QuerySet[M] | None = None
+    model: type[M] | None = None
+
+    ordering = forms.ChoiceField(
+        label="Ordering",
+        choices=(
+            # FIXME: Emperically, the ordering appers to be reversed for dates?
+            ("-", "Descending"),
+            ("+", "Ascending"),
+        ),
+        required=False,
+    )
+
+    def apply_filter_set(
+        self,
+        filters: dict[str, str | None],
+        none_on_empty: bool = False,
+    ):
+        """
+        Set initial values of the form fields according to the given filter set.
+        If `none_on_empty` is True, fields not in the filter set are set to None or [].
+        """
+        # Apply the filter set to the form
+        for key in self.fields:
+            if key in filters:
+                self.fields[key].initial = filters[key]
+            elif none_on_empty:
+                if isinstance(self.fields[key], forms.MultipleChoiceField):
+                    self.fields[key].initial = []
+                else:
+                    self.fields[key].initial = None
+
+    def data_is_in_or_null(
+        self,
+        queryset: QuerySet[M],
+        key: str,
+        value: Any,
+        implicit_all: bool = True,
+    ) -> QuerySet[M]:
+        """
+        Filter a queryset such that the returned objects have a value for the given key
+        within some set of values stored in the form's cleaned_data.
+
+        Special considerations:
+        - If the list contains a 0, then also include objects where the key is null.
+        - If the list is empty, then include all objects if `implicit_all` is True.
+        """
+        if (serialized_vals := self.cleaned_data.get(value)) is None:
+            return queryset
+
+        has_unassigned = "0" in serialized_vals
+        is_unassigned = Q(**{key + "__isnull": True})
+        is_in_values = Q(
+            **{key + "__in": list(filter(lambda x: x != 0, serialized_vals))}
+        )
+
+        if has_unassigned:
+            return queryset.filter(is_unassigned | is_in_values)
+        elif implicit_all and not serialized_vals:
+            return queryset
+        else:
+            return queryset.filter(is_in_values)
+
+    def get_queryset(self):
+        """
+        Evaluate the (base) queryset from which items will be searched.
+        If no queryset is defined, try to get it from the model's default manager.
+
+        Code partly inherited from Django's MultipleObjectMixin.get_queryset
+        """
+        if self.queryset is not None:
+            queryset = self.queryset
+        elif self.model is not None:
+            queryset = self.model._default_manager.all()
+        else:
+            raise ImproperlyConfigured(
+                "%(cls)s is missing a QuerySet. Define "
+                "%(cls)s.model, %(cls)s.queryset, or override "
+                "%(cls)s.get_queryset()." % {"cls": self.__class__.__name__}
+            )
+
+        return queryset
+
+    def order_queryset(self, queryset: QuerySet[M]) -> QuerySet[M]:
+        """
+        Dynamically order the given queryset based on the 'orderby' and 'ordering'
+        form fields, if present and valid.
+        """
+        if (orderby_value := self.cleaned_data.get("orderby")) and (
+            ordering_value := self.cleaned_data.get("ordering")
+        ):
+            # Remove the + from the ordering value, causes a Django error
+            ordering_value = ordering_value.replace("+", "")
+
+            # Ordering string is built by the ordering (+/-), and the field name
+            # from the orderby field split by "," and joined together
+            queryset = queryset.order_by(
+                *[
+                    ordering_value + order_part
+                    for order_part in orderby_value.split(",")
+                ]
+            )
+
+        return queryset
+
+    def filter_queryset(self, queryset: QuerySet[M]) -> QuerySet[M]:
+        """
+        Apply form-specific filters to the given queryset based on the form's
+        cleaned_data and return the filtered queryset with only the applicable items.
+        """
+        raise NotImplementedError(
+            "Subclasses of SearchForm must implement the filter_queryset method."
+        )
+
+    def search(self) -> QuerySet[M]:
+        """
+        Apply the search filters from the form to the base queryset
+        and return the filtered and ordered queryset.
+        """
+        queryset = self.get_queryset()
+
+        if self.is_valid():
+            if hasattr(self, "save_field_options_to_session"):
+                self.save_field_options_to_session()
+            queryset = self.filter_queryset(queryset)
+            queryset = self.order_queryset(queryset)
+
+        return queryset
