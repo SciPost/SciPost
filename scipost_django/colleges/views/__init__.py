@@ -53,7 +53,6 @@ from ..forms import (
     FellowshipNominationSearchForm,
     FellowshipNominationVetoForm,
     FellowshipNominationVotingRoundStartForm,
-    FellowshipSearchForm,
     FellowshipDynSelForm,
     FellowshipForm,
     FellowshipRemoveSubmissionForm,
