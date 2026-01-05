@@ -93,13 +93,13 @@ class SubsidyForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        subsidy_collective_create = reverse_lazy("finances:subsidy_collective_create")
-        self.fields["collective"].help_text = (
-            f"If missing, <a href='{subsidy_collective_create}'>create a new one</a>."
+
+        CREATE_URL = 'If missing, <a href="{url}">create a new one</a>.'
+        self.fields["collective"].help_text = CREATE_URL.format(
+            url=reverse_lazy("finances:subsidy_collective_create")
         )
-        individual_budget_create = reverse_lazy("funders:individual_budget_create")
-        self.fields["individual_budget"].help_text = (
-            f"If missing, <a href='{individual_budget_create}'>create a new one</a>."
+        self.fields["individual_budget"].help_text = CREATE_URL.format(
+            url=reverse_lazy("funders:individual_budget_create")
         )
 
     def clean(self):
@@ -398,17 +398,15 @@ class SubsidyAttachmentInlineLinkForm(forms.ModelForm):
 
         self.fields["payment_attachment_type"].initial = "proof_of_payment"
 
-        # Set the queryset to the payments of the subsidy if the subsidy is set
-        if subsidy := self.initial.get("subsidy"):
-            self.fields["subsidy_payment"].queryset = subsidy.payments.all()
         if subsidy_payment := self.initial.get("subsidy_payment"):
             self.fields["subsidy_payment"].initial = subsidy_payment
 
-            if inferred_subsidy := getattr(subsidy_payment, "subsidy", None):
-                self.fields["subsidy"].initial = inferred_subsidy
-                self.fields["subsidy_payment"].queryset = (
-                    inferred_subsidy.payments.all()
-                )
+            # Set the queryset to the payments of the subsidy if the subsidy is set
+            # or infer subsidy from subsidy payment
+            initial_subsidy = self.initial.get("subsidy")
+            if subsidy := getattr(subsidy_payment, "subsidy", initial_subsidy):
+                self.fields["subsidy"].initial = subsidy
+                self.fields["subsidy_payment"].queryset = subsidy.payments.all()
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
