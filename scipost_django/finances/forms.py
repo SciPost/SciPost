@@ -5,10 +5,8 @@ import datetime
 
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse_lazy
-from django.utils.dates import MONTHS
-from django.db.models import Q, Case, DateField, Max, Min, Sum, Value, When, F
+from django.db.models import Q, Case, DateField, Max, Min, QuerySet, Sum, Value, When, F
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
@@ -17,7 +15,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
 from dateutil.rrule import rrule, MONTHLY
-from common.forms import HTMXDynSelWidget
+from common.forms import CrispyFormMixin, HTMXDynSelWidget, SearchForm
 from finances.constants import (
     SUBSIDY_STATUS,
     SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
@@ -139,7 +137,9 @@ class SubsidyForm(forms.ModelForm):
         return cleaned_data
 
 
-class SubsidySearchForm(forms.Form):
+class SubsidySearchForm(CrispyFormMixin, SearchForm[Subsidy]):
+    model = Subsidy
+
     organization_query = forms.CharField(
         max_length=128,
         required=False,
@@ -175,20 +175,9 @@ class SubsidySearchForm(forms.Form):
         initial="date_from",
         required=False,
     )
-    ordering = forms.ChoiceField(
-        label="Ordering",
-        choices=(
-            ("+", "Ascending"),
-            ("-", "Descending"),
-        ),
-        initial="-",
-        required=False,
-    )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
+    def get_form_layout(self) -> Layout:
+        return Layout(
             Div(
                 Div(
                     Div(
@@ -213,23 +202,25 @@ class SubsidySearchForm(forms.Form):
             ),
         )
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
         min_year, max_year = (
             Subsidy.objects.all()
             .aggregate(min=Min("date_from"), max=Max("date_until"))
             .values()
         )
-        self.fields["active_year"].choices = [("", "---")] + [
+        self.fields["active_year"].choices = [("", "Any")] + [
             (year, year) for year in range(min_year.year, max_year.year + 1)
         ]
 
-    def search_results(self, user):
-        if user.groups.filter(name="Financial Administrators").exists():
-            subsidies = Subsidy.objects.all()
-        else:
-            subsidies = Subsidy.objects.obtained()
+    def filter_queryset(self, queryset: "QuerySet[Subsidy]") -> "QuerySet[Subsidy]":
+        if not self.user.groups.filter(name="Financial Administrators").exists():
+            queryset = queryset.obtained()
 
         # Include `renewal_action_date` property in queryset
-        subsidies = subsidies.annotate(
+        queryset = queryset.annotate(
             annot_renewal_action_date=Case(
                 When(
                     Q(subsidy_type=SUBSIDY_TYPE_SPONSORSHIPAGREEMENT),
@@ -240,47 +231,28 @@ class SubsidySearchForm(forms.Form):
             )
         )
 
-        if organization_query := self.cleaned_data["organization_query"]:
-            subsidies = subsidies.filter(
+        if organization_query := self.cleaned_data.get("organization_query"):
+            queryset = queryset.filter(
                 Q(organization__name__unaccent__icontains=organization_query)
                 | Q(organization__name_original__unaccent__icontains=organization_query)
                 | Q(organization__acronym__unaccent__icontains=organization_query)
             )
-        if self.cleaned_data["country"]:
-            subsidies = subsidies.filter(
-                organization__country__icontains=self.cleaned_data["country"],
-            )
+        if country := self.cleaned_data.get("country"):
+            queryset = queryset.filter(organization__country__icontains=country)
 
-        if status := self.cleaned_data["status"]:
-            subsidies = subsidies.filter(status__in=status)
+        if status := self.cleaned_data.get("status"):
+            queryset = queryset.filter(status__in=status)
 
-        if subsidy_type := self.cleaned_data["type"]:
-            subsidies = subsidies.filter(subsidy_type__in=subsidy_type)
+        if subsidy_type := self.cleaned_data.get("type"):
+            queryset = queryset.filter(subsidy_type__in=subsidy_type)
 
-        if active_year := self.cleaned_data["active_year"]:
-            subsidies = subsidies.filter(
+        if active_year := self.cleaned_data.get("active_year"):
+            queryset = queryset.filter(
                 Q(date_from__year__lte=int(active_year))
                 & Q(date_until__year__gte=int(active_year))
             )
 
-        # Ordering of subsidies
-        # Only order if both fields are set
-        if (orderby_value := self.cleaned_data.get("orderby")) and (
-            ordering_value := self.cleaned_data.get("ordering")
-        ):
-            # Remove the + from the ordering value, causes a Django error
-            ordering_value = ordering_value.replace("+", "")
-
-            # Ordering string is built by the ordering (+/-), and the field name
-            # from the orderby field split by "," and joined together
-            subsidies = subsidies.order_by(
-                *[
-                    ordering_value + order_part
-                    for order_part in orderby_value.split(",")
-                ]
-            )
-
-        return subsidies.distinct()
+        return queryset.distinct()
 
 
 class SubsidyPaymentForm(forms.ModelForm):
@@ -502,7 +474,9 @@ class SubsidyAttachmentForm(forms.ModelForm):
 from django.contrib.postgres.forms.ranges import DateRangeField
 
 
-class SubsidyAttachmentSearchForm(forms.Form):
+class SubsidyAttachmentSearchForm(CrispyFormMixin, SearchForm[SubsidyAttachment]):
+    model = SubsidyAttachment
+    queryset = SubsidyAttachment.objects.orphaned()
     form_id = "subsidyattachment-orphaned-search-form"
 
     kind = forms.MultipleChoiceField(
@@ -550,36 +524,12 @@ class SubsidyAttachmentSearchForm(forms.Form):
         ),
         required=False,
     )
-    ordering = forms.ChoiceField(
-        label="Ordering",
-        choices=(
-            ("+", "Ascending"),
-            ("-", "Descending"),
-        ),
-        required=False,
-    )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
-        self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
 
-        # Set the initial values of the form fields from the session data
-        # if self.session_key:
-        #     session = SessionStore(session_key=self.session_key)
-
-        #     for field_key in self.fields:
-        #         session_key = (
-        #             f"{self.form_id}_{field_key}"
-        #             if hasattr(self, "form_id")
-        #             else field_key
-        #         )
-
-        #         if session_value := session.get(session_key):
-        #             self.fields[field_key].initial = session_value
-
-        self.helper = FormHelper()
-
+    def get_form_layout(self) -> Layout:
         div_block_ordering = Div(
             Div(FloatingField("orderby"), css_class="col-6 col-md-12 col-xl-6"),
             Div(FloatingField("ordering"), css_class="col-6 col-md-12 col-xl-6"),
@@ -595,7 +545,7 @@ class SubsidyAttachmentSearchForm(forms.Form):
             css_class="row mb-0",
         )
 
-        self.helper.layout = Layout(
+        return Layout(
             Div(
                 Div(
                     Div(
@@ -620,84 +570,26 @@ class SubsidyAttachmentSearchForm(forms.Form):
             ),
         )
 
-    def save_fields_to_session(self):
-        # Save the form data to the session
-        if self.session_key is not None:
-            session = SessionStore(session_key=self.session_key)
-
-            for field_key in self.cleaned_data:
-                session_key = (
-                    f"{self.form_id}_{field_key}"
-                    if hasattr(self, "form_id")
-                    else field_key
-                )
-
-                if field_value := self.cleaned_data.get(field_key):
-                    if isinstance(field_value, datetime.date):
-                        field_value = field_value.strftime("%Y-%m-%d")
-
-                session[session_key] = field_value
-
-            session.save()
-
-    def apply_filter_set(self, filters: dict, none_on_empty: bool = False):
-        # Apply the filter set to the form
-        for key in self.fields:
-            if key in filters:
-                self.fields[key].initial = filters[key]
-            elif none_on_empty:
-                if isinstance(self.fields[key], forms.MultipleChoiceField):
-                    self.fields[key].initial = []
-                else:
-                    self.fields[key].initial = None
-
-    def search_results(self):
-        # self.save_fields_to_session()
-
-        subsidy_attachments = SubsidyAttachment.objects.orphaned().distinct()
-
+    def filter_queryset(
+        self, queryset: "QuerySet[SubsidyAttachment]"
+    ) -> "QuerySet[SubsidyAttachment]":
         if filename := self.cleaned_data.get("filename"):
-            subsidy_attachments = subsidy_attachments.filter(
-                Q(attachment__icontains=filename)
-            )
+            queryset = queryset.filter(attachment__icontains=filename)
         if description := self.cleaned_data.get("description"):
-            subsidy_attachments = subsidy_attachments.filter(
-                description__icontains=description
-            )
+            queryset = queryset.filter(description__icontains=description)
         if visibility := self.cleaned_data.get("visibility"):
-            subsidy_attachments = subsidy_attachments.filter(visibility=visibility)
+            queryset = queryset.filter(visibility=visibility)
         if kind := self.cleaned_data.get("kind"):
-            subsidy_attachments = subsidy_attachments.filter(
-                kind__in=kind,
-            )
+            queryset = queryset.filter(kind__in=kind)
         if (date_from := self.cleaned_data.get("date_from")) and (
             date_to := self.cleaned_data.get("date_to")
         ):
-            subsidy_attachments = subsidy_attachments.filter(
-                date__gte=date_from, date__lte=date_to
-            )
+            queryset = queryset.filter(date__gte=date_from, date__lte=date_to)
 
         # if is_orphaned := self.cleaned_data.get("is_orphaned"):
         #     subsidy_attachments = subsidy_attachments.orphaned()
 
-        # Ordering of subsidy_attachments
-        # Only order if both fields are set
-        if (orderby_value := self.cleaned_data.get("orderby")) and (
-            ordering_value := self.cleaned_data.get("ordering")
-        ):
-            # Remove the + from the ordering value, causes a Django error
-            ordering_value = ordering_value.replace("+", "")
-
-            # Ordering string is built by the ordering (+/-), and the field name
-            # from the orderby field split by "," and joined together
-            subsidy_attachments = subsidy_attachments.order_by(
-                *[
-                    ordering_value + order_part
-                    for order_part in orderby_value.split(",")
-                ]
-            )
-
-        return subsidy_attachments
+        return queryset
 
 
 #############

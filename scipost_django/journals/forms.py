@@ -14,7 +14,7 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
-from django.db.models import Q, Max, prefetch_related_objects
+from django.db.models import Q, Max, QuerySet, prefetch_related_objects
 from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
@@ -26,7 +26,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
-from common.forms import HTMXInlineCRUDModelForm
+from common.forms import CrispyFormMixin, HTMXInlineCRUDModelForm, SearchForm
 
 from journals.models.resource import PublicationResource
 from journals.models.update import PublicationUpdate
@@ -63,8 +63,9 @@ from scipost.services import DOICaller
 from submissions.models import Submission
 
 
-class PublicationSearchForm(forms.Form):
-    """Simple search form to filter a Publication queryset."""
+class PublicationSearchForm(CrispyFormMixin, SearchForm[Publication]):
+    model = Publication
+    queryset = Publication.objects.published()
 
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
@@ -82,8 +83,9 @@ class PublicationSearchForm(forms.Form):
             self.fields["journal"].queryset = Journal.objects.filter(
                 college__acad_field__slug=self.acad_field_slug
             )
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
+
+    def get_form_layout(self):
+        return Layout(
             Div(
                 Div(FloatingField("author"), css_class="col-lg-6"),
                 Div(FloatingField("title"), css_class="col-lg-6"),
@@ -102,38 +104,24 @@ class PublicationSearchForm(forms.Form):
             ),
         )
 
-    def search_results(self):
-        """
-        Return all public Publication objects fitting search criteria.
-        """
-        publications = Publication.objects.published()
+    def filter_queryset(self, queryset: "QuerySet[Publication]"):
         if self.acad_field_slug and self.acad_field_slug != "all":
-            publications = publications.filter(acad_field__slug=self.acad_field_slug)
-            if self.specialty_slug and self.specialty_slug != "all":
-                publications = publications.filter(
-                    specialties__slug=self.specialty_slug
-                )
-        if self.cleaned_data.get("author"):
-            publications = publications.filter(
-                author_list__icontains=self.cleaned_data.get("author")
-            )
-        if self.cleaned_data.get("title"):
-            publications = publications.filter(
-                title__icontains=self.cleaned_data.get("title")
-            )
-        if self.cleaned_data.get("doi_label"):
-            publications = publications.filter(
-                doi_label__icontains=self.cleaned_data.get("doi_label")
-            )
-        if self.cleaned_data.get("journal"):
-            publications = publications.for_journal(
-                self.cleaned_data.get("journal").name
-            )
-            if self.cleaned_data.get("proceedings"):
-                publications = publications.filter(
-                    in_issue__proceedings=self.cleaned_data.get("proceedings")
-                )
-        return publications
+            queryset = queryset.filter(acad_field__slug=self.acad_field_slug)
+        if self.specialty_slug and self.specialty_slug != "all":
+            queryset = queryset.filter(specialties__slug=self.specialty_slug)
+
+        if author := self.cleaned_data.get("author"):
+            queryset = queryset.filter(author_list__icontains=author)
+        if title := self.cleaned_data.get("title"):
+            queryset = queryset.filter(title__icontains=title)
+        if doi_label := self.cleaned_data.get("doi_label"):
+            queryset = queryset.filter(doi_label__icontains=doi_label)
+        if journal := self.cleaned_data.get("journal"):
+            queryset = queryset.for_journal(journal.name)
+        if proceedings := self.cleaned_data.get("proceedings"):
+            queryset = queryset.filter(in_issue__proceedings=proceedings)
+
+        return queryset
 
 
 class CitationListItemForm(forms.ModelForm):
@@ -225,7 +213,7 @@ class AbstractJATSForm(forms.ModelForm):
                 "placeholder": "Paste the JATS abstract here (use pandoc to generate; see docs)"
             }
         ),
-        required = False,        
+        required=False,
     )
 
     class Meta:
@@ -377,7 +365,6 @@ class CreateMetadataXMLForm(forms.ModelForm):
 
 
 class CreatePublicationMetadataXMLForm(CreateMetadataXMLForm):
-
     class Meta:
         model = Publication
         fields = ["metadata_xml"]
@@ -417,7 +404,6 @@ class CreatePublicationMetadataXMLForm(CreateMetadataXMLForm):
 
 
 class CreateProceedingsMetadataXMLForm(CreateMetadataXMLForm):
-
     class Meta:
         model = Proceedings
         fields = ["metadata_xml"]
@@ -627,7 +613,12 @@ class DraftPublicationForm(forms.ModelForm):
             "submission_date": forms.DateInput(attrs={"type": "date"}),
             "acceptance_date": forms.DateInput(attrs={"type": "date"}),
             "publication_date": forms.DateInput(attrs={"type": "date"}),
-            "author_info_source": forms.Textarea(attrs={"rows": 1, "placeholder": "Required for docx files! Add a tex-like file with authors and affiliation information."}),
+            "author_info_source": forms.Textarea(
+                attrs={
+                    "rows": 1,
+                    "placeholder": "Required for docx files! Add a tex-like file with authors and affiliation information.",
+                }
+            ),
         }
 
     def __init__(
@@ -672,12 +663,12 @@ class DraftPublicationForm(forms.ModelForm):
         else:
             self.fields["in_issue"].queryset = self.get_possible_issues()
             self.delete_secondary_fields()
-        
-        if self.submission: # For when creating the publication object.
+
+        if self.submission:  # For when creating the publication object.
             repository = self.submission.production_stream.proofs_repository
-        else: # For when Updating the publication object.
+        else:  # For when Updating the publication object.
             repository = self.instance.proofs_repository
-        
+
         if repository.fetch_tex():
             self.fields["author_info_source"].required = False
 
@@ -718,7 +709,7 @@ class DraftPublicationForm(forms.ModelForm):
         base_doi_label = doi_label.rsplit("-", 1)[0]
 
         if (
-            self.submission 
+            self.submission
             and self.submission.followup_of.exists()
             and not self.submission.followup_of.filter(
                 doi_label__startswith=base_doi_label
@@ -760,7 +751,7 @@ class DraftPublicationForm(forms.ModelForm):
         if do_prefill:
             self.first_time_fill()
             # We cannot trust the author associations ordered in Submission.
-            # self.instance.reset_author_associations()                
+            # self.instance.reset_author_associations()
 
         return self.instance
 
@@ -812,9 +803,9 @@ class DraftPublicationForm(forms.ModelForm):
                 s.id for s in self.submission.specialties.all()
             ]
             self.fields["approaches"].initial = self.submission.approaches
-            self.fields["submission_date"].initial = (
-                self.submission.original_submission_date
-            )
+            self.fields[
+                "submission_date"
+            ].initial = self.submission.original_submission_date
             self.fields["acceptance_date"].initial = self.submission.acceptance_date
             self.fields["publication_date"].initial = timezone.now()
 
@@ -1149,17 +1140,21 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
                     noted_by=self.request.user.production_user,
                 )
                 prodevent.save()
-    
+
     def tag_publication(self) -> None:
-        """ Creates a tag in the git repository for the publication."""
-        gl = gitlab.Gitlab("https://git.scipost.org", private_token = settings.GITLAB_KEY)
+        """Creates a tag in the git repository for the publication."""
+        gl = gitlab.Gitlab("https://git.scipost.org", private_token=settings.GITLAB_KEY)
         gl.auth()
-        
+
         publication: Publication = self.instance
-        repo_url: str = publication.accepted_submission.production_stream.proofs_repository.git_url[24:] # skip gitlab prefix
+        repo_url: str = (
+            publication.accepted_submission.production_stream.proofs_repository.git_url[
+                24:
+            ]
+        )  # skip gitlab prefix
         project = gl.projects.get(repo_url)
-        
-        tag_name = publication.doi_label +"_Published"
+
+        tag_name = publication.doi_label + "_Published"
         if tag_name not in [tag.name for tag in project.tags.list()]:
             project.tags.create({"tag_name": tag_name, "ref": "main"})
         else:

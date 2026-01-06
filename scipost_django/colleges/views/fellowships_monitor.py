@@ -24,15 +24,8 @@ def fellowships_monitor(request):
     "You do not have permission to view the fellowships monitor.",
 )
 def _hx_table(request):
-    form = FellowshipsMonitorSearchForm(
-        request.POST or None,
-        user=request.user,
-        session_key=request.session.session_key,
-    )
-    if form.is_valid():
-        fellowships = form.search_results()
-    else:
-        fellowships = Fellowship.objects.all()
+    form = FellowshipsMonitorSearchForm(request.POST or None, user=request.user)
+    fellowships = form.search().select_related("contributor", "contributor__profile")
     paginator = Paginator(fellowships, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
@@ -48,10 +41,7 @@ def _hx_table(request):
 
 def _hx_search_form(request, filter_set: str):
     DATE_REGEX = r"\d{4}-\d{2}-\d{2}"
-    form = FellowshipsMonitorSearchForm(
-        user=request.user,
-        session_key=request.session.session_key,
-    )
+    form = FellowshipsMonitorSearchForm(user=request.user)
 
     if filter_set == "empty":
         form.apply_filter_set(

@@ -60,9 +60,7 @@ from .utils import proofs_slug_to_id, ProductionUtils
 @is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
 def production(request):
-    search_productionstreams_form = ProductionStreamSearchForm(
-        user=request.user, session_key=request.session.session_key
-    )
+    search_productionstreams_form = ProductionStreamSearchForm(user=request.user)
     bulk_assign_officer_form = BulkAssignOfficersForm()
     context = {
         "search_productionstreams_form": search_productionstreams_form,
@@ -74,13 +72,8 @@ def production(request):
 @is_production_user()
 @permission_required("scipost.can_view_production", raise_exception=True)
 def _hx_productionstream_list(request):
-    form = ProductionStreamSearchForm(
-        request.POST or None, user=request.user, session_key=request.session.session_key
-    )
-    if form.is_valid():
-        streams = form.search_results()
-    else:
-        streams = ProductionStream.objects.ongoing()
+    form = ProductionStreamSearchForm(request.POST or None, user=request.user)
+    streams = form.search()
     paginator = Paginator(streams, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
@@ -1596,10 +1589,7 @@ def _hx_productionstream_summary_assignees_status(request, productionstream_id):
 
 
 def _hx_productionstream_search_form(request, filter_set: str):
-    productionstream_search_form = ProductionStreamSearchForm(
-        user=request.user,
-        session_key=request.session.session_key,
-    )
+    productionstream_search_form = ProductionStreamSearchForm(user=request.user)
 
     if filter_set == "empty":
         productionstream_search_form.apply_filter_set({}, none_on_empty=True)

@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.core.paginator import Paginator
 from django.http import Http404
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.views.generic import DetailView
 
 from .models import Category, BlogPost
@@ -25,10 +25,7 @@ def blog_index(request):
 
 def _hx_posts(request):
     form = BlogPostSearchForm(request.POST or None, user=request.user)
-    if form.is_valid():
-        posts = form.search_results()
-    else:
-        posts = BlogPost.objects.published()
+    posts = form.search()
     paginator = Paginator(posts, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)

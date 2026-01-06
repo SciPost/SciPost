@@ -23,7 +23,7 @@ from django.contrib.auth.mixins import (
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction, IntegrityError
-from django.db.models import Q, Exists, OuterRef, QuerySet
+from django.db.models import Q, QuerySet
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
@@ -79,7 +79,7 @@ from ..models import (
 )
 from ..mixins import SubmissionMixin, SubmissionAdminViewMixin
 from ..forms import (
-    InviteRefereeSearchFrom,
+    InviteRefereeSearchForm,
     RefereeIndicationForm,
     ReportIntendedDeliveryForm,
     SciPostPrefillForm,
@@ -90,10 +90,8 @@ from ..forms import (
     ConfigureRefereeInvitationForm,
     SubmissionCollectionsForm,
     SubmissionForm,
-    SubmissionPoolSearchForm,
     SubmissionOldSearchForm,
     RecommendationVoteForm,
-    EditorialAssignmentForm,
     VetReportForm,
     SetRefereeingDeadlineForm,
     iThenticateReportForm,
@@ -111,16 +109,14 @@ from ..forms import (
     SubmissionTargetJournalForm,
     SubmissionTargetProceedingsForm,
     SubmissionPreprintFileForm,
-    PreassignEditorsFormSet,
     SubmissionReassignmentForm,
 )
 
-from colleges.models import PotentialFellowship, Fellowship
+from colleges.models import Fellowship
 from colleges.permissions import (
     fellowship_required,
     fellowship_or_admin_required,
     is_edadmin,
-    is_edadmin_or_senior_fellow,
 )
 from comments.forms import CommentForm
 from common.helpers import get_new_secrets_key
@@ -135,11 +131,9 @@ from ontology.forms import SpecialtyInlineForm, TopicDynSelForm
 from preprints.models import Preprint
 from production.forms import ProofsDecisionForm
 from production.utils import get_or_create_production_stream
-from profiles.models import Profile, ProfileEmail
+from profiles.models import Profile
 from profiles.forms import AddProfileEmailForm, SimpleProfileForm
 from scipost.constants import TITLE_DR, INVITATION_REFEREEING
-from scipost.decorators import is_contributor_user
-from scipost.forms import RemarkForm, SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
 from scipost.models import Contributor, Remark
 from scipost.views import prompt_to_login
@@ -1390,17 +1384,12 @@ def _hx_select_referee_table(request, identifier_w_vn_nr):
     if not (is_eic_for_submission or can_oversee_refereeing or is_admin):
         raise PermissionDenied()
 
-    form = InviteRefereeSearchFrom(
+    form = InviteRefereeSearchForm(
         request.POST or None,
         submission=submission,
-        session_key=request.session.session_key,
     )
-    if form.is_valid():
-        profiles = form.search_results()
-    else:
-        profiles = Profile.objects.all()
 
-    profiles = profiles.prefetch_related("emails").select_related("contributor")
+    profiles = form.search().prefetch_related("emails").select_related("contributor")
 
     paginator = Paginator(profiles, 16)
     page_nr = request.GET.get("page")
@@ -1429,10 +1418,10 @@ def _hx_select_referee_search_form(request, identifier_w_vn_nr, filter_set: str)
     if not (is_eic_for_submission or can_oversee_refereeing or is_admin):
         raise PermissionDenied()
 
-    form = InviteRefereeSearchFrom(
+    form = InviteRefereeSearchForm(
         request.POST or None,
         submission=submission,
-        session_key=request.session.session_key,
+        initial={"ordering": "+"},
     )
 
     if filter_set == "empty":

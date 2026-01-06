@@ -2,7 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse
 from django.shortcuts import render
 
 from colleges.permissions import is_edadmin_or_active_fellow
@@ -60,7 +59,7 @@ def tasklist_new(request):
 
     tasks = []
     if form.is_valid():
-        tasks = form.search_results()
+        tasks = form.search()
 
     context = {
         "form": form,
