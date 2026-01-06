@@ -43,6 +43,11 @@ urlpatterns = [
         ),
     ),
     path(
+        "search_form",
+        production_views.ProductionStreamSearchView.as_view(),
+        name="_hx_productionstream_search_form_view",
+    ),
+    path(
         "_hx_productionstream_list",
         production_views._hx_productionstream_list,
         name="_hx_productionstream_list",

@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import mimetypes
+from typing import Any
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -48,6 +49,7 @@ from .forms import (
     ProofsDecisionForm,
     AssignInvitationsOfficerForm,
 )
+from common.views import SearchView
 from .permissions import is_production_user
 from .utils import proofs_slug_to_id, ProductionUtils
 
@@ -67,6 +69,24 @@ def production(request):
         "bulk_assign_officer_form": bulk_assign_officer_form,
     }
     return render(request, "production/production.html", context)
+
+
+class ProductionStreamSearchView(SearchView):
+    form_class = ProductionStreamSearchForm
+    model = ProductionStream
+    paginate_by = 16
+
+    def get_form_kwargs(self) -> dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object_list_item_template"] = (
+            "production/_hx_productionstream_details.html"
+        )
+        return context
 
 
 @is_production_user()
