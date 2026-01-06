@@ -1,0 +1,47 @@
+<div id="{{ form.element_name }}-search-form-and-results-container"
+     hx-sync="this:replace">
+  <details open
+           id="{{ form.element_name }}-search-form-details"
+           class="card my-4">
+    <summary class="card-header d-flex flex-row gap-2 align-items-center justify-content-between list-triangle">
+      <div class="fs-3">Search / Filter</div>
+      <div class="d-none d-md-flex align-items-center">
+
+        <div id="{{ form.element_name }}-search-form-searching-indicator"
+             class="htmx-indicator">
+          <button class="btn btn-warning text-white d-none d-md-block me-2"
+                  type="button"
+                  disabled>
+            <strong>Loading...</strong>
+
+            <div class="spinner-grow spinner-grow-sm ms-2"
+                 role="status"
+                 aria-hidden="true"></div>
+          </button>
+        </div>
+
+        {% block search_form_buttons %}
+        {% endblock search_form_buttons %}
+
+        <button class="btn btn-outline-secondary me-2"
+                hx-get="{{ request.path }}{% querystring filter_set="empty" %}"
+                hx-target="#{{ form.element_name }}-search-form-and-results-container">Clear</button>
+
+        <a id="{{ form.element_name }}-refresh-button"
+           class="d-flex gap-2 align-items-center btn btn-primary">
+          {% include "bi/arrow-clockwise.html" %}
+        Refresh</a>
+      </div>
+
+    </summary>
+    <div id="{{ form.element_name }}-search-form-container"
+         class="card-body">{% include "common/search_form_crispy.html" %}</div>
+  </details>
+
+  <ul id="{{ form.element_name }}-results"
+      class="list-unstyled d-flex flex-column gap-2">
+    <li id="{{ form.element_name }}-search-form-page-loading-trigger"></li>
+  </ul>
+
+
+</div>
