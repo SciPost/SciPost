@@ -71,6 +71,22 @@ def object_name(obj):
         return re.sub(r"([^\s])([A-Z])", r"\1 \2", obj._meta.object_name)
 
 
+@register.filter
+def model_name(model):
+    if model is None:
+        return None
+    else:
+        return model._meta.model_name
+
+
+@register.filter
+def model_name_plural(model):
+    if model is None:
+        return None
+    else:
+        return model._meta.verbose_name_plural
+
+
 @register.filter(name="get_fields")
 def get_fields(obj):
     return obj._meta.get_fields()

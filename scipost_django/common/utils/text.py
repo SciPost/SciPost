@@ -239,3 +239,12 @@ def partial_names_match(partial: str, full: str, symmetric: bool = False) -> boo
         match |= re.match(partial_name_match_regexp(full), partial) is not None
 
     return match
+
+
+def title_to_kebab(text: str) -> str:
+    """
+    Convert a title to a kebab-case string.
+    """
+    text = re.sub(r"([A-Z])", r"-\1", text).lower()
+    text = text.lstrip("-")
+    return text
