@@ -18,6 +18,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.views import View
 from django.views.generic import FormView, ListView
+from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
 
 from django_celery_results.models import TaskResult
@@ -416,3 +417,94 @@ class HXCeleryTaskStatusView(SingleObjectMixin, View):
 
     def get_success_url(self):
         return self.success_url
+
+
+class NonRedirectFormMixin(ContextMixin):
+    """
+    A mixin like Django's FormMixin, but without the redirect on success.
+    """
+
+    prefix = ""
+    initial = {}  # To be defined in subclasses
+    form_class = None  # To be defined in subclasses
+
+    def get_initial(self):
+        """Return the initial data to use for forms on this view."""
+        return self.initial.copy()
+
+    def get_prefix(self):
+        """Return the prefix to use for forms."""
+        return self.prefix
+
+    def get_form_class(self):
+        """Return the form class to use."""
+        return self.form_class
+
+    def get_form(self, form_class=None):
+        """Return an instance of the form to be used in this view."""
+        if form_class is None:
+            form_class = self.get_form_class()
+        return form_class(**self.get_form_kwargs())
+
+    def get_form_kwargs(self):
+        """Return the keyword arguments for instantiating the form."""
+        kwargs = {
+            "initial": self.get_initial(),
+            "prefix": self.get_prefix(),
+        }
+
+        if self.request.method in ("POST", "PUT"):
+            kwargs.update(
+                {
+                    "data": self.request.POST,
+                    "files": self.request.FILES,
+                }
+            )
+        return kwargs
+
+
+class SearchView(TemplateResponseMixin, NonRedirectFormMixin, View):
+    """
+    A generic search view containing:
+    - a search form
+    - a container of results
+    - a trigger to fetch the next page of results
+    """
+
+    model = None  # To be defined in subclasses
+    paginate_by = 16
+
+    # Override to render:
+    # - form on GET and POST when providing field defaults
+    # - fetch results on POST when performing a search
+    def get_template_names(self) -> list[str]:
+        if self.request.method == "GET":
+            return ["common/search_form_container.html"]
+        elif self.request.POST.get("filter_set"):
+            return ["common/search_form_container.html"]
+        else:  # POST with search performed
+            return ["common/search_form_results_page_listitems.html"]
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        form = kwargs.get("form", self.get_form())
+        paginator = Paginator(form.search(), self.paginate_by)
+        page_nr = self.request.GET.get("page")
+        page_obj = paginator.get_page(page_nr)
+        context.update(
+            {
+                "form": form,
+                "page_obj": page_obj,
+                "count": paginator.count,
+                "start_index": page_obj.start_index(),
+            }
+        )
+        return context
+
+    def get(self, request, *args, **kwargs):
+        """Handle GET requests: instantiate a blank version of the form and default results."""
+        return self.render_to_response(self.get_context_data())
+
+    def post(self, request, *args, **kwargs):
+        """Handle POST requests: instantiate a form instance with the passed POST variables and perform a search."""
+        return self.render_to_response(self.get_context_data())

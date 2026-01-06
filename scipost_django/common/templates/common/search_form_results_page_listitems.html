@@ -1,0 +1,32 @@
+{% load scipost_extras %}
+
+{% for object in page_obj %}
+  <li>{% include object_list_item_template %}</li>
+{% empty %}
+  <li class="p-2 bg-opacity-25 bg-warning d-flex flex-row gap-2 align-items-center justify-content-center">
+    <span>{% include "bi/exclamation-triangle-fill.html" %}</span>
+    <span>No {{ form.model|model_name_plural }} could be found with these criteria</span>
+  </li>
+{% endfor %}
+
+{% if page_obj.has_next %}
+  <div hx-post="{{ request.path }}{% querystring page=page_obj.next_page_number %}"
+       hx-include="#{{ form.element_name }}-search-form-container"
+       hx-trigger="revealed"
+       hx-swap="afterend"
+       hx-indicator="#{{ form.element_name }}-search-form-page-loading-indicator"></div>
+
+  <div id="{{ form.element_name }}-search-form-page-loading-indicator"
+       hx-swap-oob="true"
+       class="htmx-indicator p-2">
+    <button class="btn btn-warning"
+            type="button"
+            disabled>
+      <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+
+      <div class="spinner-grow spinner-grow-sm ms-2"
+           role="status"
+           aria-hidden="true"></div>
+    </button>
+  </div>
+{% endif %}

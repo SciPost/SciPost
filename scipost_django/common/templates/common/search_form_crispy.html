@@ -1,0 +1,10 @@
+{% load crispy_forms_tags %}
+
+<form hx-post="{{ request.path }}"
+      hx-trigger="load, keyup delay:500ms, change delay:500ms, click from:#{{ form.element_name }}-refresh-button"
+      hx-sync="#{{ form.element_name }}-search-form:replace"
+      hx-target="#{{ form.element_name }}-results"
+      hx-indicator="#{{ form.element_name }}-search-form-searching-indicator">
+
+  <div id="{{ form.element_name }}-search-form">{% crispy form %}</div>
+</form>

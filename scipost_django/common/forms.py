@@ -15,6 +15,8 @@ from django.core.validators import EmailValidator
 from django.db.models import Q, Model, QuerySet
 from django.forms import Form
 
+from common.utils.text import title_to_kebab
+
 M = TypeVar("M", bound=Model)
 F = TypeVar("F", bound="Form")
 
@@ -301,5 +303,16 @@ class SearchForm(Generic[M], forms.Form):
                 self.save_field_options_to_session()
             queryset = self.filter_queryset(queryset)
             queryset = self.order_queryset(queryset)
+        else:
+            queryset = queryset.none()
 
         return queryset
+
+    @property
+    def element_name(self) -> str:
+        """Get the element name for this form, by default the kebab-case class name."""
+        name = title_to_kebab(self.__class__.__name__)
+        if name.endswith("-search-form"):
+            name = name[: -len("-search-form")]
+
+        return name
