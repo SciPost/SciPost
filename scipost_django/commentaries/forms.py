@@ -3,12 +3,15 @@ __license__ = "AGPL v3"
 
 
 from django import forms
+from django.db.models import QuerySet
 from django.utils.safestring import mark_safe
 from django.template.loader import get_template
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div
+from crispy_forms.layout import Layout, Div, Fieldset
 from crispy_bootstrap5.bootstrap5 import FloatingField
+
+from common.forms import CrispyFormMixin, SearchForm
 
 from .models import Commentary
 from .constants import COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
@@ -323,53 +326,50 @@ class VetCommentaryForm(forms.Form):
             return None
 
 
-class CommentarySearchForm(forms.Form):
-    author = forms.CharField(
-        max_length=100, required=False, label="On publication with author(s)"
-    )
-    title = forms.CharField(
-        max_length=100, required=False, label="On publication with title"
-    )
-    abstract = forms.CharField(
-        max_length=1000, required=False, label="On publication with abstract"
-    )
+class CommentarySearchForm(CrispyFormMixin, SearchForm[Commentary()]):
+    model = Commentary
+    queryset = Commentary.objects.vetted()
+
+    author = forms.CharField(max_length=100, required=False)
+    title = forms.CharField(max_length=100, required=False)
+    abstract = forms.CharField(max_length=1000, required=False)
 
     def __init__(self, *args, **kwargs):
         self.acad_field_slug = kwargs.pop("acad_field_slug")
         self.specialty_slug = kwargs.pop("specialty_slug")
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Div(
-                FloatingField("author"),
-                FloatingField("title"),
-                FloatingField("abstract"),
+
+    def get_form_layout(self) -> Layout:
+        return Layout(
+            Fieldset(
+                "Publication search criteria",
+                Div(
+                    Div(FloatingField("author"), css_class="col-12 col-lg-6"),
+                    Div(FloatingField("title"), css_class="col-12 col-lg-6"),
+                    Div(FloatingField("abstract"), css_class="col-12"),
+                    css_class="row",
+                ),
             ),
         )
 
-    def search_results(self):
+    def filter_queryset(
+        self, queryset: "QuerySet[Commentary]"
+    ) -> "QuerySet[Commentary]":
         """Return all Commentary objects according to search"""
-        commentaries = Commentary.objects.vetted()
+
         if self.acad_field_slug and self.acad_field_slug != "all":
-            commentaries = commentaries.filter(acad_field__slug=self.acad_field_slug)
-            if self.specialty_slug and self.specialty_slug != "all":
-                commentaries = commentaries.filter(
-                    specialties__slug=self.specialty_slug
-                )
-        if hasattr(self, "cleaned_data"):
-            if "title" in self.cleaned_data:
-                commentaries = commentaries.filter(
-                    title__icontains=self.cleaned_data["title"],
-                )
-            if "abstract" in self.cleaned_data:
-                commentaries = commentaries.filter(
-                    pub_abstract__icontains=self.cleaned_data["abstract"],
-                )
-            if "author" in self.cleaned_data:
-                commentaries = commentaries.filter(
-                    author_list__icontains=self.cleaned_data["author"],
-                )
-        return commentaries.order_by("-pub_date")
+            queryset = queryset.filter(acad_field__slug=self.acad_field_slug)
+        if self.specialty_slug and self.specialty_slug != "all":
+            queryset = queryset.filter(specialties__slug=self.specialty_slug)
+
+        if title := self.cleaned_data.get("title"):
+            queryset = queryset.filter(title__icontains=title)
+        if abstract := self.cleaned_data.get("abstract"):
+            queryset = queryset.filter(pub_abstract__icontains=abstract)
+        if author := self.cleaned_data.get("author"):
+            queryset = queryset.filter(author_list__icontains=author)
+
+        return queryset.order_by("-pub_date")
 
 
 class CommentaryListSearchForm(forms.Form):

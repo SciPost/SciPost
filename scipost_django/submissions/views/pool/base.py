@@ -69,10 +69,8 @@ def pool(request, identifier_w_vn_nr=None):
 @fellowship_or_admin_required()
 def pool_hx_submission_list(request):
     form = SubmissionPoolSearchForm(request.POST or None, request=request)
-    if form.is_valid():
-        submissions = form.search_results(request.user)
-    else:
-        submissions = Submission.objects.in_pool(request.user)[:16]
+
+    submissions = form.search()
 
     submissions = (
         submissions.all()

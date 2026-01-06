@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
@@ -14,7 +14,6 @@ from submissions.forms.appraisal import (
     RadioAppraisalForm,
 )
 from submissions.models import Submission, Qualification, Readiness
-from submissions.forms import QualificationForm, ReadinessForm
 
 
 @fellowship_required()

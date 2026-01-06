@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django import forms
 from django.db.utils import ProgrammingError
-from django.db.models import Q, Exists, OuterRef, Count
+from django.db.models import Q, Exists, OuterRef, Count, QuerySet
 from django.urls import reverse_lazy
 
 from crispy_forms.helper import FormHelper
@@ -12,7 +12,7 @@ from crispy_forms.layout import Layout, Field, Div, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
-from common.forms import HTMXDynSelWidget
+from common.forms import CrispyFormMixin, HTMXDynSelWidget, SearchForm
 from ontology.models.topic import TopicInterest
 from profiles.models import Profile
 
@@ -139,9 +139,9 @@ class SpecialtyInlineForm(forms.Form):
 
         # If a submission is passed, limit the choices to the specialties of its target journal
         if submission:
-            self.fields["specialty"].queryset = (
-                submission.submitted_to.specialties.all()
-            )
+            self.fields[
+                "specialty"
+            ].queryset = submission.submitted_to.specialties.all()
         self.helper = FormHelper(self)
         self.helper.layout = Layout(
             Div(
@@ -300,7 +300,9 @@ class SelectLinkedTopicForm(forms.Form):
     )
 
 
-class TopicSearchForm(forms.Form):
+class TopicSearchForm(CrispyFormMixin, SearchForm[Topic]):
+    model = Topic
+
     q = forms.CharField(
         max_length=256,
         label="Search",
@@ -332,21 +334,9 @@ class TopicSearchForm(forms.Form):
         initial="name",
         required=False,
     )
-    ordering = forms.ChoiceField(
-        label="Ordering",
-        choices=(
-            ("+", "Ascending"),
-            ("-", "Descending"),
-        ),
-        initial="+",
-        required=False,
-    )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-
-        self.helper.layout = Layout(
+    def get_form_layout(self) -> Layout:
+        return Layout(
             Div(
                 Div(Field("q"), css_class="col-12 col-md-8"),
                 Div(
@@ -364,8 +354,8 @@ class TopicSearchForm(forms.Form):
             ),
         )
 
-    def search_results(self):
-        objects = Topic.objects.all().annotate(
+    def filter_queryset(self, queryset: "QuerySet[Topic]"):
+        objects = queryset.annotate(
             nr_submissions=Count("submission", distinct=True),
             nr_publications=Count("publications", distinct=True),
         )

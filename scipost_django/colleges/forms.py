@@ -7,8 +7,7 @@ from itertools import groupby
 from typing import Any, Dict
 
 from django import forms
-from django.contrib.sessions.backends.db import SessionStore
-from django.db.models import F, Q, Count, Exists, OuterRef, Subquery
+from django.db.models import F, Q, Count, Exists, OuterRef, Subquery, QuerySet
 from django.db.models.functions import Coalesce
 
 from crispy_forms.helper import FormHelper
@@ -19,6 +18,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.timezone import timedelta
 
+from common.forms import CrispyFormMixin, SearchForm
 from ontology.models import Specialty
 from ontology.models.academic_field import AcademicField
 from proceedings.models import Proceedings
@@ -64,6 +64,7 @@ class CollegeChoiceForm(forms.Form):
                 FloatingField("college"),
             )
         )
+
 
 class FellowshipSelectForm(forms.Form):
     fellowship = forms.ModelChoiceField(
@@ -549,7 +550,9 @@ class FellowshipNominationForm(forms.ModelForm):
 #         return nominations
 
 
-class FellowshipNominationSearchForm(forms.Form):
+class FellowshipNominationSearchForm(CrispyFormMixin, SearchForm[FellowshipNomination]):
+    model = FellowshipNomination
+
     nominee = forms.CharField(max_length=100, required=False, label="Nominee")
 
     college = forms.MultipleChoiceField(required=False)
@@ -628,16 +631,7 @@ class FellowshipNominationSearchForm(forms.Form):
             .distinct()
         )
 
-        # Set the initial values of the form fields from the session data
-        # if self.session_key:
-        #     session = SessionStore(session_key=self.session_key)
-
-        #     for field in self.fields:
-        #         if field in session:
-        #             self.fields[field].initial = session[field]
-
-        self.helper = FormHelper()
-
+    def get_form_layout(self) -> Layout:
         div_block_ordering = Div(
             Div(FloatingField("orderby"), css_class="col-6"),
             Div(FloatingField("ordering"), css_class="col-6"),
@@ -658,7 +652,7 @@ class FellowshipNominationSearchForm(forms.Form):
                 )
             )
 
-        self.helper.layout = Layout(
+        return Layout(
             Div(
                 Div(
                     Div(
@@ -686,27 +680,9 @@ class FellowshipNominationSearchForm(forms.Form):
             ),
         )
 
-    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
-        # Apply the filter set to the form
-        for key in self.fields:
-            if key in filters:
-                self.fields[key].initial = filters[key]
-            elif none_on_empty:
-                if isinstance(self.fields[key], forms.MultipleChoiceField):
-                    self.fields[key].initial = []
-                else:
-                    self.fields[key].initial = None
-
-    def search_results(self):
-        # Save the form data to the session
-        # if self.session_key is not None:
-        #     session = SessionStore(session_key=self.session_key)
-
-        #     for key in self.cleaned_data:
-        #         session[key] = self.cleaned_data.get(key)
-
-        #     session.save()
-
+    def filter_queryset(
+        self, queryset: QuerySet[FellowshipNomination]
+    ) -> QuerySet[FellowshipNomination]:
         def latest_round_subquery(key):
             return Subquery(
                 FellowshipNominationVotingRound.objects.filter(
@@ -723,86 +699,60 @@ class FellowshipNominationSearchForm(forms.Form):
                 .values(key)[:1]
             )
 
-        nominations = (
-            FellowshipNomination.objects.filter(
-                profile__in=Profile.objects.no_conflicts_of_interest_with(
-                    self.user.contributor.profile
-                )
+        queryset = queryset.filter(
+            profile__in=Profile.objects.no_conflicts_of_interest_with(
+                self.user.contributor.profile
             )
-            .annotate(
-                latest_round_deadline=latest_round_subquery("voting_deadline"),
-                latest_round_open=latest_round_subquery("voting_opens"),
-                latest_round_decision=latest_round_subquery("decision"),
-                latest_round_decision_outcome=latest_round_subquery(
-                    "decision__outcome"
-                ),
-                latest_event_on=latest_event_subquery("on"),
-                latest_event_description=latest_event_subquery("description"),
-            )
-            .distinct()
+        ).annotate(
+            latest_round_deadline=latest_round_subquery("voting_deadline"),
+            latest_round_open=latest_round_subquery("voting_opens"),
+            latest_round_decision=latest_round_subquery("decision"),
+            latest_round_decision_outcome=latest_round_subquery("decision__outcome"),
+            latest_event_on=latest_event_subquery("on"),
+            latest_event_description=latest_event_subquery("description"),
         )
 
         if self.cleaned_data.get("can_vote"):
             # Restrict rounds to those the user can vote on
-            nominations = nominations.with_user_votable_rounds(self.user).distinct()
+            queryset = queryset.with_user_votable_rounds(self.user)
 
         if nominee := self.cleaned_data.get("nominee"):
-            nominations = nominations.filter(
+            queryset = queryset.filter(
                 Q(profile__first_name__unaccent__icontains=nominee)
                 | Q(profile__last_name__unaccent__icontains=nominee)
             )
         if college := self.cleaned_data.get("college"):
-            nominations = nominations.filter(college__id__in=college)
+            queryset = queryset.filter(college__id__in=college)
         if specialties := self.cleaned_data.get("specialties"):
             if "None" in specialties:
-                nominations = nominations.filter(
+                queryset = queryset.filter(
                     Q(profile__specialties__isnull=True)
                     | Q(profile__specialties__slug__in=specialties)
                 )
             else:
-                nominations = nominations.filter(
-                    profile__specialties__slug__in=specialties,
-                )
+                queryset = queryset.filter(profile__specialties__slug__in=specialties)
         if decision := self.cleaned_data.get("decision"):
             if decision == "pending":
-                nominations = nominations.filter(
-                    latest_round_decision__isnull=True,
-                )
+                queryset = queryset.filter(latest_round_decision__isnull=True)
             else:
-                nominations = nominations.filter(
-                    latest_round_decision_outcome=decision,
-                )
+                queryset = queryset.filter(latest_round_decision_outcome=decision)
         if invitation_response := self.cleaned_data.get("invitation_response"):
-            nominations = nominations.filter(
-                invitation__response=invitation_response,
-            )
+            queryset = queryset.filter(invitation__response=invitation_response)
         if self.cleaned_data.get("voting_open"):
-            nominations = nominations.filter(
+            queryset = queryset.filter(
                 Q(voting_rounds__voting_opens__lte=timezone.now())
                 & Q(voting_rounds__voting_deadline__gte=timezone.now())
             )
         if self.cleaned_data.get("has_rounds"):
-            nominations = nominations.filter(voting_rounds__isnull=False)
+            queryset = queryset.filter(voting_rounds__isnull=False)
 
-        # Ordering of nominations
-        # Only order if both fields are set
-        if (orderby_value := self.cleaned_data.get("orderby")) and (
-            ordering_value := self.cleaned_data.get("ordering")
-        ):
-            # Remove the + from the ordering value, causes a Django error
-            ordering_value = ordering_value.replace("+", "")
+        return queryset
 
-            # Ordering string is built by the ordering (+/-), and the field name
-            # from the orderby field split by "," and joined together
-            nominations = nominations.order_by(
-                *[
-                    ordering_value + order_part
-                    for order_part in orderby_value.split(",")
-                ]
-            )
+    def search(self) -> list[FellowshipNomination]:
+        queryset = super().search()
 
         # Render the queryset to evaluate properties
-        nominations = list(nominations)
+        nominations = list(queryset.distinct())
 
         if self.cleaned_data.get("needs_edadmin_attention"):
             nominations = [
@@ -1121,7 +1071,8 @@ class FellowshipInvitationResponseForm(forms.ModelForm):
             )
 
 
-class FellowshipsMonitorSearchForm(forms.Form):
+class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
+    model = Fellowship
     form_id = "fellowships-monitor-search-form"
 
     fellow = forms.CharField(max_length=100, required=False, label="Fellow")
@@ -1180,23 +1131,10 @@ class FellowshipsMonitorSearchForm(forms.Form):
         initial="",
         required=False,
     )
-    ordering = forms.ChoiceField(
-        label="Ordering",
-        choices=[
-            ("-", "Descending"),
-            ("+", "Ascending"),
-        ],
-        required=False,
-    )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
-        self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
-
-        fellowships_colleges = (
-            Fellowship.objects.all().values_list("college", flat=True).distinct()
-        )
 
         self.fields["college"].choices = (
             College.objects.annotate(
@@ -1206,9 +1144,6 @@ class FellowshipsMonitorSearchForm(forms.Form):
             .order_by("name")
             .values_list("id", "name")
         )
-
-        # Specialty multiple-choice grouped by the academic field that contains it.
-        fellowships_acad_fields = Fellowship.objects.all().values("college__acad_field")
 
         specialties_with_fellows = list(
             Specialty.objects.annotate(
@@ -1231,22 +1166,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
             )
         ]
 
-        # Set the initial values of the form fields from the session data
-        # if self.session_key:
-        #     session = SessionStore(session_key=self.session_key)
-
-        #     for field_key in self.fields:
-        #         session_key = (
-        #             f"{self.form_id}_{field_key}"
-        #             if hasattr(self, "form_id")
-        #             else field_key
-        #         )
-
-        #         if session_value := session.get(session_key):
-        #             self.fields[field_key].initial = session_value
-
-        self.helper = FormHelper()
-
+    def get_form_layout(self) -> Layout:
         div_block_ordering = Div(
             Div(Field("orderby"), css_class="col-6"),
             Div(Field("ordering"), css_class="col-6"),
@@ -1289,7 +1209,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
             css_class="row mb-0",
         )
 
-        self.helper.layout = Layout(
+        return Layout(
             Div(
                 Div(
                     Div(
@@ -1317,51 +1237,16 @@ class FellowshipsMonitorSearchForm(forms.Form):
             ),
         )
 
-    def save_fields_to_session(self):
-        # Save the form data to the session
-        if self.session_key is not None:
-            session = SessionStore(session_key=self.session_key)
-
-            for field_key in self.cleaned_data:
-                session_key = (
-                    f"{self.form_id}_{field_key}"
-                    if hasattr(self, "form_id")
-                    else field_key
-                )
-
-                if field_value := self.cleaned_data.get(field_key):
-                    if isinstance(field_value, date):
-                        field_value = field_value.strftime("%Y-%m-%d")
-
-                session[session_key] = field_value
-
-            session.save()
-
-    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
-        # Apply the filter set to the form
-        for key in self.fields:
-            if key in filters:
-                self.fields[key].initial = filters[key]
-            elif none_on_empty:
-                if isinstance(self.fields[key], forms.MultipleChoiceField):
-                    self.fields[key].initial = []
-                else:
-                    self.fields[key].initial = None
-
-    def search_results(self):
-        # self.save_fields_to_session()
-
-        fellowships = Fellowship.objects.all()
-
+    def filter_queryset(self, queryset: QuerySet[Fellowship]) -> QuerySet[Fellowship]:
         if fellow := self.cleaned_data.get("fellow"):
-            fellowships = fellowships.filter(
+            queryset = queryset.filter(
                 Q(contributor__profile__first_name__unaccent__icontains=fellow)
                 | Q(contributor__profile__last_name__unaccent__icontains=fellow)
             )
         if college := self.cleaned_data.get("college"):
-            fellowships = fellowships.filter(college__id__in=college)
+            queryset = queryset.filter(college__id__in=college)
         if specialties := self.cleaned_data.get("specialties"):
-            fellowships = fellowships.filter(
+            queryset = queryset.filter(
                 contributor__profile__specialties__in=specialties
             )
 
@@ -1396,7 +1281,7 @@ class FellowshipsMonitorSearchForm(forms.Form):
                 0,
             )
 
-        fellowships = fellowships.annotate(
+        queryset = queryset.annotate(
             nr_in_pool=count_q(
                 filter_submissions_in_pool(
                     Submission.objects.filter(fellows__exact=OuterRef("id")),
@@ -1491,32 +1376,13 @@ class FellowshipsMonitorSearchForm(forms.Form):
             + F("nr_recommendations_voted_abstain")
         )
 
-        fellowships = fellowships.select_related("contributor", "contributor__profile")
-
         if not self.cleaned_data.get("has_regular"):
-            fellowships = fellowships.exclude(status=Fellowship.STATUS_REGULAR)
+            queryset = queryset.exclude(status=Fellowship.STATUS_REGULAR)
         if not self.cleaned_data.get("has_senior"):
-            fellowships = fellowships.exclude(status=Fellowship.STATUS_SENIOR)
+            queryset = queryset.exclude(status=Fellowship.STATUS_SENIOR)
         if not self.cleaned_data.get("has_guest"):
-            fellowships = fellowships.exclude(status=Fellowship.STATUS_GUEST)
+            queryset = queryset.exclude(status=Fellowship.STATUS_GUEST)
         if not self.cleaned_data.get("show_expired"):
-            fellowships = fellowships.exclude(until_date__lt=date.today())
+            queryset = queryset.exclude(until_date__lt=date.today())
 
-        # Ordering of nominations
-        # Only order if both fields are set
-        if (orderby_value := self.cleaned_data.get("orderby")) and (
-            ordering_value := self.cleaned_data.get("ordering")
-        ):
-            # Remove the + from the ordering value, causes a Django error
-            ordering_value = ordering_value.replace("+", "")
-
-            # Ordering string is built by the ordering (+/-), and the field name
-            # from the orderby field split by "," and joined together
-            fellowships = fellowships.order_by(
-                *[
-                    ordering_value + order_part
-                    for order_part in orderby_value.split(",")
-                ]
-            )
-
-        return fellowships
+        return queryset

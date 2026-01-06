@@ -288,11 +288,7 @@ class TopicListView(PaginationMixin, ListView):
 
 def _hx_topic_table(request):
     form = TopicSearchForm(request.POST or None)
-    if form.is_valid():
-        topics = form.search_results()
-    else:
-        topics = Topic.objects.all()
-
+    topics = form.search()
     paginator = Paginator(topics, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)

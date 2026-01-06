@@ -326,18 +326,18 @@ def _hx_country_level_data(request, country):
                 "cumulative", {}
             ).get(key, 0)
         for year in pubyears:
-            context["per_year"][year][
-                "subsidy_income"
-            ] += organization.cf_balance_info.get(year, {}).get("subsidy_income", 0)
+            context["per_year"][year]["subsidy_income"] += (
+                organization.cf_balance_info.get(year, {}).get("subsidy_income", 0)
+            )
             context["per_year"][year]["expenditures"] += (
                 organization.cf_balance_info.get(year, {})
                 .get("expenditures", {})
                 .get("total", {})
                 .get("expenditures", 0)
             )
-            context["per_year"][year][
-                "impact_on_reserves"
-            ] += organization.cf_balance_info.get(year, {}).get("impact_on_reserves", 0)
+            context["per_year"][year]["impact_on_reserves"] += (
+                organization.cf_balance_info.get(year, {}).get("impact_on_reserves", 0)
+            )
     return render(request, "finances/_hx_country_level_data.html", context)
 
 
@@ -487,7 +487,7 @@ def subsidy_list(request):
         and (org := Organization.objects.filter(pk=org_id).first())
     ):
         initial["organization_query"] = org.name
-    form = SubsidySearchForm(initial=initial)
+    form = SubsidySearchForm(initial=initial, user=request.user)
     context = {
         "form": form,
     }
@@ -495,12 +495,8 @@ def subsidy_list(request):
 
 
 def _hx_subsidy_list(request):
-    form = SubsidySearchForm(request.POST or None)
-    if form.is_valid():
-        subsidies = form.search_results(request.user)
-    else:
-        subsidies = Subsidy.objects.all()
-
+    form = SubsidySearchForm(request.POST or None, user=request.user)
+    subsidies = form.search()
     content_type = ContentType.objects.get_for_model(Subsidy)
     subsidies = subsidies.annotate(
         nr_visible_notes=Coalesce(
@@ -716,10 +712,7 @@ def subsidyattachment_orphaned_list(request):
 
 
 def _hx_subsidyattachment_search_form(request, filter_set: str):
-    form = SubsidyAttachmentSearchForm(
-        user=request.user,
-        session_key=request.session.session_key,
-    )
+    form = SubsidyAttachmentSearchForm(user=request.user)
 
     if filter_set == "empty":
         form.apply_filter_set({}, none_on_empty=True)
@@ -731,13 +724,8 @@ def _hx_subsidyattachment_search_form(request, filter_set: str):
 
 
 def _hx_subsidyattachment_list_page(request):
-    form = SubsidyAttachmentSearchForm(
-        request.POST or None, user=request.user, session_key=request.session.session_key
-    )
-    if form.is_valid():
-        attachments = form.search_results()
-    else:
-        attachments = SubsidyAttachment.objects.orphaned()
+    form = SubsidyAttachmentSearchForm(request.POST or None, user=request.user)
+    attachments = form.search()
     paginator = Paginator(attachments, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)

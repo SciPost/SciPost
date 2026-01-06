@@ -3,19 +3,18 @@ __license__ = "AGPL v3"
 
 
 import datetime
-from typing import Dict
 
 from django import forms
 from django.contrib.auth import get_user_model
-from django.db.models import Max, Value, Q
+from django.db.models import Max, QuerySet, Value
 from django.db.models.functions import Greatest, Coalesce, NullIf
-from django.contrib.sessions.backends.db import SessionStore
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from django.urls import reverse
 
+from common.forms import CrispyFormMixin, SearchForm
 from journals.models import Journal
 from markup.widgets import TextareaWithPreview
 from proceedings.models import Proceedings
@@ -307,7 +306,10 @@ class ProofsDecisionForm(forms.ModelForm):
         return proofs
 
 
-class ProductionStreamSearchForm(forms.Form):
+class ProductionStreamSearchForm(CrispyFormMixin, SearchForm[ProductionStream]):
+    model = ProductionStream
+    queryset = ProductionStream.objects.ongoing()
+
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=512, required=False)
     identifier = forms.CharField(max_length=128, required=False)
@@ -338,34 +340,24 @@ class ProductionStreamSearchForm(forms.Form):
         ),
         required=False,
     )
-    ordering = forms.ChoiceField(
-        label="Ordering",
-        choices=(
-            # FIXME: Emperically, the ordering appers to be reversed for dates?
-            ("-", "Ascending"),
-            ("+", "Descending"),
-        ),
-        required=False,
-    )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
-        self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
-
-        all_streams = ProductionStream.objects.ongoing()
 
         self.fields["journal"].choices = (
             Journal.objects.active()
             .filter(
-                id__in=all_streams.values("submission__editorialdecision__for_journal")
+                id__in=self.queryset.values(
+                    "submission__editorialdecision__for_journal"
+                )
             )
             .order_by("name")
             .values_list("id", "name")
         )
         self.fields["proceedings"].choices = (
             Proceedings.objects.all()
-            .filter(id__in=all_streams.values("submission__proceedings"))
+            .filter(id__in=self.queryset.values("submission__proceedings"))
             .order_by("-submissions_close")
             # Short name is `event_suffix` if set, otherwise `event_name`
             .annotate(
@@ -375,27 +367,19 @@ class ProductionStreamSearchForm(forms.Form):
         )
         self.fields["officer"].choices = [(0, "Unassigned")] + list(
             ProductionUser.objects.active()
-            .filter(id__in=all_streams.values("officer"))
+            .filter(id__in=self.queryset.values("officer"))
             .order_by("-user__id")
             .values_list("id", "name")
         )
         self.fields["supervisor"].choices = [(0, "Unassigned")] + list(
             ProductionUser.objects.active()
-            .filter(id__in=all_streams.values("supervisor"))
+            .filter(id__in=self.queryset.values("supervisor"))
             .order_by("-user__id")
             .values_list("id", "name")
         )
 
-        # Set the initial values of the form fields from the session data
-        # if self.session_key:
-        #     session = SessionStore(session_key=self.session_key)
-
-        #     for field in self.fields:
-        #         if field in session:
-        #             self.fields[field].initial = session[field]
-
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
+    def get_form_layout(self) -> Layout:
+        return Layout(
             Div(
                 Div(
                     Div(
@@ -429,90 +413,37 @@ class ProductionStreamSearchForm(forms.Form):
             ),
         )
 
-    def apply_filter_set(self, filters: Dict, none_on_empty: bool = False):
-        # Apply the filter set to the form
-        for key in self.fields:
-            if key in filters:
-                self.fields[key].initial = filters[key]
-            elif none_on_empty:
-                if isinstance(self.fields[key], forms.MultipleChoiceField):
-                    self.fields[key].initial = []
-                else:
-                    self.fields[key].initial = None
-
-    def search_results(self):
-        # Save the form data to the session
-        # if self.session_key is not None:
-        #     session = SessionStore(session_key=self.session_key)
-
-        #     for key in self.cleaned_data:
-        #         session[key] = self.cleaned_data.get(key)
-
-        #     session.save()
-
-        streams = ProductionStream.objects.ongoing()
-
-        streams = streams.annotate(
+    def filter_queryset(
+        self, queryset: QuerySet[ProductionStream]
+    ) -> QuerySet[ProductionStream]:
+        queryset = queryset.annotate(
             latest_activity_annot=Greatest(Max("events__noted_on"), "opened", "closed")
         )
 
         if identifier := self.cleaned_data.get("identifier"):
-            streams = streams.filter(
-                submission__preprint__identifier_w_vn_nr__icontains=identifier,
+            queryset = queryset.filter(
+                submission__preprint__identifier_w_vn_nr__icontains=identifier
             )
         if author := self.cleaned_data.get("author"):
-            streams = streams.filter(submission__author_list__icontains=author)
+            queryset = queryset.filter(submission__author_list__icontains=author)
         if title := self.cleaned_data.get("title"):
-            streams = streams.filter(submission__title__icontains=title)
+            queryset = queryset.filter(submission__title__icontains=title)
 
-        def is_in_or_null(queryset, key, value, implicit_all=True):
-            """
-            Filter a queryset by a list of values. If the list contains a 0, then
-            also include objects where the key is null. If the list is empty, then
-            include all objects if implicit_all is True.
-            """
-            value = self.cleaned_data.get(value)
-            has_unassigned = "0" in value
-            is_unassigned = Q(**{key + "__isnull": True})
-            is_in_values = Q(**{key + "__in": list(filter(lambda x: x != 0, value))})
-
-            if has_unassigned:
-                return queryset.filter(is_unassigned | is_in_values)
-            elif implicit_all and not value:
-                return queryset
-            else:
-                return queryset.filter(is_in_values)
-
-        streams = is_in_or_null(
-            streams, "submission__editorialdecision__for_journal", "journal"
+        queryset = self.data_is_in_or_null(
+            queryset, "submission__editorialdecision__for_journal", "journal"
         )
-        streams = is_in_or_null(streams, "submission__proceedings", "proceedings")
-        streams = is_in_or_null(streams, "officer", "officer")
-        streams = is_in_or_null(streams, "supervisor", "supervisor")
-        streams = is_in_or_null(streams, "status", "status")
+        queryset = self.data_is_in_or_null(
+            queryset, "submission__proceedings", "proceedings"
+        )
+        queryset = self.data_is_in_or_null(queryset, "officer", "officer")
+        queryset = self.data_is_in_or_null(queryset, "supervisor", "supervisor")
+        queryset = self.data_is_in_or_null(queryset, "status", "status")
 
         if not self.user.has_perm("scipost.can_view_all_production_streams"):
             # Restrict stream queryset if user is not supervisor
-            streams = streams.filter_for_user(self.user.production_user)
+            queryset = queryset.filter_for_user(self.user.production_user)
 
-        # Ordering of streams
-        # Only order if both fields are set
-        if (orderby_value := self.cleaned_data.get("orderby")) and (
-            ordering_value := self.cleaned_data.get("ordering")
-        ):
-            # Remove the + from the ordering value, causes a Django error
-            ordering_value = ordering_value.replace("+", "")
-
-            # Ordering string is built by the ordering (+/-), and the field name
-            # from the orderby field split by "," and joined together
-            streams = streams.order_by(
-                *[
-                    ordering_value + order_part
-                    for order_part in orderby_value.split(",")
-                ]
-            )
-
-        return streams
+        return queryset
 
 
 class BulkAssignOfficersForm(forms.Form):

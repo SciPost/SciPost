@@ -3,16 +3,14 @@ __license__ = "AGPL v3"
 
 
 from itertools import product
-from django.contrib.sessions.backends.db import SessionStore
 from django.urls import reverse, reverse_lazy
 from django.utils.timezone import timedelta
 
 from colleges.permissions import is_edadmin
-from common.forms import HTMXDynSelWidget
+from common.forms import CrispyFormMixin, HTMXDynSelWidget, SearchForm
 from common.utils.text import partial_names_match
 from ethics.managers import CoauthorshipExclusionPurpose
 from submissions.models.assignment import ConditionalAssignmentOffer
-from .appraisal import QualificationForm, ReadinessForm
 
 
 import datetime
@@ -24,10 +22,8 @@ from django.db.models import (
     Q,
     Count,
     Exists,
-    IntegerField,
     OuterRef,
     QuerySet,
-    Subquery,
     Value,
     BooleanField,
     ExpressionWrapper,
@@ -77,7 +73,7 @@ from ..constants import (
     DECISION_FIXED,
     DEPRECATED,
 )
-from .. import exceptions, helpers
+from .. import exceptions
 from ..helpers import to_ascii_only
 from ..models import (
     PreprintServer,
@@ -94,10 +90,9 @@ from ..models import (
     EditorialCommunication,
     RefereeIndication,
 )
-from ..regexes import CHEMRXIV_DOI_PATTERN
 
 from colleges.models import Fellowship
-from common.utils import Q_with_alternative_spellings, remove_extra_spacing
+from common.utils import remove_extra_spacing
 from journals.models import Journal, Publication
 from journals.constants import (
     PUBLISHABLE_OBJECT_TYPE_ARTICLE,
@@ -105,14 +100,13 @@ from journals.constants import (
     PUBLISHABLE_OBJECT_TYPE_DATASET,
 )
 from mails.utils import DirectMailUtil
-from ontology.models import AcademicField, Specialty, Topic
+from ontology.models import Specialty, Topic
 from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
 from proceedings.models import Proceedings
 from profiles.models import Profile, ProfileEmail
 from scipost.services import (
     ChemRxivCaller,
-    DOICaller,
     ArxivCaller,
     FigshareCaller,
     OSFPreprintsCaller,
@@ -128,7 +122,10 @@ FIGSHARE_IDENTIFIER_PATTERN = r"^[0-9]+\.v[0-9]{1,2}$"
 OSFPREPRINTS_IDENTIFIER_PATTERN = r"^[a-z0-9]+(_v\d{1,2})?$"
 
 
-class PortalSubmissionSearchForm(forms.Form):
+class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
+    model = Submission
+    queryset = Submission.objects.public_latest().unpublished()
+
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     submitted_to = forms.ModelChoiceField(
@@ -144,12 +141,13 @@ class PortalSubmissionSearchForm(forms.Form):
         self.specialty_slug = kwargs.pop("specialty_slug")
         self.reports_needed = kwargs.pop("reports_needed")
         super().__init__(*args, **kwargs)
-        if self.acad_field_slug:
+        if acad_field_slug := self.acad_field_slug:
             self.fields["submitted_to"].queryset = Journal.objects.filter(
-                college__acad_field__slug=self.acad_field_slug
+                college__acad_field__slug=acad_field_slug
             )
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
+
+    def get_form_layout(self) -> Layout:
+        return Layout(
             Div(
                 Div(FloatingField("author"), css_class="col-lg-6"),
                 Div(FloatingField("title"), css_class="col-lg-6"),
@@ -168,49 +166,37 @@ class PortalSubmissionSearchForm(forms.Form):
             ),
         )
 
-    def search_results(self):
-        """
-        Return all Submission objects fitting search criteria.
-        """
-        submissions = Submission.objects.public_latest().unpublished()
+    def filter_queryset(
+        self, queryset: "QuerySet[Submission]"
+    ) -> "QuerySet[Submission]":
         if self.acad_field_slug and self.acad_field_slug != "all":
-            submissions = submissions.filter(acad_field__slug=self.acad_field_slug)
-            if self.specialty_slug and self.specialty_slug != "all":
-                submissions = submissions.filter(specialties__slug=self.specialty_slug)
-        if self.cleaned_data.get("submitted_to"):
-            submissions = submissions.filter(
-                submitted_to=self.cleaned_data.get("submitted_to")
-            )
-        if self.cleaned_data.get("proceedings"):
-            submissions = submissions.filter(
-                proceedings=self.cleaned_data.get("proceedings")
-            )
-        if self.cleaned_data.get("author"):
-            submissions = submissions.filter(
-                author_list__icontains=self.cleaned_data.get("author")
-            )
-        if self.cleaned_data.get("title"):
-            submissions = submissions.filter(
-                title__icontains=self.cleaned_data.get("title")
-            )
-        if self.cleaned_data.get("identifier"):
-            submissions = submissions.filter(
-                preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get(
-                    "identifier"
-                )
+            queryset = queryset.filter(acad_field__slug=self.acad_field_slug)
+        if self.specialty_slug and self.specialty_slug != "all":
+            queryset = queryset.filter(specialties__slug=self.specialty_slug)
+        if submitted_to := self.cleaned_data.get("submitted_to"):
+            queryset = queryset.filter(submitted_to=submitted_to)
+        if proceedings := self.cleaned_data.get("proceedings"):
+            queryset = queryset.filter(proceedings=proceedings)
+        if author := self.cleaned_data.get("author"):
+            queryset = queryset.filter(author_list__icontains=author)
+        if title := self.cleaned_data.get("title"):
+            queryset = queryset.filter(title__icontains=title)
+        if identifier := self.cleaned_data.get("identifier"):
+            queryset = queryset.filter(
+                preprint__identifier_w_vn_nr__icontains=identifier
             )
         if self.reports_needed:
-            submissions = (
-                submissions.in_refereeing()
+            queryset = (
+                queryset.in_refereeing()
                 .open_for_reporting()
                 .reports_needed()
                 .order_by("submission_date")
             )
-        return submissions
+        return queryset
 
 
-class SubmissionPoolSearchForm(forms.Form):
-    """Filter a Submission queryset using basic search fields."""
+class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
+    model = Submission
 
     submitted_to = forms.ModelChoiceField(
         queryset=Journal.objects.active(), required=False
@@ -256,15 +242,6 @@ class SubmissionPoolSearchForm(forms.Form):
         required=False,
         initial="assignment_deadline",
     )
-    ordering = forms.ChoiceField(
-        label="Ordering",
-        choices=(
-            ("+", "Ascending"),
-            ("-", "Descending"),
-        ),
-        required=False,
-        initial="+",
-    )
 
     versions = forms.ChoiceField(
         widget=forms.RadioSelect,
@@ -289,19 +266,16 @@ class SubmissionPoolSearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop("request")
-        user = request.user
+        self.user = request.user
         super().__init__(*args, **kwargs)
-        self.fields["status"].choices = self.get_status_choices(user)
-        if not user.contributor.is_ed_admin:
+        self.fields["status"].choices = self.get_status_choices(self.user)
+        if not self.user.contributor.is_ed_admin:
             # restrict journals to those of Colleges of user's Fellowships
-            college_id_list = [
-                f.college.id for f in user.contributor.fellowships.active()
-            ]
             self.fields["submitted_to"].queryset = Journal.objects.filter(
-                college__in=college_id_list
+                college__in=self.user.contributor.fellowships.active().values("college")
             )
-        self.helper = FormHelper()
 
+    def get_form_layout(self) -> Layout:
         div_block_checkbox = Div(
             Div(
                 Field("hide_fully_appraised"),
@@ -319,7 +293,8 @@ class SubmissionPoolSearchForm(forms.Form):
             Div(FloatingField("ordering"), css_class="col-6 col-md-12 col-xl-6"),
             css_class="row mb-0",
         )
-        self.helper.layout = Layout(
+
+        return Layout(
             Div(
                 Div(FloatingField("submitted_to"), css_class="col-lg-6"),
                 Div(FloatingField("specialties"), css_class="col-lg-6"),
@@ -354,7 +329,8 @@ class SubmissionPoolSearchForm(forms.Form):
             ),
         )
 
-    def get_status_choices(self, user):
+    @staticmethod
+    def get_status_choices(user):
         incoming = (
             "Incoming",
             (
@@ -488,60 +464,46 @@ class SubmissionPoolSearchForm(forms.Form):
 
         return choices
 
-    def search_results(self, user):
-        """
-        Return all Submission objects fitting search criteria.
-        """
-
-        latest = self.cleaned_data.get("versions") == "latest"
+    def filter_queryset(
+        self, queryset: "QuerySet[Submission]"
+    ) -> "QuerySet[Submission]":
+        versions = self.cleaned_data.get("versions")
         search_set = self.cleaned_data.get("search_set")
-        historical = search_set == "historical"
-        submissions = Submission.objects.in_pool(
-            user,
-            latest=latest,
-            historical=historical,
+
+        queryset = queryset.in_pool(
+            self.user,
+            latest=versions == "latest",
+            historical=search_set == "historical",
         )
 
         # Warning: this will only work for one fellowship per user
-        fellowship = user.contributor.fellowships.active().first()
+        fellowship = self.user.contributor.fellowships.active().first()
         if fellowship and self.cleaned_data.get("hide_fully_appraised"):
-            submissions = submissions.annot_fully_appraised_by(fellowship).exclude(
+            queryset = queryset.annot_fully_appraised_by(fellowship).exclude(
                 is_fully_appraised=True
             )
         if fellowship and self.cleaned_data.get("hide_unqualified_for"):
-            submissions = submissions.exclude_not_qualified_for_fellow(fellowship)
+            queryset = queryset.exclude_not_qualified_for_fellow(fellowship)
 
-        if not user.contributor.is_ed_admin:
-            submissions = submissions.stage_incoming_completed()
+        if not self.user.contributor.is_ed_admin:
+            queryset = queryset.stage_incoming_completed()
         #     if not user.contributor.is_active_senior_fellow:
-        #         submissions = submissions.stage_preassignment_completed()
+        #         queryset = queryset.stage_preassignment_completed()
         if search_set == "current_noawaitingresub":
-            submissions = submissions.exclude(status=Submission.AWAITING_RESUBMISSION)
-        if self.cleaned_data.get("specialties"):
-            submissions = submissions.filter(
-                specialties__in=self.cleaned_data.get("specialties")
-            )
-        if self.cleaned_data.get("submitted_to"):
-            submissions = submissions.filter(
-                submitted_to=self.cleaned_data.get("submitted_to")
-            )
-        if self.cleaned_data.get("proceedings"):
-            submissions = submissions.filter(
-                proceedings=self.cleaned_data.get("proceedings")
-            )
-        if self.cleaned_data.get("author"):
-            submissions = submissions.filter(
-                author_list__unaccent__icontains=self.cleaned_data.get("author")
-            )
-        if self.cleaned_data.get("title"):
-            submissions = submissions.filter(
-                title__unaccent__icontains=self.cleaned_data.get("title")
-            )
-        if self.cleaned_data.get("identifier"):
-            submissions = submissions.filter(
-                preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get(
-                    "identifier"
-                )
+            queryset = queryset.exclude(status=Submission.AWAITING_RESUBMISSION)
+        if specialties := self.cleaned_data.get("specialties"):
+            queryset = queryset.filter(specialties__in=specialties)
+        if submitted_to := self.cleaned_data.get("submitted_to"):
+            queryset = queryset.filter(submitted_to=submitted_to)
+        if proceedings := self.cleaned_data.get("proceedings"):
+            queryset = queryset.filter(proceedings=proceedings)
+        if author := self.cleaned_data.get("author"):
+            queryset = queryset.filter(author_list__unaccent__icontains=author)
+        if title := self.cleaned_data.get("title"):
+            queryset = queryset.filter(title__unaccent__icontains=title)
+        if identifier := self.cleaned_data.get("identifier"):
+            queryset = queryset.filter(
+                preprint__identifier_w_vn_nr__icontains=identifier
             )
 
         # filter by status
@@ -549,45 +511,45 @@ class SubmissionPoolSearchForm(forms.Form):
         if status == "all":
             pass
         elif status == "plagiarism_internal_failed_temporary":
-            submissions = submissions.filter(
+            queryset = queryset.filter(
                 internal_plagiarism_assessment__status=PlagiarismAssessment.STATUS_FAILED_TEMPORARY,
             )
         elif status == "plagiarism_internal_failed_permanent":
-            submissions = submissions.filter(
+            queryset = queryset.filter(
                 internal_plagiarism_assessment__status=PlagiarismAssessment.STATUS_FAILED_PERMANENT,
             )
         elif status == "plagiarism_iThenticate_failed_temporary":
-            submissions = submissions.filter(
+            queryset = queryset.filter(
                 iThenticate_plagiarism_assessment__status=PlagiarismAssessment.STATUS_FAILED_TEMPORARY,
             )
         elif status == "plagiarism_iThenticate_failed_permanent":
-            submissions = submissions.filter(
+            queryset = queryset.filter(
                 iThenticate_plagiarism_assessment__status=PlagiarismAssessment.STATUS_FAILED_PERMANENT,
             )
         elif status == "assignment_1":
-            submissions = submissions.filter(
+            queryset = queryset.filter(
                 status=Submission.SEEKING_ASSIGNMENT,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=7),
             )
         elif status == "assignment_2":
-            submissions = submissions.filter(
+            queryset = queryset.filter(
                 status=Submission.SEEKING_ASSIGNMENT,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=14),
             )
         elif status == "assignment_4":
-            submissions = submissions.filter(
+            queryset = queryset.filter(
                 status=Submission.SEEKING_ASSIGNMENT,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=28),
             )
         elif status == "in_refereeing":
-            submissions = submissions.in_refereeing()
+            queryset = queryset.in_refereeing()
         elif status == "unvetted_reports":
-            reports_to_vet = Report.objects.awaiting_vetting()
-            id_list = [r.submission.id for r in reports_to_vet.all()]
-            submissions = submissions.filter(id__in=id_list)
+            queryset = queryset.filter(
+                id__in=Report.objects.awaiting_vetting().values("submission_id")
+            )
         elif status == "deadline_passed":
-            submissions = (
-                submissions.in_refereeing()
+            queryset = (
+                queryset.in_refereeing()
                 .filter(
                     reporting_deadline__isnull=False,
                     reporting_deadline__lt=timezone.now(),
@@ -595,13 +557,13 @@ class SubmissionPoolSearchForm(forms.Form):
                 .exclude(eicrecommendations__isnull=False)
             )
         elif status == "in_preparation_week_1":
-            submissions = submissions.filter(
+            queryset = queryset.filter(
                 status="refereeing_in_preparation",
                 latest_activity__lt=timezone.now() - datetime.timedelta(days=7),
             )
         elif status == "refereeing_1":
-            submissions = (
-                submissions.filter(
+            queryset = (
+                queryset.filter(
                     referee_invitations__date_invited__lt=(
                         timezone.now() - datetime.timedelta(days=30)
                     )
@@ -615,8 +577,8 @@ class SubmissionPoolSearchForm(forms.Form):
                 .exclude(eicrecommendations__isnull=False)
             )
         elif status == "refereeing_2":
-            submissions = (
-                submissions.filter(
+            queryset = (
+                queryset.filter(
                     referee_invitations__date_invited__lt=(
                         timezone.now() - datetime.timedelta(days=60)
                     )
@@ -630,8 +592,8 @@ class SubmissionPoolSearchForm(forms.Form):
                 .exclude(eicrecommendations__isnull=False)
             )
         elif status == "refereeing_3":
-            submissions = (
-                submissions.filter(
+            queryset = (
+                queryset.filter(
                     referee_invitations__date_invited__lt=(
                         timezone.now() - datetime.timedelta(days=90)
                     )
@@ -640,81 +602,58 @@ class SubmissionPoolSearchForm(forms.Form):
                 .exclude(eicrecommendations__isnull=False)
             )
         elif status == "voting_prepare":
-            submissions = submissions.voting_in_preparation()
+            queryset = queryset.voting_in_preparation()
         elif status == "voting_ongoing":
-            submissions = submissions.undergoing_voting()
+            queryset = queryset.undergoing_voting()
         elif status == "voting_1":
-            submissions = submissions.undergoing_voting(longer_than_days=7)
+            queryset = queryset.undergoing_voting(longer_than_days=7)
         elif status == "voting_2":
-            submissions = submissions.undergoing_voting(longer_than_days=14)
+            queryset = queryset.undergoing_voting(longer_than_days=14)
         elif status == "voting_4":
-            submissions = submissions.undergoing_voting(longer_than_days=28)
+            queryset = queryset.undergoing_voting(longer_than_days=28)
         elif status == "nr_voted_for_gte_4":
-            ids_list = [
-                r.submission.id
-                for r in EICRecommendation.objects.put_to_voting()
-                .annotate(
-                    nr_voted_for=Count("voted_for"),
-                )
+            queryset = queryset.undergoing_voting().filter(
+                id__in=EICRecommendation.objects.put_to_voting()
+                .annotate(nr_voted_for=Count("voted_for"))
                 .filter(nr_voted_for__gte=4)
-            ]
-            submissions = submissions.undergoing_voting().filter(id__in=ids_list)
+                .values_list("submission__id", flat=True)
+            )
         else:  # if an actual unmodified status is used, just filter on that
-            submissions = submissions.filter(status=status)
+            queryset = queryset.filter(status=status)
 
         # filter by EIC
-        if self.cleaned_data.get("editor_in_charge"):
-            submissions = submissions.filter(
-                editor_in_charge=self.cleaned_data.get("editor_in_charge").contributor
-            )
+        if eic := self.cleaned_data.get("editor_in_charge"):
+            queryset = queryset.filter(editor_in_charge=eic.contributor)
 
-        # Ordering of submissions
-        # Only order if both fields are set
-        if (orderby_value := self.cleaned_data.get("orderby")) and (
-            ordering_value := self.cleaned_data.get("ordering")
-        ):
-            # Remove the + from the ordering value, causes a Django error
-            ordering_value = ordering_value.replace("+", "")
-
-            # Ordering string is built by the ordering (+/-), and the field name
-            # from the orderby field split by "," and joined together
-            submissions = submissions.order_by(
-                *[
-                    ordering_value + order_part
-                    for order_part in orderby_value.split(",")
-                ]
-            )
-
-        return submissions
+        return queryset
 
 
-class ReportSearchForm(forms.Form):
+class ReportSearchForm(CrispyFormMixin, SearchForm[Report]):
+    model = Report
+    queryset = Report.objects.accepted()
+
     submission_title = forms.CharField(max_length=100, required=False)
 
     def __init__(self, *args, **kwargs):
         self.acad_field_slug = kwargs.pop("acad_field_slug")
         self.specialty_slug = kwargs.pop("specialty_slug")
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Div(
-                Div(FloatingField("submission_title"), css_class="col-lg-6"),
-            ),
-        )
 
-    def search_results(self):
-        reports = Report.objects.accepted()
+    def get_form_layout(self) -> Layout:
+        return Layout(Div(Div(FloatingField("submission_title"), css_class="col")))
+
+    def filter_queryset(self, queryset: "QuerySet[Report]") -> "QuerySet[Report]":
         if self.acad_field_slug and self.acad_field_slug != "all":
-            reports = reports.filter(submission__acad_field__slug=self.acad_field_slug)
-            if self.specialty_slug and self.specialty_slug != "all":
-                reports = reports.filter(
-                    submission__specialties__slug=self.specialty_slug
-                )
-        if self.cleaned_data.get("submission_title"):
-            reports = reports.filter(
-                submission__title__icontains=self.cleaned_data.get("submission_title")
+            queryset = queryset.filter(
+                submission__acad_field__slug=self.acad_field_slug
             )
-        return reports
+        if self.specialty_slug and self.specialty_slug != "all":
+            queryset = queryset.filter(
+                submission__specialties__slug=self.specialty_slug
+            )
+        if sub_title := self.cleaned_data.get("submission_title"):
+            queryset = queryset.filter(submission__title__icontains=sub_title)
+        return queryset
 
 
 # Marked for deprecation
@@ -2561,7 +2500,9 @@ class EditorialAssignmentForm(forms.ModelForm):
         return assignment
 
 
-class InviteRefereeSearchFrom(forms.Form):
+class InviteRefereeSearchForm(CrispyFormMixin, SearchForm[Profile]):
+    model = Profile
+    queryset = Profile.objects.eponymous()
     form_id = "invite-referee-search-form"
 
     text = forms.CharField(
@@ -2598,42 +2539,17 @@ class InviteRefereeSearchFrom(forms.Form):
         ],
         required=False,
     )
-    ordering = forms.ChoiceField(
-        label="Ordering",
-        choices=[
-            ("+", "Ascending"),
-            ("-", "Descending"),
-        ],
-        required=False,
-    )
 
     def __init__(self, *args, **kwargs):
         self.submission = kwargs.pop("submission")
         self.session_key = kwargs.pop("session_key", None)
         super().__init__(*args, **kwargs)
 
-        # Set the initial values of the form fields from the session data
-        # if self.session_key:
-        #     session = SessionStore(session_key=self.session_key)
-
-        #     for field_key in self.fields:
-        #         session_key = (
-        #             f"{self.form_id}_{field_key}"
-        #             if hasattr(self, "form_id")
-        #             else field_key
-        #         )
-
-        #         if (session_value := session.get(session_key)) or (
-        #             isinstance(session_value, bool)
-        #         ):
-        #             self.fields[field_key].initial = session_value
-
         self.fields[
             "specialties"
         ].choices = self.submission.specialties.all().values_list("id", "name")
 
-        self.helper = FormHelper()
-
+    def get_form_layout(self) -> Layout:
         div_block_ordering = Div(
             Div(Field("orderby"), css_class="col-6"),
             Div(Field("ordering"), css_class="col-6"),
@@ -2646,7 +2562,7 @@ class InviteRefereeSearchFrom(forms.Form):
             css_class="row mb-0",
         )
 
-        self.helper.layout = Layout(
+        return Layout(
             Div(
                 Div(
                     Div(
@@ -2672,46 +2588,8 @@ class InviteRefereeSearchFrom(forms.Form):
             ),
         )
 
-    def apply_filter_set(self, filters: dict, none_on_empty: bool = False):
-        # Apply the filter set to the form
-        for key in self.fields:
-            if key in filters:
-                self.fields[key].initial = filters[key]
-            elif none_on_empty:
-                if isinstance(self.fields[key], forms.MultipleChoiceField):
-                    self.fields[key].initial = []
-                else:
-                    self.fields[key].initial = None
-
-    def save_fields_to_session(self):
-        # Save the form data to the session
-        if self.session_key is not None:
-            session = SessionStore(session_key=self.session_key)
-
-            for field_key in self.cleaned_data:
-                session_key = (
-                    f"{self.form_id}_{field_key}"
-                    if hasattr(self, "form_id")
-                    else field_key
-                )
-
-                if (field_value := self.cleaned_data.get(field_key)) or isinstance(
-                    field_value, bool
-                ):
-                    # if isinstance(field_value, date):
-                    #     field_value = field_value.strftime("%Y-%m-%d")
-
-                    session[session_key] = field_value
-
-            session.save()
-
-    def search_results(self) -> QuerySet[Profile]:
-        """
-        Return a queryset of Profiles based on the search form.
-        """
-        # self.save_fields_to_session() #! Removed because it is likely causing headaches for editors
-
-        profiles = Profile.objects.eponymous().annotate(
+    def filter_queryset(self, queryset: QuerySet[Profile]) -> QuerySet[Profile]:
+        queryset = queryset.annotate(
             last_name_matches=Exists(
                 Submission.objects.filter(
                     id=self.submission.id,
@@ -2736,10 +2614,10 @@ class InviteRefereeSearchFrom(forms.Form):
         )
 
         if text := self.cleaned_data.get("text"):
-            profiles = profiles.search(text)
+            queryset = queryset.search(text)
 
         if affiliation := self.cleaned_data.get("affiliation"):
-            profiles = profiles.filter(
+            queryset = queryset.filter(
                 affiliations__organization__name__icontains=affiliation
             )
 
@@ -2759,8 +2637,8 @@ class InviteRefereeSearchFrom(forms.Form):
                 last_name_matches=True
             )
 
-            profiles = (
-                profiles.without_conflicts_of_interest_against_submission_authors_of(
+            queryset = (
+                queryset.without_conflicts_of_interest_against_submission_authors_of(
                     self.submission,
                     purpose=CoauthorshipExclusionPurpose.REFEREEING,
                 )
@@ -2772,23 +2650,23 @@ class InviteRefereeSearchFrom(forms.Form):
                 has_accepted_previous_invitation=True
             )
 
-            profiles = profiles.annotate(
+            queryset = queryset.annotate(
                 is_unavailable=Exists(
                     UnavailabilityPeriod.objects.today().filter(
                         contributor=OuterRef("contributor")
                     )
                 )
             )
-            profiles = profiles.exclude(is_unavailable=True)
+            queryset = queryset.exclude(is_unavailable=True)
 
         # Filter to only those with email, if the option is selected
         if not self.cleaned_data.get("show_email_unknown"):
-            profiles = profiles.filter(has_any_email=True)
+            queryset = queryset.filter(has_any_email=True)
 
         if specialties := self.cleaned_data.get("specialties"):
-            profiles = profiles.filter(specialties__in=specialties)
+            queryset = queryset.filter(specialties__in=specialties)
 
-        profiles = profiles.annotate(
+        queryset = queryset.annotate(
             can_be_sent_invitation=ExpressionWrapper(
                 can_be_sent_invitation_expression,
                 output_field=BooleanField(),
@@ -2804,7 +2682,7 @@ class InviteRefereeSearchFrom(forms.Form):
             - timedelta(days=365 * 5),
         )
         # Add invitation statistics
-        profiles = profiles.annotate(
+        queryset = queryset.annotate(
             invitations_sent_5y=Count(
                 "referee_invitations",
                 filter=Q_last_5y,
@@ -2840,24 +2718,7 @@ class InviteRefereeSearchFrom(forms.Form):
             ),
         )
 
-        # Ordering of referees
-        # Only order if both fields are set
-        if (orderby_value := self.cleaned_data.get("orderby")) and (
-            ordering_value := self.cleaned_data.get("ordering")
-        ):
-            # Remove the + from the ordering value, causes a Django error
-            ordering_value = ordering_value.replace("+", "")
-
-            # Ordering string is built by the ordering (+/-), and the field name
-            # from the orderby field split by "," and joined together
-            profiles = profiles.order_by(
-                *[
-                    ordering_value + order_part
-                    for order_part in orderby_value.split(",")
-                ]
-            )
-
-        return profiles
+        return queryset
 
 
 class ConfigureRefereeInvitationForm(forms.Form):

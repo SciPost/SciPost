@@ -914,10 +914,7 @@ def _hx_voting_round_summary(request, round_id):
 
 
 def _hx_nominations_search_form(request, filter_set: str):
-    form = FellowshipNominationSearchForm(
-        user=request.user,
-        session_key=request.session.session_key,
-    )
+    form = FellowshipNominationSearchForm(user=request.user)
 
     if filter_set == "empty":
         form.apply_filter_set({}, none_on_empty=True)
@@ -929,13 +926,8 @@ def _hx_nominations_search_form(request, filter_set: str):
 
 
 def _hx_nominations_list(request):
-    form = FellowshipNominationSearchForm(
-        request.POST or None, user=request.user, session_key=request.session.session_key
-    )
-    if form.is_valid():
-        nominations = form.search_results()
-    else:
-        nominations = FellowshipNomination.objects.all()
+    form = FellowshipNominationSearchForm(request.POST or None, user=request.user)
+    nominations = form.search()
     paginator = Paginator(nominations, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)

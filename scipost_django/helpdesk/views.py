@@ -409,10 +409,7 @@ def _hx_ticket_search_table(request, queue_slug=None):
         session_key=request.session.session_key,
     )
 
-    if form.is_valid():
-        tickets = form.search_results()
-    else:
-        tickets = form.tickets
+    tickets = form.search()
 
     paginator = Paginator(tickets, 16)
     page_nr = request.GET.get("page")

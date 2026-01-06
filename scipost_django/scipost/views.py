@@ -322,22 +322,17 @@ def portal_hx_publications_page(request):
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,
     )
-    if form.is_valid():
-        publications = form.search_results()
-    else:
-        publications = Publication.objects.published()
-        if session_acad_field_slug and session_acad_field_slug != "all":
-            publications = publications.filter(acad_field__slug=session_acad_field_slug)
-            if session_specialty_slug:
-                publications = publications.filter(
-                    specialties__slug=session_specialty_slug
-                )
-    publications = publications.select_related("acad_field").prefetch_related(
-        "in_journal",
-        "in_issue__in_journal",
-        "in_issue__in_volume__in_journal",
-        "specialties",
-        "collections__series",
+    publications = form.search()
+    publications = (
+        publications.all()
+        .select_related("acad_field")
+        .prefetch_related(
+            "in_journal",
+            "in_issue__in_journal",
+            "in_issue__in_volume__in_journal",
+            "specialties",
+            "collections__series",
+        )
     )
     paginator = Paginator(publications, 10)
     page_nr = request.GET.get("page")
@@ -367,16 +362,13 @@ def portal_hx_submissions_page(request):
         specialty_slug=session_specialty_slug,
         reports_needed=reports_needed,
     )
-    if form.is_valid():
-        submissions = form.search_results()
-    else:
-        submissions = Submission.objects.public()
-        if session_acad_field_slug and session_acad_field_slug != "all":
-            submissions = submissions.filter(acad_field__slug=session_acad_field_slug)
-            if session_specialty_slug:
-                submissions = submissions.filter(
-                    specialties__slug=session_specialty_slug
-                )
+    submissions = form.search()
+
+    if session_acad_field_slug and session_acad_field_slug != "all":
+        submissions = submissions.filter(acad_field__slug=session_acad_field_slug)
+    if session_specialty_slug:
+        submissions = submissions.filter(specialties__slug=session_specialty_slug)
+
     submissions = submissions.select_related(
         "preprint",
         "acad_field",
@@ -409,16 +401,7 @@ def portal_hx_reports_page(request):
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,
     )
-    if form.is_valid():
-        reports = form.search_results()
-    else:
-        reports = Report.objects.accepted()
-    if session_acad_field_slug and session_acad_field_slug != "all":
-        reports = reports.filter(submission__acad_field__slug=session_acad_field_slug)
-        if session_specialty_slug and session_specialty_slug != "all":
-            reports = reports.filter(
-                submission__specialties__slug=session_specialty_slug
-            )
+    reports = form.search()
     paginator = Paginator(reports, 10)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
@@ -443,23 +426,8 @@ def portal_hx_comments_page(request):
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,
     )
-    if form.is_valid():
-        comments = form.search_results()
-    else:
-        comments = Comment.objects.vetted()
-    if session_acad_field_slug and session_acad_field_slug != "all":
-        comments = comments.filter(
-            Q(submissions__acad_field__slug=session_acad_field_slug)
-            | Q(reports__submission__acad_field__slug=session_acad_field_slug)
-            | Q(commentaries__acad_field__slug=session_acad_field_slug)
-        )
-        if session_specialty_slug and session_specialty_slug != "all":
-            comments = comments.filter(
-                Q(submissions__specialties__slug=session_specialty_slug)
-                | Q(reports__submission__specialties__slug=session_specialty_slug)
-                | Q(commentaries__specialties__slug=session_specialty_slug)
-            )
-    paginator = Paginator(comments.distinct(), 10)
+    comments = form.search()
+    paginator = Paginator(comments, 10)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
     context = {"page_obj": page_obj}
@@ -483,8 +451,7 @@ def portal_hx_commentaries_page(request):
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,
     )
-    form.is_valid()  # trigger validation to get filtering
-    commentaries = form.search_results()
+    commentaries = form.search()
     paginator = Paginator(commentaries, 10)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
@@ -509,8 +476,7 @@ def portal_hx_theses_page(request):
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,
     )
-    form.is_valid()  # trigger validation to get filtering
-    theses = form.search_results()
+    theses = form.search()
     paginator = Paginator(theses, 10)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)
