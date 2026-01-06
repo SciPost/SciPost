@@ -7,13 +7,16 @@ import datetime
 from typing import Any, TypeVar, Generic
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout
+from crispy_forms.layout import Layout, Div
+from crispy_bootstrap5.bootstrap5 import FloatingField
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import EmailValidator
 from django.db.models import Q, Model, QuerySet
+from django.forms import Form
 
 M = TypeVar("M", bound=Model)
+F = TypeVar("F", bound="Form")
 
 
 class HTMXInlineCRUDModelForm(forms.ModelForm):
@@ -89,7 +92,7 @@ class HTMXDynSelWidget(forms.Select):
         return result
 
 
-class CrispyFormMixin:
+class CrispyFormMixin(forms.Form):
     """
     Mixin for Django forms to add Crispy Forms helper initialization
     and the `get_form_layout` method.
@@ -102,9 +105,15 @@ class CrispyFormMixin:
             self.helper = FormHelper() if not hasattr(self, "helper") else self.helper
             self.helper.layout = layout
 
-    def get_form_layout(self) -> Layout | None:
+    def get_form_layout(self) -> Layout:
         """Return the Crispy Forms layout for this form, if any."""
-        return None
+        field_cols: list[Div] = []
+        for field in self.fields:
+            # Skip the ordering field if there is no orderby field
+            if field == "ordering" and "orderby" not in self.fields:
+                continue
+            field_cols.append(Div(FloatingField(field), css_class="col-12 col-md-6"))
+        return Layout(Div(*field_cols, css_class="row"))
 
 
 class FormOptionsStorageMixin(forms.Form):
