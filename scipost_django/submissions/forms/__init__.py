@@ -2282,15 +2282,25 @@ class SubmissionTargetJournalForm(forms.ModelForm):
             ButtonHolder(Submit("submit", "Update", css_class="btn btn-danger")),
         )
 
+    def clean_submitted_to(self):
+        journal = self.cleaned_data["submitted_to"]
+        if journal == self.instance.submitted_to:
+            raise forms.ValidationError(
+                "The target journal must be different than the current one."
+            )
+        return journal
+
     def save(self):
         self.instance: Submission
-        journal = self.cleaned_data["submitted_to"]
-        if journal != self.instance.submitted_to:
-            self.instance.fulfilled_expectations = ""
-            self.save()
 
-            keep_fellows = self.cleaned_data["keep_manually_added_fellows"]
-            self.instance.set_target_journal(journal, keep_fellows)
+        self.instance.set_target_journal(
+            self.cleaned_data["submitted_to"],
+            self.cleaned_data["keep_manually_added_fellows"],
+        )
+        self.instance.fulfilled_expectations = ""
+        self.instance.save()
+
+        return self.instance
 
 
 class SubmissionTargetProceedingsForm(forms.ModelForm):

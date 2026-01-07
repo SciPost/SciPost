@@ -2975,9 +2975,12 @@ def _hx_submission_update_target_journal_form(request, identifier_w_vn_nr):
     form = SubmissionTargetJournalForm(request.POST or None, instance=submission)
     context = {
         "submission": submission,
+        "form": form,
     }
     if form.is_valid():
-        form.save()
+        submission = form.save()
+        context["submission"] = submission
+
         if form.has_changed():
             submission.add_general_event(
                 "The target Journal has been changed from %s to %s"
@@ -2988,7 +2991,6 @@ def _hx_submission_update_target_journal_form(request, identifier_w_vn_nr):
             "submissions/admin/_submission_update_target_journal.html",
             context,
         )
-    context["form"] = form
     return render(
         request,
         "submissions/admin/_hx_submission_update_target_journal_form.html",
