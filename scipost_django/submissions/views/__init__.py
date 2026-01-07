@@ -1912,18 +1912,28 @@ def ref_invitation_reminder(request, identifier_w_vn_nr, invitation_id):
     invitation: "RefereeInvitation" = get_object_or_404(
         submission.referee_invitations.all(), pk=invitation_id
     )
-    invitation.reminder_sent()
 
-    email_template_code = (
-        "ref_reminder_registered"
-        if invitation.to_registered_referee
-        else "ref_reminder_unregistered"
-    )
-    DirectMailUtil(
-        "submissions/" + email_template_code,
-        invitation=invitation,
-    ).send_mail()
-    messages.success(request, "Reminder sent successfully.")
+    if invitation.accepted is not None:
+        messages.warning(request, "This referee has already responded.")
+        return redirect(
+            reverse(
+                "submissions:editorial_page",
+                kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+            )
+        )
+    else:
+        email_template_code = (
+            "ref_reminder_registered"
+            if invitation.to_registered_referee
+            else "ref_reminder_unregistered"
+        )
+        DirectMailUtil(
+            "submissions/" + email_template_code,
+            invitation=invitation,
+        ).send_mail()
+        invitation.reminder_sent()
+        messages.success(request, "Reminder sent successfully.")
+
     return redirect(
         reverse(
             "submissions:editorial_page",

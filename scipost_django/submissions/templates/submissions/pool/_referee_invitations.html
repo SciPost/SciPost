@@ -102,7 +102,7 @@
           {% endif %}
         </td>
         <td>
-          {% if not invitation.fully_treated %}
+          {% if not invitation.responded and not invitation.cancelled %}
             <div><a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder</a></div>
           {% endif %}
           {% if invitation.nr_reminders > 0 %}
@@ -111,7 +111,7 @@
           {% endif %}
         </td>
         <td>
-          {% if not invitation.fully_treated %}
+          {% if not invitation.responded and not invitation.cancelled %}
             <div class="d-flex flex-column justify-contents-between align-center bg-light">
               <a href="#" class="p-1"
                   hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"

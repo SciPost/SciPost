@@ -194,6 +194,11 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         return self.fulfilled or self.cancelled or self.accepted == False
 
     @property
+    def responded(self):
+        """Check if invitation has received a response. Also implied by being fulfilled."""
+        return self.accepted is not None or self.fulfilled
+
+    @property
     def needs_attention(self):
         """Check if invitation needs attention by the editor."""
         return (
