@@ -218,8 +218,8 @@ def profile_match(request, profile_id, from_type, pk):
         # Give priority to the email coming from Contributor
         email, __ = ProfileEmail.objects.get_or_create(
             profile=profile,
-            email=contributor.user.email,
-            defaults={"still_valid": True},
+            email__iexact=contributor.user.email,
+            defaults={"still_valid": True, "email": contributor.user.email},
         )
         email.set_primary()
     elif from_type == "refereeinvitation":

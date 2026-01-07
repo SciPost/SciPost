@@ -535,17 +535,26 @@ class RegistrationForm(forms.Form):
 
         profile.specialties.set(self.cleaned_data["specialties"])
 
+        institutional_email_address = self.cleaned_data["institutional_email"]
         institutional_email, created = ProfileEmail.objects.get_or_create(
-            email=self.cleaned_data["institutional_email"],
             profile=profile,
-            defaults={"primary": True},
+            email__iexact=institutional_email_address,
+            defaults={
+                "primary": True,
+                "email": institutional_email_address,
+            },
         )
         institutional_email.set_primary()
 
+        personal_email_address = self.cleaned_data["personal_email"]
         personal_email, created = ProfileEmail.objects.get_or_create(
-            email=self.cleaned_data["personal_email"],
             profile=profile,
-            defaults={"primary": False, "kind": ProfileEmail.KIND_RECOVERY},
+            email__iexact=personal_email_address,
+            defaults={
+                "primary": False,
+                "kind": ProfileEmail.KIND_RECOVERY,
+                "email": personal_email_address,
+            },
         )
         if not created:
             personal_email.primary = False

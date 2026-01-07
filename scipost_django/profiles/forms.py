@@ -134,8 +134,8 @@ class ProfileForm(forms.ModelForm):
         if email := self.cleaned_data["email"]:
             profile_email, _ = ProfileEmail.objects.get_or_create(
                 profile=profile,
-                email=email,
-                defaults={"still_valid": True},
+                email__iexact=email,
+                defaults={"still_valid": True, "email": email},
             )
             profile_email.set_primary()
 
