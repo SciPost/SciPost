@@ -42,7 +42,7 @@ sphinx-rtd-theme==3.0.2                         # 2025-02-19: Sphinx readthedocs
 sphinxcontrib-mermaid==1.0.0		            # 2025-02-19: Mermaid diagrams in Sphinx
 
 # Sentry
-urllib3==2.3.0                                  # 2025-02-19: Required by sentry-sdk
+urllib3==2.6.3                                  # 2026-01-08: Required by sentry-sdk
 sentry-sdk==2.22.0                              # 2025-02-19
 
 # Testing
