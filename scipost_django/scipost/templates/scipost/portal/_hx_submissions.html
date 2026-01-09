@@ -1,0 +1,8 @@
+{% load journals_extras %}
+
+{% load crispy_forms_tags %}
+
+<h2 class="highlight my-4">Submissions{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
+
+<div hx-get="{% url 'scipost:_hx_submission_search_form_view' %}"
+     hx-trigger="intersect once"></div>

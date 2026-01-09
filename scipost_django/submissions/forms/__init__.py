@@ -152,14 +152,10 @@ class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
         initial="submission_date",
     )
 
-    only_needing_reports = forms.BooleanField(required=False)
-
     def __init__(self, *args, **kwargs):
         self.acad_field_slug = kwargs.pop("acad_field_slug")
         self.specialty_slug = kwargs.pop("specialty_slug")
-        only_needing_reports = kwargs.pop("only_needing_reports", False)
         super().__init__(*args, **kwargs)
-        self.fields["only_needing_reports"].initial = only_needing_reports
         if (acad_field_slug := self.acad_field_slug) and self.acad_field_slug != "all":
             self.fields["submitted_to"].queryset = Journal.objects.filter(
                 college__acad_field__slug=acad_field_slug
@@ -185,7 +181,6 @@ class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
                 css_class="row mb-0",
             ),
             Div(FloatingField("orderby"), css_class="d-none"),
-            Div(Field("only_needing_reports"), css_class="d-none"),
         )
 
     def filter_queryset(
@@ -211,9 +206,14 @@ class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
             queryset = queryset.filter(submission_date__date__gte=date_after)
         if date_before := self.cleaned_data.get("date_before"):
             queryset = queryset.filter(submission_date__date__lte=date_before)
-        if self.cleaned_data.get("only_needing_reports"):
-            queryset = queryset.in_refereeing().open_for_reporting().reports_needed()
+
         return queryset
+
+
+class PortalSubmissionNeedingReportsSearchForm(PortalSubmissionSearchForm):
+    def filter_queryset(self, queryset: QuerySet[Submission]) -> QuerySet[Submission]:
+        qs = super().filter_queryset(queryset)
+        return qs.in_refereeing().open_for_reporting().reports_needed()
 
 
 class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):

@@ -112,7 +112,11 @@ from submissions.models import (
     EditorialAssignment,
     EICRecommendation,
 )
-from submissions.forms import PortalSubmissionSearchForm, ReportSearchForm
+from submissions.forms import (
+    PortalSubmissionNeedingReportsSearchForm,
+    PortalSubmissionSearchForm,
+    ReportSearchForm,
+)
 from theses.models import ThesisLink
 from theses.forms import ThesisSearchForm
 
@@ -352,8 +356,11 @@ def portal_hx_publications(request):
 
 
 def portal_hx_submissions(request):
-    context = {"only_needing_reports": request.GET.get("only_needing_reports", False)}
-    return render(request, "scipost/portal/_hx_submissions_base.html", context)
+    return render(request, "scipost/portal/_hx_submissions.html")
+
+
+def portal_hx_submissions_needing_reports(request):
+    return render(request, "scipost/portal/_hx_submissions_needing_reports.html")
 
 
 class PortalSubmissionSearchView(SearchView):
@@ -365,12 +372,10 @@ class PortalSubmissionSearchView(SearchView):
         kwargs = super().get_form_kwargs()
         session_acad_field_slug = self.request.session.get("session_acad_field_slug")
         session_specialty_slug = self.request.session.get("session_specialty_slug")
-        only_needing_reports = self.request.GET.get("only_needing_reports", False)
         kwargs.update(
             {
                 "acad_field_slug": session_acad_field_slug,
                 "specialty_slug": session_specialty_slug,
-                "only_needing_reports": only_needing_reports,
             }
         )
         return kwargs
@@ -390,6 +395,10 @@ class PortalSubmissionSearchView(SearchView):
             .select_related("preprint", "acad_field", "submitted_to")
             .prefetch_related("specialties", "publications")
         )
+
+
+class PortalSubmissionNeedingReportsSearchView(PortalSubmissionSearchView):
+    form_class = PortalSubmissionNeedingReportsSearchForm
 
 
 def portal_hx_reports(request):

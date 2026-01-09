@@ -107,9 +107,19 @@ urlpatterns = [
         name="portal_hx_submissions",
     ),
     path(
+        "portal/_hx_submissions_needing_reports",
+        views.portal_hx_submissions_needing_reports,
+        name="portal_hx_submissions_needing_reports",
+    ),
+    path(
         "portal/_hx_submissions/search_form",
         views.PortalSubmissionSearchView.as_view(),
         name="_hx_submission_search_form_view",
+    ),
+    path(
+        "portal/_hx_submissions_needing_reports/search_form",
+        views.PortalSubmissionNeedingReportsSearchView.as_view(),
+        name="_hx_submission_needing_reports_search_form_view",
     ),
     path("portal/_hx_reports", views.portal_hx_reports, name="portal_hx_reports"),
     path(
