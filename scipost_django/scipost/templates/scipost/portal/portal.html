@@ -68,7 +68,7 @@
     <div class="tab-pane portal-tab fade{% if request.GET.tab == 'reportsneeded' %} show active{% endif %}"
 	 id="reports-needed"
 	 role="tabpanel" aria-labelledby="reports-needed-tab">
-      <div hx-get="{% url 'scipost:portal_hx_submissions' %}?reports_needed=1"
+      <div hx-get="{% url 'scipost:portal_hx_submissions' %}?only_needing_reports=True"
 	   hx-trigger="{% if request.GET.tab == 'reportsneeded' %}load, {% endif %}click delay:200ms from:#reports-needed-tab, session-acad-field-set from:body, session-specialty-set from:body"
 	   hx-push-url="{% url 'scipost:index' %}?tab=reportsneeded"
       >

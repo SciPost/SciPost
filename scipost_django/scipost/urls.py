@@ -92,14 +92,14 @@ urlpatterns = [
         name="portal_hx_publications",
     ),
     path(
+        "portal/_hx_publications/search_form",
+        views.PortalPublicationSearchView.as_view(),
+        name="_hx_publication_search_form_view",
+    ),
+    path(
         "portal/_hx_recent_publications",
         views.portal_hx_recent_publications,
         name="portal_hx_recent_publications",
-    ),
-    path(
-        "portal/_hx_publications_page",
-        views.portal_hx_publications_page,
-        name="portal_hx_publications_page",
     ),
     path(
         "portal/_hx_submissions",
@@ -107,9 +107,9 @@ urlpatterns = [
         name="portal_hx_submissions",
     ),
     path(
-        "portal/_hx_submissions_page",
-        views.portal_hx_submissions_page,
-        name="portal_hx_submissions_page",
+        "portal/_hx_submissions/search_form",
+        views.PortalSubmissionSearchView.as_view(),
+        name="_hx_submission_search_form_view",
     ),
     path("portal/_hx_reports", views.portal_hx_reports, name="portal_hx_reports"),
     path(

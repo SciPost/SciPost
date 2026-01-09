@@ -6,6 +6,7 @@ from email.utils import make_msgid
 import urllib
 
 from django.db.models.functions import Cast, Coalesce
+from django.db.models.query import QuerySet
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
@@ -94,9 +95,10 @@ from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
 from comments.forms import CommentSearchForm
 from common.utils import get_current_domain
+from common.views import SearchView
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication, PublicationAuthorsTable
-from journals.forms import PublicationSearchForm
+from journals.forms import PortalPublicationSearchForm
 from mails.utils import DirectMailUtil
 from news.models import NewsItem
 from organizations.decorators import has_contact
@@ -305,83 +307,89 @@ def portal_hx_journals(request):
     return render(request, "scipost/portal/_hx_journals.html", context)
 
 
-def portal_hx_publications(request):
-    form = PublicationSearchForm(
-        acad_field_slug=request.session.get("session_acad_field_slug", None),
-        specialty_slug=request.session.get("session_specialty_slug", None),
-    )
-    context = {"publications_search_form": form}
-    return render(request, "scipost/portal/_hx_publications.html", context)
+class PortalPublicationSearchView(SearchView):
+    form_class = PortalPublicationSearchForm
+    model = Publication
+    paginate_by = 16
 
-
-def portal_hx_publications_page(request):
-    session_acad_field_slug = request.session.get("session_acad_field_slug", None)
-    session_specialty_slug = request.session.get("session_specialty_slug", None)
-    form = PublicationSearchForm(
-        request.POST or None,
-        acad_field_slug=session_acad_field_slug,
-        specialty_slug=session_specialty_slug,
-    )
-    publications = form.search()
-    publications = (
-        publications.all()
-        .select_related("acad_field")
-        .prefetch_related(
-            "in_journal",
-            "in_issue__in_journal",
-            "in_issue__in_volume__in_journal",
-            "specialties",
-            "collections__series",
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        session_acad_field_slug = self.request.session.get("session_acad_field_slug")
+        session_specialty_slug = self.request.session.get("session_specialty_slug")
+        kwargs.update(
+            {
+                "acad_field_slug": session_acad_field_slug,
+                "specialty_slug": session_specialty_slug,
+            }
         )
-    )
-    paginator = Paginator(publications, 10)
-    page_nr = request.GET.get("page")
-    page_obj = paginator.get_page(page_nr)
-    context = {"page_obj": page_obj}
-    return render(request, "scipost/portal/_hx_publications_page.html", context)
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object_list_item_template"] = (
+            "journals/_publication_li_content_var_object.html"
+        )
+        return context
+
+    def get_results(self) -> QuerySet:
+        results = super().get_results()
+
+        return (
+            results.all()
+            .select_related("acad_field")
+            .prefetch_related(
+                "in_journal",
+                "in_issue__in_journal",
+                "in_issue__in_volume__in_journal",
+                "specialties",
+                "collections__series",
+            )
+        )
+
+
+def portal_hx_publications(request):
+    return render(request, "scipost/portal/_hx_publications.html")
 
 
 def portal_hx_submissions(request):
-    reports_needed = request.GET.get("reports_needed", False)
-    form = PortalSubmissionSearchForm(
-        acad_field_slug=request.session.get("session_acad_field_slug", None),
-        specialty_slug=request.session.get("session_specialty_slug", None),
-        reports_needed=reports_needed,
-    )
-    context = {"submissions_search_form": form, "reports_needed": reports_needed}
-    return render(request, "scipost/portal/_hx_submissions.html", context)
+    context = {"only_needing_reports": request.GET.get("only_needing_reports", False)}
+    return render(request, "scipost/portal/_hx_submissions_base.html", context)
 
 
-def portal_hx_submissions_page(request):
-    session_acad_field_slug = request.session.get("session_acad_field_slug", None)
-    session_specialty_slug = request.session.get("session_specialty_slug", None)
-    reports_needed = request.GET.get("reports_needed", False)
-    form = PortalSubmissionSearchForm(
-        request.POST or None,
-        acad_field_slug=session_acad_field_slug,
-        specialty_slug=session_specialty_slug,
-        reports_needed=reports_needed,
-    )
-    submissions = form.search()
+class PortalSubmissionSearchView(SearchView):
+    form_class = PortalSubmissionSearchForm
+    model = Submission
+    paginate_by = 16
 
-    if session_acad_field_slug and session_acad_field_slug != "all":
-        submissions = submissions.filter(acad_field__slug=session_acad_field_slug)
-    if session_specialty_slug:
-        submissions = submissions.filter(specialties__slug=session_specialty_slug)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        session_acad_field_slug = self.request.session.get("session_acad_field_slug")
+        session_specialty_slug = self.request.session.get("session_specialty_slug")
+        only_needing_reports = self.request.GET.get("only_needing_reports", False)
+        kwargs.update(
+            {
+                "acad_field_slug": session_acad_field_slug,
+                "specialty_slug": session_specialty_slug,
+                "only_needing_reports": only_needing_reports,
+            }
+        )
+        return kwargs
 
-    submissions = submissions.select_related(
-        "preprint",
-        "acad_field",
-        "submitted_to",
-    ).prefetch_related(
-        "specialties",
-        "publications",
-    )
-    paginator = Paginator(submissions, 10)
-    page_nr = request.GET.get("page")
-    page_obj = paginator.get_page(page_nr)
-    context = {"page_obj": page_obj, "reports_needed": reports_needed}
-    return render(request, "scipost/portal/_hx_submissions_page.html", context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object_list_item_template"] = (
+            "submissions/_submission_card_content_homepage_var_object.html"
+        )
+        return context
+
+    def get_results(self) -> QuerySet:
+        results = super().get_results()
+
+        return (
+            results.all()
+            .select_related("preprint", "acad_field", "submitted_to")
+            .prefetch_related("specialties", "publications")
+        )
 
 
 def portal_hx_reports(request):

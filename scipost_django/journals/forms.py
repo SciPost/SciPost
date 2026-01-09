@@ -63,16 +63,32 @@ from scipost.services import DOICaller
 from submissions.models import Submission
 
 
-class PublicationSearchForm(CrispyFormMixin, SearchForm[Publication]):
+class PortalPublicationSearchForm(CrispyFormMixin, SearchForm[Publication]):
     model = Publication
     queryset = Publication.objects.published()
 
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
-    title = forms.CharField(max_length=100, required=False)
-    doi_label = forms.CharField(max_length=100, required=False)
+    title = forms.CharField(max_length=512, required=False)
+    doi_label = forms.CharField(max_length=128, required=False)
     journal = forms.ModelChoiceField(queryset=Journal.objects.all(), required=False)
     proceedings = forms.ModelChoiceField(
         queryset=Proceedings.objects.all(), required=False
+    )
+    date_after = forms.DateField(
+        required=False,
+        label="Published after",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+    date_until = forms.DateField(
+        required=False,
+        label="Published before",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(("publication_date", "Publication date"),),
+        required=False,
+        initial="publication_date",
     )
 
     def __init__(self, *args, **kwargs):
@@ -87,21 +103,23 @@ class PublicationSearchForm(CrispyFormMixin, SearchForm[Publication]):
     def get_form_layout(self):
         return Layout(
             Div(
-                Div(FloatingField("author"), css_class="col-lg-6"),
-                Div(FloatingField("title"), css_class="col-lg-6"),
+                Div(FloatingField("title"), css_class="col-lg-9"),
+                Div(FloatingField("doi_label"), css_class="col-lg-3"),
                 css_class="row mb-0",
             ),
             Div(
                 Div(FloatingField("journal"), css_class="col-lg-6"),
-                Div(FloatingField("doi_label"), css_class="col-lg-6"),
+                Div(FloatingField("proceedings"), css_class="col-lg-6"),
                 css_class="row mb-0",
             ),
             Div(
-                Div(FloatingField("proceedings"), css_class="col-lg-6"),
+                Div(FloatingField("author"), css_class="col-lg-6"),
+                Div(FloatingField("date_after"), css_class="col-lg-2"),
+                Div(FloatingField("date_until"), css_class="col-lg-2"),
+                Div(FloatingField("ordering"), css_class="col-lg-2"),
                 css_class="row mb-0",
-                css_id="row_proceedings",
-                style="display: none",
             ),
+            Div(FloatingField("orderby"), css_class="d-none"),
         )
 
     def filter_queryset(self, queryset: "QuerySet[Publication]"):
@@ -120,6 +138,11 @@ class PublicationSearchForm(CrispyFormMixin, SearchForm[Publication]):
             queryset = queryset.for_journal(journal.name)
         if proceedings := self.cleaned_data.get("proceedings"):
             queryset = queryset.filter(in_issue__proceedings=proceedings)
+
+        if date_after := self.cleaned_data.get("date_after"):
+            queryset = queryset.filter(publication_date__gte=date_after)
+        if date_before := self.cleaned_data.get("date_before"):
+            queryset = queryset.filter(publication_date__lte=date_before)
 
         return queryset
 

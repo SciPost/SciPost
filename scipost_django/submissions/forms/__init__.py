@@ -124,10 +124,10 @@ OSFPREPRINTS_IDENTIFIER_PATTERN = r"^[a-z0-9]+(_v\d{1,2})?$"
 
 class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
     model = Submission
-    queryset = Submission.objects.public_latest().unpublished()
+    queryset = Submission.objects.public_latest()
 
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
-    title = forms.CharField(max_length=100, required=False)
+    title = forms.CharField(max_length=512, required=False)
     submitted_to = forms.ModelChoiceField(
         queryset=Journal.objects.active(), required=False
     )
@@ -135,13 +135,32 @@ class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
     proceedings = forms.ModelChoiceField(
         queryset=Proceedings.objects.order_by("-submissions_close"), required=False
     )
+    date_after = forms.DateField(
+        required=False,
+        label="Submitted after",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+    date_before = forms.DateField(
+        required=False,
+        label="Submitted before",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(("submission_date", "Submission date"),),
+        required=False,
+        initial="submission_date",
+    )
+
+    only_needing_reports = forms.BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
         self.acad_field_slug = kwargs.pop("acad_field_slug")
         self.specialty_slug = kwargs.pop("specialty_slug")
-        self.reports_needed = kwargs.pop("reports_needed")
+        only_needing_reports = kwargs.pop("only_needing_reports", False)
         super().__init__(*args, **kwargs)
-        if acad_field_slug := self.acad_field_slug:
+        self.fields["only_needing_reports"].initial = only_needing_reports
+        if (acad_field_slug := self.acad_field_slug) and self.acad_field_slug != "all":
             self.fields["submitted_to"].queryset = Journal.objects.filter(
                 college__acad_field__slug=acad_field_slug
             )
@@ -149,21 +168,24 @@ class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
     def get_form_layout(self) -> Layout:
         return Layout(
             Div(
-                Div(FloatingField("author"), css_class="col-lg-6"),
-                Div(FloatingField("title"), css_class="col-lg-6"),
+                Div(FloatingField("title"), css_class="col-lg-9"),
+                Div(FloatingField("identifier"), css_class="col-lg-3"),
                 css_class="row mb-0",
             ),
             Div(
                 Div(FloatingField("submitted_to"), css_class="col-lg-6"),
-                Div(FloatingField("identifier"), css_class="col-lg-6"),
+                Div(FloatingField("proceedings"), css_class="col-lg-6"),
                 css_class="row mb-0",
             ),
             Div(
-                Div(FloatingField("proceedings"), css_class="col-lg-6"),
+                Div(FloatingField("author"), css_class="col-lg-6"),
+                Div(FloatingField("date_after"), css_class="col-lg-2"),
+                Div(FloatingField("date_before"), css_class="col-lg-2"),
+                Div(FloatingField("ordering"), css_class="col-lg-2"),
                 css_class="row mb-0",
-                css_id="row_proceedings",
-                style="display: none",
             ),
+            Div(FloatingField("orderby"), css_class="d-none"),
+            Div(Field("only_needing_reports"), css_class="d-none"),
         )
 
     def filter_queryset(
@@ -185,13 +207,12 @@ class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
             queryset = queryset.filter(
                 preprint__identifier_w_vn_nr__icontains=identifier
             )
-        if self.reports_needed:
-            queryset = (
-                queryset.in_refereeing()
-                .open_for_reporting()
-                .reports_needed()
-                .order_by("submission_date")
-            )
+        if date_after := self.cleaned_data.get("date_after"):
+            queryset = queryset.filter(submission_date__date__gte=date_after)
+        if date_before := self.cleaned_data.get("date_before"):
+            queryset = queryset.filter(submission_date__date__lte=date_before)
+        if self.cleaned_data.get("only_needing_reports"):
+            queryset = queryset.in_refereeing().open_for_reporting().reports_needed()
         return queryset
 
 

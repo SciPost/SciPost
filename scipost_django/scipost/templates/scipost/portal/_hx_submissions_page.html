@@ -1,5 +1,0 @@
-{% if reports_needed %}
-  {% include 'scipost/portal/_hx_submissions_page_base.html' with page_obj=page_obj name='reports_needed' reports_needed=reports_needed %}
-{% else %}
-  {% include 'scipost/portal/_hx_submissions_page_base.html' with page_obj=page_obj name='submissions' reports_needed=reports_needed %}
-{% endif %}

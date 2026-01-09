@@ -4,8 +4,8 @@
 
 <h2 class="highlight my-4">Submissions{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
 
-{% if reports_needed %}
-  <div class="card m-2 border-2 text-center">
+{% if only_needing_reports %}
+  <div class="card border-2 text-center mb-3">
     <div class="card-header m-0 p-0">
       <h2 class="m-0 p-2 text-white bg-warning">
 	{% include 'bi/alarm-fill.html' %}&nbsp;Reports are needed on these Submissions
@@ -17,36 +17,7 @@
       <p>To contribute a Report, please navigate to the Submission's page and click on the <strong>Contribute a Report</strong> link {% if not user.is_authenticated %}(login required){% endif %}
     </div>
   </div>
-
-  <hr>
 {% endif %}
 
-<div class="d-flex justify-content-between">
-  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#{{ name }}Search" aria-expanded="false" aria-controls="{{ name }}Search">
-    {% include 'bi/search.html' %}&emsp;Simple search / filter
-  </button>
-  <a class="btn btn-primary ms-2" href="{% url 'scipost:search' %}">
-    {% include 'bi/binoculars-fill.html' %}... or use our advanced search&emsp;{% include 'bi/arrow-right.html' %}
-  </a>
-</div>
-<div class="collapse" id="{{ name }}Search">
-  <div class="card card-body">
-    <form
-	hx-post="{% url 'scipost:portal_hx_submissions_page' %}?page=1{% if reports_needed %}&reports_needed=1{% endif %}"
-	hx-trigger="load, keyup delay:500ms, change"
-	hx-target="#{{ name }}-search-results"
-	hx-indicator="#indicator-{{ name }}-search"
-    >
-      <div id="{{ name }}-search-form">{% crispy form %}</div>
-    </form>
-  </div>
-  <div id="indicator-{{ name }}-search" class="htmx-indicator p-2">
-    <button class="btn btn-warning" type="button" disabled>
-      <strong>Loading...</strong>
-      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-    </button>
-  </div>
-</div>
-
-
-<ul id="{{ name }}-search-results" class="list-unstyled pool-list mt-2"></ul>
+<div hx-get="{% url 'scipost:_hx_submission_search_form_view' %}{% querystring %}"
+     hx-trigger="intersect once"></div>

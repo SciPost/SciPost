@@ -24,39 +24,5 @@
 <h2 class="highlight my-4">Publications{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
 
 
-<div class="d-flex justify-content-between">
-  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#publicationsSearch" aria-expanded="false" aria-controls="publicationsSearch">
-    {% include 'bi/search.html' %}&emsp;Simple search / filter
-  </button>
-  <a class="btn btn-primary ms-2" href="{% url 'scipost:search' %}">
-    {% include 'bi/binoculars-fill.html' %}... or use our advanced search&emsp;{% include 'bi/arrow-right.html' %}
-  </a>
-</div>
-<div class="collapse" id="publicationsSearch">
-  <div class="card card-body">
-    <form
-	hx-post="{% url 'scipost:portal_hx_publications_page' %}?page=1"
-	hx-trigger="load, keyup delay:500ms, change"
-	hx-target="#publications-search-results"
-	hx-indicator="#indicator-publications-search"
-    >
-      <div id="publications-search-form">{% crispy publications_search_form %}</div>
-    </form>
-  </div>
-  <div id="indicator-publications-search" class="htmx-indicator p-2">
-    <button class="btn btn-warning" type="button" disabled>
-      <strong>Loading...</strong>
-      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-    </button>
-  </div>
-</div>
-
-
-<ul id="publications-search-results" class="list-unstyled pool-list mt-2"></ul>
-
-
-
-{% block footer_script %}
-  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/toggle-proceedings.js' %}">
-  </script>
-{% endblock footer_script %}
+<div hx-get="{% url 'scipost:_hx_publication_search_form_view' %}"
+     hx-trigger="intersect once"></div>
