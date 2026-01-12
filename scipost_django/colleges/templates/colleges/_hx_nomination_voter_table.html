@@ -9,7 +9,7 @@
 
           {% if not round.is_unscheduled %}<th>Voted on</th>{% endif %}
 
-          <th>Actions</th>
+          <th></th>
         {% endif %}
 
       </tr>
@@ -19,7 +19,7 @@
 
       {% for voter in voters %}
         <tr>
-          <td>{{ voter }}</td>
+          <td>{{ voter.contributor.profile }}</td>
 
           <td>
 
@@ -36,7 +36,7 @@
 
           {% if "edadmin" in user_roles %}
 
-            {% if not round.is_unscheduled %}<td>{{ voter.vote.on }}</td>{% endif %}
+            {% if not round.is_unscheduled %}<td>{{ voter.voted_on|date:"Y-m-d" }}</td>{% endif %}
 
             <td>
 

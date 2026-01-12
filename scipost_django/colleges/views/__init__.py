@@ -1392,8 +1392,20 @@ def _hx_nomination_voter_table(request, round_id):
     voters = round.eligible_to_vote.all()
     nominee_specialties = round.nomination.profile.specialties.all()
 
-    for voter in voters:
-        voter.vote = round.votes.filter(fellow=voter).first()
+    voters = (
+        voters.annotate(
+            voted_on=Subquery(
+                FellowshipNominationVote.objects.filter(
+                    voting_round=round,
+                    fellow=OuterRef("pk"),
+                )
+                .order_by("-on")
+                .values("on")[:1]
+            )
+        )
+        .prefetch_related("contributor__profile__specialties")
+        .select_related("contributor__profile")
+    )
 
     context = {
         "voters": voters,
