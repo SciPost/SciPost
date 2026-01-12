@@ -1,18 +1,57 @@
-<h3>Summary</h3>
-<ul class="list-group list-group-flush m-2">
-  <li class="list-group-item p-2 text-muted">Eligible: {{ voting_round.eligible_to_vote.count }}</li>
-  <li class="list-group-item p-2 text-success">Agree: {{ voting_round.votes.agree.count }}</li>
-  <li class="list-group-item p-2 text-warning">Abstain: {{ voting_round.votes.abstain.count }}</li>
-  <li class="list-group-item p-2 text-danger">Disagree: {{ voting_round.votes.disagree.count }}</li>
-  
-  {% if not is_ed_admin %}
-    <li class="list-group-item p-2 text-black">Veto: {{ voting_round.nomination.vetoes.count }}</li>
-  {% else %}
+{% load common_extras %}
 
-    {% if voting_round.nomination.vetoes.all %}
-      <li class="list-group-item p-2 text-black fs-3">Nomination vetoed by {{ voting_round.nomination.vetoes.count }} voters</li>
+<h4>Voting Summary</h4>
+<div class="d-flex gap-2 mb-2">
+  <div class="d-flex flex-grow-1 flex-column rounded bg-light border px-2 py-1">
+    <div class="fw-bold">Eligible</div>
+    <div class="align-self-end fs-1">{{ voting_round.eligible_to_vote.count }}</div>
+  </div>
+  <div class="d-flex flex-grow-1 flex-column rounded bg-light border px-2 py-1">
+    <div class="fw-bold">Voted</div>
+    <div class="align-self-end fs-1">{{ voting_round.votes.count }}</div>
+  </div>
+</div>
+
+{% if voting_round.votes %}
+  <div class="d-flex flex-row w-100 bg-light rounded overflow-hidden mb-3"
+       style="height:20px;
+              z-index:2">
+
+    {% if voting_round.votes.agree.count %}
+      <div style="width:{{ voting_round.votes.agree.count|multiply:100|int_divide:voting_round.votes.count }}%"
+           class="bg-success d-flex justify-content-center align-items-center"
+           title="Agree: {{ voting_round.votes.agree.count }}"
+           data-bs-placement="top"
+           data-bs-toggle="tooltip">
+        <span style="font-size: 14px"
+              class="text-white">{{ voting_round.votes.agree.count }}</span>
+      </div>
     {% endif %}
 
+    {% if voting_round.votes.abstain.count %}
+      <div style="width:{{ voting_round.votes.abstain.count|multiply:100|int_divide:voting_round.votes.count }}%"
+           class="bg-warning d-flex justify-content-center align-items-center"
+           title="Abstain: {{ voting_round.votes.abstain.count }}"
+           data-bs-placement="top"
+           data-bs-toggle="tooltip">
+        <span style="font-size: 14px;">{{ voting_round.votes.abstain.count }}</span>
+      </div>
+    {% endif %}
+
+    {% if voting_round.votes.disagree.count %}
+      <div style="width:{{ voting_round.votes.disagree.count|multiply:100|int_divide:voting_round.votes.count }}%"
+           class="bg-danger d-flex justify-content-center align-items-center"
+           title="Disagree: {{ voting_round.votes.disagree.count }}"
+           data-bs-placement="top"
+           data-bs-toggle="tooltip">
+        <span style="font-size: 14px"
+              class="text-white">{{ voting_round.votes.disagree.count }}</span>
+      </div>
+    {% endif %}
   {% endif %}
 
-</ul>
+  {% if voting_round.nomination.vetoes.all %}
+    <div class="text-black fs-3">Nomination vetoed by {{ voting_round.nomination.vetoes.count }} voters</div>
+  {% endif %}
+
+</div>
