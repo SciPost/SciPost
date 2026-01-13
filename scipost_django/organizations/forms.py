@@ -159,6 +159,16 @@ class OrganizationEventForm(forms.ModelForm):
     class Meta:
         model = OrganizationEvent
         fields = ["organization", "event", "comments", "noted_on", "noted_by"]
+        widgets = {
+            "organization": autocomplete.ModelSelect2(
+                url="/organizations/organization-autocomplete",
+                attrs={"data-html": True},
+            ),
+            "noted_by": autocomplete.ModelSelect2(
+                url="/user-autocomplete",
+                attrs={"data-html": True},
+            ),
+        }
 
 
 class ContactPersonForm(forms.ModelForm):
