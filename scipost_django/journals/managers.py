@@ -104,6 +104,24 @@ class PublicationQuerySet(models.QuerySet):
     def for_specialty(self, specialty):
         return self.filter(specialties__slug=specialty)
 
+    def annot_journal_name(self):
+        return self.annotate(
+            journal_name=models.Case(
+                models.When(
+                    in_issue__in_volume__in_journal__isnull=False,
+                    then=models.F("in_issue__in_volume__in_journal__name"),
+                ),
+                models.When(
+                    in_issue__in_journal__isnull=False,
+                    then=models.F("in_issue__in_journal__name"),
+                ),
+                models.When(
+                    in_journal__isnull=False,
+                    then=models.F("in_journal__name"),
+                ),
+            )
+        )
+
     def for_journal(self, journal_name):
         return self.filter(
             models.Q(in_issue__in_volume__in_journal__name=journal_name)

@@ -168,29 +168,34 @@ class PublicationPlotter(ModelFieldPlotter):
             ("acad_field__name", ("str", "Academic field")),
             ("specialties__name", ("str", "Specialties")),
             ("number_of_citations", ("int", "Number of citations")),
+            ("journal_name", ("str", "Journal name")),
         )
 
     def get_queryset(self):
         qs = super().get_queryset()
 
-        qs = qs.annotate(
-            acceptance_duration=ExtractDay(
-                models.F("acceptance_date") - models.F("submission_date")
-            ),
-            publication_duration=ExtractDay(
-                models.F("publication_date") - models.F("submission_date")
-            ),
-            production_duration=ExtractDay(
-                models.F("publication_date") - models.F("acceptance_date")
-            ),
-            nr_versions=models.Subquery(
-                Submission.objects.filter(
-                    thread_hash=models.OuterRef("accepted_submission__thread_hash")
-                )
-                .values("thread_hash")
-                .annotate(nr_versions=models.Count("thread_hash"))
-                .values("nr_versions")
-            ),
+        qs = (
+            qs.all()
+            .annot_journal_name()
+            .annotate(
+                acceptance_duration=ExtractDay(
+                    models.F("acceptance_date") - models.F("submission_date")
+                ),
+                publication_duration=ExtractDay(
+                    models.F("publication_date") - models.F("submission_date")
+                ),
+                production_duration=ExtractDay(
+                    models.F("publication_date") - models.F("acceptance_date")
+                ),
+                nr_versions=models.Subquery(
+                    Submission.objects.filter(
+                        thread_hash=models.OuterRef("accepted_submission__thread_hash")
+                    )
+                    .values("thread_hash")
+                    .annotate(nr_versions=models.Count("thread_hash"))
+                    .values("nr_versions")
+                ),
+            )
         )
 
         if journals := self.options.get("journals", None):
