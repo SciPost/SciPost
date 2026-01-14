@@ -211,10 +211,8 @@ def _hx_messages(request):
 
 
 def portal(request):
-    if request.GET.get("field", None):
-        if request.GET["field"] != request.session["session_acad_field_slug"]:
-            request.session["session_specialty_slug"] = ""
-        request.session["session_acad_field_slug"] = request.GET["field"]
+    if acad_field_param := request.GET.get("field", None):
+        request.session["session_acad_field_slug"] = acad_field_param
     context = {"load_header_forms": request.GET.get("tab", None) != None}
     return render(request, "scipost/portal/portal.html", context)
 
