@@ -8,17 +8,28 @@
     <div class="row g-4 p-2">
       <div class="col">
 	<h3 class="mb-3">Unavailability periods</h3>
-	<p>To help with the editorial workflow, you can inform us of any periods during which you are unavailable. We will do our best to respect these. These are the ones we have on our records:</p>
+	<p>To help with the editorial workflow, you can inform us of any periods during which you are unavailable. Please mark the entire period of your absence, with the end date being your first day back into availability.</p>
+
+  {% if work_contract %}
+      <div class="bg-white border border-{% if is_currently_available %}success{% else %}danger{% endif %} p-2 mb-3">
+        <p class="mb-1 fs-5">You are a SciPost employee with {{ work_contract.days_off }} paid days off per year.</p>
+        <p class="mb-1 fs-5">You have {{ work_contract.days_off_remaining }} remaining paid days off between {{ work_contract.current_period.0 }} and {{ work_contract.current_period.1 }}.</p>
+        <p class="m-0">The period should not contain any days which you are by default not expected to work, e.g. weekends or public holidays.</p>
+      </div>
+  {% endif %}
+
 	<table class="table table-bordered">
 	  <tr>
-	    <th>Start <small class="text-muted">(YYYY-MM-DD)</small></th>
-	    <th>End</th>
+	    <th>Start</th>
+	    <th>End (excl.)</th>
+      <th>Duration (days)</th>
 	    <th></th>
 	  </tr>
 	  {% for unav in request.user.contributor.unavailability_periods.future %}
 	    <tr>
 	      <td>{{ unav.start }}</td>
 	      <td>{{ unav.end }}</td>
+        <td>{{ unav.duration.days }}</td>
 	      <td>
 		<a class="text-danger px-1 py-0"
 		   hx-get="{% url 'scipost:_hx_unavailability' pk=unav.id %}"
@@ -38,15 +49,11 @@
 	  {% endfor %}
 	</table>
       </div>
-      <div class="col">
-	<div class="border border-warning m-4 p-2">
-	  <h3 class="mb-3">Mark a period as unavailable:</h3>
+      <div class="col-12 col-xs-4 col-md-3 col-lg-2">
 	  <form hx-post="{% url 'scipost:_hx_unavailability' %}"
-		hx-target="#unavailability"
-	  >
+		      hx-target="#unavailability">
 	    {% crispy form %}
 	  </form>
-	</div>
       </div>
     </div>
   </details>

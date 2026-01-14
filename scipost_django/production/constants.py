@@ -54,6 +54,7 @@ PROOFS_STATUSES = (
     (PROOFS_RENEWED, "Proofs renewed"),
 )
 
+WORK_LOG_TIME_OFF = "time_off"
 PRODUCTION_OFFICERS_WORK_LOG_TYPES = (
     ("Production: Proofs have been produced", "Proofs have been produced"),
     ("Production: Corrections implemented", "Corrections implemented"),

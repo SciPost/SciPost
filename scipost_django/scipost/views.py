@@ -1052,17 +1052,36 @@ class SciPostPasswordResetConfirmView(PasswordResetConfirmView):
 @login_required
 @is_contributor_user()
 def _hx_unavailability(request, pk: int = None):
-    if pk:  # delete UnavaiabilityPeriod, if asked by associated Contributor
-        UnavailabilityPeriod.objects.filter(
-            contributor=request.user.contributor,
-            pk=pk,
-        ).delete()
-    form = UnavailabilityPeriodForm(request.POST or None)
-    if form.is_valid():
-        unav = form.save(commit=False)
-        unav.contributor = request.user.contributor
-        unav.save()
+    if pk:  # delete UnavailabilityPeriod, if asked by associated Contributor
+        period = get_object_or_404(
+            UnavailabilityPeriod.objects.filter(
+                contributor=request.user.contributor, pk=pk
+            )
+        )
+
+        if period.start < timezone.now().date():
+            messages.error(
+                request,
+                "You cannot delete unavailability periods that have already started.",
+            )
+        else:
+            period.delete()
+            messages.success(
+                request,
+                "The unavailability period has been successfully deleted.",
+            )
+
+    form = UnavailabilityPeriodForm(
+        request.POST or None,
+        contributor=request.user.contributor,
+    )
     context = {"form": form}
+
+    if work_contract := request.user.contributor.work_contracts.active().first():
+        context["work_contract"] = work_contract
+
+    if form.is_valid():
+        form.save()
     return render(request, "scipost/personal_page/_hx_unavailability.html", context)
 
 
