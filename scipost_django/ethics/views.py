@@ -296,8 +296,8 @@ def _hx_list_coauthorships_for_submission_authors(
         return HTMXResponse("Submission or profile not found", tag="danger")
 
     coauthorships = (
-        Coauthorship.objects.involving_profile(profile)
-        .involving_any_author_of(submission)
+        Coauthorship.objects.all()
+        .between_profiles(profile, submission.author_profiles.values("profile"))
         .select_related("profile", "coauthor", "work")
     )
 

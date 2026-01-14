@@ -1074,9 +1074,9 @@ class Submission(models.Model):
         }
         coauthorships_qs = (
             Coauthorship.objects.all()
-            .involving_any_author_of(self)
-            .filter(
-                Q(profile__in=profile_map.keys()) | Q(coauthor__in=profile_map.keys())
+            .between_profiles(
+                list(profile_map.keys()),
+                self.author_profiles.values("profile"),
             )
             .select_related("profile", "coauthor", "work")
         )

@@ -146,12 +146,25 @@ class CoauthorshipQuerySet(QuerySet["Coauthorship"]):
         """
         return self.exclude(Q(profile=profile) | Q(coauthor=profile))
 
-    def between_profiles(self, profile_1: "Profile", profile_2: "Profile"):
+    def between_profiles(
+        self,
+        profile_set_1: "Profile | list[Profile] | QuerySet[Profile]",
+        profile_set_2: "Profile | list[Profile] | QuerySet[Profile]",
+    ):
         """
-        Filter for Coauthorships between two Profiles.
+        Filter for Coauthorships between two Profiles or profile sets.
         """
-        profile, coauthor = sorted([profile_1, profile_2], key=lambda p: p.id)
-        return self.filter(profile=profile, coauthor=coauthor)
+        from profiles.models import Profile
+
+        if isinstance(profile_set_1, Profile):
+            profile_set_1 = [profile_set_1]
+        if isinstance(profile_set_2, Profile):
+            profile_set_2 = [profile_set_2]
+
+        return self.filter(
+            Q(profile__in=profile_set_1, coauthor__in=profile_set_2)
+            | Q(profile__in=profile_set_2, coauthor__in=profile_set_1)
+        )
 
     def involving_any_author_of(self, submission: "Submission"):
         """
