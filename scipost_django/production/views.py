@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import OuterRef, Subquery
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -21,6 +22,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 
 from finances.forms import WorkLogForm
 from mails.views import MailEditorSubviewHTMX
+from profiles.models import ProfileEmail
 from scipost.permissions import (
     HTMXPermissionsDenied,
     HTMXResponse,
@@ -73,7 +75,24 @@ def production(request):
 @permission_required("scipost.can_view_production", raise_exception=True)
 def _hx_productionstream_list(request):
     form = ProductionStreamSearchForm(request.POST or None, user=request.user)
-    streams = form.search()
+    streams = (
+        form.search()
+        .select_related(
+            "submission__submitted_by__profile",
+            "submission__preprint",
+            "proofs_repository",
+            "supervisor",
+        )
+        .prefetch_related("submission__collections")
+        .annotate(
+            submitter_primary_email=Subquery(
+                ProfileEmail.objects.filter(
+                    profile=OuterRef("submission__submitted_by__profile"),
+                    primary=True,
+                ).values("email")[:1]
+            )
+        )
+    )
     paginator = Paginator(streams, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)

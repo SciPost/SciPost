@@ -217,10 +217,10 @@ class ProductionStream(models.Model):
             == EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
         )
 
-    @property
+    @cached_property
     def latest_activity(self):
-        if self.events.last():
-            return self.events.last().noted_on
+        if last_event := self.events.last():
+            return last_event.noted_on
         return self.closed or self.opened
 
 
