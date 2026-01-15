@@ -18,10 +18,7 @@ from common.utils.models import model_eval_attr
 
 from .exceptions import ConfigurationError
 
-from typing import Any, Iterable, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from journals.models import Journal
+from typing import Any, Iterable
 
 
 class MailEngine:
@@ -183,13 +180,15 @@ class MailEngine:
         Find and return the most applicable path for the config and template files,
         depending on the provided base_mail_code and the object instance.
         """
+        from journals.models import Journal
+
         possible_codes: list[str] = [base_mail_code]
         suffixes: list[str] = []
 
         object = self.get_object()
 
         # Determine journal and add journal-specific suffixes
-        journal: "Journal | None" = None
+        journal: Journal | None = None
         match str(object.__class__.__name__):
             case "Submission":
                 journal = object.submitted_to
@@ -199,6 +198,9 @@ class MailEngine:
                 journal = object.submission.submitted_to
             case _:
                 journal = getattr(object, "journal", None)
+                # Occasionally, journal is a str, as in the `Commentary` model
+                if not isinstance(journal, Journal):
+                    journal = None
 
         if journal:
             suffixes.append(journal.doi_label)
