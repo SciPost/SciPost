@@ -201,10 +201,6 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         return reverse("scipost:contributor_info", args=(self.id,))
 
     @property
-    def formal_str(self):
-        return "%s %s" % (self.profile.get_title_display(), self.user.last_name)
-
-    @property
     def is_active(self):
         """
         Checks if the Contributor is registered, vetted,

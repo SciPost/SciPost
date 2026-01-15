@@ -77,7 +77,7 @@
                   <a href="mailto:{{ productionstream.submission.submitted_by.profile.email }}?body=Dear%20{{ productionstream.submission.submitted_by.formal_str }},%0A%0A"
                   class="text-primary">{% include 'bi/pencil-square.html' %}</a>
                   {% endif %}
-                  <a href="{% url 'scipost:contributor_info' productionstream.submission.submitted_by.id %}">{{ productionstream.submission.submitted_by.formal_str }}</a>
+                  <a href="{% url 'scipost:contributor_info' productionstream.submission.submitted_by.id %}">{{ productionstream.submission.submitted_by.profile.formal_name }}</a>
                 </span>
             </div>
 
