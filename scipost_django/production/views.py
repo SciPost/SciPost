@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from datetime import timedelta
+from itertools import groupby
 import mimetypes
 
 from django.contrib import messages
@@ -9,6 +11,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
 from django.db import transaction
+from django.db.models import Q, DurationField, Prefetch, Sum, Value
+from django.db.models.functions import Coalesce
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -19,8 +23,10 @@ from django.views.generic.edit import UpdateView, DeleteView
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm, remove_perm
 
+from careers.models import WorkContract
 from finances.forms import WorkLogForm
 from mails.views import MailEditorSubviewHTMX
+from scipost.models import UnavailabilityPeriod
 from scipost.permissions import (
     HTMXPermissionsDenied,
     HTMXResponse,
@@ -62,10 +68,51 @@ from .utils import proofs_slug_to_id, ProductionUtils
 def production(request):
     search_productionstreams_form = ProductionStreamSearchForm(user=request.user)
     bulk_assign_officer_form = BulkAssignOfficersForm()
+
+    today = timezone.now().date()
+    work_contracts = (
+        WorkContract.objects.active()
+        .annotate(
+            hours_worked_this_month=Coalesce(
+                Sum(
+                    "employee__dbuser__work_logs__duration",
+                    filter=Q(
+                        employee__dbuser__work_logs__work_date__year=today.year,
+                        employee__dbuser__work_logs__work_date__month=today.month,
+                    )
+                    & ~Q(
+                        employee__dbuser__work_logs__log_type=constants.WORK_LOG_TIME_OFF
+                    ),
+                ),
+                Value(timedelta(0), output_field=DurationField()),
+            )
+        )
+        .order_by("employee", "-start_date")
+        .select_related("employee")
+        .prefetch_related(
+            Prefetch(
+                "employee__unavailability_periods",
+                queryset=UnavailabilityPeriod.objects.future().order_by("start"),
+                to_attr="current_unavailability_periods",
+            )
+        )
+    )
+
+    # Select only the latest contract per employee (first after ordering)
+    # we do this in python because annotate + distinct is not implemented
+    work_contracts = [
+        next(all_employee_contracts)
+        for _, all_employee_contracts in groupby(
+            work_contracts, key=lambda c: c.employee_id
+        )
+    ]
+
     context = {
         "search_productionstreams_form": search_productionstreams_form,
         "bulk_assign_officer_form": bulk_assign_officer_form,
+        "work_contracts": work_contracts,
     }
+
     return render(request, "production/production.html", context)
 
 
