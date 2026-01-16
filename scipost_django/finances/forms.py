@@ -1,20 +1,38 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-import datetime
+from datetime import timedelta, date
+from itertools import groupby
 
 from django import forms
 from django.contrib.auth import get_user_model
+from django.db.models.functions import (
+    Coalesce,
+    ExtractHour,
+    ExtractMinute,
+    ExtractSecond,
+)
 from django.urls import reverse_lazy
-from django.db.models import Q, Case, DateField, Max, Min, QuerySet, Sum, Value, When, F
-from django.utils import timezone
+from django.db.models import (
+    Q,
+    Case,
+    DateField,
+    Max,
+    Min,
+    OuterRef,
+    QuerySet,
+    Subquery,
+    Value,
+    When,
+    F,
+)
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
-from dateutil.rrule import rrule, MONTHLY
+from careers.models import WorkContract
 from common.forms import CrispyFormMixin, HTMXDynSelWidget, SearchForm
 from finances.constants import (
     SUBSIDY_STATUS,
@@ -27,6 +45,7 @@ from finances.models.subsidy import SubsidyCollective
 from finances.utils.compensations import CompensationStrategy
 from funders.models import IndividualBudget
 from organizations.models import Organization
+from production.constants import WORK_LOG_TIME_OFF
 from scipost.fields import UserModelChoiceField
 
 from .models import Subsidy, SubsidyPayment, SubsidyAttachment, WorkLog
@@ -628,18 +647,22 @@ class LogsFilterForm(forms.Form):
         empty_label="All",
     )
     start = forms.DateField(
-        required=True, widget=forms.DateInput(attrs={"type": "date"})
+        required=True,
+        label="Start date",
+        widget=forms.DateInput(attrs={"type": "date"}),
     )
-    end = forms.DateField(required=True, widget=forms.DateInput(attrs={"type": "date"}))
-    hourly_rate = forms.FloatField(min_value=0, initial=HOURLY_RATE)
+    end = forms.DateField(
+        required=True,
+        label="End date",
+        widget=forms.DateInput(attrs={"type": "date"}),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        today = timezone.now().date()
 
         if not any(self.fields[field].initial for field in ["start", "end"]):
-            current_month = datetime.date.today().replace(day=1)
-            last_month_end = current_month - datetime.timedelta(days=1)
+            current_month = date.today().replace(day=1)
+            last_month_end = current_month - timedelta(days=1)
             last_month_start = last_month_end.replace(day=1)
             self.fields["start"].initial = last_month_start
             self.fields["end"].initial = last_month_end
@@ -647,8 +670,7 @@ class LogsFilterForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(FloatingField("employee"), css_class="col-9 col-md"),
-                Div(FloatingField("hourly_rate"), css_class="col-3 col-md-2"),
+                Div(FloatingField("employee"), css_class="col-12 col-md"),
                 Div(FloatingField("start"), css_class="col-6 col-md-auto col-lg-2"),
                 Div(FloatingField("end"), css_class="col-6 col-md-auto col-lg-2"),
                 css_class="row mb-0 mt-2",
@@ -656,113 +678,94 @@ class LogsFilterForm(forms.Form):
             Submit("submit", "Filter"),
         )
 
-    def clean(self):
-        if self.is_valid():
-            self.cleaned_data["months"] = [
-                dt
-                for dt in rrule(
-                    MONTHLY,
-                    dtstart=self.cleaned_data["start"],
-                    until=self.cleaned_data["end"],
-                )
-            ]
-        return self.cleaned_data
+    def get_timesheets(self):
+        WEEKS_IN_MONTH = 4 + 1 / 3  # approx.
+        DEFAULT_HOURLY_RATE = 24.0
+        DEFAULT_WORK_HOURS = 0
 
-    def get_months(self):
-        if self.is_valid():
-            return self.cleaned_data.get("months", [])
-        return []
+        contract_subq = WorkContract.objects.filter(
+            Q(end_date__gte=OuterRef("work_date")) | Q(end_date__isnull=True),
+            start_date__lte=OuterRef("work_date"),
+            employee=OuterRef("user__contributor"),
+            salary_type=WorkContract.SALARY_TYPE_HOURLY,
+        ).order_by("-start_date")
 
-    def filter(self):
-        """Filter work logs and return in user-grouped format."""
-        output = []
-        if self.is_valid():
-            if self.cleaned_data["employee"]:
-                user_qs = get_user_model().objects.filter(
-                    id=self.cleaned_data["employee"].id
-                )
-            else:
-                user_qs = get_user_model().objects.filter(work_logs__isnull=False)
-
-            user_qs = user_qs.filter(
-                work_logs__work_date__gte=self.cleaned_data["start"],
-                work_logs__work_date__lte=self.cleaned_data["end"],
-            ).distinct()
-
-            output = []
-            for user in user_qs:
-                logs = user.work_logs.filter(
-                    work_date__gte=self.cleaned_data["start"],
-                    work_date__lte=self.cleaned_data["end"],
-                ).distinct()
-
-                output.append(
-                    {
-                        "logs": logs,
-                        "duration": logs.aggregate(total=Sum("duration")),
-                        "user": user,
-                    }
-                )
-        return output
-
-    def filter_per_month(self):
-        """Filter work logs and return in per-month format."""
-        output = []
-        if self.is_valid():
-            if self.cleaned_data["employee"]:
-                user_qs = get_user_model().objects.filter(
-                    id=self.cleaned_data["employee"].id
-                )
-            else:
-                user_qs = get_user_model().objects.filter(work_logs__isnull=False)
-
-            user_qs = user_qs.filter(
-                work_logs__work_date__gte=self.cleaned_data["start"],
-                work_logs__work_date__lte=self.cleaned_data["end"],
-            ).distinct()
-
-            work_log_qs = WorkLog.objects.filter(
+        work_logs = (
+            WorkLog.objects.filter(
                 work_date__gte=self.cleaned_data["start"],
                 work_date__lte=self.cleaned_data["end"],
-                user__in=user_qs,
+            )
+            .annotate(
+                full_name=F("user__contributor__profile__full_name"),
+                active_contract=Subquery(contract_subq.values("id")[:1]),
+                duration_in_seconds=Coalesce(
+                    ExtractHour("duration") * 3600
+                    + ExtractMinute("duration") * 60
+                    + ExtractSecond("duration"),
+                    Value(0),
+                ),
+            )
+            .order_by("full_name", "work_date")
+        )
+
+        if employee := self.cleaned_data.get("employee"):
+            work_logs = work_logs.filter(user=employee)
+
+        work_contracts = WorkContract.objects.filter(
+            id__in=work_logs.values("active_contract")
+        )
+        work_contracts_map = {wc.id: wc for wc in work_contracts}
+
+        for wl in work_logs:
+            wc = work_contracts_map.get(wl.active_contract)
+            wl.contract = wc
+            wl.hourly_rate = wc.pay_rate if wc else DEFAULT_HOURLY_RATE
+            wl.work_hours_week = (
+                wc.work_hours_week.total_seconds() / 3600 if wc else DEFAULT_WORK_HOURS
             )
 
-            output = []
-            for user in user_qs:
-                # If logs exists for given filters
-                total_time_per_month = [
-                    work_log_qs.filter(
-                        work_date__year=dt.year, work_date__month=dt.month, user=user
-                    ).aggregate(Sum("duration"))["duration__sum"]
-                    for dt in self.get_months()
-                ]
+        timesheets = []
+        for (full_name, year, month), working_logs in groupby(
+            work_logs,
+            key=lambda wl: (wl.full_name, wl.work_date.year, wl.work_date.month),
+        ):
+            all_user_work_logs = list(working_logs)
+            if not all_user_work_logs:
+                continue
 
-                if self.cleaned_data["hourly_rate"]:
-                    salary_per_month = [
-                        (
-                            duration.total_seconds()
-                            / 3600  # Convert to hours
-                            * self.cleaned_data["hourly_rate"]
-                            if duration is not None
-                            else 0
-                        )
-                        for duration in total_time_per_month
-                    ]
-                else:
-                    salary_per_month = []
+            base_hours_week = float(all_user_work_logs[0].work_hours_week)
+            hourly_rate = float(all_user_work_logs[0].hourly_rate)
 
-                output.append(
-                    {
-                        "monthly_data": zip(
-                            self.get_months(),
-                            total_time_per_month,
-                            salary_per_month,
-                        ),
-                        "user": user,
-                    }
-                )
+            real_work_hours = sum(
+                wl.duration_in_seconds / 3600
+                for wl in all_user_work_logs
+                if wl.log_type != WORK_LOG_TIME_OFF
+            )
+            daysoff_hours = sum(
+                wl.duration_in_seconds / 3600
+                for wl in all_user_work_logs
+                if wl.log_type == WORK_LOG_TIME_OFF
+            )
+            base_hours_month = base_hours_week * WEEKS_IN_MONTH
+            extra_hours_month = max(0, real_work_hours - base_hours_month)
+            total_duration = base_hours_month + extra_hours_month + daysoff_hours
 
-        return output
+            timesheets.append(
+                {
+                    "full_name": full_name,
+                    "date": date(year, month, 1),
+                    "base_hours": timedelta(hours=base_hours_month),
+                    "extra_hours": timedelta(hours=extra_hours_month),
+                    "paid_time_off": timedelta(hours=daysoff_hours),
+                    "total_hours": timedelta(hours=total_duration),
+                    "pay_rate": hourly_rate,
+                    "total_compensation": round(hourly_rate * total_duration, 2),
+                }
+            )
+
+        timesheets.sort(key=lambda ts: (ts["date"], ts["full_name"]))
+
+        return timesheets
 
 
 class SubsidyCollectiveForm(forms.ModelForm):

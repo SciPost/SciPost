@@ -810,7 +810,10 @@ def timesheets(request):
     Overview of all timesheets including comments and related objects.
     """
     form = LogsFilterForm(request.GET or None)
-    context = {"form": form}
+    context = {
+        "form": form,
+        "show_time_off_details": True,
+    }
     return render(request, "finances/timesheets.html", context)
 
 
@@ -818,7 +821,10 @@ def timesheets(request):
 def timesheets_detailed(request):
     """Overview of all timesheets."""
     form = LogsFilterForm(request.GET or None)
-    context = {"form": form}
+    context = {
+        "form": form,
+        "show_time_off_details": True,
+    }
     return render(request, "finances/timesheets_detailed.html", context)
 
 

@@ -30,8 +30,7 @@
   <div class="row">
     <div class="col-12">
       {% if form.is_bound and form.is_valid %}
-        <h2 class="mb-2 mt-4">Team timesheets</h2>
-        <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>
+        <h2 class="my-3">Team timesheets</h2>
         {% include "finances/_worklog_summary_table.html" with logs_filter_form=form %}
       {% else %}
         <p class="text-danger">First submit the filter form to retrieve results.</p>
