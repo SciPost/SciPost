@@ -3,16 +3,14 @@
     <tr>
       <th>Date</th>
       <th>Description</th>
-      <th>By</th>
     </tr>
   </thead>
   <tbody>
 
     {% for event in nomination.events.all %}
       <tr>
-        <td>{{ event.on }}</td>
+        <td class="text-nowrap">{{ event.on|date:"Y-m-d" }}</td>
         <td>{{ event.description }}</td>
-        <td>{{ event.by }}</td>
       </tr>
     {% endfor %}
 

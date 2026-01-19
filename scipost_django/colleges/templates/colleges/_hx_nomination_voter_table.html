@@ -7,7 +7,7 @@
 
         {% if "edadmin" in user_roles %}
 
-          {% if not round.is_unscheduled %}<th>Voted on</th>{% endif %}
+          <th>{% if round.is_closed %}Voted{% endif %}</th>
 
           <th></th>
         {% endif %}
@@ -36,11 +36,19 @@
 
           {% if "edadmin" in user_roles %}
 
-            {% if not round.is_unscheduled %}<td>{{ voter.voted_on|date:"Y-m-d" }}</td>{% endif %}
+            <td class="fs-4">
+              {% if round.is_closed %}
+                {% if voter.voted %}
+                  <span class="text-success">{% include "bi/check-square-fill.html"%}</span>
+                {% else %}
+                  <span class="text-danger">{% include "bi/x-square-fill.html"%}</span>
+                {% endif %}
+              {% endif %}
+            </td>
 
             <td>
 
-              {% if not round.is_closed %}
+              {% if round.is_closed %}
                 <button class="btn btn-sm btn-danger px-1 py-0 ms-auto"
                         hx-get="{% url "colleges:_hx_nomination_round_eligible_voter_action" round_id=round.id fellowship_id=voter.id action='remove' %}"
                         hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">

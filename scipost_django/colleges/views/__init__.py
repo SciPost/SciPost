@@ -1394,13 +1394,11 @@ def _hx_nomination_voter_table(request, round_id):
 
     voters = (
         voters.annotate(
-            voted_on=Subquery(
+            voted=Exists(
                 FellowshipNominationVote.objects.filter(
                     voting_round=round,
                     fellow=OuterRef("pk"),
                 )
-                .order_by("-on")
-                .values("on")[:1]
             )
         )
         .prefetch_related("contributor__profile__specialties")

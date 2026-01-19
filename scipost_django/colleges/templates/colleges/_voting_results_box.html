@@ -13,7 +13,7 @@
 </div>
 
 {% if voting_round.votes %}
-  <div class="d-flex flex-row w-100 bg-light rounded overflow-hidden mb-3"
+  <div class="d-flex flex-row w-100 bg-light rounded overflow-hidden mb-2"
        style="height:20px;
               z-index:2">
 
@@ -50,8 +50,15 @@
     {% endif %}
   {% endif %}
 
-  {% if voting_round.nomination.vetoes.all %}
-    <div class="text-black fs-3">Nomination vetoed by {{ voting_round.nomination.vetoes.count }} voters</div>
-  {% endif %}
-
 </div>
+
+{% if voting_round.nomination.vetoes.all %}
+<details class="bg-dark text-white fs-6 text-center p-1 mb-2">
+  <summary>Vetoed by {{ voting_round.nomination.vetoes.count }} fellow{{ voting_round.nomination.vetoes.count|pluralize }}</summary>
+  <ul class="list-group list-group-flush my-1">
+    {% for vetoing_fellow in voting_round.nomination.vetoes.all %}
+      <li class="list-group-item text-white">{{ vetoing_fellow.contributor.profile }}</li>
+    {% endfor %}
+  </ul>
+</details>
+{% endif %}
