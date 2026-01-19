@@ -13,7 +13,7 @@
   {% if work_contract %}
       <div class="bg-white border border-{% if is_currently_available %}success{% else %}danger{% endif %} p-2 mb-3">
         <p class="mb-1 fs-5">You are a SciPost employee with {{ work_contract.days_off }} paid days off per year.</p>
-        <p class="mb-1 fs-5">You have {{ work_contract.days_off_remaining }} remaining paid days off between {{ work_contract.current_period.0 }} and {{ work_contract.current_period.1 }}.</p>
+        <p class="mb-1 fs-5">You have {{ work_contract.days_off_remaining }}/{{ work_contract.days_off_in_period }} remaining paid days off between {{ work_contract.current_period.0 }} and {{ work_contract.current_period.1 }}.</p>
         <p class="m-0">The period should not contain any days which you are by default not expected to work, e.g. weekends or public holidays.</p>
       </div>
   {% endif %}

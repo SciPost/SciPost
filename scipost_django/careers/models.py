@@ -184,13 +184,18 @@ class WorkContract(models.Model):
         Get the current period of the contract as a date range spanning a year.
         """
         today = datetime.now().date()
-        if self.end_date and self.end_date < today:
-            return None
 
         years_past_start = (today - self.start_date).days // 365
         start_year = self.start_date.year + years_past_start
         period_start = self.start_date.replace(year=start_year)
         period_end = period_start.replace(year=start_year + 1) - timedelta(days=1)
+
+        if self.end_date:
+            if self.end_date < today:
+                return None
+            else:
+                period_end = min(period_end, self.end_date)
+
         return (period_start, period_end)
 
     @property
@@ -217,6 +222,21 @@ class WorkContract(models.Model):
         return self.work_hours_week / 5.0
 
     @property
+    def days_off_in_period(self) -> int:
+        """
+        Calculate the number of paid days off for the current period.
+        """
+
+        if (current_period := self.current_period) is None:
+            return 0
+
+        work_year_start, work_year_end = current_period
+        period_as_year_fraction = (work_year_end - work_year_start).days / 365
+        days_off_per_period = self.days_off * period_as_year_fraction
+
+        return int(days_off_per_period) + 1  # round up
+
+    @property
     def days_off_remaining(self) -> int:
         """
         Calculate the number of remaining paid days off for the current year.
@@ -235,4 +255,4 @@ class WorkContract(models.Model):
             .get("total_days_off", 0)
         )
 
-        return max(0, self.days_off - used_days_off)
+        return max(0, self.days_off_in_period - used_days_off)
