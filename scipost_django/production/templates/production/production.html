@@ -28,15 +28,17 @@
     </div>
   </div>
 
-  {% if perms.scipost.can_promote_user_to_production_officer and work_contracts %}
+  {% if perms.scipost.can_view_timesheets and work_contracts %}
     <div class="row">
       <div class="col">
+        <h3>Employee Status (for {{ today|date:"F Y" }})</h3>
         <table class="table table-bordered mt-4">
           <thead class="table-light">
             <th>Employee</th>
             <th>Availability</th>
             <th>Contract hours</th>
-            <th>Hours in {% now "F Y" %}</th>
+            <th>Worked hours</th>
+            <th></th>
           </thead>
           <tbody>
             {% for contract in work_contracts %}
@@ -46,8 +48,13 @@
                   <ul class="m-0 p-0 list-unstyled">
                     {% for period in contract.employee.current_unavailability_periods %}
                     <li>
-                      <span class="text-danger me-1">{% include "bi/x-circle-fill.html" %}</span> 
-                      <span>Unavailable from {{ period.start }}, back on {{ period.end }}</span>  
+                      {% if period.start < today %}
+                        <span class="text-danger me-1">{% include "bi/x-circle-fill.html" %}</span> 
+                        <span>Is unavailable from {{ period.start }}, back on {{ period.end }}</span>  
+                      {% else %}
+                        <span class="text-warning me-1">{% include "bi/x-circle-fill.html" %}</span> 
+                        <span>To be unavailable from {{ period.start }}, back on {{ period.end }}</span>  
+                      {% endif %}
                     </li>
                     {% empty %}
                     <li>
@@ -60,6 +67,8 @@
                 <td>{{ contract.work_hours_month|duration }}</td>
                 <td>
                   <span class="me-3">{{ contract.hours_worked_this_month|duration }}</span>
+                </td>
+                <td>
                   {% if contract.hours_worked_this_month > contract.work_hours_month %}
                     <span class="text-success me-1">{% include "bi/check-circle-fill.html" %}</span>
                     <span>Minimum hours satisfied</span>

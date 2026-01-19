@@ -108,6 +108,7 @@ def production(request):
         "search_productionstreams_form": search_productionstreams_form,
         "bulk_assign_officer_form": bulk_assign_officer_form,
         "work_contracts": work_contracts,
+        "today": today,
     }
 
     return render(request, "production/production.html", context)
