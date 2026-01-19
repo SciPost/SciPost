@@ -747,8 +747,9 @@ class LogsFilterForm(forms.Form):
                 if wl.log_type == WORK_LOG_TIME_OFF
             )
             base_hours_month = base_hours_week * WEEKS_IN_MONTH
-            extra_hours_month = max(0, real_work_hours - base_hours_month)
-            total_duration = base_hours_month + extra_hours_month + daysoff_hours
+            work_hours = real_work_hours + daysoff_hours
+            extra_hours_month = max(0, work_hours - base_hours_month)
+            total_duration = base_hours_month + extra_hours_month
 
             timesheets.append(
                 {

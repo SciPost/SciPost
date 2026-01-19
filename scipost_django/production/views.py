@@ -79,10 +79,7 @@ def production(request):
                     filter=Q(
                         employee__dbuser__work_logs__work_date__year=today.year,
                         employee__dbuser__work_logs__work_date__month=today.month,
-                    )
-                    & ~Q(
-                        employee__dbuser__work_logs__log_type=constants.WORK_LOG_TIME_OFF
-                    ),
+                    ),  # Keep time off logs, they count towards hours worked
                 ),
                 Value(timedelta(0), output_field=DurationField()),
             )

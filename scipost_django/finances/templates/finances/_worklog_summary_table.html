@@ -6,14 +6,15 @@
   <h4>{{ date|date:"F Y" }}</h4>
   <table class="table table-hover text-nowrap">
     <thead class="table-light">
-      <tr>
+      <tr class="align-top">
         <th>Employee</th>
         <th>Contract hours</th>
-        {% if show_time_off_details %}
-          <th>Additional hours</th>
-          <th>Paid time off</th>
-        {% else %}
-          <th>Additional hours</th>
+        <th>Additional hours</th>
+        {% if show_paid_time_off %}
+          <th class="text-muted">
+            <div>Paid time off</div>
+            <small>incl. in prev. cols.</small>
+          </th>
         {% endif %}
         <th>Total hours paid</th>
         <th></th>
@@ -28,17 +29,15 @@
         <tr>
           <td>{{ employee_timesheet.full_name }}</td>
           <td>{{ employee_timesheet.base_hours|duration }}</td>
-          {% if show_time_off_details %}
-            <td>{{ employee_timesheet.extra_hours|duration }}</td>
-            <td>{{ employee_timesheet.paid_time_off|duration }}</td>
-          {% else %}
-            <td>{{ employee_timesheet.extra_hours|add:employee_timesheet.paid_time_off|duration }}</td>
+          <td>{{ employee_timesheet.extra_hours|duration }}</td>
+          {% if show_paid_time_off %}
+            <td class="text-muted">{{ employee_timesheet.paid_time_off|duration }}</td>
           {% endif %}
           <td class="border-start">{{ employee_timesheet.total_hours|duration }}</td>
           <td>&times;</td>
           <td>{{ employee_timesheet.pay_rate|floatformat:2 }} €/h</td>
           <td>=</td>
-          <td><span class="fw-bold">{{ employee_timesheet.total_compensation|floatformat:0 }}€</span></td>
+          <td><span class="fw-bold">{{ employee_timesheet.total_compensation|floatformat:2 }}€</span></td>
         </tr>
       {% empty %}
         <tr>

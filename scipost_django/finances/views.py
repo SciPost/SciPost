@@ -812,7 +812,7 @@ def timesheets(request):
     form = LogsFilterForm(request.GET or None)
     context = {
         "form": form,
-        "show_time_off_details": True,
+        "show_paid_time_off": True,
     }
     return render(request, "finances/timesheets.html", context)
 
@@ -823,7 +823,7 @@ def timesheets_detailed(request):
     form = LogsFilterForm(request.GET or None)
     context = {
         "form": form,
-        "show_time_off_details": True,
+        "show_paid_time_off": True,
     }
     return render(request, "finances/timesheets_detailed.html", context)
 
