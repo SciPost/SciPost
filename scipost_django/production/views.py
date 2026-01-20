@@ -301,9 +301,9 @@ def production_old(request, stream_id=None):
             context["prodevent_form"] = ProductionEventForm_deprec()
 
             if request.user.has_perm("scipost.can_view_all_production_streams"):
-                types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+                types = constants.WORK_LOG_TYPE_SUPERVISOR_CHOICES
             else:
-                types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+                types = constants.WORK_LOG_TYPE_OFFICER_CHOICES
             context["work_log_form"] = WorkLogForm(log_types=types)
             context["upload_proofs_form"] = ProofsUploadForm()
         except ProductionStream.DoesNotExist:
@@ -351,9 +351,9 @@ def stream(request, stream_id):
     upload_proofs_form = ProofsUploadForm()
 
     if request.user.has_perm("scipost.can_view_all_production_streams"):
-        types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_SUPERVISOR_CHOICES
     else:
-        types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_OFFICER_CHOICES
     work_log_form = WorkLogForm(log_types=types)
     status_form = StreamStatusForm(
         instance=productionstream,
@@ -443,9 +443,9 @@ def add_work_log(request, stream_id):
         return redirect(stream.get_absolute_url())
 
     if request.user.has_perm("scipost.can_view_all_production_streams"):
-        types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_SUPERVISOR_CHOICES
     else:
-        types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_OFFICER_CHOICES
     work_log_form = WorkLogForm(request.POST or None, log_types=types)
 
     if work_log_form.is_valid():
@@ -471,9 +471,9 @@ def _hx_productionstream_actions_work_log(request, productionstream_id):
         return HTMXPermissionsDenied("You cannot work in this stream.")
 
     if request.user.has_perm("scipost.can_view_all_production_streams"):
-        types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_SUPERVISOR_CHOICES
     else:
-        types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_OFFICER_CHOICES
     work_log_form = WorkLogForm(request.POST or None, log_types=types)
 
     if work_log_form.is_valid():

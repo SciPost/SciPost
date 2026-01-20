@@ -22,7 +22,7 @@
           <a href="{{ log.stream.get_absolute_url }}">{{ log.stream.proofs_repository.name|default:log.stream.submission.title }}</a>
         </td>
         <td>{{ log.duration|duration }}</td>
-        <td>{{ log.log_type }}</td>
+        <td>{{ log.get_log_type_display }}</td>
       </tr>
 
       {% if log.comments %}

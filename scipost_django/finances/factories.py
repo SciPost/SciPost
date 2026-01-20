@@ -17,7 +17,7 @@ from .models import (
     SubsidyPayment,
     WorkLog,
 )
-from production.constants import PRODUCTION_ALL_WORK_LOG_TYPES
+from production.constants import WORK_LOG_TYPE_SUPERVISOR_CHOICES
 from scipost.factories import UserFactory
 
 from common.faker import LazyAwareDate, LazyRandEnum, fake
@@ -30,7 +30,7 @@ class WorkLogFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactory)
     comments = factory.Faker("paragraph")
-    log_type = LazyRandEnum(PRODUCTION_ALL_WORK_LOG_TYPES)
+    log_type = LazyRandEnum(WORK_LOG_TYPE_SUPERVISOR_CHOICES)
     duration = factory.LazyAttribute(lambda _: fake.duration())
     work_date = factory.Faker("date_this_year")
     created = factory.Faker("past_date", start_date="-1y")

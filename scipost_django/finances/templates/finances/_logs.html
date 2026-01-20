@@ -6,7 +6,7 @@
       <div class="col">
         <strong>{{ log.user.first_name }} {{ log.user.last_name }}</strong>
         <br>
-        <span class="text-muted">{{ log.log_type }}</span>
+        <span class="text-muted">{{ log.get_log_type_display }}</span>
         <br>
         {{ log.comments|linebreaksbr }}
       </div>

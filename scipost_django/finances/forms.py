@@ -46,7 +46,7 @@ from finances.models.subsidy import SubsidyCollective
 from finances.utils.compensations import CompensationStrategy
 from funders.models import IndividualBudget
 from organizations.models import Organization
-from production.constants import WORK_LOG_TIME_OFF
+from production.constants import WORK_LOG_TYPE_TIME_OFF
 from production.models import ProductionStream
 from scipost.fields import UserModelChoiceField
 
@@ -753,12 +753,12 @@ class LogsFilterForm(forms.Form):
             real_work_hours = sum(
                 wl.duration_in_seconds / 3600
                 for wl in all_user_work_logs
-                if wl.log_type != WORK_LOG_TIME_OFF
+                if wl.log_type != WORK_LOG_TYPE_TIME_OFF
             )
             daysoff_hours = sum(
                 wl.duration_in_seconds / 3600
                 for wl in all_user_work_logs
-                if wl.log_type == WORK_LOG_TIME_OFF
+                if wl.log_type == WORK_LOG_TYPE_TIME_OFF
             )
             base_hours_month = base_hours_week * WEEKS_IN_MONTH
             work_hours = real_work_hours + daysoff_hours

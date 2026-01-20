@@ -37,7 +37,7 @@ from finances.models.work_log import WorkLog
 from invitations.constants import STATUS_REGISTERED
 from mails.models import MailAddressDomain
 from markup.constants import BLEACH_ALLOWED_ATTRIBUTES, BLEACH_ALLOWED_TAGS
-from production.constants import WORK_LOG_TIME_OFF
+from production.constants import WORK_LOG_TYPE_TIME_OFF
 
 from .behaviors import orcid_validator
 from .constants import (
@@ -1063,7 +1063,7 @@ class UnavailabilityPeriodForm(forms.ModelForm):
                 )
             WorkLog.objects.create(
                 user=period.contributor.user,
-                log_type=WORK_LOG_TIME_OFF,
+                log_type=WORK_LOG_TYPE_TIME_OFF,
                 duration=period.duration.days * contract.work_hours_day,
                 work_date=period.end,
                 comments="Paid time off (unavailability period)",
