@@ -235,7 +235,7 @@ class BaseCycle(abc.ABC):
             and self._submission.proceedings.minimum_referees
         ):
             return self._submission.proceedings.minimum_referees
-        return 3  # Three by default
+        return self._submission.submitted_to.minimal_nr_of_reports + 1
 
     @cached_property
     def has_required_actions(self):
