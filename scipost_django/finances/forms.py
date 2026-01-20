@@ -47,6 +47,7 @@ from finances.utils.compensations import CompensationStrategy
 from funders.models import IndividualBudget
 from organizations.models import Organization
 from production.constants import WORK_LOG_TIME_OFF
+from production.models import ProductionStream
 from scipost.fields import UserModelChoiceField
 
 from .models import Subsidy, SubsidyPayment, SubsidyAttachment, WorkLog
@@ -706,7 +707,7 @@ class LogsFilterForm(forms.Form):
                     Value(0),
                 ),
             )
-            .order_by("full_name", "work_date")
+            .order_by("full_name", "-work_date")
         )
 
         if employee := self.cleaned_data.get("employee"):
@@ -717,6 +718,14 @@ class LogsFilterForm(forms.Form):
             work_logs,
             RelatedAttachment(
                 "active_contract", "contract", WorkContract.objects.all()
+            ),
+            RelatedAttachment(
+                "object_id",
+                "stream",
+                queryset=ProductionStream.objects.select_related(
+                    "submission",
+                    "proofs_repository",
+                ),
             ),
         )
 
@@ -766,6 +775,7 @@ class LogsFilterForm(forms.Form):
                     "total_hours": timedelta(hours=total_duration),
                     "pay_rate": hourly_rate,
                     "total_compensation": round(hourly_rate * total_duration, 2),
+                    "work_logs": all_user_work_logs,
                 }
             )
 
