@@ -34,6 +34,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 from careers.models import WorkContract
 from common.forms import CrispyFormMixin, HTMXDynSelWidget, SearchForm
+from common.utils.models import RelatedAttachment, attach_related
 from finances.constants import (
     SUBSIDY_STATUS,
     SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
@@ -711,18 +712,22 @@ class LogsFilterForm(forms.Form):
         if employee := self.cleaned_data.get("employee"):
             work_logs = work_logs.filter(user=employee)
 
-        work_contracts = WorkContract.objects.filter(
-            id__in=work_logs.values("active_contract")
+        # Attach related WorkContract objects to avoid N+1 queries
+        attach_related(
+            work_logs,
+            RelatedAttachment(
+                "active_contract", "contract", WorkContract.objects.all()
+            ),
         )
-        work_contracts_map = {wc.id: wc for wc in work_contracts}
 
         for wl in work_logs:
-            wc = work_contracts_map.get(wl.active_contract)
-            wl.contract = wc
-            wl.hourly_rate = wc.pay_rate if wc else DEFAULT_HOURLY_RATE
-            wl.work_hours_week = (
-                wc.work_hours_week.total_seconds() / 3600 if wc else DEFAULT_WORK_HOURS
-            )
+            if not wl.contract:
+                wl.hourly_rate = DEFAULT_HOURLY_RATE
+                wl.work_hours_week = DEFAULT_WORK_HOURS
+                continue
+
+            wl.hourly_rate = wl.contract.pay_rate
+            wl.work_hours_week = wl.contract.work_hours_week.total_seconds() / 3600
 
         timesheets = []
         for (full_name, year, month), working_logs in groupby(
