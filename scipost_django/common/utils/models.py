@@ -1,11 +1,13 @@
 import importlib
 from itertools import groupby
+from dataclasses import dataclass
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.db.models import F, Q, Count, Model, QuerySet, Subquery, OuterRef
 
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Iterable
+
 
 TQuery = TypeVar("TQuery", bound=Q | F)
 M = TypeVar("M", bound=Model)
@@ -121,3 +123,86 @@ def qs_duplicates_group_by_key(qs: QuerySet[M], key: str) -> "groupby[str, M]":
     )
 
     return groups_not_fully_marked
+
+
+@dataclass
+class RelatedAttachment:
+    """
+    Describes how to attach related objects to model instances.
+    Used by `attach_related` to fetch and set related objects on models.
+
+    Attributes:
+        source_field (str): The field on the source model that holds the foreign key to the related model.
+        target_field (str): The field on the source model where the related object will be attached.
+        queryset (QuerySet[Model] | None): An optional queryset to fetch related objects from. If not provided,
+            the related model will be inferred from the source field. Useful for optimizing queries through
+            prefetching or filtering unwanted related objects.
+    """
+
+    source_field: str
+    target_field: str
+    queryset: QuerySet[Model] | None = None
+
+    def get_queryset(self, object: Model | None = None) -> QuerySet[Model]:
+        """
+        Retrieves the queryset to fetch related objects, either from the provided queryset
+        or by inferring it from the model's source field.
+        """
+        if self.queryset is not None:
+            return self.queryset
+        elif object is not None:
+            model_field = object._meta.get_field(self.source_field)
+            if related_model := model_field.related_model:
+                return related_model._default_manager.all()
+            else:
+                raise ValueError(
+                    f"Cannot infer related model from field '{self.source_field}'."
+                )
+        else:
+            raise ValueError(
+                "Either 'queryset' must be provided or 'object' must not be None."
+            )
+
+    def fetch_related(self, objects: Iterable[Model]) -> Iterable[Model]:
+        """
+        Fetches related objects for the given model instances.
+
+        Args:
+            objects (Iterable[Model]): An iterable of Django model instances.
+
+        Returns:
+            Iterable[Model]: An iterable of *related* Django model instances.
+        """
+        if isinstance(objects, QuerySet):
+            pks = objects.values_list(self.source_field, flat=True)
+        else:
+            pks = {getattr(obj, self.source_field) for obj in objects}
+
+        qs = self.get_queryset(next(iter(objects), None))
+        return qs.filter(pk__in=pks)
+
+    def apply_to(self, objects: Iterable[Model]) -> None:
+        """Shortcut to fetch and attach related objects to the given model instances."""
+
+        return attach_related(objects, self)
+
+
+def attach_related(objects: Iterable[Model], *attachments: RelatedAttachment) -> None:
+    """
+    Attaches related objects to model instances like Django's `prefetch_related_objects`,
+    but works for `select_related`-style relations as well.
+
+    Args:
+        objects (Iterable[Model]): An iterable of Django model instances.
+        *attachments (RelatedAttachment): RelatedAttachments defining how to fetch and attach related objects.
+
+    Returns:
+        None, modifies the objects in place.
+    """
+
+    for attachment in attachments:
+        attachment_map = {obj.pk: obj for obj in attachment.fetch_related(objects)}
+
+        for obj in objects:
+            related_obj = attachment_map.get(getattr(obj, attachment.source_field))
+            setattr(obj, attachment.target_field, related_obj)
