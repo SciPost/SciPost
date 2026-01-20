@@ -11,6 +11,8 @@ from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
     EIC_REC_CHOICES,
     EIC_REC_CHOICES_SHORT,
+    EIC_REC_MAJOR_REVISION,
+    EIC_REC_MINOR_REVISION,
     EIC_REC_STATUSES,
     DECISION_FIXED,
     DEPRECATED,
@@ -157,6 +159,17 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         return (
             self.voted_for.all() | self.voted_against.all() | self.voted_abstain.all()
         )
+
+    @property
+    def requires_voting(self):
+        """
+        True if the recommendation requires voting by the Editorial College,
+        i.e. if it is not a mere revision, but rather publication or rejection.
+        """
+        return self.recommendation not in [
+            EIC_REC_MINOR_REVISION,
+            EIC_REC_MAJOR_REVISION,
+        ]
 
     def get_other_versions(self):
         """Return other versions of EICRecommendations for this Submission."""

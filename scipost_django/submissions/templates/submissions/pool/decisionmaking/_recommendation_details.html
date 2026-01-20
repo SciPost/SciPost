@@ -55,8 +55,9 @@
       {% endif %}
     {% endif %}
 
-    {{ submission }}
-    {% include "submissions/pool/decisionmaking/_recommendation_voting_details.html" with submission=submission %}
+    {% if recommendation.requires_voting %}
+      {% include "submissions/pool/decisionmaking/_recommendation_voting_details.html" with submission=submission %}
+    {% endif %}
 
   </div>
 </details>

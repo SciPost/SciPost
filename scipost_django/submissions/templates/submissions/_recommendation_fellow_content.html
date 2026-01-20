@@ -22,92 +22,97 @@
 
 {% block recommendation_voting_card %}
 
-  <div class="card{% if not recommendation.active %} text-secondary{% endif %} mt-2">
-    <h2 class="card-header">
-      Voting
-    </h2>
+  {% if recommendation.requires_voting %}
+  
+    <div class="card{% if not recommendation.active %} text-secondary{% endif %} mt-2">
+      <h2 class="card-header">
+        Voting
+      </h2>
 
-    <div class="card-body">
+      <div class="card-body">
 
-      <h3 class="card-title">Fellows eligible to vote:</h3>
-      <ul>
-        {% for eligible in recommendation.eligible_to_vote.all|sort_by:'dbuser__last_name' %}
-          <li>{{ eligible.user.first_name }} {{ eligible.user.last_name }}</li>
+        <h3 class="card-title">Fellows eligible to vote:</h3>
+        <ul>
+          {% for eligible in recommendation.eligible_to_vote.all|sort_by:'dbuser__last_name' %}
+            <li>{{ eligible.user.first_name }} {{ eligible.user.last_name }}</li>
+          {% endfor %}
+        </ul>
+
+        <h3 class="card-title">Voting results up to now:</h3>
+        <ul>
+          <li>
+            Agreed ({{ recommendation.voted_for.all.count }}):
+            {% for agreed in recommendation.voted_for.all|sort_by:'dbuser__last_name' %}
+              {{ agreed.user.last_name }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          </li>
+          <li>
+            Disagreed ({{ recommendation.voted_against.all.count }}):
+            {% for disagreed in recommendation.voted_against.all|sort_by:'dbuser__last_name' %}
+              {{ disagreed.user.last_name }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          </li>
+          <li>
+            Abstained ({{ recommendation.voted_abstain.all.count }}):
+            {% for abstained in recommendation.voted_abstain.all|sort_by:'dbuser__last_name' %}
+              {{ abstained.user.last_name }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+          </li>
+        </ul>
+
+        {% if recommendation.submission.tierings.all|length > 0 %}
+    <h3>Tierings for this Submission, as indicated by voting Fellows who agreed with publication</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th class="py-1">Fellow</th>
+          <th class="py-1">For Journal</th>
+          <th class="py-1">Tier</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tiering in recommendation.submission.tierings.all %}
+          <tr>
+      <td>{{ tiering.fellow }}</td>
+      <td>{{ tiering.for_journal }}</td>
+      <td>{{ tiering.get_tier_display }}</td>
+          </tr>
         {% endfor %}
-      </ul>
+      </tbody>
+    </table>
+        {% endif %}
 
-      <h3 class="card-title">Voting results up to now:</h3>
-      <ul>
-        <li>
-          Agreed ({{ recommendation.voted_for.all.count }}):
-          {% for agreed in recommendation.voted_for.all|sort_by:'dbuser__last_name' %}
-            {{ agreed.user.last_name }}{% if not forloop.last %},{% endif %}
-          {% endfor %}
-        </li>
-        <li>
-          Disagreed ({{ recommendation.voted_against.all.count }}):
-          {% for disagreed in recommendation.voted_against.all|sort_by:'dbuser__last_name' %}
-            {{ disagreed.user.last_name }}{% if not forloop.last %},{% endif %}
-          {% endfor %}
-        </li>
-        <li>
-          Abstained ({{ recommendation.voted_abstain.all.count }}):
-          {% for abstained in recommendation.voted_abstain.all|sort_by:'dbuser__last_name' %}
-            {{ abstained.user.last_name }}{% if not forloop.last %},{% endif %}
-          {% endfor %}
-        </li>
-      </ul>
+        {% if recommendation.alternativerecommendation_set.all|length > 0 %}
+    <h3>Alternative recommendations offered during voting by Fellows who disagreed:</h3>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th class="py-1">Fellow</th>
+          <th class="py-1">For Journal</th>
+          <th class="py-1">Alternative Recommendation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for altrec in recommendation.alternativerecommendation_set.all %}
+          <tr>
+      <td>{{ altrec.fellow }}</td>
+      <td>{{ altrec.for_journal }}</td>
+      <td>{{ altrec.get_recommendation_display }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+        {% endif %}
 
-      {% if recommendation.submission.tierings.all|length > 0 %}
-	<h3>Tierings for this Submission, as indicated by voting Fellows who agreed with publication</h3>
-	<table class="table table-bordered">
-	  <thead>
-	    <tr>
-	      <th class="py-1">Fellow</th>
-	      <th class="py-1">For Journal</th>
-	      <th class="py-1">Tier</th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    {% for tiering in recommendation.submission.tierings.all %}
-	      <tr>
-		<td>{{ tiering.fellow }}</td>
-		<td>{{ tiering.for_journal }}</td>
-		<td>{{ tiering.get_tier_display }}</td>
-	      </tr>
-	    {% endfor %}
-	  </tbody>
-	</table>
-      {% endif %}
-
-      {% if recommendation.alternativerecommendation_set.all|length > 0 %}
-	<h3>Alternative recommendations offered during voting by Fellows who disagreed:</h3>
-	<table class="table table-bordered">
-	  <thead>
-	    <tr>
-	      <th class="py-1">Fellow</th>
-	      <th class="py-1">For Journal</th>
-	      <th class="py-1">Alternative Recommendation</th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    {% for altrec in recommendation.alternativerecommendation_set.all %}
-	      <tr>
-		<td>{{ altrec.fellow }}</td>
-		<td>{{ altrec.for_journal }}</td>
-		<td>{{ altrec.get_recommendation_display }}</td>
-	      </tr>
-	    {% endfor %}
-	  </tbody>
-	</table>
-      {% endif %}
-
-      <div id="recommendation-remarks"
-          hx-get="{% url "submissions:pool:decisionmaking:_hx_recommendation_remarks" identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id%}"
-          hx-trigger="load">
-      </div>
+        <div id="recommendation-remarks"
+            hx-get="{% url "submissions:pool:decisionmaking:_hx_recommendation_remarks" identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id%}"
+            hx-trigger="load">
+        </div>
 
     </div>
+  </div>
+
+  {% endif %}
 
     {% if perms.scipost.can_fix_College_decision %}
       {% if recommendation.active %}
@@ -146,6 +151,5 @@
 	</div>
       {% endif %}
     {% endif %}
-  </div>
 
 {% endblock recommendation_voting_card %}
