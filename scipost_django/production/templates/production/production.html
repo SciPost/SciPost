@@ -17,10 +17,12 @@
     <div class="col-12 col-sm">
       <h1>Production Streams</h1>
     </div>
-    <div class="col-12 col-sm-auto">
+    <div class="col-12 col-sm-auto d-flex gap-1 align-items-center justify-content-end">
 
       {% if perms.scipost.can_promote_user_to_production_officer %}
         <a class="btn-link fs-4" href="{% url 'production:production_team' %}">Production Team</a>
+        &nbsp;|&nbsp;
+        <a class="btn-link fs-4" href="{% url 'finances:timesheets' %}">Team Timesheets</a>
         &nbsp;|&nbsp;
       {% endif %}
 

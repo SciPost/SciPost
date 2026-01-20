@@ -11,18 +11,27 @@ from dal import autocomplete
 from django.contrib.contenttypes.models import ContentType
 from django.core.handlers.asgi import HttpRequest
 from django.db import models
-from django.db.models import Q, Count, Exists, OuterRef, Subquery, Sum
+from django.db.models import (
+    Q,
+    Count,
+    Exists,
+    OuterRef,
+    Subquery,
+    Sum,
+)
 from django.db.models.functions import Cast, Coalesce
 from django.template.response import TemplateResponse
 from django.utils.html import format_html
 from django.views.generic import FormView
 import matplotlib
 
+from common.utils.models import RelatedAttachment, attach_related
 from common.views import HXDynselAutocomplete, HXDynselSelectOptionView
 from finances.constants import SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_PROMISED
 from finances.models.account import Account
 from finances.models.subsidy import SubsidyCollective
 from journals.models.publication import PublicationAuthorsTable
+from production.models import ProductionStream
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -862,7 +871,26 @@ def personal_timesheet(request):
     """
     Overview of the user's timesheets across all production streams.
     """
-    return render(request, "finances/personal_timesheet.html")
+    work_logs = WorkLog.objects.filter(
+        user=request.user,
+        content_type__model__iexact="ProductionStream",
+    ).order_by("-work_date")
+
+    # Attach related ProductionStream objects to avoid N+1 queries
+    # we can do this because we limited content_type above
+    attach_related(
+        work_logs,
+        RelatedAttachment(
+            "object_id",
+            "stream",
+            queryset=ProductionStream.objects.select_related(
+                "submission",
+                "proofs_repository",
+            ),
+        ),
+    )
+
+    return render(request, "finances/personal_timesheet.html", {"work_logs": work_logs})
 
 
 ###################

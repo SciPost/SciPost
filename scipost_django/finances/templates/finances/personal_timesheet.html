@@ -1,8 +1,7 @@
-
 {% extends 'production/base.html' %}
 
 {% block pagetitle %}
-    : Production team
+  : Production team
 {% endblock pagetitle %}
 
 {% load scipost_extras %}
@@ -10,38 +9,50 @@
 
 {% block content %}
 
-    <div class="row">
-        <div class="col-12">
-            <h2 class="highlight">My Timesheet</h2>
-        </div>
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">My Timesheet</h2>
     </div>
+  </div>
 
-    <table class="table mb-5">
-        <thead class="table-light">
-            <tr>
-                <th>Date</th>
-                <th>Comment</th>
-                <th>Stream</th>
-                <th>Log type</th>
-                <th>Duration</th>
-            </tr>
-        </thead>
+  <table class="table table-borderless mb-5">
+    <thead class="table-light">
+      <tr>
+        <th>Date</th>
+        <th>Stream</th>
+        <th>Duration</th>
+        <th>Log type</th>
+      </tr>
+    </thead>
 
-        <tbody role="tablist">
-            {% for log in request.user.work_logs.all %}
-                <tr>
-                    <td>{{ log.work_date }}</td>
-                    <td>{{ log.comments }}</td>
-                    <td>{{ log.content }}</td>
-                    <td>{{ log.log_type }}</td>
-                    <td>{{ log.duration|duration }}</td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="4">No logs found.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <tbody>
+
+      {% for log in work_logs %}
+        <tr class="border-top">
+          <td>{{ log.work_date }}</td>
+          <td style="max-width:250px"
+              class="text-truncate">
+            <a href="{{ log.stream.get_absolute_url }}">{{ log.stream.proofs_repository.name|default:log.stream.submission.title }}</a>
+          </td>
+          <td>{{ log.duration|duration }}</td>
+          <td>{{ log.log_type }}</td>
+        </tr>
+
+        {% if log.comments %}
+          <tr>
+            <td colspan="4"
+                class="text-muted">{{ log.comments }}</td>
+          </tr>
+        {% endif %}
+
+      {% empty %}
+        <tr>
+          <td colspan="4">No logs found.</td>
+        </tr>
+      {% endfor %}
+
+
+    </tbody>
+  </table>
 
 {% endblock content %}
