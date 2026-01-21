@@ -56,6 +56,10 @@ def multiply(a, b):
     return a * b
 
 @register.filter
+def subtract(a, b):
+    return a - b
+
+@register.filter
 def index(list, index):
     return list[index]
 

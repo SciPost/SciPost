@@ -2,7 +2,8 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <a href="{% url 'finances:timesheets' %}" class="breadcrumb-item">Team timesheets</a>
+  <a href="{% url 'finances:timesheets' %}"
+     class="breadcrumb-item">Team timesheets</a>
   <span class="breadcrumb-item">Detailed timesheets</span>
 {% endblock %}
 
@@ -18,7 +19,7 @@
   <div class="row">
     <div class="col-12">
       <h1 class="highlight">Detailed timesheets</h1>
-      <br>
+      <br />
 
       <form method="get">
         {% crispy form %}
@@ -28,44 +29,35 @@
 
   <div class="row">
     <div class="col-12">
+
       {% if form.is_bound and form.is_valid %}
-        <h2 class="mb-2 mt-4">Team timesheets</h2>
-        {% for user_log in form.filter %}
-          <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>
-          <table class="table table-hover">
-            <thead class="table-light">
-              <tr>
-                <th>Date</th>
-                <th>Related to object</th>
-                <th>Log type</th>
-                <th>Comments</th>
-                <th>Duration</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for log in user_log.logs %}
-                <tr>
-                  <td>{{ log.work_date }}</td>
-                  <td>{{ log.content }}</td>
-                  <td>{{ log.log_type }}</td>
-                  <td>{{ log.comments }}</td>
-                  <td>{{ log.duration|duration }}</td>
-                </tr>
-              {% endfor %}
-              <tr>
-                <td colspan="4" class="text-end">Total:</td>
-                <td>
-                  <strong>{{ user_log.duration.total|duration }}</strong>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        {% empty %}
-          <p>No logs found.</p>
+        {% regroup form.get_timesheets by date as monthly_timesheets %}
+
+        {% for date, timesheets_in_month in monthly_timesheets %}
+          <details class="mb-4" open>
+            <summary class="list-triangle">
+              <h2 class="mb-3 mt-4">{{ date|date:"F Y" }}</h2>
+            </summary>
+
+            {% for timesheet in timesheets_in_month %}
+              <details class="mb-3" open>
+                <summary class="list-triangle">
+                  <h4 class="mb-2">{{ timesheet.full_name }}</h4>
+                </summary>
+                {% include "finances/_detailed_timesheet_table.html" with work_logs=timesheet.work_logs %}
+              </details>
+            {% empty %}
+              <p>No logs found.</p>
+            {% endfor %}
+
+          </details>
         {% endfor %}
+
+
       {% else %}
         <p class="text-danger">First submit the filter form to retrieve results.</p>
       {% endif %}
+
     </div>
   </div>
 {% endblock %}

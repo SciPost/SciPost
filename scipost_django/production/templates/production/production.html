@@ -1,6 +1,8 @@
 {% extends 'production/base.html' %}
 
 {% load crispy_forms_tags %}
+{% load scipost_extras %}
+{% load common_extras %}
 
 {% block breadcrumb_items %}<span class="breadcrumb-item">Production streams</span>{% endblock %}
 
@@ -15,10 +17,12 @@
     <div class="col-12 col-sm">
       <h1>Production Streams</h1>
     </div>
-    <div class="col-12 col-sm-auto">
+    <div class="col-12 col-sm-auto d-flex gap-1 align-items-center justify-content-end">
 
       {% if perms.scipost.can_promote_user_to_production_officer %}
         <a class="btn-link fs-4" href="{% url 'production:production_team' %}">Production Team</a>
+        &nbsp;|&nbsp;
+        <a class="btn-link fs-4" href="{% url 'finances:timesheets' %}">Team Timesheets</a>
         &nbsp;|&nbsp;
       {% endif %}
 
@@ -26,13 +30,70 @@
     </div>
   </div>
 
+  {% if perms.scipost.can_view_timesheets and work_contracts %}
+    <div class="row">
+      <div class="col">
+        <h3>Employee Status (for {{ today|date:"F Y" }})</h3>
+        <table class="table table-bordered mt-4">
+          <thead class="table-light">
+            <th>Employee</th>
+            <th>Availability</th>
+            <th>Contract hours</th>
+            <th>Worked hours</th>
+            <th></th>
+          </thead>
+          <tbody>
+            {% for contract in work_contracts %}
+              <tr>
+                <td>{{ contract.employee.profile.full_name }}</td>
+                <td>
+                  <ul class="m-0 p-0 list-unstyled">
+                    {% for period in contract.employee.current_unavailability_periods %}
+                    <li>
+                      {% if period.start < today %}
+                        <span class="text-danger me-1">{% include "bi/x-circle-fill.html" %}</span> 
+                        <span>Is unavailable from {{ period.start }}, back on {{ period.end }}</span>  
+                      {% else %}
+                        <span class="text-warning me-1">{% include "bi/x-circle-fill.html" %}</span> 
+                        <span>To be unavailable from {{ period.start }}, back on {{ period.end }}</span>  
+                      {% endif %}
+                    </li>
+                    {% empty %}
+                    <li>
+                      <span class="text-success me-1">{% include "bi/check-circle-fill.html" %}</span>
+                      <span>Available</span>
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </td>
+                <td>{{ contract.work_hours_month|duration }}</td>
+                <td>
+                  <span class="me-3">{{ contract.hours_worked_this_month|duration }}</span>
+                </td>
+                <td>
+                  {% if contract.hours_worked_this_month > contract.work_hours_month %}
+                    <span class="text-success me-1">{% include "bi/check-circle-fill.html" %}</span>
+                    <span>Minimum hours satisfied</span>
+                  {% else %}
+                    <span class="text-danger me-1">{% include "bi/x-circle-fill.html" %}</span>
+                    <span>{{ contract.work_hours_month|subtract:contract.hours_worked_this_month|duration }} remaining</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+  
   <details id="productionstreams-filter-details" class="card my-4">
     <summary class="card-header d-flex flex-row align-items-center justify-content-between list-triangle">
       <div class="fs-3">Search / Filter / Bulk Actions</div>
       <div class="d-none d-md-flex align-items-center">
  
         <div id="indicator-search-productionstreams" class="htmx-indicator">
-          <button class="btn btn-warning text-white d-none d-md-block me-2"
+          <button class="btn btn-warning text-white d-none d-md-block me-1"
                   type="button"
                   disabled>
             <strong>Loading...</strong>
@@ -43,7 +104,7 @@
           </button>
         </div>
 
-        <button class="btn btn-outline-secondary me-2"
+        <button class="btn btn-outline-secondary me-1"
                 type="button"
                 hx-get="{% url 'production:_hx_productionstream_search_form' filter_set="empty" %}"
                 hx-target="#productionstream-search-form-container">Clear Filters</button>

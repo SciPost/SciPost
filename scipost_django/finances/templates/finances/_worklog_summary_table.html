@@ -1,31 +1,51 @@
 {% load scipost_extras %}
 
-<table class="table table-hover text-nowrap">
-  <thead class="table-light">
-    <tr>
-      <th>Employee</th>
+{% regroup form.get_timesheets by date as monthly_timesheets %}
 
-      {% for month in logs_filter_form.get_months %}<th colspan="2" scope="colgroup">{{ month|date:'N Y' }}</th>{% endfor %}
-
-    </tr>
-  </thead>
-  <tbody>
-
-    {% for user_data in logs_filter_form.filter_per_month %}
-      <tr>
-        <td>{{ user_data.user.contributor }}</td>
-
-        {% for _, total_time, monthly_salary in user_data.monthly_data %}
-          <td>{{ total_time|duration }}</td>
-          <td>€{{ monthly_salary|floatformat:0 }}</td>
-        {% endfor %}
-
+{% for date, timesheets_in_month in monthly_timesheets %}
+  <h4>{{ date|date:"F Y" }}</h4>
+  <table class="table table-hover text-nowrap">
+    <thead class="table-light">
+      <tr class="align-top">
+        <th>Employee</th>
+        <th>Contract hours</th>
+        <th>Additional hours</th>
+        {% if show_paid_time_off %}
+          <th class="text-muted">
+            <div>Paid time off</div>
+            <small>incl. in prev. cols.</small>
+          </th>
+        {% endif %}
+        <th>Total hours paid</th>
+        <th></th>
+        <th>Hourly rate</th>
+        <th></th>
+        <th>Compensation</th>
       </tr>
-    {% empty %}
-      <tr>
-        <td colspan="5">No logs found.</td>
-      </tr>
-    {% endfor %}
+    </thead>
+    <tbody>
 
-  </tbody>
-</table>
+      {% for employee_timesheet in timesheets_in_month %}
+        <tr>
+          <td>{{ employee_timesheet.full_name }}</td>
+          <td>{{ employee_timesheet.base_hours|duration }}</td>
+          <td>{{ employee_timesheet.extra_hours|duration }}</td>
+          {% if show_paid_time_off %}
+            <td class="text-muted">{{ employee_timesheet.paid_time_off|duration }}</td>
+          {% endif %}
+          <td class="border-start">{{ employee_timesheet.total_hours|duration }}</td>
+          <td>&times;</td>
+          <td>{{ employee_timesheet.pay_rate|floatformat:2 }} €/h</td>
+          <td>=</td>
+          <td><span class="fw-bold">{{ employee_timesheet.total_compensation|floatformat:2 }}€</span></td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="7">No logs found.</td>
+        </tr>
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+{% endfor %}

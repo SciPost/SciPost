@@ -54,28 +54,39 @@ PROOFS_STATUSES = (
     (PROOFS_RENEWED, "Proofs renewed"),
 )
 
-PRODUCTION_OFFICERS_WORK_LOG_TYPES = (
-    ("Production: Proofs have been produced", "Proofs have been produced"),
-    ("Production: Corrections implemented", "Corrections implemented"),
+WORK_LOG_TYPE_TIME_OFF = "time_off"
+WORK_LOG_TYPE_PROOFS_PRODUCED = "production_proofs_produced"
+WORK_LOG_TYPE_CORRECTIONS_IMPLEMENTED = "production_corrections_implemented"
+WORK_LOG_TYPE_CITED_PEOPLE_NOTIFIED = "production_cited_people_notified"
+WORK_LOG_TYPE_PROOFS_CHECKED = "production_proofs_checked"
+WORK_LOG_TYPE_PAPER_PUBLISHED = "production_paper_published"
+WORK_LOG_TYPE_METADATA_UPDATED = "maintenance_metadata_updated"
+
+WORK_LOG_TYPE_OFFICER_CHOICES = (
+    (WORK_LOG_TYPE_PROOFS_PRODUCED, "Proofs have been produced"),
+    (WORK_LOG_TYPE_CORRECTIONS_IMPLEMENTED, "Corrections implemented"),
     (
-        "Production: Cited people have been notified/invited to SciPost",
+        WORK_LOG_TYPE_CITED_PEOPLE_NOTIFIED,
         "Cited people have been notified/invited to SciPost",
     ),
 )
-PRODUCTION_ALL_WORK_LOG_TYPES = (
-    ("Production: Proofs have been produced", "Proofs have been produced"),
+WORK_LOG_TYPE_SUPERVISOR_CHOICES = (
+    (WORK_LOG_TYPE_PROOFS_PRODUCED, "Proofs have been produced"),
     (
-        "Production: Proofs have been checked by Supervisor",
+        WORK_LOG_TYPE_PROOFS_CHECKED,
         "Proofs have been checked by Supervisor",
     ),
-    ("Production: Corrections implemented", "Corrections implemented"),
-    ("Production: Paper has been published", "Paper has been published"),
-    ("Maintaince: Metadata has been updated", "Metadata has been updated"),
+    (WORK_LOG_TYPE_CORRECTIONS_IMPLEMENTED, "Corrections implemented"),
+    (WORK_LOG_TYPE_PAPER_PUBLISHED, "Paper has been published"),
+    (WORK_LOG_TYPE_METADATA_UPDATED, "Metadata has been updated"),
     (
-        "Production: Cited people have been notified/invited to SciPost",
+        WORK_LOG_TYPE_CITED_PEOPLE_NOTIFIED,
         "Cited people have been notified/invited to SciPost",
     ),
 )
+WORK_LOG_TYPE_CHOICES = [
+    (WORK_LOG_TYPE_TIME_OFF, "Time off"),
+] + list(WORK_LOG_TYPE_SUPERVISOR_CHOICES)
 
 PROOFS_REPO_UNINITIALIZED = "uninitialized"
 PROOFS_REPO_CREATED = "created"

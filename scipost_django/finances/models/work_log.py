@@ -8,6 +8,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
 from django.utils import timezone
 
+from production.constants import WORK_LOG_TYPE_CHOICES
+
 from ..utils import id_to_slug
 
 HOURLY_RATE = 24.0
@@ -16,7 +18,9 @@ HOURLY_RATE = 24.0
 class WorkLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     comments = models.TextField(blank=True)
-    log_type = models.CharField(max_length=128, blank=True)
+    log_type = models.CharField(
+        max_length=128, blank=True, choices=WORK_LOG_TYPE_CHOICES
+    )
     duration = models.DurationField(blank=True, null=True)
     work_date = models.DateField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)

@@ -1,47 +1,17 @@
-
 {% extends 'production/base.html' %}
 
 {% block pagetitle %}
-    : Production team
+  : Production team
 {% endblock pagetitle %}
-
-{% load scipost_extras %}
-{% load bootstrap %}
 
 {% block content %}
 
-    <div class="row">
-        <div class="col-12">
-            <h2 class="highlight">My Timesheet</h2>
-        </div>
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">My Timesheet</h2>
     </div>
+  </div>
 
-    <table class="table mb-5">
-        <thead class="table-light">
-            <tr>
-                <th>Date</th>
-                <th>Comment</th>
-                <th>Stream</th>
-                <th>Log type</th>
-                <th>Duration</th>
-            </tr>
-        </thead>
-
-        <tbody role="tablist">
-            {% for log in request.user.work_logs.all %}
-                <tr>
-                    <td>{{ log.work_date }}</td>
-                    <td>{{ log.comments }}</td>
-                    <td>{{ log.content }}</td>
-                    <td>{{ log.log_type }}</td>
-                    <td>{{ log.duration|duration }}</td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="4">No logs found.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  {% include "finances/_detailed_timesheet_table.html" %}
 
 {% endblock content %}

@@ -52,6 +52,7 @@ if TYPE_CHECKING:
     from submissions.models.assignment import EditorialAssignment
     from anonymization.models import ContributorAnonymization
     from ethics.models import Coauthorship
+    from careers.models import WorkContract
 
 
 class AnonymousAbstractUser(AnonymousUser):
@@ -157,6 +158,8 @@ class Contributor(AnonymizableObjectMixin, models.Model):
     if TYPE_CHECKING:
         fellowships: "RelatedManager[Fellowship]"
         editorial_assignments: "RelatedManager[EditorialAssignment]"
+        work_contracts: "RelatedManager[WorkContract]"
+        unavailability_periods: "RelatedManager[UnavailabilityPeriod]"
 
     class Meta:
         ordering = ["dbuser__last_name", "dbuser__first_name"]
@@ -346,7 +349,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
 
 
 class UnavailabilityPeriod(models.Model):
-    contributor = models.ForeignKey(
+    contributor = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.CASCADE,
         related_name="unavailability_periods",
@@ -358,6 +361,10 @@ class UnavailabilityPeriod(models.Model):
 
     class Meta:
         ordering = ["-start"]
+
+    @property
+    def duration(self):
+        return self.end - self.start
 
     def __str__(self):
         return "%s (%s to %s)" % (self.contributor, self.start, self.end)

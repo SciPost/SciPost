@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from datetime import timedelta
+from itertools import groupby
 import mimetypes
 
 from django.contrib import messages
@@ -9,7 +11,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import Group
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import OuterRef, Subquery
+from django.db.models import Q, Prefetch, Sum, Value, OuterRef, Subquery, DurationField
+from django.db.models.functions import Coalesce
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -20,8 +23,10 @@ from django.views.generic.edit import UpdateView, DeleteView
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm, remove_perm
 
+from careers.models import WorkContract
 from finances.forms import WorkLogForm
 from mails.views import MailEditorSubviewHTMX
+from scipost.models import UnavailabilityPeriod
 from profiles.models import ProfileEmail
 from scipost.permissions import (
     HTMXPermissionsDenied,
@@ -64,10 +69,49 @@ from .utils import proofs_slug_to_id, ProductionUtils
 def production(request):
     search_productionstreams_form = ProductionStreamSearchForm(user=request.user)
     bulk_assign_officer_form = BulkAssignOfficersForm()
+
+    today = timezone.now().date()
+    work_contracts = (
+        WorkContract.objects.active()
+        .annotate(
+            hours_worked_this_month=Coalesce(
+                Sum(
+                    "employee__dbuser__work_logs__duration",
+                    filter=Q(
+                        employee__dbuser__work_logs__work_date__year=today.year,
+                        employee__dbuser__work_logs__work_date__month=today.month,
+                    ),  # Keep time off logs, they count towards hours worked
+                ),
+                Value(timedelta(0), output_field=DurationField()),
+            )
+        )
+        .order_by("employee", "-start_date")
+        .select_related("employee")
+        .prefetch_related(
+            Prefetch(
+                "employee__unavailability_periods",
+                queryset=UnavailabilityPeriod.objects.future().order_by("start"),
+                to_attr="current_unavailability_periods",
+            )
+        )
+    )
+
+    # Select only the latest contract per employee (first after ordering)
+    # we do this in python because annotate + distinct is not implemented
+    work_contracts = [
+        next(all_employee_contracts)
+        for _, all_employee_contracts in groupby(
+            work_contracts, key=lambda c: c.employee_id
+        )
+    ]
+
     context = {
         "search_productionstreams_form": search_productionstreams_form,
         "bulk_assign_officer_form": bulk_assign_officer_form,
+        "work_contracts": work_contracts,
+        "today": today,
     }
+
     return render(request, "production/production.html", context)
 
 
@@ -275,9 +319,9 @@ def production_old(request, stream_id=None):
             context["prodevent_form"] = ProductionEventForm_deprec()
 
             if request.user.has_perm("scipost.can_view_all_production_streams"):
-                types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+                types = constants.WORK_LOG_TYPE_SUPERVISOR_CHOICES
             else:
-                types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+                types = constants.WORK_LOG_TYPE_OFFICER_CHOICES
             context["work_log_form"] = WorkLogForm(log_types=types)
             context["upload_proofs_form"] = ProofsUploadForm()
         except ProductionStream.DoesNotExist:
@@ -325,9 +369,9 @@ def stream(request, stream_id):
     upload_proofs_form = ProofsUploadForm()
 
     if request.user.has_perm("scipost.can_view_all_production_streams"):
-        types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_SUPERVISOR_CHOICES
     else:
-        types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_OFFICER_CHOICES
     work_log_form = WorkLogForm(log_types=types)
     status_form = StreamStatusForm(
         instance=productionstream,
@@ -417,9 +461,9 @@ def add_work_log(request, stream_id):
         return redirect(stream.get_absolute_url())
 
     if request.user.has_perm("scipost.can_view_all_production_streams"):
-        types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_SUPERVISOR_CHOICES
     else:
-        types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_OFFICER_CHOICES
     work_log_form = WorkLogForm(request.POST or None, log_types=types)
 
     if work_log_form.is_valid():
@@ -445,9 +489,9 @@ def _hx_productionstream_actions_work_log(request, productionstream_id):
         return HTMXPermissionsDenied("You cannot work in this stream.")
 
     if request.user.has_perm("scipost.can_view_all_production_streams"):
-        types = constants.PRODUCTION_ALL_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_SUPERVISOR_CHOICES
     else:
-        types = constants.PRODUCTION_OFFICERS_WORK_LOG_TYPES
+        types = constants.WORK_LOG_TYPE_OFFICER_CHOICES
     work_log_form = WorkLogForm(request.POST or None, log_types=types)
 
     if work_log_form.is_valid():

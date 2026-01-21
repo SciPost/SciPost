@@ -140,7 +140,7 @@
     	      <td>{{ log.work_date }}</td>
     	      <td>{{ log.comments }}</td>
     	      <td>{{ log.content }}</td>
-              <td>{{ log.log_type }}</td>
+              <td>{{ log.get_log_type_display }}</td>
     	      <td>{{ log.duration|duration }}</td>
     	    </tr>
 	  {% empty %}

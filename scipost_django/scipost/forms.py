@@ -33,9 +33,11 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
 from common.utils.text import split_strip
+from finances.models.work_log import WorkLog
 from invitations.constants import STATUS_REGISTERED
 from mails.models import MailAddressDomain
 from markup.constants import BLEACH_ALLOWED_ATTRIBUTES, BLEACH_ALLOWED_TAGS
+from production.constants import WORK_LOG_TYPE_TIME_OFF
 
 from .behaviors import orcid_validator
 from .constants import (
@@ -994,37 +996,81 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.contributor: "Contributor" = kwargs.pop("contributor", None)
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(Field("start"), css_class="col"),
-                Div(Field("end"), css_class="col"),
+                Div(FloatingField("start"), css_class="col-12"),
+                Div(FloatingField("end"), css_class="col-12"),
                 Div(
                     ButtonHolder(
-                        Submit("submit", "Submit", css_class="btn btn-primary"),
+                        Submit("submit", "Create", css_class="btn btn-primary w-100")
                     ),
-                    css_class="col",
+                    css_class="col-12",
                 ),
                 css_class="row",
             )
         )
 
-    def clean_end(self):
+    def clean(self):
+        cleaned_data = super().clean()
+
         now = timezone.now()
-        start = self.cleaned_data.get("start")
-        end = self.cleaned_data.get("end")
-        if not start or not end:
-            return end
+        start: datetime.date | None = cleaned_data.get("start")
+        end: datetime.date | None = cleaned_data.get("end")
+
+        if (start is None) or (end is None):
+            raise ValidationError("Both start and end dates must be provided.")
 
         if start > end:
-            self.add_error(
-                "end", "The start date you have entered is later than the end date."
-            )
+            self.add_error("end", "The start date is after the end date.")
 
         if end < now.date():
             self.add_error("end", "You have entered an end date in the past.")
-        return end
+
+        if contract := self.contributor.work_contracts.first():
+            if (end - start).days > contract.days_off_remaining:
+                self.add_error(
+                    "end",
+                    f"You have requested {(end - start).days} days off, "
+                    f"but only have {contract.days_off_remaining} days off remaining "
+                    "in your current work contract.",
+                )
+
+        return cleaned_data
+
+    def save(self, commit: bool = True) -> UnavailabilityPeriod:
+        period: UnavailabilityPeriod = super().save(commit=False)
+
+        if self.contributor:
+            period.contributor = self.contributor
+        else:
+            raise ValueError(
+                "Contributor must be provided to save UnavailabilityPeriod."
+            )
+
+        if commit:
+            period.save()
+
+        # If the contributor has an active work contract during this period,
+        # Automatically create a work-log associated to this period as a "day off"
+        if contract := self.contributor.work_contracts.first():
+            if not commit:
+                raise ValueError(
+                    "Cannot create associated WorkLog without saving UnavailabilityPeriod first."
+                    "Please explicitly save with commit=True."
+                )
+            WorkLog.objects.create(
+                user=period.contributor.user,
+                log_type=WORK_LOG_TYPE_TIME_OFF,
+                duration=period.duration.days * contract.work_hours_day,
+                work_date=period.end,
+                comments="Paid time off (unavailability period)",
+                content=period,
+            )
+
+        return period
 
 
 class RemarkForm(forms.Form):
