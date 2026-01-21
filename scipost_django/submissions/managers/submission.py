@@ -494,6 +494,36 @@ class SubmissionQuerySet(models.QuerySet):
             )
         )
 
+    def annot_recommendation_id(self):
+        """
+        Annotate Submissions with the id of the latest recommendation (if any).
+        """
+        from submissions.models import EICRecommendation
+
+        return self.annotate(
+            recommendation_id=models.Subquery(
+                EICRecommendation.objects.filter(submission=models.OuterRef("pk"))
+                .active()
+                .order_by("-version")
+                .values("id")[:1]
+            )
+        )
+
+    def annot_editorial_decision_id(self):
+        """
+        Annotate Submissions with the id of the latest editorial decision (if any).
+        """
+        from submissions.models import EditorialDecision
+
+        return self.annotate(
+            editorial_decision_id=models.Subquery(
+                EditorialDecision.objects.filter(submission=models.OuterRef("pk"))
+                .nondeprecated()
+                .order_by("-version")
+                .values("id")[:1]
+            )
+        )
+
     def exclude_not_qualified_for_fellow(self, fellow: Fellowship):
         """
         Exclude Submissions that the Fellow has indicated they are not qualified to judge.

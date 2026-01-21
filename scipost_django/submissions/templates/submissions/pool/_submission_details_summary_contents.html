@@ -1,10 +1,8 @@
 {% load submissions_pool %}
 {% load ethics_extras %}
 {% load user_groups %}
-{% is_ed_admin request.user as is_ed_admin %}
-{% get_profile_clearance submission.clearances request.user.contributor.profile as clearance %}
 
-{% if is_ed_admin %}
+{% if "edadmin" in user_roles %}
   <div class="fs-5 float-start position-absolute top-0 start-0 translate-middle">
     {% include "error_hover_explainer.html" with notes=submission.edadmin_notes %}
   </div>
@@ -122,7 +120,7 @@
             {% if submission.editor_in_charge == request.user.contributor %}
               <strong>You are the EIC</strong>
             {% else %}
-              <strong>{{ submission.editor_in_charge }}</strong>
+              <strong>{{ submission.editor_in_charge.profile }}</strong>
             {% endif %}
 
           </div>
@@ -164,15 +162,13 @@
 
     </ul>
 
-    {% if submission.cycle.has_required_actions %}
-      {% if "edadmin" in user_roles %}
-        <details class="bg-danger bg-opacity-10">
-          <summary class="bg-danger bg-opacity-25 p-2">Required actions</summary>
-          <div class="p-2">
-            {% include "submissions/_cycle_required_actions.html" with actions=submission.cycle.required_actions %}
-          </div>
-        </details>
-      {% endif %}
+    {% if "edadmin" in user_roles and submission.cycle.has_required_actions %}
+      <details class="bg-danger bg-opacity-10">
+        <summary class="bg-danger bg-opacity-25 p-2">Required actions</summary>
+        <div class="p-2">
+          {% include "submissions/_cycle_required_actions.html" with actions=submission.cycle.required_actions %}
+        </div>
+      </details>
     {% endif %}
 
   </div>

@@ -59,7 +59,7 @@
             <a role="button" class="btn btn-info px-1 py-0" href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}"><small>{% include 'bi/arrow-right.html' %} Editorial&nbsp;page</small></a>
 	  </li>
 	{% else %}
-          <li>{{ submission.editor_in_charge }}</li>
+          <li>{{ submission.editor_in_charge.profile }}</li>
 	{% endif %}
       </ul>
     </td>

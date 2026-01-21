@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
+from common.utils.models import RelatedAttachment, attach_related
 from mails.views import MailView
 from pins.models import Note
 from scipost.mixins import PermissionsMixin
@@ -32,6 +33,7 @@ from submissions.forms import (
     SubmissionPoolSearchForm,
     EditorialAssignmentForm,
 )
+from submissions.models.decision import EditorialDecision
 
 
 @login_required
@@ -70,21 +72,47 @@ def pool(request, identifier_w_vn_nr=None):
 def pool_hx_submission_list(request):
     form = SubmissionPoolSearchForm(request.POST or None, request=request)
 
-    submissions = form.search()
-
     submissions = (
-        submissions.all()
+        form.search()
         .select_related(
             "preprint",
             "editor_in_charge",
+            "editor_in_charge__profile",
+            "submitted_to",
+            "is_resubmission_of",
             "submitted_by__profile",
         )
         .prefetch_related(
             "red_flags",
             "specialties",
             "submitted_by__profile__red_flags",
+            "remarks",
         )
+        .annot_recommendation_id()
+        .annot_editorial_decision_id()
     )
+
+    attach_related(
+        submissions,
+        RelatedAttachment(
+            "recommendation_id",
+            "recommendation",
+            EICRecommendation.objects.all()
+            .select_related("for_journal")
+            .prefetch_related(
+                "eligible_to_vote",
+                "voted_for",
+                "voted_against",
+                "voted_abstain",
+            ),
+        ),
+        RelatedAttachment(
+            "editorial_decision_id",
+            "editorial_decision",
+            EditorialDecision.objects.all(),
+        ),
+    )
+
     paginator = Paginator(submissions, 16)
     page_nr = request.GET.get("page")
     page_obj = paginator.get_page(page_nr)

@@ -16,6 +16,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from anonymization.mixins import AnonymizableObjectMixin
 
@@ -228,7 +229,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         if unav:
             return unav.end
 
-    @property
+    @cached_property
     def is_scipost_admin(self):
         """Check if Contributor is a SciPost Administrator."""
         return (
@@ -236,7 +237,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
             or self.user.is_superuser
         )
 
-    @property
+    @cached_property
     def is_ed_admin(self):
         """Check if Contributor is an Editorial Administrator."""
         return (
@@ -244,7 +245,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
             or self.user.is_superuser
         )
 
-    @property
+    @cached_property
     def is_in_advisory_board(self):
         """Check if Contributor is in the Advisory Board."""
         return (
@@ -252,12 +253,12 @@ class Contributor(AnonymizableObjectMixin, models.Model):
             or self.user.is_superuser
         )
 
-    @property
+    @cached_property
     def is_active_fellow(self):
         """Check if Contributor is a member of the Editorial College."""
         return self.fellowships.active().exists() or self.user.is_superuser
 
-    @property
+    @cached_property
     def is_active_senior_fellow(self):
         return self.fellowships.active().senior().exists() or self.user.is_superuser
 
