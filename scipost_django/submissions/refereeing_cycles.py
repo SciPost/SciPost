@@ -188,12 +188,14 @@ class NeedRefereesAction(BaseAction):
             text = "Only 1 Referee has been invited."
         else:
             text = f"Only {self.number_of_invitations} Referees have been invited."
-        text += ' At least {minimum} should be. <a href="{url}">Invite a referee here</a>.'.format(
-            minimum=self.minimum_number_of_referees,
-            url=reverse(
-                "submissions:select_referee",
-                args=(self.submission.preprint.identifier_w_vn_nr,),
-            ),
+        text += (
+            ' Please consider <a href="{url}">inviting</a> at least {minimum}.'.format(
+                minimum=self.minimum_number_of_referees,
+                url=reverse(
+                    "submissions:select_referee",
+                    args=(self.submission.preprint.identifier_w_vn_nr,),
+                ),
+            )
         )
         return text
 
