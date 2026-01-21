@@ -35,9 +35,9 @@
           {% endif %}
           <td class="border-start">{{ employee_timesheet.total_hours|duration }}</td>
           <td>&times;</td>
-          <td>{{ employee_timesheet.pay_rate|floatformat:2 }} €/h</td>
+          <td>{{ employee_timesheet.pay_rate|floatformat:2 }} &euro;/h</td>
           <td>=</td>
-          <td><span class="fw-bold">{{ employee_timesheet.total_compensation|floatformat:2 }}€</span></td>
+          <td><span class="fw-bold">{{ employee_timesheet.total_compensation|floatformat:2 }} &euro;</span></td>
         </tr>
       {% empty %}
         <tr>

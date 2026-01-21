@@ -47,7 +47,6 @@ class Command(BaseCommand):
         end = options["end"] or last_month_end.strftime("%Y-%m-%d")
         form = LogsFilterForm(
             {
-                "hourly_rate": options["hourly_rate"] or HOURLY_RATE,
                 "start": datetime.datetime.strptime(start, "%Y-%m-%d"),
                 "end": datetime.datetime.strptime(end, "%Y-%m-%d"),
             }
@@ -59,9 +58,7 @@ class Command(BaseCommand):
 
         rendered_table = render_to_string(
             "finances/_worklog_summary_table.html",
-            {
-                "logs_filter_form": form,
-            },
+            {"form": form},
         )
 
         mail_request = DirectMailUtil(
