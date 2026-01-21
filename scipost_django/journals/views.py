@@ -337,22 +337,8 @@ def journal_detail(request, doi_label):
             )
             .filter(decision_journal=journal)
         )
-        .annotate(
-            thread_sequence_order=Subquery(
-                Submission.objects.filter(
-                    thread_hash=OuterRef("thread_hash"),
-                    submission_date__lte=OuterRef("submission_date"),
-                )
-                .annotate(nr_submissions=Count("pk"))
-                .values("nr_submissions")[:1]
-            ),
-            is_latest=~Exists(
-                Submission.objects.filter(
-                    thread_hash=OuterRef("thread_hash"),
-                    submission_date__gt=OuterRef("submission_date"),
-                )
-            ),
-        )
+        .annot_is_latest()
+        .annot_thread_sequence_order()
         .prefetch_related(
             "specialties",
         )

@@ -223,22 +223,8 @@ class FellowshipDetailView(LoginRequiredMixin, DetailView):
                         .values("for_journal")[:1]
                     )
                 )
-                .annotate(
-                    thread_sequence_order=Subquery(
-                        Submission.objects.filter(
-                            thread_hash=OuterRef("thread_hash"),
-                            submission_date__lte=OuterRef("submission_date"),
-                        )
-                        .annotate(nr_submissions=Count("pk"))
-                        .values("nr_submissions")[:1]
-                    ),
-                    is_latest=~Exists(
-                        Submission.objects.filter(
-                            thread_hash=OuterRef("thread_hash"),
-                            submission_date__gt=OuterRef("submission_date"),
-                        )
-                    ),
-                )
+                .annot_thread_sequence_order()
+                .annot_is_latest()
                 .prefetch_related(
                     "specialties",
                 )

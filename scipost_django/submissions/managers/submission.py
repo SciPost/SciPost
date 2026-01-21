@@ -494,6 +494,39 @@ class SubmissionQuerySet(models.QuerySet):
             )
         )
 
+    def annot_thread_sequence_order(self):
+        """
+        Annotate Submissions with their sequence order in the thread.
+        """
+        from submissions.models.submission import Submission
+
+        return self.annotate(
+            thread_sequence_order=models.Subquery(
+                Submission.objects.filter(
+                    thread_hash=models.OuterRef("thread_hash"),
+                    submission_date__lte=models.OuterRef("submission_date"),
+                )
+                .values("thread_hash")
+                .annotate(nr_submissions=models.Count("thread_hash"))
+                .values("nr_submissions")[:1]
+            ),
+        )
+
+    def annot_is_latest(self):
+        """
+        Annotate Submissions with a boolean indicating if they are the latest in their thread.
+        """
+        from submissions.models.submission import Submission
+
+        return self.annotate(
+            is_latest=~Exists(
+                Submission.objects.filter(
+                    thread_hash=models.OuterRef("thread_hash"),
+                    submission_date__gt=models.OuterRef("submission_date"),
+                )
+            )
+        )
+
     def annot_recommendation_id(self):
         """
         Annotate Submissions with the id of the latest recommendation (if any).
