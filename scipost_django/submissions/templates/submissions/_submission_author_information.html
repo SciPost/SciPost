@@ -1,5 +1,6 @@
 {% load bootstrap %}
 {% load submissions_extras %}
+{% load common_extras %}
 
 <h3 class="highlight">
   Author information
@@ -68,18 +69,20 @@
 	  <td>{{ submission.editorial_decision.summary }}</td>
 	</tr>
       {% endif %}
-      {% if submission.publications.published %}
-        <tr>
-          <td>Submission is published as:</td>
-          <td>
-	    {% for publication in submission.publications.published %}
-	      <a href="{{ publication.get_absolute_url }}">
-	      	{{ publication.citation }}</a>
-	      {% if not forloop.last %}, {% endif %}
-	    {% endfor %}
-          </td>
-        </tr>
-      {% endif %}
+      {% with published_publications=submission.published_publications|default_if_none:submission.publications.published %}
+        {% if published_publications %}
+          <tr>
+            <td>Submission is published as:</td>
+            <td>
+        {% for publication in published_publications %}
+          <a href="{{ publication.get_absolute_url }}">
+            {{ publication.citation }}</a>
+          {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+            </td>
+          </tr>
+        {% endif %}
+      {% endwith %}
     </table>
   </div>
 

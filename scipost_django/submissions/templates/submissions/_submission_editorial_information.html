@@ -1,6 +1,7 @@
 {% load bootstrap %}
 {% load submissions_extras %}
 {% load user_groups %}
+{% load common_extras %}
 
 {% is_ed_admin request.user as is_ed_admin %}
 
@@ -75,18 +76,20 @@
           {% endif %}
         </td>
       </tr>
-      {% if submission.publications.published %}
-        <tr>
-          <td>Submission is published as:</td>
-          <td>
-	    {% for publication in submission.publications.published %}
-	      <a href="{{ publication.get_absolute_url }}">
-	      	{{ publication.citation }}</a>
-	      {% if not forloop.last %}, {% endif %}
-	    {% endfor %}
-          </td>
-        </tr>
-      {% endif %}
+      {% with published_publications=submission.published_publications|default_if_none:submission.publications.published %}
+        {% if published_publications %}
+          <tr>
+            <td>Submission is published as:</td>
+            <td>
+        {% for publication in published_publications %}
+          <a href="{{ publication.get_absolute_url }}">
+            {{ publication.citation }}</a>
+          {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+            </td>
+          </tr>
+        {% endif %}
+      {% endwith %}
     </table>
   </div>
 

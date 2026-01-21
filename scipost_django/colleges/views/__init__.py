@@ -30,12 +30,14 @@ from colleges.permissions import (
     is_edadmin_or_advisory_or_active_regular_or_senior_fellow,
 )
 from colleges.utils import check_profile_eligibility_for_fellowship
+from common.utils.models import RelatedAttachment, attach_related
 from invitations.constants import INVITATION_EDITORIAL_FELLOW
 from invitations.models import RegistrationInvitation
 from journals.models.publication import Publication
 from scipost.constants import TITLE_DR
 from scipost.permissions import HTMXResponse, permission_required_htmx
 from submissions.models import Submission
+from submissions.models.assignment import EditorialAssignment
 from submissions.models.decision import EditorialDecision
 from submissions.models.recommendation import EICRecommendation
 
@@ -212,35 +214,74 @@ class FellowshipDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         fellowship: Fellowship
-        if fellowship := context.get("object"):
-            assignment_submissions = (
-                Submission.objects.all()
-                .annotate(
-                    decision_journal=Subquery(
-                        EditorialDecision.objects.filter(submission=OuterRef("pk"))
-                        .nondeprecated()
-                        .order_by("-version")
-                        .values("for_journal")[:1]
-                    )
-                )
-                .annot_thread_sequence_order()
-                .annot_is_latest()
-                .prefetch_related(
-                    "specialties",
-                )
-                .select_related(
-                    "acad_field",
-                    "preprint",
-                    "submitted_to",
-                )
-            )
+        if (fellowship := context.get("object")) is None:
+            return context
 
-            context["ongoing_assignment_submissions"] = assignment_submissions.filter(
-                editorial_assignments__in=fellowship.contributor.editorial_assignments.ongoing()
+        assignment_submissions = (
+            Submission.objects.all()
+            .annotate(
+                latest_assignment_status=Subquery(
+                    EditorialAssignment.objects.filter(
+                        submission=OuterRef("pk"),
+                        to=fellowship.contributor,
+                    )
+                    .order_by("-date_answered", "-date_created")
+                    .values("status")[:1]
+                ),
             )
-            context["completed_assignment_submissions"] = assignment_submissions.filter(
-                editorial_assignments__in=fellowship.contributor.editorial_assignments.completed()
+            .annot_thread_sequence_order()
+            .annot_is_latest()
+            .annot_editorial_decision_id()
+            .prefetch_related(
+                "specialties",
+                Prefetch(
+                    "publications",
+                    queryset=Publication.objects.published(),
+                    to_attr="published_publications",
+                ),
             )
+            .select_related(
+                "acad_field",
+                "preprint",
+                "submitted_to",
+            )
+            .filter(
+                id__in=fellowship.contributor.editorial_assignments.values(
+                    "submission_id"
+                ),
+                latest_assignment_status__in=[
+                    EditorialAssignment.STATUS_ACCEPTED,
+                    EditorialAssignment.STATUS_COMPLETED,
+                ],
+            )
+        )
+
+        attach_related(
+            assignment_submissions,
+            RelatedAttachment(
+                "editorial_decision_id",
+                "editorial_decision",
+                EditorialDecision.objects.all().select_related("for_journal"),
+            ),
+        )
+
+        ongoing_assignment_submissions = list(
+            filter(
+                lambda s: s.latest_assignment_status
+                == EditorialAssignment.STATUS_ACCEPTED,
+                assignment_submissions,
+            )
+        )
+        completed_assignment_submissions = list(
+            filter(
+                lambda s: s.latest_assignment_status
+                == EditorialAssignment.STATUS_COMPLETED,
+                assignment_submissions,
+            )
+        )
+
+        context["ongoing_assignment_submissions"] = ongoing_assignment_submissions
+        context["completed_assignment_submissions"] = completed_assignment_submissions
 
         return context
 

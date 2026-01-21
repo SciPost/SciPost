@@ -1,18 +1,22 @@
 {% extends 'submissions/_submission_li.html' %}
 
+{% load common_extras %}
+
 {% block card_footer %}
   <p class="meta">
-    Version {{ submission.thread_sequence_order }} ({% if submission.is_latest %}latest version{% else %}out of a sequence of {{ submission.thread|length }}{% endif %})
+    Version {{ submission.thread_sequence_order }} {% if submission.is_latest %}(latest version){% endif %}
     <br>
-    {% if submission.publications.published %}
-      Published as
-      {% for publication in submission.publications.published %}
-      	<a href="{{ publication.get_absolute_url }}">
-      	  {{ publication.citation }}</a>
-      	{% if not forloop.last %}, {% endif %}
-      {% endfor %}
-    {% else %}
-      Submitted {{ submission.submission_date }} to {{ submission.submitted_to }}
-    {% endif %} &middot; latest activity: {{ submission.latest_activity }}
+    {% with published_publications=submission.published_publications|default_if_none:submission.publications.published %}
+      {% if published_publications %}
+        Published as
+        {% for publication in published_publications %}
+          <a href="{{ publication.get_absolute_url }}">{{ publication.citation }}</a>
+          {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      {% else %}
+        Submitted {{ submission.submission_date }} to {{ submission.submitted_to }}
+      {% endif %} 
+      &middot; latest activity: {{ submission.latest_activity }}
+    {% endwith %}
   </p>
 {% endblock %}

@@ -211,7 +211,7 @@
     {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
       <h5 class="m-0 ms-3 pe-2">
         Workload indicator
-        {% include "icons/reception.html" with value=ongoing_assignment_submissions.count max=4 %}
+        {% include "icons/reception.html" with value=ongoing_assignment_submissions|length max=4 %}
       </h5>
     {% endif %}
 

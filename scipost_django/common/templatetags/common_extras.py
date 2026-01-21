@@ -105,3 +105,10 @@ def article_safe(text):
             text = text.replace(f"</{tag}>", f"&lt;/{tag}&gt;")
 
     return mark_safe(text)
+
+
+@register.filter
+def default_if_none(value, default):
+    if value is None:
+        return default
+    return value
