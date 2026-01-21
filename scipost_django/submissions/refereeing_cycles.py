@@ -221,10 +221,15 @@ class BaseCycle(abc.ABC):
             yield from self._required_actions
 
         else:
+            self._required_actions = []
             for action in self.yield_required_actions():
                 self._required_actions.append(action)
                 yield action
             self._actions_exhausted = True
+
+    @cached_property
+    def required_actions_count(self):
+        return len(list(self.required_actions))
 
     @property
     def days_for_refereeing(self):
