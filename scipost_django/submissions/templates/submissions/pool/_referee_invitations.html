@@ -1,18 +1,22 @@
 {% load submissions_extras %}
 
-<table class="table table-light table-hover v-center position-relative">
+<table class="table table-hover v-center position-relative">
   <thead class="table-light position-sticky top-0" style="z-index: 1;">
     <tr>
       <th></th>
       <th>Referee</th>
-      <th>Invitation date</th>
+      <th>
+        Invitation date<br/>
+        <span class="text-muted">Last reminded</span><br/>
+        <span class="text-muted">Total reminders</span>
+      </th>
       <th>Task status</th>
       <th class="text-nowrap">
         <div>Auto <span>{% include 'submissions/_refinv_auto_reminders_tooltip.html' %}</span></div>
         <div>reminders</div>
       </th>
       <th>Editorial<br/>Communications</th>
-      <th colspan="3">Actions</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -51,6 +55,10 @@
       {% endif %}
 	  {% else %}
             {{ invitation.date_invited }}
+            {% if invitation.nr_reminders > 0 %}
+              <div class="text-muted">{{ invitation.date_last_reminded }}</div>
+              <div class="text-muted">{{ invitation.nr_reminders }} reminder{{ invitation.nr_reminders|pluralize }}</div>
+            {% endif %}
 	  {% endif %}
         </td>
         <td>
@@ -78,13 +86,10 @@
 
         <td>
           <div>
-            {% if invitation.auto_reminders_allowed %}
-              <div><span class="label-outline-success">On</span></div>
-              <div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=0 %}">turn off</a>)</div>
-            {% else %}
-              <div><span class="label-outline-danger">Off</span></div>
-              <div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=1 %}">turn on</a>)</div>
-            {% endif %}
+            <a class="btn btn-sm"
+               href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=invitation.auto_reminders_allowed|yesno:"0,1" %}">
+              <span class="text-white px-2 bg-{{ invitation.auto_reminders_allowed|yesno:"success,danger" }}">{{ invitation.auto_reminders_allowed|yesno:"ON,OFF" }}</span>
+            </a>
           </div>
         </td>
         <td>
@@ -101,29 +106,49 @@
             {% endif %}
           {% endif %}
         </td>
+
         <td>
+
           {% if not invitation.responded and not invitation.cancelled %}
-            <div><a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder</a></div>
-          {% endif %}
-          {% if invitation.nr_reminders > 0 %}
-            <div>nr reminders sent: {{ invitation.nr_reminders }}</div>
-            <div class="text-muted">{{ invitation.date_last_reminded }}</div>
-          {% endif %}
-        </td>
-        <td>
-          {% if not invitation.responded and not invitation.cancelled %}
-            <div class="d-flex flex-column justify-contents-between align-center bg-light">
-              <a href="#" class="p-1"
-                  hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
-                  hx-target="closest div"
-                  hx-include="next input[name='notify_by_email']">Cancel invitation
+            <div class="btn-group" role="group">
+              <a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
+                class="btn btn-sm btn-primary"
+                id="ref-inv-{{ invitation.id }}-reminder-btn"
+                title="Send reminder"
+                data-bs-toggle="tooltip" 
+                >
+                <span class="fs-5">{% include "bi/alarm-fill.html" %}</span>
               </a>
-              <div class="d-flex flex-row justify-content-evenly align-items-center border-secondary border-top py-1">
-                <label for="email-checkbox-{{invitation.id}}" class="text-muted">Email?</label>
-                <input id="email-checkbox-{{invitation.id}}" class="checkbox-lg" type="checkbox" name="notify_by_email" checked/>
-              </div>
+              <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <button href="#"
+                    class="btn btn-sm btn-light w-100"
+                    id="ref-inv-{{ invitation.id }}-cancel-btn"
+                    hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}?notify_by_email=True"
+                    hx-target="closest div"
+                    hx-confirm="Are you sure you want to cancel this invitation and notify the referee by email?"
+                    >
+                    <span class="fs-5 me-2">{% include "bi/envelope-fill.html" %}</span>
+                    Cancel (email)
+                  </button>
+                </li>
+                <li>
+                  <button href="#"
+                    class="btn btn-sm btn-light w-100"
+                    id="ref-inv-{{ invitation.id }}-cancel-btn"
+                    hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
+                    hx-target="closest div"
+                    hx-confirm="Are you sure you want to cancel this invitation without notifying the referee?"
+                    >
+                    <span class="fs-5 me-2">{% include "bi/slash-circle-fill.html" %}</span>
+                    Cancel (silently)
+                  </button>
+                </li>
+              </ul>
             </div>
           {% endif %}
+          
         </td>
       </tr>
       <tr style="display: none;" class="pt-1 border-bottom border-4" id="comm-row-{{ invitation.id }}">
