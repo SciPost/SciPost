@@ -211,21 +211,14 @@ class SubmissionQuerySet(models.QuerySet):
         if not (contributor.is_ed_admin or contributor.is_active_fellow):
             return self.none()
 
-        qs = (
-            self.all()
-            .annot_authors_have_nonexpired_coi_with_profile(contributor.profile)
-            .annotate(
-                fellowship_in_submission_fellowships=Exists(
-                    Submission.fellows.through.objects.filter(
-                        submission_id=models.OuterRef("pk"),
-                        fellowship_id__in=contributor.fellowships.active(),
-                    )
-                )
-            )
-        )
+        qs = self.all()
 
         # remove Submissions for which a conflict of interest exists:
-        qs = qs.exclude(authors_have_nonexpired_coi_with_profile=True)
+        qs = (
+            qs.all()
+            .annot_authors_have_nonexpired_coi_with_profile(contributor.profile)
+            .exclude(authors_have_nonexpired_coi_with_profile=True)
+        )
 
         # Exclude Submissions where the contributor is a real author, claims authorship,
         # or their name could be in the author list but also has not claimed the association is false.
@@ -245,7 +238,18 @@ class SubmissionQuerySet(models.QuerySet):
 
         # for non-EdAdmin, filter: in Submission's Fellowship
         if not user.contributor.is_ed_admin:
-            qs = qs.filter(fellowship_in_submission_fellowships=True)
+            qs = (
+                qs.all()
+                .annotate(
+                    fellowship_in_submission_fellowships=Exists(
+                        Submission.fellows.through.objects.filter(
+                            submission_id=models.OuterRef("pk"),
+                            fellowship_id__in=contributor.fellowships.active(),
+                        )
+                    )
+                )
+                .filter(fellowship_in_submission_fellowships=True)
+            )
 
         if user.contributor.is_scipost_admin:
             pass
