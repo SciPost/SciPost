@@ -13,9 +13,8 @@
     <label class="col-form-label col-md-2 ">Refereeing cycle</label>
     <div class="col-md-10">
       {% for widget in form.refereeing_cycle.subwidgets %}
-        <div class="radio" data-reinvite="{% if widget.data.value == 'direct_rec' %}0{% else %}1{% endif %}">
-          <label for="{{ widget.id_for_label }}" class="mb-0">
-            {{ widget.tag }}
+        <label for="{{ widget.id_for_label }}" class="mb-0 w-100">
+          <input type="radio" id="{{ widget.id_for_label }}" class="me-2" name="{{ form.refereeing_cycle.name }}" value="{{ widget.data.value }}" data-reinvite="{% if widget.data.value == 'direct_rec' %}0{% else %}1{% endif %}">
             {{ widget.choice_label }}
             <p class="help-block text-muted">
               {{ widget.help_text|safe }}
@@ -28,7 +27,6 @@
               {% endif %}
             </p>
           </label>
-        </div>
       {% endfor %}
       {% for error in form.refereeing_cycle.errors %}
         <span class="help-block {{ form.error_css_class }}">{{ error }}</span>
@@ -50,18 +48,27 @@
         <ul class="list-group list-group-flush">
           {% for invitation in form.referees_reinvite.field.queryset %}
             <li class="list-group-item py-1">
-              <label for="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" class="mb-0 d-flex flex-row">
+              <label for="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" class="mb-0 d-flex flex-row align-items-baseline w-100">
                 <input class="me-2" checked="checked" id="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" name="{{ form.referees_reinvite.name }}" type="checkbox" value="{{ invitation.id }}">
                 <div class="d-flex flex-column">
-                  <div><a href="{{ invitation.referee.get_absolute_url }}">{{ invitation.referee.full_name }}</a> <span class="text-muted">({{ invitation.email_address }})</span></div>
-                  <div><span class="text-muted">Originally invited on {{ invitation.date_invited }}</span></div>
+                  <div><a href="{{ invitation.referee.get_absolute_url }}">{{ invitation.referee.full_name }}</a></div>
+                  <select name="{{ form.referee_invitation_emails.name }}" id="{{ form.referee_invitation_emails.name }}_{{ forloop.counter0 }}" class="form-control">
+                    {% for profile_email in invitation.referee.emails.all %}
+                      <option value="{{ profile_email.email }}" {% if profile_email.email == invitation.email_address %}selected{% endif %}>
+                        {{ profile_email.email }}
+                        {% if profile_email.primary %}(primary){% endif %}
+                        {% if not profile_email.still_valid %}(deprecated){% endif %}
+                      </option>
+                    {% endfor %}
+                  </select>
                 </div>
                 <div class="ms-auto d-flex flex-column align-items-end">
+                  <div><span class="text-muted">Originally invited on {{ invitation.date_invited }}</span></div>
                   <div>Response: 
                     {% include "submissions/_refereeing_invitation_status_icon.html" with invitation=invitation %}
                   </div>
                   {% if invitation.accepted == False %}
-                    <span>{{ invitation.get_refusal_reason_display }}</span>
+                    <div><span>{{ invitation.get_refusal_reason_display }}</span></div>
                   {% endif %}
                 </div>
               </label>
@@ -82,7 +89,7 @@
  jQuery(function(){
      $('[name="{{ form.refereeing_cycle.name }}"]').on('click change', function(){
          var element = $('[name="{{ form.refereeing_cycle.name }}"]:checked');
-         var reinvite = element.parents('.radio').attr('data-reinvite') == 1;
+         var reinvite = element.attr('data-reinvite') == 1;
 
          // Show/hide invitation block
          if(reinvite > 0) {
@@ -102,5 +109,13 @@
              $('[data-cycle]').hide();
          }
      }).trigger('change');
+
+    $('[name="{{ form.referee_invitation_emails.name }}"]').on('change', function(){
+        var selectedEmail = $("option:selected", this).text();
+        console.log("Selected email: " + selectedEmail);
+        if (selectedEmail.indexOf('(deprecated)') !== -1) {
+            this.appendChild(document.createTextNode(' - Warning: This email is deprecated.'));
+        };
+    }).trigger('change');
  });
 </script>

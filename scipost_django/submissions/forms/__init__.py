@@ -3915,6 +3915,8 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
         label="Reinvite referees",
     )
 
+    referee_invitation_emails = forms.MultipleChoiceField()
+
     class Meta:
         model = Submission
         fields = ("refereeing_cycle",)
@@ -3924,13 +3926,44 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
         """Update choices and queryset."""
         super().__init__(*args, **kwargs)
         self.fields["refereeing_cycle"].choices = SUBMISSION_CYCLE_CHOICES
-        other_submissions = self.instance.other_versions.all()
-        if other_submissions:
-            self.fields[
-                "referees_reinvite"
-            ].queryset = RefereeInvitation.objects.filter(
-                submission__in=other_submissions
-            ).distinct()
+
+        all_invitations_in_thread = (
+            RefereeInvitation.objects.filter(
+                submission__thread_hash=self.instance.thread_hash
+            )
+            .order_by("referee", "-date_invited")
+            .distinct()
+        )
+        self.fields["referees_reinvite"].queryset = all_invitations_in_thread
+        self.fields["referee_invitation_emails"].choices = [
+            (email, email)
+            for email in all_invitations_in_thread.values_list(
+                "referee__emails__email", flat=True
+            )
+        ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        reinvite_referees = cleaned_data.get("referees_reinvite")
+        selected_emails = cleaned_data.get("referee_invitation_emails")
+
+        email_to_invitation_map = {
+            profile_email.email: invitation
+            for invitation in reinvite_referees
+            for profile_email in invitation.referee.emails.all()
+        }
+
+        # Edit the invitation instances with the selected emails
+        edited_invitations = []
+        for email in selected_emails:
+            if invitation := email_to_invitation_map.get(email):
+                invitation.email_address = email
+                edited_invitations.append(invitation)
+
+        cleaned_data["referees_reinvite"] = edited_invitations
+
+        return cleaned_data
 
     def save(self):
         """
