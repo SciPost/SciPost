@@ -12,14 +12,17 @@ from pins.models import Note
 class NoteAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "web_link",
+        "object",
         "admin_link",
         "title",
         "author",
         "created",
-        "modified",
     )
-    list_filter = ("created", "modified", "visibility")
+    list_filter = (
+        "created",
+        "modified",
+        "visibility",
+    )
     search_fields = (
         "title",
         "author__profile__first_name",
@@ -27,9 +30,9 @@ class NoteAdmin(admin.ModelAdmin):
     )
     date_hierarchy = "created"
     ordering = ("-created",)
-    readonly_fields = ("created", "modified", "web_link", "admin_link")
+    readonly_fields = ("created", "modified", "object", "admin_link")
     fields = (
-        "web_link",
+        "object",
         "title",
         "description",
         "visibility",
@@ -43,12 +46,19 @@ class NoteAdmin(admin.ModelAdmin):
         content_type = obj.regarding_content_type
         admin_url = f"admin:{content_type.app_label}_{content_type.model}_change"
         return format_html(
-            '<a href="{}">[admin]</a>',
-            reverse(admin_url, args=[obj.regarding_object_id]),
+            '<a href="{url}">[admin]</a>',
+            url=reverse(admin_url, args=[obj.regarding_object_id]),
         )
 
-    def web_link(self, obj):
+    def object(self, obj):
         content_type = obj.regarding_content_type
         model = content_type.model_class()
-        regarding = model.objects.get(pk=obj.regarding_object_id)
-        return format_html(f'<a href="{regarding.get_absolute_url()}">{regarding}</a>')
+        regarding = model.objects.filter(pk=obj.regarding_object_id).first()
+        if regarding and hasattr(regarding, "get_absolute_url"):
+            return format_html(
+                '<a href="{url}">{object}</a>',
+                url=regarding.get_absolute_url(),
+                object=str(regarding),
+            )
+        else:
+            return f"{content_type} #{obj.regarding_object_id}"
