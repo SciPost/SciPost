@@ -428,6 +428,8 @@ class BaseCycle(abc.ABC):
             invitation.submission = self._submission
             invitation.reset_content()
             invitation.date_invited = timezone.now()
+            invitation.date_responded = None
+            invitation.intended_delivery_date = None
             invitation.save()
             mail_sender = DirectMailUtil(
                 "referees/reinvite_contributor_to_referee", invitation=invitation
