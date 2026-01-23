@@ -797,7 +797,9 @@ class RefereeInvitationPlotter(ModelFieldPlotter):
         )
         model_fields = ModelFieldPlotter.Options.model_fields + (
             ("date_invited", ("date", "Invitation date")),
+            ("date_invited__year", ("int", "Year invited")),
             ("date_responded", ("date", "Response date")),
+            ("date_responded__year", ("int", "Year responded")),
             ("intended_delivery_date", ("date", "Intended delivery date")),
             ("accepted", ("str", "Accepted")),
             ("refusal_reason", ("str", "Refusal reason")),
