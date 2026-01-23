@@ -333,7 +333,10 @@ class PlotOptionsForm(InitialCoalescedForm):
             plotter=plotter,
         )
 
-        return plotter.plot(kind, options=self.options.get("generic", {}))
+        try:
+            return plotter.plot(kind, options=self.options.get("generic", {}))
+        except Exception as e:
+            return kind.display_plotting_error(e)
 
     @cached_property
     def plot_as_svg(self):

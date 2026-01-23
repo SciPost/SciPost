@@ -70,19 +70,18 @@ class PlotKind:
         fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
         ax = fig.add_subplot(111)
 
-        try:
-            x, y = self.get_data()
-            ax.plot(x, y)
-        except Exception as e:
-            PlotKind.display_plotting_error(ax, e)
-            return fig
+        x, y = self.get_data()
+        ax.plot(x, y)
 
         ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
 
         return fig
 
     @staticmethod
-    def display_plotting_error(ax: Axes, error: Exception):
+    def display_plotting_error(error: Exception):
+        fig = Figure()
+        ax = fig.add_subplot(111)
+
         MAX_CHAR_WIDTH = 80
         str_error = str(error)
         error_lines = [
@@ -94,6 +93,8 @@ class PlotKind:
         ax.text(0.5, 0.5, error_text, ha="center", va="center")
         ax.grid(False)
         ax.axis("off")
+
+        return fig
 
     @classmethod
     def get_plot_options_form_layout_row_content(cls) -> LayoutObject:
@@ -113,19 +114,15 @@ class TimelinePlot(PlotKind):
         averaging_unit = self.options.get("averaging_unit", None)
         averaging_window = self.options.get("averaging_window", 1)
 
-        try:
-            x, y = self.get_data()
-            if (
-                self.plotter.get_model_field_type(value_key) in ["int", "float"]
-                and resample_method != "None"
-            ):
-                x, y = self.resample_data(
-                    x, y, resample_method, averaging_unit, averaging_window
-                )
-            ax.plot(x, y)
-        except Exception as e:
-            PlotKind.display_plotting_error(ax, e)
-            return fig
+        x, y = self.get_data()
+        if (
+            self.plotter.get_model_field_type(value_key) in ["int", "float"]
+            and resample_method != "None"
+        ):
+            x, y = self.resample_data(
+                x, y, resample_method, averaging_unit, averaging_window
+            )
+        ax.plot(x, y)
 
         quarter_locator = mdates.MonthLocator(bymonth=(1, 4, 7, 10))
         ax.xaxis.set_minor_locator(quarter_locator)
@@ -362,11 +359,7 @@ class MapPlot(PlotKind):
 
         fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
         ax, *_ = fig.get_axes()
-        try:
-            countries, agg = self.get_data()
-        except Exception as e:
-            PlotKind.display_plotting_error(ax, e)
-            return fig
+        countries, agg = self.get_data()
 
         df_agg = pd.DataFrame({"ISO_A2_EH": countries, "agg": agg})
 
@@ -556,11 +549,7 @@ class BarPlot(PlotKind):
 
             ax.set(**{f"{value_label_axis}label": agg_value_key_label.capitalize()})
 
-        try:
-            data = self.get_data()
-        except Exception as e:
-            PlotKind.display_plotting_error(ax, e)
-            return fig
+        data = self.get_data()
 
         direction = self.options.get("direction", "vertical")
         draw_func = ax.bar if direction == "vertical" else ax.barh
