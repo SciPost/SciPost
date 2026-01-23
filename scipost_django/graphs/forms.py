@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from functools import cached_property
 import io
 from django import forms
 from django.http import QueryDict
@@ -334,6 +335,7 @@ class PlotOptionsForm(InitialCoalescedForm):
 
         return plotter.plot(kind, options=self.options.get("generic", {}))
 
+    @cached_property
     def plot_as_svg(self):
         """
         Return the SVG representation of the plot.
