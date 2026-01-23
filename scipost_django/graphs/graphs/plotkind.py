@@ -596,7 +596,8 @@ class BarPlot(PlotKind):
                         y[i] = y0
                         bottom_addition[i] = y0
 
-                    draw_func(unique_xs, y, bottom=bottoms, label=s)
+                    bottom_kwarg_key = "bottom" if direction == "vertical" else "left"
+                    draw_func(unique_xs, y, **{bottom_kwarg_key: bottoms}, label=s)
 
                     bottoms = [b + ba for b, ba in zip(bottoms, bottom_addition)]
 
