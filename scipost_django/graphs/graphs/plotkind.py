@@ -642,6 +642,7 @@ class BarPlot(PlotKind):
 
         qs = (
             self.plotter.get_queryset()
+            .exclude(**{agg_value_key + "__isnull": True})
             .values(*group_on_keys)
             .annotate(agg=agg_func)
             .exclude(**{group_key: None})
