@@ -180,6 +180,9 @@ class TimelinePlot(PlotKind):
         qs = qs.filter(query_filters)
         qs = qs.order_by(timeline_key)
 
+        if not qs.exists():
+            return (), ()
+
         x, y = zip(*qs.values_list(timeline_key, value_key))
 
         return x, y
