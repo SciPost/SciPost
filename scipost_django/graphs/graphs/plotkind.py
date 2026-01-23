@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 from itertools import groupby
 from django import forms
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import Q, Avg, Count, Sum
 from matplotlib.figure import Figure
 from matplotlib.axes import Axes
@@ -627,7 +628,9 @@ class BarPlot(PlotKind):
         direction = self.options.get("direction", "vertical") or "vertical"
         stack_on = self.options.get("stack_on")
 
-        if stack_on == "id":
+        # One may not stack on the primary key (each entry would be its own stack)
+        # or on the same key as the group key (would produce no stacking)
+        if stack_on == "id" or stack_on == group_key:
             stack_on = None
 
         if group_key is None:
@@ -674,20 +677,20 @@ class BarPlot(PlotKind):
 
         if qs.exists():
             *groups, vals = zip(*qs.values_list(*group_on_keys, "agg"))
-            vals = list(vals)
 
             # Attempt to convert the group values to display labels if possible
-            try:
-                labeled_groups: list[list[str]] = []
-                for group_on_key, group in zip(group_on_keys, zip(*groups)):
+            labeled_groups: list[list[str]] = []
+            for group_on_key, group in zip(group_on_keys, groups):
+                # Get the display labels for the group values if the key is a choice field
+                # use the values as-is otherwise (e.g. if annotation)
+                try:
                     group_display_labels: dict[str, str] = dict(
-                        self.plotter.model._meta.get_field(group_on_key).choices
+                        self.plotter.model._meta.get_field(group_on_key).choices or []
                     )
-                    labeled_groups.append(
-                        [group_display_labels.get(g, g) for g in group]
-                    )
-            except Exception:
-                labeled_groups = [[str(g) for g in group] for group in groups]
+                except FieldDoesNotExist:
+                    group_display_labels = {}
+
+                labeled_groups.append([group_display_labels.get(g, g) for g in group])
 
             return labeled_groups, vals
         else:
