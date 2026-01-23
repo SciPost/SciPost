@@ -245,7 +245,7 @@ class SubsidySearchForm(CrispyFormMixin, SearchForm[Subsidy]):
             annot_renewal_action_date=Case(
                 When(
                     Q(subsidy_type=SUBSIDY_TYPE_SPONSORSHIPAGREEMENT),
-                    then=F("date_until") - datetime.timedelta(days=122),
+                    then=F("date_until") - timedelta(days=122),
                 ),
                 default=Value(None),
                 output_field=DateField(),
