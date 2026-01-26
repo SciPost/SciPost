@@ -30,6 +30,7 @@
   <body class="d-flex flex-column {% block body_class %}{% endblock %}"
         style="min-height: 100vh" 
         hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <div id="global-modal-container" class="modal-container"></div>
     {% block header %}
       {% include 'scipost/header.html' %}
     {% endblock header %}
