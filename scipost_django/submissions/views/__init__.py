@@ -81,6 +81,7 @@ from ..mixins import SubmissionMixin, SubmissionAdminViewMixin
 from ..forms import (
     InviteRefereeSearchForm,
     RefereeIndicationForm,
+    RefereeInvitationChangeEmailForm,
     ReportIntendedDeliveryForm,
     SciPostPrefillForm,
     ArXivPrefillForm,
@@ -2121,6 +2122,51 @@ def _hx_cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     )
 
     return HTMXResponse("Invitation cancelled", tag="success")
+
+
+@login_required
+def _hx_change_ref_invitation_address(request, identifier_w_vn_nr, invitation_id):
+    """Change the email address of a RefereeInvitation.
+
+    This method is used by the Editor-in-charge from the editorial_page to change
+    the email address of an invited referee.
+
+    Accessible for: Editor-in-charge and Editorial Administration.
+    """
+    try:
+        submissions = Submission.objects.in_pool_filter_for_eic(request.user)
+        invitation = RefereeInvitation.objects.get(
+            submission__in=submissions, pk=invitation_id
+        )
+    except RefereeInvitation.DoesNotExist:
+        messages.error(request, "Invitation not found/accessible")
+
+    if invitation.fulfilled:
+        messages.error(request, "Invitation already fulfilled")
+    elif invitation.cancelled:
+        messages.error(request, "Invitation already cancelled")
+
+    form = RefereeInvitationChangeEmailForm(
+        request.POST or None,
+        instance=invitation,
+    )
+
+    if form.is_valid():
+        invitation = form.save()
+        messages.success(request, "Invitation email address updated.")
+        response = HttpResponse()
+        response["HX-Redirect"] = reverse(
+            "submissions:editorial_page",
+            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+        )
+        return response
+
+    context = {"invitation": invitation, "form": form}
+    return render(
+        request,
+        "submissions/_referee_invitation_change_email_form_dialog.html",
+        context,
+    )
 
 
 def _hx_report_intended_delivery_form(request, invitation_id):

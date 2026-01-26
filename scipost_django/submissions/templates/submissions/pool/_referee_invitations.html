@@ -124,6 +124,17 @@
                 <li>
                   <button href="#"
                     class="btn btn-sm btn-light w-100"
+                    id="ref-inv-{{ invitation.id }}-change-address-btn"
+                    hx-get="{% url 'submissions:_hx_change_ref_invitation_address' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
+                    hx-target="#global-modal-container"
+                    >
+                    <span class="fs-5 me-2">{% include "bi/pencil-square.html" %}</span>
+                    Edit mail address
+                  </button>
+                </li>
+                <li>
+                  <button href="#"
+                    class="btn btn-sm btn-light w-100"
                     id="ref-inv-{{ invitation.id }}-cancel-btn"
                     hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}?notify_by_email=True"
                     hx-target="closest div"
