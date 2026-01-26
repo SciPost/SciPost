@@ -1,0 +1,118 @@
+<dialog open
+        class="position-relative"
+        closedby="closerequest">
+
+  <span class="position-absolute top-0 start-100 fs-1 p-2 translate-middle"
+        role="button"
+        style="z-index: 10"
+        hx-get="{% url "common:empty" %}"
+        hx-target="closest dialog"
+        hx-swap="outerHTML">
+    <span class="bg-light rounded-circle d-flex">{% include "bi/x-circle-fill.html" %}</span>
+  </span>
+
+  <h3 class="mb-4">Change referee invitation email address</h3>
+
+  <form action="dialog"
+        class="flex-grow-1 d-flex flex-column"
+        hx-post="{% url 'submissions:_hx_change_ref_invitation_address' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
+        hx-target="closest dialog"
+        hx-swap="outerHTML">
+    <table class="table table-hover mb-4">
+      <tr>
+        <th></th>
+        <th>Email Address</th>
+        <th>Primary</th>
+        <th>Valid</th>
+        <th>Verified</th>
+      </tr>
+
+      {% for profile_email in invitation.referee.emails.all %}
+        <tr>
+          <td>
+            <input type="radio" name="{{ form.email_address.name }}" value="{{ profile_email.email }}" id="{{ form.email_address.name }}_{{ forloop.counter0 }}" 
+              {% if profile_email.email == form.email_address.value %}checked{% endif %}
+               />
+            </td>
+            <td>
+              <label for="{{ form.email_address.name }}_{{ forloop.counter0 }}">{{ profile_email.email }}</label>
+            </td>
+            <td>
+
+              {% if profile_email.primary %}
+                <span class="text-primary"
+                      title="Primary">{% include "bi/check-circle-fill.html" %}</span>
+              {% else %}
+                <span class="text-secondary"
+                      title="Alternative">{% include "bi/x-circle-fill.html" %}</span>
+              {% endif %}
+
+            </td>
+            <td>
+
+              {% if profile_email.still_valid %}
+                <span class="text-success"
+                      title="Valid">{% include "bi/check-circle-fill.html" %}</span>
+              {% else %}
+                <span class="text-danger"
+                      title="Deprecated">{% include "bi/x-circle-fill.html" %}</span>
+              {% endif %}
+
+            </td>
+            <td>
+
+              {% if profile_email.verified %}
+                <span class="text-success"
+                      title="Verified">{% include "bi/check-circle-fill.html" %}</span>
+              {% else %}
+                <span class="text-warning"
+                      title="Unverified">{% include "bi/question-circle-fill.html" %}</span>
+              {% endif %}
+
+            </td>
+
+          </tr>
+
+        {% endfor %}
+
+
+        <div class="text-danger">{{ form.email_address.errors.as_ul }}</div>
+      </table>
+
+      <div class="mb-2">
+        <div class="fs-6 d-flex gap-2 align-items-center">
+          {{ form.reset_statistics.errors }}
+          {{ form.reset_statistics }}
+          <label for="{{ form.reset_statistics.id_for_label }}">Reset statistics</label>
+        </div>
+        <span class="text-muted">
+          Reset the statistics (number of reminders sent, dates) as if the invitation was being sent for the first time.
+        </span>
+      </div>
+
+
+      <div class="mt-auto">
+        <p class="p-2 d-flex gap-2 bg-info bg-opacity-25">
+          <span>{% include "bi/info-circle-fill.html" %}</span>
+          <span class="mb-0">
+            Changing the email address will <strong>not</strong> send a new reminder automatically.
+            <br />
+            You can send a manual reminder from the editorial page after changing the email address, or wait for the next scheduled reminder.
+          </span>
+        </p>
+
+        <div class="d-flex justify-content-end gap-2">
+          <input type="submit"
+                 value="Change"
+                 class="btn btn-primary" />
+          <button type="button"
+                  class="btn btn-secondary"
+                  hx-get="{% url "common:empty" %}"
+                  hx-target="closest dialog"
+                  hx-swap="outerHTML">Cancel</button>
+        </div>
+      </div>
+
+    </form>
+
+  </dialog>

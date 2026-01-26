@@ -457,6 +457,11 @@ urlpatterns = [
         name="_hx_cancel_ref_invitation",
     ),
     path(
+        "_hx_change_ref_invitation_address/<identifier:identifier_w_vn_nr>/<int:invitation_id>",
+        views._hx_change_ref_invitation_address,
+        name="_hx_change_ref_invitation_address",
+    ),
+    path(
         "_hx_report_intended_delivery_form/<int:invitation_id>",
         views._hx_report_intended_delivery_form,
         name="_hx_report_intended_delivery_form",

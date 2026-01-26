@@ -2903,6 +2903,59 @@ class ConsiderRefereeInvitationForm(forms.Form):
         return self.invitation
 
 
+class RefereeInvitationChangeEmailForm(forms.ModelForm):
+    """Form to change the email address of a RefereeInvitation."""
+
+    reset_statistics = forms.BooleanField(
+        required=False,
+        initial=False,
+        label="Reset invitation statistics",
+        help_text="Reset the number of reminders sent and the date of last reminder.",
+    )
+
+    email_address = forms.ChoiceField()
+
+    class Meta:
+        model = RefereeInvitation
+        fields = ["email_address"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["email_address"].choices = [
+            (email, email)
+            for email in self.instance.referee.emails.values_list("email", flat=True)
+        ]
+        self.fields["email_address"].initial = self.instance.email_address
+
+    def clean_email_address(self):
+        email_address = self.cleaned_data["email_address"]
+        if email_address == self.instance.email_address:
+            raise forms.ValidationError(
+                "Please select a different email address than the current one."
+            )
+        return email_address
+
+    def save(self, commit=True):
+        """
+        Save the new email address to the RefereeInvitation,
+        and reset any invitation statistics and counters.
+        Create a submission event about the change.
+        """
+        self.instance.email_address = self.cleaned_data["email_address"]
+        if reset_statistics := self.cleaned_data.get("reset_statistics", False):
+            self.instance.nr_reminders = 0
+            self.instance.date_last_reminded = None
+            self.instance.date_invited = None
+        if commit:
+            self.instance.save()
+
+        self.instance.submission.add_event_for_edadmin(
+            f"Changed invitation email address for referee {self.instance.referee.full_name} to {self.instance.email_address}."
+            + (" Reset invitation statistics." if reset_statistics else "")
+        )
+        return self.instance
+
+
 class ReportIntendedDeliveryForm(forms.ModelForm):
     """
     Contrary to what may be assumed by its name, this is a model form for RefereeInvitation.
