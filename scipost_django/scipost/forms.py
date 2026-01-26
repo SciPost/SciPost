@@ -820,7 +820,7 @@ class SciPostAuthenticationForm(AuthenticationForm):
             )
             if self.user_cache is None:
                 try:
-                    _user = User.objects.get(email=username)
+                    _user = User.objects.get(email=username, is_active=True)
                     self.user_cache = authenticate(
                         self.request, username=_user.username, password=password
                     )

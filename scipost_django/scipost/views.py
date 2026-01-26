@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import login, update_session_auth_hash
+from django.contrib.auth import get_user_model, login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
@@ -26,7 +26,7 @@ from django.contrib.auth.views import (
 )
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core import mail
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
@@ -48,7 +48,7 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonRespo
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
-from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_decode
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -120,6 +120,7 @@ from submissions.forms import (
 from theses.models import ThesisLink
 from theses.forms import ThesisSearchForm
 
+UserModel = get_user_model()
 ###########
 # Sitemap #
 ###########
@@ -1045,6 +1046,23 @@ class SciPostPasswordResetConfirmView(PasswordResetConfirmView):
             ),
         )
         return reverse_lazy("scipost:personal_page")
+
+    # Copied from Django's implementation, only added `is_active=True` check
+    def get_user(self, uidb64):
+        try:
+            # urlsafe_base64_decode() decodes to bytestring
+            uid = urlsafe_base64_decode(uidb64).decode()
+            pk = UserModel._meta.pk.to_python(uid)
+            user = UserModel._default_manager.get(pk=pk, is_active=True)
+        except (
+            TypeError,
+            ValueError,
+            OverflowError,
+            UserModel.DoesNotExist,
+            ValidationError,
+        ):
+            user = None
+        return user
 
 
 @login_required
