@@ -118,7 +118,7 @@
 
   {% if posting_open %}
 
-    {% if post.motion %}
+    {% if post.parent.motion %}
       {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='motion' parent_id=post.parent_object_id text="Comment on this Motion" %}
     {% else %}
       {% include "forums/_hx_post_form_button.html" with slug=forum.slug parent_model='post' parent_id=post.parent_object_id text="Reply" %}
