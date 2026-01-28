@@ -1,3 +1,4 @@
+from itertools import groupby
 import os
 from pathlib import Path
 from django.core.management import BaseCommand
@@ -83,20 +84,29 @@ class Command(BaseCommand):
         elif options.get("clean"):
             self.clean_editorial_processes(objects)
 
+    @staticmethod
+    def model_compare(model: Model) -> str:
+        cls_meta = model.__class__._meta
+        return cls_meta.object_name + ":" + cls_meta.db_table
+
     def restore_editorial_processes(self, objects: list[Model]):
-        for obj in objects:
-            manager = obj.__class__.objects
-            if manager.filter(pk=obj.pk).exists():
-                # If the object already exists, we update it
-                loaded_field_values = {
-                    field.name: getattr(obj, field.name)
-                    for field in obj._meta.fields
-                    if field.name != "id"
-                }
-                manager.filter(pk=obj.pk).update(**loaded_field_values)
-            else:
-                # Otherwise, we create a new instance
-                obj.save()
+        objects.sort(key=Command.model_compare)
+        for model, objs in groupby(objects, lambda o: o.__class__):
+            existing_pks = list(model.objects.values_list("pk", flat=True))
+
+            to_update: list[Model] = []
+            to_create: list[Model] = []
+            for obj in objs:
+                if obj.pk in existing_pks:
+                    to_update.append(obj)
+                else:
+                    to_create.append(obj)
+
+            model.objects.bulk_create(to_save)
+            model.objects.bulk_update(
+                to_update,
+                [field.name for field in model._meta.fields if field.name != "id"],
+            )
 
     def clean_editorial_processes(self, objects: list[Model]):
         for obj in objects:
