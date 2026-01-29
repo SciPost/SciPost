@@ -85,7 +85,7 @@ class FellowshipNomination(models.Model):
     def __str__(self):
         return (
             f"{self.profile} to {self.college} "
-            f'on {self.nominated_on.strftime("%Y-%m-%d")}'
+            f"on {self.nominated_on.strftime('%Y-%m-%d')}"
         )
 
     def add_event(
@@ -327,8 +327,8 @@ class FellowshipNominationVotingRound(models.Model):
         if self.voting_deadline is None or self.voting_opens is None:
             return f"Unscheduled voting round for {self.nomination}"
         return (
-            f'Voting round ({self.voting_opens.strftime("%Y-%m-%d")} -'
-            f' {self.voting_deadline.strftime("%Y-%m-%d")}) for {self.nomination}'
+            f"Voting round ({self.voting_opens.strftime('%Y-%m-%d')} -"
+            f" {self.voting_deadline.strftime('%Y-%m-%d')}) for {self.nomination}"
         )
 
     def vote_of_Fellow(self, fellow):
@@ -365,6 +365,15 @@ class FellowshipNominationVotingRound(models.Model):
         if self.nomination.vetoes.all():
             return FellowshipNominationDecision.OUTCOME_NOT_ELECTED
 
+        # According to by-laws 1.4.4, a strict majority of votes is required
+        # for regular nominations to be elected.
+        if self.type == self.TYPE_REGULAR:
+            ratio = self.votes.agree().count() / self.eligible_to_vote.count()
+            if ratio > 0.5:
+                return FellowshipNominationDecision.OUTCOME_ELECTED
+            else:
+                return FellowshipNominationDecision.OUTCOME_NOT_ELECTED
+
         nr_votes_agree = self.votes.agree().count()
         nr_votes_disagree = self.votes.disagree().count()
         nr_non_abstaining_votes = nr_votes_agree + nr_votes_disagree
@@ -373,7 +382,7 @@ class FellowshipNominationVotingRound(models.Model):
         if nr_non_abstaining_votes == 0:
             return FellowshipNominationDecision.OUTCOME_NOT_ELECTED
 
-        # By-laws 1.3.4 grand fellowship if there is a majority of non-abstaining votes.
+        # By-laws 1.4.3 grant fellowship if there is a majority of non-abstaining votes.
         # Agree is counted as +1, disagree as -1
         agree_ratio = (nr_votes_agree - nr_votes_disagree) / nr_non_abstaining_votes
         if agree_ratio >= 0.5:
