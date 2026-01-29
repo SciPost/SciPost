@@ -167,8 +167,10 @@ def _hx_submission_fellows_tab(request, identifier_w_vn_nr):
         "submission": submission,
         "submission_fellow_undecided_coauthorships_count": (
             Coauthorship.objects.all()
-            .involving_any_author_of(submission)
-            .involving_any_fellow_of(submission)
+            .between_profiles(
+                submission.author_profiles.values("profile"),
+                submission.fellows.values("contributor__profile"),
+            )
             .unverified()
             .count()
         ),
