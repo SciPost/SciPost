@@ -117,6 +117,9 @@ class ProfileAnonymization(AnonymizationBase[Profile]):
     Represents an anonymous profile replacing an eponymous one.
     """
 
+    if TYPE_CHECKING:
+        anonymous: models.OneToOneField[AnonymousProfile | None]
+
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -146,6 +149,9 @@ class ContributorAnonymization(AnonymizationBase[Contributor]):
     """
     Represents an anonymous contributor replacing an eponymous one.
     """
+
+    if TYPE_CHECKING:
+        anonymous: models.OneToOneField[AnonymousContributor | None]
 
     class Meta:
         constraints = [

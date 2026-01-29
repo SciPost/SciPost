@@ -49,11 +49,12 @@ if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
     from submissions.models import (
         EditorialDecision,
+        EditorialCommunication,
         RefereeInvitation,
         Report,
         EICRecommendation,
+        ConditionalAssignmentOffer,
     )
-    from submissions.models.assignment import ConditionalAssignmentOffer
     from scipost.models import Contributor, Remark
     from journals.models import Journal, Publication
     from proceedings.models import Proceedings
@@ -263,11 +264,14 @@ class Submission(models.Model):
         author_profiles: "RelatedManager[SubmissionAuthorProfile]"
         collections: "RelatedManager[Collection]"
         editorial_assignments: "RelatedManager[EditorialAssignment]"
+        editorial_communications: "RelatedManager[EditorialCommunication]"
         reports: "RelatedManager[Report]"
         conditional_assignment_offers: "RelatedManager[ConditionalAssignmentOffer]"
         eicrecommendations: "RelatedManager[EICRecommendation]"
         tierings: "RelatedManager[SubmissionTiering]"
         remarks: "RelatedManager[Remark]"
+        events: "RelatedManager[SubmissionEvent]"
+
     # Fields
     preprint = models.OneToOneField(
         "preprints.Preprint", on_delete=models.CASCADE, related_name="submission"
