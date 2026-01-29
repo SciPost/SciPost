@@ -63,12 +63,12 @@
         {% with submission_conflicts_of_interest=fellowship.contributor.profile.submission_conflicts_of_interest|add:fellowship.contributor.profile.submission_conflicts_of_interest_related %}
 
           {% if submission_conflicts_of_interest %}
-            <table class="table table-bordered bg-opacity-10 mb-0">
+            <table class="table mb-0">
               <thead>
                 <tr>
-                  <th colspan="2">
-                    Related Profile / <em>(nature)</em>
-                  </th>
+                  <th>Profile / <em>(nature)</em></th>
+                  <th>Until</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -81,8 +81,15 @@
                       {% else %}
                         {{ coi.related_profile }}
                       {% endif %}
-                      <br />
+                      </br>
                       <em>({{ coi.get_nature_display }})</em>
+                    </td>
+                    <td>
+                      {% if coi.date_expiry %}
+                        {{ coi.date_expiry|date:"Y-m-d" }}
+                      {% else %}
+                        <em>indefinite</em>
+                      {% endif %}
                     </td>
                     <td>
 

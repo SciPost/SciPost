@@ -163,20 +163,24 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
             ),
             Prefetch(
                 "contributor__profile__conflicts_of_interest",
-                queryset=ConflictOfInterest.objects.filter(
+                queryset=ConflictOfInterest.objects.valid_on_date()
+                .filter(
                     related_profile__in=submission.author_profiles.values_list(
                         "profile", flat=True
                     )
-                ).annot_submission_exempted(submission),
+                )
+                .annot_submission_exempted(submission),
                 to_attr="submission_conflicts_of_interest",
             ),
             Prefetch(
                 "contributor__profile__related_conflicts_of_interest",
-                queryset=ConflictOfInterest.objects.filter(
+                queryset=ConflictOfInterest.objects.valid_on_date()
+                .filter(
                     profile__in=submission.author_profiles.values_list(
                         "profile", flat=True
                     )
-                ).annot_submission_exempted(submission),
+                )
+                .annot_submission_exempted(submission),
                 to_attr="submission_conflicts_of_interest_related",
             ),
         )
