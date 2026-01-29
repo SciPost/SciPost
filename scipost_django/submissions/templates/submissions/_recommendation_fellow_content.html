@@ -4,7 +4,7 @@
 
 
 {% block recommendation_header %}
-  <h4 class="text-muted mb-2">By {{ recommendation.formulated_by.profile.get_title_display }} {{ recommendation.formulated_by.profile.full_name }}, formulated on {{ recommendation.date_submitted }}</h4>
+  <h4 class="text-muted mb-2">By {{ recommendation.formulated_by.profile.get_title_display }} {{ recommendation.formulated_by }}, formulated on {{ recommendation.date_submitted }}</h4>
 {% endblock %}
 
 {% block recommendation_remarks_for_editorial_college %}
@@ -32,7 +32,7 @@
       <h3 class="card-title">Fellows eligible to vote:</h3>
       <ul>
         {% for eligible in recommendation.eligible_to_vote.all|sort_by:'dbuser__last_name' %}
-          <li>{{ eligible.profile.full_name }}</li>
+          <li>{{ eligible }}</li>
         {% endfor %}
       </ul>
 
@@ -41,19 +41,19 @@
         <li>
           Agreed ({{ recommendation.voted_for.all.count }}):
           {% for agreed in recommendation.voted_for.all|sort_by:'dbuser__last_name' %}
-            {{ agreed.profile.full_name }}{% if not forloop.last %},{% endif %}
+            {{ agreed }}{% if not forloop.last %},{% endif %}
           {% endfor %}
         </li>
         <li>
           Disagreed ({{ recommendation.voted_against.all.count }}):
           {% for disagreed in recommendation.voted_against.all|sort_by:'dbuser__last_name' %}
-            {{ disagreed.profile.full_name }}{% if not forloop.last %},{% endif %}
+            {{ disagreed }}{% if not forloop.last %},{% endif %}
           {% endfor %}
         </li>
         <li>
           Abstained ({{ recommendation.voted_abstain.all.count }}):
           {% for abstained in recommendation.voted_abstain.all|sort_by:'dbuser__last_name' %}
-            {{ abstained.profile.full_name }}{% if not forloop.last %},{% endif %}
+            {{ abstained }}{% if not forloop.last %},{% endif %}
           {% endfor %}
         </li>
       </ul>
@@ -71,7 +71,7 @@
 	  <tbody>
 	    {% for tiering in recommendation.submission.tierings.all %}
 	      <tr>
-		<td>{{ tiering.fellow.profile.full_name }}</td>
+		<td>{{ tiering.fellow }}</td>
 		<td>{{ tiering.for_journal }}</td>
 		<td>{{ tiering.get_tier_display }}</td>
 	      </tr>

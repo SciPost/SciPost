@@ -27,17 +27,6 @@ class AnonymousContributor(Contributor):
     if TYPE_CHECKING:
         profile: "Profile | AnonymousProfile | None"
 
-    def __str__(self):
-        # Override the string representation because the default
-        # uses the User model, now instantiated at runtime
-        # with the same names, and provides no useful information.
-        if self.profile:
-            return f"{self.profile}"
-        elif self.eponymization:
-            return f"Anonymous Contributor {self.eponymization.uuid}"
-        else:
-            return super().__str__()
-
     class Meta:
         proxy = True
         verbose_name = "Anonymous Contributor"

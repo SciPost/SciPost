@@ -204,6 +204,11 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         self.dbuser = user
 
     def __str__(self):
+        # Override the string representation because the default uses the User model,
+        # now instantiated at runtime with the same names, and provides no useful information.
+        if self.profile:
+            return f"{self.profile}"
+
         val = "%s, %s" % (self.user.last_name, self.user.first_name)
         if self.user.is_superuser:
             val += " (su)"
