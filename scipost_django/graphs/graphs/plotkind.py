@@ -9,6 +9,8 @@ from matplotlib.figure import Figure
 from matplotlib.axes import Axes
 from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
 import matplotlib.dates as mdates
+import numpy as np
+from numpy.typing import NDArray
 import pandas as pd
 
 from .options import BaseOptions
@@ -767,4 +769,101 @@ class BarPlot(PlotKind):
                 ),
                 css_class="col-12",
             ),
+        )
+
+
+class Histogram(PlotKind):
+    name = "histogram"
+
+    def plot(self, **kwargs):
+        fig = self.get_figure(**kwargs.get("fig_kwargs", {}))
+        ax = fig.add_subplot(111)
+
+        x, y = self.get_data()
+        x_centers = np.mean(x, axis=0)
+        widths = np.diff(x, axis=0).flatten()
+        width_offsets = np.min([widths * 0.8, np.full_like(widths, 0.15)])
+        ax.bar(x_centers, y, width=widths - width_offsets, align="center")
+
+        value_key_or_count = self.options.get("value_key_or_count", "id") or "id"
+
+        value_key_type = self.plotter.get_model_field_type(value_key_or_count)
+        if value_key_label := self.plotter.get_model_field_display(value_key_or_count):
+            if value_key_type not in ["int", "float"]:
+                x_label = (
+                    f"Number of {self.plotter.model.__name__} per {value_key_label}"
+                )
+                title = (
+                    f"Histogram of {self.plotter.model.__name__} per {value_key_label}"
+                )
+            else:
+                x_label = value_key_label
+                title = f"Histogram of {self.plotter.model.__name__} {value_key_label}"
+
+        ax.set_title(title)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel("Count")
+
+        return fig
+
+    def get_data(self) -> tuple[NDArray[float], NDArray[int]]:
+        value_key_or_count = self.options.get("value_key_or_count", "id") or "id"
+        num_bins = self.options.get("num_bins", 10) or 10
+        manual_bins = self.options.get("manual_bins", None)
+
+        qs = self.plotter.get_queryset()
+
+        if not qs.exists():
+            return np.array([]), np.array([])
+
+        # If value key type is not numeric, count the occurrences of each value and return those instead
+        value_key_type = self.plotter.get_model_field_type(value_key_or_count)
+        if value_key_type not in ["int", "float"]:
+            value_counts = qs.values(value_key_or_count).annotate(count=Count("id"))
+            values = list(value_counts.values_list("count", flat=True))
+        else:
+            values = list(qs.values_list(value_key_or_count, flat=True))
+
+        if manual_bins:
+            try:
+                bin_edges = [float(edge.strip()) for edge in manual_bins.split(",")]
+            except ValueError as e:
+                raise ValueError(
+                    "Invalid manual bins format. Please provide a comma-separated list of numbers."
+                ) from e
+            if len(bin_edges) < 2:
+                raise ValueError("At least two bin edges are required to define bins.")
+            counts, bin_edges = np.histogram(values, bins=bin_edges)
+        else:
+            counts, bin_edges = np.histogram(values, bins=num_bins)
+
+        # Compute the bin centers from the edges
+        bins_edges = np.stack((bin_edges[:-1], bin_edges[1:]))
+
+        return bins_edges, counts
+
+    class Options(PlotKind.Options):
+        prefix = "histogram_plot_"
+        value_key_or_count = forms.ChoiceField(
+            label="Value key", initial="id", required=False, choices=[]
+        )
+        num_bins = forms.IntegerField(
+            label="Number of bins",
+            initial=10,
+            required=False,
+            min_value=1,
+            max_value=100,
+        )
+        manual_bins = forms.CharField(
+            label="Manual bins",
+            required=False,
+            help_text="Comma-separated list of bin edges",
+        )
+
+    @classmethod
+    def get_plot_options_form_layout_row_content(cls):
+        return Layout(
+            Div(Field("value_key_or_count"), css_class="col-12"),
+            Div(Field("num_bins"), css_class="col-12"),
+            Div(Field("manual_bins"), css_class="col-12"),
         )

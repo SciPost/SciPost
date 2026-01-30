@@ -163,6 +163,7 @@ class PlotOptionsForm(InitialCoalescedForm):
 
     FIELD_ADMISSIBLE_TYPES: dict[str, list[str]] = {
         "value_key": ["int", "float", "date"],
+        "value_key_or_count": ["int", "float", "str", "country"],
         "agg_value_key": ["int", "float"],
         "timeline_key": ["date", "datetime"],
         "group_key": ["str", "int", "country"],

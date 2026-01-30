@@ -101,6 +101,7 @@ class ModelFieldPlotter(ABC):
             plot_kinds.append("map")
         if "int" in model_fields_types or "float" in model_fields_types:
             plot_kinds.append("bar")
+            plot_kinds.append("histogram")
 
         return plot_kinds
 
