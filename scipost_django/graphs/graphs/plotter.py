@@ -481,6 +481,7 @@ class FellowshipPlotter(ModelFieldPlotter):
         )
 
         model_fields = ModelFieldPlotter.Options.model_fields + (
+            ("contributor__profile__full_name", ("str", "Fellow")),
             ("latest_affiliation_country", ("country", "Latest affiliation country")),
             ("latest_affiliation_name", ("str", "Latest affiliation name")),
             ("status", ("str", "Status")),
@@ -488,6 +489,7 @@ class FellowshipPlotter(ModelFieldPlotter):
             ("until_date", ("date", "End date")),
             ("college__name", ("str", "College")),
             ("contributor__profile__specialties__name", ("str", "Specialties")),
+            ("nr_threads_handled", ("int", "Number of threads handled")),
         )
 
     def get_queryset(self) -> models.QuerySet[Fellowship]:
@@ -507,6 +509,18 @@ class FellowshipPlotter(ModelFieldPlotter):
                 )
                 .order_by("-date_from")
                 .values("organization__name")[:1]
+            ),
+            nr_threads_handled=Coalesce(
+                models.Subquery(
+                    EditorialAssignment.objects.accepted()
+                    .filter(to=models.OuterRef("contributor"))
+                    .values("to")
+                    .annotate(
+                        count=models.Count("submission__thread_hash", distinct=True)
+                    )
+                    .values("count")[:1]
+                ),
+                models.Value(0),
             ),
         )
 
