@@ -18,6 +18,7 @@ from ontology.models.specialty import Specialty
 from organizations.models import Organization
 from profiles.models import Affiliation, Profile
 from series.models import Collection
+from submissions.constants import EIC_REC_PUBLISH, EIC_REC_REJECT
 from submissions.models import Report, Submission
 from submissions.models.assignment import EditorialAssignment
 from submissions.models.decision import EditorialDecision
@@ -871,18 +872,67 @@ class EditorialAssignmentPlotter(ModelFieldPlotter):
                 ),
             ),
         )
+        assignment_date_start = forms.DateField(
+            required=False,
+            label="Assigned after",
+            widget=forms.DateInput(attrs={"type": "date"}),
+        )
+        assignment_date_end = forms.DateField(
+            required=False,
+            label="Assigned before",
+            widget=forms.DateInput(attrs={"type": "date"}),
+        )
 
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("date_created", ("date", "Assignment date")),
+            ("date_answered", ("date", "Assignment date")),
+            ("date_answered__year", ("int", "Assignment year")),
             ("submission__submitted_to__name", ("str", "Target journal")),
             ("status", ("str", "Status")),
+            ("decision", ("str", "Editorial decision")),
+            ("to__profile__full_name", ("str", "Editor")),
             ("to__profile__specialties__name", ("str", "Specialties")),
             ("to__profile__acad_field__name", ("str", "Academic field")),
             ("to__profile__latest_affiliation_country", ("country", "Country")),
         )
 
+    @classmethod
+    def get_plot_options_form_layout_row_content(cls):
+        return Layout(
+            Div(Field("per_thread"), css_class="col-12"),
+            Div(Field("submission_journals"), css_class="col-12"),
+            Div(Field("statuses"), css_class="col-12"),
+            Div(Field("assignment_date_start"), css_class="col-6"),
+            Div(Field("assignment_date_end"), css_class="col-6"),
+        )
+
     def get_queryset(self) -> models.QuerySet[EditorialAssignment]:
-        qs = super().get_queryset()
+        qs = (
+            super()
+            .get_queryset()
+            .annotate(
+                decision_int=models.Subquery(
+                    EditorialDecision.objects.filter(
+                        submission__thread_hash=models.OuterRef(
+                            "submission__thread_hash"
+                        ),
+                    )
+                    .nondeprecated()
+                    .order_by("-submission__submission_date", "-version")
+                    .values("decision")[:1]
+                ),
+                decision=models.Case(
+                    models.When(
+                        decision_int=EIC_REC_PUBLISH,
+                        then=models.Value("Publish"),
+                    ),
+                    models.When(
+                        decision_int=EIC_REC_REJECT,
+                        then=models.Value("Reject"),
+                    ),
+                    default=models.Value("No decision"),
+                ),
+            )
+        )
 
         match self.options.get("per_thread", "all"):
             case "first":
@@ -897,5 +947,11 @@ class EditorialAssignmentPlotter(ModelFieldPlotter):
 
         if statuses := self.options.get("statuses", None):
             qs = qs.filter(status__in=statuses)
+
+        if start := self.options.get("assignment_date_start", None):
+            qs = qs.filter(date_answered__gte=start)
+
+        if end := self.options.get("assignment_date_end", None):
+            qs = qs.filter(date_answered__lte=end)
 
         return qs
