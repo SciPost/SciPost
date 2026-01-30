@@ -131,11 +131,24 @@ class ModelFieldPlotter(ABC):
         if title := options.get("title", None):
             main_ax.set_title(title)
 
+        if options.get("hide_x_label", True):
+            main_ax.set_xlabel("")
+            main_ax.set_xticks([])
+            main_ax.set_xticklabels([])
+
+        if options.get("hide_y_label", True):
+            main_ax.set_ylabel("")
+            main_ax.set_yticks([])
+            main_ax.set_yticklabels([])
+
         if x_label := options.get("x_label", main_ax.get_xlabel()):
             main_ax.set_xlabel(x_label)
 
         if y_label := options.get("y_label", main_ax.get_ylabel()):
             main_ax.set_ylabel(y_label)
+
+        if options.get("hide_grid", False):
+            main_ax.grid(False)
 
         return fig
 
