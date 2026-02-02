@@ -50,7 +50,11 @@ from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from django.db.models.manager import RelatedManager, ManyToManyRelatedManager
+    from django.db.models.manager import (
+        RelatedManager,
+        ManyToManyRelatedManager,
+        Manager,
+    )
     from submissions.models import (
         EditorialDecision,
         EditorialCommunication,
@@ -67,7 +71,7 @@ if TYPE_CHECKING:
     from series.models import Collection
     from journals.models import Journal
     from preprints.models import Preprint
-    from ethics.models import Coauthorship
+    from ethics.models import Coauthorship, GenAIDisclosure
     from profiles.models import Profile
     from ethics.models import ConflictOfInterest
 
@@ -282,6 +286,7 @@ class Submission(models.Model):
         tierings: "RelatedManager[SubmissionTiering]"
         remarks: "RelatedManager[Remark]"
         events: "RelatedManager[SubmissionEvent]"
+        gen_ai_disclosures: "Manager[GenAIDisclosure]"
 
     # Fields
     preprint = models.OneToOneField["Preprint"](

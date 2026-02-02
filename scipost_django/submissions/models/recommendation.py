@@ -24,10 +24,11 @@ from ..constants import (
 from ..managers import EICRecommendationQuerySet
 
 if TYPE_CHECKING:
-    from django.db.models.manager import RelatedManager
+    from django.db.models.manager import RelatedManager, Manager
     from scipost.models import Contributor, Remark
     from submissions.models import Submission
     from journals.models import Journal
+    from ethics.models import GenAIDisclosure
 
 
 class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
@@ -96,6 +97,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
 
     if TYPE_CHECKING:
         remarks: "RelatedManager[Remark]"
+        gen_ai_disclosures: "Manager[GenAIDisclosure]"
 
     class Meta:
         unique_together = ("submission", "version")

@@ -6,7 +6,7 @@ import subprocess
 from typing import TYPE_CHECKING
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import F, Q
+from django.db.models import Manager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
@@ -42,6 +42,7 @@ from ..managers import ReportQuerySet
 if TYPE_CHECKING:
     from submissions.models import Submission
     from anonymization.models import AnonymousContributor
+    from ethics.models import GenAIDisclosure
 
 
 class Report(SubmissionRelatedObjectMixin, models.Model):
@@ -160,6 +161,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     if TYPE_CHECKING:
         id: int
+        gen_ai_disclosures: "Manager[GenAIDisclosure]"
 
     class Meta:
         unique_together = ("submission", "report_nr")

@@ -35,9 +35,10 @@ from scipost.fields import ChoiceArrayField
 
 
 if TYPE_CHECKING:
-    from django.db.models.manager import RelatedManager
+    from django.db.models.manager import RelatedManager, Manager
     from production.models import ProofsRepository
     from profiles.models import Profile
+    from ethics.models import GenAIDisclosure
 
 
 class PublicationAuthorsTable(models.Model):
@@ -220,6 +221,7 @@ class Publication(models.Model):
 
     if TYPE_CHECKING:
         authors = RelatedManager[PublicationAuthorsTable]
+        gen_ai_disclosures = "Manager[GenAIDisclosure]"
 
     class Meta:
         default_related_name = "publications"

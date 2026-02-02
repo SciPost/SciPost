@@ -28,6 +28,11 @@ from .constants import (
 )
 from .managers import CommentQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models.manager import Manager, RelatedManager
+    from ethics.models import GenAIDisclosure
 
 WARNING_TEXT = (
     "Warning: Rather use/edit `content_object` instead or be 100% sure you"
@@ -109,7 +114,11 @@ class Comment(TimeStampedModel):
         "journals.GenericDOIDeposit", related_query_name="genericdoideposit"
     )
     doi_label = models.CharField(max_length=200, blank=True)
+
     objects = CommentQuerySet.as_manager()
+
+    if TYPE_CHECKING:
+        gen_ai_disclosures: "Manager[GenAIDisclosure]"
 
     class Meta:
         ordering = ["-date_submitted"]
