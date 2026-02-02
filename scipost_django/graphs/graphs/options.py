@@ -2,8 +2,9 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 from copy import deepcopy
+from dataclasses import dataclass, field
+from types import NoneType
 from typing import Any, TypeVar
-
 from django.forms import Field
 
 
@@ -70,3 +71,11 @@ class BaseOptions:
         if value == "None":
             return None
         return value
+
+
+@dataclass
+class GraphModelField:
+    name: str = ""
+    label: str = ""
+    type: "type" = NoneType
+    permissions: list[str] = field(default_factory=list[str])

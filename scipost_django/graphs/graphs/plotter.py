@@ -2,12 +2,15 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 from abc import ABC
+from datetime import date
 from typing import TYPE_CHECKING, Any
 
 from django import forms
 from django.db import models
-from django.db.models.functions import Coalesce, Concat, ExtractDay
+from django.db.models.functions import Coalesce, ExtractDay
 from django.utils.timezone import datetime
+from django_countries.fields import Country as country
+
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
@@ -26,7 +29,7 @@ from submissions.models.recommendation import EICRecommendation
 from submissions.models.referee_invitation import RefereeInvitation
 from submissions.models.submission import SubmissionAuthorProfile, SubmissionEvent
 
-from .options import BaseOptions
+from .options import BaseOptions, GraphModelField as GMF
 
 from crispy_forms.layout import Layout, Div, Field
 
@@ -42,7 +45,7 @@ class ModelFieldPlotter(ABC):
 
     class Options(BaseOptions):
         prefix = "model_field_plotter_"
-        model_fields = (("id", ("int", "ID")),)
+        model_fields: tuple[GMF, ...] = (GMF("id", "ID", int),)
 
     def __init__(self, options: OptionDict = {}):
         self.options = self.Options.parse_prefixed_options(options)
@@ -58,25 +61,18 @@ class ModelFieldPlotter(ABC):
     def get_name(cls) -> str:
         return cls.name or cls.model.__name__
 
-    def get_model_field_display(self, key: str | None) -> str | None:
+    def get_model_field(self, key: str | None) -> GMF | None:
         if (
             key is not None
             and (options := getattr(self, "Options", None))
             and (model_fields := getattr(options, "model_fields", None))
         ):
-            for field, (_, value_display) in model_fields:
-                if field == key:
-                    return value_display
+            model_fields: tuple[GMF, ...]
+            for field in model_fields:
+                if field.name == key:
+                    return field
 
-    def get_model_field_type(self, key: str | None) -> str | None:
-        if (
-            key is not None
-            and (options := getattr(self, "Options", None))
-            and (model_fields := getattr(options, "model_fields", None))
-        ):
-            for field, (field_type, _) in model_fields:
-                if field == key:
-                    return field_type
+            return None
 
     def __str__(self):
         return self.get_name()
@@ -88,18 +84,16 @@ class ModelFieldPlotter(ABC):
     def get_available_plot_kinds(self) -> list[str]:
         """Returns the plot kinds that can be used with this model field."""
         try:
-            model_fields_types = [
-                field_type for _, (field_type, _) in self.Options.model_fields
-            ]
+            model_fields_types = [field.type for field in self.Options.model_fields]
         except AttributeError:
             return []
 
         plot_kinds: list[str] = []
-        if "date" in model_fields_types or "datetime" in model_fields_types:
+        if date in model_fields_types or datetime in model_fields_types:
             plot_kinds.append("timeline")
-        if "country" in model_fields_types:
+        if country in model_fields_types:
             plot_kinds.append("map")
-        if "int" in model_fields_types or "float" in model_fields_types:
+        if int in model_fields_types or float in model_fields_types:
             plot_kinds.append("bar")
             plot_kinds.append("histogram")
 
@@ -170,20 +164,20 @@ class PublicationPlotter(ModelFieldPlotter):
             queryset=Collection.objects.all(), required=False
         )
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("submission_date", ("date", "Submission date")),
-            ("submission_date__year", ("int", "Year submitted")),
-            ("publication_date", ("date", "Publication date")),
-            ("publication_date__year", ("int", "Year published")),
-            ("acceptance_date", ("date", "Acceptance date")),
-            ("acceptance_date__year", ("int", "Year accepted")),
-            ("acceptance_duration", ("int", "Acceptance duration (days)")),
-            ("publication_duration", ("int", "Publication duration (days)")),
-            ("production_duration", ("int", "Production duration (days)")),
-            ("nr_versions", ("int", "Number of versions")),
-            ("acad_field__name", ("str", "Academic field")),
-            ("specialties__name", ("str", "Specialties")),
-            ("number_of_citations", ("int", "Number of citations")),
-            ("journal_name", ("str", "Journal name")),
+            GMF("submission_date", "Submission date", date),
+            GMF("submission_date__year", "Year submitted", int),
+            GMF("publication_date", "Publication date", date),
+            GMF("publication_date__year", "Year published", int),
+            GMF("acceptance_date", "Acceptance date", date),
+            GMF("acceptance_date__year", "Year accepted", int),
+            GMF("acceptance_duration", "Acceptance duration (days)", int),
+            GMF("publication_duration", "Publication duration (days)", int),
+            GMF("production_duration", "Production duration (days)", int),
+            GMF("nr_versions", "Number of versions", int),
+            GMF("acad_field__name", "Academic field", str),
+            GMF("specialties__name", "Specialties", str),
+            GMF("number_of_citations", "Number of citations", int),
+            GMF("journal_name", "Journal name", str),
         )
 
     def get_queryset(self):
@@ -251,34 +245,37 @@ class SubmissionsPlotter(ModelFieldPlotter):
             queryset=Specialty.objects.filter(journals__isnull=False).distinct(),
         )
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("submission_date", ("date", "Submission date")),
-            ("submission_date__year", ("int", "Year submitted")),
-            ("status", ("str", "Status")),
-            ("final_thread_status", ("str", "Final status (in thread)")),
-            ("topics__name", ("str", "Topics")),
-            ("acad_field__name", ("str", "Academic field")),
-            ("specialties__name", ("str", "Specialties")),
-            ("submitted_to__name", ("str", "Target journal")),
-            ("proceedings__event_suffix", ("str", "Proceedings")),
-            ("nr_invitations", ("int", "Number of invitations")),
-            ("nr_reports", ("int", "Number of reports")),
-            ("report_turnover", ("float", "Report turnover")),
-            ("preassignment_completed_date", ("date", "Preassignment completed date")),
-            ("editor_first_assigned_date", ("date", "Editor first assigned date")),
-            ("first_referee_invited_date", ("date", "First referee invited date")),
-            ("withdrawal_date", ("date", "Withdrawal date")),
-            (
+            GMF("submission_date", "Submission date", date),
+            GMF("submission_date__year", "Year submitted", int),
+            GMF("status", "Status", str),
+            GMF("final_thread_status", "Final status (in thread)", str),
+            GMF("topics__name", "Topics", str),
+            GMF("acad_field__name", "Academic field", str),
+            GMF("specialties__name", "Specialties", str),
+            GMF("submitted_to__name", "Target journal", str),
+            GMF("proceedings__event_suffix", "Proceedings", str),
+            GMF("nr_invitations", "Number of invitations", int),
+            GMF("nr_reports", "Number of reports", int),
+            GMF("report_turnover", "Report turnover", float),
+            GMF("preassignment_completed_date", "Preassignment completed date", date),
+            GMF("editor_first_assigned_date", "Editor first assigned date", date),
+            GMF("first_referee_invited_date", "First referee invited date", date),
+            GMF("withdrawal_date", "Withdrawal date", date),
+            GMF(
                 "preassignment_completed_duration",
-                ("int", "Preassignment duration (days)"),
+                "Preassignment duration (days)",
+                int,
             ),
-            ("eic_assignment_duration", ("int", "EIC assignment duration (days)")),
-            (
+            GMF("eic_assignment_duration", "EIC assignment duration (days)", int),
+            GMF(
                 "first_referee_invitation_submission_duration",
-                ("int", "Submission to first ref. invitation sent (days)"),
+                "Submission to first ref. invitation sent (days)",
+                int,
             ),
-            (
+            GMF(
                 "first_referee_invitation_assignment_duration",
-                ("int", "EIC assignment to first ref. invitation sent (days)"),
+                "EIC assignment to first ref. invitation sent (days)",
+                int,
             ),
         )
 
@@ -394,19 +391,19 @@ class ProfilePlotter(ModelFieldPlotter):
     class Options(ModelFieldPlotter.Options):
         prefix = "profile_plotter_"
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("contributor__dbuser__date_joined", ("date", "Date joined")),
-            ("contributor__dbuser__date_joined__year", ("int", "Year joined")),
-            ("contributor__dbuser__last_login", ("date", "Last login")),
-            ("contributor__dbuser__last_login__year", ("int", "Year last logged in")),
-            ("topics__name", ("str", "Topics")),
-            ("acad_field__name", ("str", "Academic field")),
-            ("specialties__name", ("str", "Specialties")),
-            ("orcid_authenticated", ("str", "ORCID authenticated")),
-            ("latest_affiliation_country", ("country", "Latest affiliation country")),
-            ("first_authorship_date", ("date", "First authorship date")),
-            ("nr_publications", ("int", "Publications")),
-            ("nr_reports", ("int", "Reports authored")),
-            ("nr_submissions", ("int", "Submissions")),
+            GMF("contributor__dbuser__date_joined", "Date joined", date),
+            GMF("contributor__dbuser__date_joined__year", "Year joined", int),
+            GMF("contributor__dbuser__last_login", "Last login", date),
+            GMF("contributor__dbuser__last_login__year", "Year last logged in", int),
+            GMF("topics__name", "Topics", str),
+            GMF("acad_field__name", "Academic field", str),
+            GMF("specialties__name", "Specialties", str),
+            GMF("orcid_authenticated", "ORCID authenticated", str),
+            GMF("latest_affiliation_country", "Latest affiliation country", country),
+            GMF("first_authorship_date", "First authorship date", date),
+            GMF("nr_publications", "Publications", int),
+            GMF("nr_reports", "Reports authored", int),
+            GMF("nr_submissions", "Submissions", int),
         )
 
     def get_queryset(self) -> models.QuerySet[Profile]:
@@ -481,15 +478,15 @@ class FellowshipPlotter(ModelFieldPlotter):
         )
 
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("contributor__profile__full_name", ("str", "Fellow")),
-            ("latest_affiliation_country", ("country", "Latest affiliation country")),
-            ("latest_affiliation_name", ("str", "Latest affiliation name")),
-            ("status", ("str", "Status")),
-            ("start_date", ("date", "Start date")),
-            ("until_date", ("date", "End date")),
-            ("college__name", ("str", "College")),
-            ("contributor__profile__specialties__name", ("str", "Specialties")),
-            ("nr_threads_handled", ("int", "Number of threads handled")),
+            GMF("contributor__profile__full_name", "Fellow", str),
+            GMF("latest_affiliation_country", "Latest affiliation country", country),
+            GMF("latest_affiliation_name", "Latest affiliation name", str),
+            GMF("status", "Status", str),
+            GMF("start_date", "Start date", date),
+            GMF("until_date", "End date", date),
+            GMF("college__name", "College", str),
+            GMF("contributor__profile__specialties__name", "Specialties", str),
+            GMF("nr_threads_handled", "Number of threads handled", int),
         )
 
     def get_queryset(self) -> models.QuerySet[Fellowship]:
@@ -566,10 +563,10 @@ class PubFracPlotter(ModelFieldPlotter):
             ],
         )
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("fraction", ("float", "Publication fraction")),
-            ("organization__country", ("country", "Organization country")),
-            ("organization__name", ("str", "Organization")),
-            ("cf_value", ("float", "Monetary value")),
+            GMF("fraction", "Publication fraction", float),
+            GMF("organization__country", "Organization country", country),
+            GMF("organization__name", "Organization", str),
+            GMF("cf_value", "Monetary value", float),
         )
 
     def get_queryset(self) -> models.QuerySet[PubFrac]:
@@ -592,10 +589,10 @@ class SponsorPlotter(ModelFieldPlotter):
 
     class Options(ModelFieldPlotter.Options):
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("latest_subsidy_date", ("date", "Latest subsidy date")),
-            ("country", ("country", "Country")),
-            ("total_subsidies", ("int", "Total subsidies")),
-            ("total_amount", ("float", "Total amount")),
+            GMF("latest_subsidy_date", "Latest subsidy date", date),
+            GMF("country", "Country", country),
+            GMF("total_subsidies", "Total subsidies", int),
+            GMF("total_amount", "Total amount", float),
         )
 
     def get_queryset(self) -> models.QuerySet[Organization]:
@@ -630,22 +627,21 @@ class ReportPlotter(ModelFieldPlotter):
         submission_journals = forms.ModelMultipleChoiceField(
             queryset=Journal.objects.all().active(), required=False
         )
+
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("date_submitted", ("date", "Report date")),
-            ("date_submitted__year", ("int", "Year of report")),
-            ("last_invitation_creation_date", ("date", "Last invitation date")),
-            (
-                "report_submission_duration",
-                ("int", "Report submission duration (days)"),
-            ),
-            (
+            GMF("date_submitted", "Report date", date),
+            GMF("date_submitted__year", "Year of report", int),
+            GMF("last_invitation_creation_date", "Last invitation date", date),
+            GMF("report_submission_duration", "Report submission duration (days)", int),
+            GMF(
                 "latest_affiliation_country",
-                ("country", "Author latest affiliation country"),
+                "Author latest affiliation country",
+                country,
             ),
-            ("invited", ("str", "Was invited")),
-            ("has_attachment", ("str", "Has attachment")),
-            ("anonymous", ("str", "Is anonymous")),
-            ("needs_doi", ("str", "Needs DOI")),
+            GMF("invited", "Was invited", str),
+            GMF("has_attachment", "Has attachment", str),
+            GMF("anonymous", "Is anonymous", str),
+            GMF("needs_doi", "Needs DOI", str),
         )
 
     def get_queryset(self) -> models.QuerySet[Report]:
@@ -696,19 +692,18 @@ class SubsidyPlotter(ModelFieldPlotter):
 
     class Options(ModelFieldPlotter.Options):
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("subsidy_type", ("str", "Type")),
-            ("date_from", ("date", "Start date")),
-            ("date_until", ("date", "End date")),
-            ("paid_on", ("date", "Paid on")),
-            ("amount", ("int", "Amount")),
-            ("organization__country", ("country", "Organization country")),
-            ("organization__name", ("str", "Organization")),
-            ("renewable", ("str", "Is renewable")),
-            ("status", ("str", "Status")),
-            ("collective__name", ("str", "Collective")),
-            (
-                "individual_budget__organization__name",
-                ("str", "Individual budget funder"),
+            GMF("subsidy_type", "Type", str),
+            GMF("date_from", "Start date", date),
+            GMF("date_until", "End date", date),
+            GMF("paid_on", "Paid on", date),
+            GMF("amount", "Amount", int),
+            GMF("organization__country", "Organization country", country),
+            GMF("organization__name", "Organization", str),
+            GMF("renewable", "Is renewable", str),
+            GMF("status", "Status", str),
+            GMF("collective__name", "Collective", str),
+            GMF(
+                "individual_budget__organization__name", "Individual budget funder", str
             ),
         )
 
@@ -734,15 +729,15 @@ class EditorialDecisionPlotter(ModelFieldPlotter):
             queryset=Journal.objects.all().active(), required=False
         )
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("taken_on", ("date", "Decision date")),
-            ("for_journal__name", ("str", "Decision journal")),
-            ("submission__submitted_to__name", ("str", "Target journal")),
-            ("decision", ("str", "Decision")),
-            ("status", ("str", "Status")),
-            ("submission__submission_date", ("date", "Submission date")),
-            ("is_alternative", ("str", "Is alternative")),
-            ("latest_recommendation_date", ("date", "Latest recommendation date")),
-            ("voting_duration", ("int", "Voting duration (days)")),
+            GMF("taken_on", "Decision date", date),
+            GMF("for_journal__name", "Decision journal", str),
+            GMF("submission__submitted_to__name", "Target journal", str),
+            GMF("decision", "Decision", str),
+            GMF("status", "Status", str),
+            GMF("submission__submission_date", "Submission date", date),
+            GMF("is_alternative", "Is alternative", str),
+            GMF("latest_recommendation_date", "Latest recommendation date", date),
+            GMF("voting_duration", "Voting duration (days)", int),
         )
 
     def get_queryset(self) -> models.QuerySet[EditorialDecision]:
@@ -825,21 +820,21 @@ class RefereeInvitationPlotter(ModelFieldPlotter):
             ],
         )
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("date_invited", ("date", "Invitation date")),
-            ("date_invited__year", ("int", "Year invited")),
-            ("date_responded", ("date", "Response date")),
-            ("date_responded__year", ("int", "Year responded")),
-            ("intended_delivery_date", ("date", "Intended delivery date")),
-            ("accepted", ("str", "Accepted")),
-            ("refusal_reason", ("str", "Refusal reason")),
-            ("auto_reminders_allowed", ("str", "Auto reminders allowed")),
-            ("nr_reminders", ("int", "Number of reminders")),
-            ("date_last_reminded", ("date", "Last reminded")),
-            ("fulfilled", ("str", "Fulfilled")),
-            ("cancelled", ("str", "Cancelled")),
-            ("report_response_duration", ("int", "Report response duration (days)")),
-            ("has_responded_int", ("int", "Has responded")),
-            ("has_delivered_int", ("int", "Has delivered")),
+            GMF("date_invited", "Invitation date", date),
+            GMF("date_invited__year", "Year invited", int),
+            GMF("date_responded", "Response date", date),
+            GMF("date_responded__year", "Year responded", int),
+            GMF("intended_delivery_date", "Intended delivery date", date),
+            GMF("accepted", "Accepted", str),
+            GMF("refusal_reason", "Refusal reason", str),
+            GMF("auto_reminders_allowed", "Auto reminders allowed", str),
+            GMF("nr_reminders", "Number of reminders", int),
+            GMF("date_last_reminded", "Last reminded", date),
+            GMF("fulfilled", "Fulfilled", str),
+            GMF("cancelled", "Cancelled", str),
+            GMF("report_response_duration", "Report response duration (days)", int),
+            GMF("has_responded_int", "Has responded", int),
+            GMF("has_delivered_int", "Has delivered", int),
         )
 
     def get_queryset(self) -> models.QuerySet[Any]:
@@ -912,15 +907,15 @@ class EditorialAssignmentPlotter(ModelFieldPlotter):
         )
 
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            ("date_answered", ("date", "Assignment date")),
-            ("date_answered__year", ("int", "Assignment year")),
-            ("submission__submitted_to__name", ("str", "Target journal")),
-            ("status", ("str", "Status")),
-            ("decision", ("str", "Editorial decision")),
-            ("to__profile__full_name", ("str", "Editor")),
-            ("to__profile__specialties__name", ("str", "Specialties")),
-            ("to__profile__acad_field__name", ("str", "Academic field")),
-            ("to__profile__latest_affiliation_country", ("country", "Country")),
+            GMF("date_answered", "Assignment date", date),
+            GMF("date_answered__year", "Assignment year", int),
+            GMF("submission__submitted_to__name", "Target journal", str),
+            GMF("status", "Status", str),
+            GMF("decision", "Editorial decision", str),
+            GMF("to__profile__full_name", "Editor", str),
+            GMF("to__profile__specialties__name", "Specialties", str),
+            GMF("to__profile__acad_field__name", "Academic field", str),
+            GMF("to__profile__latest_affiliation_country", "Country", country),
         )
 
     @classmethod

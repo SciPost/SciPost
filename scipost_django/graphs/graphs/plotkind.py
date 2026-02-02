@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from datetime import date
 from itertools import groupby
 from django import forms
 from django.core.exceptions import FieldDoesNotExist
@@ -102,6 +103,16 @@ class PlotKind:
     def get_plot_options_form_layout_row_content(cls) -> LayoutObject:
         return Div()
 
+    def get_option_label(self, option_name: str, default: str = "") -> str | None:
+        """
+        Get the label of a selected model field through its option (selector) key.
+        """
+        field_name = self.options.get(option_name, "Unknown")
+        field = self.plotter.get_model_field(field_name)
+        if field:
+            return field.label
+        return default or field_name.title()
+
 
 class TimelinePlot(PlotKind):
     name = "timeline"
@@ -118,7 +129,7 @@ class TimelinePlot(PlotKind):
 
         x, y = self.get_data()
         if (
-            self.plotter.get_model_field_type(value_key) in ["int", "float"]
+            self.plotter.get_model_field(value_key).type in [int, float]
             and resample_method != "None"
         ):
             x, y = self.resample_data(
@@ -131,16 +142,15 @@ class TimelinePlot(PlotKind):
 
         ax.set_title(f"{self.get_name()} plot of {self.plotter.model.__name__}")
 
-        if timeline_key_label := self.plotter.get_model_field_display(timeline_key):
-            ax.set_xlabel(timeline_key_label)
+        if timeline_key_field := self.plotter.get_model_field(timeline_key):
+            ax.set_xlabel(timeline_key_field.label)
 
-        if value_key_label := self.plotter.get_model_field_display(value_key):
-            ax.set_ylabel(value_key_label)
-
-        if value_key_type := self.plotter.get_model_field_type(value_key):
-            if value_key_type == "int":
+        if value_key_field := self.plotter.get_model_field(value_key):
+            ax.set_ylabel(value_key_field.label)
+        if value_key_field := self.plotter.get_model_field(value_key):
+            if value_key_field.type is int:
                 ax.yaxis.get_major_locator().set_params(integer=True)
-            elif value_key_type == "date":
+            elif value_key_field.type is date:
                 ax.yaxis_date()
                 ax.yaxis.set_minor_locator(quarter_locator)
 
@@ -342,13 +352,8 @@ class MapPlot(PlotKind):
         from graphs.graphs import BASE_WORLD, OKLCH
 
         agg_func = self.options.get("agg_func", "count")
-        agg_value_key_display = self.plotter.get_model_field_display(
-            self.options.get("agg_value_key")
-        )
-        country_key_display = (
-            self.plotter.get_model_field_display(self.options.get("country_key"))
-            or "country"
-        )
+        agg_value_key_display = self.get_option_label("agg_value_key")
+        country_key_display = self.get_option_label("country_key", "Country")
         if agg_func == "count":
             plot_title = "{model} per {country}"
         else:
@@ -537,22 +542,19 @@ class BarPlot(PlotKind):
         group_label_axis = "x" if direction == "vertical" else "y"
         value_label_axis = "y" if direction == "vertical" else "x"
 
-        if group_key_label := self.plotter.get_model_field_display(
+        if group_key_field := self.plotter.get_model_field(
             self.options.get("group_key")
         ):
-            ax.set(**{f"{group_label_axis}label": group_key_label.capitalize()})
+            ax.set(**{f"{group_label_axis}label": group_key_field.label.capitalize()})
 
-        if agg_value_key_name := self.plotter.get_model_field_display(
-            self.options.get("agg_value_key")
-        ):
-            agg_value_key_label = f"{agg_func} of {agg_value_key_name}"
-            if agg_func == "count":
-                # Simplify label and set locator to integer
-                agg_value_key_label = "Count"
-                axis = getattr(ax, f"{value_label_axis}axis")
-                axis.get_major_locator().set_params(integer=True)
+        agg_value_key_label = f"{agg_func} of {self.get_option_label('agg_value_key')}"
+        if agg_func == "count":
+            # Simplify label and set locator to integer
+            agg_value_key_label = "Count"
+            axis = getattr(ax, f"{value_label_axis}axis")
+            axis.get_major_locator().set_params(integer=True)
 
-            ax.set(**{f"{value_label_axis}label": agg_value_key_label.capitalize()})
+        ax.set(**{f"{value_label_axis}label": agg_value_key_label.capitalize()})
 
         data = self.get_data()
 
@@ -595,12 +597,7 @@ class BarPlot(PlotKind):
 
                     bottoms = [b + ba for b, ba in zip(bottoms, bottom_addition)]
 
-                ax.legend(
-                    title=self.plotter.get_model_field_display(
-                        self.options.get("stack_on")
-                    )
-                    or "Category"
-                )
+                ax.legend(title=self.get_option_label("stack_on", "Category"))
                 pass
             case _:
                 raise ValueError("Invalid data format returned from get_data()")
@@ -787,18 +784,13 @@ class Histogram(PlotKind):
 
         value_key_or_count = self.options.get("value_key_or_count", "id") or "id"
 
-        value_key_type = self.plotter.get_model_field_type(value_key_or_count)
-        if value_key_label := self.plotter.get_model_field_display(value_key_or_count):
-            if value_key_type not in ["int", "float"]:
-                x_label = (
-                    f"Number of {self.plotter.model.__name__} per {value_key_label}"
-                )
-                title = (
-                    f"Histogram of {self.plotter.model.__name__} per {value_key_label}"
-                )
+        if value_key_field := self.plotter.get_model_field(value_key_or_count):
+            if value_key_field.type not in [int, float]:
+                x_label = f"Number of {self.plotter.model.__name__} per {value_key_field.label}"
+                title = f"Histogram of {self.plotter.model.__name__} per {value_key_field.label}"
             else:
-                x_label = value_key_label
-                title = f"Histogram of {self.plotter.model.__name__} {value_key_label}"
+                x_label = value_key_field.label
+                title = f"Histogram of {self.plotter.model.__name__} {value_key_field.label}"
 
         ax.set_title(title)
         ax.set_xlabel(x_label)
@@ -817,12 +809,19 @@ class Histogram(PlotKind):
             return np.array([]), np.array([])
 
         # If value key type is not numeric, count the occurrences of each value and return those instead
-        value_key_type = self.plotter.get_model_field_type(value_key_or_count)
-        if value_key_type not in ["int", "float"]:
-            value_counts = qs.values(value_key_or_count).annotate(count=Count("id"))
-            values = list(value_counts.values_list("count", flat=True))
-        else:
-            values = list(qs.values_list(value_key_or_count, flat=True))
+        if value_key_field := self.plotter.get_model_field(value_key_or_count):
+            if value_key_field.type not in [int, float]:
+                values = list(
+                    qs.values(value_key_or_count)
+                    .annotate(count=Count("id"))
+                    .values_list("count", flat=True)
+                )
+            else:
+                values = list(
+                    qs.all()
+                    .filter(**{value_key_or_count + "__isnull": False})
+                    .values_list(value_key_or_count, flat=True)
+                )
 
         if manual_bins:
             try:

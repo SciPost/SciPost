@@ -1,15 +1,17 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from datetime import date, datetime
 from functools import cached_property
 import io
 from django import forms
 from django.http import QueryDict
+from django_countries.fields import Country as country
 
-from graphs.graphs.plotkind import PlotKind
-from graphs.graphs.plotter import ModelFieldPlotter
-
+from .graphs.plotkind import PlotKind
+from .graphs.plotter import ModelFieldPlotter
 from .graphs import ALL_PLOTTERS, ALL_PLOT_KINDS, AVAILABLE_MPL_THEMES
+from .graphs.options import GraphModelField as GMF
 
 from crispy_forms.helper import FormHelper, Layout
 from crispy_forms.layout import LayoutObject, Div, Field
@@ -161,14 +163,14 @@ class PlotOptionsForm(InitialCoalescedForm):
     Combination of the model field selector, the plot kind selector, and generic plot options.
     """
 
-    FIELD_ADMISSIBLE_TYPES: dict[str, list[str]] = {
-        "value_key": ["int", "float", "date"],
-        "value_key_or_count": ["int", "float", "str", "country"],
-        "agg_value_key": ["int", "float"],
-        "timeline_key": ["date", "datetime"],
-        "group_key": ["str", "int", "country"],
-        "stack_on": ["str", "int", "country"],
-        "country_key": ["country"],
+    FIELD_ADMISSIBLE_TYPES: dict[str, list[type]] = {
+        "value_key": [int, float, date],
+        "value_key_or_count": [int, float, str, country],
+        "agg_value_key": [int, float],
+        "timeline_key": [date, datetime],
+        "group_key": [str, int, country],
+        "stack_on": [str, int, country],
+        "country_key": [country],
     }
 
     def __init__(self, *args, **kwargs):
@@ -203,9 +205,7 @@ class PlotOptionsForm(InitialCoalescedForm):
         self.fields.update(self.generic_plot_options_form.fields)
 
         # Populate empty choice fields with plotter's `model_fields`
-        available_model_fields: tuple[tuple[str, tuple[str, str]]] | None = (
-            plotter.Options.model_fields
-        )
+        available_model_fields: tuple[GMF, ...] = plotter.Options.model_fields
         for field_name, field in self.fields.items():
             unprefixed_field_name = (
                 self.plot_kind_select_form.kind_class.Options.unprefixed(field_name)
@@ -215,12 +215,16 @@ class PlotOptionsForm(InitialCoalescedForm):
                 and not field.choices
                 and available_model_fields is not None
             ):
+                field_admissible_types = self.FIELD_ADMISSIBLE_TYPES.get(
+                    unprefixed_field_name, []
+                )
                 field.choices = [
-                    (key, display_str)
-                    for key, (value_type, display_str) in available_model_fields
-                    if value_type
-                    in self.FIELD_ADMISSIBLE_TYPES.get(unprefixed_field_name, [])
-                    and not (key == "id" and unprefixed_field_name == "group_key")
+                    (field.name, field.label)
+                    for field in available_model_fields
+                    if field.type in field_admissible_types
+                    and not (
+                        field.name == "id" and unprefixed_field_name == "group_key"
+                    )
                 ]
 
         def get_layout_field_names(layout: Layout):
