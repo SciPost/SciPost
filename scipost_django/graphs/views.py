@@ -71,7 +71,7 @@ def graphs(request):
             "explore_url": form.explorer_minimal_url,
         }
         for options in premade_graph_options
-        if (form := PlotOptionsForm(options))
+        if (form := PlotOptionsForm(options, user=request.user))
     ]
 
     return TemplateResponse(
@@ -84,7 +84,7 @@ def graphs(request):
 @login_required
 @permission_required("scipost.can_explore_graphs", raise_exception=True)
 def explorer(request):
-    form = PlotOptionsForm(request.POST or request.GET or None)
+    form = PlotOptionsForm(request.POST or request.GET or None, user=request.user)
     return render(
         request,
         "graphs/explorer.html",
@@ -124,7 +124,7 @@ class PlotView(View):
         return response
 
     def get(self, request):
-        form = PlotOptionsForm(request.GET)
+        form = PlotOptionsForm(request.GET, user=request.user)
         self.form = form
 
         if not form.is_valid() and request.GET.get("embed"):
@@ -198,7 +198,7 @@ class PlotView(View):
 
 class PlotOptionsFormView(View):
     def post(self, request):
-        plot_options_form = PlotOptionsForm(request.POST)
+        plot_options_form = PlotOptionsForm(request.POST, user=request.user)
 
         return TemplateResponse(
             request,

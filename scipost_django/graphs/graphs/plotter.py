@@ -478,7 +478,12 @@ class FellowshipPlotter(ModelFieldPlotter):
         )
 
         model_fields = ModelFieldPlotter.Options.model_fields + (
-            GMF("contributor__profile__full_name", "Fellow", str),
+            GMF(
+                "contributor__profile__full_name",
+                "Fellow",
+                str,
+                permissions=["scipost.can_plot_personal_fields"],
+            ),
             GMF("latest_affiliation_country", "Latest affiliation country", country),
             GMF("latest_affiliation_name", "Latest affiliation name", str),
             GMF("status", "Status", str),
@@ -912,7 +917,12 @@ class EditorialAssignmentPlotter(ModelFieldPlotter):
             GMF("submission__submitted_to__name", "Target journal", str),
             GMF("status", "Status", str),
             GMF("decision", "Editorial decision", str),
-            GMF("to__profile__full_name", "Editor", str),
+            GMF(
+                "to__profile__full_name",
+                "Editor",
+                str,
+                permissions=["scipost.can_plot_personal_fields"],
+            ),
             GMF("to__profile__specialties__name", "Specialties", str),
             GMF("to__profile__acad_field__name", "Academic field", str),
             GMF("to__profile__latest_affiliation_country", "Country", country),

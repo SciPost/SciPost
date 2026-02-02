@@ -5,6 +5,7 @@ from datetime import date, datetime
 from functools import cached_property
 import io
 from django import forms
+from django.contrib.auth.models import AbstractUser
 from django.http import QueryDict
 from django_countries.fields import Country as country
 
@@ -174,6 +175,7 @@ class PlotOptionsForm(InitialCoalescedForm):
     }
 
     def __init__(self, *args, **kwargs):
+        user: AbstractUser = kwargs.pop("user")
         self.model_field_select_form = ModelFieldPlotterSelectForm(*args, **kwargs)
         self.plot_kind_select_form = PlotKindSelectForm(*args, **kwargs)
         self.generic_plot_options_form = GenericPlotOptionsForm(*args, **kwargs)
@@ -207,25 +209,26 @@ class PlotOptionsForm(InitialCoalescedForm):
         # Populate empty choice fields with plotter's `model_fields`
         available_model_fields: tuple[GMF, ...] = plotter.Options.model_fields
         for field_name, field in self.fields.items():
+            # Only perform the population for empty choice fields
+            if not (isinstance(field, forms.ChoiceField) and not field.choices):
+                continue
+
             unprefixed_field_name = (
                 self.plot_kind_select_form.kind_class.Options.unprefixed(field_name)
             )
-            if (
-                isinstance(field, forms.ChoiceField)
-                and not field.choices
-                and available_model_fields is not None
-            ):
-                field_admissible_types = self.FIELD_ADMISSIBLE_TYPES.get(
-                    unprefixed_field_name, []
-                )
-                field.choices = [
-                    (field.name, field.label)
-                    for field in available_model_fields
-                    if field.type in field_admissible_types
-                    and not (
-                        field.name == "id" and unprefixed_field_name == "group_key"
-                    )
-                ]
+
+            field_admissible_types = self.FIELD_ADMISSIBLE_TYPES.get(
+                unprefixed_field_name, []
+            )
+            field.choices = [
+                (field.name, field.label)
+                for field in available_model_fields
+                # Check that the field type is admissible and that the user has the required permissions
+                if field.type in field_admissible_types
+                and all(map(lambda p: user.has_perm(p), field.permissions))
+                # Don't allow "ID" field as "group_key" to avoid meaningless plots
+                and not (field.name == "id" and unprefixed_field_name == "group_key")
+            ]
 
         def get_layout_field_names(layout: Layout):
             """Recurse through a layout to get all field names."""

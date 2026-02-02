@@ -597,6 +597,11 @@ class Command(BaseCommand):
             name="Can access the Graphs Explorer",
             content_type=content_type,
         )
+        can_plot_personal_fields, created = Permission.objects.get_or_create(
+            codename="can_plot_personal_fields",
+            name="Can plot fields containing personal data (e.g. names of Fellows or Editors)",
+            content_type=content_type,
+        )
 
         # Coauthorhips & Conflicts of Interest
         can_fetch_coauthorships, created = Permission.objects.get_or_create(
@@ -704,6 +709,7 @@ class Command(BaseCommand):
                 can_create_affiliate_journals,
                 can_mark_submission_on_hold,
                 can_explore_graphs,
+                can_plot_personal_fields,
             ]
         )
 
@@ -800,6 +806,7 @@ class Command(BaseCommand):
                 can_view_mailing_lists,
                 can_create_affiliate_journals,
                 can_explore_graphs,
+                can_plot_personal_fields,
                 can_view_coauthorships,
                 can_fetch_coauthorships,
                 can_verify_coauthorships,
