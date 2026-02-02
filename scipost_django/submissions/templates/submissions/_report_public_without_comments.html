@@ -42,18 +42,13 @@
 	      <div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
 		  <div class="modal-body">
-        {% if not report.author.is_anonymous %}
+        {% if report.author.is_anonymous and not report.author.eponymization.original %}
+          <p>Referee's identity has been purged from the system.</p>
+        {% else %}
           <a href="{{ report.author.get_absolute_url }}">{{ report.author.profile }}</a>
           {% if perms.scipost.can_view_profiles %}
-            &emsp;(<a href="{% url 'profiles:profile_detail' pk=report.author.profile.id %}">view Profile</a>)
+            &emsp;(<a href="{{ report.author.profile.get_absolute_url }}">view Profile</a>)
           {% endif %}
-        {% elif report.author.is_anonymous and report.author.eponymization.original %}
-          <a href="{{ report.author.eponymization.original.get_absolute_url }}">{{ report.author.eponymization.original.profile }}</a>
-          {% if perms.scipost.can_view_profiles %}
-            &emsp;(<a href="{% url 'profiles:profile_detail' pk=report.author.eponymization.original.profile.id %}">view Profile</a>)
-          {% endif %}
-        {% else %}
-          <p>Referee's identity has been purged from the system.</p>
         {% endif %}
 		    <button type="button" class="btn btn-secondary float-end" data-bs-dismiss="modal">Close</button>
 		  </div>

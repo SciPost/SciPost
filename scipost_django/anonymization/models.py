@@ -9,7 +9,7 @@ from anonymization.managers import AnonymousContributorManager, AnonymousProfile
 from profiles.models import Profile
 from scipost.models import Contributor
 
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 TModel = TypeVar("TModel", bound=models.Model)
 
@@ -26,18 +26,6 @@ class AnonymousContributor(Contributor):
 
     if TYPE_CHECKING:
         profile: "Profile | AnonymousProfile | None"
-        eponymization: "ContributorAnonymization | None"
-
-    def __str__(self):
-        # Override the string representation because the default
-        # uses the User model, now instantiated at runtime
-        # with the same names, and provides no useful information.
-        if self.profile:
-            return f"{self.profile}"
-        elif self.eponymization:
-            return f"Anonymous Contributor {self.eponymization.uuid}"
-        else:
-            return super().__str__()
 
     class Meta:
         proxy = True
@@ -56,7 +44,8 @@ class AnonymousProfile(Profile):
     objects = AnonymousProfileManager()
 
     if TYPE_CHECKING:
-        contributor: "Contributor | AnonymousContributor | None"
+        # Reverse relation return cannot be None, it will just raise an error
+        contributor: "Contributor | AnonymousContributor"
 
     class Meta:
         proxy = True
@@ -71,7 +60,7 @@ class AnonymizationStatus(enum.Enum):
     ORPHANED = "orphaned"
 
 
-class AnonymizationBase(models.Model):
+class AnonymizationBase(models.Model, Generic[TModel]):
     """
     Base class for anonymization (record) models.
     Should contain a unique UUID field,
@@ -86,9 +75,9 @@ class AnonymizationBase(models.Model):
     )
 
     if TYPE_CHECKING:
-        # These should be implemented in each subclass
-        original: models.ForeignKey[models.Model | None]
-        anonymous: models.OneToOneField[models.Model | None]
+        original: models.ForeignKey[TModel | None]
+        # This should be implemented in each subclass
+        anonymous: models.OneToOneField[TModel | None]
 
     def __str__(self):
         match self.status:
@@ -123,14 +112,13 @@ class AnonymizationBase(models.Model):
         abstract = True
 
 
-class ProfileAnonymization(AnonymizationBase):
+class ProfileAnonymization(AnonymizationBase[Profile]):
     """
     Represents an anonymous profile replacing an eponymous one.
     """
 
     if TYPE_CHECKING:
-        original: models.ForeignKey[Profile | None]
-        anonymous: models.ForeignKey[AnonymousProfile | None]
+        anonymous: models.OneToOneField[AnonymousProfile | None]
 
     class Meta:
         constraints = [
@@ -154,17 +142,16 @@ class ProfileAnonymization(AnonymizationBase):
         null=True,
         blank=True,
         related_name="eponymization",
-    )
+    )  # type: ignore - AnonymousProfile is a subclass of Profile
 
 
-class ContributorAnonymization(AnonymizationBase):
+class ContributorAnonymization(AnonymizationBase[Contributor]):
     """
     Represents an anonymous contributor replacing an eponymous one.
     """
 
     if TYPE_CHECKING:
-        original: models.ForeignKey[Contributor | None]
-        anonymous: models.ForeignKey[AnonymousContributor | None]
+        anonymous: models.OneToOneField[AnonymousContributor | None]
 
     class Meta:
         constraints = [
@@ -188,4 +175,4 @@ class ContributorAnonymization(AnonymizationBase):
         null=True,
         blank=True,
         related_name="eponymization",
-    )
+    )  # type: ignore - AnonymousContributor is a subclass of Contributor

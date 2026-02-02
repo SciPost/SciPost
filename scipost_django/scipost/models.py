@@ -18,6 +18,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+from scipost.utils import ContributorStatsAccessor, TContributorStatDict
 from anonymization.mixins import AnonymizableObjectMixin
 
 
@@ -38,7 +39,7 @@ from .constants import (
 )
 from .fields import ChoiceArrayField
 from .managers import (
-    ContributorManager,
+    ContributorQuerySet,
     UnavailabilityPeriodManager,
     AuthorshipClaimQuerySet,
 )
@@ -72,7 +73,7 @@ class AnonymousAbstractUser(AnonymousUser):
 
     @property
     def email(self):
-        return "anonympus@scipost.org"
+        return "anonymous@scipost.org"
 
     @property
     @override
@@ -154,9 +155,17 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         related_name="duplicates",
     )
 
-    objects = ContributorManager()
+    anonymous_stats = models.JSONField[TContributorStatDict](
+        default=dict,
+        blank=True,
+        help_text="Aggregated statistics saved prior to anonymization.",
+    )
+
+    objects = ContributorQuerySet.as_manager()
 
     if TYPE_CHECKING:
+        eponymization: "ContributorAnonymization | None"
+        anonymizations: "RelatedManager[ContributorAnonymization]"
         fellowships: "RelatedManager[Fellowship]"
         editorial_assignments: "RelatedManager[EditorialAssignment]"
         work_contracts: "RelatedManager[WorkContract]"
@@ -184,11 +193,24 @@ class Contributor(AnonymizableObjectMixin, models.Model):
             return AnonymousAbstractUser()
         return self.dbuser
 
+    @cached_property
+    def stats(self) -> "ContributorStatsAccessor":
+        """
+        Return a ContributorStats object for this Contributor.
+        This is a utility class to access contributor statistics.
+        """
+        return ContributorStatsAccessor(self)
+
     @user.setter
     def user(self, user: "User"):
         self.dbuser = user
 
     def __str__(self):
+        # Override the string representation because the default uses the User model,
+        # now instantiated at runtime with the same names, and provides no useful information.
+        if self.profile:
+            return f"{self.profile}"
+
         val = "%s, %s" % (self.user.last_name, self.user.first_name)
         if self.user.is_superuser:
             val += " (su)"
@@ -200,7 +222,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
             self.generate_key()
         return super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
+    def get_eponymous_absolute_url(self):
         """Return public information page url."""
         return reverse("scipost:contributor_info", args=(self.id,))
 
@@ -333,18 +355,21 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         Creates an anonymous object of the same type,
         and returns the anonymization record for it.
         """
+        kwargs: dict[str, Any] = {"uuid_str": uuid_str}
+
         uuid_str = str(uuid.uuid4()) if uuid_str is None else uuid_str
-        anonymous_profile_record = (
-            self.profile.anonymize(uuid_str=uuid_str) if self.profile else None
-        )
+
+        # If the contributor has a profile, anonymize it as well.
+        # Otherwise call `create_anonymous` without `profile`,
+        # which will create a new (empty) anonymous profile.
+        if self.profile:
+            anonymous_profile_record = self.profile.anonymize(uuid_str=uuid_str)
+            kwargs["profile"] = anonymous_profile_record.anonymous
 
         record = self.anonymizations.create(
             uuid=uuid_str,
             original=self,
-            anonymous=self.create_anonymous(
-                uuid_str,
-                profile=anonymous_profile_record.anonymous,
-            ),
+            anonymous=self.create_anonymous(**kwargs),
         )
         return record
 
@@ -390,11 +415,7 @@ class Remark(models.Model):
 
     def __str__(self):
         return (
-            self.contributor.user.first_name
-            + " "
-            + self.contributor.user.last_name
-            + " on "
-            + self.date.strftime("%Y-%m-%d")
+            self.contributor.profile.full_name + " on " + self.date.strftime("%Y-%m-%d")
         )
 
 

@@ -51,9 +51,15 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager, ManyToManyRelatedManager
-    from submissions.models import EditorialDecision, RefereeInvitation, Report
-    from submissions.models.assignment import ConditionalAssignmentOffer
-    from scipost.models import Contributor
+    from submissions.models import (
+        EditorialDecision,
+        EditorialCommunication,
+        RefereeInvitation,
+        Report,
+        EICRecommendation,
+        ConditionalAssignmentOffer,
+    )
+    from scipost.models import Contributor, Remark
     from journals.models import Journal, Publication
     from proceedings.models import Proceedings
     from iThenticate_report import iThenticateReport
@@ -267,10 +273,15 @@ class Submission(models.Model):
         author_profiles: "RelatedManager[SubmissionAuthorProfile]"
         collections: "RelatedManager[Collection]"
         editorial_assignments: "RelatedManager[EditorialAssignment]"
+        editorial_communications: "RelatedManager[EditorialCommunication]"
         reports: "RelatedManager[Report]"
         conditional_assignment_offers: "RelatedManager[ConditionalAssignmentOffer]"
         exempted_cois: "ManyToManyRelatedManager[ConflictOfInterest, Submission]"
         publications: "RelatedManager[Publication]"
+        eicrecommendations: "RelatedManager[EICRecommendation]"
+        tierings: "RelatedManager[SubmissionTiering]"
+        remarks: "RelatedManager[Remark]"
+        events: "RelatedManager[SubmissionEvent]"
 
     # Fields
     preprint = models.OneToOneField["Preprint"](
@@ -1370,9 +1381,13 @@ class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
 class SubmissionTiering(models.Model):
     """A Fellow's quality tiering of a Submission for a given Journal, given during voting."""
 
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission", on_delete=models.CASCADE, related_name="tierings"
     )
-    fellow = models.ForeignKey("scipost.Contributor", on_delete=models.CASCADE)
-    for_journal = models.ForeignKey("journals.Journal", on_delete=models.CASCADE)
+    fellow = models.ForeignKey["Contributor"](
+        "scipost.Contributor", on_delete=models.CASCADE
+    )
+    for_journal = models.ForeignKey["Journal"](
+        "journals.Journal", on_delete=models.CASCADE
+    )
     tier = models.SmallIntegerField(choices=SUBMISSION_TIERS)

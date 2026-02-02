@@ -147,7 +147,7 @@ container border border-warning border-3
       <td>Editor-in-charge:</td>
       <td>
         {% if submission.editor_in_charge %}
-          <a href="{{ submission.editor_in_charge.get_absolute_url }}">{{ submission.editor_in_charge.profile.formal_name }}</a>
+          <a href="{{ submission.editor_in_charge.get_absolute_url }}">{{ submission.editor_in_charge }}</a>
         {% else %}
           Unassigned
         {% endif %}

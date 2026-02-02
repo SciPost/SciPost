@@ -52,15 +52,9 @@ def _hx_search_form(request, filter_set: str):
             },
             none_on_empty=True,
         )
-    elif m := re.match(f"^from_({DATE_REGEX})_to_({DATE_REGEX})$", filter_set):
-        date_from = date.fromisoformat(m.group(1))
-        date_to = date.fromisoformat(m.group(2))
-        form.apply_filter_set(
-            {
-                "date_from": date_from,
-                "date_to": date_to,
-            }
-        )
+    elif m := re.match(r"^year_(\d{4})$", filter_set):
+        year = m.group(1)
+        form.apply_filter_set({"year": year})
 
     context = {
         "form": form,

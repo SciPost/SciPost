@@ -89,7 +89,7 @@ class ContributorQuerySet(models.QuerySet):
         return self.filter(profile__specialties__slug__in=specialties_slug_list)
 
 
-class ContributorManager(models.Manager.from_queryset(ContributorQuerySet)):
+class EponymousContributorManager(models.Manager.from_queryset(ContributorQuerySet)):
     def get_queryset(self):
         return super().get_queryset().eponymous()
 

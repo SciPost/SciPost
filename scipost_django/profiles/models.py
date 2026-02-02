@@ -89,8 +89,9 @@ class Profile(AnonymizableObjectMixin, models.Model):
         registrationinvitation_set: "RelatedManager[RegistrationInvitation]"
         potentialfellowship_set: "RelatedManager[PotentialFellowship]"
         fellowship_nominations: "RelatedManager[FellowshipNomination]"
-        eponymization: "ProfileAnonymization | None"
         editorial_communications: "RelatedManager[EditorialCommunication]"
+        eponymization: "ProfileAnonymization | None"
+        anonymizations: "RelatedManager[ProfileAnonymization]"
 
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, default=TITLE_DR)
     first_name = models.CharField(max_length=64)
@@ -194,11 +195,21 @@ class Profile(AnonymizableObjectMixin, models.Model):
         ]
 
     def __str__(self):
+        # If user is anonymous and has an eponymization original
+        # show both the UUID and the original name in parentheses
+        if self.is_anonymous and self.eponymization and self.eponymization.original:
+            return self.last_name + f" ({self.eponymization.original})"
+
         return "%s, %s %s" % (
             self.last_name,
             self.get_title_display() if self.title != None else "",
             self.first_name,
         )
+
+    @property
+    def full_name(self):
+        """The full name: first name + last name."""
+        return f"{self.first_name} {self.last_name}"
 
     @property
     def formal_name(self):
@@ -232,7 +243,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
         except Contributor.DoesNotExist:
             return False
 
-    def get_absolute_url(self):
+    def get_eponymous_absolute_url(self):
         return reverse("profiles:profile_detail", kwargs={"pk": self.id})
 
     def additional_publication_affiliations(self):
