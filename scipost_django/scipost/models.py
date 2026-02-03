@@ -414,9 +414,7 @@ class Remark(models.Model):
         ordering = ["date"]
 
     def __str__(self):
-        return (
-            self.contributor.profile.full_name + " on " + self.date.strftime("%Y-%m-%d")
-        )
+        return str(self.contributor) + " on " + self.date.strftime("%Y-%m-%d")
 
 
 ###############

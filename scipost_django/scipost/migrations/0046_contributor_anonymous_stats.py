@@ -4,9 +4,8 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("scipost", "0044_alter_contributor_vetted_by"),
+        ("scipost", "0045_alter_totpdevice_token"),
     ]
 
     operations = [

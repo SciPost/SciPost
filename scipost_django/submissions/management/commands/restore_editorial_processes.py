@@ -102,21 +102,22 @@ class Command(BaseCommand):
                 else:
                     to_create.append(obj)
 
-            model.objects.bulk_create(to_save)
+            model.objects.bulk_create(to_create)
             model.objects.bulk_update(
                 to_update,
-                [field.name for field in model._meta.fields if field.name != "id"],
+                [field.name for field in model._meta.fields if not field.primary_key],
             )
 
     def clean_editorial_processes(self, objects: list[Model]):
-        for obj in objects:
-            manager = obj.__class__.objects
-            if isinstance(obj, (ContributorAnonymization, ProfileAnonymization)):
+        objects.sort(key=Command.model_compare)
+        for model, objs in groupby(objects, lambda o: o.__class__):
+            obj_pks = [obj.pk for obj in objs]
+            if model in (ContributorAnonymization, ProfileAnonymization):
                 # Simply removing the original is enough
-                manager.filter(pk=obj.pk).update(original=None)
-            elif isinstance(obj, RefereeInvitation):
-                manager.filter(pk=obj.pk).update(email_address="")
-            elif isinstance(obj, (SubmissionEvent, EditorialCommunication, MailLog)):
-                manager.filter(pk=obj.pk).delete()
+                model.objects.filter(pk__in=obj_pks).update(original=None)
+            elif model in (RefereeInvitation,):
+                model.objects.filter(pk__in=obj_pks).update(email_address="")
+            elif model in (SubmissionEvent, EditorialCommunication, MailLog):
+                model.objects.filter(pk__in=obj_pks).delete()
             else:
                 raise TypeError(f"Unsupported object type for cleaning: {type(obj)}")
