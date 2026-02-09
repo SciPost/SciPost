@@ -473,6 +473,9 @@ class Command(BaseCommand):
                     for profile in submission_profiles
                     if profile is not None
                 ]
+                if not submission_profile_Qs:
+                    submission_profile_Qs.append(Q(pk__isnull=True))  # No matches
+
                 thread_emails.extend(
                     list(
                         MailLog.objects.filter(
