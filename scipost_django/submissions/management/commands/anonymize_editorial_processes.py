@@ -101,6 +101,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--thread_hash",
             type=str,
+            nargs="+",
             help="Affect only submissions with the given thread hash.",
         )
         parser.add_argument(
@@ -167,9 +168,9 @@ class Command(BaseCommand):
         # Filter the submissions based on the command options:
         # - If `thread_hash` is provided, filter submissions by that thread hash.
         # - If `thread_limit` is provided, limit the number of threads processed.
-        if thread_hash := options.get("thread_hash"):
+        if thread_hashes := options.get("thread_hash"):
             latest_submission_threads = latest_submission_threads.filter(
-                thread_hash=thread_hash
+                thread_hash__in=thread_hashes
             )
         elif thread_limit := options.get("thread_limit"):
             latest_submission_threads = latest_submission_threads[:thread_limit]
@@ -243,7 +244,7 @@ class Command(BaseCommand):
             unit="thread",
         )
         for thread_hash, thread in pbar:
-            pbar.set_description(f"Anonymizing thread {thread_hash.hex}")
+            pbar.set_description(f"Anonymizing thread {thread_hash}")
 
             thread_events: list[SubmissionEvent] = []
             thread_communications: list[EditorialCommunication] = []
@@ -252,7 +253,7 @@ class Command(BaseCommand):
 
             # Determine the filename for the backup of a given thread
             # Skip it if the file already exists
-            filename = DUMP_FILENAME_TEMPLATE.format(hash=thread_hash.hex)
+            filename = DUMP_FILENAME_TEMPLATE.format(hash=thread_hash)
             if (ANON_BACKUPS_DIR / filename).exists():
                 self.stdout.write(
                     self.style.ERROR(
