@@ -33,10 +33,16 @@ class AnonymousContributorAdmin(admin.ModelAdmin):
     search_fields = ["profile__first_name", "profile__last_name"]
 
     def profile__first_name(self, obj):
-        return obj.profile.first_name
+        if obj.profile is not None:
+            return obj.profile.first_name
+        else:
+            return "Anonymous"
 
     def profile__last_name(self, obj):
-        return obj.profile.last_name
+        if obj.profile is not None:
+            return obj.profile.last_name
+        else:
+            return "Anonymous"
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
