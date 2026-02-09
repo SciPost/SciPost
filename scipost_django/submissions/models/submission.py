@@ -1396,3 +1396,17 @@ class SubmissionTiering(models.Model):
         "journals.Journal", on_delete=models.CASCADE
     )
     tier = models.SmallIntegerField(choices=SUBMISSION_TIERS)
+
+
+class AnonymizedReportContributor(models.Model):
+    """Mapping between anonymized report contributor and real contributor."""
+
+    original_author = models.ForeignKey(
+        "scipost.Contributor",
+        on_delete=models.CASCADE,
+    )
+    anonymized_author = models.ForeignKey(
+        "anonymization.AnonymousContributor",
+        on_delete=models.CASCADE,
+    )
+    invitation_email = models.EmailField()
