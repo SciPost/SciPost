@@ -19,8 +19,9 @@ from anonymization.models import (
     ContributorAnonymization,
     ProfileAnonymization,
 )
+from ethics.models import GenAIDisclosure
 from journals.models.publication import Publication
-from mails.models import MailLog
+from mails.models import MailLog, MailLogRelation
 from profiles.models import Profile
 from scipost.models import Contributor, Remark
 from scipost.utils import ContributorStatsAccessor
@@ -188,6 +189,7 @@ class Command(BaseCommand):
                 Prefetch(
                     "eicrecommendations",
                     queryset=EICRecommendation.objects.prefetch_related(
+                        "gen_ai_disclosures",
                         "eligible_to_vote",
                         "voted_for",
                         "voted_against",
@@ -204,6 +206,7 @@ class Command(BaseCommand):
                     "reports",
                     queryset=Report.objects.all()
                     .filter(anonymous=True)  # Only fetch anonymous reports
+                    .prefetch_related("gen_ai_disclosures"),
                 ),
                 Prefetch(
                     "events",
@@ -243,7 +246,9 @@ class Command(BaseCommand):
             "assignments": 0,
             "events": 0,
             "communications": 0,
+            "gen_ai_disclosures": 0,
             "emails": 0,
+            "email_relations": 0,
         }
         submissions = list(submissions)
         pbar = tqdm(
@@ -313,17 +318,27 @@ class Command(BaseCommand):
                 # No need to add EIC to the mail log query list since
                 # they will be added during editorial assignments/votes
 
+                gen_ai_disclosures: list[GenAIDisclosure] = []
                 remarks = list(submission.remarks.all())
                 recommendations = list(submission.eicrecommendations.all())
                 for recommendation in recommendations:
                     # Append recommendation remarks to submission remarks
                     remarks.extend(list(recommendation.remarks.all()))
 
+                    rec_author_anon = None
+                    rec_author_original = None
                     if recommendation.formulated_by is not None:
-                        submission_profiles.append(recommendation.formulated_by.profile)
-                        recommendation.formulated_by = anon_contr_in_sub(
-                            recommendation.formulated_by, submission
+                        # No need to put original in submission_profiles,
+                        # since it'll be added during vote eligibility
+                        rec_author_original = recommendation.formulated_by
+                        rec_author_anon = anon_contr_in_sub(
+                            rec_author_original, submission
                         )
+                        recommendation.formulated_by = rec_author_anon
+
+                        for disclosure in recommendation.gen_ai_disclosures.all():
+                            disclosure.contributor = rec_author_anon
+                            gen_ai_disclosures.append(disclosure)
 
                     # Anonymize all voting contributors for each
                     # of the voting sets of a recommendation
@@ -404,6 +419,9 @@ class Command(BaseCommand):
                         subgroup=report.date_submitted.year,
                     )
                     anon_report_author = anon_contr_in_sub(report.author, submission)
+                    for disclosure in report.gen_ai_disclosures.all():
+                        disclosure.contributor = anon_report_author
+                        gen_ai_disclosures.append(disclosure)
                     for invitation in related_invitations:
                         if (
                             # Important to check here again, because
@@ -477,6 +495,9 @@ class Command(BaseCommand):
                 nr_assignments_processed = EditorialAssignment.objects.bulk_update(
                     assignments, ["to"]
                 )
+                nr_gen_ai_disclosures_processed = GenAIDisclosure.objects.bulk_update(
+                    gen_ai_disclosures, ["contributor"]
+                )
 
                 # Update all counts
                 nr_objects_processed["submissions"] += 1
@@ -486,6 +507,15 @@ class Command(BaseCommand):
                 nr_objects_processed["tierings"] += nr_tierings_processed
                 nr_objects_processed["remarks"] += nr_remarks_processed
                 nr_objects_processed["assignments"] += nr_assignments_processed
+                nr_objects_processed["gen_ai_disclosures"] += (
+                    nr_gen_ai_disclosures_processed
+                )
+
+            # Remove duplicates from the thread email logs
+            thread_emails = list(set(thread_emails))
+            thread_email_relations = list(
+                MailLogRelation.objects.filter(mail__in=[o.id for o in thread_emails])
+            )
 
             serialized_objects = serialize(
                 "json",
@@ -494,7 +524,8 @@ class Command(BaseCommand):
                 + thread_events
                 + thread_communications
                 + thread_invitations
-                + thread_emails,
+                + thread_emails
+                + thread_email_relations,
             )
 
             with open(ANON_BACKUPS_DIR / filename, "w", encoding="utf-8") as f:
@@ -507,12 +538,16 @@ class Command(BaseCommand):
             nr_communications_processed, _ = EditorialCommunication.objects.filter(
                 pk__in=[o.pk for o in thread_communications]
             ).delete()
+            nr_email_relations_processed, _ = MailLogRelation.objects.filter(
+                pk__in=[o.pk for o in thread_email_relations]
+            ).delete()
             nr_emails_processed, _ = MailLog.objects.filter(
                 pk__in=[o.pk for o in thread_emails]
             ).delete()
 
             nr_objects_processed["events"] += nr_events_processed
             nr_objects_processed["communications"] += nr_communications_processed
+            nr_objects_processed["email_relations"] += nr_email_relations_processed
             nr_objects_processed["emails"] += nr_emails_processed
 
             # Update the invitations again to clear out the email
@@ -552,6 +587,8 @@ class Command(BaseCommand):
                 f"{nr_objects_processed['assignments']} assignments, "
                 f"{nr_objects_processed['events']} events, "
                 f"{nr_objects_processed['communications']} communications, "
-                f"{nr_objects_processed['emails']} emails."
+                f"{nr_objects_processed['gen_ai_disclosures']} gen_ai_disclosures, "
+                f"{nr_objects_processed['emails']} emails, and "
+                f"{nr_objects_processed['email_relations']} email relations."
             )
         )
