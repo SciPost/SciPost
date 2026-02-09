@@ -185,17 +185,25 @@ class Command(BaseCommand):
             .select_related("editor_in_charge")
             .prefetch_related(
                 "editorial_assignments",
-                "eicrecommendations",
-                "eicrecommendations__remarks",
-                "eicrecommendations__remarks__contributor",
+                Prefetch(
+                    "eicrecommendations",
+                    queryset=EICRecommendation.objects.prefetch_related(
+                        "eligible_to_vote",
+                        "voted_for",
+                        "voted_against",
+                        "voted_abstain",
+                        "remarks",
+                        "remarks__contributor",
+                    ),
+                ),
                 "editorial_communications",
                 "tierings",
                 "tierings__fellow",
                 "referee_invitations",
                 Prefetch(
                     "reports",
-                    queryset=Report.objects.filter(anonymous=True),
-                    to_attr="anonymous_reports",
+                    queryset=Report.objects.all()
+                    .filter(anonymous=True)  # Only fetch anonymous reports
                 ),
                 Prefetch(
                     "events",
@@ -379,14 +387,14 @@ class Command(BaseCommand):
 
                 # Anonymize anonymous reports and their invitations
                 related_invitations = list(
-                    submission.referee_invitations.filter(
-                        referee__in=[
-                            report.author.profile
-                            for report in submission.anonymous_reports
-                        ]
-                    )
+                    submission.referee_invitations.all()
+                    .filter(referee__in=submission.reports.values("author__profile"))
+                    .select_related("referee")
+                    .order_by("referee_id")
                 )
-                for report in submission.anonymous_reports:
+                # Submission reports loaded in the prefetch as filtered to Anonymous only
+                reports = list(submission.reports.all())
+                for report in reports:
                     author_stats = contributors_stats.setdefault(
                         report.author.pk,
                         report.author.stats,
@@ -453,9 +461,7 @@ class Command(BaseCommand):
                 )
 
                 # Bulk update all anonymized contributors of related objects
-                nr_reports_processed = Report.objects.bulk_update(
-                    submission.anonymous_reports, ["author"]
-                )
+                nr_reports_processed = Report.objects.bulk_update(reports, ["author"])
                 nr_invitations_processed = RefereeInvitation.objects.bulk_update(
                     related_invitations, ["referee"]
                 )
