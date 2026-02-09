@@ -276,7 +276,7 @@ class Command(BaseCommand):
                 )
                 continue
 
-            for submission in thread:
+            for sub_order, submission in enumerate(thread):
                 # Guard against submissions without an editor in charge
                 # (should never happen, mostly for static type checking)
                 if submission.editor_in_charge is None:
@@ -304,13 +304,22 @@ class Command(BaseCommand):
                 else:
                     completed_date = submission.latest_activity
 
-                contributors_stats.setdefault(
+                editor_stats = contributors_stats.setdefault(
                     submission.editor_in_charge.pk,
                     submission.editor_in_charge.stats,
-                ).increment_anon(
+                )
+                editor_stats.increment_anon(
                     "nr_assignments_completed",
                     subgroup=completed_date.year,
                 )
+
+                if sub_order == 0:
+                    # Increment the thread-level assignment stat
+                    # using the assignment date of the original version
+                    editor_stats.increment_anon(
+                        "nr_thread_assignments_completed",
+                        subgroup=completed_date.year,
+                    )
 
                 submission.editor_in_charge = anon_contr_in_sub(
                     submission.editor_in_charge, submission
