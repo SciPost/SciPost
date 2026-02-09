@@ -431,13 +431,19 @@ def merge_objects(
 
             if field.auto_created:  # Implies reverse FK.
                 field_name = get_field_name(field)
+                field_descriptor = getattr(field.model, field_name)
 
                 # Translate the objects from reverse FK to forward FK
                 #! There could be a complication here as I used to manipulate
                 #! fields and their values, but now I'm manipulating fields twice
                 #! Make sure the logic is bulletproof.
-                forward_object_to = getattr(object_to, field_name)
-                forward_object_from = getattr(object_from, field_name)
+
+                try:
+                    forward_object_to = getattr(object_to, field_name)
+                    forward_object_from = getattr(object_from, field_name)
+                except field_descriptor.RelatedObjectDoesNotExist:
+                    # Nothing to do if the object does not exist
+                    continue
 
                 # Below this line, the procedure is identical by making the substitutions
                 # `object_X` -> `forward_object_X` and
