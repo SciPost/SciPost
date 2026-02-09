@@ -1283,6 +1283,12 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
                 0,
             )
 
+        eicrecs_noneditor_eligible_subq = (
+            EICRecommendation.objects.all()
+            .filter(eligible_to_vote__exact=OuterRef("contributor"))
+            .exclude(formulated_by=OuterRef("contributor"))
+        )
+
         queryset = queryset.annotate(
             nr_in_pool=count_q(
                 filter_submissions_in_pool(
@@ -1338,10 +1344,7 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
             ),
             nr_recommendations_eligible_epon=count_q(
                 filter_submissions_in_pool(
-                    EICRecommendation.objects.filter(
-                        Q(eligible_to_vote__exact=OuterRef("contributor"))
-                        & ~Q(formulated_by=OuterRef("contributor"))
-                    ),
+                    eicrecs_noneditor_eligible_subq,
                     prefix="submission__",
                 ),
                 key="eligible_to_vote",
@@ -1352,7 +1355,7 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
                 [
                     count_q(
                         filter_submissions_in_pool(
-                            EICRecommendation.objects.filter(
+                            eicrecs_noneditor_eligible_subq.filter(
                                 **{key + "__exact": OuterRef("contributor")}
                             ),
                             prefix="submission__",
