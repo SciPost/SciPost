@@ -288,12 +288,14 @@ class Command(BaseCommand):
 
                 # Heuristically determine the completed date for the assignment
                 # To be used as the subgroup year of EIC assignment stats
-                if completed_assignment := (
-                    submission.editorial_assignments.filter(
-                        status=EditorialAssignment.STATUS_COMPLETED,
-                        to=submission.editor_in_charge,
-                    ).first()
-                ):
+                if (
+                    completed_assignment := (
+                        submission.editorial_assignments.filter(
+                            status=EditorialAssignment.STATUS_COMPLETED,
+                            to=submission.editor_in_charge,
+                        ).first()
+                    )
+                ) and completed_assignment.date_answered:
                     completed_date = completed_assignment.date_answered
                 elif assignment_event := submission.events.filter(
                     text__icontains="has been assigned"
