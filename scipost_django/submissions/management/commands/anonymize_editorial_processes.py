@@ -365,20 +365,24 @@ class Command(BaseCommand):
                             recommendation, voting_set
                         )
                         for voter in rec_voter_set.all():
-                            voter_stats = contributors_stats.setdefault(
-                                voter.pk, voter.stats
-                            )
                             if voting_set == "eligible_to_vote":
                                 # Append the profile only for eligible voters
                                 # and therefore avoiding duplicates
                                 submission_profiles.append(voter.profile)
-                                voter_stats.increment_anon(
-                                    "nr_recommendations_eligible",
-                                    subgroup=recommendation.date_submitted.year,
-                                )
-                            else:  # voted for, against, abstained
-                                voter_stats.increment_anon(
-                                    "nr_recommendations_voted",
+                                stat_key = "nr_recommendations_eligible"
+                            else:
+                                stat_key = "nr_recommendations_voted"
+
+                            # Only increment if the voter is not the recommendation author to maintain consistency
+                            # with what edadmin regards as the relevant vote/eligibility ratio
+                            if (
+                                rec_author_original is not None
+                                and voter != rec_author_original
+                            ):
+                                contributors_stats.setdefault(
+                                    voter.pk, voter.stats
+                                ).increment_anon(
+                                    stat_key,
                                     subgroup=recommendation.date_submitted.year,
                                 )
 
