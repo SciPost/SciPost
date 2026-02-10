@@ -62,6 +62,8 @@ if TYPE_CHECKING:
         Report,
         EICRecommendation,
         ConditionalAssignmentOffer,
+        Qualification,
+        Readiness,
     )
     from scipost.models import Contributor, Remark
     from journals.models import Journal, Publication
@@ -71,9 +73,13 @@ if TYPE_CHECKING:
     from series.models import Collection
     from journals.models import Journal
     from preprints.models import Preprint
-    from ethics.models import Coauthorship, GenAIDisclosure
+    from ethics.models import (
+        Coauthorship,
+        GenAIDisclosure,
+        ConflictOfInterest,
+        SubmissionClearance,
+    )
     from profiles.models import Profile
-    from ethics.models import ConflictOfInterest
 
 
 class SubmissionAuthorProfile(models.Model):
@@ -286,6 +292,9 @@ class Submission(models.Model):
         tierings: "RelatedManager[SubmissionTiering]"
         remarks: "RelatedManager[Remark]"
         events: "RelatedManager[SubmissionEvent]"
+        qualifications: "RelatedManager[Qualification]"
+        readinesses: "RelatedManager[Readiness]"
+        clearances: "RelatedManager[SubmissionClearance]"
         gen_ai_disclosures: "Manager[GenAIDisclosure]"
 
     # Fields

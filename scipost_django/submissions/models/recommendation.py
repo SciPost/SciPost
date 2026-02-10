@@ -79,16 +79,16 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     )
 
     # Editorial Fellows who have assessed this recommendation:
-    eligible_to_vote = models.ManyToManyField["EICRecommendation", "Contributor"](
+    eligible_to_vote = models.ManyToManyField["Contributor", "EICRecommendation"](
         "scipost.Contributor", blank=True, related_name="eligible_to_vote"
     )
-    voted_for = models.ManyToManyField["EICRecommendation", "Contributor"](
+    voted_for = models.ManyToManyField["Contributor", "EICRecommendation"](
         "scipost.Contributor", blank=True, related_name="voted_for"
     )
-    voted_against = models.ManyToManyField["EICRecommendation", "Contributor"](
+    voted_against = models.ManyToManyField["Contributor", "EICRecommendation"](
         "scipost.Contributor", blank=True, related_name="voted_against"
     )
-    voted_abstain = models.ManyToManyField["EICRecommendation", "Contributor"](
+    voted_abstain = models.ManyToManyField["Contributor", "EICRecommendation"](
         "scipost.Contributor", blank=True, related_name="voted_abstain"
     )
     voting_deadline = models.DateTimeField("date submitted", default=timezone.now)

@@ -80,7 +80,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
         from anonymization.models import ProfileAnonymization
 
         id: int
-        contributor: Contributor | None
+        contributor: Contributor
         referee_invitations: "RelatedManager[RefereeInvitation]"
         emails: "RelatedManager[ProfileEmail]"
         affiliations: "RelatedManager[Affiliation]"

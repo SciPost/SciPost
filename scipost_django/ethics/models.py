@@ -35,19 +35,19 @@ class SubmissionClearance(models.Model):
     Assertion that a Profile has no conflicts of interest with regards to a Submission.
     """
 
-    profile = models.ForeignKey(
+    profile = models.ForeignKey["Profile"](
         "profiles.Profile",
         on_delete=models.CASCADE,
         related_name="submission_clearances",
     )
 
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission",
         on_delete=models.CASCADE,
         related_name="clearances",
     )
 
-    asserted_by = models.ForeignKey(
+    asserted_by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         on_delete=models.CASCADE,
         related_name="asserted_submission_clearances",
