@@ -7,6 +7,12 @@ from django.utils import timezone
 
 from submissions.managers import ReadinessQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scipost.models import Contributor
+    from submissions.models.submission import Submission
+
 
 class Readiness(models.Model):
     """
@@ -31,13 +37,13 @@ class Readiness(models.Model):
         (STATUS_DESK_REJECT, "I won't, and vote for desk rejection"),
     )
 
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission",
         on_delete=models.CASCADE,
     )
 
-    fellow = models.ForeignKey(
-        "colleges.Fellowship",
+    fellow = models.ForeignKey["Contributor"](
+        "scipost.Contributor",
         on_delete=models.CASCADE,
     )
 
@@ -53,6 +59,7 @@ class Readiness(models.Model):
     objects = ReadinessQuerySet.as_manager()
 
     class Meta:
+        default_related_name = "readinesses"
         constraints = [
             models.UniqueConstraint(
                 fields=["submission", "fellow"],

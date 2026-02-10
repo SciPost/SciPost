@@ -12,7 +12,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for qualification in submission.qualification_set.all %}
+      {% for qualification in submission.qualifications.all %}
 	<tr>
 	  <td>{{ qualification.fellow }}</td>
 	  <td>{{ qualification.get_expertise_level_display }}</td>

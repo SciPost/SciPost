@@ -25,7 +25,7 @@ def _hx_radio_appraisal_form(request, identifier_w_vn_nr=None):
 
     # Guard for the rare case where the session has an incorrect fellowship id,
     # where simply resetting the session would fix this for the user.
-    if (fellow := request.user.contributor.session_fellowship(request)) is None:
+    if (fellowship := request.user.contributor.session_fellowship(request)) is None:
         return HTMXPermissionsDenied(
             "Your fellowship was unable to be determined. "
             "Please try to log out and back in again, "
@@ -33,15 +33,19 @@ def _hx_radio_appraisal_form(request, identifier_w_vn_nr=None):
         )
 
     try:
-        qualification = Qualification.objects.get(submission=submission, fellow=fellow)
-        readiness = Readiness.objects.get(submission=submission, fellow=fellow)
+        qualification = Qualification.objects.get(
+            submission=submission, fellow=fellowship.contributor
+        )
+        readiness = Readiness.objects.get(
+            submission=submission, fellow=fellowship.contributor
+        )
     except (Qualification.DoesNotExist, Readiness.DoesNotExist):
         qualification = readiness = None
 
     form = RadioAppraisalForm(
         request.POST or None,
         submission=submission,
-        fellow=fellow,
+        fellowship=fellowship,
         initial={
             "expertise_level": qualification.expertise_level if qualification else None,
             "readiness": readiness.status if readiness else None,
@@ -64,7 +68,7 @@ def _hx_radio_appraisal_form(request, identifier_w_vn_nr=None):
 
     context = {
         "submission": submission,
-        "fellow": fellow,
+        "fellowship": fellowship,
         "form": form,
     }
     return TemplateResponse(
@@ -80,16 +84,16 @@ def _hx_conditional_assignment_offer_form(request, identifier_w_vn_nr=None):
         Submission.objects.in_pool(request.user),
         preprint__identifier_w_vn_nr=identifier_w_vn_nr,
     )
-    fellow = request.user.contributor.session_fellowship(request)
+    fellowship = request.user.contributor.session_fellowship(request)
     offer = submission.conditional_assignment_offers.filter(
-        offered_by=fellow.contributor
+        offered_by=fellowship.contributor
     ).first()
 
     form = ConditionalAssignmentOfferInlineForm(
         request.POST or None,
         instance=offer,
         submission=submission,
-        offered_by=fellow.contributor,
+        offered_by=fellowship.contributor,
         readonly=request.method == "GET" and offer is not None,
     )
 

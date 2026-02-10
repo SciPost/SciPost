@@ -13,6 +13,12 @@ from submissions.models.assignment import ConditionalAssignmentOffer
 
 from ..models import Qualification, Readiness
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from colleges.models import Fellowship
+    from submissions.models.submission import Submission
+
 
 class QualificationForm(forms.ModelForm):
     class Meta:
@@ -109,16 +115,15 @@ class RadioAppraisalForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        self.submission = kwargs.pop("submission")
-        self.fellow = kwargs.pop("fellow")
+        self.submission: "Submission" = kwargs.pop("submission")
+        self.fellowship: "Fellowship" = kwargs.pop("fellowship")
 
         super().__init__(*args, **kwargs)
 
         # Add any pre-existing choices to the form
-        qualification = Qualification.objects.filter(
-            submission=self.submission, fellow=self.fellow
-        ).first()
-        if qualification:
+        if qualification := self.submission.qualifications.filter(
+            fellow=self.fellowship.contributor
+        ).first():
             if qualification.expertise_level not in dict(
                 self.fields["expertise_level"].choices
             ):
@@ -131,10 +136,9 @@ class RadioAppraisalForm(forms.Form):
 
             self.initial["expertise_level"] = qualification.expertise_level
 
-        readiness = Readiness.objects.filter(
-            submission=self.submission, fellow=self.fellow
-        ).first()
-        if readiness:
+        if readiness := self.submission.readinesses.filter(
+            fellow=self.fellowship.contributor
+        ).first():
             if readiness.status not in dict(self.fields["readiness"].choices):
                 self.fields["readiness"].choices += (
                     (readiness.status, readiness.get_status_display()),
@@ -144,7 +148,7 @@ class RadioAppraisalForm(forms.Form):
 
         # Disable the readiness field if the fellow made an assignment offer
         if self.submission.conditional_assignment_offers.filter(
-            offered_by=self.fellow.contributor
+            offered_by=self.fellowship.contributor
         ).exists():
             self.fields["readiness"].disabled = True
 
@@ -183,7 +187,7 @@ class RadioAppraisalForm(forms.Form):
             # Also check if the fellow has made an offer for conditional assignment
             offer = ConditionalAssignmentOffer.objects.filter(
                 submission=self.submission,
-                offered_by=self.fellow.contributor,
+                offered_by=self.fellowship.contributor,
             )
             if not offer.exists():
                 self.add_error(
@@ -206,7 +210,7 @@ class RadioAppraisalForm(forms.Form):
         """
         if expertise_level := self.cleaned_data["expertise_level"]:
             qualification, _ = Qualification.objects.get_or_create(
-                submission=self.submission, fellow=self.fellow
+                submission=self.submission, fellow=self.fellowship.contributor
             )
             qualification.expertise_level = expertise_level
             qualification.save()
@@ -215,7 +219,7 @@ class RadioAppraisalForm(forms.Form):
             readiness_status := self.cleaned_data["readiness"]
         ) and readiness_status != "assign_now":
             readiness, _ = Readiness.objects.get_or_create(
-                submission=self.submission, fellow=self.fellow
+                submission=self.submission, fellow=self.fellowship.contributor
             )
             readiness.status = readiness_status
             readiness.save()
@@ -238,7 +242,7 @@ class RadioAppraisalForm(forms.Form):
         Returns True if the fellow has clearance (no Conflict of Interest) with the submission.
         """
         return SubmissionClearance.objects.filter(
-            profile=self.fellow.contributor.profile,
+            profile=self.fellowship.contributor.profile,
             submission=self.submission,
         ).exists()
 
@@ -314,7 +318,7 @@ class ConditionalAssignmentOfferInlineForm(forms.ModelForm):
 
     def clean(self):
         qualification = Qualification.objects.filter(
-            submission=self.submission, fellow__contributor=self.offered_by
+            submission=self.submission, fellow=self.offered_by
         ).first()
         has_clearance = SubmissionClearance.objects.filter(
             profile=self.offered_by.profile,
@@ -342,12 +346,20 @@ class ConditionalAssignmentOfferInlineForm(forms.ModelForm):
     def save(self):
         instance = super().save(commit=False)
 
+        fellowship: "Fellowship | None" = (
+            self.offered_by.fellowships.active()
+            .filter(college=self.submission.submitted_to.college)
+            .first()
+        )
+        if fellowship is None:
+            raise ValueError(
+                "Fellowship not found for the contributor offering assignment."
+            )
+
         # The readiness of the fellow must be set to conditional
         readiness, _ = Readiness.objects.get_or_create(
             submission=self.submission,
-            fellow=self.offered_by.fellowships.active()
-            .filter(college=self.submission.submitted_to.college)
-            .first(),
+            fellow=fellowship.contributor,
         )
         readiness.status = Readiness.STATUS_CONDITIONAL
         readiness.save()

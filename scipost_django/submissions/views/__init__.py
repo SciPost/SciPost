@@ -925,12 +925,8 @@ def submission_detail(request, identifier_w_vn_nr):
     recommendations = submission.eicrecommendations.active()
 
     has_appraised_submission = (
-        submission.qualification_set.filter(
-            fellow__contributor__dbuser=request.user.id
-        ).exists()
-        and submission.readiness_set.filter(
-            fellow__contributor__dbuser=request.user.id
-        ).exists()
+        submission.qualifications.filter(fellow__dbuser=request.user.id).exists()
+        and submission.readinesses.filter(fellow__dbuser=request.user.id).exists()
     )
 
     context.update(
@@ -2935,7 +2931,7 @@ def remind_Fellows_to_vote(request, rec_id):
     """
     recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
 
-    fellows = []
+    fellows: list[Contributor] = []
     for fellow in recommendation.eligible_to_vote.all():
         if (
             fellow not in recommendation.voted_for.all()
@@ -3258,15 +3254,15 @@ def _hx_submission_fellows_coauthorships_deprecate_undecided(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
 
-    fellows_with_coauthorships = (
+    fellowships_with_coauthorships = (
         submission.custom_prefetch_submission_author_and_fellow_coauthorships(
             submission.fellows.all()
         )
     )
 
     coauthorships = []
-    for fellow in fellows_with_coauthorships:
-        for coauthorship in fellow.contributor.profile.submission_coauthorships:
+    for fellowship in fellowships_with_coauthorships:
+        for coauthorship in fellowship.contributor.profile.submission_coauthorships:
             if coauthorship.status == Coauthorship.STATUS_UNVERIFIED:
                 coauthorship.deprecate(request.user.contributor, commit=False)
                 coauthorships.append(coauthorship)

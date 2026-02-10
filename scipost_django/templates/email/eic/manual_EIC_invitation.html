@@ -1,8 +1,8 @@
 {% load submissions_pool %}
 {% load ethics_extras %}
 
-{% get_fellow_qualification submission fellowship as qualification %}
-{% get_fellow_readiness submission fellowship as readiness %}
+{% get_fellow_qualification submission fellowship.contributor as qualification %}
+{% get_fellow_readiness submission fellowship.contributor as readiness %}
 {% get_profile_clearance submission.clearances fellowship.contributor.profile as clearance %}
 
 <p>Dear {{ fellowship.contributor.profile.formal_name }},</p>

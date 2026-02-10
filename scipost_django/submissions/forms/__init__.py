@@ -498,13 +498,17 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
         )
 
         # Warning: this will only work for one fellowship per user
-        fellowship = self.user.contributor.fellowships.active().first()
+        fellowship: "Fellowship | None" = (
+            self.user.contributor.fellowships.active().first()
+        )
         if fellowship and self.cleaned_data.get("hide_fully_appraised"):
-            queryset = queryset.annot_fully_appraised_by(fellowship).exclude(
-                is_fully_appraised=True
+            queryset = (
+                queryset.all()
+                .annot_fully_appraised_by(fellowship.contributor)
+                .exclude(is_fully_appraised=True)
             )
         if fellowship and self.cleaned_data.get("hide_unqualified_for"):
-            queryset = queryset.exclude_not_qualified_for_fellow(fellowship)
+            queryset = queryset.exclude_not_qualified_for_fellow(fellowship.contributor)
 
         if not self.user.contributor.is_ed_admin:
             queryset = queryset.stage_incoming_completed()

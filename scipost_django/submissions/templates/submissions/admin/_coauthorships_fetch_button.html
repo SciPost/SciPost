@@ -1,11 +1,11 @@
 <div style="max-width: 600px"
      class="ms-auto coauthorship-fetch-button">
 
-  {% if fellow.submission_coauthorships_latest_fetch_date %}
-    <small class="text-muted">Last checked: {{ fellow.submission_coauthorships_latest_fetch_date|timesince }} ago</small>
+  {% if fellowship.submission_coauthorships_latest_fetch_date %}
+    <small class="text-muted">Last checked: {{ fellowship.submission_coauthorships_latest_fetch_date|timesince }} ago</small>
   {% endif %}
 
-  <span id="coauthorship-{{ fellow.id }}-fetch-indicator"
+  <span id="coauthorship-{{ fellowship.id }}-fetch-indicator"
         class="htmx-indicator"
         role="status"
         aria-hidden="true">
@@ -13,7 +13,7 @@
   </span>
 
   <button class="btn btn-light btn-sm"
-          hx-indicator="#coauthorship-{{ fellow.id }}-fetch-indicator"
-          hx-post="{% url 'ethics:_hx_fetch_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr fellow.contributor.profile.id %}"
+          hx-indicator="#coauthorship-{{ fellowship.id }}-fetch-indicator"
+          hx-post="{% url 'ethics:_hx_fetch_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr fellowship.contributor.profile.id %}"
           hx-target="closest .coauthorship-fetch-button">Update</button>
 </div>

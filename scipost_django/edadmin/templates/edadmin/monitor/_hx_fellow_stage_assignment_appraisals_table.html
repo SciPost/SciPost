@@ -24,7 +24,7 @@
 	    to {{ submission.submitted_to }}
 	  </small>
 	</td>
-	<td>{% get_fellow_qualification_expertise_level_display submission fellowship %}</td>
+	<td>{% get_fellow_qualification_expertise_level_display submission fellowship.contributor %}</td>
 	<td>
 	  {% get_profile_clearance submission.clearances fellowship.contributor.profile as clearance %}
 	  {% if clearance %}
@@ -37,7 +37,7 @@
 	    {% endif %}
 	  {% endif %}
 	</td>
-	<td>{% get_fellow_readiness_status_display submission fellowship %}</td>
+	<td>{% get_fellow_readiness_status_display submission fellowship.contributor %}</td>
       </tr>
     {% endfor %}
   </tbody>

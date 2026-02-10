@@ -33,7 +33,7 @@
           <br />
           <small class="text-muted">Click to view details</small>
         </div>
-        {% include "submissions/admin/_coauthorships_fetch_button.html" with fellow=fellow %}
+        {% include "submissions/admin/_coauthorships_fetch_button.html" with fellowship=fellowship %}
       </summary>
 
       <div hx-get="{% url 'ethics:_hx_list_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr request.user.contributor.profile.id %}"

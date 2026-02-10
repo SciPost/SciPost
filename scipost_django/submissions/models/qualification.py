@@ -7,10 +7,16 @@ from django.utils import timezone
 
 from ..managers import QualificationQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from scipost.models import Contributor
+    from submissions.models.submission import Submission
+
 
 class Qualification(models.Model):
     """
-    Specification of a Fellow's qualification for handlind a Submission.
+    Specification of a Fellow's qualification for handling a Submission.
     """
 
     EXPERT = "expert"
@@ -38,13 +44,13 @@ class Qualification(models.Model):
         NOT_AT_ALL_QUALIFIED,
     ]
 
-    submission = models.ForeignKey(
+    submission = models.ForeignKey["Submission"](
         "submissions.Submission",
         on_delete=models.CASCADE,
     )
 
-    fellow = models.ForeignKey(
-        "colleges.Fellowship",
+    fellow = models.ForeignKey["Contributor"](
+        "scipost.Contributor",
         on_delete=models.CASCADE,
     )
 
@@ -61,10 +67,11 @@ class Qualification(models.Model):
     objects = QualificationQuerySet.as_manager()
 
     class Meta:
+        default_related_name = "qualifications"
         constraints = [
             models.UniqueConstraint(
                 fields=["submission", "fellow"],
-                name="unique_together_submission_fellow",
+                name="qualification_unique_together_submission_fellow",
             ),
         ]
         ordering = ["submission", "fellow"]

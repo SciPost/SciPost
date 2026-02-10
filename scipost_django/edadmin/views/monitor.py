@@ -65,7 +65,8 @@ def _hx_college_fellow_activity_table(request, college):
         fellows__id__exact=OuterRef("id"),
     )
     qualifications_by_fellow = Qualification.objects.filter(
-        fellow=OuterRef("id"), submission__status=Submission.SEEKING_ASSIGNMENT
+        fellow=OuterRef("contributor_id"),
+        submission__status=Submission.SEEKING_ASSIGNMENT,
     )
 
     fellowships = fellowships.prefetch_related(
@@ -73,7 +74,6 @@ def _hx_college_fellow_activity_table(request, college):
         "contributor__profile__specialties",
         prefetch_current_unavailability_periods,
         prefetch_EIC_in_stage_in_refereeing,
-        "qualification_set",
     ).annotate(
         nr_visible=Coalesce(
             Subquery(

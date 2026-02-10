@@ -20,27 +20,30 @@ register = template.Library()
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from scipost.models import Contributor
     from submissions.models.submission import Submission
 
 
 @register.simple_tag
-def get_fellow_qualification(submission, fellow):
+def get_fellow_qualification(submission: "Submission", fellow: "Contributor"):
     """
     Return the Qualification for this Submission, Fellow parameters.
     """
     try:
-        return submission.qualification_set.get(fellow=fellow)
+        return submission.qualifications.get(fellow=fellow)
     except Qualification.DoesNotExist:
         return None
 
 
 @register.simple_tag
-def get_fellow_qualification_expertise_level_display(submission, fellow):
+def get_fellow_qualification_expertise_level_display(
+    submission: "Submission", fellow: "Contributor"
+):
     """
     Return the Qualification expertise_level display.
     """
     try:
-        q = submission.qualification_set.get(fellow=fellow)
+        q = submission.qualifications.get(fellow=fellow)
         return q.get_expertise_level_display()
     except Qualification.DoesNotExist:
         # Try to get the Qualification from the previous Submissions
@@ -54,23 +57,25 @@ def get_fellow_qualification_expertise_level_display(submission, fellow):
 
 
 @register.simple_tag
-def get_fellow_readiness(submission, fellow):
+def get_fellow_readiness(submission: "Submission", fellow: "Contributor"):
     """
     Return the Readiness for this Submission, Fellow parameters.
     """
     try:
-        return submission.readiness_set.get(fellow=fellow)
+        return submission.readinesses.get(fellow=fellow)
     except Readiness.DoesNotExist:
         return None
 
 
 @register.simple_tag
-def get_fellow_readiness_status_display(submission, fellow):
+def get_fellow_readiness_status_display(
+    submission: "Submission", fellow: "Contributor"
+):
     """
     Return the Readiness status display for this Submission, Fellow parameters.
     """
     try:
-        r = submission.readiness_set.get(fellow=fellow)
+        r = submission.readinesses.get(fellow=fellow)
         return r.get_status_display()
     except Readiness.DoesNotExist:
         # Try to get the Readiness from the previous Submissions
@@ -140,12 +145,12 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
         )
         .prefetch_related(
             Prefetch(
-                "qualification_set",
+                "contributor__qualifications",
                 queryset=Qualification.objects.filter(submission=submission)[:1],
                 to_attr="submission_qualification",
             ),
             Prefetch(
-                "readiness_set",
+                "contributor__readinesses",
                 queryset=Readiness.objects.filter(submission=submission)[:1],
                 to_attr="submission_readiness",
             ),

@@ -47,8 +47,8 @@
 
   </td>
 
-  <td>{{ fellowship.submission_qualification.0.get_expertise_level_display }}</td>
-  <td>{{ fellowship.submission_readiness.0.get_status_display }}</td>
+  <td>{{ fellowship.contributor.submission_qualification.0.get_expertise_level_display }}</td>
+  <td>{{ fellowship.contributor.submission_readiness.0.get_status_display }}</td>
 
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
     <td>

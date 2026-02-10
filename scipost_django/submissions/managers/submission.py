@@ -435,31 +435,31 @@ class SubmissionQuerySet(models.QuerySet):
             ),
         )
 
-    def annot_qualified_expertise_by(self, fellow):
+    def annot_qualified_expertise_by(self, fellow: "Contributor"):
         """
         Annotate Submissions with the expertise level of the Qualification provided by a Fellow.
         """
         return self.annotate(
             qualification_expertise=models.Subquery(
-                fellow.qualification_set.filter(submission=models.OuterRef("pk"))
+                fellow.qualifications.filter(submission=models.OuterRef("pk"))
                 .order_by("-datetime")
                 .values("expertise_level")[:1]
             )
         )
 
-    def annot_readiness_status_by(self, fellow):
+    def annot_readiness_status_by(self, fellow: "Contributor"):
         """
         Annotate Submissions with the readiness status of the Readiness provided by a Fellow.
         """
         return self.annotate(
             readiness_status=models.Subquery(
-                fellow.readiness_set.filter(submission=models.OuterRef("pk"))
+                fellow.readinesses.filter(submission=models.OuterRef("pk"))
                 .order_by("-datetime")
                 .values("status")[:1]
             )
         )
 
-    def annot_clearance_by(self, profile):
+    def annot_clearance_by(self, profile: "Profile"):
         """
         Annotate Submissions with a boolean indicating if the profile has provided a Clearance.
         """
@@ -469,7 +469,7 @@ class SubmissionQuerySet(models.QuerySet):
             )
         )
 
-    def annot_fully_appraised_by(self, fellow: Fellowship):
+    def annot_fully_appraised_by(self, fellow: "Contributor"):
         """
         Annotate Submissions with a boolean indicating if the fellow has fully appraised the submission.
         Full appraisal means one of the following states:
@@ -480,7 +480,7 @@ class SubmissionQuerySet(models.QuerySet):
         return (
             self.annot_qualified_expertise_by(fellow)
             .annot_readiness_status_by(fellow)
-            .annot_clearance_by(fellow.contributor.profile)
+            .annot_clearance_by(fellow.profile)
             .annotate(
                 is_fully_appraised=Coalesce(
                     Q(
@@ -561,7 +561,7 @@ class SubmissionQuerySet(models.QuerySet):
             )
         )
 
-    def exclude_not_qualified_for_fellow(self, fellow: Fellowship):
+    def exclude_not_qualified_for_fellow(self, fellow: "Contributor"):
         """
         Exclude Submissions that the Fellow has indicated they are not qualified to judge.
         """

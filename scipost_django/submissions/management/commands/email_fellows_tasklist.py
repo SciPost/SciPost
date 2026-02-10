@@ -35,7 +35,7 @@ class Command(BaseCommand):
             )
             nr_visible = visible_in_pool.count()
             nr_appraised = (
-                visible_in_pool.annot_fully_appraised_by(fellowship)
+                visible_in_pool.annot_fully_appraised_by(fellowship.contributor)
                 .filter(is_fully_appraised=True)
                 .count()
             )

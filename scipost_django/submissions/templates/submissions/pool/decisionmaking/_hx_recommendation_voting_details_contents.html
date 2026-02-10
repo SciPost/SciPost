@@ -188,7 +188,7 @@
 		    {{ specialty.code }}&nbsp;
 		  {% endfor %}
 		</td>
-		<td>{% get_fellow_qualification_expertise_level_display submission fellowship %}</td>
+		<td>{% get_fellow_qualification_expertise_level_display submission fellowship.contributor %}</td>
 		<td>
 		  {% get_profile_clearance submission.clearances fellowship.contributor.profile as clearance %}
 		  {% if clearance %}
@@ -221,7 +221,7 @@
         {% endwith %}
 		  {% endif %}
 		</td>
-		<td>{% get_fellow_readiness_status_display submission fellowship %}</td>
+		<td>{% get_fellow_readiness_status_display submission fellowship.contributor %}</td>
 		<td>
 		  <a class="btn btn-sm btn-primary"
 		     hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_grant_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id contributor_id=fellowship.contributor.id %}"

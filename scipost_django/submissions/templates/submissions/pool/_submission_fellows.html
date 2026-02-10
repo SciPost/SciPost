@@ -38,7 +38,7 @@
 
     </div>
 
-    {% get_annotated_submission_fellows_queryset submission as fellows_qs %}
+    {% get_annotated_submission_fellows_queryset submission as fellowships %}
 
     <table class="table table-striped">
       <thead>
@@ -63,7 +63,7 @@
       </thead>
       <tbody>
 
-        {% for fellowship in fellows_qs %}
+        {% for fellowship in fellowships %}
           {% include "submissions/pool/_hx_submission_fellow_row.html" with fellowship=fellowship submission=submission %}
         {% endfor %}
 

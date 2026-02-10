@@ -1305,7 +1305,7 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
             ),
             nr_appraised=count_q(
                 filter_submissions_in_pool(
-                    Qualification.objects.filter(fellow=OuterRef("id")),
+                    Qualification.objects.filter(fellow=OuterRef("contributor_id")),
                     prefix="submission__",
                 ),
                 key="fellow",
@@ -1313,7 +1313,7 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
             nr_qualified_for=count_q(
                 filter_submissions_in_pool(
                     Qualification.objects.filter(
-                        fellow=OuterRef("id"),
+                        fellow=OuterRef("contributor_id"),
                         expertise_level__in=[
                             Qualification.EXPERT,
                             Qualification.VERY_KNOWLEDGEABLE,
