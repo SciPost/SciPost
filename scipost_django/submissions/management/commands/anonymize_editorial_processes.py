@@ -19,20 +19,25 @@ from anonymization.models import (
     ContributorAnonymization,
     ProfileAnonymization,
 )
-from ethics.models import GenAIDisclosure
+from ethics.models import GenAIDisclosure, SubmissionClearance
 from journals.models.publication import Publication
 from mails.models import MailLog, MailLogRelation
 from profiles.models import Profile
 from scipost.models import Contributor, Remark
 from scipost.utils import ContributorStatsAccessor
 from submissions.constants import EVENT_FOR_EDADMIN, EVENT_FOR_EIC
-from submissions.models.assignment import EditorialAssignment
+from submissions.models.assignment import (
+    EditorialAssignment,
+    ConditionalAssignmentOffer,
+)
 from submissions.models.communication import EditorialCommunication
 from submissions.models.decision import EditorialDecision
 from submissions.models.recommendation import EICRecommendation
 from submissions.models.referee_invitation import RefereeInvitation
 from submissions.models.report import Report
 from submissions.models.submission import Submission, SubmissionEvent, SubmissionTiering
+from submissions.models.readiness import Readiness
+from submissions.models.qualification import Qualification
 
 TContributor = TypeVar("TContributor", bound=Contributor | AnonymousContributor | None)
 
@@ -199,9 +204,17 @@ class Command(BaseCommand):
                     ),
                 ),
                 "editorial_communications",
-                "tierings",
                 "tierings__fellow",
                 "referee_invitations",
+                "conditional_assignment_offers__offered_by",
+                "readinesses__fellow",
+                "qualifications__fellow",
+                Prefetch(
+                    "clearances",
+                    queryset=SubmissionClearance.objects.prefetch_related(
+                        "profile", "asserted_by"
+                    ),
+                ),
                 Prefetch(
                     "reports",
                     queryset=Report.objects.all()
@@ -246,6 +259,10 @@ class Command(BaseCommand):
             "assignments": 0,
             "events": 0,
             "communications": 0,
+            "qualifications": 0,
+            "readinesses": 0,
+            "clearances": 0,
+            "conditional_assignment_offers": 0,
             "gen_ai_disclosures": 0,
             "emails": 0,
             "email_relations": 0,
@@ -472,6 +489,89 @@ class Command(BaseCommand):
                             invitation.referee = anon_report_author.profile  # type: ignore
                     report.author = anon_report_author
 
+                assignment_offers = list(submission.conditional_assignment_offers.all())
+                for offer in assignment_offers:
+                    contributors_stats.setdefault(
+                        offer.offered_by.pk, offer.offered_by.stats
+                    ).increment_anon(
+                        "nr_conditional_assignment_offers",
+                        offer.status,
+                        subgroup=offer.offered_on.year,
+                    )
+                    offer.offered_by = anon_contr_in_sub(offer.offered_by, submission)
+
+                # Appraisal objects
+                readinesses = list(submission.readinesses.all())
+                for readiness in readinesses:
+                    contributors_stats.setdefault(
+                        readiness.fellow.pk, readiness.fellow.stats
+                    ).increment_anon(
+                        "nr_readinesses",
+                        readiness.status,
+                        subgroup=readiness.datetime.year,
+                    )
+                    readiness.fellow = anon_contr_in_sub(readiness.fellow, submission)
+
+                qualifications = list(submission.qualifications.all())
+                for qualification in qualifications:
+                    contributors_stats.setdefault(
+                        qualification.fellow.pk, qualification.fellow.stats
+                    ).increment_anon(
+                        "nr_qualifications",
+                        qualification.expertise_level,
+                        subgroup=qualification.datetime.year,
+                    )
+                    qualification.fellow = anon_contr_in_sub(
+                        qualification.fellow, submission
+                    )
+
+                fellow_profile_ids = {
+                    profile.id: profile
+                    for profile in Profile.objects.filter(
+                        id__in=submission.fellows.values_list(
+                            "contributor__profile_id", flat=True
+                        )
+                    )
+                }
+                clearances = list(submission.clearances.all())
+                for clearance in clearances:
+                    # Skip clearances for profiles that are not fellows of the submission
+                    # We only want to anonymize fellow data when they are "recipients" of a clearance.
+                    if clearance.profile_id not in fellow_profile_ids:
+                        continue
+
+                    try:
+                        contributor = clearance.profile.contributor
+                    except Contributor.DoesNotExist:
+                        continue  # If no contributor is associated, skip the clearance
+
+                    contributors_stats.setdefault(
+                        contributor.pk,
+                        contributor.stats,
+                    ).increment_anon(
+                        "nr_submission_clearances",
+                        "recipient",
+                        subgroup=clearance.asserted_on.year,
+                    )
+
+                    contributor_anon = anon_contr_in_sub(contributor, submission)
+                    clearance.profile = contributor_anon.profile
+
+                    # Separately, also process the `asserted_by` contributor,
+                    # since it may be different from the profile we just anonymized
+                    contributors_stats.setdefault(
+                        clearance.asserted_by.pk,
+                        clearance.asserted_by.stats,
+                    ).increment_anon(
+                        "nr_submission_clearances",
+                        "asserted",
+                        subgroup=clearance.asserted_on.year,
+                    )
+
+                    clearance.asserted_by = anon_contr_in_sub(
+                        clearance.asserted_by, submission
+                    )
+
                 # After having anonymized everything, dump objects with
                 # total or partial information deletion
                 submission_profile_Qs = [
@@ -513,6 +613,20 @@ class Command(BaseCommand):
                 nr_assignments_processed = EditorialAssignment.objects.bulk_update(
                     assignments, ["to"]
                 )
+                nr_conditional_assignment_offers_processed = (
+                    ConditionalAssignmentOffer.objects.bulk_update(
+                        assignment_offers, ["offered_by"]
+                    )
+                )
+                nr_qualifications_processed = Qualification.objects.bulk_update(
+                    qualifications, ["fellow"]
+                )
+                nr_readinesses_processed = Readiness.objects.bulk_update(
+                    readinesses, ["fellow"]
+                )
+                nr_clearances_processed = SubmissionClearance.objects.bulk_update(
+                    clearances, ["profile", "asserted_by"]
+                )
                 nr_gen_ai_disclosures_processed = GenAIDisclosure.objects.bulk_update(
                     gen_ai_disclosures, ["contributor"]
                 )
@@ -525,6 +639,12 @@ class Command(BaseCommand):
                 nr_objects_processed["tierings"] += nr_tierings_processed
                 nr_objects_processed["remarks"] += nr_remarks_processed
                 nr_objects_processed["assignments"] += nr_assignments_processed
+                nr_objects_processed["conditional_assignment_offers"] += (
+                    nr_conditional_assignment_offers_processed
+                )
+                nr_objects_processed["qualifications"] += nr_qualifications_processed
+                nr_objects_processed["readinesses"] += nr_readinesses_processed
+                nr_objects_processed["clearances"] += nr_clearances_processed
                 nr_objects_processed["gen_ai_disclosures"] += (
                     nr_gen_ai_disclosures_processed
                 )
@@ -605,6 +725,10 @@ class Command(BaseCommand):
                 f"{nr_objects_processed['assignments']} assignments, "
                 f"{nr_objects_processed['events']} events, "
                 f"{nr_objects_processed['communications']} communications, "
+                f"{nr_objects_processed['conditional_assignment_offers']} conditional assignment offers, "
+                f"{nr_objects_processed['qualifications']} qualifications, "
+                f"{nr_objects_processed['readinesses']} readinesses, "
+                f"{nr_objects_processed['clearances']} clearances, "
                 f"{nr_objects_processed['gen_ai_disclosures']} gen_ai_disclosures, "
                 f"{nr_objects_processed['emails']} emails, and "
                 f"{nr_objects_processed['email_relations']} email relations."
