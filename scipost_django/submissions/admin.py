@@ -219,6 +219,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         "author_list",
         "abstract",
         "preprint__identifier_w_vn_nr",
+        "thread_hash",
     ]
     autocomplete_fields = [
         "acad_field",
