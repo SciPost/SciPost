@@ -55,6 +55,7 @@ if TYPE_CHECKING:
     from anonymization.models import ContributorAnonymization
     from ethics.models import Coauthorship
     from careers.models import WorkContract
+    from colleges.models.college import College
 
 
 class AnonymousAbstractUser(AnonymousUser):
@@ -284,9 +285,14 @@ class Contributor(AnonymizableObjectMixin, models.Model):
     def is_active_senior_fellow(self):
         return self.fellowships.active().senior().exists() or self.user.is_superuser
 
-    def session_fellowship(self, request) -> "Fellowship | None":
+    def session_fellowship(
+        self, request, college: "College | None" = None
+    ) -> "Fellowship | None":
         """Return session's fellowship, if any; if Fellow, set session_fellowship_id if not set."""
         fellowships = self.fellowships.active()
+
+        if college:
+            fellowships = fellowships.filter(college=college)
 
         if not fellowships.exists():
             return None

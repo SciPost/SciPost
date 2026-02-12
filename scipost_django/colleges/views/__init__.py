@@ -917,7 +917,9 @@ def _hx_nomination_round_remove_voter(request, round_id, voter_id):
 def _hx_nomination_details_contents(request, nomination_id):
     """For (re)loading the details if modified."""
     nomination = get_object_or_404(FellowshipNomination, pk=nomination_id)
-    fellow = request.user.contributor.session_fellowship(request)
+    fellow = request.user.contributor.session_fellowship(
+        request, college=nomination.college
+    )
     start_email_sent = nomination.events.filter(
         description__contains="start email sent",
     ).exists()
