@@ -1361,6 +1361,17 @@ class SubmissionForm(forms.ModelForm):
         required=True,
         widget=forms.TextInput(attrs={"placeholder": "AGPL-3.0, MIT, ..."}),
     )
+    code_repository_url = forms.URLField(
+        label="Code repository URL",
+        required=False,
+        widget=forms.URLInput(attrs={"placeholder": "https://..."}),
+    )
+    data_repository_url = forms.URLField(
+        label="Data repository URL",
+        required=False,
+        widget=forms.URLInput(attrs={"placeholder": "https://..."}),
+    )
+
     fulfilled_expectations = forms.MultipleChoiceField(
         choices=[],
         label="Fulfilled expectations",
@@ -1399,12 +1410,6 @@ class SubmissionForm(forms.ModelForm):
             "acad_field": forms.HiddenInput(),
             "is_resubmission_of": forms.HiddenInput(),
             "thread_hash": forms.HiddenInput(),
-            "data_repository_url": forms.TextInput(
-                attrs={"placeholder": "https://..."}
-            ),
-            "code_repository_url": forms.TextInput(
-                attrs={"placeholder": "https://..."}
-            ),
             "remarks_for_editors": forms.Textarea(
                 attrs={
                     "placeholder": "Optional: any private remarks (for the editors only)",
@@ -1439,10 +1444,6 @@ class SubmissionForm(forms.ModelForm):
                     )
                 }
             ),
-        }
-        help_texts = {
-            "data_repository_url": "",
-            "code_repository_url": "",
         }
 
     def __init__(self, *args, **kwargs):
@@ -1940,13 +1941,19 @@ class SubmissionForm(forms.ModelForm):
         submission.metadata = self.metadata
         submission.preprint = preprint
 
-        # Codebases-only fields
-        if "Codeb" in submission.submitted_to.doi_label:
-            submission.code_metadata = {
-                "code_name": self.cleaned_data["code_name"],
-                "code_version": self.cleaned_data["code_version"],
-                "code_license": self.cleaned_data["code_license"],
-            }
+        # Metadata fields (optional)
+        METADATA_FIELD_NAMES = [
+            "code_name",
+            "code_version",
+            "code_license",
+            "code_repository_url",
+            "data_repository_url",
+        ]
+        submission.article_metadata |= {
+            field_name: self.cleaned_data[field_name]
+            for field_name in METADATA_FIELD_NAMES
+            if field_name in self.cleaned_data
+        }
 
         submission.save()
         submission.topics.add(*self.cleaned_data["topics"])

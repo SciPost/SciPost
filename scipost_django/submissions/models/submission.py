@@ -411,19 +411,6 @@ class Submission(models.Model):
     )
     abstract = models.TextField()
 
-    # Links to associated code and data
-    data_repository_url = models.URLField(
-        blank=True, help_text="Link to a data repository pertaining to your manuscript"
-    )
-    code_repository_url = models.URLField(
-        blank=True, help_text="Link to a code repository pertaining to your manuscript"
-    )
-    code_metadata = models.JSONField(
-        default=dict,
-        blank=True,
-        help_text="Information about the software referenced in the codebases publication",
-    )
-
     fulfilled_expectations = models.CharField(default=str, max_length=1000, blank=True)
 
     # Comments can be added to a Submission
@@ -452,7 +439,14 @@ class Submission(models.Model):
     )
 
     # Metadata
+    article_metadata = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Specific information about the article, depending on the target journal's needs. Not actual metadata to be deposited.",
+    )
     metadata = models.JSONField(default=dict, blank=True, null=True)
+
+    # Timestamps
     submission_date = models.DateTimeField(
         verbose_name="submission date", default=timezone.now
     )

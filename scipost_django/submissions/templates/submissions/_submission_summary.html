@@ -40,37 +40,37 @@
                            rel="noopener"><strong>(pdf)</strong></a>
                     </td>
                 </tr>
-                {% if submission.code_repository_url %}
+                {% if submission.article_metadata.code_repository_url %}
                     <tr>
                         <td>Code repository:</td>
                         <td class="text-wrap">
-                            <a href="{{ submission.code_repository_url }}"
+                            <a href="{{ submission.article_metadata.code_repository_url }}"
                                target="_blank"
                                class="text-break"
-                               rel="noopener">{{ submission.code_repository_url }}</a>
+                               rel="noopener">{{ submission.article_metadata.code_repository_url }}</a>
                         </td>
                     </tr>
                 {% endif %}
-                {% if submission.code_metadata.code_version %}
+                {% if submission.article_metadata.code_version %}
                     <tr>
                         <td>Code version:</td>
-                        <td>{{ submission.code_metadata.code_version }}</td>
+                        <td>{{ submission.article_metadata.code_version }}</td>
                     </tr>
                 {% endif %}
-                {% if submission.code_metadata.code_license %}
+                {% if submission.article_metadata.code_license %}
                     <tr>
                         <td>Code license:</td>
-                        <td>{{ submission.code_metadata.code_license }}</td>
+                        <td>{{ submission.article_metadata.code_license }}</td>
                     </tr>
                 {% endif %}
-                {% if submission.data_repository_url %}
+                {% if submission.article_metadata.data_repository_url %}
                     <tr>
                         <td>Data repository:</td>
                         <td class="text-wrap">
-                            <a href="{{ submission.data_repository_url }}"
+                            <a href="{{ submission.article_metadata.data_repository_url }}"
                                target="_blank"
                                class="text-break"
-                               rel="noopener">{{ submission.data_repository_url }}</a>
+                               rel="noopener">{{ submission.article_metadata.data_repository_url }}</a>
                         </td>
                     </tr>
                 {% endif %}

@@ -53,8 +53,6 @@ class SubmissionPublicSerializer(serializers.ModelSerializer):
             "is_resubmission_of",
             "thread_hash",
             "thread_sequence_order",
-            "code_repository_url",
-            "data_repository_url",
             "preprint",
             "reports",
             "comments",

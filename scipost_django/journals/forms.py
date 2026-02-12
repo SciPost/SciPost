@@ -793,26 +793,33 @@ class DraftPublicationForm(forms.ModelForm):
                 )
             self.instance.topics.add(*self.submission.topics.all())
 
-            # Create supplementary information for any provided external links
+            # Create publication resources (in supplementary information) for any provided external links
+            # when the type of resource is not already clear from the journal (e.g. codebase or datasets journal)
+            # Codebases shouldn't have the repo in supp info, as shouldn't datasets have the data repo.
             #! Refactor: may be possible to check if url is present in related publications
-            is_codebase = (
+            is_codebases = (
                 self.issue is None and "codebase" in self.to_journal.name.lower()
             )
-            if self.submission.code_repository_url and not is_codebase:
+            if not is_codebases and (
+                url := self.submission.article_metadata.get("code_repository_url")
+            ):
                 PublicationResource.objects.get_or_create(
                     publication=self.instance,
                     _type=PublicationResource.TYPE_SUP_INFO,
-                    url=self.submission.code_repository_url,
+                    url=url,
                     comments="Code repository",
                 )
+
             is_datasets = (
                 self.issue is None and "datasets" in self.to_journal.name.lower()
             )
-            if self.submission.data_repository_url and not is_datasets:
+            if not is_datasets and (
+                url := self.submission.article_metadata.get("data_repository_url")
+            ):
                 PublicationResource.objects.get_or_create(
                     publication=self.instance,
                     _type=PublicationResource.TYPE_SUP_INFO,
-                    url=self.submission.data_repository_url,
+                    url=url,
                     comments="Data repository",
                 )
 
@@ -845,7 +852,7 @@ class DraftPublicationForm(forms.ModelForm):
             self.prefill_with_journal(self.to_journal)
 
         if self.submission and (follow_up_pub := self.submission.followup_of.first()):
-            version = self.submission.code_metadata.get("code_version", "[VERSION]")
+            version = self.submission.article_metadata.get("code_version", "[VERSION]")
             suffix = "v" + version
             self.fields["paper_nr_suffix"].initial = suffix
             self.fields["doi_label"].initial = (
