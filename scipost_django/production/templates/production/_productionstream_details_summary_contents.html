@@ -67,6 +67,18 @@
                   <br>
                   <span title="{{ collection.name }}">{{ collection.name }}</span>
                 {% endfor %}
+                {% with article_metadata=productionstream.submission.article_metadata %}
+                  {% if article_metadata.analysis_target_doi %}
+                    <br/>
+                    <a href="https://doi.org/{{ article_metadata.analysis_target_doi }}"
+                    target="_blank"
+                    class="text-break"
+                    rel="noopener">{{ article_metadata.analysis_target_citation|default:article_metadata.analysis_target_doi }}</a>
+                  {% elif article_metadata.analysis_target_citation %}
+                    <br/>
+                    {{ article_metadata.analysis_target_citation }}
+                  {% endif %}
+                {% endwith %}
             </div>
  
             <div class="col-auto text-nowrap">

@@ -40,6 +40,21 @@
                            rel="noopener"><strong>(pdf)</strong></a>
                     </td>
                 </tr>
+                {% if submission.article_metadata.analysis_target_doi or submission.article_metadata.analysis_target_citation %}
+                    <tr>
+                        <td>Analysis target:</td>
+                        <td class="text-wrap">
+                          {% if submission.article_metadata.analysis_target_doi %}
+                            <a href="https://doi.org/{{ submission.article_metadata.analysis_target_doi }}"
+                            target="_blank"
+                            class="text-break"
+                            rel="noopener">{{ submission.article_metadata.analysis_target_citation|default:submission.article_metadata.analysis_target_doi }}</a>
+                          {% else %}
+                            {{ submission.article_metadata.analysis_target_citation }}
+                          {% endif %}
+                        </td>
+                    </tr>
+                {% endif %}
                 {% if submission.article_metadata.code_repository_url %}
                     <tr>
                         <td>Code repository:</td>
