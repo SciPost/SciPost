@@ -407,7 +407,7 @@ class ProfilePlotter(ModelFieldPlotter):
         )
 
     def get_queryset(self) -> models.QuerySet[Profile]:
-        qs = super().get_queryset()
+        qs = super().get_queryset().eponymous()
         qs = qs.annotate(
             latest_affiliation_country=models.Subquery(
                 Affiliation.objects.filter(

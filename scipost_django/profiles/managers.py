@@ -287,8 +287,3 @@ class AffiliationQuerySet(QuerySet):
             | Q(date_from__lte=today, date_until__gte=today)
             | Q(date_from__isnull=True, date_until__isnull=True)
         )
-
-
-class ProfileManager(models.Manager.from_queryset(ProfileQuerySet)):
-    def get_queryset(self):
-        return super().get_queryset().eponymous()

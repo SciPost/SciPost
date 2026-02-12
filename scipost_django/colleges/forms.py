@@ -314,7 +314,7 @@ class FellowshipAddProceedingsForm(forms.ModelForm):
 
 class PotentialFellowshipForm(RequestFormMixin, forms.ModelForm):
     profile = forms.ModelChoiceField(
-        queryset=Profile.objects.all(),
+        queryset=Profile.objects.eponymous(),
         widget=autocomplete.ModelSelect2(url="/profiles/profile-autocomplete"),
     )
 

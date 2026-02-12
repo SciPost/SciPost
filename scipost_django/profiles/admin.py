@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import admin
-
 from ethics.admin import RedFlagInline
 
 from .models import Profile, ProfileEmail, Affiliation
@@ -32,6 +31,9 @@ class ProfileAdmin(admin.ModelAdmin):
     inlines = [ProfileEmailInline, AffiliationInline, RedFlagInline]
     autocomplete_fields = ["topics"]
     readonly_fields = ["orcid_authenticated"]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).eponymous()
 
     # Set the orcid_authenticated field to false
     # if the orcid_id has been changed by the user

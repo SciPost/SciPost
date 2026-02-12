@@ -69,6 +69,9 @@ class ContributorAdmin(admin.ModelAdmin):
         "duplicate_of",
     ]
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).eponymous()
+
 
 class ContributorInline(admin.StackedInline):
     model = Contributor

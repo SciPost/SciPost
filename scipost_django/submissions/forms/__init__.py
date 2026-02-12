@@ -4157,7 +4157,7 @@ class RefereeIndicationForm(forms.ModelForm):
         exclude = ["submission", "indicated_by"]
 
     referee = forms.ModelChoiceField(
-        queryset=Profile.objects.all(),
+        queryset=Profile.objects.eponymous(),
         widget=HTMXDynSelWidget(
             url=reverse_lazy("profiles:profile_dynsel"),
         ),

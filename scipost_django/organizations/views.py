@@ -317,7 +317,7 @@ def _hx_export_associated_profile_emails(request, pk):
 
     year_ago = timezone.now() - timedelta(days=365)
     recently_active_profiles = (
-        Profile.objects.all()
+        Profile.objects.eponymous()
         .annotate(
             nr_publications=Count(
                 "publicationauthorstable",

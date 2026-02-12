@@ -33,12 +33,7 @@ from .constants import (
     AFFILIATION_CATEGORIES,
     AFFILIATION_CATEGORY_UNSPECIFIED,
 )
-from .managers import (
-    ProfileEmailQuerySet,
-    ProfileManager,
-    ProfileQuerySet,
-    AffiliationQuerySet,
-)
+from .managers import ProfileEmailQuerySet, ProfileQuerySet, AffiliationQuerySet
 
 from mails.models import MailAddressDomain
 
@@ -174,7 +169,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
         related_query_name="profile",
     )
 
-    objects = ProfileManager()
+    objects = ProfileQuerySet().as_manager()
 
     class Meta:
         ordering = ["last_name", "first_name"]
@@ -205,11 +200,6 @@ class Profile(AnonymizableObjectMixin, models.Model):
             self.get_title_display() if self.title != None else "",
             self.first_name,
         )
-
-    @property
-    def full_name(self):
-        """The full name: first name + last name."""
-        return f"{self.first_name} {self.last_name}"
 
     @property
     def formal_name(self):

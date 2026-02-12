@@ -65,7 +65,7 @@ class ProfileAutocompleteView(autocomplete.Select2QuerySetView):
     def get_queryset(self):
         if not self.request.user.has_perm("scipost.can_view_profiles"):
             return None
-        qs = Profile.objects.all()
+        qs = Profile.objects.eponymous()
         if self.q:
             qs = Profile.objects.search(self.q)
 
@@ -94,7 +94,7 @@ class ProfileCreateView(PermissionsMixin, CreateView):
         context["from_type"] = from_type
         context["pk"] = pk
         if pk and from_type:
-            matching_profiles = Profile.objects.all()
+            matching_profiles = Profile.objects.eponymous()
             if from_type == "contributor":
                 contributor = get_object_or_404(Contributor, pk=pk)
                 matching_profiles = matching_profiles.filter(
@@ -277,7 +277,7 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         Return a queryset of Profiles using optional GET data.
         """
         queryset = (
-            Profile.objects.all()
+            Profile.objects.eponymous()
             .prefetch_related("specialties")
             .select_related("contributor", "contributor__dbuser")
         )
@@ -791,7 +791,7 @@ class ProfileSendEmailView(PermissionsMixin, MailView):
     """Send a custom email to the profile."""
 
     permission_required = "scipost.can_email_profiles"
-    queryset = Profile.objects.all()
+    queryset = Profile.objects.eponymous()
     mail_code = "profiles/profile_send_mail"
     context_object_name = "profile"
 

@@ -217,7 +217,7 @@ class AddProfileEmailForm(forms.ModelForm):
 
 class ProfileSelectForm(forms.Form):
     profile = forms.ModelChoiceField(
-        queryset=Profile.objects.all(),
+        queryset=Profile.objects.eponymous(),
         widget=autocomplete.ModelSelect2(url="/profiles/profile-autocomplete"),
         help_text=("Start typing, and select from the popup."),
     )
