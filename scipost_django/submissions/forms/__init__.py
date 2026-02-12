@@ -99,6 +99,7 @@ from journals.constants import (
     PUBLISHABLE_OBJECT_TYPE_CODEBASE,
     PUBLISHABLE_OBJECT_TYPE_DATASET,
 )
+from journals.validators import doi_validator
 from mails.utils import DirectMailUtil
 from ontology.models import Specialty, Topic
 from preprints.helpers import get_new_scipost_identifier
@@ -120,6 +121,8 @@ import iThenticate
 ARXIV_IDENTIFIER_PATTERN_NEW = r"^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$"
 FIGSHARE_IDENTIFIER_PATTERN = r"^[0-9]+\.v[0-9]{1,2}$"
 OSFPREPRINTS_IDENTIFIER_PATTERN = r"^[a-z0-9]+(_v\d{1,2})?$"
+
+from typing import Any
 
 
 class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
@@ -1341,6 +1344,21 @@ class SubmissionForm(forms.ModelForm):
         required=True,
     )
 
+    analysis_target_citation = forms.CharField(
+        label="Analysis target citation",
+        required=False,
+        widget=forms.TextInput(
+            attrs={"placeholder": "P. Holder, SciPost Phys., 001 (2017), ..."}
+        ),
+    )
+    analysis_target_doi = forms.CharField(
+        label="Analysis target DOI",
+        required=False,
+        widget=forms.TextInput(
+            attrs={"placeholder": "10.21468/SciPostPhys.001.001.001"}
+        ),
+        validators=[doi_validator],
+    )
     code_name = forms.CharField(
         label="Software name",
         help_text="Name of the software referenced in this submission.",
@@ -1398,6 +1416,8 @@ class SubmissionForm(forms.ModelForm):
             "author_comments",
             "list_of_changes",
             "remarks_for_editors",
+            "analysis_target_citation",
+            "analysis_target_doi",
             "data_repository_url",
             "code_repository_url",
             "code_name",
@@ -1446,9 +1466,9 @@ class SubmissionForm(forms.ModelForm):
             ),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs: Any):
         self.requested_by = kwargs.pop("requested_by")
-        self.submitted_to_journal = kwargs.pop("submitted_to_journal")
+        self.submitted_to_journal: "Journal" = kwargs.pop("submitted_to_journal")
         data = args[0] if len(args) > 1 else kwargs.get("data", {})
 
         if (
@@ -1521,15 +1541,23 @@ class SubmissionForm(forms.ModelForm):
 
         object_types = self.submitted_to_journal.submission_object_types["options"]
 
-        def require_type(str):
-            """Check if a publishable object type is required for this journal."""
-            return map(lambda x: str in x, object_types)
+        def pub_types_is(type_name: str):
+            """
+            Produces an iterable of booleans indicating whether
+            the given name matches each of the journal's submission object types.
+            """
+            return map(lambda x: type_name in x, object_types)
 
         # Define field option flags
-        code_allowed = any(require_type(PUBLISHABLE_OBJECT_TYPE_CODEBASE))
-        code_required = all(require_type(PUBLISHABLE_OBJECT_TYPE_CODEBASE))
-        data_allowed = any(require_type(PUBLISHABLE_OBJECT_TYPE_DATASET))
-        data_required = all(require_type(PUBLISHABLE_OBJECT_TYPE_DATASET))
+        code_allowed = any(pub_types_is(PUBLISHABLE_OBJECT_TYPE_CODEBASE))
+        code_required = all(pub_types_is(PUBLISHABLE_OBJECT_TYPE_CODEBASE))
+        data_allowed = any(pub_types_is(PUBLISHABLE_OBJECT_TYPE_DATASET))
+        data_required = all(pub_types_is(PUBLISHABLE_OBJECT_TYPE_DATASET))
+
+        is_JRR = self.submitted_to_journal.doi_label == "JRobustRep"
+        analysis_target_allowed = is_JRR
+        analysis_target_required = is_JRR
+
         proceedings_allowed = "Proc" in self.submitted_to_journal.doi_label
         proceedings_required = proceedings_allowed
         collection_allowed = len(active_collections_in_journal) > 0
@@ -1555,6 +1583,10 @@ class SubmissionForm(forms.ModelForm):
 
         if not data_allowed:
             del self.fields["data_repository_url"]
+
+        if not analysis_target_allowed:
+            del self.fields["analysis_target_citation"]
+            del self.fields["analysis_target_doi"]
 
         if not collection_allowed:
             del self.fields["collection"]
@@ -1638,6 +1670,18 @@ class SubmissionForm(forms.ModelForm):
         if _no_fields_present("collection"):
             collection_col = None
 
+        analysis_target_row = Div(
+            HTML(
+                '<div class="mb-3 text-muted fs-6">Provide information about the article you will be analyzing in the present submission.</div>'
+            ),
+            Div(Field("analysis_target_citation"), css_class="col-12 col-md"),
+            Div(Field("analysis_target_doi"), css_class="col-12 col-md"),
+            css_class="row mb-0 bg-secondary bg-opacity-10 p-2 mb-3",
+        )
+
+        if _no_fields_present("analysis_target_citation", "analysis_target_doi"):
+            analysis_target_row = None
+
         codebase_metadata_row = Div(
             Div(Field("code_name"), css_class="col-12 col-md"),
             Div(Field("code_version"), css_class="col-12 col-md-3"),
@@ -1677,11 +1721,9 @@ class SubmissionForm(forms.ModelForm):
             "acad_field",
             "is_resubmission_of",
             "thread_hash",
+            "submitted_to",
             # Visible fields
             "fulfilled_expectations",
-            "is_resubmission_of",
-            "thread_hash",
-            "submitted_to",
             "proceedings",
             "acad_field",
             Div(
@@ -1697,6 +1739,7 @@ class SubmissionForm(forms.ModelForm):
             "title",
             "author_list",
             "abstract",
+            analysis_target_row,
             "followup_of",
             "author_comments",
             "list_of_changes",
@@ -1948,6 +1991,8 @@ class SubmissionForm(forms.ModelForm):
             "code_license",
             "code_repository_url",
             "data_repository_url",
+            "analysis_target_citation",
+            "analysis_target_doi",
         ]
         submission.article_metadata |= {
             field_name: self.cleaned_data[field_name]
