@@ -1,16 +1,16 @@
 <ul class="list-group list-group-flush">
 
-  {% for fellow in fellows_with_coauthorships %}
+  {% for fellowship in fellows_with_coauthorships %}
     <li class="d-flex flex-column p-2 list-group-item">
       <details open>
         <summary class="d-flex list-triangle align-items-center flex-row">
-          <span class="fw-bold fs-6">{{ fellow.contributor.profile }}</span>
-          {% include "submissions/admin/_coauthorships_fetch_button.html" with fellow=fellow %}
+          <span class="fw-bold fs-6">{{ fellowship.contributor.profile }}</span>
+          {% include "submissions/admin/_coauthorships_fetch_button.html" with fellowship=fellowship %}
         </summary>
-        <div hx-get="{% url 'ethics:_hx_list_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr fellow.contributor.profile.id %}"
+        <div hx-get="{% url 'ethics:_hx_list_coauthorships_for_submission_authors' submission.preprint.identifier_w_vn_nr fellowship.contributor.profile.id %}"
              hx-trigger="task-completed from:closest li"
              hx-swap="innerHTML">
-          {% include 'submissions/admin/_coauthorships.html' with coauthorships=fellow.contributor.profile.submission_coauthorships %}
+          {% include 'submissions/admin/_coauthorships.html' with coauthorships=fellowship.contributor.profile.submission_coauthorships %}
         </div>
       </details>
     </li>
