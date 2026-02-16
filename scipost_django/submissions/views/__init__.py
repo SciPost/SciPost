@@ -784,11 +784,15 @@ class SubmissionListView(PaginationMixin, ListView):
     model = Submission
     form = SubmissionOldSearchForm
     submission_search_list = []
-    paginate_by = 10
+    paginate_by = 20
 
     def get_queryset(self):
         """Return queryset, filtered with GET request data if given."""
-        queryset = Submission.objects.public_latest()
+        queryset = (
+            Submission.objects.public_latest()
+            .select_related("preprint", "submitted_to", "acad_field")
+            .prefetch_related("specialties")
+        )
         self.form = self.form(self.request.GET)
         if "field" in self.request.GET:
             queryset = queryset.filter(acad_field__slug=self.request.GET["field"])
