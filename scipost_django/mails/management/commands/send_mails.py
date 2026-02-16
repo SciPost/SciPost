@@ -142,6 +142,11 @@ class Command(BaseCommand):
         if options.get("id"):
             mail_logs = MailLog.objects.filter(id=options["id"])
         else:
-            mail_logs = MailLog.objects.not_sent().order_by("created")[:10]
+            mail_logs = (
+                MailLog.objects.all()
+                .not_sent()
+                .with_recipients()
+                .order_by("created")[:10]
+            )
         nr_mails = self.process_mail_logs(mail_logs)
         self.stdout.write("Sent {} mails.".format(nr_mails))

@@ -14,3 +14,6 @@ class MailLogQuerySet(models.QuerySet):
 
     def rendered(self):
         return self.filter(status="rendered")
+
+    def with_recipients(self):
+        return self.exclude(to_recipients=[])
