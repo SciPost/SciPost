@@ -123,13 +123,7 @@
 	      {% for grant in grants %}
 		<tr>
 		  <td>{{ grant.funder.name }}</td>
-		  {% if grant.recipient %}
-		    <td>{{ grant.recipient }}</td>
-		  {% elif grant.recipient_name %}
-		    <td>{{ grant.recipient_name }}</td>
-		  {% else %}
-		    <td></td>
-		  {% endif %}
+      <td>{{ grant.recipient|default:grant.recipient_name }}</td>
 		  <td>{{ grant.number }}</td>
 		</tr>
               {% empty %}

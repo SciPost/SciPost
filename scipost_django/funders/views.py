@@ -65,9 +65,13 @@ class HXDynselGrantAutocomplete(HXDynselAutocomplete):
 @permission_required("scipost.can_view_all_funding_info", raise_exception=True)
 def funders_dashboard(request):
     """Administration of Funders and Grants."""
-    funders = Funder.objects.all()
+    funders = Funder.objects.all().select_related("organization")
     form = FunderRegistrySearchForm()
-    grants = Grant.objects.all()
+    grants = (
+        Grant.objects.all()
+        .select_related("funder", "recipient__profile")
+        .order_by("funder__name", "number")
+    )
     grant_form = GrantForm(request=request)
     context = {
         "form": form,
