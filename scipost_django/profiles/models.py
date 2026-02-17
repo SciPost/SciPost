@@ -190,10 +190,15 @@ class Profile(AnonymizableObjectMixin, models.Model):
         ]
 
     def __str__(self):
+        from anonymization.models import AnonymousProfile
+
         # If user is anonymous and has an eponymization original
         # show both the UUID and the original name in parentheses
-        if self.is_anonymous and self.eponymization and self.eponymization.original:
-            return self.last_name + f" ({self.eponymization.original})"
+        try:
+            if self.is_anonymous and self.eponymization and self.eponymization.original:
+                return self.last_name + f" ({self.eponymization.original})"
+        except AnonymousProfile.eponymization.DoesNotExist:
+            pass  # Pass to default case
 
         return "%s, %s %s" % (
             self.last_name,
