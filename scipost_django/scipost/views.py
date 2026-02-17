@@ -95,7 +95,7 @@ from commentaries.forms import CommentarySearchForm
 from comments.models import Comment
 from comments.forms import CommentSearchForm
 from common.utils import get_current_domain
-from common.views import SearchView
+from common.views import HXDynselAutocomplete, SearchView
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication, PublicationAuthorsTable
 from journals.forms import PortalPublicationSearchForm
@@ -154,6 +154,20 @@ def sitemap_xml(request):
 ################
 # Autocomplete #
 ################
+
+
+class HXDynselContributorAutocomplete(HXDynselAutocomplete):
+    model = Contributor
+
+    def search(self, queryset, q):
+        return (
+            queryset.all()
+            .filter(
+                Q(profile__in=Profile.objects.search(q))
+                | Q(dbuser__username__icontains=q)
+            )
+            .order_by("profile")
+        )
 
 
 class GroupAutocompleteView(autocomplete.Select2QuerySetView):

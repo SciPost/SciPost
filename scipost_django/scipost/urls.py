@@ -57,6 +57,11 @@ urlpatterns = [
     # Autocomplete
     ###############
     path(
+        "contributor-autocomplete",
+        views.HXDynselContributorAutocomplete.as_view(),
+        name="contributor-autocomplete",
+    ),
+    path(
         "group-autocomplete",
         views.GroupAutocompleteView.as_view(),
         name="group-autocomplete",

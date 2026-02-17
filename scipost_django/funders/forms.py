@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django import forms
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 from common.forms import HTMXDynSelWidget
 
@@ -65,9 +65,8 @@ class GrantForm(HttpRefererFormMixin, forms.ModelForm):
             widget=HTMXDynSelWidget(url="/funders/funder-autocomplete"),
         )
         self.fields["recipient"] = forms.ModelChoiceField(
-            queryset=Contributor.objects.select_related("dbuser").order_by(
-                "dbuser__last_name"
-            ),
+            queryset=Contributor.objects.eponymous(),
+            widget=HTMXDynSelWidget(url=reverse("scipost:contributor-autocomplete")),
             required=False,
         )
 
