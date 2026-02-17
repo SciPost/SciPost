@@ -446,7 +446,7 @@ class EditorialCommunicationAdmin(admin.ModelAdmin):
     search_fields = [
         "submission__title",
         "submission__preprint__identifier_w_vn_nr",
-        "referee__dbuser__last_name",
+        "referee__full_name",
         "text",
     ]
     list_display = [
