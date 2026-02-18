@@ -4054,8 +4054,8 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        reinvite_referees = cleaned_data.get("referees_reinvite")
-        selected_emails = cleaned_data.get("referee_invitation_emails")
+        reinvite_referees = cleaned_data.get("referees_reinvite", [])
+        selected_emails = cleaned_data.get("referee_invitation_emails", [])
 
         email_to_invitation_map = {
             profile_email.email: invitation
