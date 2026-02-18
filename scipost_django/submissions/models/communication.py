@@ -83,7 +83,7 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
             return profile.formal_name
         return "Unknown"
 
-    def _resolve_profile_email(self, letter: str):
+    def _resolve_profile_email(self, letter: str) -> str:
         if letter == "S":
             domain = get_current_domain()
             return f"submissions@{domain}"
@@ -97,7 +97,7 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
 
         # In the generic case, resolve Contributor and use Profile's primary
         if profile := self._resolve_profile_from_letter(letter):
-            return profile.email
+            return profile.email or ""
         return ""
 
     @property
