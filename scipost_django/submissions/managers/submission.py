@@ -10,7 +10,6 @@ from django.db.models import Q, Exists, Value
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
-from colleges.models.fellowship import Fellowship
 from comments.models import Comment
 from common.utils.db import SplitString
 from common.utils.text import initialize
@@ -22,11 +21,13 @@ from .. import constants
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractBaseUser
     from ...scipost.models import Contributor
     from profiles.models import Profile
+    from submissions.models import Submission
 
 
-class SubmissionQuerySet(models.QuerySet):
+class SubmissionQuerySet(models.QuerySet["Submission"]):
     ##################################
     # Shortcuts for status filtering #
     ##################################
@@ -188,7 +189,12 @@ class SubmissionQuerySet(models.QuerySet):
 
         return qs
 
-    def in_pool(self, user, latest: bool = True, historical: bool = False):
+    def in_pool(
+        self,
+        user: "AbstractBaseUser",
+        latest: bool = True,
+        historical: bool = False,
+    ):
         """
         Filter for Submissions (current or historical) in user's pool,
         excluding CoIs and possible authorship.

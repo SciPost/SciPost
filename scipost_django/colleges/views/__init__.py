@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from typing import Callable
 
 from dal import autocomplete
 
@@ -217,8 +218,18 @@ class FellowshipDetailView(LoginRequiredMixin, DetailView):
         if (fellowship := context.get("object")) is None:
             return context
 
-        assignment_submissions = (
+        try:
+            contributor: Contributor = getattr(self.request.user, "contributor")
+        except Contributor.DoesNotExist:
+            return context
+
+        if contributor.profile is None:
+            return context
+
+        assigned_submissions: list[Submission] = list(
             Submission.objects.all()
+            .annot_authors_have_nonexpired_coi_with_profile(contributor.profile)
+            .exclude(authors_have_nonexpired_coi_with_profile=True)
             .annotate(
                 latest_assignment_status=Subquery(
                     EditorialAssignment.objects.filter(
@@ -257,7 +268,7 @@ class FellowshipDetailView(LoginRequiredMixin, DetailView):
         )
 
         attach_related(
-            assignment_submissions,
+            assigned_submissions,
             RelatedAttachment(
                 "editorial_decision_id",
                 "editorial_decision",
@@ -265,31 +276,31 @@ class FellowshipDetailView(LoginRequiredMixin, DetailView):
             ),
         )
 
-        ongoing_assignment_submissions = list(
-            filter(
-                lambda s: s.latest_assignment_status
-                == EditorialAssignment.STATUS_ACCEPTED,
-                assignment_submissions,
-            )
-        )
-        completed_assignment_submissions = list(
-            filter(
-                lambda s: s.latest_assignment_status
-                == EditorialAssignment.STATUS_COMPLETED,
-                assignment_submissions,
-            )
-        )
+        def assignment_status_is(status: str) -> Callable[[Submission], bool]:
+            return lambda s: s.latest_assignment_status == status
 
-        context["ongoing_assignment_submissions"] = ongoing_assignment_submissions
-        context["completed_assignment_submissions"] = completed_assignment_submissions
+        context["ongoing_assignment_submissions"] = list(
+            filter(
+                assignment_status_is(EditorialAssignment.STATUS_ACCEPTED),
+                assigned_submissions,
+            )
+        )
+        context["completed_assignment_submissions"] = list(
+            filter(
+                assignment_status_is(EditorialAssignment.STATUS_COMPLETED),
+                assigned_submissions,
+            )
+        )
 
         return context
 
     def get_queryset(self):
-        queryset = Fellowship.objects.all().prefetch_related(
-            "pool__preprint",
-            "pool__editor_in_charge",
-        )
+        queryset = super().get_queryset()
+        if is_edadmin(self.request.user):
+            queryset = queryset.prefetch_related(
+                "pool__preprint",
+                "pool__editor_in_charge",
+            )
         return queryset
 
     def get(self, request, *args, **kwargs):
