@@ -161,45 +161,57 @@
 		{% endif %}
 	      </td>
 	      <td>{{ org.cf_nr_associated_publications }}</td>
-	      {% if org.has_current_subsidy %}
+	      {% if org.current_subsidy_year %}
           <td class="bg-success text-white">Current</td>
-	      {% elif org.has_children_with_current_subsidy %}
+        {% elif org.has_children_with_current_subsidy %}
           <td class="bg-success text-white">
             <div>Current</div>
-            <div><small>via child</small></div>
+            <div>
+              <small>via child</small>
+            </div>
           </td>
-        {% elif org.subsidy_set.obtained.sequentially_renewable.all %}
+        {% elif org.to_be_renewed_subsidy_year %}
           <td class="bg-success bg-opacity-50">
             <div>Pending renewal</div>
           </td>
-        {% elif org.parent.subsidy_set.obtained.sequentially_renewable.all %}
+        {% elif org.to_be_renewed_parent_subsidy_year %}
           <td class="bg-success bg-opacity-50">
             <div>Pending renewal</div>
-            <div><small>via parent</small></div>
+            <div>
+              <small>via parent</small>
+            </div>
           </td>
-        {% elif org.subsidy_set.obtained.all %}
+        {% elif org.any_subsidy_year %}
           <td class="bg-primary text-white">
             <div>Past</div>
-            <div><small>latest in {{ org.subsidy_set.obtained.latest.date_until.year }} </small></div>
+            <div>
+              <small>latest in {{ org.any_subsidy_year }}</small>
+            </div>
           </td>
-        {% elif org.parent.has_current_subsidy %}
+        {% elif org.current_parent_subsidy_year %}
           <td class="bg-success text-white">
             <div>Current</div>
-            <div><small>via parent</small></div>
+            <div>
+              <small>via parent</small>
+            </div>
           </td>
-	      {% elif org.parent.subsidy_set.obtained.all %}
+        {% elif org.any_parent_subsidy_year %}
           <td class="bg-primary text-white">
             <div>Past</div>
-            <div><small>via parent, for {{ org.parent.subsidy_set.obtained.latest.date_until.year }} </small></div>
+            <div>
+              <small>via parent, for {{ org.any_parent_subsidy_year }}</small>
+            </div>
           </td>
-	      {% elif org.cf_nr_associated_publications > 0 %}
+        {% elif org.cf_nr_associated_publications > 0 %}
           <td class="bg-warning bg-opacity-75">Not yet</td>
         {% else %}
           <td class="bg-light">
             <div>Not yet</div>
-            <div><small>no NAP</small></div>
+            <div>
+              <small>no NAP</small>
+            </div>
           </td>
-	      {% endif %}
+        {% endif %}
 	      {% if 'finadmin' in user_roles %}
 		<td class="border border-danger bg-danger bg-opacity-10 text-end">&euro;{{ org.cf_balance_info.cumulative.impact_on_reserves }}</td>
 	      {% endif %}

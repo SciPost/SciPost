@@ -149,11 +149,9 @@ class OrganizationQuerySet(models.QuerySet):
         """
         return self.annotate(
             has_current_subsidy=Exists(
-                Subsidy.objects.filter(organization=OuterRef("pk"))
-                .obtained()
-                .filter(
-                    date_until__gte=timezone.now(),
-                )
+                Subsidy.objects.obtained()
+                .filter(date_until__gte=timezone.now())
+                .filter(organization=OuterRef("pk"))
             )
         )
 

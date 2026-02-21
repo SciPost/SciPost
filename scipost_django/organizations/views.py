@@ -12,7 +12,7 @@ from django.db.models.functions import Lower
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.db import transaction
-from django.db.models import Q, Count, Exists, OuterRef
+from django.db.models import Q, Count, Exists, OuterRef, QuerySet, Subquery
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -25,6 +25,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 
+from finances.models.subsidy import Subsidy
 from journals.models.publication import PublicationAuthorsTable
 from profiles.models import Profile, ProfileEmail
 from submissions.models.submission import SubmissionAuthorProfile
@@ -271,12 +272,39 @@ class OrganizationListView(PaginationMixin, ListView):
         order_by = self.request.GET.get("order_by")
         ordering = self.request.GET.get("ordering")
 
+        org_subsidies: QuerySet[Subsidy] = Subsidy.objects.obtained().filter(
+            organization=OuterRef("id")
+        )
+        parent_subsidies: QuerySet[Subsidy] = Subsidy.objects.obtained().filter(
+            organization=OuterRef("parent_id")
+        )
+
+        def subq_year(subsidies_qs):
+            return Subquery(
+                subsidies_qs.order_by("-date_from").values("date_until__year")[:1]
+            )
+
         qs = (
-            qs.annot_has_current_subsidy()
-            .annot_has_any_subsidy()
+            qs.annotate(
+                current_subsidy_year=subq_year(
+                    org_subsidies.filter(date_until__gte=timezone.now())
+                ),
+                current_parent_subsidy_year=subq_year(
+                    parent_subsidies.filter(date_until__gte=timezone.now())
+                ),
+                to_be_renewed_subsidy_year=subq_year(
+                    org_subsidies.sequentially_renewable()
+                ),
+                to_be_renewed_parent_subsidy_year=subq_year(
+                    parent_subsidies.sequentially_renewable()
+                ),
+                any_subsidy_year=subq_year(org_subsidies),
+                any_parent_subsidy_year=subq_year(parent_subsidies),
+            )
             .prefetch_related("logos", "children")
             .select_related("parent")
         )
+
         if country:
             qs = qs.filter(country=country)
         if order_by == "country":
@@ -284,8 +312,10 @@ class OrganizationListView(PaginationMixin, ListView):
         elif order_by == "name":
             qs = qs.order_by("name")
         elif order_by == "nap":
-            qs = qs.exclude(cf_nr_associated_publications__isnull=True).order_by(
-                "cf_nr_associated_publications"
+            qs = (
+                qs.all()
+                .exclude(cf_nr_associated_publications__isnull=True)
+                .order_by("cf_nr_associated_publications")
             )
         elif order_by == "impact":
             qs = qs.order_by("cf_balance_info__cumulative__impact_on_reserves")
