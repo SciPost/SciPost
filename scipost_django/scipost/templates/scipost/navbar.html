@@ -32,7 +32,9 @@
 
         </li>
 
- 
+        <li class="nav-item">
+          <a class="position-absolute" style="z-index: -1;" href="https://{{ DOMAIN_HOST }}/core/{{ REASONABLE_URL_KEYWORD }}">{{ REASONABLE_URL_KEYWORD|title }}</a>
+        </li>
 
         {% if is_active_fellow or perms.scipost.can_preview_new_features %}
           <li class="nav-item" role="presentation">

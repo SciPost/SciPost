@@ -2,6 +2,8 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import random
+
 from django.conf import settings
 from django.contrib.auth.models import Group
 
@@ -66,3 +68,21 @@ def commit_hash_processor(request):
     Add the current commit hash to the context.
     """
     return {"COMMIT_HASH": settings.COMMIT_HASH}
+
+
+def reasonable_url_keyword_processor(request):
+    """
+    Add reasonable random URL to the context.
+    """
+    keywords = [
+        "institutions",
+        "universities",
+        "libraries",
+        "donations",
+        "donators",
+        "funding",
+        "works",
+        "papers",
+        "documents",
+    ]
+    return {"REASONABLE_URL_KEYWORD": random.choice(keywords)}
