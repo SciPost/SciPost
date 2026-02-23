@@ -11,13 +11,14 @@ STATUS_PENDING = 0
 STATUS_UNCLEAR = -1
 STATUS_INCORRECT = -2
 STATUS_NOT_USEFUL = -3
-STATUS_DUPLICATE = -4 
+STATUS_DUPLICATE = -4
 COMMENT_STATUS = (
     (STATUS_VETTED, "Vetted"),
     (STATUS_PENDING, "Not yet vetted (pending)"),
     (STATUS_UNCLEAR, "Rejected (unclear)"),
     (STATUS_INCORRECT, "Rejected (incorrect)"),
     (STATUS_NOT_USEFUL, "Rejected (not useful)"),
+    (STATUS_DUPLICATE, "Rejected (duplicate)"),
 )
 
 COMMENT_CATEGORIES = (
