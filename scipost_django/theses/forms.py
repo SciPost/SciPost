@@ -93,15 +93,15 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
         }
         match action_id := int(self.cleaned_data["action_option"]):
             case self.ACCEPT:
-                mail_code = "theses/thesislink_vetting_accepted.html"
+                mail_code = "theses/thesislink_vetting_accepted"
                 thesislink.vetted = True
                 thesislink.vetted_by = user.contributor
             case self.MODIFY:
-                mail_code = "theses/thesislink_vetting_modified.html"
+                mail_code = "theses/thesislink_vetting_modified"
                 thesislink.vetted = True
                 thesislink.vetted_by = user.contributor
             case self.REFUSE:
-                mail_code = "theses/thesislink_vetting_rejected.html"
+                mail_code = "theses/thesislink_vetting_rejected"
                 refusal_reason = dict(self.fields["refusal_reason"].choices)[
                     int(self.cleaned_data["refusal_reason"])
                 ]
