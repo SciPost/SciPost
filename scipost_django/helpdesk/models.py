@@ -8,6 +8,7 @@ from django.db import models
 from django.template import Template
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from .constants import (
     TICKET_PRIORITIES,
@@ -177,7 +178,7 @@ class Ticket(models.Model):
     def latest_followup(self):
         return self.followups.order_by("timestamp").last()
 
-    @property
+    @cached_property
     def latest_activity(self):
         try:
             return self.latest_followup().timestamp

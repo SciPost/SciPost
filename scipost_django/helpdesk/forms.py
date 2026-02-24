@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.functions import Concat
+from django.db.models.functions import Coalesce, Concat
 from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms
 
 from common.forms import CrispyFormMixin, FormOptionsStorageMixin, SearchForm
@@ -17,6 +17,7 @@ from crispy_forms.helper import Layout
 from crispy_bootstrap5.bootstrap5 import Field
 from crispy_forms.layout import Div
 from django.db.models import (
+    F,
     Q,
     Case,
     CharField,
@@ -157,7 +158,7 @@ class TicketSearchForm(CrispyFormMixin, FormOptionsStorageMixin, SearchForm[Tick
             ("defined_on", "Defined on"),
             ("defined_by__contributor__profile__last_name", "Last name"),
             ("defined_by__contributor__profile__first_name", "First name"),
-            ("followups__latest__timestamp", "Latest activity"),
+            ("latest_activity", "Latest activity"),
             ("status", "Status"),
             ("priority", "Priority"),
         ),
@@ -217,6 +218,19 @@ class TicketSearchForm(CrispyFormMixin, FormOptionsStorageMixin, SearchForm[Tick
                 Div(div_block_ordering, css_class="col col-sm-6 col-md"),
                 css_class="row",
             ),
+        )
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.annotate(
+            latest_activity=Coalesce(
+                Subquery(
+                    Followup.objects.filter(ticket=OuterRef("pk"))
+                    .order_by("-timestamp")
+                    .values("timestamp")[:1]
+                ),
+                F("defined_on"),
+            )
         )
 
     def filter_queryset(self, queryset: QuerySet[Ticket]) -> QuerySet[Ticket]:

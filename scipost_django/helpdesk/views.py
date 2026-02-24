@@ -409,7 +409,11 @@ def _hx_ticket_search_table(request, queue_slug=None):
         session_key=request.session.session_key,
     )
 
-    tickets = form.search()
+    tickets = form.search().select_related(
+        "queue",
+        "assigned_to",
+        "defined_by__contributor__profile",
+    )
 
     paginator = Paginator(tickets, 16)
     page_nr = request.GET.get("page")
