@@ -446,10 +446,13 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
         Annotate Submissions with the expertise level of the Qualification provided by a Fellow.
         """
         return self.annotate(
-            qualification_expertise=models.Subquery(
-                fellow.qualifications.filter(submission=models.OuterRef("pk"))
-                .order_by("-datetime")
-                .values("expertise_level")[:1]
+            qualification_expertise=Coalesce(
+                models.Subquery(
+                    fellow.qualifications.filter(submission=models.OuterRef("pk"))
+                    .order_by("-datetime")
+                    .values("expertise_level")[:1],
+                ),
+                models.Value("None"),
             )
         )
 
@@ -458,10 +461,13 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
         Annotate Submissions with the readiness status of the Readiness provided by a Fellow.
         """
         return self.annotate(
-            readiness_status=models.Subquery(
-                fellow.readinesses.filter(submission=models.OuterRef("pk"))
-                .order_by("-datetime")
-                .values("status")[:1]
+            readiness_status=Coalesce(
+                models.Subquery(
+                    fellow.readinesses.filter(submission=models.OuterRef("pk"))
+                    .order_by("-datetime")
+                    .values("status")[:1]
+                ),
+                models.Value("None"),
             )
         )
 
@@ -481,7 +487,6 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
         Full appraisal means one of the following states:
         - Qualification, Readiness and Clearance are all provided
         - Qualification is not sufficient for taking charge
-        - Readiness is "Perhaps Later"
         """
         return (
             self.annot_qualified_expertise_by(fellow)
@@ -494,10 +499,10 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
                         readiness_status__isnull=False,
                         has_clearance=True,
                     )
+                    & ~Q(readiness_status=Readiness.STATUS_PERHAPS_LATER)
                     | Q(
                         qualification_expertise__in=Qualification.EXPERTISE_NOT_QUALIFIED
-                    )
-                    | Q(readiness_status=Readiness.STATUS_PERHAPS_LATER),
+                    ),
                     Value(False),
                     output_field=models.BooleanField(),
                 )

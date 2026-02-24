@@ -48,6 +48,8 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
 
+from submissions.models.readiness import Readiness
+
 from ..constants import (
     REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES,
@@ -250,6 +252,11 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
         required=False,
         initial=True,
     )
+    hide_deferred = forms.BooleanField(
+        label="Hide deferred (perhaps later)",
+        required=False,
+        initial=False,
+    )
     hide_unqualified_for = forms.BooleanField(
         label="Hide unqualified for",
         required=False,
@@ -303,6 +310,10 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
         div_block_checkbox = Div(
             Div(
                 Field("hide_fully_appraised"),
+                css_class="col-auto col-lg-12 col-xl-auto",
+            ),
+            Div(
+                Field("hide_deferred"),
                 css_class="col-auto col-lg-12 col-xl-auto",
             ),
             Div(
@@ -501,22 +512,26 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
         )
 
         # Warning: this will only work for one fellowship per user
-        fellowship: "Fellowship | None" = (
-            self.user.contributor.fellowships.active().first()
-        )
-        if fellowship and self.cleaned_data.get("hide_fully_appraised"):
+        if self.cleaned_data.get("hide_fully_appraised"):
             queryset = (
                 queryset.all()
-                .annot_fully_appraised_by(fellowship.contributor)
+                .annot_fully_appraised_by(self.user.contributor)
                 .exclude(is_fully_appraised=True)
             )
-        if fellowship and self.cleaned_data.get("hide_unqualified_for"):
-            queryset = queryset.exclude_not_qualified_for_fellow(fellowship.contributor)
+
+        if self.cleaned_data.get("hide_deferred"):
+            queryset = (
+                queryset.all()
+                .annot_readiness_status_by(self.user.contributor)
+                .exclude(readiness_status=Readiness.STATUS_PERHAPS_LATER)
+            )
+
+        if self.cleaned_data.get("hide_unqualified_for"):
+            queryset = queryset.exclude_not_qualified_for_fellow(self.user.contributor)
 
         if not self.user.contributor.is_ed_admin:
             queryset = queryset.stage_incoming_completed()
-        #     if not user.contributor.is_active_senior_fellow:
-        #         queryset = queryset.stage_preassignment_completed()
+
         if search_set == "current_noawaitingresub":
             queryset = queryset.exclude(status=Submission.AWAITING_RESUBMISSION)
         if specialties := self.cleaned_data.get("specialties"):
