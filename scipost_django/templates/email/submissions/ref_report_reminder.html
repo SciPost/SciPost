@@ -1,0 +1,33 @@
+<p>Dear {{ invitation.referee.formal_name }},</p>
+
+<p>
+  On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to cordially remind you to please submit your referee report for the following submission:
+  <br />
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>,
+  <br />
+  by {{ invitation.submission.author_list }}.
+</p>
+
+<p>
+  You had accepted the invitation and designated an intended report delivery date for {{ invitation.intended_delivery_date|date:"Y-m-d" }}.
+  With the reporting deadline approaching, currently set for {{ invitation.submission.reporting_deadline|date:"Y-m-d" }}, we would like to kindly remind you to submit your report by either date, if you are still able to do so.
+</p>
+
+<p>
+  You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:editorial_procedure' %}">editorial procedure</a>, <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a> before submitting your report.
+</p>
+
+<p>
+  You may also <a href="https://{{ domain }}{% url 'submissions:communication' invitation.submission.preprint.identifier_w_vn_nr 'RtoE' %}">contact the Editor-in-charge</a> or <a href="mailto:edadmin@scipost.org">email the Editorial Team</a> at any time if you have any questions or concerns regarding this invitation.
+</p>
+
+<p>
+  We very much hope we can count on your expertise,
+  <br />
+  and many thanks in advance,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}
+{% include 'email/_submission_thread_uuid.html' with submission=invitation.submission %}

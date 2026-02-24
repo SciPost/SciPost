@@ -1,0 +1,12 @@
+{
+    "subject": "SciPost: Refereeing report reminder",
+    "recipient_list": [
+        "invitation.email_address"
+    ],
+    "bcc": [
+        "invitation.submission.editor_in_charge.profile.email",
+        "edadmin@"
+    ],
+    "from_name": "SciPost Refereeing",
+    "from_email": "refereeing@"
+}

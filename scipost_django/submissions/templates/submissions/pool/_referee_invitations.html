@@ -109,55 +109,65 @@
 
         <td>
 
-          {% if not invitation.responded and not invitation.cancelled %}
-            <div class="btn-group" role="group">
-              <a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
+          {% if not invitation.cancelled %}
+
+            {% if invitation.accepted and not invitation.fulfilled %}
+              <a href="{% url 'submissions:ref_report_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
                 class="btn btn-sm btn-primary"
-                id="ref-inv-{{ invitation.id }}-reminder-btn"
-                title="Send reminder"
-                data-bs-toggle="tooltip" 
-                >
-                <span class="fs-5">{% include "bi/alarm-fill.html" %}</span>
+                id="ref-inv-{{ invitation.id }}-reminder-btn">
+                <span class="fs-5 me-2">{% include "bi/send-fill.html" %}</span>
+                Send reminder
               </a>
-              <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
-              <ul class="dropdown-menu dropdown-menu-end">
-                <li>
-                  <button href="#"
-                    class="btn btn-sm btn-light w-100"
-                    id="ref-inv-{{ invitation.id }}-change-address-btn"
-                    hx-get="{% url 'submissions:_hx_change_ref_invitation_address' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
-                    hx-target="#global-modal-container"
-                    >
-                    <span class="fs-5 me-2">{% include "bi/pencil-square.html" %}</span>
-                    Edit mail address
-                  </button>
-                </li>
-                <li>
-                  <button href="#"
-                    class="btn btn-sm btn-light w-100"
-                    id="ref-inv-{{ invitation.id }}-cancel-btn"
-                    hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}?notify_by_email=True"
-                    hx-target="closest div"
-                    hx-confirm="Are you sure you want to cancel this invitation and notify the referee by email?"
-                    >
-                    <span class="fs-5 me-2">{% include "bi/envelope-fill.html" %}</span>
-                    Cancel (email)
-                  </button>
-                </li>
-                <li>
-                  <button href="#"
-                    class="btn btn-sm btn-light w-100"
-                    id="ref-inv-{{ invitation.id }}-cancel-btn"
-                    hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
-                    hx-target="closest div"
-                    hx-confirm="Are you sure you want to cancel this invitation without notifying the referee?"
-                    >
-                    <span class="fs-5 me-2">{% include "bi/slash-circle-fill.html" %}</span>
-                    Cancel (silently)
-                  </button>
-                </li>
-              </ul>
-            </div>
+            {% elif not invitation.responded %}
+              <div class="btn-group" role="group">
+                <a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
+                  class="btn btn-sm btn-primary"
+                  id="ref-inv-{{ invitation.id }}-reminder-btn"
+                  title="Send reminder"
+                  data-bs-toggle="tooltip" 
+                  >
+                  <span class="fs-5">{% include "bi/send-fill.html" %}</span>
+                </a>
+                <button type="button" class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <button href="#"
+                      class="btn btn-sm btn-light w-100"
+                      id="ref-inv-{{ invitation.id }}-change-address-btn"
+                      hx-get="{% url 'submissions:_hx_change_ref_invitation_address' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
+                      hx-target="#global-modal-container"
+                      >
+                      <span class="fs-5 me-2">{% include "bi/pencil-square.html" %}</span>
+                      Edit mail address
+                    </button>
+                  </li>
+                  <li>
+                    <button href="#"
+                      class="btn btn-sm btn-light w-100"
+                      id="ref-inv-{{ invitation.id }}-cancel-btn"
+                      hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}?notify_by_email=True"
+                      hx-target="closest div"
+                      hx-confirm="Are you sure you want to cancel this invitation and notify the referee by email?"
+                      >
+                      <span class="fs-5 me-2">{% include "bi/envelope-fill.html" %}</span>
+                      Cancel (email)
+                    </button>
+                  </li>
+                  <li>
+                    <button href="#"
+                      class="btn btn-sm btn-light w-100"
+                      id="ref-inv-{{ invitation.id }}-cancel-btn"
+                      hx-get="{% url 'submissions:_hx_cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}"
+                      hx-target="closest div"
+                      hx-confirm="Are you sure you want to cancel this invitation without notifying the referee?"
+                      >
+                      <span class="fs-5 me-2">{% include "bi/slash-circle-fill.html" %}</span>
+                      Cancel (silently)
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            {% endif %}
           {% endif %}
           
         </td>

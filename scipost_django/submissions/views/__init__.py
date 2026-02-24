@@ -1933,6 +1933,48 @@ def ref_invitation_reminder(request, identifier_w_vn_nr, invitation_id):
 
 
 @login_required
+@fellowship_or_admin_required()
+def ref_report_reminder(request, identifier_w_vn_nr, invitation_id):
+    """Send reminder email to a referee with an accepted RefereeInvitation but no submitted Report.
+
+    This method is used by the Editor-in-charge from the editorial_page
+    when a referee has accepted the invitation but hasn't submitted a Report yet
+    and the refereeing deadline is approaching.
+
+    Accessible for: Editor-in-charge and Editorial Administration
+    """
+    submission = get_object_or_404(
+        Submission.objects.in_pool_filter_for_eic(request.user),
+        preprint__identifier_w_vn_nr=identifier_w_vn_nr,
+    )
+    invitation: "RefereeInvitation" = get_object_or_404(
+        submission.referee_invitations.all(), pk=invitation_id
+    )
+
+    if not (invitation.accepted == True):
+        messages.warning(request, "The referee has not accepted the invitation yet.")
+        return redirect(
+            reverse(
+                "submissions:editorial_page",
+                kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+            )
+        )
+    else:
+        DirectMailUtil(
+            "submissions/ref_report_reminder",
+            invitation=invitation,
+        ).send_mail()
+        messages.success(request, "Reminder sent successfully.")
+
+    return redirect(
+        reverse(
+            "submissions:editorial_page",
+            kwargs={"identifier_w_vn_nr": identifier_w_vn_nr},
+        )
+    )
+
+
+@login_required
 @permission_required("scipost.can_referee", raise_exception=True)
 def accept_or_decline_ref_invitations(request, invitation_id=None):
     """Decide on RefereeInvitation.
