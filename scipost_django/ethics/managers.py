@@ -73,9 +73,10 @@ class ConflictOfInterestQuerySet(QuerySet["ConflictOfInterest"]):
             )
         )
 
-    def valid_on_date(self, date: datetime.date | None = None):
+    def annot_is_applicable(self, date: datetime.date | None = None):
         """
-        Filter for validity on given optional date.
+        Annotate queryset with `is_applicable` boolean field indicating whether
+        the conflict of interest should apply on the given date.
         """
         if not date:
             date = timezone.now().date()
@@ -84,12 +85,20 @@ class ConflictOfInterestQuerySet(QuerySet["ConflictOfInterest"]):
         if not self.query.annotations.get("date_expiry"):
             self = self.annot_date_expiry(CoauthorshipExclusionPurpose.TAKING_CHARGE)
 
-        return self.filter(
-            Q(date_from__lte=date, date_expiry__isnull=True)
-            | Q(date_from__isnull=True, date_expiry__gte=date)
-            | Q(date_from__lte=date, date_expiry__gte=date)
-            | Q(date_from__isnull=True, date_expiry__isnull=True)
-        ).order_by()
+        return self.annotate(
+            is_applicable=(
+                Q(date_from__lte=date, date_expiry__gte=date)
+                | Q(date_from__lte=date, date_expiry__isnull=True)
+                | Q(date_from__isnull=True, date_expiry__gte=date)
+                | Q(date_from__isnull=True, date_expiry__isnull=True)
+            )
+        )
+
+    def valid_on_date(self, date: datetime.date | None = None):
+        """
+        Filter for validity on given optional date.
+        """
+        return self.annot_is_applicable(date).filter(is_applicable=True).order_by()
 
     def involving_any_submission_author_of(self, submission: "Submission"):
         """

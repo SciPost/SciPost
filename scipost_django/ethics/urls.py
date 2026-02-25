@@ -84,4 +84,14 @@ urlpatterns = [
         views._hx_list_coauthorships_for_submission_authors,
         name="_hx_list_coauthorships_for_submission_authors",
     ),
+    path(
+        "conflicts",
+        views.conflicts,
+        name="conflicts",
+    ),
+    path(
+        "conflicts/_hx_search",
+        views.ConflictSearchView.as_view(),
+        name="_hx_conflicts_search_form_view",
+    ),
 ]

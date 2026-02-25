@@ -1,0 +1,122 @@
+<details id="conflict-{{ object.id }}-details"
+         class="border border-2 mx-3 p-2 bg-primary bg-opacity-10">
+  <summary class="list-none">
+    <div class="d-flex flex-row align-items-center gap-4">
+
+      <div class="me-auto fs-6 d-flex flex-column gap-1">
+        <span>{{ object.get_nature_display }}</span>
+        <span class="text-truncate"><a href="{{ object.profile.get_absolute_url }}">{{ object.profile }}</a></span>
+        <span class="text-truncate"><a href="{{ object.related_profile.get_absolute_url }}">{{ object.related_profile }}</a></span>
+      </div>
+
+      <div class="d-flex flex-column gap-1">
+        <span class='text-muted'>Declaration</span>
+        <span>
+        by <a href="{{ object.declared_by.profile.get_absolute_url }}">{{ object.declared_by.profile }}</a></span>
+        <span class="text-nowrap">
+          on <time datetime="{{ object.declared_on }}">{{ object.declared_on|date:"Y-m-d"|default:"Unknown" }}</time>
+        </span>
+      </div>
+
+      <div class="d-flex flex-column gap-1">
+        <div class="d-flex flex-row justify-content-between align-items-center gap-3">
+          <span>Coauthorship</span>
+          <span>
+            {% if object.nature == 'coauthor' %}
+              {% if object.coauthorship %}
+                <span class='text-success'>{% include "bi/check-circle-fill.html" %}</span>
+              {% else %}
+                <span class='text-danger'>{% include "bi/x-circle-fill.html" %}</span>
+              {% endif %}
+            {% else %}
+              <span class='text-muted'>{% include "bi/slash-circle-fill.html" %}</span>
+            {% endif %}
+          </span>
+        </div>
+        <div class="d-flex flex-row justify-content-between align-items-center gap-3">
+          <span>Comments</span>
+
+          {% if object.comments %}
+            <span class='text-success'>{% include "bi/check-circle-fill.html" %}</span>
+          {% else %}
+            <span class='text-muted'>{% include "bi/slash-circle-fill.html" %}</span>
+          {% endif %}
+
+        </div>
+        <div class="d-flex flex-row justify-content-between align-items-center gap-3">
+          <span>Exemptions</span>
+          {% if object.exempted_submission_threads %}
+            <span class="bg-primary badge">{{ object.exempted_submission_threads|length }}</span>
+          {% else %}
+            <span class='text-muted'>{% include "bi/slash-circle-fill.html" %}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="d-flex flex-column gap-1">
+        <span class='text-muted'>Validity</span>
+
+        {% if object.is_applicable %}
+          <span class="badge bg-primary">Enforced</span>
+        {% else %}
+          <span class="badge bg-secondary text-dark">Expired</span>
+        {% endif %}
+
+        <span class="text-nowrap"><time datetime="{{ object.date_expiry }}">{{ object.date_expiry|date:"Y-m-d"|default:"Unknown" }}</time></span>
+      </div>
+    </div>
+  </summary>
+
+  <div id="conflict-{{ object.id }}-details-contents"
+       class="p-2 mt-2 bg-white d-flex flex-column gap-2 align-items-start">
+
+    <div class='fs-6 w-100 d-flex flex-row gap-2 justify-content-center align-items-center'>
+      <span class="text-truncate"><a href="{{ object.profile.get_absolute_url }}">{{ object.profile }}</a></span>
+      <span>-</span>
+      <span class="badge bg-white text-dark border text-truncate">{{ object.get_nature_display }}</span>
+      <span>-</span>
+      <span class="text-truncate"><a href="{{ object.related_profile.get_absolute_url }}">{{ object.related_profile }}</a></span>
+    </div>
+
+    <div>
+      <h3 class="fs-5">Declaration details</h3>
+      <p class="mb-1">
+        Date from <time datetime="{{ object.date_from }}">{{ object.date_from|date:"Y-m-d"|default:"Unknown" }}</time>
+      </p>
+      <p class="mb-1">
+        Date until <time datetime="{{ object.date_expiry }}">{{ object.date_expiry|date:"Y-m-d"|default:"Unknown" }}</time>
+      </p>
+      <p class="mb-1">
+        Declared on <time datetime="{{ object.declared_on }}">{{ object.declared_on|date:"Y-m-d"|default:"Unknown" }}</time>
+      </p>
+      <p class="mb-1">
+        Declared by <a href="{{ object.declared_by.profile.get_absolute_url }}">{{ object.declared_by.profile }}</a>
+      </p>
+    </div>
+
+    {% if object.comments %}
+      <div>
+        <h3 class="fs-5">Comments</h3>
+        <p class="mb-1">{{ object.comments|linebreaks }}</p>
+      </div>
+    {% endif %}
+
+    {% if object.exempted_submission_threads %}
+
+      <ul class="w-100 mt-1 list-unstyled d-flex flex-column gap-1">
+
+        {% for thread_hash in exempted_submission_threads %}<li>{{ thread_hash }}</li>{% endfor %}
+
+
+      </ul>
+    {% endif %}
+
+    {% if object.coauthorship %}
+      <ul class="w-100 mt-1 list-unstyled d-flex flex-column gap-1">
+        {% include "ethics/_coauthorship_list_item.html" with coauthorship=object.coauthorship %}
+      </ul>
+    {% endif %}
+
+  </div>
+
+</details>

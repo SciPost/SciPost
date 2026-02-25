@@ -604,6 +604,11 @@ class Command(BaseCommand):
         )
 
         # Coauthorhips & Conflicts of Interest
+        can_view_conflicts_of_interest, created = Permission.objects.get_or_create(
+            codename="can_view_conflicts_of_interest",
+            name="Can view conflicts of interest",
+            content_type=content_type,
+        )
         can_fetch_coauthorships, created = Permission.objects.get_or_create(
             codename="can_fetch_coauthorships",
             name="Can fetch coauthorships from external services",
@@ -807,6 +812,7 @@ class Command(BaseCommand):
                 can_create_affiliate_journals,
                 can_explore_graphs,
                 can_plot_personal_fields,
+                can_view_conflicts_of_interest,
                 can_view_coauthorships,
                 can_fetch_coauthorships,
                 can_verify_coauthorships,

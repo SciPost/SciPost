@@ -1,0 +1,10 @@
+{% extends "ethics/base.html" %}
+
+{% block content %}
+
+  <h1>Conflicts of Interest</h1>
+
+  <div hx-get="{% url 'ethics:_hx_conflicts_search_form_view' %}"
+       hx-trigger="intersect once"></div>
+
+{% endblock content %}

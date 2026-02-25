@@ -1,0 +1,92 @@
+{% load common_extras %}
+
+<li id="coauthorship-{{ coauthorship.id }}" style="min-width: 0;" class="d-flex flex-row flex-grow-1 p-1 gap-2 
+  {% if counter|default:1|divisibleby:2 %}bg-secondary bg-opacity-25{% endif %}">
+
+  <div class="d-flex flex-column flex-grow-1"
+       style="min-width: 0">
+
+    <div class="d-flex flex-row">
+      <div class="d-flex flex-column flex-grow-1"
+           style="min-width: 0">
+
+        <div class="d-flex align-items-center">
+          <span title="{{ coauthorship.work.server_source|title }}"
+                data-bs-toggle="tooltip"
+                class="d-flex me-2 flex-shrink-0">
+            {% include 'preprints/server_icons/'|add:coauthorship.work.server_source|add:'.html' %}
+          </span>
+
+          <div class="fw-bold flex-grow-1 text-truncate">
+
+            {% if coauthorship.work.url %}
+              <a href="{{ coauthorship.work.url }}"
+                 title="{{ coauthorship.work.title }}"
+                 target="_blank">{{ coauthorship.work.title }}</a>
+            {% else %}
+              {{ coauthorship.work.title }}
+            {% endif %}
+
+          </div>
+
+          {% if coauthorship.work.date_published %}
+            <div class="text-muted flex-shrink-0 me-2">{{ coauthorship.work.date_published|date:"Y-m-d" }}</div>
+          {% endif %}
+
+        </div>
+
+        <div class="text-truncate">
+          between <span class="fw-bold">{{ coauthorship.profile }}</span>
+          and <span class="fw-bold">{{ coauthorship.coauthor }}</span>
+        </div>
+      </div>
+
+      {% if perms.scipost.can_verify_coauthorships %}
+        {% include 'submissions/admin/_coauthorship_verification.html' %}
+      {% endif %}
+
+    </div>
+
+    {% if coauthorship.work.authors_str %}
+      <details tabindex="0">
+        <summary class="d-flex justify-content-between align-items-center">
+          <span class="text-truncate details-preview mb-0">by
+
+            {% for author in coauthorship.work.authors_str|split_strip:";" %}
+
+              {% if forloop.counter0 == coauthorship.profile_idx_in_authors_str or forloop.counter0 == coauthorship.coauthor_idx_in_authors_str %}
+                <span class="text-warning">{{ author }}</span>
+              {% else %}
+                {{ author }}
+              {% endif %}
+
+              {% if not forloop.last %};{% endif %}
+
+            {% endfor %}
+
+
+          </span>
+          <span class="text-muted details-preview">(expand)</span>
+        </summary>
+        <span class="text-wrap">by
+
+          {% for author in coauthorship.work.authors_str|split_strip:";" %}
+
+            {% if forloop.counter0 == coauthorship.profile_idx_in_authors_str or forloop.counter0 == coauthorship.coauthor_idx_in_authors_str %}
+              <span class="text-warning">{{ author }}</span>
+            {% else %}
+              {{ author }}
+            {% endif %}
+
+            {% if not forloop.last %};{% endif %}
+
+          {% endfor %}
+
+
+        </span>
+      </details>
+    {% endif %}
+
+  </div>
+
+</li>

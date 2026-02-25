@@ -7,11 +7,68 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div, Field, HTML, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
+from django.db.models import Q, QuerySet
 from django.utils.html import format_html
+
+from common.forms import CrispyFormMixin, SearchForm
 
 from .models import ConflictOfInterest, GenAIDisclosure
 
 from profiles.models import Profile
+
+
+class ConflictSearchForm(CrispyFormMixin, SearchForm[ConflictOfInterest]):
+    model = ConflictOfInterest
+    queryset = ConflictOfInterest.objects.all()
+
+    name = forms.CharField(label="Name", required=False)
+    nature = forms.ChoiceField(
+        label="Nature",
+        choices=((None, "Any"),) + ConflictOfInterest.NATURE_CHOICES,
+        required=False,
+    )
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(
+            ("nature", "Nature"),
+            ("profile__last_name", "Name"),
+            ("related_profile__last_name", "Related name"),
+            ("declared_on", "Declared on"),
+            ("date_expiry", "Expiration date"),
+            ("date_from", "Date from"),
+            ("date_until", "Date until"),
+        ),
+        required=False,
+        initial="declared_on",
+    )
+
+    def get_form_layout(self) -> Layout:
+        return Layout(
+            Div(
+                Div(FloatingField("name"), css_class="col"),
+                Div(FloatingField("nature"), css_class="col-auto"),
+                Div(FloatingField("orderby"), css_class="col-auto"),
+                Div(FloatingField("ordering"), css_class="col-auto"),
+                css_class="row mb-0",
+            ),
+        )
+
+    def filter_queryset(
+        self, queryset: "QuerySet[ConflictOfInterest]"
+    ) -> "QuerySet[ConflictOfInterest]":
+
+        queryset = queryset.annot_is_applicable()
+
+        if nature := self.cleaned_data.get("nature"):
+            queryset = queryset.filter(nature=nature)
+
+        if name := self.cleaned_data.get("name"):
+            queryset = queryset.filter(
+                Q(profile__full_name__unaccent__icontains=name)
+                | Q(related_profile__full_name__unaccent__icontains=name)
+            )
+
+        return queryset
 
 
 class SubmissionConflictOfInterestForm(forms.ModelForm):

@@ -4,16 +4,21 @@ __license__ = "AGPL v3"
 
 from multiprocessing import Pool
 import time
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import (
+    login_required,
+    permission_required,
+    user_passes_test,
+)
 from django.db import transaction
-from django.db.models.functions import Coalesce, Lower
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+from common.views import SearchView
 from ethics.models import Coauthorship, SubmissionClearance, ConflictOfInterest
 from ethics.forms import (
+    ConflictSearchForm,
     SubmissionConflictOfInterestForm,
     SubmissionConflictOfInterestTableRowForm,
 )
@@ -23,9 +28,8 @@ from colleges.models.fellowship import Fellowship
 from ethics.tasks import (
     celery_fetch_potential_coauthorships_for_profile_and_submission_authors,
 )
-from preprints.servers.crossref import CrossrefServer
-from preprints.servers.server import PreprintServer
 from profiles.models import Profile
+from scipost.mixins import PermissionsMixin
 from scipost.permissions import HTMXResponse, permission_required_htmx
 from submissions.models import Submission
 
@@ -93,6 +97,38 @@ def _hx_submission_clearance_revoke(request, identifier_w_vn_nr):
 #######################
 # Conflicts of Interest #
 #######################
+
+
+@login_required
+@user_passes_test(is_edadmin)
+@permission_required("scipost.can_view_conflicts_of_interest")
+def conflicts(request):
+    return TemplateResponse(request, "ethics/conflicts.html")
+
+
+class ConflictSearchView(PermissionsMixin, SearchView):
+    form_class = ConflictSearchForm
+    model = ConflictOfInterest
+    paginate_by = 16
+    permission_required = "scipost.can_view_conflicts_of_interest"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object_list_item_template"] = "ethics/_conflict_of_interest_item.html"
+        return context
+
+    def get_results(self):
+        results = super().get_results()
+
+        return results.select_related(
+            "profile",
+            "related_profile",
+            "declared_by__profile",
+            "coauthorship__verified_by__profile",
+            "coauthorship__profile",
+            "coauthorship__coauthor",
+            "coauthorship__work",
+        )
 
 
 @login_required
