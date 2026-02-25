@@ -48,7 +48,7 @@
 
             <td>
 
-              {% if round.is_closed %}
+              {% if round.is_unscheduled %}
                 <button class="btn btn-sm btn-danger px-1 py-0 ms-auto"
                         hx-get="{% url "colleges:_hx_nomination_round_eligible_voter_action" round_id=round.id fellowship_id=voter.id action='remove' %}"
                         hx-target="#nomination-{{ round.nomination.id }}-round-{{ round.id }}-voters">
