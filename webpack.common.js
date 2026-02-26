@@ -16,6 +16,7 @@ module.exports = {
         jquerybase: [
             "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
             "./scipost_django/scipost/static/scipost/assets/js/base.js",
+            "./scipost_django/common/static/common/components/collapsible_row/script.js",
         ],
 	api: [
             "./scipost_django/scipost/static/scipost/assets/js/base.js",
