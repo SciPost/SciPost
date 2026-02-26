@@ -1,6 +1,7 @@
 {% for subsidy in page_obj %}
+
   <tr 
-    {% if "finadmin" in user_roles %} hx-get="{% url 'finances:_hx_subsidy_finadmin_details' subsidy_id=subsidy.id %}" hx-trigger="click" hx-target="#subsidy-{{ subsidy.id }}-finadmin-details" {% endif %}
+    {% if perms.scipost.can_manage_subsidies %}data-collapsible{% endif %}
     >
     <td>
       <a href="{{ subsidy.organization.get_absolute_url }}">{{ subsidy.organization }}</a>
@@ -31,7 +32,7 @@
           <span class="text-warning">{% include 'bi/plus-circle-fill.html' %}</span>
         {% endif %}
 
- 
+
       </td>
     {% endif %}
 
@@ -50,7 +51,7 @@
     {% if perms.scipost.can_manage_subsidies %}
       <td>{{ subsidy.get_status_display }}</td>
       <td>
-	
+
 
         {% if subsidy.renewable == True %}
           <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
@@ -62,7 +63,7 @@
 
       </td>
       <td>
-	
+
 
         {% if subsidy.renewed_by.all|length > 0 %}
           <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>
@@ -74,6 +75,12 @@
       <td class="text-nowrap bg-{{ subsidy.renewal_action_date_color_class }} {% if subsidy.renewal_action_date_color_class != "transparent" %}text-white{% endif %}">
         {{ subsidy.renewal_action_date }}
       </td>
+
+
+      <template name="tr-details-content">
+        <div hx-get="{% url 'finances:_hx_subsidy_finadmin_details' subsidy_id=subsidy.id %}"
+             hx-trigger="intersect once"></div>
+      </template>
     {% endif %}
 
   </tr>
@@ -100,12 +107,12 @@
       hx-indicator="#indicator-subsidy-page-{{ page_obj.number }}">
     <td colspan="20" id="indicator-subsidy-page-{{ page_obj.number }}"
         class="htmx-indicator p-0">
-        <div class="p-2 bg-primary bg-opacity-25 d-flex justify-content-center">
-          <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
-          <div class="spinner-grow spinner-grow-sm ms-2"
-               role="status"
-               aria-hidden="true"></div>
-        </div>
+      <div class="p-2 bg-primary bg-opacity-25 d-flex justify-content-center">
+        <strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+        <div class="spinner-grow spinner-grow-sm ms-2"
+             role="status"
+             aria-hidden="true"></div>
+      </div>
     </td>
   </tr>
 {% endif %}
