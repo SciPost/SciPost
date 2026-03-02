@@ -87,6 +87,8 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
         self.order_fields(["action_option", "refusal_reason", "justification"])
 
     def vet_request(self, thesislink: ThesisLink, user):
+        # Thesislink passed by reference, saved at the view level.
+        thesislink.vetted_by = user.contributor
         mail_context = {
             "thesislink": thesislink,
             "domain": get_current_domain(),
@@ -95,12 +97,11 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
             case self.ACCEPT:
                 mail_code = "theses/thesislink_vetting_accepted"
                 thesislink.vetted = True
-                thesislink.vetted_by = user.contributor
             case self.MODIFY:
                 mail_code = "theses/thesislink_vetting_modified"
                 thesislink.vetted = True
-                thesislink.vetted_by = user.contributor
             case self.REFUSE:
+                thesislink.vetted = False
                 mail_code = "theses/thesislink_vetting_rejected"
                 refusal_reason = dict(self.fields["refusal_reason"].choices)[
                     int(self.cleaned_data["refusal_reason"])
@@ -119,9 +120,6 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
             mail_code,
             **mail_context,
         ).send_mail()
-
-        if action_id == self.REFUSE:
-            thesislink.delete()
 
 
 class ThesisLinkSearchForm(forms.Form):

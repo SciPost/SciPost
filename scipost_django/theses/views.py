@@ -60,7 +60,7 @@ class UnvettedThesisLinks(ListView):
     model = ThesisLink
     template_name = "theses/unvetted_thesislinks.html"
     context_object_name = "thesislinks"
-    queryset = ThesisLink.objects.filter(vetted=False)
+    queryset = ThesisLink.objects.awaiting_vetting().order_by("-latest_activity")
 
 
 @method_decorator(

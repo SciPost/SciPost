@@ -24,7 +24,7 @@ class ThesisLink(models.Model):
         related_name="requested_theses",
         on_delete=models.CASCADE,
     )
-    vetted = models.BooleanField(default=False)
+    vetted = models.BooleanField(default=None, null=True, blank=True)
     vetted_by = models.ForeignKey(
         "scipost.Contributor", blank=True, null=True, on_delete=models.CASCADE
     )
