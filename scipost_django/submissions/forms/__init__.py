@@ -4039,7 +4039,7 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
         label="Reinvite referees",
     )
 
-    referee_invitation_emails = forms.MultipleChoiceField()
+    referee_invitation_emails = forms.MultipleChoiceField(required=False)
 
     class Meta:
         model = Submission
@@ -4059,12 +4059,15 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
             .distinct()
         )
         self.fields["referees_reinvite"].queryset = all_invitations_in_thread
-        self.fields["referee_invitation_emails"].choices = [
+        referee_emails = [
             (email, email)
             for email in all_invitations_in_thread.values_list(
                 "referee__emails__email", flat=True
             )
         ]
+        self.fields["referee_invitation_emails"].choices = referee_emails
+        if referee_emails:
+            self.fields["referee_invitation_emails"].required = True
 
     def clean(self):
         cleaned_data = super().clean()
