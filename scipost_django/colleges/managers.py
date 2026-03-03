@@ -107,24 +107,16 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
         """
         Returns all Fellowships whose profiles have no conflicts of interest with any of the authors of the specified submission.
         """
-        fellow_profile_ids = self.values_list("contributor__profile", flat=True)
-        submission_author_profile_ids = submission.author_profiles.all().values_list(
-            "profile_id", flat=True
+        from profiles.models import Profile
+
+        profiles_without_coi = (
+            Profile.objects.all()
+            .filter(id__in=self.values_list("contributor__profile", flat=True))
+            .without_conflicts_of_interest_against_submission_authors_of(submission)
+            .values_list("id", flat=True)
         )
 
-        fellow_author_cois = ConflictOfInterest.objects.between_profile_sets(
-            fellow_profile_ids, submission_author_profile_ids
-        )
-
-        CI_profiles = fellow_author_cois.values_list("profile", "related_profile")
-        # Unpack the collection of id-two-tuples into two tuples of ids
-        profile_CoI, related_CoI = tuple(zip(*CI_profiles)) or ((), ())
-
-        return self.exclude(
-            contributor__profile__id__in=profile_CoI
-            + related_CoI
-            + tuple(submission_author_profile_ids)
-        )
+        return self.filter(contributor__profile_id__in=profiles_without_coi)
 
     def without_authorship_of_submission(self, submission: "Submission"):
         """
