@@ -207,3 +207,22 @@ def attach_related(objects: Iterable[Model], *attachments: RelatedAttachment) ->
         for obj in objects:
             related_obj = attachment_map.get(getattr(obj, attachment.source_field))
             setattr(obj, attachment.target_field, related_obj)
+
+
+def queryset_annotation(func: Callable[[QuerySet[M]], BaseExpression]):
+    """
+    Decorator to transform a QuerySet expression into an annotation.
+    - `annot_key` is the name of the annotation to be added to the QuerySet.
+    """
+
+    def wrapper(
+        self: QuerySet[M],
+        annot_key: str = func.__name__.removeprefix("annot_"),
+        *args: Any,
+        **kwargs: Any,
+    ):
+        annotation = func(self, *args, **kwargs)
+        annot_key = kwargs.get("annot_key", annot_key)
+        return self.annotate(**{annot_key: annotation})
+
+    return wrapper
