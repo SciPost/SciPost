@@ -6,7 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.db.models import F, Q, Count, Model, QuerySet, Subquery, OuterRef
 
-from typing import Any, TypeVar, Iterable
+from typing import Any, Iterator, TypeVar, Iterable
+
 
 
 TQuery = TypeVar("TQuery", bound=Q | F)
@@ -143,14 +144,14 @@ class RelatedAttachment:
     target_field: str
     queryset: QuerySet[Model] | None = None
 
-    def get_queryset(self, object: Model | None = None) -> QuerySet[Model]:
+    def get_queryset(self, object_iterator: Iterator[Model | None]) -> QuerySet[Model]:
         """
         Retrieves the queryset to fetch related objects, either from the provided queryset
         or by inferring it from the model's source field.
         """
         if self.queryset is not None:
             return self.queryset
-        elif object is not None:
+        elif object_iterator and (object := next(iter(object_iterator), None)):
             model_field = object._meta.get_field(self.source_field)
             if related_model := model_field.related_model:
                 return related_model._default_manager.all()
@@ -178,7 +179,7 @@ class RelatedAttachment:
         else:
             pks = {getattr(obj, self.source_field) for obj in objects}
 
-        qs = self.get_queryset(next(iter(objects), None))
+        qs = self.get_queryset(iter(objects))
         return qs.filter(pk__in=pks)
 
     def apply_to(self, objects: Iterable[Model]) -> None:
