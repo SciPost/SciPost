@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
-from common.utils.models import RelatedAttachment, attach_related
+from common.utils.attachments import RelatedAttachment, attach_related
 from mails.views import MailView
 from pins.models import Note
 from scipost.mixins import PermissionsMixin

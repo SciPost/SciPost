@@ -31,7 +31,7 @@ from colleges.permissions import (
     is_edadmin_or_advisory_or_active_regular_or_senior_fellow,
 )
 from colleges.utils import check_profile_eligibility_for_fellowship
-from common.utils.models import RelatedAttachment, attach_related
+from common.utils.attachments import RelatedAttachment, attach_related
 from invitations.constants import INVITATION_EDITORIAL_FELLOW
 from invitations.models import RegistrationInvitation
 from journals.models.publication import Publication

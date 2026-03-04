@@ -34,7 +34,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 from careers.models import WorkContract
 from common.forms import CrispyFormMixin, HTMXDynSelWidget, SearchForm
-from common.utils.models import RelatedAttachment, attach_related
+from common.utils.attachments import RelatedAttachment, attach_related
 from finances.constants import (
     SUBSIDY_STATUS,
     SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,

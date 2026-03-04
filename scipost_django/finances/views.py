@@ -25,7 +25,7 @@ from django.utils.html import format_html
 from django.views.generic import FormView
 import matplotlib
 
-from common.utils.models import RelatedAttachment, attach_related
+from common.utils.attachments import RelatedAttachment, attach_related
 from common.views import HXDynselAutocomplete, HXDynselSelectOptionView
 from finances.constants import SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_PROMISED
 from finances.models.account import Account
