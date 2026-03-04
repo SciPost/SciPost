@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("journals", "0139_alter_journal_assignment_period"),
     ]
@@ -20,8 +19,8 @@ class Migration(migrations.Migration):
                 unique=True,
                 validators=[
                     django.core.validators.RegexValidator(
-                        "^((SciPost)[a-zA-Z]+|(MigPol|RobustRep))\\.\\w+(\\.[0-9]+)?$",
-                        "Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol|RobustRep))\\.\\w+(\\.[0-9]+)? are allowed.",
+                        "^((SciPost[a-zA-Z]+|MigPol|JRobustRep))\\.\\w+(\\.[0-9]+)?$",
+                        "Only expressions with regex ((SciPost[a-zA-Z]+|MigPol|JRobustRep))\\.\\w+(\\.[0-9]+)? are allowed.",
                     )
                 ],
             ),
@@ -35,8 +34,8 @@ class Migration(migrations.Migration):
                 unique=True,
                 validators=[
                     django.core.validators.RegexValidator(
-                        "^(SciPost)[a-zA-Z]+|(MigPol|RobustRep)$",
-                        "Only expressions with regex (SciPost)[a-zA-Z]+|(MigPol|RobustRep) are allowed.",
+                        "^(SciPost[a-zA-Z]+|MigPol|JRobustRep)$",
+                        "Only expressions with regex (SciPost[a-zA-Z]+|MigPol|JRobustRep) are allowed.",
                     )
                 ],
             ),
@@ -50,8 +49,8 @@ class Migration(migrations.Migration):
                 unique=True,
                 validators=[
                     django.core.validators.RegexValidator(
-                        "^((SciPost)[a-zA-Z]+|(MigPol|RobustRep))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?(-r[0-9]+(\\.[0-9]+)?)?$",
-                        "Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol|RobustRep))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?(-r[0-9]+(\\.[0-9]+)?)? are allowed.",
+                        "^((SciPost[a-zA-Z]+|MigPol|JRobustRep))(\\.(\\w+)(\\.(\\d+)(\\.(\\d{3,}))?)?)?(-([rv]\\d+(\\.\\d+)?|\\w+))?$",
+                        "Only expressions with regex ((SciPost[a-zA-Z]+|MigPol|JRobustRep))(\\.(\\w+)(\\.(\\d+)(\\.(\\d{3,}))?)?)?(-([rv]\\d+(\\.\\d+)?|\\w+))? are allowed.",
                     )
                 ],
             ),
@@ -65,8 +64,8 @@ class Migration(migrations.Migration):
                 unique=True,
                 validators=[
                     django.core.validators.RegexValidator(
-                        "^((SciPost)[a-zA-Z]+|(MigPol|RobustRep))\\.\\w+$",
-                        "Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol|RobustRep))\\.\\w+ are allowed.",
+                        "^((SciPost[a-zA-Z]+|MigPol|JRobustRep))\\.\\w+$",
+                        "Only expressions with regex ((SciPost[a-zA-Z]+|MigPol|JRobustRep))\\.\\w+ are allowed.",
                     )
                 ],
             ),
