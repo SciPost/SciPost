@@ -53,7 +53,9 @@ class Subsidy(models.Model):
     """
 
     organization = models.ForeignKey["Organization"](
-        "organizations.Organization", on_delete=models.CASCADE
+        "organizations.Organization",
+        on_delete=models.CASCADE,
+        related_name="subsidies",
     )
     subsidy_type = models.CharField(max_length=256, choices=SUBSIDY_TYPES)
     description = models.TextField()

@@ -380,9 +380,9 @@
 
           <h4>Direct support</h4>
 
-          {% if org.subsidy_set.direct.obtained|length > 0 or org.children.all|length > 0 %}
+          {% if org.subsidies.direct.obtained|length > 0 or org.children.all|length > 0 %}
 
-            {% if org.subsidy_set.direct.obtained|length > 0 %}
+            {% if org.subsidies.direct.obtained|length > 0 %}
               <table class="table table-hover mb-2 caption-top">
                 <caption>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</caption>
                 <thead class="table-light">
@@ -394,7 +394,7 @@
                 </thead>
                 <tbody>
 
-                  {% for subsidy in org.subsidy_set.direct.obtained %}
+                  {% for subsidy in org.subsidies.direct.obtained %}
                     <tr class="table-row"
                         data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}"
                         style="cursor: pointer">
@@ -440,7 +440,7 @@
             <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost directly.</strong></p>
           {% endif %}
 
-         {% if org.subsidy_set.through_individual_budget.exists %}
+         {% if org.subsidies.through_individual_budget.exists %}
 
               <h4>Support through Individual budgets</h3>
               <table class="table table-hover mb-5 caption-top">
@@ -457,7 +457,7 @@
                 </thead>
                 <tbody>
 
-                  {% for subsidy in org.subsidy_set.through_individual_budget.all %}
+                  {% for subsidy in org.subsidies.through_individual_budget.all %}
                       <tr class="table-row"
                           data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}"
                           style="cursor: pointer">

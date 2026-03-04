@@ -423,7 +423,7 @@ class Organization(models.Model):
         Check if this organization has a Subsidy with a still-running validity period.
         """
         return (
-            self.subsidy_set.obtained()
+            self.subsidies.obtained()
             .filter(date_until__gte=datetime.date.today())
             .exists()
         )
@@ -440,17 +440,15 @@ class Organization(models.Model):
         """
         Check if this organization has any Subsidy.
         """
-        return self.subsidy_set.obtained().exists()
+        return self.subsidies.obtained().exists()
 
     @property
     def latest_subsidy_date_until(self):
         """
         Returns the end date of validity of the latest subsidy.
         """
-        if self.subsidy_set.obtained():
-            return (
-                self.subsidy_set.obtained().order_by("-date_until").first().date_until
-            )
+        if self.subsidies.obtained():
+            return self.subsidies.obtained().order_by("-date_until").first().date_until
         return "-"
 
     def total_subsidies_in_year(self, year):
@@ -459,7 +457,7 @@ class Organization(models.Model):
         """
         total = 0
         for subsidy in (
-            self.subsidy_set.obtained()
+            self.subsidies.obtained()
             .filter(date_from__year__lte=year)
             .filter(models.Q(date_until=None) | models.Q(date_until__year__gte=year))
         ):
@@ -472,7 +470,7 @@ class Organization(models.Model):
         of subsidies from this Organization.
         """
         return (
-            self.subsidy_set.obtained()
+            self.subsidies.obtained()
             .aggregate(models.Sum("amount"))
             .get("amount__sum", 0)
         )
@@ -482,7 +480,7 @@ class Organization(models.Model):
         Computes the total amount of publicly visible Subsidies.
         """
         return (
-            self.subsidy_set.obtained()
+            self.subsidies.obtained()
             .filter(amount_publicly_shown=True)
             .aggregate(models.Sum("amount"))
             .get("amount__sum", 0)

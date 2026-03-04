@@ -472,7 +472,7 @@ class OrganizationDetailView(DetailView):
         # return queryset
         return queryset.select_related("parent").prefetch_related(
             "children",
-            "subsidy_set",
+            "subsidies",
             "contactperson_set",
             "contactrole_set",
             "funder_set",
