@@ -6,8 +6,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.db.models import F, Q, Count, Model, QuerySet, Subquery, OuterRef
 
-from typing import Any, Iterator, TypeVar, Iterable
+from typing import Any, Callable, Iterator, TypeVar, Iterable
 
+from django.db.models.expressions import BaseExpression
 
 
 TQuery = TypeVar("TQuery", bound=Q | F)
@@ -207,6 +208,62 @@ def attach_related(objects: Iterable[Model], *attachments: RelatedAttachment) ->
         for obj in objects:
             related_obj = attachment_map.get(getattr(obj, attachment.source_field))
             setattr(obj, attachment.target_field, related_obj)
+
+
+class AttachableQuerySet(QuerySet[M]):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._attachments: list[RelatedAttachment] = []
+        self._attaching_done = False
+
+    @classmethod
+    def from_queryset(cls, queryset: QuerySet[M]) -> "AttachableQuerySet[M]":
+        """
+        Creates an AttachableQuerySet from a regular QuerySet, copying its data and annotations.
+
+        Args:
+            queryset (QuerySet[M]): The original QuerySet to copy.
+
+        Returns:
+            AttachableQuerySet[M]: A new AttachableQuerySet instance with the same data and
+            annotations as the original QuerySet.
+        """
+        attachable_qs = cls()
+
+        for attr in ["model", "query", "_result_cache", "_prefetch_related_lookups"]:
+            value = getattr(queryset, attr)
+            setattr(attachable_qs, attr, value)
+
+        return attachable_qs
+
+    def _clone(self):
+        c = super()._clone()
+
+        c._attachments = self._attachments.copy()
+        c._attaching_done = self._attaching_done
+
+        return c
+
+    def attach(self, *attachments: RelatedAttachment) -> "AttachableQuerySet[M]":
+        """
+        Adds attachments to the queryset, which will be applied when the queryset is evaluated.
+        Attachments are used to fetch and set related objects on the models in the queryset.
+
+        Args:
+            *attachments (RelatedAttachment): One or more RelatedAttachment instances defining how to fetch and attach related objects.
+
+        Returns:
+            AttachableQuerySet[M]: The same queryset instance with the attachments added.
+        """
+        self._attachments.extend(attachments)
+        return self
+
+    def _fetch_all(self):
+        super()._fetch_all()
+
+        if self._attachments and not self._attaching_done:
+            attach_related(self._result_cache, *self._attachments)
+            self._attaching_done = True
 
 
 def queryset_annotation(func: Callable[[QuerySet[M]], BaseExpression]):
