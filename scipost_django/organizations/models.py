@@ -38,6 +38,11 @@ from .constants import (
 )
 from .managers import OrganizationQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
+
 
 class OrganizationLogo(models.Model):
     """
@@ -166,6 +171,10 @@ class Organization(models.Model):
     )
 
     objects = OrganizationQuerySet.as_manager()
+
+    if TYPE_CHECKING:
+        subsidies: RelatedManager[Subsidy]
+        pubfracs: RelatedManager[PubFrac]
 
     class Meta:
         ordering = ["country", "name"]

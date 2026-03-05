@@ -1,0 +1,19 @@
+<div class="d-flex flex-row align-items-center gap-2">
+
+  <span>
+
+    {% if subsidy.amount_publicly_shown %}
+      <span class="badge bg-light text-dark">€{{ subsidy.amount }}</span>
+    {% else %}
+      <span class="badge bg-secondary">Private</span>
+    {% endif %}
+
+  </span>
+  <span>via <a href="{{ subsidy.organization.get_absolute_url }}">{{ subsidy.organization }}</a></span>
+  <span>from {{ subsidy.date_from|date:"Y-m-d" }} to {{ subsidy.date_until|date:"Y-m-d" }}</span>
+
+  <div class="ms-auto">
+    <a class="fs-6 btn btn-outline-secondary"
+       href="{{ subsidy.get_absolute_url }}">Details</a>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+{% now "Y" as current_year %}
+
+{% if not subsidy %}
+  <div class="text-center p-1 
+    {% if organization.cf_nr_associated_publications != 0 and not has_direct_sponsorship %}bg-warning bg-opacity-10{% else %} text-muted{% endif %}
+     ">None</div>
+{% elif subsidy.date_until.year >= current_year|add:"0" %}
+  <div class="bg-success text-white text-center p-1">Current</div>
+{% elif subsidy.date_until.year == current_year|add:"-1" %}
+  <div class="text-center p-1 bg-success bg-opacity-50">To Be Renewed</div>
+{% else %}
+  <div class="text-center p-1 bg-primary bg-opacity-25">
+    Past <small class="ms-1">({{ subsidy.date_until.year }})</small>
+  </div>
+{% endif %}

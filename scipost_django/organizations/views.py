@@ -25,6 +25,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 
+from common.utils.attachments import AttachableQuerySet, RelatedAttachment
 from finances.models.subsidy import Subsidy
 from journals.models.publication import PublicationAuthorsTable
 from profiles.models import Profile, ProfileEmail
@@ -268,49 +269,24 @@ class OrganizationListView(PaginationMixin, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset().exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
-        country = self.request.GET.get("country")
         order_by = self.request.GET.get("order_by")
         ordering = self.request.GET.get("ordering")
 
-        org_subsidies: QuerySet[Subsidy] = Subsidy.objects.obtained().filter(
-            organization=OuterRef("id")
-        )
-        parent_subsidies: QuerySet[Subsidy] = Subsidy.objects.obtained().filter(
-            organization=OuterRef("parent_id")
-        )
-
-        def subq_year(subsidies_qs):
-            return Subquery(
-                subsidies_qs.order_by("-date_from").values("date_until__year")[:1]
+        qs = qs.annotate(
+            nr_associated_authors=Count(
+                "publicationauthorstable__profile",
+                distinct=True,
             )
-
-        qs = (
-            qs.annotate(
-                current_subsidy_year=subq_year(
-                    org_subsidies.filter(date_until__gte=timezone.now())
-                ),
-                current_parent_subsidy_year=subq_year(
-                    parent_subsidies.filter(date_until__gte=timezone.now())
-                ),
-                to_be_renewed_subsidy_year=subq_year(
-                    org_subsidies.sequentially_renewable()
-                ),
-                to_be_renewed_parent_subsidy_year=subq_year(
-                    parent_subsidies.sequentially_renewable()
-                ),
-                any_subsidy_year=subq_year(org_subsidies),
-                any_parent_subsidy_year=subq_year(parent_subsidies),
-            )
-            .prefetch_related("logos", "children")
-            .select_related("parent")
         )
 
-        if country:
+        if country := self.request.GET.get("country"):
             qs = qs.filter(country=country)
         if order_by == "country":
             qs = qs.order_by("country")
         elif order_by == "name":
             qs = qs.order_by("name")
+        elif order_by == "nr_associated_authors":
+            qs = qs.order_by("-nr_associated_authors")
         elif order_by == "nap":
             qs = (
                 qs.all()
@@ -321,6 +297,27 @@ class OrganizationListView(PaginationMixin, ListView):
             qs = qs.order_by("cf_balance_info__cumulative__impact_on_reserves")
         if ordering == "desc":
             qs = qs.reverse()
+
+        qs = (
+            qs.all()
+            .annot_latest_subsidy_id()
+            .annot_latest_ally_subsidy_id_for_any_compensated_pubfrac()
+            .prefetch_related("logos", "children")
+            .select_related("parent")
+        )
+
+        qs = AttachableQuerySet.from_queryset(qs).attach(
+            RelatedAttachment(
+                "latest_subsidy_id",
+                "latest_subsidy",
+                Subsidy.objects.all().select_related("organization"),
+            ),
+            RelatedAttachment(
+                "latest_ally_subsidy_id_for_any_compensated_pubfrac",
+                "latest_ally_subsidy_for_any_compensated_pubfrac",
+                Subsidy.objects.all().select_related("organization"),
+            ),
+        )
 
         return qs
 

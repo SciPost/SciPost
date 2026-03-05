@@ -7,17 +7,18 @@ from itertools import chain
 
 from django.contrib.postgres.lookups import Unaccent
 from django.db import models
-from django.db.models import Q, Exists, OuterRef
+from django.db.models import Q, Exists, OuterRef, Subquery
 from django.db.models.functions import Lower
 from django.utils import timezone
 
-from common.utils.models import qs_duplicates_group_by_key
+from common.utils.models import qs_duplicates_group_by_key, queryset_annotation
 from finances.constants import (
     SUBSIDY_PROMISED,
     SUBSIDY_INVOICED,
     SUBSIDY_RECEIVED,
     SUBSIDY_WITHDRAWN,
 )
+from finances.models.pubfrac import PubFrac
 from finances.models.subsidy import Subsidy
 
 from typing import Any, Mapping, TYPE_CHECKING
@@ -173,3 +174,43 @@ class OrganizationQuerySet(models.QuerySet):
                 Subsidy.objects.all().obtained().filter(organization=OuterRef("pk"))
             )
         )
+
+    @queryset_annotation
+    def annot_latest_subsidy_id(self):
+        """
+        Annotate with the latest Subsidy for the Organization.
+        """
+        return Subquery(
+            Subsidy.objects.filter(organization=OuterRef("pk"))
+            .order_by("-date_from")
+            .values("id")[:1]
+        )
+
+    @queryset_annotation
+    def annot_latest_ally_subsidy_id_for_any_compensated_pubfrac(self):
+        """
+        Annotate with the latest Subsidy of any allied Organization which had compensated a PubFrac for this Organization.
+        """
+
+        # fmt: off
+        return Subquery(
+            Subsidy.objects.all()
+            # The lookup `organization__subsidies__compensated_pubfracs(__organization)` means:
+            # "Find other subsidies from an organization which has compensated some PubFrac attributed to me"
+            .filter(organization__subsidies__compensated_pubfracs__organization=OuterRef("id"))
+            .exclude(
+                # Exclude compensation strategies that are too broad
+                # to warrant allyship across all future subsidies
+                organization__subsidies__compensated_pubfracs__compensated_by__compensation_strategies_keys__contained_by=[
+                    # "countries",
+                    # "funders",
+                    # "specialties",
+                    "any",
+                ]
+            )
+            # Exclude subsidies from the same organization, as those would not be "ally" subsidies but "self" subsidies
+            .exclude(organization__subsidies__organization=OuterRef("id"))
+            .order_by("-date_from")
+            .values("id")[:1]
+        )
+        # fmt: on
