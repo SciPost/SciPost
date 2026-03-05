@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from functools import reduce
+
 from django import forms
 
 from crispy_forms.helper import FormHelper
@@ -21,7 +23,11 @@ class ConflictSearchForm(CrispyFormMixin, SearchForm[ConflictOfInterest]):
     model = ConflictOfInterest
     queryset = ConflictOfInterest.objects.all()
 
-    name = forms.CharField(label="Name", required=False)
+    name = forms.CharField(
+        label="Name(s)",
+        required=False,
+        help_text="You may search for at most two names by splitting them with a single semicolon (';').",
+    )
     nature = forms.ChoiceField(
         label="Nature",
         choices=((None, "Any"),) + ConflictOfInterest.NATURE_CHOICES,
@@ -63,10 +69,23 @@ class ConflictSearchForm(CrispyFormMixin, SearchForm[ConflictOfInterest]):
             queryset = queryset.filter(nature=nature)
 
         if name := self.cleaned_data.get("name"):
-            queryset = queryset.filter(
-                Q(profile__full_name__unaccent__icontains=name)
-                | Q(related_profile__full_name__unaccent__icontains=name)
-            )
+            match name.split(";"):
+                case [single_name]:
+                    queryset = queryset.filter(
+                        Q(profile__full_name__unaccent__icontains=single_name)
+                        | Q(related_profile__full_name__unaccent__icontains=single_name)
+                    )
+                case [name1, name2, *_]:
+                    queryset = queryset.filter(
+                        (
+                            Q(profile__full_name__unaccent__icontains=name1)
+                            & Q(related_profile__full_name__unaccent__icontains=name2)
+                        )
+                        | (
+                            Q(profile__full_name__unaccent__icontains=name2)
+                            & Q(related_profile__full_name__unaccent__icontains=name1)
+                        )
+                    )
 
         return queryset
 
