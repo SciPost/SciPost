@@ -19,8 +19,8 @@ def sponsors(request):
     last_year_sponsors = (
         Organization.objects.all_sponsors()
         .filter(
-            subsidy__date_from__year__lte=year - 1,
-            subsidy__date_until__year__gte=year - 1,
+            subsidies__date_from__year__lte=year - 1,
+            subsidies__date_until__year__gte=year - 1,
         )
         .exclude(id__in=current_sponsors.values_list("id", flat=True))
     )

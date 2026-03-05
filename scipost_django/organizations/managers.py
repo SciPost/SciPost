@@ -33,8 +33,12 @@ class OrganizationQuerySet(models.QuerySet):
         All Organizations which have subsidized SciPost at least once in the past.
         """
         return self.filter(
-            subsidy__status__in=[SUBSIDY_PROMISED, SUBSIDY_INVOICED, SUBSIDY_RECEIVED],
-            subsidy__amount__gte=0,
+            subsidies__status__in=[
+                SUBSIDY_PROMISED,
+                SUBSIDY_INVOICED,
+                SUBSIDY_RECEIVED,
+            ],
+            subsidies__amount__gte=0,
         )
 
     def current_sponsors(self):
@@ -43,8 +47,8 @@ class OrganizationQuerySet(models.QuerySet):
         """
         return (
             self.all()
-            .filter(subsidy__date_until__gte=datetime.date.today())
-            .exclude(subsidy__status=SUBSIDY_WITHDRAWN)
+            .filter(subsidies__date_until__gte=datetime.date.today())
+            .exclude(subsidies__status=SUBSIDY_WITHDRAWN)
         )
 
     def with_subsidy_above_and_up_to(self, min_amount, max_amount=None):
@@ -53,13 +57,13 @@ class OrganizationQuerySet(models.QuerySet):
         """
         qs = (
             self.filter(
-                subsidy__status__in=[
+                subsidies__status__in=[
                     SUBSIDY_PROMISED,
                     SUBSIDY_INVOICED,
                     SUBSIDY_RECEIVED,
                 ],
             )
-            .annotate(max_subsidy=models.Max("subsidy__amount"))
+            .annotate(max_subsidy=models.Max("subsidies__amount"))
             .filter(max_subsidy__gte=min_amount)
         )
         if max_amount:
@@ -72,13 +76,13 @@ class OrganizationQuerySet(models.QuerySet):
         """
         return (
             self.filter(
-                subsidy__status__in=[
+                subsidies__status__in=[
                     SUBSIDY_PROMISED,
                     SUBSIDY_INVOICED,
                     SUBSIDY_RECEIVED,
                 ],
             )
-            .annotate(total=models.Sum("subsidy__amount"))
+            .annotate(total=models.Sum("subsidies__amount"))
             .order_by("-total")
         )
 

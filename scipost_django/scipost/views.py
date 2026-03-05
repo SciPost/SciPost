@@ -253,7 +253,7 @@ def portal_hx_home(request):
                 has_contributing_parent=Exists(
                     Organization.objects.filter(
                         children=OuterRef("pk"),
-                        subsidy__isnull=False,
+                        subsidies__isnull=False,
                     )
                 ),
                 impact_on_reserves=Coalesce(
