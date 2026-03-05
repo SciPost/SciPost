@@ -10,7 +10,7 @@ import string
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import F, Q, Count, Prefetch, Sum
+from django.db.models import F, Q, Count, OuterRef, Subquery, Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -18,6 +18,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django_countries.fields import CountryField
 
+from common.utils.attachments import AttachableQuerySet, RelatedAttachment
 from finances.models.subsidy import Subsidy
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
@@ -219,19 +220,21 @@ class Organization(models.Model):
         return publications.filter(pk__in=self.cf_associated_publication_ids["all"])
 
     def get_publications_with_year(self, year=None, journal=None):
-        return (
-            self.get_publications(year=year, journal=journal)
-            .annotate(
-                publication_year=F("publication_date__year"),
-            )
-            .prefetch_related(
-                Prefetch(
-                    "pubfracs",
-                    queryset=PubFrac.objects.filter(organization=self).select_related(
-                        "compensated_by"
-                    ),
-                    to_attr="pubfracs_for_org",
-                )
+        publications = self.get_publications(year=year, journal=journal).annotate(
+            publication_year=F("publication_date__year"),
+            org_attributed_pubfrac_id=Subquery(
+                PubFrac.objects.filter(
+                    publication=OuterRef("pk"),
+                    organization=self,
+                ).values("id")[:1]
+            ),
+        )
+
+        return AttachableQuerySet.from_queryset(publications).attach(
+            RelatedAttachment(
+                "org_attributed_pubfrac_id",
+                "org_attributed_pubfrac",
+                PubFrac.objects.select_related("compensated_by__organization"),
             )
         )
 
@@ -272,13 +275,10 @@ class Organization(models.Model):
         """
         Returns all Profiles of authors associated to this Organization.
         """
-        profile_id_list = [
-            tbl.profile.id
-            for tbl in self.publicationauthorstable_set.all().select_related("profile")
-        ]
+        author_profile_ids = self.publicationauthorstable_set.values("profile_id")
         return (
-            Profile.objects.filter(id__in=profile_id_list)
-            .distinct()
+            Profile.objects.all()
+            .filter(id__in=author_profile_ids)
             .select_related("contributor")
         )
 
