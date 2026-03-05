@@ -111,6 +111,10 @@
                             {% include "bi/exclamation-circle-fill.html" %}
                           {% endif %}
                         </a>
+                        <a class="btn btn-sm btn-primary px-1 py-0"
+                            href="{% url 'ethics:conflicts' %}?name={{ coi.profile.full_name }};{{ coi.related_profile.full_name }}">
+                          {% include "bi/arrow-right.html" %}
+                        </a>
                       {% endif %}
 
                     </td>
