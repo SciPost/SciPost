@@ -466,16 +466,37 @@ class OrganizationDetailView(DetailView):
         queryset = super().get_queryset()
         if not self.request.user.has_perm("scipost.can_manage_organizations"):
             queryset = queryset.exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
-        # return queryset
-        return queryset.select_related("parent").prefetch_related(
-            "children",
-            "subsidies",
-            "contactperson_set",
-            "contactrole_set",
-            "funder_set",
-            "organizationevent_set",
-            "pubfracs",
+
+        queryset = (
+            queryset.all()
+            .annot_latest_subsidy_id()
+            .annot_latest_ally_subsidy_id_for_any_compensated_pubfrac()
+            .select_related("parent")
+            .prefetch_related(
+                "children",
+                "subsidies",
+                "contactperson_set",
+                "contactrole_set",
+                "funder_set",
+                "organizationevent_set",
+                "pubfracs",
+            )
         )
+
+        queryset = AttachableQuerySet.from_queryset(queryset).attach(
+            RelatedAttachment(
+                "latest_subsidy_id",
+                "latest_subsidy",
+                Subsidy.objects.all().select_related("organization"),
+            ),
+            RelatedAttachment(
+                "latest_ally_subsidy_id_for_any_compensated_pubfrac",
+                "latest_ally_subsidy_for_any_compensated_pubfrac",
+                Subsidy.objects.all().select_related("organization"),
+            ),
+        )
+
+        return queryset
 
 
 class OrganizationEventCreateView(PermissionsMixin, CreateView):
