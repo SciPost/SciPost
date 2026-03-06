@@ -3,25 +3,24 @@
 {% load static %}
 
 <p class="mb-0 pb-0">
-  {% if fellowship.contributor.profile.webpage %}
-    <a target="_blank" href="{{ fellowship.contributor.profile.webpage }}">
-  {% endif %}
-  {{ fellowship.contributor.profile.get_title_display }} {{ fellowship.contributor.user.first_name }} {{ fellowship.contributor.user.last_name }}
-  {% if fellowship.contributor.profile.webpage %}
+  <a href="{{ contributor.get_absolute_url }}">{{ contributor.profile.get_title_display }} {{ contributor.profile.full_name }}</a>
+  {% if contributor.profile.webpage %}
+    <a class="ms-2" href="{{ contributor.profile.webpage }}" target="_blank" rel="noopener">
+      {% include "bi/link.html" %}
     </a>
   {% endif %}
-  {% if fellowship.senior %}
+  {% if senior %}
     [S]
   {% endif %}
 </p>
 
-{% if fellowship.contributor.profile.affiliations.current.first %}
+{% if contributor.profile.current_affiliations.0 %}
   <span class="text-muted">
-    <img src="{{ fellowship.contributor.profile.affiliations.current.first.organization.country.flag }}" alt="{{ org.country }} flag"/>
-    &nbsp;{{ fellowship.contributor.profile.affiliations.current.first.organization.name }}  </span>
+    <img src="{{ contributor.profile.current_affiliations.0.organization.country.flag }}" alt="{{ org.country }} flag"/>
+    &nbsp;{{ contributor.profile.current_affiliations.0.organization.name }}  </span>
 {% endif %}
 <div>
-  {% for specialty in fellowship.contributor.profile.specialties.all %}
+  {% for specialty in contributor.profile.specialties.all %}
     <div class="single d-inline" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
   {% endfor %}
 </div>

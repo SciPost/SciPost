@@ -92,7 +92,7 @@ from scipost.models import Contributor
 from common.utils import Q_with_alternative_spellings
 from mails.views import MailView, MailEditorSubviewHTMX
 from ontology.models import Branch
-from profiles.models import Profile
+from profiles.models import Affiliation, Profile
 from profiles.forms import ProfileDynSelForm
 
 
@@ -108,6 +108,29 @@ class CollegeListView(ListView):
 class CollegeDetailView(DetailView):
     model = College
     template_name = "colleges/college_detail.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        if (college := context.get("object")) is None:
+            return context
+
+        context["active_fellowships"] = (
+            college.fellowships.all()
+            .regular_or_senior()
+            .active()
+            .prefetch_related(
+                "contributor__profile",
+                "contributor__profile__specialties",
+                Prefetch(
+                    "contributor__profile__affiliations",
+                    queryset=Affiliation.objects.all()
+                    .current()
+                    .select_related("organization"),
+                    to_attr="current_affiliations",
+                ),
+            )
+        )
+        return context
 
     def get_object(self, queryset=None):
         """

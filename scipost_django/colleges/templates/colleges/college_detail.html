@@ -58,10 +58,10 @@
   </div>
 
   <div class="row search-contributors" data-contributors="{{ college.acad_field.slug }}">
-    {% for fellowship in college.fellowships.regular_or_senior.active %}
+    {% for fellowship in active_fellowships %}
       <div class="contributor col-sm-12 col-md-6 col-lg-4">
 	<div class="card mb-3">
-	  {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
+	  {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
 	</div>
       </div>
     {% endfor %}
