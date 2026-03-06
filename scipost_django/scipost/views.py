@@ -328,6 +328,7 @@ class PortalPublicationSearchView(SearchView):
     form_class = PortalPublicationSearchForm
     model = Publication
     paginate_by = 16
+    item_template_name = "journals/_publication_li_content_var_object.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -340,13 +341,6 @@ class PortalPublicationSearchView(SearchView):
             }
         )
         return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["object_list_item_template"] = (
-            "journals/_publication_li_content_var_object.html"
-        )
-        return context
 
     def get_results(self) -> QuerySet:
         results = super().get_results()
@@ -380,6 +374,7 @@ class PortalSubmissionSearchView(SearchView):
     form_class = PortalSubmissionSearchForm
     model = Submission
     paginate_by = 16
+    item_template_name = "submissions/_submission_card_content_homepage_var_object.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -392,13 +387,6 @@ class PortalSubmissionSearchView(SearchView):
             }
         )
         return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["object_list_item_template"] = (
-            "submissions/_submission_card_content_homepage_var_object.html"
-        )
-        return context
 
     def get_results(self) -> QuerySet:
         results = super().get_results()

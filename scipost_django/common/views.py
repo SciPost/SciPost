@@ -471,8 +471,11 @@ class SearchView(TemplateResponseMixin, NonRedirectFormMixin, View):
     - a trigger to fetch the next page of results
     """
 
-    model = None  # To be defined in subclasses
     paginate_by = 16
+    model = None  # To be defined in subclasses
+    container_template_name = "common/search_form_result_pages_container_list.html"
+    page_template_name = "common/search_form_results_page_list.html"
+    item_template_name = "common/object_str.html"
 
     # Override to render:
     # - form on GET and POST when providing field defaults
@@ -483,14 +486,18 @@ class SearchView(TemplateResponseMixin, NonRedirectFormMixin, View):
         elif self.request.POST.get("filter_set"):
             return ["common/search_form_container.html"]
         else:  # POST with search performed
-            return ["common/search_form_results_page_listitems.html"]
+            return [self.page_template_name]
 
     def get_results(self) -> QuerySet:
         form = self.get_form()
         return form.search()
 
     def get_context_data(self, **kwargs):
-        context = {}
+        context = {
+            "search_form_result_pages_container_template": self.container_template_name,
+            "search_form_result_page_item_template": self.item_template_name,
+        }
+
         form = kwargs.get("form", self.get_form())
 
         results = self.get_results()

@@ -1,7 +1,7 @@
 {% load scipost_extras %}
 
 {% for object in page_obj %}
-  <li>{% include object_list_item_template %}</li>
+  <li>{% include search_form_result_page_item_template %}</li>
 {% empty %}
   <li class="p-2 bg-opacity-25 bg-warning d-flex flex-row gap-2 align-items-center justify-content-center">
     <span>{% include "bi/exclamation-triangle-fill.html" %}</span>

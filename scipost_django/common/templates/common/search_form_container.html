@@ -38,10 +38,6 @@
          class="card-body">{% include "common/search_form_crispy.html" %}</div>
   </details>
 
-  <ul id="{{ form.element_name }}-results"
-      class="list-unstyled d-flex flex-column gap-2">
-    <li id="{{ form.element_name }}-search-form-page-loading-trigger"></li>
-  </ul>
-
+  {% include search_form_result_pages_container_template %}
 
 </div>
