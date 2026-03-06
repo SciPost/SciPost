@@ -57,16 +57,40 @@
     </div>
   </div>
 
-  <div class="row search-contributors" data-contributors="{{ college.acad_field.slug }}">
-    {% for fellowship in active_fellowships %}
-      <div class="contributor col-sm-12 col-md-6 col-lg-4">
-	<div class="card mb-3">
-	  {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
-	</div>
-      </div>
-    {% endfor %}
-  </div>
+  {% regroup fellowships by is_on_standby as fellowships_per_charge %}
 
+  {% for is_on_standby, fellowship_group in fellowships_per_charge %}
+    {% if fellowship_group %}
+      {% if is_on_standby %}
+        <details>
+          <summary class="list-triangle d-flex align-items-center">
+            <h3 class="mb-0">Standby</h3>
+            <span class="ms-3 text-muted">(no editorial activity in the last 2 years)</span>
+          </summary>
+          <ul class="mt-3 list-unstyled row search-contributors">
+            {% for fellowship in fellowship_group %}
+              <li class="contributor col-sm-12 col-md-6 col-lg-4">
+                <div class="card mb-3">
+                  {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </details>
+      {% else %}
+        <h3>Active</h3>
+        <ul class="mt-3 list-unstyled row search-contributors">
+          {% for fellowship in fellowship_group %}
+            <li class="contributor col-sm-12 col-md-6 col-lg-4">
+              <div class="card mb-3">
+                {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
 
 {% endblock content %}
 

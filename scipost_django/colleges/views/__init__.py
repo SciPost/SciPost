@@ -114,10 +114,23 @@ class CollegeDetailView(DetailView):
         if (college := context.get("object")) is None:
             return context
 
-        context["active_fellowships"] = (
+        context["fellowships"] = (
             college.fellowships.all()
             .regular_or_senior()
             .active()
+            .annot_nr_handled_threads(years_ago=2)
+            .annotate(
+                # On Standby if no threads handled in the last 2 years
+                # and also not a new (3 month old or less) Fellow
+                is_on_standby=(
+                    Q(nr_handled_threads=0)
+                    & Q(start_date__lte=timezone.now() - datetime.timedelta(3 * 30))
+                )
+            )
+            .order_by(
+                "is_on_standby",
+                "contributor__profile__last_name",
+            )
             .prefetch_related(
                 "contributor__profile",
                 "contributor__profile__specialties",

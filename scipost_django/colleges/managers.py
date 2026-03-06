@@ -1,10 +1,13 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from functools import reduce
+
 from django.db import models
-from django.db.models import F, Q, CharField, Value
+from django.db.models import Q, Count, Value
+from django.db.models.functions import Cast, Coalesce
 from django.utils import timezone
-from ethics.models import ConflictOfInterest
+from common.utils.models import queryset_annotation
 from scipost.models import Contributor
 
 from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
@@ -133,6 +136,47 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
 
         return self.exclude(
             contributor__in=submission_authors | preassigned_authors | author_claims
+        )
+
+    @queryset_annotation
+    def annot_nr_handled_threads(self, years_ago: int = 2):
+        """
+        Annotate with the number of Submission threads handled by the Fellow.
+        """
+        from submissions.models import Submission
+
+        now = timezone.now()
+
+        # Add a source for each year in the range pulling data from the anon stats dict.
+        thread_anon_sources = [
+            Coalesce(
+                Cast(
+                    f"contributor__anonymous_stats__nr_thread_assignments_completed__{year}",
+                    output_field=models.IntegerField(),
+                ),
+                Value(0),
+            )
+            for year in range(now.year - years_ago, now.year + 1)
+        ]
+
+        # Single source for all non-anonymous threads, which we can pull from the EIC relation.
+        # Restrict to non-resubmitted Submissions to estimate unique threads handled.
+        thread_epon_sources = [
+            Count(
+                "contributor__EIC",
+                filter=Q(
+                    contributor__EIC__latest_activity__gte=now
+                    - timezone.timedelta(days=365 * years_ago)
+                )
+                & ~Q(contributor__EIC__status=Submission.RESUBMITTED),
+                distinct=True,
+            )
+        ]
+
+        return reduce(
+            lambda acc, x: acc + x,
+            thread_anon_sources + thread_epon_sources,
+            Value(0),
         )
 
 
