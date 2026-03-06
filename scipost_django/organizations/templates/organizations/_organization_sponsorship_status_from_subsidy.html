@@ -6,7 +6,7 @@
      ">None</div>
 {% elif subsidy.date_until.year >= current_year|add:"0" %}
   <div class="bg-success text-white text-center p-1">Current</div>
-{% elif subsidy.date_until.year == current_year|add:"-1" %}
+{% elif subsidy.date_until.year == current_year|add:"-1" and subsidy.renewable %}
   <div class="text-center p-1 bg-success bg-opacity-50">To Be Renewed</div>
 {% else %}
   <div class="text-center p-1 bg-primary bg-opacity-25">
