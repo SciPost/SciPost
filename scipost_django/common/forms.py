@@ -184,8 +184,8 @@ class SearchForm(Generic[M], forms.Form):
         label="Ordering",
         choices=(
             # FIXME: Emperically, the ordering appers to be reversed for dates?
-            ("-", "Descending"),
             ("+", "Ascending"),
+            ("-", "Descending"),
         ),
         required=False,
     )
