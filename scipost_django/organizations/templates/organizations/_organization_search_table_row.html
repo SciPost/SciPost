@@ -1,0 +1,130 @@
+{% with organization=object %}
+
+  <tr data-collapsible>
+    <td title="{{ organization.get_country_display }}"
+        data-bs-toggle="tooltip">
+      <img class="me-2"
+           src="{{ organization.country.flag }}"
+           alt="{{ organization.country }} flag" />
+      <span>{{ organization.country }}</span>
+    </td>
+    <td>
+      <div class="d-flex flex-row gap-2">
+        <a href="{{ organization.get_absolute_url }}"><span class="fs-6">{{ organization.name }}</span></a>
+        <span class="badge bg-light text-dark">{{ organization.acronym }}</span>
+      </div>
+    </td>
+    <td>{{ organization.nr_associated_authors }}</td>
+    <td>{{ organization.cf_nr_associated_publications }}</td>
+    <td>
+      {% include "organizations/_organization_sponsorship_status_from_subsidy.html" with organization=org subsidy=organization.latest_subsidy %}
+    </td>
+    <td>
+      {% include "organizations/_organization_sponsorship_status_from_subsidy.html" with organization=org subsidy=organization.latest_ally_subsidy_for_any_compensated_pubfrac has_direct_sponsorship=organization.latest_subsidy %}
+    </td>
+
+    {% if 'finadmin' in user_roles %}
+      <td class="bg-opacity-10 text-end 
+        {% if organization.cf_balance_info.cumulative.impact_on_reserves <= 0 %}bg-danger{% else %}bg-success{% endif %}
+         ">&euro;{{ organization.cf_balance_info.cumulative.impact_on_reserves }}</td>
+    {% endif %}
+
+
+    <template name="tr-details-content">
+      <div class="d-flex flex-column gap-3 p-2">
+        <section name="details"
+                 class="d-flex flex-row gap-4">
+
+          {% if organization.logo %}
+            <img class="flex-grow-1"
+                 style="max-width: 100px;
+                        object-fit: contain"
+                 src="{{ organization.logo.url }}"
+                 alt="{{ org }} logo" />
+          {% else %}
+            <img class="flex-grow-1"
+                 style="max-width: 40px;
+                        object-fit: contain"
+                 src="{{ organization.country.flag }}"
+                 alt="{{ organization.country }} flag" />
+          {% endif %}
+
+          <hgroup class="d-flex flex-column gap-1">
+            <h4 class="m-0">{{ organization.name_original|default:organization.name }}</h4>
+
+            {% if organization.name_original and organization.name_original != organization.name %}
+              <span class="fs-6 text-muted">{{ organization.name }}</span>
+            {% endif %}
+
+          </hgroup>
+
+          <div class="ms-auto">
+            <a class="fs-6 btn btn-outline-secondary"
+               href="{{ organization.get_absolute_url }}">Details</a>
+          </div>
+        </section>
+
+        {% if organization.parent or organization.children.all %}
+          <section class="row"
+                   name="genealogy">
+
+            {% if organization.parent %}
+              <div class="col">
+                <div class="fs-5">Parent organization</div>
+                <span>
+                  <a href="{{ organization.parent.get_absolute_url }}">{{ organization.parent }}</a>
+                </span>
+              </div>
+            {% endif %}
+
+            {% if organization.children.all %}
+              <div class="col">
+                <div class="fs-5">Child organizations</div>
+                <ul class="list-unstyled">
+
+                  {% for child in organization.children.all %}
+                    <li>
+                      <a href="{{ child.get_absolute_url }}">{{ child }}</a>
+                    </li>
+                  {% endfor %}
+
+
+                </ul>
+              </div>
+            {% endif %}
+
+          </section>
+        {% endif %}
+
+        {% with direct=organization.latest_subsidy indirect=organization.latest_ally_subsidy_for_any_compensated_pubfrac %}
+          <section>
+
+            {% if direct %}
+              <div class="col">
+                <div class="fs-5">
+                  Latest Sponsorship
+                  <small class="text-muted">(Direct Contribution)</small>
+                </div>
+                {% include "organizations/_organization_subsidy_description_row.html" with subsidy=direct %}
+              </div>
+            {% endif %}
+
+            {% if indirect %}
+              <div class="col">
+                <div class="fs-5">
+                  Latest Allied Compensation
+                  <small class="text-muted">(Indirect Contribution)</small>
+                </div>
+                {% include "organizations/_organization_subsidy_description_row.html" with subsidy=indirect %}
+              </div>
+            {% endif %}
+
+          </section>
+        {% endwith %}
+
+      </div>
+    </template>
+  </tr>
+
+
+{% endwith %}

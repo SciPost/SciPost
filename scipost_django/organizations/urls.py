@@ -14,7 +14,12 @@ urlpatterns = [
         views.OrganizationAutocompleteView.as_view(),
         name="organization-autocomplete",
     ),
-    path("", views.OrganizationListView.as_view(), name="organizations"),
+    path("", views.OrganizationView.as_view(), name="organizations"),
+    path(
+        "search_view",
+        views.OrganizationTableSearchView.as_view(),
+        name="_hx_table_search_form_view",
+    ),
     path("add/", views.OrganizationCreateView.as_view(), name="organization_create"),
     path(
         "<int:pk>/update/",

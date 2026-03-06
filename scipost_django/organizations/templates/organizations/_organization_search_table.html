@@ -1,0 +1,45 @@
+<table class="table table-hover mb-5 position-relative align-middle">
+  <thead class="table-light position-sticky top-0">
+    <tr>
+      <th colspan="4"
+          class="pt-1 pb-0"></th>
+      <th colspan="2"
+          class="text-center pt-1 pb-0 text-center">Contributions</th>
+
+      {% if 'finadmin' in user_roles %}<th class="pt-1 pb-0 text-center text-danger">FinAdmin</th>{% endif %}
+
+    </tr>
+    <tr>
+      <th rowspan="2"
+          class="pt-0 pb-1">Country</th>
+      <th rowspan="2"
+          class="pt-0 pb-1">Name</th>
+      <th rowspan="2"
+          class="pt-0 pb-1">Authors</th>
+      <th rowspan="2"
+          class="pt-0 pb-1">
+        <span>NAP</span>
+        <span class="ms-2"
+              data-bs-toggle="tooltip"
+              data-bs-html="true"
+              title="Number of associated publications. For details, consult the Associated Publications tab in any Organization.">
+          {% include 'bi/info-circle-fill.html' %}
+        </span>
+      </th>
+      <th class="pt-0 pb-1 text-center">
+        <small class="text-muted">Direct</small>
+        <div>Sponsorship</div>
+      </th>
+      <th class="pt-0 pb-1 text-center">
+        <small class="text-muted">Indirect</small>
+        <div>Compensation</div>
+      </th>
+
+      {% if 'finadmin' in user_roles %}<th class="pt-0 pb-1 text-nowrap">Reserve Impact</th>{% endif %}
+
+    </tr>
+  </thead>
+  <tbody id="{{ form.element_name }}-results">
+    <tr id="{{ form.element_name }}-search-form-page-loading-trigger"></tr>
+  </tbody>
+</table>

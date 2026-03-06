@@ -9,7 +9,6 @@ from django.contrib import admin
 from django.urls import include, path, register_converter
 
 from scipost import views as scipost_views
-from organizations.views import OrganizationListView
 
 from affiliates.converters import Crossref_DOI_converter
 from colleges.converters import CollegeSlugConverter

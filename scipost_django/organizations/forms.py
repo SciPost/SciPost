@@ -10,11 +10,17 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Count, QuerySet
 
 from django.utils import timezone
 
 from dal import autocomplete
+from django_countries.data import COUNTRIES
+from django_countries.fields import CountryField
 from guardian.shortcuts import assign_perm
+
+from common.forms import CrispyFormMixin, SearchForm
+from scipost.templatetags.user_groups import is_financial_admin
 
 from .constants import ORGANIZATION_TYPES, ROLE_GENERAL
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
@@ -23,16 +29,12 @@ from scipost.constants import TITLE_CHOICES
 
 from crispy_forms.helper import FormHelper, Layout
 from crispy_forms.layout import Div, Field, Submit
+from crispy_bootstrap5.bootstrap5 import FloatingField
 
+from typing import TYPE_CHECKING, Any
 
-class SelectOrganizationForm(forms.Form):
-    organization = forms.ModelChoiceField(
-        queryset=Organization.objects.all(),
-        widget=autocomplete.ModelSelect2(
-            url="/organizations/organization-autocomplete", attrs={"data-html": True}
-        ),
-        label="",
-    )
+if TYPE_CHECKING:
+    from organizations.models import Organization
 
 
 class OrganizationForm(forms.ModelForm):
@@ -153,6 +155,75 @@ class OrganizationForm(forms.ModelForm):
                 f"This ROR ID is already in use by {org.name} ({org.get_absolute_url()})."
             )
         return ror_id
+
+
+class OrganizationSearchForm(CrispyFormMixin, SearchForm[Organization]):
+    model = Organization
+    queryset = Organization.objects.all()
+
+    name = forms.CharField(label="Name", required=False)
+    country = CountryField().formfield(label="Country", required=False)
+    orderby = forms.ChoiceField(
+        label="Order by",
+        choices=(
+            ("name", "Name"),
+            ("country", "Country"),
+            ("nr_associated_authors", "Authors"),
+            ("cf_nr_associated_publications", "Publications (NAP)"),
+        ),
+        required=False,
+        initial="name",
+    )
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+        if user and is_financial_admin(user):
+            self.fields["orderby"].choices += (
+                (
+                    "cf_balance_info__cumulative__impact_on_reserves",
+                    "Impact on reserves",
+                ),
+            )
+
+        countries_with_orgs = (
+            self.queryset.select_related("country")
+            .order_by("country")
+            .values_list("country", flat=True)
+            .distinct()
+        )
+        self.fields["country"].choices = [(None, "Any")] + [
+            (code, name)
+            for code, name in COUNTRIES.items()
+            if code in countries_with_orgs
+        ]
+
+    def get_form_layout(self):
+        return Layout(
+            Div(
+                Div(FloatingField("name"), css_class="col"),
+                Div(FloatingField("country"), css_class="col"),
+                Div(FloatingField("orderby"), css_class="col-auto"),
+                Div(FloatingField("ordering"), css_class="col-auto"),
+                css_class="row mb-0",
+            ),
+        )
+
+    def filter_queryset(self, queryset: "QuerySet[Organization]"):
+        queryset = queryset.annotate(
+            nr_associated_authors=Count(
+                "publicationauthorstable__profile",
+                distinct=True,
+            )
+        )
+
+        if name := self.cleaned_data.get("name"):
+            queryset = queryset.filter(name__icontains=name)
+        if country := self.cleaned_data.get("country"):
+            queryset = queryset.filter(country=country)
+
+        return queryset
 
 
 class OrganizationEventForm(forms.ModelForm):

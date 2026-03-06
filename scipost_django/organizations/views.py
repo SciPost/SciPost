@@ -12,12 +12,13 @@ from django.db.models.functions import Lower
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.db import transaction
-from django.db.models import Q, Count, Exists, OuterRef, QuerySet, Subquery
+from django.db.models import Q, Count, Exists, OuterRef, QuerySet
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.timezone import timedelta
+from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -26,6 +27,7 @@ from dal import autocomplete
 from guardian.decorators import permission_required
 
 from common.utils.attachments import AttachableQuerySet, RelatedAttachment
+from common.views import SearchView
 from finances.models.subsidy import Subsidy
 from journals.models.publication import PublicationAuthorsTable
 from profiles.models import Profile, ProfileEmail
@@ -37,13 +39,13 @@ from .constants import (
     ORGANIZATION_EVENT_EMAIL_SENT,
 )
 from .forms import (
-    SelectOrganizationForm,
     OrganizationForm,
     OrganizationEventForm,
     ContactPersonForm,
     NewContactForm,
     ContactActivationForm,
     ContactRoleForm,
+    OrganizationSearchForm,
 )
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
@@ -52,7 +54,6 @@ from funders.models import Funder
 from mails.utils import DirectMailUtil
 from mails.views import MailEditorSubview
 from organizations.decorators import has_contact
-from organizations.models import Organization
 
 from organizations.utils import RORAPIHandler
 
@@ -248,9 +249,8 @@ class OrganizationDeleteView(PermissionsMixin, DeleteView):
     success_url = reverse_lazy("organizations:organizations")
 
 
-class OrganizationListView(PaginationMixin, ListView):
-    model = Organization
-    paginate_by = 50
+class OrganizationView(TemplateView):
+    template_name = "organizations/organizations.html"
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -258,55 +258,33 @@ class OrganizationListView(PaginationMixin, ListView):
             context["nr_funders_wo_organization"] = Funder.objects.filter(
                 organization=None
             ).count()
-        context["countrycodes"] = [
-            code["country"]
-            for code in list(
-                Organization.objects.all().distinct("country").values("country")
-            )
-        ]
-        context["select_organization_form"] = SelectOrganizationForm()
         return context
 
-    def get_queryset(self):
-        qs = super().get_queryset().exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
-        order_by = self.request.GET.get("order_by")
-        ordering = self.request.GET.get("ordering")
 
-        qs = qs.annotate(
-            nr_associated_authors=Count(
-                "publicationauthorstable__profile",
-                distinct=True,
-            )
-        )
+class OrganizationTableSearchView(SearchView):
+    form_class = OrganizationSearchForm
+    model = Organization
+    paginate_by = 32
 
-        if country := self.request.GET.get("country"):
-            qs = qs.filter(country=country)
-        if order_by == "country":
-            qs = qs.order_by("country")
-        elif order_by == "name":
-            qs = qs.order_by("name")
-        elif order_by == "nr_associated_authors":
-            qs = qs.order_by("-nr_associated_authors")
-        elif order_by == "nap":
-            qs = (
-                qs.all()
-                .exclude(cf_nr_associated_publications__isnull=True)
-                .order_by("cf_nr_associated_publications")
-            )
-        elif order_by == "impact":
-            qs = qs.order_by("cf_balance_info__cumulative__impact_on_reserves")
-        if ordering == "desc":
-            qs = qs.reverse()
+    page_template_name = "common/search_form_results_page_table.html"
+    container_template_name = "organizations/_organization_search_table.html"
+    item_template_name = "organizations/_organization_search_table_row.html"
 
-        qs = (
-            qs.all()
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {"user": self.request.user}
+
+    def get_results(self) -> QuerySet:
+        results = super().get_results().exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
+
+        results = (
+            results.all()
             .annot_latest_subsidy_id()
             .annot_latest_ally_subsidy_id_for_any_compensated_pubfrac()
             .prefetch_related("logos", "children")
             .select_related("parent")
         )
 
-        qs = AttachableQuerySet.from_queryset(qs).attach(
+        results = AttachableQuerySet.from_queryset(results).attach(
             RelatedAttachment(
                 "latest_subsidy_id",
                 "latest_subsidy",
@@ -319,7 +297,7 @@ class OrganizationListView(PaginationMixin, ListView):
             ),
         )
 
-        return qs
+        return results
 
 
 def get_organization_detail(request):
