@@ -179,6 +179,8 @@ class OrganizationSearchForm(CrispyFormMixin, SearchForm[Organization]):
         user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
+        self.fields["ordering"].initial = "+"
+
         if user and is_financial_admin(user):
             self.fields["orderby"].choices += (
                 (
