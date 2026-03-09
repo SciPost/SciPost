@@ -1,13 +1,7 @@
 <p>Dear {{ invitation.referee.formal_name }},</p>
 
 <p>
-  We have received a Submission to
-
-  {% if invitation.submission.submitted_to.doi_label == "MigPol" %}
-    Migration Politics
-  {% else %}
-    SciPost
-  {% endif %}
+  We have received a Submission to {{ invitation.submission.submitted_to.owner }}
 
   which, in view of your expertise and on behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.formal_name }}, we would like to invite you to referee:
   <br />

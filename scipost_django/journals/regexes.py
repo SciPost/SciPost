@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 import re
 
 
-JOURNAL_DOI_LABEL_REGEX = r"(SciPost[a-zA-Z]+|MigPol|JRobustRep)"
+JOURNAL_DOI_LABEL_REGEX = r"(SciPost[a-zA-Z]+|MigPol|JRobustRep|JSocBehavCh)"
 
 VOLUME_DOI_LABEL_REGEX = r"({})\.\w+".format(JOURNAL_DOI_LABEL_REGEX)
 
