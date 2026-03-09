@@ -11,6 +11,7 @@ import string
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import F, Q, Count, OuterRef, Subquery, Sum
+from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -19,6 +20,7 @@ from django.utils.functional import cached_property
 from django_countries.fields import CountryField
 
 from common.utils.attachments import AttachableQuerySet, RelatedAttachment
+from common.utils.lookups import ImmutableUnaccent
 from finances.models.subsidy import Subsidy
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
@@ -123,6 +125,11 @@ class Organization(models.Model):
     name = models.CharField(max_length=256, help_text="Western version of name")
     name_original = models.CharField(
         max_length=256, blank=True, help_text="Name (in original language)"
+    )
+    name_normalized = models.GeneratedField(
+        expression=Lower(ImmutableUnaccent("name")),
+        output_field=models.CharField(max_length=256),
+        db_persist=True,
     )
     acronym = models.CharField(
         max_length=64, blank=True, help_text="Acronym or short name"

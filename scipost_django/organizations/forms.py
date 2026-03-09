@@ -166,7 +166,7 @@ class OrganizationSearchForm(CrispyFormMixin, SearchForm[Organization]):
     orderby = forms.ChoiceField(
         label="Order by",
         choices=(
-            ("name", "Name"),
+            ("name_normalized", "Name"),
             ("country", "Country"),
             ("nr_associated_authors", "Authors"),
             ("cf_nr_associated_publications", "Publications (NAP)"),
@@ -221,7 +221,7 @@ class OrganizationSearchForm(CrispyFormMixin, SearchForm[Organization]):
         )
 
         if name := self.cleaned_data.get("name"):
-            queryset = queryset.filter(name__icontains=name)
+            queryset = queryset.filter(name_normalized__icontains=name)
         if country := self.cleaned_data.get("country"):
             queryset = queryset.filter(country=country)
 

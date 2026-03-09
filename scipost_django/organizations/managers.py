@@ -135,16 +135,11 @@ class OrganizationQuerySet(models.QuerySet):
         """
         Returns a mapping of potential duplicate Organization, keyed by the normalized name.
         """
-        orgs = self.annotate(
-            name_normalized=Lower(Unaccent(models.F("name"))),
-            ror_id=models.F("ror_json__id"),
-        )
-
         return {
             group: list(items)
             for group, items in chain(
-                qs_duplicates_group_by_key(orgs, "name_normalized"),
-                qs_duplicates_group_by_key(orgs, "ror_id"),
+                qs_duplicates_group_by_key(self, "name_normalized"),
+                qs_duplicates_group_by_key(self, "ror_json__id"),
             )
         }
 
