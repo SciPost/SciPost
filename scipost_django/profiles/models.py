@@ -97,8 +97,8 @@ class Profile(AnonymizableObjectMixin, models.Model):
         db_persist=True,
     )
     full_name_normalized = models.GeneratedField(
-        expression=ImmutableUnaccent(
-            Lower(
+        expression=Lower(
+            ImmutableUnaccent(
                 Concat(
                     "first_name",
                     models.Value(" "),
