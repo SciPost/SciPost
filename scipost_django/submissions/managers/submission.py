@@ -446,14 +446,11 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
         Annotate Submissions with the expertise level of the Qualification provided by a Fellow.
         """
         return self.annotate(
-            qualification_expertise=Coalesce(
-                models.Subquery(
-                    fellow.qualifications.filter(submission=models.OuterRef("pk"))
-                    .order_by("-datetime")
-                    .values("expertise_level")[:1],
-                ),
-                models.Value("None"),
-            )
+            qualification_expertise=models.Subquery(
+                fellow.qualifications.filter(submission=models.OuterRef("pk"))
+                .order_by("-datetime")
+                .values("expertise_level")[:1],
+            ),
         )
 
     def annot_readiness_status_by(self, fellow: "Contributor"):
@@ -461,14 +458,11 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
         Annotate Submissions with the readiness status of the Readiness provided by a Fellow.
         """
         return self.annotate(
-            readiness_status=Coalesce(
-                models.Subquery(
-                    fellow.readinesses.filter(submission=models.OuterRef("pk"))
-                    .order_by("-datetime")
-                    .values("status")[:1]
-                ),
-                models.Value("None"),
-            )
+            readiness_status=models.Subquery(
+                fellow.readinesses.filter(submission=models.OuterRef("pk"))
+                .order_by("-datetime")
+                .values("status")[:1]
+            ),
         )
 
     def annot_clearance_by(self, profile: "Profile"):
