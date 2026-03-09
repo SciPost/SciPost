@@ -1303,14 +1303,21 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
                 ),
                 key="fellows",
             ),
-            nr_appraised=count_q(
+            nr_appraised_epon=count_q(
                 filter_submissions_in_pool(
                     Qualification.objects.filter(fellow=OuterRef("contributor_id")),
                     prefix="submission__",
                 ),
                 key="fellow",
             ),
-            nr_qualified_for=count_q(
+            nr_appraised_anon=reduce(
+                F.__add__,
+                [
+                    get_anon_stat(f"nr_qualifications__{level}")
+                    for level in next(zip(*Qualification.EXPERTISE_LEVEL_CHOICES))
+                ],
+            ),
+            nr_qualified_for_epon=count_q(
                 filter_submissions_in_pool(
                     Qualification.objects.filter(
                         fellow=OuterRef("contributor_id"),
@@ -1324,6 +1331,13 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
                     prefix="submission__",
                 ),
                 key="fellow",
+            ),
+            nr_qualified_for_anon=reduce(
+                F.__add__,
+                [
+                    get_anon_stat(f"nr_qualifications__{level}")
+                    for level in Qualification.EXPERTISE_QUALIFIED
+                ],
             ),
             nr_assignments_ongoing=count_q(
                 EditorialAssignment.objects.filter(
@@ -1367,15 +1381,29 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
             ),
         )
 
-        # Consolidate eponymous and anonymous stats
-        # by re-annotating every `<base_key>_epon` as <base_key>
-        # and adding the anonymous stat to it.
+        # Consolidate eponymous and anonymous stats by re-annotating every
+        # `<base_key>` = `<base_key>_epon` + `<base_key>_anon`
+        # If `<base_key>_anon` is not already annotated,
+        # it is considered as an anonymous stat of key `<base_key>`.
+        eponymous_keys = [
+            key for key in queryset.query.annotations.keys() if key.endswith("_epon")
+        ]
+        anonymous_keys = [
+            key for key in queryset.query.annotations.keys() if key.endswith("_anon")
+        ]
         queryset = queryset.annotate(
             **{
-                base_key: F(epon_key) + get_anon_stat(base_key)
-                for epon_key in queryset.query.annotations.keys()
-                if epon_key.endswith("_epon")
-                and (base_key := epon_key.replace("_epon", ""))
+                anon_key: get_anon_stat(base_key)
+                for epon_key in eponymous_keys
+                if (base_key := epon_key.replace("_epon", ""))
+                and (anon_key := base_key + "_anon")
+                and (anon_key not in anonymous_keys)
+            }
+            | {
+                base_key: F(epon_key) + F(anon_key)
+                for epon_key in eponymous_keys
+                if (base_key := epon_key.replace("_epon", ""))
+                and (anon_key := base_key + "_anon")
             },
         )
 
