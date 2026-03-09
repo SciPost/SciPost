@@ -111,7 +111,7 @@ class ConflictSearchView(PermissionsMixin, SearchView):
     model = ConflictOfInterest
     paginate_by = 16
     permission_required = "scipost.can_view_conflicts_of_interest"
-    item_template_name = "ethics/_conflict_search_result_item.html"
+    item_template_name = "ethics/_conflict_of_interest_item.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
