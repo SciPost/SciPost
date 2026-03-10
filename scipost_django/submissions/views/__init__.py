@@ -1254,6 +1254,7 @@ def assignment_failed(request, identifier_w_vn_nr):
         submission.touch()
         Submission.objects.filter(id=submission.id).update(
             status=Submission.ASSIGNMENT_FAILED,
+            completion_date=timezone.now().date(),
             visible_pool=False,
             visible_public=False,
         )
@@ -3621,7 +3622,9 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
 
     # Force-close the refereeing round for new referees.
     Submission.objects.filter(id=submission.id).update(
-        open_for_reporting=False, open_for_commenting=False
+        open_for_reporting=False,
+        open_for_commenting=False,
+        completion_date=datetime.date.today(),
     )
 
     # Cancel outstanding refereeing invitations

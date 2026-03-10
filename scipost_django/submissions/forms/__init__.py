@@ -28,7 +28,7 @@ from django.db.models import (
     BooleanField,
     ExpressionWrapper,
 )
-from django.db.models.functions import Concat
+from django.db.models.functions import Coalesce, Concat
 from django.shortcuts import get_object_or_404
 from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
@@ -2078,7 +2078,9 @@ class SubmissionForm(forms.ModelForm):
 
         # Close last submission
         Submission.objects.filter(id=previous_submission.id).update(
-            open_for_reporting=False, status=Submission.RESUBMITTED
+            open_for_reporting=False,
+            status=Submission.RESUBMITTED,
+            completed_date=timezone.now().date(),
         )
 
         # Copy related objects
@@ -2094,6 +2096,8 @@ class SubmissionForm(forms.ModelForm):
             visible_pool=True,
             refereeing_cycle=CYCLE_UNDETERMINED,
             editor_in_charge=previous_submission.editor_in_charge,
+            eic_first_assigned_date=timezone.now(),
+            checks_cleared_date=timezone.now(),
             status=Submission.REFEREEING_IN_PREPARATION,
         )
 
@@ -2444,6 +2448,7 @@ class WithdrawSubmissionForm(forms.Form):
                 status=Submission.WITHDRAWN,
                 assignment_deadline=None,
                 latest_activity=timezone.now(),
+                completion_date=timezone.now().date(),
             )
             self.submission.get_other_versions().update(visible_public=False)
 
@@ -2547,6 +2552,9 @@ class EditorialAssignmentForm(forms.ModelForm):
                     open_for_commenting=True,
                     visible_public=True,
                     latest_activity=timezone.now(),
+                    eic_first_assigned_date=Coalesce(
+                        "eic_first_assigned_date", timezone.now()
+                    ),
                 )
                 # Refresh the instance
                 self.instance.submission = Submission.objects.get(id=self.submission.id)
@@ -2567,6 +2575,9 @@ class EditorialAssignmentForm(forms.ModelForm):
                     open_for_commenting=True,
                     visible_public=visible_public,
                     latest_activity=timezone.now(),
+                    eic_first_assigned_date=Coalesce(
+                        "eic_first_assigned_date", timezone.now()
+                    ),
                 )
                 # Refresh the instance
                 self.instance.submission = Submission.objects.get(id=self.submission.id)

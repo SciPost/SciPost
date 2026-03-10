@@ -263,7 +263,8 @@ def _hx_submission_admission(request, identifier_w_vn_nr):
             # )
         else:  # inadmissible, inform authors and set status to ADMISSION_FAILED
             Submission.objects.filter(pk=submission.id).update(
-                status=Submission.ADMISSION_FAILED
+                status=Submission.ADMISSION_FAILED,
+                completion_date=timezone.now().date(),
             )
             submission.add_event_for_edadmin("Submission admission failed")
             # send authors admission failed email

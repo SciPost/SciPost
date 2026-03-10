@@ -313,6 +313,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                     "followup_of",
                     "thread_hash",
                     "is_resubmission_of",
+                    "completion_date",
                     "list_of_changes",
                 ),
             },
@@ -322,6 +323,7 @@ class SubmissionAdmin(GuardedModelAdmin):
             {
                 "classes": ("collapse",),
                 "fields": (
+                    "checks_cleared_date",
                     "internal_plagiarism_matches",
                     "iThenticate_plagiarism_report",
                 ),
@@ -340,6 +342,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 "classes": ("collapse",),
                 "fields": (
                     "editor_in_charge",
+                    "eic_first_assigned_date",
                     ("visible_public", "visible_pool"),
                     "refereeing_cycle",
                     ("open_for_commenting", "open_for_reporting"),

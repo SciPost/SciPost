@@ -211,6 +211,7 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
 
         else:  # inadmissible, inform authors and set status to PREASSIGNMENT_FAILED
             submission.status = Submission.PREASSIGNMENT_FAILED
+            submission.completion_date = timezone.now().date()
             submission.save()
             submission.add_event_for_edadmin("Submission preassignment failed")
             # send authors admission failed email
