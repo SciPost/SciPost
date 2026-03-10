@@ -1,16 +1,24 @@
 {% with disclosure=object.gen_ai_disclosures.first %}
 
-  {% if disclosure and disclosure.was_used %}
-    <div class="bg-info bg-opacity-25 p-2">
-      <div class="fs-6 mb-2">
-        <span class="text-primary me-2">{% include 'bi/exclamation-circle-fill.html' %}</span>
-        Disclosure of Generative AI use
+  {% if disclosure %}
+    {% if disclosure.was_used or should_display_negative_gen_ai_disclosure %}
+      <div class="bg-info bg-opacity-25 p-2">
+        <div class="fs-6 mb-2">
+          <span class="text-primary me-2">{% include 'bi/exclamation-circle-fill.html' %}</span>
+          Disclosure of Generative AI use
+        </div>
+        <div class="d-flex flex-column gap-2">
+          <p class="mb-0">
+            The {{ disclosure.get_content_author_name }} disclose{{ disclosure.get_authors_could_be_plural|yesno:",s" }} that 
+            {{ disclosure.was_used|yesno:"the following,no" }} generative AI tools have been used 
+            in the preparation of this {{ disclosure.get_object_model_name }}
+          </p>
+          {% if disclosure.use_details %}
+            <p class="mb-0">{{ disclosure.use_details|linebreaksbr }}</p>
+          {% endif %}
+        </div>
       </div>
-      <p>
-        The {{ disclosure.get_content_author_name }} disclose{{ disclosure.get_authors_could_be_plural|yesno:",s" }} that the following generative AI tools have been used in the preparation of this {{ disclosure.get_object_model_name }}:
-      </p>
-      <p class="mb-0">{{ disclosure.use_details|linebreaksbr }}</p>
-    </div>
+    {% endif %}
   {% endif %}
 
 {% endwith %}

@@ -30,7 +30,7 @@ container border border-warning border-3
       <h4 class="ms-2 mt-4">- <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Submission Page</a> to view Reports and Comments</h4>
 
       <h3 class="mt-4">Submission summary</h3>
-      {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 %}
+      {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 should_display_negative_gen_ai_disclosure=1 %}
 
       <br>
       {% if submission.author_comments %}
