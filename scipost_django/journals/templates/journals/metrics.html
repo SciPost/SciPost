@@ -42,7 +42,7 @@
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      {{ nr_publications_plot|safe }}
+	      {{ nr_publications_plot|safe|default:'<p class="mb-0 fs-3 text-center">No data available</p>' }}
 	    </div>
 	  </div>
 	</div>
@@ -54,7 +54,7 @@
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      {{ nr_submissions_plot|safe }}
+	      {{ nr_submissions_plot|safe|default:'<p class="mb-0 fs-3 text-center">No data available</p>' }}
 	    </div>
 	  </div>
 	</div>
@@ -77,7 +77,7 @@
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      {{ nr_citations_plot|safe }}
+	      {{ nr_citations_plot|safe|default:'<p class="mb-0 fs-3 text-center">No data available</p>' }}
 	    </div>
 	  </div>
 	</div>
@@ -89,7 +89,7 @@
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      {{ citescore_plot|safe }}
+	      {{ citedby_citescore_plot|safe|default:'<p class="mb-0 fs-3 text-center">No data available</p>' }}
 	    </div>
 	  </div>
 	</div>
@@ -101,7 +101,7 @@
 	      </h3>
 	    </div>
 	    <div class="card-body">
-	      {{ impact_factor_plot|safe }}
+	      {{ citedby_impact_factor_plot|safe|default:'<p class="mb-0 fs-3 text-center">No data available</p>' }}
 	    </div>
 	  </div>
 	</div>

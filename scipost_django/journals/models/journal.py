@@ -27,7 +27,7 @@ from ..constants import (
 from ..managers import JournalQuerySet
 from ..validators import doi_journal_validator
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from colleges.models import College
@@ -157,10 +157,10 @@ class Journal(models.Model):
     )
 
     # Cost per publication information
-    cost_info = models.JSONField(default=cost_default_value)
+    cost_info = models.JSONField[dict[str, Any]](default=cost_default_value)
 
     # Calculated fields (to save CPU; field name always starts with cf_)
-    cf_metrics = models.JSONField(default=dict)
+    cf_metrics = models.JSONField[dict[str, Any]](default=dict)
 
     objects = JournalQuerySet.as_manager()
 

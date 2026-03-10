@@ -546,44 +546,30 @@ def metrics(request, doi_label, specialty=None):
         "journal": journal,
         "specialty": specialty,
     }
-    key = "all"
+    subset_key = "all"
     if specialty:
-        key = specialty.slug
-    nr_publications_plot = provide_plot(
-        x=journal.cf_metrics["nr_publications"]["years"],
-        y=journal.cf_metrics["nr_publications"]["nr_publications"][key],
-        name="Publications",
-        nonce=request.csp_nonce,
-    )
-    nr_submissions_plot = provide_plot(
-        x=journal.cf_metrics["nr_submissions"]["years"],
-        y=journal.cf_metrics["nr_submissions"]["nr_submissions"][key],
-        name="Submissions",
-        nonce=request.csp_nonce,
-    )
-    nr_citations_plot = provide_plot(
-        x=journal.cf_metrics["nr_citations"]["years"],
-        y=journal.cf_metrics["nr_citations"]["nr_citations"][key],
-        name="Total Citations",
-        nonce=request.csp_nonce,
-    )
-    citescore_plot = provide_plot(
-        x=journal.cf_metrics["citedby_citescore"]["years"],
-        y=journal.cf_metrics["citedby_citescore"]["citedby_citescore"][key],
-        name="Citescore",
-        nonce=request.csp_nonce,
-    )
-    impact_factor_plot = provide_plot(
-        x=journal.cf_metrics["citedby_impact_factor"]["years"],
-        y=journal.cf_metrics["citedby_impact_factor"]["citedby_impact_factor"][key],
-        name="Impact Factor",
-        nonce=request.csp_nonce,
-    )
-    context["nr_publications_plot"] = nr_publications_plot
-    context["nr_submissions_plot"] = nr_submissions_plot
-    context["nr_citations_plot"] = nr_citations_plot
-    context["citescore_plot"] = citescore_plot
-    context["impact_factor_plot"] = impact_factor_plot
+        subset_key = specialty.slug
+
+    plot_keys = {
+        "nr_publications": "Publications",
+        "nr_submissions": "Submissions",
+        "nr_citations": "Total Citations",
+        "citedby_citescore": "CiteScore",
+        "citedby_impact_factor": "Impact Factor",
+    }
+    for plot_key in plot_keys:
+        if (
+            (key_metrics := journal.cf_metrics.get(plot_key))
+            and (years := key_metrics.get("years", []))
+            and (values := key_metrics.get(plot_key, {}).get(subset_key))
+            and not all(v == 0 for v in values)
+        ):
+            context[f"{plot_key}_plot"] = provide_plot(
+                x=years,
+                y=values,
+                name=plot_keys[plot_key],
+                nonce=request.csp_nonce,
+            )
     return render(request, "journals/metrics.html", context)
 
 
