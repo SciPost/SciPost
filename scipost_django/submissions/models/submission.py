@@ -1399,3 +1399,7 @@ class SubmissionTiering(models.Model):
         "journals.Journal", on_delete=models.CASCADE
     )
     tier = models.SmallIntegerField(choices=SUBMISSION_TIERS)
+
+    @property
+    def numeral(self):
+        return "I" * self.tier
