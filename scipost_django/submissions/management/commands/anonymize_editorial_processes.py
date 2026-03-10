@@ -32,7 +32,10 @@ from submissions.models.assignment import (
 )
 from submissions.models.communication import EditorialCommunication
 from submissions.models.decision import EditorialDecision
-from submissions.models.recommendation import EICRecommendation
+from submissions.models.recommendation import (
+    EICRecommendation,
+    AlternativeRecommendation,
+)
 from submissions.models.referee_invitation import RefereeInvitation
 from submissions.models.report import Report
 from submissions.models.submission import Submission, SubmissionEvent, SubmissionTiering
@@ -98,7 +101,7 @@ class Command(BaseCommand):
         "or with --thread_limit to limit the number of threads processed per run. "
         "If neither is specified, it will anonymize all threads. "
         "Editorial processes to be anonymized are: "
-        "editor in charge, assignments, recommendations, "
+        "editor in charge, assignments, (alternative) recommendations, "
         "remarks, tierings, votes, events, communications, "
         "referee reports and invitations."
     )
@@ -201,6 +204,7 @@ class Command(BaseCommand):
                         "voted_abstain",
                         "remarks",
                         "remarks__contributor",
+                        "alternativerecommendation_set",
                     ),
                 ),
                 "editorial_communications",
@@ -349,6 +353,7 @@ class Command(BaseCommand):
                 gen_ai_disclosures: list[GenAIDisclosure] = []
                 remarks = list(submission.remarks.all())
                 recommendations = list(submission.eicrecommendations.all())
+                alt_recommendations: list[AlternativeRecommendation] = []
                 for recommendation in recommendations:
                     # Append recommendation remarks to submission remarks
                     remarks.extend(list(recommendation.remarks.all()))
@@ -367,6 +372,14 @@ class Command(BaseCommand):
                         for disclosure in recommendation.gen_ai_disclosures.all():
                             disclosure.contributor = rec_author_anon
                             gen_ai_disclosures.append(disclosure)
+
+                    for alt_rec in recommendation.alternativerecommendation_set.all():
+                        alt_rec_author_original = alt_rec.fellow
+                        alt_rec_author_anon = anon_contr_in_sub(
+                            alt_rec_author_original, submission
+                        )
+                        alt_rec.fellow = alt_rec_author_anon
+                        alt_recommendations.append(alt_rec)
 
                     # Anonymize all voting contributors for each
                     # of the voting sets of a recommendation
@@ -604,6 +617,11 @@ class Command(BaseCommand):
                 nr_recommendations_processed = EICRecommendation.objects.bulk_update(
                     recommendations, ["formulated_by"]
                 )
+                nr_alt_recommendations_processed = (
+                    AlternativeRecommendation.objects.bulk_update(
+                        alt_recommendations, ["fellow"]
+                    )
+                )
                 nr_tierings_processed = SubmissionTiering.objects.bulk_update(
                     tierings, ["fellow"]
                 )
@@ -636,6 +654,9 @@ class Command(BaseCommand):
                 nr_objects_processed["reports"] += nr_reports_processed
                 nr_objects_processed["invitations"] += nr_invitations_processed
                 nr_objects_processed["recommendations"] += nr_recommendations_processed
+                nr_objects_processed["alt_recommendations"] += (
+                    nr_alt_recommendations_processed
+                )
                 nr_objects_processed["tierings"] += nr_tierings_processed
                 nr_objects_processed["remarks"] += nr_remarks_processed
                 nr_objects_processed["assignments"] += nr_assignments_processed
@@ -720,6 +741,7 @@ class Command(BaseCommand):
                 f"{nr_objects_processed['reports']} reports, "
                 f"{nr_objects_processed['invitations']} invitations, "
                 f"{nr_objects_processed['recommendations']} recommendations, "
+                f"{nr_objects_processed['alt_recommendations']} alternative recommendations, "
                 f"{nr_objects_processed['tierings']} tierings, "
                 f"{nr_objects_processed['remarks']} remarks, "
                 f"{nr_objects_processed['assignments']} assignments, "

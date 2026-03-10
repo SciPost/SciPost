@@ -97,6 +97,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
 
     if TYPE_CHECKING:
         remarks: "RelatedManager[Remark]"
+        alternativerecommendation_set: "RelatedManager[AlternativeRecommendation]"
         gen_ai_disclosures: "Manager[GenAIDisclosure]"
 
     class Meta:
@@ -223,9 +224,13 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
 class AlternativeRecommendation(models.Model):
     """Alternative recommendation from voting Fellow who disagrees with EICRec."""
 
-    eicrec = models.ForeignKey(
+    eicrec = models.ForeignKey["EICRecommendation"](
         "submissions.EICRecommendation", on_delete=models.CASCADE
     )
-    fellow = models.ForeignKey("scipost.Contributor", on_delete=models.CASCADE)
-    for_journal = models.ForeignKey("journals.Journal", on_delete=models.CASCADE)
+    fellow = models.ForeignKey["Contributor"](
+        "scipost.Contributor", on_delete=models.CASCADE
+    )
+    for_journal = models.ForeignKey["Journal"](
+        "journals.Journal", on_delete=models.CASCADE
+    )
     recommendation = models.SmallIntegerField(choices=ALT_REC_CHOICES)
