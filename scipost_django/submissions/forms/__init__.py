@@ -2080,7 +2080,7 @@ class SubmissionForm(forms.ModelForm):
         Submission.objects.filter(id=previous_submission.id).update(
             open_for_reporting=False,
             status=Submission.RESUBMITTED,
-            completed_date=timezone.now().date(),
+            completion_date=timezone.now().date(),
         )
 
         # Copy related objects
