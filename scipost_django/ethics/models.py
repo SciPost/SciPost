@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from functools import cached_property
 import re
 from nameparser import HumanName
 
@@ -10,7 +11,11 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
-from ethics.managers import CoauthorshipQuerySet, ConflictOfInterestQuerySet
+from ethics.managers import (
+    CoauthoredWorkQuerySet,
+    CoauthorshipQuerySet,
+    ConflictOfInterestQuerySet,
+)
 from preprints.servers.server import PreprintServer
 from preprints.servers.utils import (
     AUTHOR_FIRST_LAST_NAME_FORMAT,
@@ -276,6 +281,8 @@ class CoauthoredWork(models.Model):
     date_fetched = models.DateField(auto_now_add=True)
     metadata = models.JSONField[str](default=dict, blank=True)
 
+    objects = CoauthoredWorkQuerySet.as_manager()
+
     if TYPE_CHECKING:
         coauthorships = RelatedManager["Coauthorship"]
 
@@ -316,6 +323,10 @@ class CoauthoredWork(models.Model):
     @authors.setter
     def authors(self, authors: list[HumanName]):
         self.authors_str = "; ".join(format_person_name(author) for author in authors)
+
+    @cached_property
+    def nr_authors(self) -> int:
+        return self.authors_str.count(";") + 1 if self.authors_str else 0
 
     def map_people_to_author_idxs(self, *people: Person) -> dict[Person, int]:
         from common.utils.text import latinise, partial_name_match_regexp

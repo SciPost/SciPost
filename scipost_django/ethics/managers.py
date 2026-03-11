@@ -4,16 +4,19 @@ __license__ = "AGPL v3"
 import enum
 import datetime
 
-from django.db.models import F, Case, Exists, OuterRef, QuerySet, Q, When, fields
+from django.db.models import F, Case, QuerySet, Q, Value, When, fields
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from typing import TYPE_CHECKING
 
+from common.utils.db import CountChars
+from common.utils.models import queryset_annotation
+
 if TYPE_CHECKING:
     from submissions.models.submission import Submission
     from profiles.models import Profile
-    from .models import ConflictOfInterest, Coauthorship
+    from .models import ConflictOfInterest, Coauthorship, CoauthoredWork
 
 
 class CoauthorshipExclusionPurpose(enum.Enum):
@@ -206,4 +209,14 @@ class CoauthorshipQuerySet(QuerySet["Coauthorship"]):
             )
             .exclude(pk=coauthorship.pk)
             .first()
+        )
+
+
+class CoauthoredWorkQuerySet(QuerySet["CoauthoredWork"]):
+    @queryset_annotation
+    def annot_nr_authors(self):
+        return Case(
+            When(authors_str="", then=Value(0)),
+            default=CountChars("authors_str", char=";") + 1,
+            output_field=fields.IntegerField(),
         )
