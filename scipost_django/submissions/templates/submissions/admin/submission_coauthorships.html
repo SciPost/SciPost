@@ -10,13 +10,8 @@
 {% block breadcrumb_items %}
   {{ block.super }}
 
-  {% if submission.status == 'incoming' %}
-    <a href="{% url 'submissions:do_preassignment' submission.preprint.identifier_w_vn_nr %}"
-       class="breadcrumb-item">Preassignment {{ submission.preprint.identifier_w_vn_nr }}</a>
-  {% else %}
-    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}"
-       class="breadcrumb-item">Editorial page {{ submission.preprint.identifier_w_vn_nr }}</a>
-  {% endif %}
+  <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}"
+     class="breadcrumb-item">Editorial page {{ submission.preprint.identifier_w_vn_nr }}</a>
 
   <span class="breadcrumb-item">Fellow Coauthorships</span>
 {% endblock %}
