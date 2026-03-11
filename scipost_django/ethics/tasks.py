@@ -54,7 +54,10 @@ def fetch_potential_coauthorships_for_profiles_from_preprint_server(
     nr_total_works_found += len(found_works)
 
     works_to_create = [
-        work for work in found_works if work.nr_authors <= MAX_AUTHORS_TO_CONSIDER_COIS
+        work
+        for work in found_works
+        if work.nr_authors <= MAX_AUTHORS_TO_CONSIDER_COIS
+        and work.contains_authors(profile, coauthor)
     ]
 
     # Use a lock to avoid race conditions when upserting works
@@ -84,7 +87,6 @@ def fetch_potential_coauthorships_for_profiles_from_preprint_server(
         Coauthorship(work=work, profile=profile, coauthor=coauthor)
         for work in works_created
         if work.pk is not None  # Make sure works were created successfully
-        and work.contains_authors(profile, coauthor)
     )
 
     nr_works_matching_all = len(coauthorships_to_create)
