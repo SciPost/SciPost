@@ -16,6 +16,13 @@ class GetElement(Func):
     function = ""
 
 
+class CountChars(Func):
+    """Trick as defined in https://stackoverflow.com/a/36376548, simplified for single char."""
+
+    function = "char_length"
+    template = "%(function)s(%(expressions)s) - %(function)s(replace(%(expressions)s, '%(char)s', ''))"
+
+
 ##################################################
 
 import time
