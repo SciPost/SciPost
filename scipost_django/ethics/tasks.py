@@ -12,6 +12,11 @@ from submissions.models.submission import Submission
 
 from typing import Any, Sequence
 
+# Set a max number of authors to consider for a work to be saved.
+# Processing coauthorships for works of many authors is taxing to EdAdmin
+# and any CoIs would be likely exempted anyway.
+MAX_AUTHORS_TO_CONSIDER_COIS = 20
+
 
 def fetch_potential_coauthorships_for_profiles_from_preprint_server(
     profile_id: int,
@@ -35,7 +40,7 @@ def fetch_potential_coauthorships_for_profiles_from_preprint_server(
     if profile.id > coauthor.id:
         profile, coauthor = coauthor, profile
 
-    coauthorships: list[Coauthorship] = []
+    coauthorships_to_create: list[Coauthorship] = []
     preprint_server = PreprintServer.from_name(preprint_server_source)
     five_years_ago = datetime.date.today() - datetime.timedelta(days=5 * 365)
 
@@ -48,6 +53,10 @@ def fetch_potential_coauthorships_for_profiles_from_preprint_server(
     found_works.sort(key=lambda w: (w.server_source, w.identifier))
     nr_total_works_found += len(found_works)
 
+    works_to_create = [
+        work for work in found_works if work.nr_authors <= MAX_AUTHORS_TO_CONSIDER_COIS
+    ]
+
     # Use a lock to avoid race conditions when upserting works
     with postgres_lock(
         f"celery_fetch_potential_coauthorships_coauthored_works_{preprint_server_source}",
@@ -57,8 +66,8 @@ def fetch_potential_coauthorships_for_profiles_from_preprint_server(
         # By using `update_conflicts` any rows failing uniqueness will be retrieved
         # and updated with the newly fetched values. The function returns them such that
         # Coauthorships can be created for them in the next step.
-        works = CoauthoredWork.objects.bulk_create(
-            found_works,
+        works_created = CoauthoredWork.objects.bulk_create(
+            works_to_create,
             update_conflicts=True,
             update_fields=[
                 "work_type",
@@ -71,20 +80,22 @@ def fetch_potential_coauthorships_for_profiles_from_preprint_server(
             unique_fields=["server_source", "identifier"],
         )
 
-    coauthorships.extend(
+    coauthorships_to_create.extend(
         Coauthorship(work=work, profile=profile, coauthor=coauthor)
-        for work in works
+        for work in works_created
         if work.pk is not None  # Make sure works were created successfully
         and work.contains_authors(profile, coauthor)
     )
 
-    nr_works_matching_all = len(coauthorships)
+    nr_works_matching_all = len(coauthorships_to_create)
     #! Will have conflicts if the work is already linked to the profiles,
     #! so double check it works as intended
-    coauthorships = Coauthorship.objects.bulk_create(
-        coauthorships, ignore_conflicts=True
+    coauthorships_created = Coauthorship.objects.bulk_create(
+        coauthorships_to_create, ignore_conflicts=True
     )
-    nr_coauthorships_created = len(list(c for c in coauthorships if c.pk is not None))
+    nr_coauthorships_created = len(
+        list(c for c in coauthorships_created if c.pk is not None)
+    )
     return {
         "nr_total_works_found": nr_total_works_found,
         "nr_works_matching_all": nr_works_matching_all,
