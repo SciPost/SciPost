@@ -4066,15 +4066,15 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
             RefereeInvitation.objects.filter(
                 submission__thread_hash=self.instance.thread_hash
             )
-            .order_by("referee", "-date_invited")
-            .distinct()
+            .order_by("referee_id", "-date_invited")
+            .distinct("referee_id")
         )
         self.fields["referees_reinvite"].queryset = all_invitations_in_thread
         referee_emails = [
             (email, email)
-            for email in all_invitations_in_thread.values_list(
-                "referee__emails__email", flat=True
-            )
+            for email in ProfileEmail.objects.all()
+            .filter(profile_id__in=all_invitations_in_thread.values_list("referee_id"))
+            .values_list("email", flat=True)
         ]
         self.fields["referee_invitation_emails"].choices = referee_emails
         if referee_emails:
