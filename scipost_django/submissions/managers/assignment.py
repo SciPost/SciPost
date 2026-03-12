@@ -3,11 +3,13 @@ __license__ = "AGPL v3"
 
 
 from django.conf import settings
-from django.db import models
+from django.db.models import QuerySet, Exists, OuterRef
 from django.utils import timezone
 
+from common.utils.models import queryset_annotation
 
-class EditorialAssignmentQuerySet(models.QuerySet):
+
+class EditorialAssignmentQuerySet(QuerySet):
     def last_year(self):
         return self.filter(
             date_created__gt=timezone.now() - timezone.timedelta(days=365)
@@ -92,7 +94,16 @@ class EditorialAssignmentQuerySet(models.QuerySet):
     def completed(self):
         return self.filter(status=self.model.STATUS_COMPLETED)
 
+    @queryset_annotation
+    def annot_is_latest(self):
+        return ~Exists(
+            self.model.objects.filter(
+                submission__thread_hash=OuterRef("submission__thread_hash"),
+                submission__submission_date__gt=OuterRef("submission__submission_date"),
+            )
+        )
 
-class ConditionalAssignmentOfferQuerySet(models.QuerySet):
+
+class ConditionalAssignmentOfferQuerySet(QuerySet):
     def offered(self):
         return self.filter(status=self.model.STATUS_OFFERED)
