@@ -110,18 +110,18 @@
         </details>
 
         {% if tierings %}
-          {% regroup tierings|sort_by:"tier" by get_tier_display as tierings_tier_group %}
+          {% regroup tierings|sort_by:"for_journal" by for_journal as tierings_for_journal_grouped %}
           <h3>Tierings</h3>
           <div class="d-flex flex-row flex-wrap gap-2 mb-3">
-            {% for tier_group in tierings_tier_group %}
-              {% regroup tier_group.list|dictsort:"for_journal.name" by for_journal.name as altrecs_for_journal_grouped %}
+            {% for journal_group in tierings_for_journal_grouped %}
+              {% regroup journal_group.list|dictsort:"tier" by numeral as tierings_tier_grouped %}
               <div class="p-2 bg-light bg-opacity-50 border border-secondary rounded">
-                <p class="fs-5 mb-1">Tier {{ tier_group.list.0.numeral }}</p>
+                <p class="fs-5 mb-1">{{ journal_group.grouper }}</p>
                 <ul class="mb-0 list-unstyled">
-                  {% for journal_group in altrecs_for_journal_grouped %}
+                  {% for tier_group in tierings_tier_grouped %}
                     <li class="d-flex flex-row justify-content-between gap-4">
-                      <span>{{ journal_group.grouper }}</span> 
-                      <span>{{ journal_group.list|length }}</span>  
+                      <span>Tier {{ tier_group.grouper }}</span> 
+                      <span>{{ tier_group.list|length }}</span>  
                     </li>
                   {% endfor %}
                 </ul>
@@ -131,18 +131,18 @@
         {% endif %}
 
         {% if alternative_recommendations %}
-          {% regroup alternative_recommendations by get_recommendation_display as altrecs_recommendation_grouped %}
+          {% regroup alternative_recommendations|sort_by:"for_journal" by for_journal as altrecs_for_journal_grouped %}
           <h3>Alt. Recommendations</h3>
           <div class="d-flex flex-row flex-wrap gap-2 mb-3">
-            {% for recommendation_group in altrecs_recommendation_grouped %}
-              {% regroup recommendation_group.list|dictsort:"for_journal.name" by for_journal.name as altrecs_for_journal_grouped %}
+            {% for journal_name in altrecs_for_journal_grouped %}
+              {% regroup journal_name.list|dictsort:"recommendation" by get_recommendation_display as altrecs_recommendation_grouped %}
               <div class="p-2 bg-light bg-opacity-50 border border-secondary rounded">
-                <p class="fs-5 mb-1">{{ recommendation_group.grouper }}</p>
+                <p class="fs-5 mb-1">{{ journal_name.grouper }}</p>
                 <ul class="mb-0 list-unstyled">
-                  {% for journal_group in altrecs_for_journal_grouped %}
+                  {% for recommendation_group in altrecs_recommendation_grouped %}
                     <li class="d-flex flex-row justify-content-between gap-4">
-                      <span>{{ journal_group.grouper }}</span> 
-                      <span>{{ journal_group.list|length }}</span>
+                      <span>{{ recommendation_group.grouper }}</span> 
+                      <span>{{ recommendation_group.list|length }}</span>
                     </li>
                   {% endfor %}
                 </ul>
