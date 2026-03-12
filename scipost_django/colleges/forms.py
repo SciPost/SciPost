@@ -13,6 +13,7 @@ from django.db.models import (
     Count,
     Exists,
     IntegerField,
+    Model,
     OuterRef,
     Subquery,
     QuerySet,
@@ -61,6 +62,10 @@ from .constants import (
     POTENTIAL_FELLOWSHIP_EVENT_NOMINATED,
 )
 from .utils import check_profile_eligibility_for_fellowship
+
+from typing import TypeVar
+
+M = TypeVar("M", bound=Model)
 
 
 class CollegeChoiceForm(forms.Form):
@@ -1133,13 +1138,14 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
             ("start_date", "Start date"),
             ("until_date", "End date"),
         ],
-        initial="",
+        initial="contributor__profile__last_name",
         required=False,
     )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
+        self.fields["ordering"].initial = "+"
 
         self.fields["college"].choices = (
             College.objects.annotate(
@@ -1247,7 +1253,7 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
 
         year = self.cleaned_data.get("year")
 
-        def filter_submissions_in_pool(qs, prefix=""):
+        def pool_submissions_in_range(qs: QuerySet[M], prefix: str = ""):
             """
             Filter a Submission queryset to only items in the pool between some dates.
             """
@@ -1257,14 +1263,26 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
             # Should not have left the pool before the "from" start date or not left at all
             # and should have cleared checks before the "to" end date.
             return qs.filter(
-                Q(**{prefix + "eic_first_assigned_date__year__gte": year}),
-                Q(**{prefix + "checks_cleared_date__year__lte": year}),
+                **{
+                    prefix + "eic_first_assigned_date__year__gte": year,
+                    prefix + "checks_cleared_date__year__lte": year,
+                }
             )
 
-        def count_q(qs, key="pk"):
+        def count_q(
+            qs: QuerySet[M],
+            group_key: str = "pk",
+            count_key: str | None = None,
+            distinct: bool = False,
+        ):
             """Count the number of items in a queryset, or return 0 if the queryset is empty."""
+            count_key = count_key or group_key
             return Coalesce(
-                Subquery(qs.values(key).annotate(count=Count(key)).values("count")[:1]),
+                Subquery(
+                    qs.values(group_key)
+                    .annotate(count=Count(count_key, distinct=distinct))
+                    .values("count")[:1]
+                ),
                 0,
             )
 
@@ -1291,24 +1309,29 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
 
         queryset = queryset.annotate(
             nr_in_pool=count_q(
-                filter_submissions_in_pool(
-                    Submission.objects.filter(fellows__exact=OuterRef("id")),
+                pool_submissions_in_range(
+                    Submission.objects.filter(fellows__exact=OuterRef("id"))
                 ),
-                key="fellows",
+                group_key="fellows",
+                count_key="thread_hash",
+                distinct=True,
             ),
             nr_in_pool_seeking_assignment=count_q(
                 Submission.objects.filter(
                     fellows__exact=OuterRef("id"),
                     status=Submission.SEEKING_ASSIGNMENT,
                 ),
-                key="fellows",
+                group_key="fellows",
+                count_key="thread_hash",
+                distinct=True,
             ),
             nr_appraised_epon=count_q(
-                filter_submissions_in_pool(
+                pool_submissions_in_range(
                     Qualification.objects.filter(fellow=OuterRef("contributor_id")),
                     prefix="submission__",
                 ),
-                key="fellow",
+                group_key="fellow",
+                count_key="submission__thread_hash",
             ),
             nr_appraised_anon=reduce(
                 F.__add__,
@@ -1318,19 +1341,15 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
                 ],
             ),
             nr_qualified_for_epon=count_q(
-                filter_submissions_in_pool(
+                pool_submissions_in_range(
                     Qualification.objects.filter(
                         fellow=OuterRef("contributor_id"),
-                        expertise_level__in=[
-                            Qualification.EXPERT,
-                            Qualification.VERY_KNOWLEDGEABLE,
-                            Qualification.KNOWLEDGEABLE,
-                            Qualification.MARGINALLY_QUALIFIED,
-                        ],
+                        expertise_level__in=Qualification.EXPERTISE_QUALIFIED,
                     ),
                     prefix="submission__",
                 ),
-                key="fellow",
+                group_key="fellow",
+                count_key="submission__thread_hash",
             ),
             nr_qualified_for_anon=reduce(
                 F.__add__,
@@ -1340,41 +1359,45 @@ class FellowshipsMonitorSearchForm(CrispyFormMixin, SearchForm[Fellowship]):
                 ],
             ),
             nr_assignments_ongoing=count_q(
-                EditorialAssignment.objects.filter(
+                EditorialAssignment.objects.annot_is_latest().filter(
                     to=OuterRef("contributor"),
                     status=EditorialAssignment.STATUS_ACCEPTED,
+                    is_latest=True,
                 ),
-                key="to",
+                group_key="to",
+                count_key="submission__thread_hash",
             ),
             nr_assignments_completed_epon=count_q(
-                filter_submissions_in_pool(
-                    EditorialAssignment.objects.filter(
+                pool_submissions_in_range(
+                    EditorialAssignment.objects.annot_is_latest().filter(
                         to=OuterRef("contributor"),
                         status=EditorialAssignment.STATUS_COMPLETED,
+                        is_latest=True,
                     ),
                     prefix="submission__",
                 ),
-                key="to",
+                group_key="to",
+                count_key="submission__thread_hash",
             ),
             nr_recommendations_eligible_epon=count_q(
-                filter_submissions_in_pool(
+                pool_submissions_in_range(
                     eicrecs_noneditor_eligible_subq,
                     prefix="submission__",
                 ),
-                key="eligible_to_vote",
+                group_key="eligible_to_vote",
             ),
             # Create a combined expression adding all the votes
             nr_recommendations_voted_epon=reduce(
                 lambda x, y: CombinedExpression(x, "+", y),
                 [
                     count_q(
-                        filter_submissions_in_pool(
+                        pool_submissions_in_range(
                             eicrecs_noneditor_eligible_subq.filter(
                                 **{key + "__exact": OuterRef("contributor")}
                             ),
                             prefix="submission__",
                         ),
-                        key=key,
+                        group_key=key,
                     )
                     for key in ("voted_for", "voted_against", "voted_abstain")
                 ],
