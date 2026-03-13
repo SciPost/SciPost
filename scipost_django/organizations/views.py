@@ -29,7 +29,7 @@ from guardian.decorators import permission_required
 from common.utils.attachments import AttachableQuerySet, RelatedAttachment
 from common.views import SearchView
 from finances.models.subsidy import Subsidy
-from journals.models.publication import PublicationAuthorsTable
+from journals.models.publication import Publication, PublicationAuthorsTable
 from profiles.models import Profile, ProfileEmail
 from submissions.models.submission import SubmissionAuthorProfile
 
@@ -435,6 +435,12 @@ class OrganizationDetailView(DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["balance"] = self.object.cf_balance_info
+        context["publishing_years"] = (
+            Publication.objects.published()
+            .values_list("publication_date__year", flat=True)
+            .distinct()
+            .order_by("-publication_date__year")
+        )
         return context
 
     def get_queryset(self):

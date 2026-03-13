@@ -338,7 +338,6 @@ TEMPLATES = [
                 "scipost.context_processors.domain_processor",
                 "scipost.context_processors.commit_hash_processor",
                 "scipost.context_processors.reasonable_url_keyword_processor",
-                "journals.context_processors.publishing_years_processor",
                 "journals.context_processors.journals_processor",
                 "ontology.context_processors.ontology_processor",
             ],
