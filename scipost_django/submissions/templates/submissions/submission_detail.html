@@ -8,8 +8,13 @@
 {% load bootstrap %}
 {% load automarkup %}
 
-{% block meta_description %}{{ block.super }} Submission Detail {{ submission.title }}{% endblock meta_description %}
-{% block pagetitle %} Submission: {{ submission.title|truncatechars:40 }}{% endblock pagetitle %}
+{% block meta_description %}
+  {{ block.super }} Submission Detail {{ submission.title }}
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  Submission: {{ submission.title|truncatechars:40 }}
+{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -17,14 +22,22 @@
 {% endblock %}
 
 {% block headsup %}
-  <meta name="citation_title" content="{{ submission.title }}"/>
+  <meta name="citation_title"
+        content="{{ submission.title }}" />
+
   {% for author in submission.authors_as_list %}
-    <meta name="citation_author" content="{{ author }}"/>
+    <meta name="citation_author"
+          content="{{ author }}" />
   {% endfor %}
-  <meta name="citation_online_date" content="{{ submission.submission_date|date:'Y/m/d' }}"/>
+
+  <meta name="citation_online_date"
+        content="{{ submission.submission_date|date:'Y/m/d' }}" />
+
   {% if submission.preprint.citation_pdf_url %}
-    <meta name="citation_pdf_url" content="{{ submission.preprint.citation_pdf_url }}"/>
+    <meta name="citation_pdf_url"
+          content="{{ submission.preprint.citation_pdf_url }}" />
   {% endif %}
+
 {% endblock headsup %}
 
 
@@ -33,62 +46,78 @@
   {% is_ed_admin request.user as is_ed_admin %}
 
   <div class="row">
+
     {% if is_author_unchecked %}
       <div class="col-12">
-	<div class="border border-warning py-2 px-3 mb-3">
-	  {% if request.user.contributor in submission.authors_claims.all %}
-	    <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Your authorship claim on this Submission is pending verification by our Editorial Administration.
-	  {% else %}
-	    <h3><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Please advise</h3>
-	    The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. Particular actions and information may be blocked until your authorship has been verified.
-	  {% endif %}
-	</div>
+        <div class="border border-warning py-2 px-3 mb-3">
+
+          {% if request.user.contributor in submission.authors_claims.all %}
+            <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Your authorship claim on this Submission is pending verification by our Editorial Administration.
+          {% else %}
+            <h3>
+              <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Please advise
+            </h3>
+            The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. Particular actions and information may be blocked until your authorship has been verified.
+          {% endif %}
+
+        </div>
       </div>
     {% endif %}
-    
+
     <!-- Right side column -->
     <aside class="col-lg-4 order-2">
+
       {% for invitation in invitations %}
-	      {% include 'submissions/_refereeing_status_card.html' with invitation=invitation %}
+        {% include 'submissions/_refereeing_status_card.html' with invitation=invitation %}
       {% endfor %}
 
       {% include 'submissions/_submission_refereeing_history.html' with submission=submission %}
-
       {% include 'submissions/_submission_quick_actions.html' with submission=submission %}
     </aside>
     <!-- End right side column -->
 
     <div class="col-lg-8 order-1">
       <!-- Notifications -->
+
       {% if unfinished_report_for_user %}
-	<div class="w-100">
-	  <div class="border border-warning py-2 px-3 mb-3">
-            <h3>{% include 'bi/exclamation-circle-fill.html' %} You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a></h3>
-	  </div>
-	</div>
+        <div class="w-100">
+          <div class="border border-warning py-2 px-3 mb-3">
+            <h3>
+              {% include 'bi/exclamation-circle-fill.html' %}
+              You have an unfinished report for this submission,
+              <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a>
+            </h3>
+          </div>
+        </div>
       {% endif %}
 
       {% if is_author %}
         <div class="w-100">
           <div class="border border-success py-2 px-3 mb-3">
-                  <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> You are a verified author of this Submission.
+            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> You are a verified author of this Submission.
           </div>
         </div>
       {% endif %}
+
       {% if is_submitting_author and unverified_claims_exist %}
         <div class="w-100">
           <div class="border border-warning py-2 px-3 mb-3">
-                  <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> There exist Authorship Claims on this Submission that are not yet verified. You can help Editorial Administration by <a href="{% url 'scipost:vet_authorship_claims' %}">reviewing them</a>.
+            <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> There exist Authorship Claims on this Submission that are not yet verified. You can help Editorial Administration by <a href="{% url 'scipost:vet_authorship_claims' %}">reviewing them</a>.
           </div>
         </div>
       {% endif %}
+
       {% if not submission.visible_public %}
-  <div class="w-100">
-    <div class="border border-warning py-2 px-3 mb-3">
-      <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> The submission is not publicly visible. {% if submission.in_stage_assignment %}This happens only after an editor voluntarily takes charge of it.{% endif %}
-    </div>
-  </div>
+        <div class="w-100">
+          <div class="border border-warning py-2 px-3 mb-3">
+            <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> The submission is not publicly visible.
+
+            {% if submission.in_stage_assignment %}This happens only after an editor voluntarily takes charge of it.{% endif %}
+
+          </div>
+        </div>
       {% endif %}
+
       <!-- End notifications -->
 
       <h2>SciPost Submission Page</h2>
@@ -96,51 +125,56 @@
       <h3 class="mb-3">by {{ submission.author_list }}</h3>
 
       {% if user.is_authenticated %}
-	{% include 'helpdesk/_ticket_for_object_link.html' with object=submission %}
+        {% include 'helpdesk/_ticket_for_object_link.html' with object=submission %}
       {% endif %}
 
       <div class="ps-2 mb-1">
-	{% if not submission.is_latest %}
-	  <h4 class="text-danger">
+
+        {% if not submission.is_latest %}
+          <h4 class="text-danger">
             <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
             This is not the latest submitted version.
-	  </h4>
-	{% endif %}
+          </h4>
+        {% endif %}
 
-	{% if submission.latest_followup_publications %}
-	  <div class="mb-2 w-100 d-inline-flex flex-column border border-2 border-warning p-2">
-	    <span class="fs-4">Follow-up(s) to this Submission thread have been published:</span>
-	    <ul class="mb-0">
-	      {% for publication in submission.latest_followup_publications %}
-	      	<li><a href="{{ publication.get_absolute_url }}">
-	      	  {{ publication.citation }}</a></li>
-	      {% endfor %}
-	    </ul>
-	  </div>
-	{% endif %}
-  
-	{% if submission.thread_full.first.publications.published %}
-	  <div class="mb-2 w-100 d-inline-flex flex-column border border-2 border-success p-2">
-	    <span class="fs-4">This Submission thread is now published as</span>
-	    <ul class="mb-0">
-	      {% for publication in submission.thread_full.first.publications.published %}
-	      	<li><a href="{{ publication.get_absolute_url }}">
-	      	  {{ publication.citation }}</a></li>
-	      {% endfor %}
-	    </ul>
-	  </div>
-	{% endif %}
+        {% if submission.latest_followup_publications %}
+          <div class="mb-2 w-100 d-inline-flex flex-column border border-2 border-warning p-2">
+            <span class="fs-4">Follow-up(s) to this Submission thread have been published:</span>
+            <ul class="mb-0">
 
-	{% if unfinished_report_for_user %}
-	  <h4>
+              {% for publication in submission.latest_followup_publications %}
+                <li><a href="{{ publication.get_absolute_url }}">{{ publication.citation }}</a></li>
+              {% endfor %}
+
+            </ul>
+          </div>
+        {% endif %}
+
+        {% if submission.thread_full.first.publications.published %}
+          <div class="mb-2 w-100 d-inline-flex flex-column border border-2 border-success p-2">
+            <span class="fs-4">This Submission thread is now published as</span>
+            <ul class="mb-0">
+
+              {% for publication in submission.thread_full.first.publications.published %}
+                <li><a href="{{ publication.get_absolute_url }}">{{ publication.citation }}</a></li>
+              {% endfor %}
+
+            </ul>
+          </div>
+        {% endif %}
+
+        {% if unfinished_report_for_user %}
+          <h4>
             <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
             You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a>
-	  </h4>
-	{% endif %}
+          </h4>
+        {% endif %}
 
-	{% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
-	  <h4 class="my-4">- You are the Editor-in-charge, <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">go to the Editorial Page</a> to take editorial actions.</h4>
-	{% endif %}
+        {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
+          <h4 class="my-4">
+            - You are the Editor-in-charge, <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">go to the Editorial Page</a> to take editorial actions.
+          </h4>
+        {% endif %}
 
       </div>
 
@@ -148,39 +182,40 @@
       {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
       <div id="submission-{{ submission.pk }}-topics"
-	   hx-get="{% url 'submissions:_hx_submission_topics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	   hx-trigger="revealed"
-      >
-      </div>
+           hx-get="{% url 'submissions:_hx_submission_topics' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+           hx-trigger="revealed"></div>
 
       {% if submission.editorial_decision %}
-	{% if is_author and submission.editorial_decision.status == submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}
-	  <p>
-	    <strong>We are awaiting your response to the publication offer.</strong>
-	    <br>
-	    You can either accept it, or withdraw your manuscript.</p>
-	    <ul class="list-unstyled">
-	      <li class="list-item my-1">
-		<a class="btn btn-primary" href="{% url 'submissions:accept_puboffer' submission.preprint.identifier_w_vn_nr %}">Accept offer for publication in {{ submission.editorial_decision.for_journal }} (one-click action)</a>
-	      </li>
-	      <li class="list-item my-1">
-		<a class="btn btn-danger" href="{% url 'submissions:withdraw_manuscript' submission.preprint.identifier_w_vn_nr %}">Turn down offer and withdraw manuscript (leads to confirmation page)</a>
-	      </li>
-	    </ul>
-	{% endif %}
+
+        {% if is_author and submission.editorial_decision.status == submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}
+          <p>
+            <strong>We are awaiting your response to the publication offer.</strong>
+            <br />
+            You can either accept it, or withdraw your manuscript.
+          </p>
+          <ul class="list-unstyled">
+            <li class="list-item my-1">
+              <a class="btn btn-primary"
+                 href="{% url 'submissions:accept_puboffer' submission.preprint.identifier_w_vn_nr %}">Accept offer for publication in {{ submission.editorial_decision.for_journal }} (one-click action)</a>
+            </li>
+            <li class="list-item my-1">
+              <a class="btn btn-danger"
+                 href="{% url 'submissions:withdraw_manuscript' submission.preprint.identifier_w_vn_nr %}">Turn down offer and withdraw manuscript (leads to confirmation page)</a>
+            </li>
+          </ul>
+        {% endif %}
       {% endif %}
 
       {% if submission.author_comments %}
-	<h3>Author comments upon resubmission</h3>
-	<div class="blockquote">
-	  {% automarkup submission.author_comments %}
-	</div>
+        <h3>Author comments upon resubmission</h3>
+        <div class="blockquote">{% automarkup submission.author_comments %}</div>
       {% endif %}
 
       {% if submission.list_of_changes %}
         <h3>List of changes</h3>
         <div class="blockquote">{% automarkup submission.list_of_changes %}</div>
       {% endif %}
+
     </div>
 
   </div>
@@ -195,48 +230,61 @@
 
   {% if is_ed_admin %}
     <button class="m-2 btn btn-primary workflowDiagram"
-	    id="submission-{{ submission.pk }}-workflow-diagram"
-	    hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	    hx-swap="outerHTML"
-    >Load Submission processing workflow graphs</button>
+            id="submission-{{ submission.pk }}-workflow-diagram"
+            hx-get="{% url 'submissions:_hx_submission_workflow_diagram' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
+            hx-swap="outerHTML">Load Submission processing workflow graphs</button>
   {% endif %}
 
   {% if submission.reports.accepted %}
-    <hr class="lg my-4">
+    <hr class="lg my-4" />
 
     <div class="row">
       <div class="col-12">
-	<div class="mb-3">
-	  <h2 class="highlight">Reports on this Submission</h2>
-	  <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#reports"><small>Show/hide Reports view</small></button>
-	</div>
+        <div class="mb-3">
+          <h2 class="highlight">Reports on this Submission</h2>
+          <button type="button"
+                  class="btn btn-link p-0"
+                  data-bs-toggle="toggle"
+                  data-bs-target="#reports">
+            <small>Show/hide Reports view</small>
+          </button>
+        </div>
       </div>
     </div>
 
     <div id="reports">
+
       {% for report in submission.reports.accepted %}
-	{% include 'submissions/_report_public.html' with report=report user=request.user perms=perms %}
+        {% include 'submissions/_report_public.html' with report=report user=request.user perms=perms %}
       {% endfor %}
+
     </div>
   {% endif %}
 
 
   {% if not user.is_authenticated %}
+
     {% if submission.comments.vetted.exists %}
-      <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{ request.path }}">Login to report</a></h3>
+      <h3 class="text-center my-3">
+        <a href="{% url 'scipost:login' %}?next={{ request.path }}">Login to report</a>
+      </h3>
     {% else %}
-      <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{ request.path }}">Login to report or comment</a></h3>
+      <h3 class="text-center my-3">
+        <a href="{% url 'scipost:login' %}?next={{ request.path }}">Login to report or comment</a>
+      </h3>
     {% endif %}
   {% endif %}
 
   {% if submission.comments.vetted %}
-    <hr class="lg">
+    <hr class="lg" />
     {% include 'comments/comments_block.html' with comments=submission.comments.vetted %}
   {% endif %}
 
 
   {# This is an apparent redundant logic block; however, it makes sure the "login to ..." links wouldn't be shown twice! #}
+
   {% if comment_form %}
+
     {% if not user.is_authenticated and submission.comments.vetted.exists %}
       {% include 'comments/new_comment.html' with form=comment_form object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
     {% elif user.is_authenticated %}
@@ -245,6 +293,7 @@
   {% endif %}
 
 {% endblock content %}
+
 
 {% block footer_script %}
   {{ block.super }}
