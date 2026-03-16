@@ -8,7 +8,7 @@ from itertools import chain
 from django.contrib.postgres.lookups import Unaccent
 from django.db import models
 from django.db.models import Q, Exists, OuterRef, Subquery
-from django.db.models.functions import Lower
+from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from common.utils.models import qs_duplicates_group_by_key, queryset_annotation
@@ -178,11 +178,23 @@ class OrganizationQuerySet(models.QuerySet):
     def annot_latest_subsidy_id(self):
         """
         Annotate with the latest Subsidy for the Organization.
+        Latest is defined as a current subsidy extending furthest into the future,
+        or if there are no current subsidies, the most recent past subsidy.
         """
-        return Subquery(
-            Subsidy.objects.filter(organization=OuterRef("pk"))
-            .order_by("-date_from")
-            .values("id")[:1]
+        return Coalesce(
+            Subquery(
+                Subsidy.objects.current()
+                .filter(organization=OuterRef("pk"))
+                .order_by("-date_until")
+                .values("id")[:1]
+            ),
+            Subquery(
+                Subsidy.objects.obtained()
+                .filter(organization=OuterRef("pk"))
+                .order_by("-date_from")
+                .values("id")[:1]
+            ),
+            output_field=models.IntegerField(),
         )
 
     @queryset_annotation

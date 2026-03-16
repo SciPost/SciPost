@@ -36,6 +36,13 @@ class SubsidyQuerySet(models.QuerySet):
             models.Q(date_until__year__lt=timezone.now().year - 1)
         )
 
+    def current(self):
+        """
+        Returns subsidies that are currently active,
+        i.e. those that are not withdrawn and whose end date is in the future.
+        """
+        return self.obtained().filter(date_until__gte=timezone.now().date())
+
 
 class SubsidyPaymentQuerySet(models.QuerySet):
     def outstanding(self):
