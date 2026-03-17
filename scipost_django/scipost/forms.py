@@ -151,6 +151,7 @@ class RegistrationForm(forms.Form):
         label="Personal (Recovery) Email address",
         help_text="A personal email address to recover your account "
         "in case you lose access to your institutional email address.",
+        required=False,
     )
     title = forms.ChoiceField(choices=TITLE_CHOICES, label="Title")
     first_name = forms.CharField(label="First name", max_length=64)
@@ -381,7 +382,10 @@ class RegistrationForm(forms.Form):
         )
         # fmt: on
 
-        field_address = self.cleaned_data.get(field, "")
+        field_address = self.cleaned_data.get(field)
+        if field_address is None:
+            return  # No address provided, no errors here
+
         profile_email = (
             ProfileEmail.objects.filter(email__iexact=field_address)
             .exclude(profile=profile_trying_to_register_for)
@@ -548,20 +552,20 @@ class RegistrationForm(forms.Form):
         )
         institutional_email.set_primary()
 
-        personal_email_address = self.cleaned_data["personal_email"]
-        personal_email, created = ProfileEmail.objects.get_or_create(
-            profile=profile,
-            email__iexact=personal_email_address,
-            defaults={
-                "primary": False,
-                "kind": ProfileEmail.KIND_RECOVERY,
-                "email": personal_email_address,
-            },
-        )
-        if not created:
-            personal_email.primary = False
-            personal_email.kind = ProfileEmail.KIND_RECOVERY
-            personal_email.save()
+        if personal_email_address := self.cleaned_data["personal_email"]:
+            personal_email, created = ProfileEmail.objects.get_or_create(
+                profile=profile,
+                email__iexact=personal_email_address,
+                defaults={
+                    "primary": False,
+                    "kind": ProfileEmail.KIND_RECOVERY,
+                    "email": personal_email_address,
+                },
+            )
+            if not created:
+                personal_email.primary = False
+                personal_email.kind = ProfileEmail.KIND_RECOVERY
+                personal_email.save()
 
         # Create an Affiliation for this Profile
         current_affiliation = self.cleaned_data.get("current_affiliation", None)
