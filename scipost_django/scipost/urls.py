@@ -524,6 +524,13 @@ urlpatterns = [
         name="EdCol_by-laws",
     ),
     path(
+        "EdCol_by-laws_Changes_2026_01",
+        TemplateView.as_view(
+            template_name="scipost/EdCol_by-laws_Changes_2026-01.html"
+        ),
+        name="EdCol_by-laws_Changes_2026_01",
+    ),
+    path(
         "EdCol_by-laws_Changes_2023_02",
         TemplateView.as_view(
             template_name="scipost/EdCol_by-laws_Changes_2023-02.html"
