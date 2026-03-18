@@ -161,7 +161,11 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
 
     @property
     def needs_fulfillment_reminder(self):
-        """Check if isn't fullfilled but deadline is closing in."""
+        """
+        Check if isn't fulfilled but deadline is closing in.
+        Deadline is the referee's own intended delivery date if set, 
+        otherwise the submission's reporting deadline.
+        """
         if (
             self.accepted
             and not self.cancelled
@@ -169,12 +173,19 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
             and self.submission.reporting_deadline is not None
         ):
             # Refereeing deadline closing in/overdue, but invitation isn't fulfilled yet.
-            return (self.submission.reporting_deadline - timezone.now()).days < 7
+            deadline = (
+                self.intended_delivery_date or self.submission.reporting_deadline.date()
+            )
+            return (deadline - timezone.now().date()).days < 7
         return False
 
     @property
     def is_overdue(self):
-        """Check if isn't fullfilled but deadline has expired."""
+        """
+        Check if isn't fulfilled but deadline has expired.
+        Deadline is the referee's own intended delivery date if set, 
+        otherwise the submission's reporting deadline.
+        """
         if (
             self.accepted
             and not self.cancelled
@@ -182,7 +193,10 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
             and self.submission.reporting_deadline is not None
         ):
             # Refereeing deadline closing in/overdue, but invitation isn't fulfilled yet.
-            return (self.submission.reporting_deadline - timezone.now()).days < 0
+            deadline = (
+                self.intended_delivery_date or self.submission.reporting_deadline.date()
+            )
+            return (deadline - timezone.now().date()).days <= 0
         return False
 
     @property
