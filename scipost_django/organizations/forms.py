@@ -10,7 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Count, QuerySet
+from django.db.models import Q, Count, QuerySet
 
 from django.utils import timezone
 
@@ -221,7 +221,10 @@ class OrganizationSearchForm(CrispyFormMixin, SearchForm[Organization]):
         )
 
         if name := self.cleaned_data.get("name"):
-            queryset = queryset.filter(name_normalized__icontains=name)
+            queryset = queryset.filter(
+                Q(name__unaccent__icontains=name)
+                | Q(name_original__unaccent__icontains=name)
+            )
         if country := self.cleaned_data.get("country"):
             queryset = queryset.filter(country=country)
 
