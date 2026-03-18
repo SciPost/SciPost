@@ -137,6 +137,25 @@ class OverdueAction(BaseAction):
 class CycleChoiceAction(BaseAction):
     txt = "Choose the submission cycle to proceed with."
 
+class InvalidCycleWithoutRecAction(BaseAction):
+    txt = (
+        "This cycle may not exist without an active Editorial Recommendation. "
+        "Please either <a href='{url}'>formulate one</a> or <a href='{url2}'>reset the cycle</a>."
+    )
+
+    @property
+    def url(self):
+        return reverse(
+            "submissions:eic_recommendation",
+            args=(self.submission.preprint.identifier_w_vn_nr,),
+        )
+
+    @property
+    def url2(self):
+        return reverse(
+            "submissions:reset_refereeing_cycle",
+            args=(self.submission.preprint.identifier_w_vn_nr,),
+        )
 
 class NoEICRecommendationAction(BaseAction):
     needs_referees = False
@@ -271,9 +290,16 @@ class BaseCycle(abc.ABC):
             yield CycleChoiceAction(submission=self._submission)
             return  # If no cycle is chosen. Make this a first priority!
 
-        # The EIC is late with formulating a Recommendation.
-        if self._submission.eic_recommendation_required:
-            if self._submission.reporting_deadline_has_passed:
+        # The EIC is late with formulating a Recommendation
+        if (
+            self._submission.eic_recommendation_required
+            and self._submission.reporting_deadline_has_passed
+        ):
+            if isinstance(self._submission.cycle, DirectCycle):
+                # This means that the EIC tried to make a recommendation but failed.
+                # They should reset the cycle and start over, as the current cycle is not functional.
+                yield InvalidCycleWithoutRecAction(submission=self._submission)
+            else:
                 action = NoEICRecommendationAction(submission=self._submission)
                 action.needs_referees = (
                     not self._submission.reports.non_draft().exists()
@@ -478,9 +504,9 @@ class DirectCycle(BaseCycle):
             yield action
 
         # Always show `EICRec required` action disregarding the refereeing deadline.
-        no_recom_action = NoEICRecommendationAction(submission=self._submission)
+        form_or_reset = InvalidCycleWithoutRecAction(submission=self._submission)
         if (
             self._submission.eic_recommendation_required
-            and no_recom_action not in actions
+            and form_or_reset not in actions
         ):
-            yield no_recom_action
+            yield form_or_reset
