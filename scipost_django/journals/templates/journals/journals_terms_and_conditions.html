@@ -80,11 +80,14 @@
   </div>
 
   <hr>
-  <div class="row">
+  <div class="row" id="LCA">
     <div class="col-12">
 
 
-      <h2 id="license_and_copyright_agreement">License and copyright agreement</h2>
+      <h2 id="license_and_copyright_agreement">
+	License and copyright agreement
+	&nbsp;<a href="{% url 'journals:journals_terms_and_conditions' %}#LCA"><span title="Permalink to SciPost's license and copyright agreement">{% include 'bi/link.html' %}</span></a>
+      </h2>
       <p>The following license and copyright agreement is valid for any article published in any
         SciPost journal and web portal.</p>
       <h3>Author's certification</h3>
@@ -181,9 +184,12 @@
   </div>
 
   <hr>
-  <div class="row">
+  <div class="row" id="AO">
     <div class="col-12">
-      <h2 id="author_obligations">Author obligations</h2>
+      <h2 id="author_obligations">
+	Author obligations
+	&nbsp;<a href="{% url 'journals:journals_terms_and_conditions' %}#AO"><span title="Permalink to SciPost's author obligations">{% include 'bi/link.html' %}</span></a>
+      </h2>
       <ol>
         <li>The primary obligation of the author(s) is to present a scientifically
           accurate account of the research performed, as concisely and objectively
@@ -226,9 +232,12 @@
   </div>
 
   <hr>
-  <div class="row">
+  <div class="row" id="RCC">
     <div class="col-12">
-      <h2 id="referee_code_of_conduct">Referee code of conduct</h2>
+      <h2 id="referee_code_of_conduct">
+	Referee code of conduct
+	&nbsp;<a href="{% url 'journals:journals_terms_and_conditions' %}#RCC"><span title="Permalink to SciPost's referee code of conduct">{% include 'bi/link.html' %}</span></a>
+      </h2>
       <ul>
         <li>Contributors asked to referee should promptly accept or decline the
           task assigned to them.</li>
@@ -259,20 +268,58 @@
   </div>
 
   <hr>
-  <div class="row">
+  <div class="row" id="GenAI">
     <div class="col-12">
-      <h2 id="Corrections and retractions">Corrections and retractions</h3>
-	<p>
-	  SciPost pursues the following policy for making corrections to its peer-reviewed content:
-	</p>
-	<ul>
-	  <li><strong>Modification of a paper</strong>: SciPost reserves the right to replace a published paper if purely technical corrections are necessary (e.g. corrupt file or incorrect bibliographical entry). In such cases, archives and indices are informed. Under no circumstances will the content be changed.</li>
-	  <li><strong>Corrigendum</strong>: notification of an important error made by the author(s) or by the journal that affects the publication record or the scientific integrity of the published, peer-reviewed work or the reputation of the author or the journal. Corrigenda are represented by a formal online notice.</li>
-	  <li><strong>Retraction</strong>: authors or, in specific cases, SciPost can decide to formally withdraw a published journal article. The article stays online but the reader is notified about the retraction. Such retractions are most often accompanied by an editorial note explaining the background.</li>
-	  <li><strong>Marked as fraud</strong>: in the unlikely case that SciPost is notified that a published journal article turns out to be a fraud, the paper stays online but is formally withdrawn. The reader is notified about the status and fraud papers are always accompanied by an editorial note pointing out the malpractice.</li>
-	</ul>
-	<p>All corrections and retractions can be traced through our participation in Crossref's <a href="https://www.crossref.org/services/crossmark/">Crossmark</a> service, as detailed on our <a href="{% url 'journals:crossmark_policy' %}">Crossmark Policy Page</a>.</p>
+      <h2>
+	Use of Generative Artificial Intelligence
+	&nbsp;<a href="{% url 'journals:journals_terms_and_conditions' %}#GenAI"><span title="Permalink to SciPost's GenAI terms and conditions">{% include 'bi/link.html' %}</span></a>
+      </h2>
+      <p>
+	Usage of Generative Artificial Intelligence (GenAI) tools is becoming increasingly commonplace. SciPost's position on usage of GenAI tools is based on these principles:
+      </p>
+      <ul>
+	<li>human-driven: a human must remain the initiator, orchestrator and adjudicator of any GenAI generated content;</li>
+	<li>using the right tooling: usage of GenAI for automatable tasks is smart and permissible; blanket delegation to GenAI is impermissible (human) abdication of responsibility;</li>
+	<li>detailed disclosure: at all levels (submissions, reports, comments, recommendations etc), Contributors must fully and transparently disclose which tools were used, in what way, for what precise purpose;</li>
+	<li>end responsibility: the Contributor assumes full responsibility for the final content of any material submitted.</li>
+      </ul>
 
+      <p>More specifically, we require authors and referees to abide by the following rules.</p>
+
+      <p><strong>Authors:</strong></p>
+      <ul>
+	<li>Usage of GenAI by authors (including but not limited to redaction, graphs/figures generation, code writing/documenting) must be disclosed at the moment of manuscript submission, and must be detailed in the Acknowledgements section of their manuscript.</li>
+	<li>Any use in authoring beyond text polishing or light editing likely constitutes impermissible use.</li>
+	<li>In any case, and without exception, the submitting Contributor carries full responsibility (on behalf of all authors) for any submitted material.</li>
+	<li>It is not permitted to list a GenAI entity as an author.</li>
+	<li>Repeated submission of slop material (as assessed by SciPost Editorial Administration and/or Fellows of Editorial Colleges) constitutes impermissible use and shall lead to suspension or permanent termination of the offending Contributor accounts.</li>
+      </ul>
+
+      <p><strong>Referees:</strong></p>
+      <ul>
+	<li>Usage of GenAI by referees must be disclosed at the moment of report submission. Any direct use such as (partial) delegation of report authoring to a GenAI constitutes impermissible use.</li>
+	<li>In any case, and without exception, the submitting Contributor carries full responsibility for any submitted report.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row" id="CR">
+    <div class="col-12">
+      <h2 id="Corrections and retractions">
+	Corrections and retractions
+	&nbsp;<a href="{% url 'journals:journals_terms_and_conditions' %}#CR"><span title="Permalink to SciPost's corrections and retractions terms and conditions">{% include 'bi/link.html' %}</span></a>
+      </h2>
+      <p>
+	SciPost pursues the following policy for making corrections to its peer-reviewed content:
+      </p>
+      <ul>
+	<li><strong>Modification of a paper</strong>: SciPost reserves the right to replace a published paper if purely technical corrections are necessary (e.g. corrupt file or incorrect bibliographical entry). In such cases, archives and indices are informed. Under no circumstances will the content be changed.</li>
+	<li><strong>Corrigendum</strong>: notification of an important error made by the author(s) or by the journal that affects the publication record or the scientific integrity of the published, peer-reviewed work or the reputation of the author or the journal. Corrigenda are represented by a formal online notice.</li>
+	<li><strong>Retraction</strong>: authors or, in specific cases, SciPost can decide to formally withdraw a published journal article. The article stays online but the reader is notified about the retraction. Such retractions are most often accompanied by an editorial note explaining the background.</li>
+	<li><strong>Marked as fraud</strong>: in the unlikely case that SciPost is notified that a published journal article turns out to be a fraud, the paper stays online but is formally withdrawn. The reader is notified about the status and fraud papers are always accompanied by an editorial note pointing out the malpractice.</li>
+      </ul>
+      <p>All corrections and retractions can be traced through our participation in Crossref's <a href="https://www.crossref.org/services/crossmark/">Crossmark</a> service, as detailed on our <a href="{% url 'journals:crossmark_policy' %}">Crossmark Policy Page</a>.</p>
     </div>
   </div>
 
