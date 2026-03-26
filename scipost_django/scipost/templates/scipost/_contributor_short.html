@@ -3,14 +3,14 @@
 {% load static %}
 
 <p class="mb-0 pb-0">
+  {% if is_senior %}
+    [S]
+  {% endif %}
   <a href="{{ contributor.get_absolute_url }}">{{ contributor.profile.get_title_display }} {{ contributor.profile.full_name }}</a>
   {% if contributor.profile.webpage %}
     <a class="ms-2" href="{{ contributor.profile.webpage }}" target="_blank" rel="noopener">
       {% include "bi/link.html" %}
     </a>
-  {% endif %}
-  {% if senior %}
-    [S]
   {% endif %}
 </p>
 
