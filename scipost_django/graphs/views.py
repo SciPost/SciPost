@@ -170,7 +170,24 @@ class PlotView(View):
                 response = HttpResponse(bytes_io.getvalue(), content_type="image/jpg")
 
             case "csv":
-                x, y = self.kind.get_data()
+                compound_keys, values = self.kind.get_data()
+
+                match compound_keys:
+                    # Barplots has a special structure where keys are bundled with "stack_on" group labels
+                    # Construct a flat x-key by concatenating the key with the group labels, separated by underscores
+                    case *other_labels, groupby_labels:
+                        x = [
+                            "_".join(map(str, groups_label))
+                            for groups_label in zip(groupby_labels, *other_labels)
+                        ]
+                    case _, groupby_labels:
+                        x = groupby_labels
+                    case _:
+                        raise ValueError(
+                            f"Invalid data structure for CSV download: {data}"
+                        )
+
+                y = values
 
                 # Write the data to a CSV file
                 csv = io.StringIO()
