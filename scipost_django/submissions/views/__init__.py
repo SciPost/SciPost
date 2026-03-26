@@ -2432,6 +2432,11 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         submissions_qs.distinct(), preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
 
+    if submission.editor_in_charge and submission.editor_in_charge.is_anonymous:
+        raise PermissionDenied(
+            "This Submission has been anonymized, communication is not possible. Please contact EdAdmin instead."
+        )
+
     if recipient_letter == "R" and referee_id:
         # Get the Contributor to communicate with if not already defined (`Eto?` communication)
         # To Fix: Assuming the Editorial Administrator won't make any `referee_id` mistakes
