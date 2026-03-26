@@ -57,7 +57,7 @@ class Command(BaseCommand):
             return
 
         rendered_table = render_to_string(
-            "finances/_worklog_summary_table.html",
+            "finances/_worklog_summary_table_hours_only_styles_embedded.html",
             {"form": form},
         )
 
