@@ -521,6 +521,24 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
             ),
         )
 
+    def annot_original_submission_date(self):
+        """
+        Annotate Submissions with the date of the original submission in the thread.
+        """
+        from submissions.models.submission import Submission
+
+        return self.annotate(
+            original_submission_date=models.Subquery(
+                Submission.objects.filter(
+                    thread_hash=models.OuterRef("thread_hash"),
+                    is_resubmission_of__isnull=True,
+                )
+                .values("thread_hash")
+                .annotate(original_date=models.Min("submission_date"))
+                .values("original_date")[:1]
+            ),
+        )
+
     def annot_is_latest(self):
         """
         Annotate Submissions with a boolean indicating if they are the latest in their thread.
@@ -627,6 +645,10 @@ class SubmissionEventQuerySet(models.QuerySet):
         return self.filter(
             event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL]
         )
+
+    def for_all(self):
+        """Return all events that are visible to all users."""
+        return self.filter(event=constants.EVENT_GENERAL)
 
     def last_hours(self, hours=24):
         """Return all events of the last `hours` hours."""

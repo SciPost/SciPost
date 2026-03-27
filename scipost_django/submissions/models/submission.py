@@ -848,7 +848,7 @@ class Submission(models.Model):
         """Return the submission date in YYYY-MM-DD format."""
         return self.original_submission_date.date()
 
-    @property
+    @cached_property
     def original_submission_date(self):
         """Return the submission_date of the first Submission in the thread."""
         return (

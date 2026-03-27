@@ -25,6 +25,8 @@ class CommentPublicSerializer(serializers.ModelSerializer):
             "citation",
             "url",
             "nested_comments",
+            "file_attachment",
+            "comment_text",
         ]
 
     def get_author(self, obj):

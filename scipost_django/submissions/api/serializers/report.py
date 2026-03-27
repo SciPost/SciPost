@@ -13,6 +13,12 @@ class ReportPublicSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
     url = serializers.URLField(source="get_absolute_url")
     comments = serializers.SerializerMethodField()
+    validity = serializers.CharField(source="get_validity_display")
+    significance = serializers.CharField(source="get_significance_display")
+    originality = serializers.CharField(source="get_originality_display")
+    clarity = serializers.CharField(source="get_clarity_display")
+    formatting = serializers.CharField(source="get_formatting_display")
+    grammar = serializers.CharField(source="get_grammar_display")
 
     class Meta:
         model = Report
@@ -26,6 +32,17 @@ class ReportPublicSerializer(serializers.ModelSerializer):
             "date_submitted",
             "url",
             "comments",
+            "pdf_report",
+            "strengths",
+            "weaknesses",
+            "report",
+            "requested_changes",
+            "validity",
+            "significance",
+            "originality",
+            "clarity",
+            "formatting",
+            "grammar",
         ]
 
     def get_author(self, obj):
