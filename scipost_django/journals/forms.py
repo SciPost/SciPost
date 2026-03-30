@@ -692,8 +692,6 @@ class DraftPublicationForm(forms.ModelForm):
         else:  # For when Updating the publication object.
             repository = self.instance.proofs_repository
 
-        if repository.fetch_tex():
-            self.fields["author_info_source"].required = False
 
     def get_possible_issues(self):
         issues = Issue.objects.filter(until_date__gte=timezone.now())
