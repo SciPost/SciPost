@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from production.models import ProofsRepository
     from profiles.models import Profile
     from ethics.models import GenAIDisclosure
+    from ..models import PublicationResource
 
 
 class PublicationAuthorsTable(models.Model):
@@ -222,6 +223,7 @@ class Publication(models.Model):
     if TYPE_CHECKING:
         authors = RelatedManager[PublicationAuthorsTable]
         gen_ai_disclosures = "Manager[GenAIDisclosure]"
+        resources = RelatedManager[PublicationResource]
 
     class Meta:
         default_related_name = "publications"

@@ -28,22 +28,22 @@
     {% endif %}
     </p>
 
-    <ul class="publicationClickables mt-3">
+    <ul class="publicationClickables mt-3 d-flex flex-row align-items-center">
       <li>doi:  {{ publication.doi_string }}</li>
       {% if publication.pdf_file %}
-	<li class="publicationPDF">
+        <li class="publicationPDF">
           <a href="{{ publication.get_absolute_url }}/pdf" target="_blank">pdf</a>
-	</li>
+        </li>
       {% endif %}
-      {% if publication.resources.source.first %}
-	<li><a href="{{ publication.resources.source.first.url }}"><strong>src</strong></a></li>
-      {% endif %}
-      {% if publication.resources.release.first %}
-	<li><a href="{{ publication.resources.release.first.url }}"><strong>publication&nbsp;repo</strong></a></li>
-      {% endif %}
-      {% if publication.resources.live.first %}
-	<li><a href="{{ publication.resources.live.first.url }}">live&nbsp;repo&nbsp;(external)</a></li>
-      {% endif %}
+      {% for source in publication.resources.source %}
+        <li><a class="fw-bold" href="{{ source.url }}">{{ source.short_str }}</a></li>
+      {% endfor %}
+      {% for release in publication.resources.release %}
+        <li><a class="fw-bold" href="{{ release.url }}">{{ release.short_str }}</a></li>
+      {% endfor %}
+      {% for live in publication.resources.live %}
+        <li><a href="{{ live.url }}">{{ live.short_str }}</a></li>
+      {% endfor %}
       <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#bibtextmodal">BiBTeX</button></li>
       <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#rismodal">RIS</button></li>
       <li><a href="{% url 'submissions:submission' publication.accepted_submission.preprint.identifier_w_vn_nr %}">Submissions/Reports</a></li>

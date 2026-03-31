@@ -30,8 +30,29 @@ class PublicationResource(models.Model):
 
     objects = PublicationResourceQuerySet.as_manager()
 
+    class Meta:
+        ordering = ["-publication", "_type"]
+
     def __str__(self):
         return (
             f"Resource for {self.publication.doi_label}: "
             f"{self.get__type_display()} at {self.url}"
         )
+
+    def short_str(self):
+        match self._type:
+            case self.TYPE_SOURCE_REPO:
+                short_str = "src"
+            case self.TYPE_RELEASE_ARCHIVE_REPO:
+                short_str = "publication repo"
+            case self.TYPE_LIVE_REPO:
+                short_str = "live repo (external)"
+            case self.TYPE_SUP_INFO:
+                short_str = "supplemental info"
+            case _:
+                short_str = "unknown resource type"
+
+        if self.comments:
+            short_str += f" - {self.comments}"
+
+        return short_str
