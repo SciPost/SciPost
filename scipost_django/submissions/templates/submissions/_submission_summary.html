@@ -1,3 +1,5 @@
+{% load common_extras %}
+
 <table class="submission summary">
     {% if not hide_title %}
         <tr>
@@ -59,10 +61,12 @@
                     <tr>
                         <td>Code repository:</td>
                         <td class="text-wrap">
-                            <a href="{{ submission.article_metadata.code_repository_url }}"
+                          {% for url in submission.article_metadata.code_repository_url|split_strip:"," %}
+                            <a href="{{ url }}"
                                target="_blank"
                                class="text-break"
-                               rel="noopener">{{ submission.article_metadata.code_repository_url }}</a>
+                               rel="noopener">{{ url }}</a>
+                          {% endfor %}
                         </td>
                     </tr>
                 {% endif %}
@@ -81,12 +85,14 @@
                 {% if submission.article_metadata.data_repository_url %}
                     <tr>
                         <td>Data repository:</td>
-                        <td class="text-wrap">
-                            <a href="{{ submission.article_metadata.data_repository_url }}"
-                               target="_blank"
-                               class="text-break"
-                               rel="noopener">{{ submission.article_metadata.data_repository_url }}</a>
-                        </td>
+                        {% for url in submission.article_metadata.data_repository_url|split_strip:"," %}
+                          <td class="text-wrap">
+                              <a href="{{ url }}"
+                                target="_blank"
+                                class="text-break"
+                                rel="noopener">{{ url }}</a>
+                          </td>
+                        {% endfor %}
                     </tr>
                 {% endif %}
                 {% if submission.acceptance_date %}
