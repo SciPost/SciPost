@@ -8,6 +8,8 @@ from submissions.models import Submission
 
 
 class SubmissionPublicAPIFilterSet(df_filters.FilterSet):
+    # FIXME: Displays as [invalid name] on the filter modal
+    published = df_filters.BooleanFilter(method="filter_published")
     class Meta:
         model = Submission
         fields = {
@@ -40,6 +42,12 @@ class SubmissionPublicAPIFilterSet(df_filters.FilterSet):
             ],
         }
 
+    def filter_published(self, queryset, name, value):
+        queryset = queryset.annot_thread_published()
+        if value:
+            return queryset.filter(thread_published=True)
+        else:
+            return queryset.filter(thread_published=False)
 
 class SubmissionPublicSearchAPIFilterSet(df_filters.FilterSet):
     class Meta:

@@ -12,6 +12,7 @@ from django.utils import timezone
 
 from comments.models import Comment
 from common.utils.db import SplitString
+from common.utils.models import queryset_annotation
 from common.utils.text import initialize
 from submissions.models.qualification import Qualification
 from submissions.models.readiness import Readiness
@@ -518,6 +519,36 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
                 .values("thread_hash")
                 .annotate(nr_submissions=models.Count("thread_hash"))
                 .values("nr_submissions")[:1]
+            ),
+        )
+
+    @queryset_annotation
+    def annot_thread_published(self):
+        """
+        Annotate Submissions with a boolean indicating any submission in the thread is published.
+        """
+        from journals.models import Publication
+
+        return Exists(
+            Publication.objects.filter(
+                accepted_submission__thread_hash=models.OuterRef("thread_hash"),
+            )
+        )
+
+    @queryset_annotation
+    def annot_thread_latest_activity(self):
+        """
+        Annotate Submissions with the date of the latest activity in the thread.
+        """
+        from submissions.models.submission import Submission
+
+        return models.Case(
+            models.When(successor__isnull=True, then="latest_activity"),
+            default=models.Subquery(
+                Submission.objects.filter(
+                    thread_hash=models.OuterRef("thread_hash"),
+                    successor__isnull=True,
+                ).values("latest_activity")[:1]
             ),
         )
 

@@ -27,9 +27,7 @@ class SubmissionPublicAPIViewSet(
     ]
     serializer_class = SubmissionPublicSerializer
     search_fields = ["title", "author_list", "abstract"]
-    ordering_fields = [
-        "submission_date",
-    ]
+    ordering_fields = ["submission_date", "latest_activity"]
     filterset_class = SubmissionPublicAPIFilterSet
     default_filtering_fields = [
         "title__icontains",
@@ -88,9 +86,7 @@ class SubmissionPublicSearchAPIViewSet(
     ]
     serializer_class = SubmissionPublicSearchSerializer
     search_fields = ["title", "author_list", "abstract"]
-    ordering_fields = [
-        "submission_date",
-    ]
+    ordering_fields = ["submission_date", "latest_activity"]
     filterset_class = SubmissionPublicSearchAPIFilterSet
     default_filtering_fields = [
         "title__icontains",
