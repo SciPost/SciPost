@@ -45,7 +45,10 @@ class PublicationPublicSerializer(DynamicFieldsModelSerializer):
         ]
 
     def get_accepted_submission(self, obj):
-        return obj.accepted_submission.get_absolute_url()
+        return {
+            "url": obj.accepted_submission.get_absolute_url(),
+            "thread_hash": obj.accepted_submission.thread_hash,
+        }
 
 
 class PublicationPublicSearchSerializer(DynamicFieldsModelSerializer):
