@@ -74,6 +74,13 @@ LOGGING["handlers"]["submission_fellowship_updates"][
     "filename"
 ] = "/home/scipost/SciPost_logs/submission_fellowship_updates.log"
 
+# Caches
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": "unix:/var/run/memcached/memcached.sock",
+    }
+}
 
 # API
 # REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
