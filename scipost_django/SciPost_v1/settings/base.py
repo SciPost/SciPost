@@ -130,7 +130,7 @@ INSTALLED_APPS = [
     "finances",
     "forums",
     "funders",
-    # "graphs",
+    "graphs",
     "guides",
     "helpdesk",
     "invitations",
