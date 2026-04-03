@@ -67,11 +67,9 @@ def graphs(request):
     premade_graphs = [
         {
             "title": options.get("title", "Graph"),
-            "plot_svg": form.plot_as_svg,
-            "explore_url": form.explorer_minimal_url,
+            "plot_form": PlotOptionsForm(options, user=request.user),
         }
         for options in premade_graph_options
-        if (form := PlotOptionsForm(options, user=request.user))
     ]
 
     return TemplateResponse(

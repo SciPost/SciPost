@@ -33,13 +33,13 @@
               {{ graph.title }}
 
               {% if perms.scipost.can_explore_graphs %}
-                <a href="{{ graph.explore_url }}" class="btn btn-secondary btn-sm">Customize</a>
+                <a href="{{ graph.plot_form.explorer_minimal_url }}" class="btn btn-secondary btn-sm">Customize</a>
               {% endif %}
 
             </h5>
           </div>
           {% cache 3600 graphs_premade_graph graph %}
-            <div class="card-body">{{ graph.plot_svg|safe }}</div>
+            <div class="card-body">{{ graph.plot_form.plot_as_svg|safe }}</div>
           {% endcache %}
         </div>
 
