@@ -64,7 +64,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     for_journal = models.ForeignKey["Journal"](
         "journals.Journal", blank=True, null=True, on_delete=models.SET_NULL
     )
-    recommendation = models.SmallIntegerField(choices=EIC_REC_CHOICES)
+    recommendation = models.CharField(max_length=32, choices=EIC_REC_CHOICES)
     status = models.CharField(
         max_length=32, choices=EIC_REC_STATUSES, default=VOTING_IN_PREP
     )
@@ -233,4 +233,4 @@ class AlternativeRecommendation(models.Model):
     for_journal = models.ForeignKey["Journal"](
         "journals.Journal", on_delete=models.CASCADE
     )
-    recommendation = models.SmallIntegerField(choices=ALT_REC_CHOICES)
+    recommendation = models.CharField(max_length=32, choices=ALT_REC_CHOICES)

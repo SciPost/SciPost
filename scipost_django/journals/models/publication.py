@@ -131,7 +131,7 @@ class Publication(models.Model):
     paper_nr = models.PositiveSmallIntegerField()
     paper_nr_suffix = models.CharField(max_length=32, blank=True)
     status = models.CharField(
-        max_length=8, choices=PUBLICATION_STATUSES, default=STATUS_DRAFT
+        max_length=32, choices=PUBLICATION_STATUSES, default=STATUS_DRAFT
     )
 
     # Core fields

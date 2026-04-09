@@ -8,7 +8,7 @@
   by {{ recommendation.submission.author_list }}
 </p>
 
-{% if recommendation.recommendation == 1 %}
+{% if recommendation.recommendation == 'publish' %}
   <p>
     We are pleased to inform you that your Submission has been accepted for publication in <strong>{{ recommendation.get_for_journal_display }}</strong>.
   </p>

@@ -53,7 +53,7 @@ class EditorialDecision(models.Model):
 
     submission = models.ForeignKey("submissions.Submission", on_delete=models.CASCADE)
     for_journal = models.ForeignKey("journals.Journal", on_delete=models.CASCADE)
-    decision = models.SmallIntegerField(choices=EDITORIAL_DECISION_CHOICES)
+    decision = models.CharField(max_length=32, choices=EDITORIAL_DECISION_CHOICES)
     taken_on = models.DateTimeField(default=timezone.now)
     remarks_for_authors = models.TextField(
         blank=True, verbose_name="optional remarks for the authors"

@@ -11,7 +11,7 @@
 <form hx-post="{{ request.get_full_path }}" hx-target="closest section">
   <p id="agree_instructions">
 
-    {% if recommendation.recommendation == 1 %}
+    {% if recommendation.recommendation == 'publish' %}
       <strong class="text-success">If you agree with a recommendation to publish, you can provide your ballpark quality tiering below</strong>
       <br />
       (this is not compulsory, but most welcome)

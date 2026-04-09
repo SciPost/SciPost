@@ -49,7 +49,7 @@
         case "agree":
           $("#agree_instructions").show()
           $("#disagree_instructions").hide()
-          {% if recommendation.recommendation == 1 %}
+          {% if recommendation.recommendation == 'publish' %}
           $("input[name=tier]").parents('.form-group').show()
           {% endif %}
           $("#id_alternative_for_journal").parents('.form-group').hide()
