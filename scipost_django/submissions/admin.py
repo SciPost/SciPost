@@ -509,7 +509,7 @@ class EICRecommendationAdmin(admin.ModelAdmin):
         "formulated_by__profile__last_name",
         "formulated_by__profile__first_name",
     ]
-    list_filter = ("status",)
+    list_filter = ("status", "recommendation")
     list_display = (
         submission_short_title,
         submission_short_authors,
