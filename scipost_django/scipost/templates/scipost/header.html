@@ -3,28 +3,30 @@
 
 <header>
 
-    <div class="container d-lg-flex justify-content-between p-4 pb-0 pb-lg-4 w-100">
+    <div class="container p-4 pb-0 pb-lg-4 w-100">
+      <div class="row mb-0 align-items-center">
+        
+        <div class="col-6 col-xl">
+          <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" class="m-0 p-0" alt="SciPost logo" style="max-width: unset;" width="180" height="55" /></a>
+        </div>
 
-      <div class="me-2 my-4 my-md-auto" style="flex: 200px">
-        <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" class="m-0 p-0" alt="SciPost logo" style="max-width: unset;" width="180" height="55" /></a>
+        <div class="col-6 col-xl order-xl-4 d-flex justify-content-end">
+          <a href="{% url 'news:news' %}#news_132"><img src="{% static 'scipost/images/SPBadgeOrangeSashSimpleLeft.png' %}" class="m-0 p-0" alt="SciPost logo" style="max-width: unset;" width="95" height="55" /></a>
+        </div>
+          
+        <div class="col-12 col-xl-auto d-flex gap-2 p-2">
+          {% if session_acad_field_form %}
+              <form id="session_acad_field_form" style="display: none;"
+              hx-get="{% url 'ontology:set_session_acad_field' %}"
+              hx-trigger="{% if load_header_forms %}load, {% endif %}change"
+              hx-swap="outerHTML">
+                {% crispy session_acad_field_form %}
+              </form>
+            <div hx-get="{% url 'ontology:_hx_session_specialty_form' %}"
+                hx-trigger="{% if load_header_forms %}load, {% endif %}hide.bs.tab from:#home-tab, session-acad-field-set from:body"></div>
+          {% endif %}
+        </div>
+
       </div>
-
-      {% if session_acad_field_form %}
-	<div class="mx-2 my-4 my-lg-auto">
-	  <form id="session_acad_field_form" style="display: none;"
-		hx-get="{% url 'ontology:set_session_acad_field' %}"
-		hx-trigger="{% if load_header_forms %}load, {% endif %}change"
-		hx-swap="outerHTML"
-	  >
-	    {% crispy session_acad_field_form %}
-	  </form>
-	</div>
-	<div class="mx-2 my-4 my-lg-auto"
-	     hx-get="{% url 'ontology:_hx_session_specialty_form' %}"
-	     hx-trigger="{% if load_header_forms %}load, {% endif %}hide.bs.tab from:#home-tab, session-acad-field-set from:body"
-	>
-	</div>
-      {% endif %}
-
     </div>
 </header>
