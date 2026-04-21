@@ -424,6 +424,7 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
                     "in_preparation_week_1",
                     "... & inactive for > 1 week",
                 ),
+                ("direct_cycle", "Not refereed; direct EdRec by EiC"),
                 ("in_refereeing", "In refereeing"),
                 ("unvetted_reports", "... with unvetted Reports"),
                 ("deadline_passed", "deadline passed, no recommendation yet"),
@@ -583,6 +584,14 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
             queryset = queryset.filter(
                 status=Submission.SEEKING_ASSIGNMENT,
                 submission_date__lt=timezone.now() - datetime.timedelta(days=28),
+            )
+        elif status == "direct_cycle":
+            # Find direct recommendation cycles, ignoring naturally occurring ones
+            # like recommendations going to voting at the end of the process
+            queryset = queryset.filter(
+                Q(refereeing_cycle=CYCLE_DIRECT_REC)
+                & ~Q(status=Submission.IN_VOTING)
+                & ~Q(status=Submission.VOTING_IN_PREPARATION)
             )
         elif status == "in_refereeing":
             queryset = queryset.in_refereeing()
