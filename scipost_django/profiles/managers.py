@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from functools import reduce
 from itertools import chain
 import re
 from django.contrib.postgres.lookups import Unaccent
@@ -18,7 +19,12 @@ from django.db.models import (
     Subquery,
     Value,
 )
-from django.db.models.functions import Cast, Concat, Lower
+from django.contrib.postgres.search import (
+    SearchVector,
+    SearchQuery,
+    SearchRank,
+    TrigramSimilarity,
+)
 from django.utils import timezone
 
 from common.utils.models import qs_duplicates_group_by_key
@@ -171,80 +177,65 @@ class ProfileQuerySet(QuerySet):
         ).filter(has_any_conflict_of_interest_with_submission=False)
 
     def search(self, query: str):
-        """
-        Returns all Profiles matching the query for first name, last name, email, or ORCID.
-        Exact matches are returned first, then partial matches.
-        """
-        from profiles.models import ProfileEmail
+        qs = self
+        all_terms: list[str] = re.split(r"\s+", query.strip())
 
-        terms = [
-            t
-            for term in query.replace(",", " ").replace(";", " ").split()
-            if (t := term.strip())
-        ]
+        # Handle ORCID
+        for term in all_terms:
+            if re.match(r"\d{4}-\d{4}-\d{4}-\d{3}[\dX]", term):
+                qs = qs.filter(orcid_id=term)
+                all_terms.remove(term)
 
-        # Get ORCID term.
-        orcid_term = Q(pk__isnull=True)
-        for i, term in enumerate(terms):
-            if re.match(r"[\d-]+", term):
-                terms.pop(i)
-                orcid_term = Q(orcid_id__contains=term)
+        # Split terms into initials and words.
+        # Initials are either single letters or short terms (<=2 characters).
+        # Words are longer terms which are likely to be either name.
+        initials: list[str] = []
+        words: list[str] = []
+        for term in all_terms:
+            if group := re.match(r"^([A-Za-z]+)\.$", term):
+                initials.append(group.group(1))
+            elif len(term) <= 2:
+                initials.append(term.strip(". ,;"))
+            else:
+                words.append(term)
 
-        # Remove dots from names to allow for matching initials
-        name_terms = list(chain.from_iterable(term.split(".") for term in terms))
-        name_terms = [t for term in name_terms if (t := term.strip())]
-
-        # Set to impossible query if no name terms are present.
-        base_query = Q() if len(name_terms) > 0 else Q(pk__isnull=True)
-
-        exact_query = base_query
-        exact_last_query = base_query
-        exact_first_query = base_query
-        contains_query = base_query
-        mail_query = base_query
-
-        exact_first = lambda name: Q(first_name__unaccent__iexact=name)
-        exact_last = lambda name: Q(last_name__unaccent__iexact=name)
-        contains_first = lambda name: Q(first_name__unaccent__icontains=name)
-        contains_last = lambda name: Q(last_name__unaccent__icontains=name)
-        contains_mail = lambda name: Q(email__icontains=name)
-
-        for name in name_terms:
-            # Find exact matches first where every word matches either first or last name.
-            exact_query &= exact_first(name) | exact_last(name)
-
-            # Find an exact match for the last name.
-            exact_last_query &= contains_first(name) | exact_last(name)
-
-            # Find an exact match for the first name.
-            exact_first_query &= exact_first(name) | contains_last(name)
-
-            # Find a contains match for the either name.
-            contains_query &= contains_first(name) | contains_last(name)
-
-            # Find a contains match for the email.
-            mail_query &= contains_mail(name)
-
-        return (
-            self.annotate(
-                exact_both=exact_query,
-                exact_first=exact_first_query,
-                exact_last=exact_last_query,
-                contains=contains_query,
-                matches_orcid=orcid_term,
-                matches_email=Exists(
-                    ProfileEmail.objects.filter(Q(profile=OuterRef("pk")) & mail_query)
+        # Compute trigram similarity for each initial and sum them
+        qs = qs.annotate(
+            similarity=reduce(
+                lambda x, y: x + y,
+                (
+                    TrigramSimilarity("first_name", initial)
+                    + TrigramSimilarity("last_name", initial)
+                    for initial in initials
                 ),
-                points=8 * Cast(F("exact_both"), output_field=IntegerField())
-                + 3 * Cast(F("exact_first"), output_field=IntegerField())
-                + 3 * Cast(F("exact_last"), output_field=IntegerField())
-                + 1 * Cast(F("contains"), output_field=IntegerField())
-                + 2 * Cast(F("matches_orcid"), output_field=IntegerField())
-                + 2 * Cast(F("matches_email"), output_field=IntegerField()),
+                Value(1),
             )
-            .filter(points__gt=0)
-            .order_by("-points", "last_name", "first_name")
+        ).filter(similarity__gte=1)
+
+        # Match initials at the start of the field or after a separator (space or hyphen)
+        initials_regex = r"(^|\s|-)({})".format("|".join(map(re.escape, initials)))
+        qs = qs.annotate(
+            contains_initials=Q(full_name__unaccent__iregex=initials_regex)
+        ).filter(contains_initials=True)
+
+        # Early exit if there are no words to search for.
+        # Likely garbage matches, but better than no matches at all.
+        if not words:
+            return qs.order_by("-similarity", "last_name", "first_name")
+
+        qs = (
+            qs.annotate(
+                rank=SearchRank(
+                    SearchVector("first_name") + SearchVector("last_name"),
+                    SearchQuery(" ".join(words), search_type="websearch"),
+                ),
+                total_rank=F("similarity") * F("rank"),
+            )
+            .filter(total_rank__gt=1e-5)
+            .order_by("-total_rank", "last_name", "first_name")
         )
+
+        return qs
 
 
 class ProfileEmailQuerySet(QuerySet):
