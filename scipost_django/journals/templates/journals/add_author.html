@@ -46,24 +46,24 @@
     </div>
 
     <div class="col-12 col-md-auto">
-      <div class="position-sticky top-0 pt-5">
+      <div class="position-sticky top-0 pt-5 ps-3 d-flex flex-column gap-2">
         <h3>Author actions:</h3>
 
+        <div class="d-flex flex-row gap-2">
+          <input class="btn btn-primary flex-grow-1"
+                 type="submit"
+                 value="Add Author"
+                 form="add_author_form" />
+          <a class="btn btn-secondary flex-grow-1"
+             title="Fetch author list data from git"
+             href="{% url 'journals:reset_authors' doi_label=publication.doi_label %}">Reset</a>
+        </div>
         <form hx-post="{% url 'journals:add_author' doi_label=publication.doi_label %}"
               id="add_author_form"
               hx-swap="outerHTML">
           {% csrf_token %}
           {{ form|bootstrap }}
         </form>
-        <div class="d-flex flex-row gap-2">
-          <input class="btn btn-primary"
-                 type="submit"
-                 value="Add Author"
-                 form="add_author_form" />
-          <a class="btn btn-secondary"
-             title="Fetch author list data from git"
-             href="{% url 'journals:reset_authors' doi_label=publication.doi_label %}">Reset</a>
-        </div>
       </div>
     </div>
   </div>
@@ -76,4 +76,26 @@
 {% block footer_script %}
   {{ block.super }}
   {{ form.media }}
+  <script nonce={{ request.csp_nonce }}>
+    // Copy the author's name to the form's search input when a row is clicked
+    const formSelect = $('select[name="profile"]');
+    document.querySelectorAll('#add_author_table tr').forEach(function(row) {
+      row.addEventListener('click', function(event) {
+        // Select the appropriate radio button when the row is clicked
+        const radioInput = row.querySelector('input[type="radio"]');
+        if (radioInput) { radioInput.checked = true; }
+
+        const authorName = row.querySelector('td .author-name')?.innerText.trim();
+        console.log('Row clicked:', row, 'Author name:', authorName);
+        if (authorName && formSelect) {
+          formSelect.select2('open'); // Open the Select2 dropdown
+          const searchInput = document.querySelector('.select2-search__field');
+          if (searchInput) {
+            searchInput.value = authorName; // Set the search input value
+            searchInput.dispatchEvent(new Event('input')); // Trigger input event to update Select2 results
+          }
+        }
+    });
+  });
+  </script>
 {% endblock footer_script %}

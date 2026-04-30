@@ -4,15 +4,8 @@
       {% if author_id == selected_author_id %}checked{% endif %}
        />
     </td>
-    <td>
-      <label for="{{ author_id }}">{{ author_id }}</label>
-    </td>
-    <td>
-      <label class="w-100" for="{{ author_id }}">
-        {{ author.name_tex }}
-        <sup> {{ author.superscripts|join:", " }} </sup>
-      </label>
-    </td>
+    <td>{{ author_id }}</td>
+    <td><span class="fw-bold author-name">{{ author.name_tex }}</span><sup> {{ author.superscripts|join:", " }} </sup></td>
     <td>
       <div class="d-flex gap-4 align-items-center">
 
@@ -38,7 +31,7 @@
                   {% include "bi/people-fill.html" %}
           </span>
           {% endif %}
-          
+
         </div>
       </div>
 
