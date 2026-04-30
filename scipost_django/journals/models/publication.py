@@ -697,15 +697,17 @@ class Publication(models.Model):
         author_entries: list[PublicationAuthorsTable] = []
         author_names = [name for name, _ in self.tex_author_info]
         for i, name in enumerate(author_names):
-            profile = Profile.objects.search(name).first()
+            profiles_matching = Profile.objects.search(name)
 
-            author_entries.append(
-                PublicationAuthorsTable(
-                    publication=self,
-                    profile=profile,
-                    order=i + 1,
+            if profiles_matching.count() == 1:
+                profile = profiles_matching.first()
+                author_entries.append(
+                    PublicationAuthorsTable(
+                        publication=self,
+                        profile=profile,
+                        order=i + 1,
+                    )
                 )
-            )
 
         PublicationAuthorsTable.objects.bulk_create(author_entries)
 

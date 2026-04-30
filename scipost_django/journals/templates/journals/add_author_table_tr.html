@@ -31,11 +31,14 @@
           {% endif %}
 
           {% if not author.profile and author.profile_matches %}
-            <span class="badge bg-danger text-white"
+            <span class="badge bg-danger text-white d-flex gap-2 align-items-center"
                   title="There are potentially {{ author.profile_matches.count }} profiles matching this author."
-                  data-bs-toggle="tooltip">{% include "bi/people-fill.html" %}</span>
+                  data-bs-toggle="tooltip">
+                  <span class="fs-6">{{ author.profile_matches.count }}</span>
+                  {% include "bi/people-fill.html" %}
+          </span>
           {% endif %}
-
+          
         </div>
       </div>
 
