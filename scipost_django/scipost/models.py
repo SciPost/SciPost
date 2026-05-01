@@ -84,7 +84,7 @@ class AnonymousAbstractUser(AnonymousUser):
 
 if TYPE_CHECKING:
 
-    class TypedUser(User):
+    class SciPostUser(User):
         """
         Type hints for User model of Django.
         To be used entirely for type hinting.
@@ -124,7 +124,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
     Other information is carried by the related Profile.
     """
 
-    dbuser = models.OneToOneField["TypedUser"](
+    dbuser = models.OneToOneField["SciPostUser"](
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         verbose_name="user",
