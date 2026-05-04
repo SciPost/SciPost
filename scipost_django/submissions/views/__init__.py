@@ -444,7 +444,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         )
         messages.success(self.request, text)
 
-        if form.is_resubmission():
+        if form.is_resubmission_of:
             # Send emails
             DirectMailUtil(
                 "eic/submission_reappointment",

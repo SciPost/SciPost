@@ -1376,7 +1376,6 @@ class SubmissionForm(forms.ModelForm):
         model = Submission
         fields = [
             "fulfilled_expectations",
-            "is_resubmission_of",
             "thread_hash",
             "submitted_to",
             "proceedings",
@@ -1404,7 +1403,6 @@ class SubmissionForm(forms.ModelForm):
         widgets = {
             "submitted_to": forms.HiddenInput(),
             "acad_field": forms.HiddenInput(),
-            "is_resubmission_of": forms.HiddenInput(),
             "thread_hash": forms.HiddenInput(),
             "remarks_for_editors": forms.Textarea(
                 attrs={
@@ -1463,9 +1461,13 @@ class SubmissionForm(forms.ModelForm):
         self.thread_hash = kwargs["initial"].get("thread_hash", None) or data.get(
             "thread_hash"
         )
-        self.is_resubmission_of = kwargs["initial"].get(
-            "is_resubmission_of", None
-        ) or data.get("is_resubmission_of")
+
+        self.is_resubmission_of = (
+            Submission.objects.filter(thread_hash=self.thread_hash)
+            .order_by("-submission_date")
+            .first()
+        )
+
         self.preprint_data = {}
         self.metadata = {}  # container for possible external server-provided metadata
 
@@ -1502,8 +1504,7 @@ class SubmissionForm(forms.ModelForm):
             # No need for a file upload if user is not using the SciPost preprint server.
             del self.fields["preprint_file"]
 
-        if not self.is_resubmission():
-            del self.fields["is_resubmission_of"]
+        if not self.is_resubmission_of:
             del self.fields["author_comments"]
             del self.fields["list_of_changes"]
 
@@ -1574,12 +1575,10 @@ class SubmissionForm(forms.ModelForm):
             proceedings_qs = self.fields["proceedings"].queryset.open_for_submission()
 
             # If this is a resubmission, add the previous proceedings to the list
-            if self.is_resubmission():
-                resubmission = Submission.objects.get(id=self.is_resubmission_of)
-                if resubmission.proceedings:
-                    proceedings_qs |= Proceedings.objects.filter(
-                        id=resubmission.proceedings.id
-                    )
+            if self.is_resubmission_of and self.is_resubmission_of.proceedings:
+                proceedings_qs |= Proceedings.objects.filter(
+                    pk=self.is_resubmission_of.proceedings.pk
+                )
 
             self.fields["proceedings"].queryset = proceedings_qs
 
@@ -1695,9 +1694,7 @@ class SubmissionForm(forms.ModelForm):
             "identifier_w_vn_nr",
             "submitted_to",
             "acad_field",
-            "is_resubmission_of",
             "thread_hash",
-            "submitted_to",
             # Visible fields
             "fulfilled_expectations",
             "proceedings",
@@ -1724,9 +1721,6 @@ class SubmissionForm(forms.ModelForm):
             "preprint_file",
         )
 
-    def is_resubmission(self):
-        return self.is_resubmission_of is not None
-
     def clean(self, *args, **kwargs):
         """
         Do all general checks for Submission.
@@ -1741,10 +1735,8 @@ class SubmissionForm(forms.ModelForm):
                 thread_hash=self.thread_hash
             )
 
-        if self.is_resubmission():
-            check_resubmission_readiness(
-                self.requested_by, cleaned_data["is_resubmission_of"]
-            )
+        if resubmission_of := self.is_resubmission_of:
+            check_resubmission_readiness(self.requested_by, resubmission_of)
 
         self.clear_submission_object_types()
 
@@ -2002,9 +1994,6 @@ class SubmissionForm(forms.ModelForm):
         # Explicitly handle specialties (otherwise they are not saved)
         submission.specialties.set(self.cleaned_data["specialties"])
 
-        if self.is_resubmission():
-            self.process_resubmission(submission)
-
         # Add the Collection if applicable
         if collection := self.cleaned_data.get("collection", None):
             submission.collections.add(collection)
@@ -2014,13 +2003,14 @@ class SubmissionForm(forms.ModelForm):
 
         # Set the fellowship to the default one
         submission.fellows.set(submission.get_default_fellowship())
-        if self.is_resubmission():
-            # Add the fellows of the previous submission to the new one
-            submission.fellows.add(*submission.is_resubmission_of.fellows.all())
 
         # Switch off auto-updating of the fellowship
         if collection or self.submitted_to_journal.name == "Migration Politics":
             submission.auto_update_fellowship = False
+
+        # If this is a resubmission, update all fields copying from the previous submission
+        if self.is_resubmission_of:
+            self.process_resubmission(submission, self.is_resubmission_of)
 
         # Return latest version of the Submission. It could be outdated by now.
         submission.refresh_from_db()
