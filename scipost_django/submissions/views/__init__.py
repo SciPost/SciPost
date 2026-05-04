@@ -139,6 +139,11 @@ from scipost.mixins import PaginationMixin, PermissionsMixin
 from scipost.models import Contributor, Remark
 from scipost.views import prompt_to_login
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from submissions.forms import SubmissionPrefillForm
+
 ################
 # Autocomplete #
 ################
@@ -324,7 +329,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     template_name = "submissions/submission_form.html"
 
     def __init__(self, **kwargs):
-        self.prefill_form = None
+        self.prefill_form: "SubmissionPrefillForm" = None
         self.initial_data = {}
         super().__init__(**kwargs)
 
@@ -336,20 +341,9 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         If this is a resubmission, display a special "appendage" version of the form,
         such that the original declaration is kept and the new one is appended.
         """
-        previous_submission_id = 0
-        if len(args) > 0 and (data := args[0]):
-            if data_is_resubmission_of := data.get("is_resubmission_of", None):
-                if isinstance(data_is_resubmission_of, list):
-                    data_is_resubmission_of = data_is_resubmission_of[0]
-                if isinstance(data_is_resubmission_of, str):
-                    try:
-                        previous_submission_id = int(data_is_resubmission_of)
-                    except ValueError:
-                        previous_submission_id = 0
-                else:
-                    previous_submission_id = data_is_resubmission_of
-        else:
-            previous_submission_id = self.initial_data.get("is_resubmission_of", 0)
+        previous_submission_id = None
+        if self.prefill_form and self.prefill_form.latest_submission:
+            previous_submission_id = self.prefill_form.latest_submission.id
 
         if not previous_submission_id:
             return GenAIDisclosureForm(*args)
@@ -371,7 +365,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
             raise PermissionDenied("Journal is not active")
 
         if self.prefill_form.is_valid():
-            if self.prefill_form.is_resubmission():
+            if self.prefill_form.latest_submission:
                 resubmessage = (
                     "An earlier preprint was found within this submission thread."
                     "\nYour Submission will thus be handled as a resubmission."

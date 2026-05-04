@@ -982,37 +982,33 @@ class SubmissionPrefillForm(forms.Form):
         self.journal = Journal.objects.get(doi_label=kwargs.pop("journal_doi_label"))
         self.thread_hash = kwargs.pop("thread_hash")
 
-        if self.thread_hash:
-            # Resubmission
-            self.latest_submission = (
-                Submission.objects.filter(thread_hash=self.thread_hash)
-                .order_by("-submission_date", "-preprint")
-                .first()
-            )
-        else:
-            self.latest_submission = None
-        super().__init__(*args, **kwargs)
+    @property
+    def latest_submission(self):
+        return (
+            Submission.objects.filter(thread_hash=self.thread_hash)
+            .order_by("-submission_date", "-preprint")
+            .first()
+        )
 
-    def is_resubmission(self):
-        return self.latest_submission is not None
-
-    def run_checks(self):
-        """
-        Consistency checks on the prefill data.
-        """
-        check_resubmission_readiness(self.requested_by, self.latest_submission)
-
-    def get_prefill_data(self):
-        form_data = {
+    def get_prefill_data(self) -> dict[str, Any]:
+        form_data: dict[str, Any] = {
             "acad_field": self.journal.college.acad_field,
             "submitted_to": self.journal,
+            "thread_hash": self.thread_hash,
         }
-        if self.latest_submission:
-            form_data["thread_hash"] = self.thread_hash
-            form_data["is_resubmission_of"] = self.latest_submission.id
-            form_data["proceedings"] = self.latest_submission.proceedings
-            form_data["collection"] = self.latest_submission.collections.first()
         return form_data
+
+    @staticmethod
+    def get_submission_prefill_data(submission: Submission) -> dict[str, Any]:
+        return {
+            "proceedings": submission.proceedings,
+            "collection": submission.collections.first(),
+            "approaches": submission.approaches,
+            "referees_flagged": submission.referees_flagged,
+            "referees_suggested": submission.referees_suggested,
+            "specialties": [s.id for s in submission.specialties.all()],
+            "fulfilled_expectations": submission.fulfilled_expectations,
+        }
 
 
 class SciPostPrefillForm(SubmissionPrefillForm):
@@ -1036,20 +1032,13 @@ class SciPostPrefillForm(SubmissionPrefillForm):
         """
         form_data = super().get_prefill_data()
         form_data["preprint_server"] = PreprintServer.objects.get(name="SciPost")
-        if self.is_resubmission():
+        if latest_submission := self.latest_submission:
+            form_data.update(self.get_submission_prefill_data(latest_submission))
             form_data.update(
                 {
-                    "title": self.latest_submission.title,
-                    "abstract": self.latest_submission.abstract,
-                    "author_list": self.latest_submission.author_list,
-                    "acad_field": self.latest_submission.acad_field,
-                    "specialties": [
-                        s.id for s in self.latest_submission.specialties.all()
-                    ],
-                    "approaches": self.latest_submission.approaches,
-                    "referees_flagged": self.latest_submission.referees_flagged,
-                    "referees_suggested": self.latest_submission.referees_suggested,
-                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
+                    "title": latest_submission.title,
+                    "abstract": latest_submission.abstract,
+                    "author_list": latest_submission.author_list,
                 }
             )
         return form_data
@@ -1095,19 +1084,10 @@ class ArXivPrefillForm(SubmissionPrefillForm):
         form_data = super().get_prefill_data()
         form_data.update(self.arxiv_data)
         form_data["identifier_w_vn_nr"] = self.cleaned_data["arxiv_identifier_w_vn_nr"]
-        if self.is_resubmission():
-            form_data.update(
-                {
-                    "approaches": self.latest_submission.approaches,
-                    "referees_flagged": self.latest_submission.referees_flagged,
-                    "referees_suggested": self.latest_submission.referees_suggested,
-                    "acad_field": self.latest_submission.acad_field,
-                    "specialties": [
-                        s.id for s in self.latest_submission.specialties.all()
-                    ],
-                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
-                }
-            )
+
+        if latest_submission := self.latest_submission:
+            form_data.update(self.get_submission_prefill_data(latest_submission))
+
         return form_data
 
 
@@ -1163,19 +1143,9 @@ class ChemRxivPrefillForm(SubmissionPrefillForm):
         )
         form_data["topics"] = Topic.objects.filter(name__in=keyword_titles)
 
-        if self.is_resubmission():
-            form_data.update(
-                {
-                    "approaches": self.latest_submission.approaches,
-                    "referees_flagged": self.latest_submission.referees_flagged,
-                    "referees_suggested": self.latest_submission.referees_suggested,
-                    "acad_field": self.latest_submission.acad_field,
-                    "specialties": [
-                        s.id for s in self.latest_submission.specialties.all()
-                    ],
-                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
-                }
-            )
+        if latest_submission := self.latest_submission:
+            form_data.update(self.get_submission_prefill_data(latest_submission))
+
         return form_data
 
 
@@ -1226,19 +1196,9 @@ class FigsharePrefillForm(SubmissionPrefillForm):
         form_data = super().get_prefill_data()
         form_data.update(self.figshare_data)
 
-        if self.is_resubmission():
-            form_data.update(
-                {
-                    "approaches": self.latest_submission.approaches,
-                    "referees_flagged": self.latest_submission.referees_flagged,
-                    "referees_suggested": self.latest_submission.referees_suggested,
-                    "acad_field": self.latest_submission.acad_field,
-                    "specialties": [
-                        s.id for s in self.latest_submission.specialties.all()
-                    ],
-                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
-                }
-            )
+        if latest_submission := self.latest_submission:
+            form_data.update(self.get_submission_prefill_data(latest_submission))
+
         return form_data
 
 
@@ -1289,19 +1249,9 @@ class OSFPreprintsPrefillForm(SubmissionPrefillForm):
         form_data = super().get_prefill_data()
         form_data.update(self.osfpreprints_data)
 
-        if self.is_resubmission():
-            form_data.update(
-                {
-                    "approaches": self.latest_submission.approaches,
-                    "referees_flagged": self.latest_submission.referees_flagged,
-                    "referees_suggested": self.latest_submission.referees_suggested,
-                    "acad_field": self.latest_submission.acad_field,
-                    "specialties": [
-                        s.id for s in self.latest_submission.specialties.all()
-                    ],
-                    "fulfilled_expectations": self.latest_submission.fulfilled_expectations,
-                }
-            )
+        if latest_submission := self.latest_submission:
+            form_data.update(self.get_submission_prefill_data(latest_submission))
+
         return form_data
 
 
