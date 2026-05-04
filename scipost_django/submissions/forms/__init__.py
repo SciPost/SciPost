@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from itertools import product
+from uuid import uuid4
 from django.urls import reverse, reverse_lazy
 from django.utils.timezone import timedelta
 
@@ -980,7 +981,8 @@ class SubmissionPrefillForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.requested_by: "SciPostUser" = kwargs.pop("requested_by")
         self.journal = Journal.objects.get(doi_label=kwargs.pop("journal_doi_label"))
-        self.thread_hash = kwargs.pop("thread_hash")
+        self.thread_hash: str = kwargs.pop("thread_hash") or str(uuid4())
+        super().__init__(*args, **kwargs)
 
     @property
     def latest_submission(self):
@@ -1458,9 +1460,11 @@ class SubmissionForm(forms.ModelForm):
         else:
             raise ValueError("No preprint server specified.")
 
-        self.thread_hash = kwargs["initial"].get("thread_hash", None) or data.get(
+        self.thread_hash: str | None = kwargs["initial"].get("thread_hash") or data.get(
             "thread_hash"
         )
+        if not self.thread_hash:
+            raise ValueError("No thread hash specified.")
 
         self.is_resubmission_of = (
             Submission.objects.filter(thread_hash=self.thread_hash)
