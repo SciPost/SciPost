@@ -120,11 +120,14 @@ import strings
 
 import iThenticate
 
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from scipost.models import SciPostUser
+
 ARXIV_IDENTIFIER_PATTERN_NEW = r"^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$"
 FIGSHARE_IDENTIFIER_PATTERN = r"^[0-9]+\.v[0-9]{1,2}$"
 OSFPREPRINTS_IDENTIFIER_PATTERN = r"^[a-z0-9]+(_v\d{1,2})?$"
-
-from typing import Any
 
 
 class PortalSubmissionSearchForm(CrispyFormMixin, SearchForm[Submission]):
@@ -734,42 +737,41 @@ class SubmissionOldSearchForm(forms.Form):
 # Checks
 
 
-def check_resubmission_readiness(requested_by, submission):
+def check_resubmission_readiness(requested_by: "SciPostUser", submission: Submission):
     """
     Check if submission can be resubmitted.
     """
-    if submission:
-        if submission.status == Submission.REJECTED:
-            # Explicitly give rejected status warning.
-            error_message = (
-                "This preprint has previously undergone refereeing "
-                "and has been rejected. Resubmission is only possible "
-                "if the manuscript has been substantially reworked into "
-                "a new submission with distinct identifier."
-            )
-            raise forms.ValidationError(error_message)
-        elif submission.open_for_resubmission:
-            # Check if verified author list contains current user.
-            if requested_by.contributor not in submission.authors.all():
-                error_message = (
-                    "There exists a preprint with this identifier "
-                    "but an earlier version number. Resubmission is only possible"
-                    " if you are a registered author of this manuscript."
-                )
-                raise forms.ValidationError(error_message)
-        else:
-            # Submission has an inappropriate status for resubmission.
+    if submission.status == Submission.REJECTED:
+        # Explicitly give rejected status warning.
+        error_message = (
+            "This preprint has previously undergone refereeing "
+            "and has been rejected. Resubmission is only possible "
+            "if the manuscript has been substantially reworked into "
+            "a new submission with distinct identifier."
+        )
+        raise forms.ValidationError(error_message)
+    elif submission.open_for_resubmission:
+        # Check if verified author list contains current user.
+        if requested_by.contributor not in submission.authors.all():
             error_message = (
                 "There exists a preprint with this identifier "
-                "but an earlier version number, which is still undergoing "
-                "peer refereeing. "
-                "A resubmission can only be performed after request "
-                "from the Editor-in-charge. Please wait until the "
-                "closing of the previous refereeing round and "
-                "formulation of the Editorial Recommendation "
-                "before proceeding with a resubmission."
+                "but an earlier version number. Resubmission is only possible"
+                " if you are a registered author of this manuscript."
             )
             raise forms.ValidationError(error_message)
+    else:
+        # Submission has an inappropriate status for resubmission.
+        error_message = (
+            "There exists a preprint with this identifier "
+            "but an earlier version number, which is still undergoing "
+            "peer refereeing. "
+            "A resubmission can only be performed after request "
+            "from the Editor-in-charge. Please wait until the "
+            "closing of the previous refereeing round and "
+            "formulation of the Editorial Recommendation "
+            "before proceeding with a resubmission."
+        )
+        raise forms.ValidationError(error_message)
 
 
 def check_identifier_is_unused(identifier):
@@ -976,7 +978,7 @@ class SubmissionPrefillForm(forms.Form):
     """
 
     def __init__(self, *args, **kwargs):
-        self.requested_by = kwargs.pop("requested_by")
+        self.requested_by: "SciPostUser" = kwargs.pop("requested_by")
         self.journal = Journal.objects.get(doi_label=kwargs.pop("journal_doi_label"))
         self.thread_hash = kwargs.pop("thread_hash")
 
