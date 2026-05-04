@@ -2020,31 +2020,39 @@ class SubmissionForm(forms.ModelForm):
         submission.refresh_from_db()
         return submission
 
-    def process_resubmission(self, submission: Submission):
+    @staticmethod
+    def process_resubmission(submission: Submission, previous_submission: Submission):
         """
         Update all fields for new and old Submission and EditorialAssignments.
 
         -- submission: the new version of the Submission series.
+        -- previous_submission: the previous version of the Submission, which is now being resubmitted.
         """
-        if not submission.is_resubmission_of:
-            raise Submission.DoesNotExist
-
-        previous_submission = submission.is_resubmission_of
-
         # Close last submission
-        Submission.objects.filter(id=previous_submission.id).update(
+        Submission.objects.filter(pk=previous_submission.pk).update(
             open_for_reporting=False,
             status=Submission.RESUBMITTED,
             completion_date=timezone.now().date(),
         )
 
         # Copy related objects
-        submission.topics.add(*previous_submission.topics.all())
-        submission.collections.add(*previous_submission.collections.all())
-        submission.followup_of.add(*previous_submission.followup_of.all())
+        RELATED = (
+            "topics",
+            "collections",
+            "followup_of",
+            "authors",
+            "authors_claims",
+            "authors_false_claims",
+            "fellows",
+        )
+        for related in RELATED:
+            submission_related = getattr(submission, related)
+            previous_submission_related = getattr(previous_submission, related)
+
+            submission_related.add(*previous_submission_related.all())
 
         # Open for comments (reports: opened upon cycle choice) and copy EIC info
-        Submission.objects.filter(id=submission.id).update(
+        Submission.objects.filter(pk=submission.pk).update(
             open_for_commenting=True,
             open_for_reporting=False,
             visible_public=previous_submission.visible_public,
@@ -2054,13 +2062,6 @@ class SubmissionForm(forms.ModelForm):
             eic_first_assigned_date=timezone.now(),
             checks_cleared_date=timezone.now(),
             status=Submission.REFEREEING_IN_PREPARATION,
-        )
-
-        # Add author(s) (claim) fields
-        submission.authors.add(*previous_submission.authors.all())
-        submission.authors_claims.add(*previous_submission.authors_claims.all())
-        submission.authors_false_claims.add(
-            *previous_submission.authors_false_claims.all()
         )
 
         # Create new EditorialAssigment for the current Editor-in-Charge
