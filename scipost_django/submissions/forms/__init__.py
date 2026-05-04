@@ -1442,6 +1442,14 @@ class SubmissionForm(forms.ModelForm):
             ),
         }
 
+    @property
+    def latest_submission(self):
+        return (
+            Submission.objects.filter(thread_hash=self.thread_hash)
+            .order_by("-submission_date", "-preprint")
+            .first()
+        )
+
     def __init__(self, *args, **kwargs: Any):
         self.requested_by = kwargs.pop("requested_by")
         self.submitted_to_journal: "Journal" = kwargs.pop("submitted_to_journal")
@@ -1466,11 +1474,7 @@ class SubmissionForm(forms.ModelForm):
         if not self.thread_hash:
             raise ValueError("No thread hash specified.")
 
-        self.is_resubmission_of = (
-            Submission.objects.filter(thread_hash=self.thread_hash)
-            .order_by("-submission_date")
-            .first()
-        )
+        self.is_resubmission_of = self.latest_submission
 
         self.preprint_data = {}
         self.metadata = {}  # container for possible external server-provided metadata
@@ -1743,8 +1747,8 @@ class SubmissionForm(forms.ModelForm):
                 thread_hash=self.thread_hash
             )
 
-        if resubmission_of := self.is_resubmission_of:
-            check_resubmission_readiness(self.requested_by, resubmission_of)
+        if resubmission := self.latest_submission:
+            check_resubmission_readiness(self.requested_by, resubmission)
 
         self.clear_submission_object_types()
 
@@ -1939,6 +1943,9 @@ class SubmissionForm(forms.ModelForm):
         """
         Create the new Submission and Preprint instances.
         """
+        # Store it before current object is `.save()`d
+        resubmission = self.latest_submission
+
         submission: Submission = super().save(commit=False)
         submission.submitted_by = self.requested_by.contributor
 
@@ -2017,8 +2024,8 @@ class SubmissionForm(forms.ModelForm):
             submission.auto_update_fellowship = False
 
         # If this is a resubmission, update all fields copying from the previous submission
-        if self.is_resubmission_of:
-            self.process_resubmission(submission, self.is_resubmission_of)
+        if resubmission:
+            self.process_resubmission(submission, resubmission)
 
         # Return latest version of the Submission. It could be outdated by now.
         submission.refresh_from_db()
@@ -2065,6 +2072,7 @@ class SubmissionForm(forms.ModelForm):
             editor_in_charge=previous_submission.editor_in_charge,
             eic_first_assigned_date=timezone.now(),
             checks_cleared_date=timezone.now(),
+            is_resubmission_of=previous_submission,
             status=Submission.REFEREEING_IN_PREPARATION,
         )
 

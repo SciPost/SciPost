@@ -341,15 +341,14 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         If this is a resubmission, display a special "appendage" version of the form,
         such that the original declaration is kept and the new one is appended.
         """
-        previous_submission_id = None
-        if self.prefill_form and self.prefill_form.latest_submission:
-            previous_submission_id = self.prefill_form.latest_submission.id
 
-        if not previous_submission_id:
+        form = self.get_form()
+        resubmission = form.is_resubmission_of
+        if not resubmission:
             return GenAIDisclosureForm(*args)
         elif previous_disclosure := GenAIDisclosure.objects.filter(
             content_type_id=ContentType.objects.get_for_model(Submission),
-            object_id=previous_submission_id,
+            object_id=resubmission.id,
         ).first():
             return GenAIDisclosureAppendageForm(
                 *args, previous_disclosure=previous_disclosure
