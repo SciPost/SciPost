@@ -1687,18 +1687,22 @@ class SubmissionForm(forms.ModelForm):
         if _no_fields_present("data_repository_url", "code_repository_url"):
             supp_info_fieldset = None
 
+        # To avoid errors when deleting the key from self.fields,
+        # only include the field in the layout if it exists.
+        def field_if_exists(field_name: str):
+            return field_name if field_name in self.fields else None
+
         self.helper.layout = Layout(
             # Hidden fields
             "preprint_server",
-            "preprint_link",
-            "identifier_w_vn_nr",
+            field_if_exists("preprint_link"),
+            field_if_exists("identifier_w_vn_nr"),
             "submitted_to",
             "acad_field",
             "thread_hash",
             # Visible fields
-            "fulfilled_expectations",
-            "proceedings",
-            "acad_field",
+            field_if_exists("fulfilled_expectations"),
+            field_if_exists("proceedings"),
             Div(
                 Div(
                     Field("specialties"),
@@ -1714,8 +1718,8 @@ class SubmissionForm(forms.ModelForm):
             "abstract",
             analysis_target_row,
             "followup_of",
-            "author_comments",
-            "list_of_changes",
+            field_if_exists("author_comments"),
+            field_if_exists("list_of_changes"),
             "remarks_for_editors",
             supp_info_fieldset,
             "preprint_file",
@@ -1940,12 +1944,12 @@ class SubmissionForm(forms.ModelForm):
 
         # Save identifiers
         url = ""
-        if self.cleaned_data.get("preprint_link", None):
-            url = self.cleaned_data["preprint_link"]
+        if preprint_link := self.cleaned_data.get("preprint_link"):
+            url = preprint_link
         preprint, __ = Preprint.objects.get_or_create(
             identifier_w_vn_nr=self.cleaned_data["identifier_w_vn_nr"],
             url=url,
-            _file=self.cleaned_data.get("preprint_file", None),
+            _file=self.cleaned_data.get("preprint_file"),
         )
 
         # Save metadata directly from preprint server call without possible user interception
