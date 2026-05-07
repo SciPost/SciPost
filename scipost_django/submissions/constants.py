@@ -138,36 +138,80 @@ EVENT_TYPES = (
 
 
 # Editorial recommendations
+## Normal Publications
 EIC_REC_PUBLISH = "publish"
 EIC_REC_MINOR_REVISION = "minor_revision"
 EIC_REC_MAJOR_REVISION = "major_revision"
 EIC_REC_REJECT = "reject"
-EIC_REC_CHOICES = (
+
+EIC_REC_PUBLICATION_CHOICES = (
     (EIC_REC_PUBLISH, "Publish"),
     (EIC_REC_MINOR_REVISION, "Ask for minor revision"),
     (EIC_REC_MAJOR_REVISION, "Ask for major revision"),
     (EIC_REC_REJECT, "Reject"),
 )
-EIC_REC_CHOICES_SHORT = (
+
+EIC_REC_PUBLICATION_CHOICES_SHORT = (
     (EIC_REC_PUBLISH, "Publish"),
     (EIC_REC_MINOR_REVISION, "Minor revision"),
     (EIC_REC_MAJOR_REVISION, "Major revision"),
     (EIC_REC_REJECT, "Reject"),
 )
 
+## Post-Publication Corrections
+EIC_REC_ACCEPT_CORRECTIONS = "accept_corrections"
+EIC_REC_NO_UPDATE_NEEDED = "no_update_needed"
+EIC_REC_DISMISS_CONCERNS = "dismiss_concerns"
+EIC_REC_RETRACT_PUBLICATION = "retract_publication"
 
-# Alternative recommendations
-ALT_REC_RECONSULT_REFEREES = "reconsult_referees"
-ALT_REC_SEEK_ADDITIONAL_REFEREES = "seek_additional_referees"
-ALT_REC_CHOICES = (
-    (EIC_REC_PUBLISH, "Publish"),
-    (ALT_REC_RECONSULT_REFEREES, "Reconsult previous referees"),
-    (ALT_REC_SEEK_ADDITIONAL_REFEREES, "Seek additional referees"),
-    (EIC_REC_MINOR_REVISION, "Ask for minor revision"),
-    (EIC_REC_MAJOR_REVISION, "Ask for major revision"),
-    (EIC_REC_REJECT, "Reject"),
+EIC_REC_POST_PUBLICATION_CHOICES = (
+    (EIC_REC_ACCEPT_CORRECTIONS, "Accept corrections"),
+    (EIC_REC_NO_UPDATE_NEEDED, "No update needed"),
+    (EIC_REC_DISMISS_CONCERNS, "Dismiss concerns"),
+    (EIC_REC_RETRACT_PUBLICATION, "Retract publication"),
 )
 
+EIC_REC_POST_PUBLICATION_CHOICES_SHORT = (
+    (EIC_REC_ACCEPT_CORRECTIONS, "Accept"),
+    (EIC_REC_NO_UPDATE_NEEDED, "No update"),
+    (EIC_REC_DISMISS_CONCERNS, "Dismiss concerns"),
+    (EIC_REC_RETRACT_PUBLICATION, "Retract"),
+)
+
+## Joined list of all recommendations
+EIC_REC_CHOICES = EIC_REC_PUBLICATION_CHOICES + EIC_REC_POST_PUBLICATION_CHOICES
+EIC_REC_CHOICES_SHORT = (
+    EIC_REC_PUBLICATION_CHOICES_SHORT + EIC_REC_POST_PUBLICATION_CHOICES_SHORT
+)
+
+# Alternative recommendations
+## Alt. Recs. for any publication status related to rerunning the peer review process
+ALT_REC_RECONSULT_REFEREES = "reconsult_referees"
+ALT_REC_SEEK_ADDITIONAL_REFEREES = "seek_additional_referees"
+
+ALT_REC_REFEREEING_CHOICES = (
+    (ALT_REC_RECONSULT_REFEREES, "Reconsult previous referees"),
+    (ALT_REC_SEEK_ADDITIONAL_REFEREES, "Seek additional referees"),
+)
+
+## Normal Publications
+ALT_REC_PUBLICATION_CHOICES = (
+    *EIC_REC_PUBLICATION_CHOICES,
+    *ALT_REC_REFEREEING_CHOICES,
+)
+
+## Post-Publication Corrections
+ALT_REC_POST_PUBLICATION_CHOICES = (
+    *EIC_REC_POST_PUBLICATION_CHOICES,
+    *ALT_REC_REFEREEING_CHOICES,
+)
+
+## Joined list of all Alt. Recs. reconstructed to avoid dupes
+ALT_REC_CHOICES = (
+    *EIC_REC_PUBLICATION_CHOICES,
+    *EIC_REC_POST_PUBLICATION_CHOICES,
+    *ALT_REC_REFEREEING_CHOICES,
+)
 
 # Tiering
 TIER_I = 1

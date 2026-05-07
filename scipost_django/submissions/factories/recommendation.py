@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 import factory
 import factory.fuzzy
 
-from submissions.constants import EIC_REC_CHOICES, EIC_REC_STATUSES
+from submissions.constants import EIC_REC_PUBLICATION_CHOICES, EIC_REC_STATUSES
 from submissions.models import EICRecommendation
 
 from common.faker import fake, LazyRandEnum
@@ -30,7 +30,7 @@ class EICRecommendationFactory(factory.django.DjangoModelFactory):
 
     for_journal = factory.SubFactory("journals.factories.JournalFactory")
 
-    recommendation = LazyRandEnum(EIC_REC_CHOICES)
+    recommendation = LazyRandEnum(EIC_REC_PUBLICATION_CHOICES)
     status = LazyRandEnum(EIC_REC_STATUSES)
 
     version = factory.LazyAttribute(
