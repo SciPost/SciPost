@@ -182,6 +182,10 @@ class Publication(models.Model):
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = models.JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
+    current_revision_description = models.TextField(
+        blank=True,
+        help_text="Details about the current revision process, if applicable.",
+    )
 
     # To handle cases without parsable author info (e.g. docx)
     author_info_source = models.TextField(blank=True, null=True)
@@ -227,7 +231,8 @@ class Publication(models.Model):
 
     class Meta:
         default_related_name = "publications"
-        ordering = ("-publication_date", "-paper_nr")
+        ordering = ("-publication_date", "-paper_nr", "pubtype")
+        get_latest_by = "publication_date"
 
     def __str__(self):
         return "{cite}, {title} by {authors}, {date}".format(
