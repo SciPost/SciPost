@@ -68,6 +68,10 @@
         <li>
           <strong><a href="{% url 'journals:publish_publication' publication.doi_label %}">Publish this draft</a></strong>
         </li>
+      {% else %}
+        <li>
+          <a href="{% url 'journals:open_publication_revision' publication.doi_label %}">Open Publication to revision</a>
+        </li>
       {% endif %}
 
     </ul>

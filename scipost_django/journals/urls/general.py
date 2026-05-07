@@ -75,6 +75,11 @@ urlpatterns = [
         name="publish_publication",
     ),
     path(
+        "admin/publications/<publication_doi_label:doi_label>/open_revision",
+        journals_views.PublicationOpenRevisionView.as_view(),
+        name="open_publication_revision",
+    ),
+    path(
         "admin/publications/<publication_doi_label:doi_label>/approval",
         journals_views.DraftPublicationApprovalView.as_view(),
         name="send_publication_for_approval",

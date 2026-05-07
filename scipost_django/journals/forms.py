@@ -37,6 +37,7 @@ from .constants import (
     STATUS_PUBLICLY_OPEN,
     PUBLICATION_PREPUBLISHED,
     PUBLICATION_PUBLISHED,
+    PUBLICATION_UNDER_REVISION,
 )
 from .exceptions import PaperNumberingError
 from .models import (
@@ -1207,6 +1208,45 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
             # Email authors
             DirectMailUtil(
                 "journals/paper_published_notification",
+                publication=self.instance,
+            ).send_mail()
+
+        return self.instance
+
+
+class PublicationOpenRevisionForm(RequestFormMixin, forms.ModelForm):
+    class Meta:
+        model = Publication
+        fields = ["current_revision_description"]
+
+    def update_submission(self):
+        # Mark the submission as having been published:
+        submission = self.instance.accepted_submission
+        submission.status = Submission.AWAITING_RESUBMISSION
+        submission.save()
+
+    def update_publication(self):
+        self.instance.status = PUBLICATION_UNDER_REVISION
+        self.instance.save()
+
+    def update_editorial_decision(self):
+        from submissions.models import EditorialDecision
+
+        if editorial_decision := self.instance.accepted_submission.editorial_decision:
+            editorial_decision.status = EditorialDecision.DEPRECATED
+            editorial_decision.save()
+
+    def save(self, commit=True):
+        super().save(commit=commit)
+
+        if commit:
+            self.update_publication()
+            self.update_submission()
+            self.update_editorial_decision()
+
+            # Email authors
+            DirectMailUtil(
+                "journals/publication_open_for_revision_notification_authors",
                 publication=self.instance,
             ).send_mail()
 

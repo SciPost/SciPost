@@ -1,0 +1,30 @@
+<p>Dear {{ publication.accepted_submission.submitted_by.profile.formal_name }},</p>
+
+<p>
+  We would like to inform you that your Publication to {{ publication.get_journal.name }},
+  <br />
+  <a href="https://{{ domain }}{{ publication.get_absolute_url }}">{{ publication.title }}</a>,
+  <br />
+  by {{ publication.author_list }}
+  <br />
+  is now under revision.
+</p>
+
+<p>
+  A Publication comes under revision when the editor decides that changes made after publication are significant enough to warrant a new round of refereeing, or when there are demonstrable concerns about the Publication expressed by some party.
+  <br />
+  The revision description for your Publication is as follows:
+  {{ publication.current_revision_description|linebreaks }}
+</p>
+
+<p>
+  You are therefore requested to provide a new version of your paper to undergo the new refereeing process. You can do this directly here: "<a href="{% url 'submissions:submit_choose_journal' acad_field=publication.accepted_submission.acad_field.slug %}?thread_hash={{ publication.accepted_submission.thread_hash }}">Resubmit the manuscript</a>". Alternatively, you may use the same option under the <a href="{% url 'submissions:submit_manuscript' %}">"new submission"</a> form, or via the dedicated button in your <a href="{% url 'scipost:personal_page' %}">personal page</a> under the "submissions" tab.
+</p>
+
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}

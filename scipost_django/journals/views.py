@@ -87,6 +87,7 @@ from .forms import (
     DraftPublicationUpdateForm,
     FundingInfoForm,
     HTMXInlinePublicationResourceForm,
+    PublicationOpenRevisionForm,
     VolumeForm,
     IssueForm,
     AuthorsTableOrganizationSelectForm,
@@ -888,6 +889,14 @@ class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
     slug_field = slug_url_kwarg = "doi_label"
     form_class = PublicationPublishForm
     template_name = "journals/publication_publish_form.html"
+
+@method_decorator(transaction.atomic, name="dispatch")
+class PublicationOpenRevisionView(PermissionsMixin, RequestViewMixin, UpdateView):
+    permission_required = "scipost.can_publish_accepted_submission"
+    queryset = Publication.objects.published()
+    slug_field = slug_url_kwarg = "doi_label"
+    form_class = PublicationOpenRevisionForm
+    template_name = "journals/publication_open_revision_form.html"
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)

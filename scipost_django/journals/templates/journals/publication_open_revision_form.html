@@ -1,0 +1,48 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}
+  : Open Revision
+{% endblock pagetitle %}
+
+{% block content %}
+
+
+  <h1 class="highlight">Open Publication to Revision(s)</h1>
+  {% include 'journals/_publication_summary.html' with publication=form.instance %}
+
+  <hr class="divider" />
+  <h3>Opening a Publication to revision(s) will do the following:</h3>
+  <div>
+    <ul>
+      <li>Reset the accepted Submission's status to "Awaiting resubmission".</li>
+      <li>Set the Publication's status to "Under revision".</li>
+      <li>Display the revision description as a warning in the Publication page.</li>
+      <li>Deprecate the latest Editorial Decision (keeping it as is otherwise).</li>
+    </ul>
+  </div>
+
+  <div class="p-2 bg-info bg-opacity-25 rounded d-flex flex-column gap-1">
+    <h6 class="mb-0">
+      <span class="me-2 text-primary">{% include "bi/info-circle-fill.html" %}</span> Note
+    </h6>
+    <p class="mb-0">
+      If the current editor is unavailable, please first assign the latest submission to another editor before opening the Publication to revision(s).
+    </p>
+    <p class="mb-0">
+      This ensures that the new editor has access to all the necessary information to handle the revision process and that they are notified that the present Publication is now under revision.
+    </p>
+  </div>
+
+  <form method="post"
+        enctype="multipart/form-data"
+        class="mt-4">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit"
+           class="btn btn-primary"
+           value="Open Revision" />
+  </form>
+
+{% endblock %}

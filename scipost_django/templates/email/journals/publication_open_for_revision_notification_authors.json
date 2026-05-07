@@ -1,0 +1,9 @@
+{
+  "subject": "SciPost: Publication open for revision",
+  "recipient_list": [
+    "publication.accepted_submission.submitted_by.profile.email"
+  ],
+  "bcc": ["edadmin@"],
+  "from_name": "SciPost Editorial Administration",
+  "from_email": "edadmin@"
+}
