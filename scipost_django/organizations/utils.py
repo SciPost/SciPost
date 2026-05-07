@@ -53,8 +53,6 @@ class RORAPIHandler:
         Query the ROR API for an organization with the given domain
         and return the matching ROR IDs.
         """
-        return []
-
         # URL-encode domain to make it safe for use in a URL
         domain = quote(domain)
 
