@@ -2381,7 +2381,7 @@ def publication_detail(request, doi_label):
     visible for Production Supervisors and Administrators if in draft.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_published and not request.user.has_perm(
+    if publication.is_draft and not request.user.has_perm(
         "scipost.can_draft_publication"
     ):
         raise Http404("Publication is not publicly visible")
@@ -2417,7 +2417,7 @@ def publication_detail_pdf(request, doi_label):
     visible for Production Supervisors and Administrators if in draft.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_published and not request.user.has_perm(
+    if publication.is_draft and not request.user.has_perm(
         "scipost.can_draft_publication"
     ):
         raise Http404("Publication is not publicly visible")

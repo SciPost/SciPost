@@ -47,7 +47,7 @@
 
   {{ block.super }}
 
-  {% if not publication.is_published and perms.can_publish_accepted_submission %}
+  {% if not publication.was_ever_published and perms.can_publish_accepted_submission %}
     <div class="card bg-warning text-white mb-3">
       <div class="card-body">
         <p class="card-text text-center">

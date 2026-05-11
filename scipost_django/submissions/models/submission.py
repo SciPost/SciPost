@@ -513,7 +513,7 @@ class Submission(models.Model):
             header += " (current version)"
         else:
             header += " (deprecated version " + str(self.thread_sequence_order) + ")"
-        if hasattr(self, "publication") and self.publication.is_published:
+        if hasattr(self, "publication") and self.publication.was_ever_published:
             header += " (published as %s (%s))" % (
                 self.publication.doi_string,
                 self.publication.publication_date.strftime("%Y"),
@@ -713,6 +713,13 @@ class Submission(models.Model):
     @property
     def is_resubmission(self):
         return self.is_resubmission_of is not None
+
+    @property
+    def is_post_publication(self):
+        if (pub := self.thread_publications.order_by("publication_date").first()) is None:
+            return False
+
+        return self.submission_date.date() >= pub.publication_date
 
     @property
     def plagiarism_internal_tests_completed(self):

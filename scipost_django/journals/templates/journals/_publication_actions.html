@@ -64,7 +64,7 @@
       <li>
         <a href="{% url 'journals:update_publication' publication.doi_label %}">Update Publication object</a>
       </li>
-      {% if not publication.is_published %}
+      {% if not publication.was_ever_published %}
         <li>
           <strong><a href="{% url 'journals:publish_publication' publication.doi_label %}">Publish this draft</a></strong>
         </li>

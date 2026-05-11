@@ -16,6 +16,8 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 
 from ..constants import (
+    PUBLICATION_RETRACTED,
+    PUBLICATION_UNDER_REVISION,
     STATUS_DRAFT,
     STATUS_PUBLISHED,
     PUBLICATION_PUBLISHED,
@@ -397,6 +399,13 @@ class Publication(models.Model):
         elif self.in_journal:
             return self.in_journal.active
         return False
+
+    @property
+    def was_ever_published(self) -> bool:
+        return self.is_published or self.status in [
+            PUBLICATION_UNDER_REVISION,
+            PUBLICATION_RETRACTED,
+        ]
 
     @property
     def has_abstract_jats(self) -> bool:

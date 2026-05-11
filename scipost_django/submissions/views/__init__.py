@@ -168,7 +168,7 @@ class SubmissionAutocompleteView(autocomplete.Select2QuerySetView):
             end_info = " (latest version)"
         else:
             end_info = " (deprecated version " + str(item.thread_sequence_order) + ")"
-        if hasattr(item, "publication") and item.publication.is_published:
+        if hasattr(item, "publication") and item.publication.was_ever_published:
             end_info += " (published as %s (%s))" % (
                 item.publication.doi_string,
                 item.publication.publication_date.strftime("%Y"),

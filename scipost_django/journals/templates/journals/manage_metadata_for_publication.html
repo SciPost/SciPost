@@ -17,7 +17,7 @@
   <h1 class="highlight">Manage Metadata for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
 
   <div class="row">
-    {% if not publication.is_published %}
+    {% if not publication.was_ever_published %}
       <div class="col-12">
 	<h3 class="text-center bg-warning text-white mb-3 py-2">Current status: <strong>{{ publication.get_status_display }}</strong></h3>
       </div>
