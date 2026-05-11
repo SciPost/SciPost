@@ -134,7 +134,7 @@ def sitemap_xml(request):
     journals = Journal.objects.active()
     contributors = Contributor.objects.active()
     submissions = Submission.objects.public()
-    publications = Publication.objects.published().order_by("-publication_date")
+    publications = Publication.objects.ever_published().order_by("-publication_date")
     commentaries = Commentary.objects.vetted()
     theses = ThesisLink.objects.vetted()
     organizations = Organization.objects.all()
@@ -287,6 +287,8 @@ def portal_hx_recent_publications(request):
     acad_field = request.POST.get("acad_field_slug", None)
     specialty = request.POST.get("specialty_slug", None)
 
+    # this one stays .published, not .ever_published,
+    # don't show retractions on the homepage.
     publications = Publication.objects.published()
     filter_q = Q()
     if acad_field and acad_field != "all":
@@ -1344,9 +1346,11 @@ def personal_page_hx_publications(request):
     contributor = request.user.contributor
     context = {
         "contributor": contributor,
-        "own_publications": contributor.profile.publications()
-        .published()
-        .order_by("-publication_date"),
+        "own_publications": (
+            contributor.profile.publications()
+            .ever_published()
+            .order_by("-publication_date")
+        ),
     }
     return render(request, "scipost/personal_page/_hx_publications.html", context)
 
@@ -1776,7 +1780,7 @@ def contributor_info(request, contributor_id):
 
     contributor_publications = []
     if profile := contributor.profile:
-        contributor_publications = profile.publications().published()
+        contributor_publications = profile.publications().ever_published()
     contributor_submissions = Submission.objects.public_listed().filter(
         authors=contributor
     )

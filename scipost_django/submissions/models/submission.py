@@ -914,7 +914,7 @@ class Submission(models.Model):
             Publication.objects.filter(
                 accepted_submission__followup_of__accepted_submission__thread_hash=self.thread_hash
             )
-            .published()
+            .ever_published()
             .order_by(
                 "accepted_submission__thread_hash",
                 "-accepted_submission__submission_date",

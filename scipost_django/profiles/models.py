@@ -264,7 +264,7 @@ class Profile(AnonymizableObjectMixin, models.Model):
         """
         Returns all the publications associated to this Profile.
         """
-        return Publication.objects.published().filter(authors__profile=self)
+        return Publication.objects.ever_published().filter(authors__profile=self)
 
     def get_latest_submissions_authored(self):
         """

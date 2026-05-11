@@ -602,7 +602,7 @@ class Publication(models.Model):
     def get_issue_related_publications(self):
         """Return 4 Publications within same Issue."""
         return (
-            Publication.objects.published()
+            Publication.objects.ever_published()
             .filter(in_issue=self.in_issue)
             .exclude(id=self.id)[:4]
         )

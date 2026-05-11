@@ -221,7 +221,9 @@ class Organization(models.Model):
         if journal and isinstance(journal, Journal):
             publications = journal.get_publications()
         else:
-            publications = Publication.objects.published()
+            # Since `journal.get_publications()` returns all pubs and not just non-draft ones,
+            # perhaps we should also return all pubs here too.
+            publications = Publication.objects.ever_published()
         if year:
             publications = publications.filter(publication_date__year=year)
         return publications.filter(pk__in=self.cf_associated_publication_ids["all"])
@@ -317,7 +319,7 @@ class Organization(models.Model):
         Update the calculated field Organization:cf_associated_publication_ids.
         !Warning: "via_*" keys are not using "distinct" and could contain duplicates.
         """
-        published_pks = Publication.objects.published().values_list("pk", flat=True)
+        published_pks = Publication.objects.ever_published().values_list("pk", flat=True)
         children_ids = list(self.children.all().values_list("id", flat=True))
         ids: dict[str, list[int]] = {
             "via_author_affiliation": list(

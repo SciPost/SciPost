@@ -271,7 +271,7 @@ class FellowshipDetailView(LoginRequiredMixin, DetailView):
                 "specialties",
                 Prefetch(
                     "publications",
-                    queryset=Publication.objects.published(),
+                    queryset=Publication.objects.ever_published(),
                     to_attr="published_publications",
                 ),
             )

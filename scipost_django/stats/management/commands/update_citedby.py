@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = "Updates all Cited-by data for all Publications"
 
     def handle(self, *args, **kwargs):
-        publications = Publication.objects.published()
+        publications = Publication.objects.ever_published()
 
         for publication in publications:
             update_citedby(publication.doi_label)

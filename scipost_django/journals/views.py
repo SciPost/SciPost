@@ -137,7 +137,7 @@ class PublicationAutocompleteView(autocomplete.Select2QuerySetView):
     """
 
     def get_queryset(self):
-        qs = Publication.objects.published()
+        qs = Publication.objects.ever_published()
         if self.q:
             qs = qs.filter(
                 Q(title__icontains=self.q)
@@ -283,7 +283,7 @@ class PublicationListView(PaginationMixin, ListView):
     Show Publications filtered per specialty.
     """
 
-    queryset = Publication.objects.published()
+    queryset = Publication.objects.ever_published()
     paginate_by = 10
 
     def get_queryset(self):
@@ -350,7 +350,7 @@ def journal_detail(request, doi_label):
         )
     )
 
-    journal_publications = Publication.objects.for_journal(journal.name).published()
+    journal_publications = Publication.objects.for_journal(journal.name).ever_published()
 
     most_cited = journal_publications.most_cited(5)
     latest_publications = journal_publications[:5]
@@ -579,7 +579,7 @@ def issue_detail(request, doi_label):
     issue = get_object_or_404(Issue.objects.open_or_published(), doi_label=doi_label)
     journal = issue.in_journal or issue.in_volume.in_journal
 
-    papers = issue.publications.published().order_by("paper_nr")
+    papers = issue.publications.ever_published().order_by("paper_nr")
     next_issue = (
         Issue.objects.published()
         .filter(start_date__gt=issue.start_date)

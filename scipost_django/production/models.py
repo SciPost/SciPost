@@ -422,20 +422,25 @@ class ProofsRepository(models.Model):
         one associated with the submission's editorial decision, or, in the event of
         a Selections paper, it is the flagship journal of the college.
         """
+        submission = self.stream.submission
 
-        # Guard against null editorial decision
-        if not (decision := self.stream.submission.editorial_decision):
-            raise ValueError("No (non-deprecated) editorial decision exists")
+        journal = None
+        if latest_publication := submission.publications.ever_published().latest():
+            journal = latest_publication.get_journal()
+        elif latest_decision := submission.editorial_decision:
+            journal = latest_decision.for_journal
+        else:
+            raise ValueError(
+                "Submission is neither published nor has a (non-deprecated) editorial decision "
+                "cannot determine journal abbreviation for proofs repository."
+            )
 
-        decision_journal = decision.for_journal
-
-        if "Selections" in decision_journal.name:
-            paper_field = self.stream.submission.acad_field
-            college = paper_field.colleges.order_by("order").first()
+        if "Selections" in journal.name:
+            college = submission.acad_field.colleges.order_by("order").first()
             flagship_journal = college.journals.order_by("list_order").first()
             return flagship_journal.doi_label
         else:
-            return decision_journal.doi_label
+            return journal.doi_label
 
     @property
     def journal_subdivision(self) -> str:

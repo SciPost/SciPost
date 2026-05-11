@@ -66,7 +66,7 @@ from submissions.models import Submission
 
 class PortalPublicationSearchForm(CrispyFormMixin, SearchForm[Publication]):
     model = Publication
-    queryset = Publication.objects.published()
+    queryset = Publication.objects.ever_published()
 
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=512, required=False)
