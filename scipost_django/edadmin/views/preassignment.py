@@ -209,6 +209,11 @@ def _hx_submission_preassignment_decision(request, identifier_w_vn_nr):
                 comments_for_authors=form.cleaned_data["comments_for_authors"],
             )
 
+            # Reset the fellowship for the submission regardless.
+            # There exists a case where `_hx_author_profile_action`
+            # will not run when there is a single author (pre-matched).
+            submission.fellows.set(submission.get_default_fellowship())
+
         else:  # inadmissible, inform authors and set status to PREASSIGNMENT_FAILED
             submission.status = Submission.PREASSIGNMENT_FAILED
             submission.completion_date = timezone.now().date()
