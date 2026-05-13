@@ -51,6 +51,11 @@ from dal import autocomplete
 from submissions.models.readiness import Readiness
 
 from ..constants import (
+    ALT_REC_POST_PUBLICATION_CHOICES,
+    ALT_REC_PUBLICATION_CHOICES,
+    EDITORIAL_DECISION_CHOICES,
+    EIC_REC_POST_PUBLICATION_CHOICES,
+    EIC_REC_PUBLICATION_CHOICES,
     REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES,
     REPORT_POST_EDREC,
@@ -3459,7 +3464,7 @@ class EICRecommendationForm(forms.ModelForm):
         -- submission: The Submission to formulate an EICRecommendation for.
         -- reformulate (bool): Reformulate the currently available EICRecommendations.
         """
-        self.submission = kwargs.pop("submission")
+        self.submission: Submission = kwargs.pop("submission")
         self.reformulate = kwargs.pop("reformulate", False)
         self.load_earlier_recommendations()
 
@@ -3490,13 +3495,18 @@ class EICRecommendationForm(forms.ModelForm):
                 css_class="row",
             )
         )
-        self.fields["recommendation"].help_text = (
-            "Selecting any of the three Publish choices means that you recommend publication.<br>"
-            "Which one you choose simply indicates your ballpark evaluation of the "
-            "submission's quality and has no further consequence on the publication."
-        )
 
-        self.fields["for_journal"].initial = self.submission.submitted_to
+        if self.submission.is_post_publication:
+            self.fields["recommendation"].help_text = ""
+            self.fields["recommendation"].choices = EIC_REC_POST_PUBLICATION_CHOICES
+        else:
+            self.fields["recommendation"].help_text = (
+                "Selecting any of the three Publish choices means that you recommend publication.<br>"
+                "Which one you choose simply indicates your ballpark evaluation of the "
+                "submission's quality and has no further consequence on the publication."
+            )
+            self.fields["recommendation"].choices = EIC_REC_PUBLICATION_CHOICES
+
         if self.reformulate:
             latest_recommendation = self.earlier_recommendations.first()
             if latest_recommendation:
@@ -3541,15 +3551,27 @@ class EICRecommendationForm(forms.ModelForm):
                 "it fulfils the latter's expectations and criteria."
             )
 
-        if journal_help_points:
-            journal_help_points_HTML = HTML(
-                '<div class="bg-info bg-opacity-25 p-2 mb-2">Please be aware of all the points below!'
-                + '<ul class="mb-0">'
-                + "".join([f"<li>{point}</li>" for point in journal_help_points])
-                + "</ul>"
-                + "</div>"
-            )
-            self.layout_fields["for_journal"].append(journal_help_points_HTML)
+        if self.submission.is_post_publication:
+            if publication := self.submission.thread_publications.first():
+                self.fields["for_journal"].initial = publication.get_journal()
+                self.fields["for_journal"].disabled = True
+            else:
+                self.fields["for_journal"].help_text = (
+                    "The journal of publication could not be determined for this submission. "
+                    "Please select the journal in which the submission was published."
+                )
+        else:
+            self.fields["for_journal"].initial = self.submission.submitted_to
+
+            if journal_help_points:
+                journal_help_points_HTML = HTML(
+                    '<div class="bg-info bg-opacity-25 p-2 mb-2">Please be aware of all the points below!'
+                    + '<ul class="mb-0">'
+                    + "".join([f"<li>{point}</li>" for point in journal_help_points])
+                    + "</ul>"
+                    + "</div>"
+                )
+                self.layout_fields["for_journal"].append(journal_help_points_HTML)
 
         # Hide the tier field if the recommendation is not to publish
         recommendation_data = self.data.get("recommendation")
@@ -3702,7 +3724,7 @@ class EICRecommendationForm(forms.ModelForm):
             self.submission.refereeing_cycle = CYCLE_DIRECT_REC
             self.submission.save()
 
-        recommendation = super().save(commit=False)
+        recommendation: EICRecommendation = super().save(commit=False)
         recommendation.formulated_by = self.submission.editor_in_charge
         recommendation.submission = self.submission
         recommendation.voting_deadline += datetime.timedelta(
@@ -3750,20 +3772,9 @@ class EICRecommendationForm(forms.ModelForm):
                 )
             )
 
-        elif recommendation.recommendation in [
-            EIC_REC_PUBLISH,
-            EIC_REC_REJECT,
-        ]:
-            # if rec is to publish, specify the tiering (deleting old ones first):
-            if recommendation.recommendation == EIC_REC_PUBLISH:
-                tiering = SubmissionTiering(
-                    submission=self.submission,
-                    fellow=self.submission.editor_in_charge,
-                    for_journal=recommendation.for_journal,
-                    tier=self.cleaned_data["tier"],
-                )
-                tiering.save()
-
+        # If the recommendation can be considered a final decision
+        # prepare the submission for voting and write internal event
+        elif recommendation.recommendation in dict(EDITORIAL_DECISION_CHOICES):
             # set correct status for Submission
             Submission.objects.filter(id=self.submission.id).update(
                 open_for_reporting=False,
@@ -3780,6 +3791,16 @@ class EICRecommendationForm(forms.ModelForm):
                     recommendation.get_recommendation_display(),
                 )
             )
+
+            # Publication recommendations also set the tiering for the EIC
+            if recommendation.recommendation == EIC_REC_PUBLISH:
+                tiering = SubmissionTiering(
+                    submission=self.submission,
+                    fellow=self.submission.editor_in_charge,
+                    for_journal=recommendation.for_journal,
+                    tier=self.cleaned_data["tier"],
+                )
+                tiering.save()
 
         else:
             raise exceptions.InvalidRecommendationError(recommendation.recommendation)
@@ -3861,22 +3882,40 @@ class RecommendationVoteForm(forms.Form):
         self.recommendation: "EICRecommendation" = kwargs.pop("recommendation")
         super().__init__(*args, **kwargs)
 
+        submission = self.recommendation.submission
+        rec_field = self.fields["alternative_recommendation"]
+        journal_field = self.fields["alternative_for_journal"]
+
         alt_journal_ids = list(
             self.recommendation.for_journal.alternative_journals.active().values_list(
                 "id", flat=True
             )
         )
-        self.fields["alternative_for_journal"].queryset = Journal.objects.filter(
+        journal_field.queryset = Journal.objects.filter(
             id__in=[self.recommendation.for_journal.id] + alt_journal_ids
         )
+
+        if submission.is_post_publication:
+            rec_field.choices = ALT_REC_POST_PUBLICATION_CHOICES
+
+            if publication := submission.thread_publications.first():
+                journal_field.initial = publication.get_journal()
+                journal_field.disabled = True
+            else:
+                journal_field.help_text = (
+                    "The journal of publication could not be determined for this submission. "
+                    "Please select the journal in which the submission was published."
+                )
+        else:
+            rec_field.choices = ALT_REC_PUBLICATION_CHOICES
 
     def clean(self):
         cleaned_data = super().clean()
         vote = cleaned_data.get("vote", None)
-        alt_recommendation = int(cleaned_data.get("alternative_recommendation", 0))
-        alt_journal = cleaned_data.get("alternative_for_journal", None)
+        alt_recommendation = cleaned_data.get("alternative_recommendation")
+        alt_journal = cleaned_data.get("alternative_for_journal")
 
-        if vote == "disagree" and (alt_journal is None or alt_recommendation == ""):
+        if vote == "disagree" and not (alt_journal and alt_recommendation):
             raise forms.ValidationError(
                 "If you disagree, you must provide an alternative recommendation "
                 "(by filling both the for journal and recommendation fields)."
