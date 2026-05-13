@@ -945,6 +945,15 @@ class Submission(models.Model):
             .order_by("-submission_date", "preprint")
         )
 
+    @property
+    def thread_publications(self):
+        """Return all Publications in the database linked to Submissions in this thread."""
+        from journals.models import Publication
+
+        return Publication.objects.filter(
+            accepted_submission__thread_hash=self.thread_hash
+        )
+
     @cached_property
     def thread_sequence_order(self):
         """Return the ordering of this Submission within its thread."""

@@ -150,13 +150,13 @@
           </div>
         {% endif %}
 
-        {% with publications=submission.thread_full.first.publications.ever_published %}
-          {% if publications %}
+        {% with thread_publications=submission.thread_publications.ever_published %}
+          {% if thread_publications %}
             <div class="mb-2 w-100 d-inline-flex flex-column bg-info bg-opacity-25 border border-2 border-primary p-2">
               <p class="fs-6 mb-1">This Submission thread is now published as</p>
               <ul class="mb-0">
 
-                {% for publication in publications %}
+                {% for publication in thread_publications %}
                   <li>
                     <span class="d-flex align-items-center gap-3">
                       <a class="fs-6" href="{{ publication.get_absolute_url }}">{{ publication.citation }}</a>
