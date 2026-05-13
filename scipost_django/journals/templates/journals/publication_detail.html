@@ -50,9 +50,32 @@
   {% if not publication.was_ever_published and perms.can_publish_accepted_submission %}
     <div class="card bg-warning text-white mb-3">
       <div class="card-body">
-        <p class="card-text text-center">
+        <p class="card-text text-center fs-6 fw-bold">
           This Publication is not published yet.
           Current status: {{ publication.get_status_display }}
+        </p>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if publication.is_under_revision %}
+    <div class="card bg-warning bg-opacity-25 mb-3">
+      <div class="card-body">
+        <p class="card-text text-center fs-6 fw-bold">
+          This Publication is currently under revision.
+        </p>
+        <p class="card-text text-center">
+          {{ publication.current_revision_description }}
+        </p>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if publication.is_retracted %}
+    <div class="card bg-danger bg-opacity-25 mb-3">
+      <div class="card-body">
+        <p class="card-text text-center fs-6 fw-bold">
+          This Publication has been retracted.
         </p>
       </div>
     </div>

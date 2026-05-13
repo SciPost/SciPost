@@ -390,6 +390,16 @@ class Publication(models.Model):
         return self.status == STATUS_DRAFT
 
     @property
+    def is_retracted(self) -> bool:
+        """Check if the publication is retracted."""
+        return self.status == PUBLICATION_RETRACTED
+
+    @property
+    def is_under_revision(self) -> bool:
+        """Check if the publication is under revision."""
+        return self.status == PUBLICATION_UNDER_REVISION
+
+    @property
     def is_published(self) -> bool:
         if self.status != PUBLICATION_PUBLISHED:
             return False

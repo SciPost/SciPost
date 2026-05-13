@@ -150,18 +150,26 @@
           </div>
         {% endif %}
 
-        {% if submission.thread_full.first.publications.published %}
-          <div class="mb-2 w-100 d-inline-flex flex-column border border-2 border-success p-2">
-            <span class="fs-4">This Submission thread is now published as</span>
-            <ul class="mb-0">
+        {% with publications=submission.thread_full.first.publications.ever_published %}
+          {% if publications %}
+            <div class="mb-2 w-100 d-inline-flex flex-column bg-info bg-opacity-25 border border-2 border-primary p-2">
+              <p class="fs-6 mb-1">This Submission thread is now published as</p>
+              <ul class="mb-0">
 
-              {% for publication in submission.thread_full.first.publications.published %}
-                <li><a href="{{ publication.get_absolute_url }}">{{ publication.citation }}</a></li>
-              {% endfor %}
+                {% for publication in publications %}
+                  <li>
+                    <span class="d-flex align-items-center gap-3">
+                      <a class="fs-6" href="{{ publication.get_absolute_url }}">{{ publication.citation }}</a>
+                      {% if publication.is_under_revision %}<span class="badge bg-warning">Under Revision</span>{% endif %}
+                      {% if publication.is_retracted %}<span class="badge bg-danger">Retracted</span>{% endif %}
+                    </span>
+                  </li>
+                {% endfor %}
 
-            </ul>
-          </div>
-        {% endif %}
+              </ul>
+            </div>
+          {% endif %}
+        {% endwith %}
 
         {% if unfinished_report_for_user %}
           <h4>
