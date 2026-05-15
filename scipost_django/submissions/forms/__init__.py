@@ -3994,11 +3994,10 @@ class EditorialDecisionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if "submission" in self.initial:
-            self.fields["submission"].queryset = Submission.objects.filter(
-                pk=self.initial["submission"],
-            )
-        self.fields["submission"].disabled = True
+        if sub_pk := self.initial.get("submission"):
+            self.fields["submission"].queryset = Submission.objects.filter(pk=sub_pk)
+            self.fields["submission"].disabled = True
+
         self.fields["remarks_for_authors"].widget.attrs.update(
             {"placeholder": "[will be seen by authors and Fellows]"}
         )

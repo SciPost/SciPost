@@ -771,7 +771,7 @@ class Submission(models.Model):
         )
 
     @cached_property
-    def recommendation(self):
+    def recommendation(self) -> "EICRecommendation | None":
         return self.eicrecommendations.active().first()
 
     @property
