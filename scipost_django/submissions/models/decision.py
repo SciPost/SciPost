@@ -6,7 +6,14 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from ..constants import EDITORIAL_DECISION_CHOICES, EIC_REC_PUBLISH
+from ..constants import (
+    EDITORIAL_DECISION_CHOICES,
+    EIC_REC_ACCEPT_CORRECTIONS,
+    EIC_REC_DISMISS_CONCERNS,
+    EIC_REC_NO_UPDATE_NEEDED,
+    EIC_REC_PUBLISH,
+    EIC_REC_RETRACT_PUBLICATION,
+)
 from ..managers import EditorialDecisionQuerySet
 
 
@@ -100,6 +107,26 @@ class EditorialDecision(models.Model):
     def publish(self):
         """Whether the decision is to publish (True) or reject (False)."""
         return self.decision == EIC_REC_PUBLISH
+
+    @property
+    def is_accept_corrections(self):
+        """Whether the decision is to accept the corrections proposed by the authors to a published paper."""
+        return self.decision == EIC_REC_ACCEPT_CORRECTIONS
+
+    @property
+    def is_retraction(self):
+        """Whether the decision is to retract a previously published paper."""
+        return self.decision == EIC_REC_RETRACT_PUBLICATION
+
+    @property
+    def is_concern_dismissed(self):
+        """Whether the decision is to dismiss concerns raised about a published paper."""
+        return self.decision == EIC_REC_DISMISS_CONCERNS
+
+    @property
+    def is_no_update_needed(self):
+        """Whether the decision is that no update is needed for a published paper."""
+        return self.decision == EIC_REC_NO_UPDATE_NEEDED
 
     @property
     def production_can_proceed(self):

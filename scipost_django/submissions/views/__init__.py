@@ -55,6 +55,7 @@ from submissions.models.communication import EditorialCommunication
 
 from ..constants import (
     ED_COMM_CHOICES,
+    EDITORIAL_DECISION_CHOICES,
     STATUS_VETTED,
     STATUS_DRAFT,
     CYCLE_DIRECT_REC,
@@ -3520,7 +3521,7 @@ class EditorialDecisionCreateView(SubmissionMixin, PermissionsMixin, CreateView)
         for_journal = eicrec.for_journal
         decision = (
             eicrec.recommendation
-            if eicrec.recommendation in [EIC_REC_PUBLISH, EIC_REC_REJECT]
+            if eicrec.recommendation in dict(EDITORIAL_DECISION_CHOICES)
             else EIC_REC_PUBLISH
         )
         status = EditorialDecision.DRAFTED
