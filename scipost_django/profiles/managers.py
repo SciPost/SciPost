@@ -186,6 +186,11 @@ class ProfileQuerySet(QuerySet):
                 qs = qs.filter(orcid_id=term)
                 all_terms.remove(term)
 
+        # Handle email addresses
+        for term in all_terms:
+            if re.match(r"[^@]*@[^@]*\.?[^@]*", term):
+                return qs.filter(emails__email__icontains=term)
+
         # Split terms into initials and words.
         # Initials are either single letters or short terms (<=2 characters).
         # Words are longer terms which are likely to be either name.
