@@ -1236,6 +1236,16 @@ class PublicationOpenRevisionForm(RequestFormMixin, forms.ModelForm):
             editorial_decision.status = EditorialDecision.DEPRECATED
             editorial_decision.save()
 
+    def add_revision_event(self):
+        revision_event = (
+            f"Publication {self.instance.doi_label} has been opened for revision."
+        )
+        if self.instance.current_revision_description:
+            revision_event += (
+                f" The description reads: {self.instance.current_revision_description}"
+            )
+        self.instance.accepted_submission.add_general_event(revision_event)
+
     def save(self, commit=True):
         super().save(commit=commit)
 
@@ -1243,6 +1253,7 @@ class PublicationOpenRevisionForm(RequestFormMixin, forms.ModelForm):
             self.update_publication()
             self.update_submission()
             self.update_editorial_decision()
+            self.add_revision_event()
 
             # Email authors
             DirectMailUtil(
