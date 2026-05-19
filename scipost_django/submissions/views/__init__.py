@@ -44,6 +44,7 @@ from common.views import HXFormSetView, empty
 from ethics.forms import GenAIDisclosureAppendageForm, GenAIDisclosureForm
 from ethics.models import Coauthorship, GenAIDisclosure
 from journals.constants import STATUS_PUBLISHED
+from production.constants import PROOFS_RETURNED
 from profiles.utils import resolve_profile
 
 from scipost.permissions import (
@@ -3599,6 +3600,16 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
             status = submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
         return status
 
+    def _reset_production_stream(submission, decision):
+        stream = get_or_create_production_stream(submission)
+        stream.add_event(
+            f"Resetting after post-pub decision: {decision.get_decision_display()}"
+        )
+        stream.set_officer(None)
+        stream.set_supervisor(None)
+        stream.status = PROOFS_RETURNED
+        stream.save()
+
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
@@ -3641,6 +3652,11 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
             publication.status = STATUS_PUBLISHED
             publication.current_revision_description = ""
             publication.save()
+
+    # Reset stream to production if the decision is post-publication,
+    # as the paper may need to be re-produced.
+    if submission.is_post_publication:
+        _reset_production_stream(submission, decision)
 
     # Force-close the refereeing round for new referees.
     Submission.objects.filter(id=submission.id).update(
