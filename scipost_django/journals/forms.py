@@ -31,8 +31,14 @@ from common.forms import CrispyFormMixin, HTMXInlineCRUDModelForm, SearchForm
 from journals.models.resource import PublicationResource
 from journals.models.update import PublicationUpdate
 from series.models import CollectionPublicationsTable
+from submissions.constants import (
+    EIC_REC_ACCEPT_CORRECTIONS,
+    EIC_REC_RETRACT_PUBLICATION,
+)
+from submissions.models.decision import EditorialDecision
 
 from .constants import (
+    PUBLICATION_RETRACTED,
     STATUS_DRAFT,
     STATUS_PUBLICLY_OPEN,
     PUBLICATION_PREPUBLISHED,
@@ -1075,6 +1081,32 @@ class DraftPublicationUpdateForm(forms.ModelForm):
         self.initial["doi_label"] = publication.doi_label
         self.initial["number"] = publication.updates.count() + 1
         self.initial["publication_date"] = timezone.now()
+
+    def save(self, commit: bool):
+        instance = super().save(commit)
+
+        # Find the latest fixed decision in the thread and
+        # update the publication status after the update is issued.
+        if instance.publication.status == PUBLICATION_UNDER_REVISION and (
+            decision := EditorialDecision.objects.filter(
+                for_submission__thread_hash=instance.publication.accepted_submission.thread_hash,
+                status=EditorialDecision.FIXED_AND_ACCEPTED,
+            ).first()
+        ):
+            if (
+                decision.decision == EIC_REC_ACCEPT_CORRECTIONS
+                and instance.update_type == PublicationUpdate.CORRECTION
+            ):
+                instance.publication.status = PUBLICATION_PUBLISHED
+                instance.publication.save()
+            elif (
+                decision.decision == EIC_REC_RETRACT_PUBLICATION
+                and instance.update_type == PublicationUpdate.RETRACTION
+            ):
+                instance.publication.status = PUBLICATION_RETRACTED
+                instance.publication.save()
+
+        return instance
 
 
 class DraftPublicationApprovalForm(forms.ModelForm):

@@ -43,6 +43,7 @@ import sentry_sdk
 from common.views import HXFormSetView, empty
 from ethics.forms import GenAIDisclosureAppendageForm, GenAIDisclosureForm
 from ethics.models import Coauthorship, GenAIDisclosure
+from journals.constants import STATUS_PUBLISHED
 from profiles.utils import resolve_profile
 
 from scipost.permissions import (
@@ -61,8 +62,9 @@ from ..constants import (
     CYCLE_DIRECT_REC,
     EIC_REC_PUBLISH,
     EIC_REC_REJECT,
+    EIC_REC_DISMISS_CONCERNS,
+    EIC_REC_NO_UPDATE_NEEDED,
     DECISION_FIXED,
-    FIGSHARE_PREPRINT_SERVERS,
 )
 from ..helpers import check_verified_author, check_unverified_author
 from ..models import (
@@ -3587,6 +3589,16 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
     EditorialDecisionCreateView and EditorialDecisionUpdateView.
     """
 
+    def _get_submission_status(submission, decision):
+        status = submission.ACCEPTED_IN_TARGET
+        if (
+            decision.for_journal != submission.submitted_to
+            # promotion to Selections assumed automatically accepted by authors:
+            and decision.for_journal.name != "SciPost Selections"
+        ):
+            status = submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
+        return status
+
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
@@ -3597,15 +3609,7 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
     eicrec.save()
 
     if decision.decision == EIC_REC_PUBLISH:
-        new_sub_status = submission.ACCEPTED_IN_TARGET
-        if (
-            decision.for_journal != submission.submitted_to
-            # promotion to Selections assumed automatically accepted by authors:
-            and decision.for_journal.name != "SciPost Selections"
-        ):
-            new_sub_status = (
-                submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
-            )
+        new_sub_status = _get_submission_status(submission, decision)
         Submission.objects.filter(id=submission.id).update(
             visible_public=True,
             status=new_sub_status,
@@ -3625,6 +3629,18 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
             latest_activity=timezone.now(),
         )
         submission.get_other_versions().update(visible_public=False)
+    elif decision.decision in [EIC_REC_DISMISS_CONCERNS, EIC_REC_NO_UPDATE_NEEDED]:
+        Submission.objects.filter(id=submission.id).update(
+            visible_public=True,
+            status=Submission.PUBLISHED,
+            acceptance_date=datetime.date.today(),
+            latest_activity=timezone.now(),
+        )
+        # Return all publications to published status, revision is cleared.
+        for publication in submission.thread_publications:
+            publication.status = STATUS_PUBLISHED
+            publication.current_revision_description = ""
+            publication.save()
 
     # Force-close the refereeing round for new referees.
     Submission.objects.filter(id=submission.id).update(
@@ -3655,7 +3671,12 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
         messages.success(request, "Authors have been emailed about the decision")
         mail_request.send_mail()
         if (
-            decision.decision == EIC_REC_REJECT
+            decision.decision
+            in [
+                EIC_REC_REJECT,
+                EIC_REC_DISMISS_CONCERNS,
+                EIC_REC_NO_UPDATE_NEEDED,
+            ]
             or decision.for_journal.name == "SciPost Selections"
             or decision.for_journal == submission.submitted_to
         ):
