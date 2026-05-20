@@ -1679,7 +1679,7 @@ def invite_referee(
         referee_invitation.invitation_key = key
         referee_invitation.save()
     elif referee_invitation.cancelled:
-        referee_invitation.cancelled = False
+        referee_invitation.reset_content()
         referee_invitation.save()
 
     registration_invitation = None
