@@ -21,6 +21,23 @@ def get_sentinel_user():
     return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
 
 
+def create_system_user(apps, schema_editor):
+    """Create a system user to be used for automatic actions"""
+    from django.contrib.auth import get_user_model
+
+    user, __ = get_user_model().objects.get_or_create(
+        username="system",
+        first_name="SciPost",
+        last_name="System",
+        last_login="2000-01-01T00:00:00Z",
+        is_active=False,
+        is_staff=False,
+        is_superuser=False,
+        email="techsupport@scipost.org",
+    )
+    return user.id
+
+
 class Migration(migrations.Migration):
     initial = True
 
@@ -262,5 +279,12 @@ class Migration(migrations.Migration):
             unique_together=set(
                 [("contributor", "college", "start_date", "until_date")]
             ),
+        ),
+        migrations.RunPython(create_system_user, migrations.RunPython.noop),
+        migrations.RunSQL(
+            """
+                INSERT INTO scipost_contributor (user_id, status, invitation_key, activation_key, title, key_expires, discipline, expertises, orcid_id, address, personalwebpage, "accepts_SciPost_emails")
+                SELECT id, -4, 0, 0, 'MX', '2000-01-01T00:00:00Z', 'physics', '{}', '', '', '', True FROM auth_user WHERE username = 'system';
+            """
         ),
     ]

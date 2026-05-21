@@ -32,6 +32,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("merger", "0001_initial"),
         ("profiles", "0049_profile_full_name_profile_full_name_original_and_more"),
+        ("scipost", "0046_contributor_anonymous_stats"),
     ]
 
     operations = [
