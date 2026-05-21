@@ -204,7 +204,7 @@ class BasePublicationFactory(factory.django.DjangoModelFactory):
     # Publication data
     # TODO: This should be a PublishedSubmissionFactory
     accepted_submission = factory.SubFactory(
-        "submissions.factories.SubmissionFactory"  # , generate_publication=False
+        "submissions.factories.PublishedSubmissionFactory"  # , generate_publication=False
     )
     status = PUBLICATION_PUBLISHED
 

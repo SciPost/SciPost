@@ -14,6 +14,6 @@ class QualificationFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ("submission", "fellow")
 
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
-    fellow = factory.SubFactory("colleges.factories.FellowshipFactory")
+    fellow = factory.SubFactory("colleges.factories.ContributorFactory")
     expertise_level = LazyRandEnum(Qualification.EXPERTISE_LEVEL_CHOICES)
     comments = factory.Faker("paragraph")

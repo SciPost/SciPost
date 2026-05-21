@@ -13,7 +13,7 @@ class ReadinessFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ("submission", "fellow")
 
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
-    fellow = factory.SubFactory("colleges.factories.FellowshipFactory")
+    fellow = factory.SubFactory("colleges.factories.ContributorFactory")
     status = LazyRandEnum(Readiness.STATUS_CHOICES)
     comments = factory.Faker("paragraph")
     datetime = factory.LazyAttribute(
