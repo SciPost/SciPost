@@ -70,9 +70,9 @@ class BaseContributorTestCase(TestCase):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
         self.current_contrib = ContributorFactory.create(
-            user__last_name="Linder",  # To pass the author check in create submissions view
-            user__username="Test",
-            user__password="testpw",
+            dbuser__last_name="Linder",  # To pass the author check in create submissions view
+            dbuser__username="Test",
+            dbuser__password="testpw",
         )
 
 

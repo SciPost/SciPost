@@ -19,14 +19,13 @@ from common.faker import LazyRandEnum, fake
 class ContributorFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Contributor
-        django_get_or_create = ("user",)
+        django_get_or_create = ("dbuser",)
 
-    user = factory.SubFactory("scipost.factories.UserFactory", contributor=None)
-    profile = factory.RelatedFactory(
+    dbuser = factory.SubFactory("scipost.factories.UserFactory")
+    profile = factory.SubFactory(
         ProfileFactory,
-        first_name=factory.SelfAttribute("..user.first_name"),
-        last_name=factory.SelfAttribute("..user.last_name"),
-        factory_related_name="contributor",
+        first_name=factory.SelfAttribute("..dbuser.first_name"),
+        last_name=factory.SelfAttribute("..dbuser.last_name"),
     )
     invitation_key = factory.Faker("md5")
     activation_key = factory.Faker("md5")
@@ -37,8 +36,8 @@ class ContributorFactory(factory.django.DjangoModelFactory):
     @classmethod
     def from_profile(cls, profile):
         contributor = cls(
-            user__first_name=profile.first_name,
-            user__last_name=profile.last_name,
+            dbuser__first_name=profile.first_name,
+            dbuser__last_name=profile.last_name,
         )
         contributor.profile = profile
         contributor.save()
@@ -65,8 +64,6 @@ class UserFactory(factory.django.DjangoModelFactory):
     email = factory.Faker("safe_email")
     is_active = True
 
-    # When user object is created, associate new Contributor object to it.
-    contrib = factory.RelatedFactory(ContributorFactory, "user")
 
     class Meta:
         model = get_user_model()

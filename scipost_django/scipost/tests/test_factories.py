@@ -22,14 +22,14 @@ class TestContributorFactory(TestCase):
         self.assertEqual(contributor.profile.last_name, contributor.user.last_name)
 
     def test_contributor_user_name_propagates_to_profile(self):
-        contributor = ContributorFactory(user__first_name="John", user__last_name="Doe")
+        contributor = ContributorFactory(dbuser__first_name="John", dbuser__last_name="Doe")
 
         self.assertEqual(contributor.profile.first_name, "John")
         self.assertEqual(contributor.profile.last_name, "Doe")
 
     def test_contributor_from_user_refers_to_user_used(self):
         user = UserFactory(first_name="John", last_name="Doe")
-        contributor = ContributorFactory(user=user)
+        contributor = ContributorFactory(dbuser=user)
 
         self.assertEqual(contributor.user, user)
 
