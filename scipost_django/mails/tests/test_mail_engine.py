@@ -54,11 +54,11 @@ class MailLogModelTests(TestCase):
         with self.assertRaises(ImportError):
             engine = MailEngine("tests/fake_mail_code_1")
             engine.process(render_template=True)
-        with self.assertRaises(ConfigurationError):
-            engine = MailEngine("tests/test_mail_code_fault_1")
-            engine.process(render_template=True)
         with self.assertRaises(TemplateDoesNotExist):
             engine = MailEngine("tests/test_mail_code_no_template_1")
+            engine.process(render_template=True)
+        with self.assertRaises(ConfigurationError):
+            engine = MailEngine("tests/test_mail_code_fault_1")
             engine.process(render_template=True)
 
     def test_positive_validation_delayed_rendering(self):
