@@ -2,21 +2,19 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-import datetime
 import random
 import django
 import factory
 
 from common.faker import LazyAwareDate, LazyRandEnum, fake
 from scipost.factories import ContributorFactory
-from submissions.models.submission import Submission
 
-from .models import ConflictofInterest, RedFlag, SubmissionClearance
+from .models import ConflictOfInterest, RedFlag, SubmissionClearance
 
 
-class ConflictofInterestFactory(factory.django.DjangoModelFactory):
+class ConflictOfInterestFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = ConflictofInterest
+        model = ConflictOfInterest
         django_get_or_create = (
             "profile",
             "related_profile",
@@ -32,7 +30,7 @@ class ConflictofInterestFactory(factory.django.DjangoModelFactory):
             profile=random.choice([self.profile, self.related_profile])
         )
     )
-    nature = LazyRandEnum(ConflictofInterest.NATURE_CHOICES)
+    nature = LazyRandEnum(ConflictOfInterest.NATURE_CHOICES)
     date_from = factory.Faker("date_time_this_decade")
     date_until = factory.LazyAttribute(
         lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")
