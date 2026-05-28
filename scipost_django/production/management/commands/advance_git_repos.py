@@ -414,8 +414,8 @@ class Command(BaseCommand):
 
         # Replace the logo if the submission has been accepted in Selections
         if "Selections" in repo.stream.submission.editorial_decision.for_journal.name:
-            default_logo_img = r"[width=20mm]{logo_scipost_with_bgd.pdf}"
-            selections_logo_img = r"[width=34.55mm]{logo_select.pdf}"
+            default_logo_img = r"\[width=20mm\]{logo_scipost_with_bgd.pdf}"
+            selections_logo_img = r"\[width=34.55mm\]{logo_select.pdf}"
             replacements_dict[default_logo_img] = (lambda _: selections_logo_img, None)
 
         # Add collection specific information if the submission is part of a collection
