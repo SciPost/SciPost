@@ -781,6 +781,7 @@ class Command(BaseCommand):
                 can_upload_proofs,
                 can_run_proofs_by_authors,
                 can_view_statistics,
+                can_resend_registration_requests,
                 can_create_profiles,
                 can_view_profiles,
                 can_add_profile_affiliations,
