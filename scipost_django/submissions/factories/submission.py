@@ -6,8 +6,6 @@ import factory
 import pytz
 import random
 
-from faker import Faker
-from colleges.factories import FellowshipFactory
 from common.faker import LazyRandEnum, fake
 from journals.factories import JournalFactory
 from ontology.factories import AcademicFieldFactory
@@ -18,8 +16,6 @@ from scipost.constants import SCIPOST_APPROACHES
 from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 from comments.factories import SubmissionCommentFactory
-from journals.models import Journal
-from ontology.models import Specialty, AcademicField
 
 from ..models.submission import *
 
@@ -111,10 +107,33 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
 
     @factory.post_generation
     def eic_assignment(self, create, extracted, **kwargs):
-        if create:
-            from submissions.factories import EditorialAssignmentFactory
+        from submissions.factories import EditorialAssignmentFactory
 
-            EditorialAssignmentFactory(submission=self, to=self.editor_in_charge)
+        if not create:
+            return
+        if extracted:
+            if isinstance(extracted, Contributor):
+                self.editor_in_charge = extracted
+                EditorialAssignmentFactory(
+                    submission=self,
+                    to=self.editor_in_charge,
+                    status=EditorialAssignment.STATUS_ACCEPTED,
+                )
+            elif isinstance(extracted, EditorialAssignment):
+                self.editor_in_charge = extracted.to
+                extracted.submission = self
+                extracted.status = EditorialAssignment.STATUS_ACCEPTED
+                extracted.save()
+        else:
+            from colleges.factories import FellowFactory
+
+            self.editor_in_charge = FellowFactory(profile__acad_field=self.acad_field)
+
+            EditorialAssignmentFactory(
+                submission=self,
+                to=self.editor_in_charge,
+                status=EditorialAssignment.STATUS_ACCEPTED,
+            )
 
     @factory.post_generation
     def referee_invites(self, create, extracted, **kwargs):
@@ -275,38 +294,23 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
     visible_public = True
     visible_pool = False
 
-    @factory.post_generation
-    def generate_publication(self, create, extracted, **kwargs):
-        if create and extracted is not False:
-            from journals.factories import JournalPublicationFactory
+    # @factory.post_generation
+    # def generate_publication(self, create, extracted, **kwargs):
+    #     if create and extracted is not False:
+    #         from journals.factories import JournalPublicationFactory
 
-            JournalPublicationFactory(
-                journal=self.submitted_to.doi_label,
-                accepted_submission=self,
-                title=self.title,
-                author_list=self.author_list,
-            )
-
-    @factory.post_generation
-    def editor_in_charge(self, create, extracted, **kwargs):
-        if create:
-            return
-        if extracted:
-            return extracted
-
-        eic = FellowshipFactory()
-        return eic.contributor
+    #         JournalPublicationFactory(
+    #             in_journal=self.submitted_to,
+    #             accepted_submission=self,
+    #             title=self.title,
+    #             author_list=self.author_list,
+    #         )
 
     @factory.post_generation
-    def eic_assignment(self, create, extracted, **kwargs):
-        if create:
-            from submissions.factories import EditorialAssignmentFactory
-
-            EditorialAssignmentFactory(
-                submission=self,
-                to=self.editor_in_charge,
-                status=EditorialAssignment.STATUS_COMPLETED,
-            )
+    def eic_assignment_completed(self, create, extracted, **kwargs):
+        assignment = self.editorial_assignments.first()
+        assignment.status = EditorialAssignment.STATUS_COMPLETED
+        assignment.save()
 
     @factory.post_generation
     def referee_invites(self, create, extracted, **kwargs):

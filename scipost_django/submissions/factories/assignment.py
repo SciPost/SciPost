@@ -16,7 +16,10 @@ class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ("submission", "to")
 
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
-    to = factory.SubFactory("scipost.factories.ContributorFactory")
+    to = factory.SubFactory(
+        "colleges.factories.FellowFactory",
+        profile__acad_field=factory.SelfAttribute("...submission.acad_field"),
+    )
     status = LazyRandEnum(EditorialAssignment.ASSIGNMENT_STATUSES)
 
     date_created = LazyAwareDateOffset("submission.submission_date", "+30d")

@@ -20,6 +20,7 @@ from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum, fake
 from ontology.factories import AcademicFieldFactory
 from profiles.factories import ProfileFactory
 from scipost.factories import ContributorFactory
+from scipost.models import Contributor
 
 from .models import College, Fellowship
 
@@ -30,11 +31,7 @@ from .models import College, Fellowship
 
 
 class CollegeFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(
-        lambda _: fake.word(part_of_speech="adjective").title()
-        + " "
-        + fake.word(part_of_speech="noun").title()
-    )
+    name = factory.SelfAttribute("acad_field.name")
     acad_field = factory.SubFactory(AcademicFieldFactory)
     slug = factory.LazyAttribute(lambda self: slugify(self.name))
     order = factory.Sequence(lambda n: n + 1)
@@ -71,6 +68,29 @@ class GuestFellowshipFactory(BaseFellowshipFactory):
 class SeniorFellowshipFactory(BaseFellowshipFactory):
     status = "senior"
 
+class FellowFactory(ContributorFactory):
+    class Meta:
+        model = Contributor
+        exclude = ("acad_field",)
+
+    # class Params:
+    #     acad_field = factory.Trait(
+    #         profile=factory.SubFactory(
+    #             ProfileFactory, acad_field=factory.SelfAttribute("..acad_field")
+    #         )
+    #     )
+
+    @factory.post_generation
+    def fellowship(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.fellowship = extracted
+        else:
+            self.fellowship = FellowshipFactory(
+                contributor=self,
+                college=CollegeFactory(acad_field=self.profile.acad_field),
+            )
 
 ###############
 # Nominations #
