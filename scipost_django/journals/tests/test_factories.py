@@ -29,7 +29,7 @@ class TestJournalFactory(TestCase):
         journal = JournalFactory()
         college_specialties = journal.college.specialties.all()
         journal_specialties = journal.specialties.all()
-        self.assertQuerysetEqual(college_specialties, journal_specialties)
+        self.assertQuerySetEqual(college_specialties, journal_specialties)
 
     def test_can_create_scipost_phys(self):
         scipost_phys = JournalFactory.SciPostPhysics()

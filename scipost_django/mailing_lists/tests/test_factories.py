@@ -46,4 +46,4 @@ class TestMailingListFactory(TestCase):
         mailing_list = MailingListFactory()
         mailing_list.add_eligible_subscriber(contributor)
 
-        self.assertEquals(mailing_list.email_list, [contributor.profile.email])
+        self.assertEqual(mailing_list.email_list, [contributor.profile.email])

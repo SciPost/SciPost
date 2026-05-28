@@ -83,17 +83,15 @@ class SubsidyPaymentFactory(factory.django.DjangoModelFactory):
     reference = factory.Faker("iban")
     amount = factory.Faker("pyint")
     date_scheduled = LazyAwareDate("date_this_year")
-    invoice = factory.RelatedFactory(
+    invoice = factory.SubFactory(
         "finances.factories.SubsidyAttachmentFactory",
-        factory_related_name="invoice_for",
         kind=SubsidyAttachment.KIND_INVOICE,
         description=factory.lazy_attribute(
             lambda self: "Invoice for " + self.subsidy.organization.name
         ),
     )
-    proof_of_payment = factory.RelatedFactory(
+    proof_of_payment = factory.SubFactory(
         "finances.factories.SubsidyAttachmentFactory",
-        factory_related_name="proof_of_payment_for",
         kind=SubsidyAttachment.KIND_PROOF_OF_PAYMENT,
         description=factory.lazy_attribute(
             lambda self: "Proof of payment for " + self.subsidy.organization.name
