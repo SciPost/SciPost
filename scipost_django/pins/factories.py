@@ -1,12 +1,11 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-from django.contrib.contenttypes.models import ContentType
 import factory
 
-from finances.models.subsidy import Subsidy
 from .models import *
-from common.faker import LazyRandEnum, fake, LazyAwareDate
+
+from common.faker import LazyAwareDateOffset, LazyRandEnum
 
 
 class BaseNoteFactory(factory.django.DjangoModelFactory):
@@ -24,9 +23,7 @@ class BaseNoteFactory(factory.django.DjangoModelFactory):
     visibility = LazyRandEnum(Note.VISIBILITY_CHOICES)
     author = factory.SubFactory("scipost.factories.ContributorFactory")
     created = factory.Faker("date_time_this_year")
-    modified = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.created, end_date="+1y")
-    )
+    modified = LazyAwareDateOffset("created", "+1y")
 
 
 class BasePinFactory(factory.django.DjangoModelFactory):
@@ -35,8 +32,4 @@ class BasePinFactory(factory.django.DjangoModelFactory):
 
     note = factory.SubFactory(BaseNoteFactory)
     user = factory.SubFactory("scipost.factories.UserFactory")
-    due_date = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.note.created, end_date="+1y"
-        )
-    )
+    due_date = LazyAwareDateOffset("note.created", "+1y")

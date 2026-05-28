@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 import factory
 
-from common.faker import LazyRandEnum, fake
+from common.faker import LazyAwareDateOffset, LazyRandEnum
 
 from ..models.plagiarism_assessment import (
     PlagiarismAssessment,
@@ -19,11 +19,7 @@ class PlagiarismAssessmentFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ("submission",)
 
     status = LazyRandEnum(PlagiarismAssessment.STATUS_CHOICES)
-    date_set = factory.LazyAttribute(
-        lambda self: fake.aware.date_time_between(
-            start_date=self.submission.submission_date, end_date="+5d"
-        )
-    )
+    date_set = LazyAwareDateOffset("submission.submission_date", "+5d")
 
     comments_for_edadmin = factory.Faker("paragraph")
     comments_for_authors = factory.Faker("paragraph")

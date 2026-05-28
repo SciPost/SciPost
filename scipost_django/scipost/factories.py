@@ -13,7 +13,7 @@ from submissions.models.submission import Submission
 
 from .constants import NORMAL_CONTRIBUTOR
 from .models import *
-from common.faker import LazyRandEnum, fake
+from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
@@ -117,9 +117,7 @@ class UnavailabilityPeriodFactory(factory.django.DjangoModelFactory):
 
     contributor = factory.SubFactory(ContributorFactory)
     start = factory.Faker("date_time_this_decade")
-    end = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.start, end_date="+1y")
-    )
+    end = LazyAwareDateOffset("start", "+1y")
 
 
 class AuthorshipClaimFactory(factory.django.DjangoModelFactory):

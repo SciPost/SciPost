@@ -16,7 +16,7 @@ from colleges.models.nomination import (
     FellowshipNominationVote,
     FellowshipNominationVotingRound,
 )
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum, fake
 from ontology.factories import AcademicFieldFactory
 from profiles.factories import ProfileFactory
 from scipost.factories import ContributorFactory
@@ -51,8 +51,8 @@ class CollegeFactory(factory.django.DjangoModelFactory):
 class BaseFellowshipFactory(factory.django.DjangoModelFactory):
     college = factory.SubFactory(CollegeFactory)
     contributor = factory.SubFactory(ContributorFactory)
-    start_date = factory.Faker("date_this_year")
-    until_date = factory.Faker("date_between", start_date="now", end_date="+2y")
+    start_date = fake.aware.date_time_this_year()
+    until_date = LazyAwareDateOffset("start_date", "+2y")
 
     class Meta:
         model = Fellowship
@@ -144,9 +144,7 @@ class FellowshipNominationVotingRoundFactory(factory.django.DjangoModelFactory):
 
     nomination = factory.SubFactory(FellowshipNominationFactory)
     voting_opens = LazyAwareDate("date_time_this_year")
-    voting_deadline = factory.LazyAttribute(
-        lambda self: self.voting_opens + datetime.timedelta(days=14)
-    )
+    voting_deadline = LazyAwareDateOffset("voting_opens", "+14d")
 
     @factory.post_generation
     def eligible_to_vote(self, create, extracted, **kwargs):
@@ -183,12 +181,7 @@ class FellowshipNominationDecisionFactory(factory.django.DjangoModelFactory):
     voting_round = factory.SubFactory(FellowshipNominationVotingRoundFactory)
     outcome = LazyRandEnum(FellowshipNominationDecision.OUTCOME_CHOICES)
     comments = factory.Faker("text")
-    fixed_on = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.voting_round.voting_deadline,
-            end_date="+1y",
-        )
-    )
+    fixed_on = LazyAwareDateOffset("voting_round.voting_deadline", "+1y")
 
 
 class FellowshipInvitationFactory(factory.django.DjangoModelFactory):

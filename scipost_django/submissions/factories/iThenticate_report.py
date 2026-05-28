@@ -8,7 +8,7 @@ from submissions.constants import PLAGIARISM_STATUSES
 
 from ..models import iThenticateReport
 
-from common.faker import fake, LazyObjectCount, LazyRandEnum
+from common.faker import LazyAwareDateOffset, fake, LazyObjectCount, LazyRandEnum
 
 
 class iThenticateReportFactory(factory.django.DjangoModelFactory):
@@ -16,11 +16,7 @@ class iThenticateReportFactory(factory.django.DjangoModelFactory):
         model = iThenticateReport
 
     uploaded_time = fake.aware.date_time_this_year()
-    processed_time = factory.LazyAttribute(
-        lambda self: fake.aware.date_time_between(
-            start_date=self.uploaded_time, end_date="+10m"
-        )
-    )
+    processed_time = LazyAwareDateOffset("uploaded_time", "+10m")
 
     doc_id = LazyObjectCount(iThenticateReport, offset=1)
     part_id = LazyObjectCount(iThenticateReport, offset=1)

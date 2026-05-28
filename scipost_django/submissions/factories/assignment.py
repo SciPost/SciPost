@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 import factory
 import factory.random
 
-from common.faker import LazyRandEnum, fake
+from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
 
 from ..models.assignment import *
 
@@ -19,21 +19,9 @@ class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
     to = factory.SubFactory("scipost.factories.ContributorFactory")
     status = LazyRandEnum(EditorialAssignment.ASSIGNMENT_STATUSES)
 
-    date_created = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.submission.submission_date, end_date="+60d"
-        )
-    )
-    date_invited = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.date_created, end_date="+10d"
-        )
-    )
-    date_answered = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.date_invited, end_date="+10d"
-        )
-    )
+    date_created = LazyAwareDateOffset("submission.submission_date", "+30d")
+    date_invited = LazyAwareDateOffset("date_created", "+30d")
+    date_answered = LazyAwareDateOffset("date_invited", "+30d")
 
 
 class ConditionalAssignmentOfferFactory(factory.django.DjangoModelFactory):
@@ -43,16 +31,8 @@ class ConditionalAssignmentOfferFactory(factory.django.DjangoModelFactory):
 
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
     offered_by = factory.SubFactory("scipost.factories.ContributorFactory")
-    offered_on = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.submission.submission_date, end_date="+60d"
-        )
-    )
-    offered_until = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.offered_on, end_date="+30d"
-        )
-    )
+    offered_on = LazyAwareDateOffset("submission.submission_date", "+30d")
+    offered_until = LazyAwareDateOffset("offered_on", "+30d")
 
     condition_type = LazyRandEnum(ConditionalAssignmentOffer.CONDITION_CHOICES)
 
@@ -61,9 +41,7 @@ class ConditionalAssignmentOfferFactory(factory.django.DjangoModelFactory):
     def accept(self, create, extracted, **kwargs):
         if extracted:
             self.status = ConditionalAssignmentOffer.STATUS_ACCEPTED
-            self.accepted_on = fake.aware.date_between(
-                start_date=self.offered_on, end_date="+10d"
-            )
+            self.accepted_on = self.offered_on + fake.time_delta("+10d")
 
 
 class JournalTransferOfferFactory(ConditionalAssignmentOfferFactory):

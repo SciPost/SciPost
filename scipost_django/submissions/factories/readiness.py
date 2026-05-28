@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 import factory
 from ..models import Readiness
 
-from common.faker import LazyRandEnum, fake
+from common.faker import LazyAwareDateOffset, LazyRandEnum
 
 
 class ReadinessFactory(factory.django.DjangoModelFactory):
@@ -16,8 +16,4 @@ class ReadinessFactory(factory.django.DjangoModelFactory):
     fellow = factory.SubFactory("colleges.factories.ContributorFactory")
     status = LazyRandEnum(Readiness.STATUS_CHOICES)
     comments = factory.Faker("paragraph")
-    datetime = factory.LazyAttribute(
-        lambda self: fake.aware.date_time_between(
-            start_date=self.submission.submission_date, end_date="+2M"
-        )
-    )
+    datetime = LazyAwareDateOffset("submission.submission_date", "+2M")

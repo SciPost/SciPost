@@ -1,7 +1,7 @@
 import factory
 import faker
 
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum
 from organizations.constants import (
     ORGANIZATION_EVENTS,
     ORGANIZATION_STATUSES,
@@ -87,9 +87,7 @@ class ContactRoleFactory(factory.django.DjangoModelFactory):
     organization = factory.SubFactory(OrganizationFactory)
     kind = LazyRandEnum(ROLE_KINDS, repeat=2)
     date_from = LazyAwareDate("date_this_year")
-    date_until = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")
-    )
+    date_until = LazyAwareDateOffset("date_from", "+1y")
 
 
 class ContactPersonFactory(factory.django.DjangoModelFactory):

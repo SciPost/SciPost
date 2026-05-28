@@ -6,7 +6,7 @@ import random
 
 import factory
 from colleges.factories import FellowshipFactory
-from common.faker import fake
+from common.faker import LazyAwareDateOffset
 
 from journals.factories import JournalIssueFactory
 from proceedings.models import Proceedings
@@ -22,11 +22,7 @@ class ProceedingsFactory(factory.django.DjangoModelFactory):
     event_suffix = factory.Faker("company_suffix")
     event_description = factory.Faker("paragraph")
     event_start_date = factory.Faker("date_this_decade")
-    event_end_date = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.event_start_date, end_date="+1y"
-        )
-    )
+    event_end_date = LazyAwareDateOffset("event_start_date", "+1y")
 
     logo = factory.django.ImageField()
     picture = factory.django.ImageField()
@@ -34,16 +30,8 @@ class ProceedingsFactory(factory.django.DjangoModelFactory):
     cover_image = factory.django.ImageField()
 
     submissions_open = factory.Faker("date_this_decade")
-    submissions_close = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.submissions_open, end_date="+1y"
-        )
-    )
-    submissions_deadline = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.submissions_close, end_date="+14d"
-        )
-    )
+    submissions_close = LazyAwareDateOffset("submissions_open", "+1y")
+    submissions_deadline = LazyAwareDateOffset("submissions_close", "+14d")
 
     preface_title = factory.Faker("sentence")
     preface_text = factory.Faker("paragraph")

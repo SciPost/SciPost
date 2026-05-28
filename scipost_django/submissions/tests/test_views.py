@@ -288,9 +288,7 @@ class SubmitReportTest(BaseContributorTestCase):
     def setUp(self):
         super().setUp()
         self.client = Client()
-        report_deadline = Faker().date_time_between(
-            start_date="now", end_date="+30d", tzinfo=pytz.utc
-        )
+        report_deadline = fake.aware.date_time_between(start_date="now", offset="+30d")
         self.submission = InRefereeingSubmissionFactory(
             reporting_deadline=report_deadline
         )

@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, date, timedelta
 from django.db.models import QuerySet
 from django.db.models.base import ModelBase
 from django.utils.timezone import make_aware
@@ -89,6 +89,41 @@ class LazyAwareDate(factory.LazyAttribute):
             self._convert_to_datetime(self._generate_date(*args, **kwargs))
         )
 
+class LazyAwareDateOffset(factory.SelfAttribute):
+    """
+    Define a lazy attribute that returns a timezone-aware random date(time) from an attribute of the object plus an offset.
+    The offset is expected to be a string like "+1y" or "-6m".
+    """
+
+    def __init__(
+        self,
+        date_attr: str,
+        offset: str | None = None,
+    ):
+        super().__init__(date_attr)
+        self.offset = offset or "+0d"
+
+    def evaluate(self, instance, step, extra):
+        base_date = super().evaluate(instance, step, extra)
+        return self.generate_aware_datetime(base_date, fake.time_delta(self.offset))
+
+    def generate_aware_datetime(
+        self, start_date: date | datetime, time_delta: timedelta
+    ):
+        convert_to_datetime = not isinstance(start_date, datetime)
+
+        if convert_to_datetime:
+            start_date = datetime.combine(start_date, datetime.min.time())
+            datetime_with_offset = start_date + time_delta
+            datetime_with_offset = datetime_with_offset.date()
+        else:
+            datetime_with_offset = start_date + time_delta
+            if datetime_with_offset.tzinfo is None:
+                datetime_with_offset = make_aware(
+                    datetime_with_offset, timezone=pytz.utc
+                )
+
+        return datetime_with_offset
 
 class DurationProvider(BaseProvider):
     def duration(self):
@@ -129,7 +164,6 @@ def _get_random_instance(model_qs: ModelBase | QuerySet, repeat=1):
 fake = Faker()
 fake.add_provider(DurationProvider)
 
-aware_date_accessor = TZAwareDateAccessor(fake)
-fake.aware = aware_date_accessor
-
 fake.random_instance = _get_random_instance
+
+fake.aware = TZAwareDateAccessor(fake)

@@ -6,7 +6,7 @@ import random
 import django
 import factory
 
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum
 from scipost.factories import ContributorFactory
 
 from .models import ConflictOfInterest, RedFlag, SubmissionClearance
@@ -26,15 +26,13 @@ class ConflictOfInterestFactory(factory.django.DjangoModelFactory):
     profile = factory.SubFactory("scipost.factories.ProfileFactory")
     related_profile = factory.SubFactory("scipost.factories.ProfileFactory")
     declared_by = factory.LazyAttribute(
-        lambda self: ContributorFactory.from_profile(
+        lambda self: ContributorFactory(
             profile=random.choice([self.profile, self.related_profile])
         )
     )
     nature = LazyRandEnum(ConflictOfInterest.NATURE_CHOICES)
     date_from = factory.Faker("date_time_this_decade")
-    date_until = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")
-    )
+    date_until = LazyAwareDateOffset("date_from", "+1y")
 
     comments = factory.Faker("text")
 

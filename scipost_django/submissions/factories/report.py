@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from django.db.models.signals import post_save
 import factory
 
-from common.faker import LazyRandEnum, fake
+from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
 from scipost.factories import ContributorFactory
 
 from common.helpers import random_scipost_report_doi_label
@@ -31,11 +31,7 @@ class ReportFactory(factory.django.DjangoModelFactory):
     status = LazyRandEnum(REPORT_STATUSES)
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
     report_nr = factory.LazyAttribute(lambda self: self.submission.reports.count() + 1)
-    date_submitted = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.submission.submission_date, end_date="+1y"
-        )
-    )
+    date_submitted = LazyAwareDateOffset("submission.submission_date", "+1y")
     vetted_by = factory.SubFactory(ContributorFactory)
     author = factory.SubFactory(ContributorFactory)
     strengths = factory.Faker("paragraph")

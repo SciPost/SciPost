@@ -9,7 +9,7 @@ from string import ascii_lowercase
 import factory
 import pytz
 
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum, fake
 
 from common.helpers import (
     random_external_doi,
@@ -129,9 +129,7 @@ class VolumeFactory(factory.django.DjangoModelFactory):
         lambda self: f"{self.in_journal.doi_label}.{self.number}"
     )
     start_date = LazyAwareDate("date_time_this_decade")
-    until_date = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.start_date, end_date="+1y")
-    )
+    until_date = LazyAwareDateOffset("start_date", "+1y")
 
     class Meta:
         model = Volume
@@ -162,14 +160,16 @@ class VolumeIssueFactory(IssueFactory):
     in_volume = factory.SelfAttribute("parent")
 
     start_date = factory.LazyAttribute(
-        lambda self: Faker().date_time_between(
+        lambda self: fake.aware.date_time_between(
             start_date=self.parent.start_date,
             end_date=self.parent.until_date,
-            tzinfo=pytz.UTC,
         )
     )
     until_date = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.start_date, end_date="+1y")
+        lambda self: fake.aware.date_between(
+            start_date=self.start_date,
+            end_date=self.parent.until_date,
+        )
     )
 
     path = factory.LazyAttribute(
@@ -411,11 +411,7 @@ class PublicationUpdateFactory(factory.django.DjangoModelFactory):
     number = factory.LazyAttribute(lambda self: self.publication.updates.count() + 1)
     update_type = LazyRandEnum(PublicationUpdate.TYPE_CHOICES)
     text = factory.Faker("paragraph")
-    publication_date = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.publication.publication_date, end_date="+1y"
-        )
-    )
+    publication_date = LazyAwareDateOffset("publication.publication_date", "+1y")
     doideposit_needs_updating = False
     doi_label = factory.LazyAttribute(
         lambda self: f"{self.publication.doi_label}.Upd.{self.number}"

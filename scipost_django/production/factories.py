@@ -5,7 +5,7 @@ import random
 from django.db.models.signals import post_save
 
 import factory
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum, fake
 
 from production.constants import (
     PRODUCTION_EVENTS,
@@ -38,9 +38,7 @@ class ProductionStreamFactory(factory.django.DjangoModelFactory):
 
     submission = factory.SubFactory(SubmissionFactory)
     opened = LazyAwareDate("date_this_decade")
-    closed = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.opened, end_date="+1y")
-    )
+    closed = LazyAwareDateOffset("opened", "+1y")
     status = LazyRandEnum(PRODUCTION_STREAM_STATUS)
     officer = factory.SubFactory(ProductionUserFactory)
     supervisor = factory.SubFactory(ProductionUserFactory)

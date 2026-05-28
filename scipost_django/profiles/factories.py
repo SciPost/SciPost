@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 import random
 
 import factory
-from common.faker import LazyRandEnum, fake
+from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
 from ontology.factories import SpecialtyFactory, TopicFactory
 from profiles.constants import AFFILIATION_CATEGORIES
 from scipost.constants import TITLE_CHOICES
@@ -68,6 +68,4 @@ class AffiliationFactory(factory.django.DjangoModelFactory):
     category = LazyRandEnum(AFFILIATION_CATEGORIES)
     description = factory.Faker("sentence")
     date_from = factory.Faker("date_this_decade")
-    date_until = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")
-    )
+    date_until = LazyAwareDateOffset("date_from", "+1y")
