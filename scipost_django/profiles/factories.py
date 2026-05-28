@@ -3,9 +3,11 @@ __license__ = "AGPL v3"
 
 
 import random
+import re
 
 import factory
 from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
+from common.utils.text import latinise
 from ontology.factories import SpecialtyFactory, TopicFactory
 from profiles.constants import AFFILIATION_CATEGORIES
 from scipost.constants import TITLE_CHOICES
@@ -55,13 +57,34 @@ class ProfileFactory(factory.django.DjangoModelFactory):
         else:
             self.topics.add(*TopicFactory.create_batch(random.randint(1, 3)))
 
+    @factory.post_generation
+    def emails(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for i, email in enumerate(extracted):
+                ProfileEmailFactory(profile=self, email=email, primary=(i == 0))
+        else:
+            try:
+                ProfileEmailFactory(
+                    profile=self, email=self.contributor.user.email, primary=True
+                )
+            except Contributor.DoesNotExist:
+                ProfileEmailFactory(profile=self, primary=True)
+
 
 class ProfileEmailFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProfileEmail
 
     profile = factory.SubFactory(ProfileFactory)
-    email = factory.Faker("email")
+    email = factory.LazyAttribute(
+        lambda self: "{first_name[0]}{last_name}{num}@example.com".format(
+            first_name=re.sub(r"[\W\s]", "", latinise(self.profile.first_name.lower())),
+            last_name=re.sub(r"[\W\s]", "", latinise(self.profile.last_name.lower())),
+            num=fake.random_number(digits=4, fix_len=True),
+        )
+    )
 
 
 class AffiliationFactory(factory.django.DjangoModelFactory):
