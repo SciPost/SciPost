@@ -26,6 +26,11 @@ class ProfileFactory(factory.django.DjangoModelFactory):
     webpage = factory.Faker("url")
     acad_field = factory.SubFactory("ontology.factories.AcademicFieldFactory")
 
+    class Params:
+        registered = factory.Trait(
+            contributor=factory.SubFactory("scipost.factories.ContributorFactory"),
+        )
+
     @factory.post_generation
     def specialties(self, create, extracted, **kwargs):
         if not create:

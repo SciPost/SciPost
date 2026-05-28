@@ -35,7 +35,7 @@ class TOTPVerificationTest(TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.password = "super_secret_123"
-        cls.user = UserFactory(contrib=None)
+        cls.user = UserFactory()
         cls.user.set_password(cls.password)
         cls.user.save()
 

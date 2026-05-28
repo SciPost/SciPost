@@ -103,7 +103,7 @@ class RegisteredFellowshipNominationFactory(FellowshipNominationFactory):
     def create_profile_contributor(self, create, extracted, **kwargs):
         if not create:
             return
-        self.profile.contributor = ContributorFactory.from_profile(self.profile)
+        self.profile.contributor = ContributorFactory(profile=self.profile)
         self.profile.save()
 
 

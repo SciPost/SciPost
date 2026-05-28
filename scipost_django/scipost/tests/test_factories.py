@@ -15,29 +15,21 @@ class TestContributorFactory(TestCase):
 
         self.assertIsNotNone(contributor)
 
-    def test_contributor_user_and_profile_have_same_name(self):
+    def test_contributor_user_and_profile_have_same_names_and_email(self):
         contributor = ContributorFactory()
 
         self.assertEqual(contributor.profile.first_name, contributor.user.first_name)
         self.assertEqual(contributor.profile.last_name, contributor.user.last_name)
+        self.assertEqual(contributor.profile.email, contributor.user.email)
 
-    def test_contributor_user_name_propagates_to_profile(self):
-        contributor = ContributorFactory(dbuser__first_name="John", dbuser__last_name="Doe")
+    def test_contributor_profile_name_propagates_to_user(self):
+        contributor = ContributorFactory(
+            profile__first_name="John",
+            profile__last_name="Doe",
+        )
 
-        self.assertEqual(contributor.profile.first_name, "John")
-        self.assertEqual(contributor.profile.last_name, "Doe")
-
-    def test_contributor_from_user_refers_to_user_used(self):
-        user = UserFactory(first_name="John", last_name="Doe")
-        contributor = ContributorFactory(dbuser=user)
-
-        self.assertEqual(contributor.user, user)
-
-    def test_contributor_from_profile_refers_to_profile_used(self):
-        profile = ProfileFactory(title="Mr", first_name="John", last_name="Doe")
-        contributor = ContributorFactory.from_profile(profile)
-
-        self.assertEqual(contributor.profile, profile)
+        self.assertEqual(contributor.user.first_name, "John")
+        self.assertEqual(contributor.user.last_name, "Doe")
 
 
 class TestUserFactory(TestCase):
