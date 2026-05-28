@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import re
+from unittest import skip
 
 from django.test import TestCase
 
@@ -31,7 +32,9 @@ from common.helpers import (
 )
 from common.helpers.test import add_groups_and_permissions
 
-
+@skip(
+    "Invoking ArxivQueryForm calls the API. Mock the calls before unskipping this test."
+)
 class TestArxivQueryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
@@ -77,7 +80,7 @@ class TestArxivQueryForm(TestCase):
         form = ArxivQueryForm(invalid_data)
         self.assertFalse(form.is_valid())
 
-
+@skip("Calls the API without mocking.")
 class TestDOIToQueryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()

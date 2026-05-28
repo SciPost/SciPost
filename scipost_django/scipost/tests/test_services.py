@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from unittest import skip
 
 from django.test import TestCase
 
@@ -11,6 +12,7 @@ from ..services import ArxivCaller, DOICaller
 from submissions.factories import PreprintServerFactory
 
 
+@skip("Calls the arXiv API. Needs to be mocked for testing.")
 class ArxivCallerTest(TestCase):
     def setUp(self) -> None:
         # Create the arXiv preprint server
@@ -50,7 +52,7 @@ class ArxivCallerTest(TestCase):
         caller = ArxivCaller("1613.07611v1")
         self.assertEqual(caller.is_valid, False)
 
-
+@skip("Calls the Crossref API. Needs to be mocked for testing.")
 class DOICallerTest(TestCase):
     def test_works_for_physrev_doi(self):
         caller = DOICaller("10.1103/PhysRevB.92.214427")
