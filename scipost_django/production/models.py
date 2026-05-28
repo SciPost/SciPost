@@ -422,18 +422,21 @@ class ProofsRepository(models.Model):
         one associated with the submission's editorial decision, or, in the event of
         a Selections paper, it is the flagship journal of the college.
         """
+        from journals.models import Publication
         submission = self.stream.submission
 
         journal = None
-        if latest_publication := submission.publications.ever_published().latest():
+        try:
+            latest_publication = submission.publications.ever_published().latest()
             journal = latest_publication.get_journal()
-        elif latest_decision := submission.editorial_decision:
-            journal = latest_decision.for_journal
-        else:
-            raise ValueError(
-                "Submission is neither published nor has a (non-deprecated) editorial decision "
-                "cannot determine journal abbreviation for proofs repository."
-            )
+        except Publication.DoesNotExist:
+            if latest_decision := submission.editorial_decision:
+                journal = latest_decision.for_journal
+            else:
+                raise ValueError(
+                    "Submission is neither published nor has a (non-deprecated) editorial decision "
+                    "cannot determine journal abbreviation for proofs repository."
+                )
 
         if "Selections" in journal.name:
             college = submission.acad_field.colleges.order_by("order").first()
