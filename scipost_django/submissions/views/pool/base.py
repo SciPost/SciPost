@@ -188,6 +188,7 @@ def _hx_submission_toggle_on_hold(request, identifier_w_vn_nr):
     VALID_STATUSES = [
         Submission.INCOMING,
         Submission.ADMISSIBLE,
+        Submission.PREASSIGNMENT,
         Submission.VOTING_IN_PREPARATION,
     ]
     if submission.status not in VALID_STATUSES:
