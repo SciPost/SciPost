@@ -144,6 +144,11 @@ class ArxivCaller:
             )
         )
 
+        if request.status_code == 429:
+            self.too_many_requests = True
+        else:
+            self.too_many_requests = False
+
         if self._search_result_present(response_content):
             arxiv_data = response_content["entries"][0]
             self.is_valid = True

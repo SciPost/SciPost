@@ -787,7 +787,18 @@ def check_arxiv_identifier_w_vn_nr(identifier):
     if caller.is_valid:
         arxiv_data = caller.data
         metadata = caller.metadata
-    else:
+    elif caller.too_many_requests:  # Not valid, but 429
+        # Cannot reliably check arXiv, but we don't want to block the user from submitting.
+        # Let them proceed without prefilling.
+        return (
+            {
+                "preprint_server": PreprintServer.objects.get(name="arXiv"),
+                "preprint_link": f"https://arxiv.org/abs/{identifier}",
+            },
+            {},
+            identifier,
+        )
+    else:  # Most likely 200, but no data inside.
         error_message = "A preprint associated to this identifier does not exist."
         raise forms.ValidationError(error_message)
 

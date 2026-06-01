@@ -372,6 +372,14 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
                     "Please check everything carefully!"
                 )
                 messages.success(request, resubmessage, fail_silently=True)
+            elif not self.prefill_form.cleaned_data.get("title"):
+                # Indicatively check for a title to see if the prefill was successful,
+                # Prompt user to fill the form manually.
+                readymessage = (
+                    "Could not retrieve data from the preprint server. "
+                    "You may have to fill in the form manually. "
+                )
+                messages.warning(request, readymessage, fail_silently=True)
             else:
                 readymessage = (
                     "Your submission form is now ready to be filled in. "
