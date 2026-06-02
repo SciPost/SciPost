@@ -372,7 +372,11 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
                     "Please check everything carefully!"
                 )
                 messages.success(request, resubmessage, fail_silently=True)
-            elif not self.prefill_form.cleaned_data.get("title"):
+            elif (
+                # Contrary to Django's default implementation, SciPostPrefillForm
+                # does not call `clean()` correctly. Cleaned data may not exist.
+                cleaned_data := getattr(self.prefill_form, "cleaned_data", None)
+            ) and not cleaned_data.get("title"):
                 # Indicatively check for a title to see if the prefill was successful,
                 # Prompt user to fill the form manually.
                 readymessage = (
