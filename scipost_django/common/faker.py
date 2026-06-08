@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 import random
 from datetime import datetime, date, timedelta
+from typing import TypeVar
 from django.db.models import QuerySet
 from django.db.models.base import ModelBase
 from django.utils.timezone import make_aware
@@ -13,6 +14,8 @@ from faker.providers import BaseProvider
 import pytz
 
 
+K = TypeVar("K")
+V = TypeVar("V")
 class LazyRandEnum(factory.LazyAttribute):
     """
     Define a lazy attribute that takes a random value from a Django enum.
@@ -21,7 +24,13 @@ class LazyRandEnum(factory.LazyAttribute):
     The attribute evalutates to the value, not the human-readable name.
     """
 
-    def __init__(self, enum, repeat=1, *args, **kwargs):
+    def __init__(
+        self,
+        enum: list[tuple[K, V]] | tuple[tuple[K, V], ...],
+        repeat=1,
+        *args,
+        **kwargs,
+    ):
         self.enum = enum
         self.repeat = repeat
         super().__init__(function=self._random_choice_from_enum, *args, **kwargs)
