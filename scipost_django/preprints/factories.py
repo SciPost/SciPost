@@ -10,7 +10,7 @@ from .models import Preprint
 
 
 class PreprintFactory(factory.django.DjangoModelFactory):
-    identifier_w_vn_nr = factory.Faker("numerify", text="####.####")
+    identifier_w_vn_nr = factory.Faker("numerify", text="test_####.####")
 
     class Meta:
         model = Preprint

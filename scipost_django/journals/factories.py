@@ -9,7 +9,13 @@ from string import ascii_lowercase
 import factory
 import pytz
 
-from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum, fake
+from common.faker import (
+    LazyAwareDate,
+    LazyAwareDateOffset,
+    LazyRandEnum,
+    LazyRandInstance,
+    fake,
+)
 
 from common.helpers import (
     random_external_doi,
@@ -60,13 +66,27 @@ class ReferenceFactory(factory.django.DjangoModelFactory):
 
 class JournalFactory(factory.django.DjangoModelFactory):
     college = factory.SubFactory("colleges.factories.CollegeFactory")
-    name = factory.LazyAttributeSequence(
-        lambda self, n: f"SciPost {self.college.name} {n}"
-    )
-    name_abbrev = factory.LazyAttribute(
-        lambda self: "SciPost" + "".join([w[:2] for w in self.name.split()[1:]])
-    )
+    name = factory.LazyAttribute(lambda self: f"Test {self.college.acad_field.name}")
     doi_label = factory.SelfAttribute("name_abbrev")
+
+    @factory.lazy_attribute
+    def name_abbrev(self):
+        nr_chars = 2
+        different_journals = Journal.objects.exclude(college=self.college)
+        while (
+            (
+                name_parts := [
+                    word[:nr_chars].title()
+                    for word in self.college.acad_field.name.split()
+                ]
+            )
+            and (abbreviation := "Test" + "".join(name_parts))
+            and different_journals.filter(name_abbrev=abbreviation).exists()
+        ):
+            nr_chars += 1
+
+        return abbreviation
+
     issn = factory.Faker("numerify", text="########")
     structure = LazyRandEnum(JOURNAL_STRUCTURE)
     list_order = factory.LazyAttribute(lambda self: self.college.journals.count() + 1)
