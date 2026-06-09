@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 import factory
 
-from common.faker import LazyAwareDateOffset
+from common.faker import fake, LazyAwareDateOffset
 
 from ..models import RefereeInvitation
 
@@ -12,20 +12,18 @@ from ..models import RefereeInvitation
 class RefereeInvitationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = RefereeInvitation
-        exclude = ("contributor",)
+        exclude = ("registered",)
         django_get_or_create = ("submission", "referee")
 
-    class Params:
-        registered = factory.Trait(
-            contributor=factory.SubFactory("scipost.factories.ContributorFactory"),
-            referee=factory.SelfAttribute("contributor.profile"),
-        )
-
-    referee = factory.SubFactory("profiles.factories.ProfileFactory")
-
-    email_address = factory.SelfAttribute("referee.email")
-
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
+
+    registered = factory.Faker("boolean", chance_of_getting_true=30)
+    referee = factory.SubFactory(
+        "profiles.factories.ProfileFactory",
+        acad_field=factory.SelfAttribute("..submission.acad_field"),
+        registered=factory.SelfAttribute("..registered"),
+    )
+    email_address = factory.SelfAttribute("referee.email")
 
     date_invited = LazyAwareDateOffset("submission.eic_first_assigned_date", "+3d")
     date_last_reminded = factory.SelfAttribute("date_invited")

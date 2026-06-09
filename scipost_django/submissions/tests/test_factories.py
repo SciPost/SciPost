@@ -63,7 +63,7 @@ class TestReportFactory(TestCase):
 # Referee Invitation
 class TestRefereeInvitationFactory(TestCase):
     def test_can_create_unregistered_referee_invitations(self):
-        referee_invitation = RefereeInvitationFactory()
+        referee_invitation = RefereeInvitationFactory(registered=False)
         self.assertIsNotNone(referee_invitation)
 
         with self.assertRaises(Contributor.DoesNotExist):
