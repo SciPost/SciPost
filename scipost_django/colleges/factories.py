@@ -38,6 +38,7 @@ class CollegeFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = College
+        django_get_or_create = ("name",)
 
 
 ###############
@@ -47,13 +48,18 @@ class CollegeFactory(factory.django.DjangoModelFactory):
 
 class BaseFellowshipFactory(factory.django.DjangoModelFactory):
     college = factory.SubFactory(CollegeFactory)
-    contributor = factory.SubFactory(ContributorFactory)
+    contributor = factory.SubFactory(
+        ContributorFactory,
+        profile__acad_field=factory.SelfAttribute("...college.acad_field"),
+    )
     start_date = fake.aware.date_time_this_year()
-    until_date = LazyAwareDateOffset("start_date", "+2y")
+    until_date = factory.LazyAttribute(
+        lambda self: self.start_date + datetime.timedelta(days=5 * 365)
+    )
 
     class Meta:
         model = Fellowship
-        django_get_or_create = ("contributor", "start_date")
+        django_get_or_create = ("contributor", "college")
         abstract = True
 
 
@@ -69,16 +75,6 @@ class SeniorFellowshipFactory(BaseFellowshipFactory):
     status = "senior"
 
 class FellowFactory(ContributorFactory):
-    class Meta:
-        model = Contributor
-        exclude = ("acad_field",)
-
-    # class Params:
-    #     acad_field = factory.Trait(
-    #         profile=factory.SubFactory(
-    #             ProfileFactory, acad_field=factory.SelfAttribute("..acad_field")
-    #         )
-    #     )
 
     @factory.post_generation
     def fellowship(self, create, extracted, **kwargs):
