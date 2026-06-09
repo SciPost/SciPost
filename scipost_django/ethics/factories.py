@@ -40,6 +40,7 @@ class ConflictOfInterestFactory(factory.django.DjangoModelFactory):
 class SubmissionClearanceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SubmissionClearance
+        django_get_or_create = ("submission", "profile")
 
     profile = factory.SubFactory("scipost.factories.ProfileFactory")
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
