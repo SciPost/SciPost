@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 import factory
-import factory.random
+import random
 
 from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
 
@@ -52,7 +52,7 @@ class JournalTransferOfferFactory(ConditionalAssignmentOfferFactory):
     condition_type = "JournalTransfer"
     condition_details = factory.LazyAttribute(
         lambda self: {
-            "alternative_journal_id": factory.random.random.choice(
+            "alternative_journal_id": random.choice(
                 self.submission.submitted_to.alternative_journals.all()
             ).id
         }
