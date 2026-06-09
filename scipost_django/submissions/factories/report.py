@@ -73,7 +73,7 @@ class UnVettedReportFactory(ReportFactory):
 class VettedReportFactory(ReportFactory):
     status = STATUS_VETTED
     needs_doi = True
-    doi_label = factory.LazyAttribute(lambda _: random_scipost_report_doi_label)
+    doi_label = factory.LazyAttribute(lambda _: random_scipost_report_doi_label())
     pdf_report = factory.django.FileField(filename="report.pdf")
 
     class Params:
