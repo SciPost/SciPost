@@ -21,6 +21,14 @@ class ProfileFactory(factory.django.DjangoModelFactory):
         model = Profile
         django_get_or_create = ("orcid_id",)
 
+    class Params:
+        registered = factory.Trait(
+            contributor=factory.RelatedFactory(
+                "scipost.factories.ContributorFactory",
+                factory_related_name="profile",
+            )
+        )
+
     title = LazyRandEnum(TITLE_CHOICES)
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
@@ -29,10 +37,6 @@ class ProfileFactory(factory.django.DjangoModelFactory):
     webpage = factory.Faker("url")
     acad_field = factory.SubFactory("ontology.factories.AcademicFieldFactory")
 
-    class Params:
-        registered = factory.Trait(
-            contributor=factory.SubFactory("scipost.factories.ContributorFactory"),
-        )
 
     @factory.post_generation
     @set_or_create_consistent_related_field(

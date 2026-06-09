@@ -62,13 +62,21 @@ class VettingEditorFactory(ContributorFactory):
 class UserFactory(factory.django.DjangoModelFactory):
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
-    username = factory.LazyAttribute(
-        lambda self: "{first_name[0]}{last_name}".format(
+    is_active = True
+
+    @factory.lazy_attribute
+    def username(self):
+        username = "{first_name[0]}{last_name}".format(
             first_name=re.sub(r"[\W\s]", "", latinise(self.first_name.lower())),
             last_name=re.sub(r"[\W\s]", "", latinise(self.last_name.lower())),
         )
-    )
-    is_active = True
+
+        if nr := (
+            get_user_model().objects.filter(username__startswith=username).count()
+        ):
+            username += str(nr + 1)
+
+        return username
     class Meta:
         model = get_user_model()
         django_get_or_create = ("username",)
