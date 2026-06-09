@@ -6,9 +6,11 @@ import factory
 import pytz
 import random
 
-from common.faker import LazyRandEnum, fake
+from colleges.factories import FellowshipFactory
+from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
+from common.factories import set_or_create_consistent_related_field
 from journals.factories import JournalFactory
-from ontology.factories import AcademicFieldFactory
+from ontology.factories import AcademicFieldFactory, SpecialtyFactory
 from organizations.factories import OrganizationFactory
 from preprints.factories import PreprintFactory
 
@@ -16,6 +18,7 @@ from scipost.constants import SCIPOST_APPROACHES
 from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 from comments.factories import SubmissionCommentFactory
+from submissions.constants import REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3
 
 from ..models.submission import *
 
@@ -25,11 +28,14 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     Generate random basic Submission instances.
     """
 
-    submitted_by = factory.SubFactory(ContributorFactory)
-    author_list = factory.LazyAttribute(
-        lambda self: self.submitted_by.profile.full_name
+    submitted_by = factory.SubFactory(
+        ContributorFactory,
+        profile__acad_field=factory.SelfAttribute("...acad_field"),
     )
-    submitted_to = factory.SubFactory(JournalFactory)
+    submitted_to = factory.SubFactory(
+        JournalFactory,
+        college__acad_field=factory.SelfAttribute("...acad_field"),
+    )
 
     title = factory.Faker("sentence")
     abstract = factory.Faker("paragraph", nb_sentences=10)
@@ -74,6 +80,19 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
             [a.profile.full_name for a in self.authors.all().select_related("profile")]
         )
 
+    @factory.post_generation
+    def author_profiles(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        authors = extracted or self.authors.all()
+        for i, author in enumerate(authors):
+            SubmissionAuthorProfileFactory(
+                submission=self,
+                profile=author.profile,
+                order=i + 1,
+            )
+
 
 class SeekingAssignmentSubmissionFactory(SubmissionFactory):
     """
@@ -84,8 +103,53 @@ class SeekingAssignmentSubmissionFactory(SubmissionFactory):
     visible_public = False
     visible_pool = True
 
+    checks_cleared_date = LazyAwareDateOffset("submission_date", "+4d")
 
-class InRefereeingSubmissionFactory(SubmissionFactory):
+    @factory.post_generation
+    @set_or_create_consistent_related_field(
+        FellowshipFactory, (15, 30), {"college__acad_field": "acad_field"}
+    )
+    def fellows(self, create, extracted, **kwargs):
+        pass
+
+    @factory.post_generation
+    def appraisals(self, create, extracted, **kwargs):
+        from submissions.factories import (
+            QualificationFactory,
+            ReadinessFactory,
+        )
+        from ethics.factories import SubmissionClearanceFactory
+
+        if not create:
+            return
+
+        if extracted:
+            raise NotImplementedError(
+                "Manually setting appraisals is not implemented yet."
+            )
+
+        for fellowship in self.fellows.all():
+            if appraised := fake.boolean(chance_of_getting_true=40):
+                declaration_date = self.checks_cleared_date + fake.time_delta("+2M")
+                QualificationFactory(
+                    submission=self,
+                    fellow=fellowship.contributor,
+                    datetime=declaration_date,
+                )
+                ReadinessFactory(
+                    submission=self,
+                    fellow=fellowship.contributor,
+                    datetime=declaration_date,
+                )
+                SubmissionClearanceFactory(
+                    submission=self,
+                    profile=fellowship.contributor.profile,
+                    asserted_by=fellowship.contributor,
+                    asserted_on=declaration_date,
+                )
+
+
+class InRefereeingSubmissionFactory(SeekingAssignmentSubmissionFactory):
     """
     A Submission with an EIC assigned, visible in the pool and refereeing in process.
     """
@@ -95,10 +159,8 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
     open_for_reporting = True
     visible_public = True
     visible_pool = True
-    editor_in_charge = factory.Iterator(Contributor.objects.all())
-    # @factory.lazy_attribute
-    # def editor_in_charge(self):
-    #     return Contributor.objects.order_by('?').first()
+
+    eic_first_assigned_date = LazyAwareDateOffset("checks_cleared_date", "+30d")
 
     @factory.post_generation
     def eic_assignment(self, create, extracted, **kwargs):
@@ -120,9 +182,10 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
                 extracted.status = EditorialAssignment.STATUS_ACCEPTED
                 extracted.save()
         else:
-            from colleges.factories import FellowFactory
-
-            self.editor_in_charge = FellowFactory(profile__acad_field=self.acad_field)
+            self.editor_in_charge = self.fellows.order_by("?").first().contributor
+            self.editor_in_charge.profile.specialties.add(
+                *self.specialties.order_by("?")[:2]
+            )
 
             EditorialAssignmentFactory(
                 submission=self,
@@ -138,18 +201,26 @@ class InRefereeingSubmissionFactory(SubmissionFactory):
             FulfilledRefereeInvitationFactory,
         )
 
-        for i in range(random.randint(1, 3)):
-            RefereeInvitationFactory(submission=self)
-        for i in range(random.randint(0, 2)):
-            AcceptedRefereeInvitationFactory(submission=self)
-        for i in range(random.randint(0, 2)):
-            FulfilledRefereeInvitationFactory(submission=self)
+        RefereeInvitationFactory.create_batch(
+            random.randint(1, 3),
+            submission=self,
+        )
+        AcceptedRefereeInvitationFactory.create_batch(
+            random.randint(0, 2),
+            submission=self,
+        )
+        FulfilledRefereeInvitationFactory.create_batch(
+            random.randint(0, 2),
+            submission=self,
+        )
 
     @factory.post_generation
     def comments(self, create, extracted, **kwargs):
         if create:
-            for i in range(random.randint(0, 3)):
-                SubmissionCommentFactory(content_object=self)
+            SubmissionCommentFactory.create_batch(
+                random.randint(0, 3),
+                content_object=self,
+            )
 
     @factory.post_generation
     def eic_recommendation(self, create, extracted, **kwargs):
@@ -171,43 +242,43 @@ class ResubmittedSubmissionFactory(InRefereeingSubmissionFactory):
     visible_public = True
     visible_pool = False
 
-    @factory.post_generation
-    def successive_submission(self, create, extracted, **kwargs):
-        """
-        Generate a second Submission that's the successive version of the resubmitted Submission
-        """
-        if create and extracted is not False:
-            # Prevent infinite loops by checking the extracted argument
-            ResubmissionFactory(
-                thread_hash=self.thread_hash,
-                previous_submission=False,
-                visible_pool=True,
-            )
+    # @factory.post_generation
+    # def successive_submission(self, create, extracted, **kwargs):
+    #     """
+    #     Generate a second Submission that's the successive version of the resubmitted Submission
+    #     """
+    #     if create and extracted is not False:
+    #         # Prevent infinite loops by checking the extracted argument
+    #         ResubmissionFactory(
+    #             thread_hash=self.thread_hash,
+    #             previous_submission=False,
+    #             visible_pool=True,
+    #         )
 
-    @factory.post_generation
-    def gather_successor_data(self, create, extracted, **kwargs):
-        """
-        Gather some data from Submission with same arxiv id such that this Submission
-        more or less looks like any regular real resubmission.
-        """
-        submission = (
-            Submission.objects.filter(thread_hash=self.thread_hash)
-            .exclude(pk=self.id)
-            .first()
-        )
-        if not submission:
-            return
+    # @factory.post_generation
+    # def gather_successor_data(self, create, extracted, **kwargs):
+    #     """
+    #     Gather some data from Submission with same arxiv id such that this Submission
+    #     more or less looks like any regular real resubmission.
+    #     """
+    #     submission = (
+    #         Submission.objects.filter(thread_hash=self.thread_hash)
+    #         .exclude(pk=self.id)
+    #         .first()
+    #     )
+    #     if not submission:
+    #         return
 
-        self.author_list = submission.author_list
-        self.submitted_by = submission.submitted_by
-        self.editor_in_charge = submission.editor_in_charge
-        self.submitted_to = submission.submitted_to
-        self.title = submission.title
-        self.acad_field = submission.acad_field
-        self.specialties.add(*submission.specialties.all())
-        self.approaches = submission.approaches
-        self.title = submission.title
-        self.authors.set(self.authors.all())
+    #     self.author_list = submission.author_list
+    #     self.submitted_by = submission.submitted_by
+    #     self.editor_in_charge = submission.editor_in_charge
+    #     self.submitted_to = submission.submitted_to
+    #     self.title = submission.title
+    #     self.acad_field = submission.acad_field
+    #     self.specialties.add(*submission.specialties.all())
+    #     self.approaches = submission.approaches
+    #     self.title = submission.title
+    #     self.authors.set(self.authors.all())
 
     @factory.post_generation
     def referee_invites(self, create, extracted, **kwargs):
@@ -219,11 +290,17 @@ class ResubmittedSubmissionFactory(InRefereeingSubmissionFactory):
             CancelledRefereeInvitationFactory,
         )
 
-        for i in range(random.randint(0, 2)):
-            FulfilledRefereeInvitationFactory(submission=self)
+        # Reports are created in this factory's post_generation method
+        FulfilledRefereeInvitationFactory.create_batch(
+            random.randint(0, 2),
+            submission=self,
+            report__revision=True,
+        )
 
-        for i in range(random.randint(1, 3)):
-            CancelledRefereeInvitationFactory(submission=self)
+        CancelledRefereeInvitationFactory.create_batch(
+            random.randint(1, 3),
+            submission=self,
+        )
 
 
 class ResubmissionFactory(InRefereeingSubmissionFactory):
@@ -282,24 +359,65 @@ class ResubmissionFactory(InRefereeingSubmissionFactory):
         pass
 
 
-class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
+class AcceptedSubmissionFactory(InRefereeingSubmissionFactory):
+    status = Submission.ACCEPTED_IN_TARGET
+
+    @factory.post_generation
+    def eic_recommendation(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        from submissions.factories import EICRecommendationFactory
+        from submissions.constants import EIC_REC_PUBLISH, DECISION_FIXED
+
+        EICRecommendationFactory(
+            submission=self,
+            recommendation=EIC_REC_PUBLISH,
+            status=DECISION_FIXED,
+        )
+
+    @factory.post_generation
+    def editorial_decision(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        from submissions.factories import EditorialDecisionFactory
+        from submissions.models import EditorialDecision
+        from submissions.constants import EIC_REC_PUBLISH
+
+        EditorialDecisionFactory(
+            submission=self,
+            status=EditorialDecision.FIXED_AND_ACCEPTED,
+            decision=EIC_REC_PUBLISH,
+        )
+
+    @factory.post_generation
+    def production_stream(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        from production.factories import ProductionStreamFactory
+        from production.constants import PRODUCTION_STREAM_INITIATED
+
+        ProductionStreamFactory(submission=self, status=PRODUCTION_STREAM_INITIATED)
+
+
+class PublishedSubmissionFactory(AcceptedSubmissionFactory):
     status = Submission.PUBLISHED
     open_for_commenting = False
     open_for_reporting = False
     visible_public = True
     visible_pool = False
 
-    # @factory.post_generation
-    # def generate_publication(self, create, extracted, **kwargs):
-    #     if create and extracted is not False:
-    #         from journals.factories import JournalPublicationFactory
+    @factory.post_generation
+    def production_stream(self, create, extracted, **kwargs):
+        if not create:
+            return
 
-    #         JournalPublicationFactory(
-    #             in_journal=self.submitted_to,
-    #             accepted_submission=self,
-    #             title=self.title,
-    #             author_list=self.author_list,
-    #         )
+        from production.factories import ProductionStreamFactory
+        from production.constants import PRODUCTION_STREAM_COMPLETED
+
+        ProductionStreamFactory(submission=self, status=PRODUCTION_STREAM_COMPLETED)
 
     @factory.post_generation
     def eic_assignment_completed(self, create, extracted, **kwargs):
@@ -314,10 +432,17 @@ class PublishedSubmissionFactory(InRefereeingSubmissionFactory):
             CancelledRefereeInvitationFactory,
         )
 
-        for i in range(random.randint(2, 4)):
-            FulfilledRefereeInvitationFactory(submission=self)
-        for i in range(random.randint(0, 2)):
-            CancelledRefereeInvitationFactory(submission=self)
+        FulfilledRefereeInvitationFactory.create_batch(
+            random.randint(2, 4),
+            submission=self,
+            report__recommendation=random.choice(
+                [REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3]
+            ),
+        )
+        CancelledRefereeInvitationFactory.create_batch(
+            random.randint(0, 2),
+            submission=self,
+        )
 
 
 class SubmissionAuthorProfileFactory(factory.django.DjangoModelFactory):

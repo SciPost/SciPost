@@ -6,10 +6,7 @@ import pytz
 import random
 import factory
 
-from commentaries.models import Commentary
-from scipost.models import Contributor
-from submissions.models import Submission, Report
-from theses.models import ThesisLink
+from common.faker import fake, LazyAwareDateOffset
 
 from .constants import STATUS_VETTED
 from .models import Comment
@@ -48,17 +45,39 @@ class CommentaryCommentFactory(CommentFactory):
 
 class SubmissionCommentFactory(CommentFactory):
     content_object = factory.SubFactory("submissions.factories.SubmissionFactory")
+    date_submitted = LazyAwareDateOffset("content_object.submission_date", "+60d")
+    author = factory.SubFactory(
+        "scipost.factories.ContributorFactory",
+        profile__acad_field=factory.SelfAttribute("...content_object.acad_field"),
+    )
+    vetted_by = factory.SelfAttribute("content_object.editor_in_charge")
 
     @factory.post_generation
     def replies(self, create, extracted, **kwargs):
         if create:
             for i in range(random.randint(0, 2)):
-                ReplyCommentFactory(content_object=self)
+                ReplyCommentFactory(
+                    content_object=self,
+                    date_submitted=self.date_submitted + fake.time_delta("+30d"),
+                )
 
 
 class ReplyCommentFactory(CommentFactory):
     content_object = factory.SubFactory(SubmissionCommentFactory, replies=False)
+    date_submitted = LazyAwareDateOffset("content_object.date_submitted", "+10d")
     is_author_reply = factory.Faker("boolean")
+    vetted_by = factory.SelfAttribute("content_object.vetted_by")
+
+    @factory.lazy_attribute
+    def author(self):
+        from scipost.factories import ContributorFactory
+
+        if self.is_author_reply:
+            return self.content_object.author
+
+        return ContributorFactory(
+            profile__acad_field=self.content_object.author.profile.acad_field
+        )
 
 
 class ThesislinkCommentFactory(CommentFactory):

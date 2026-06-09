@@ -26,6 +26,34 @@ class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
     date_invited = LazyAwareDateOffset("date_created", "+30d")
     date_answered = LazyAwareDateOffset("date_invited", "+30d")
 
+    @factory.post_generation
+    def qualification(self, create, extracted, **kwargs):
+        if extracted:
+            raise NotImplementedError("Not sure how to use the Qualification")
+
+        from submissions.factories import QualificationFactory
+        from submissions.models.qualification import Qualification
+
+        QualificationFactory(
+            submission=self.submission,
+            fellow=self.to,
+            expertise_level=random.choice(Qualification.EXPERTISE_QUALIFIED),
+        )
+
+    @factory.post_generation
+    def clearance(self, create, extracted, **kwargs):
+        if extracted:
+            raise NotImplementedError("Not sure how to use the Clearance")
+
+        from ethics.factories import SubmissionClearanceFactory
+
+        SubmissionClearanceFactory(
+            submission=self.submission,
+            profile=self.to.profile,
+            asserted_by=self.to,
+            asserted_on=self.date_answered,
+        )
+
 
 class ConditionalAssignmentOfferFactory(factory.django.DjangoModelFactory):
     class Meta:

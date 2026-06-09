@@ -281,7 +281,10 @@ class BasePublicationFactory(factory.django.DjangoModelFactory):
         if extracted:
             self.grants.add(*extracted)
 
-        grants = GrantFactory.create_batch(3)
+        grants = GrantFactory.create_batch(
+            3,
+            recipient=LazyRandInstance(self.accepted_submission.authors.all()),
+        )
         self.grants.add(*grants)
 
     @factory.post_generation
@@ -308,8 +311,10 @@ class BasePublicationFactory(factory.django.DjangoModelFactory):
 
     # Date fields
     submission_date = factory.SelfAttribute("accepted_submission.submission_date")
-    acceptance_date = factory.SelfAttribute("accepted_submission.latest_activity")
-    publication_date = factory.SelfAttribute("accepted_submission.latest_activity")
+    acceptance_date = factory.SelfAttribute(
+        "accepted_submission.editorial_decision.taken_on"
+    )
+    publication_date = LazyAwareDateOffset("acceptance_date", "+1m")
     latest_activity = factory.SelfAttribute("accepted_submission.latest_activity")
     latest_citedby_update = factory.SelfAttribute("accepted_submission.latest_activity")
     latest_metadata_update = factory.SelfAttribute(
@@ -330,20 +335,38 @@ class BasePublicationFactory(factory.django.DjangoModelFactory):
     #         author_list=self.author_list,
     #     )
 
-    # @factory.post_generation
-    # def author_relations(self, create, extracted, **kwargs):
-    #     if not create:
-    #         return
+    @factory.post_generation
+    def references(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for i, reference in enumerate(extracted, start=1):
+                reference.publication = self
+                reference.reference_number = i
+                reference.save()
+        else:
+            ReferenceFactory.create_batch(5, publication=self)
 
-    #     # Append references
-    #     for i in range(5):
-    #         ReferenceFactory(publication=self)
+    @factory.post_generation
+    def authors(self, create, extracted, **kwargs):
+        if not create:
+            return
 
-    # Copy author data from Submission
-    # for author in self.accepted_submission.authors.all():
-    #     self.authors.create(publication=self, profile=author)
-    # self.authors_claims.add(*self.accepted_submission.authors_claims.all())
-    # self.authors_false_claims.add(*self.accepted_submission.authors_false_claims.all())
+        if extracted:
+            raise NotImplementedError(
+                "Passing authors to PublicationFactory is not implemented."
+            )
+
+        # Copy author data from Submission
+        for i, author in enumerate(self.accepted_submission.authors.all()):
+            pat = self.authors.create(
+                publication=self,
+                profile=author.profile,
+                order=i + 1,
+            )
+            # Assign one of the author's affiliations to the publication author relation
+            if affil := random.choice(author.profile.affiliations.all()):
+                pat.affiliations.set([affil.organization.id])
 
 
 class JournalPublicationFactory(BasePublicationFactory):

@@ -11,6 +11,8 @@ from production.constants import (
     PRODUCTION_EVENTS,
     PRODUCTION_STREAM_STATUS,
     PROOFS_REPO_STATUSES,
+    PRODUCTION_STREAM_INITIATED,
+    PROOFS_SOURCE_REQUESTED,
     PROOFS_STATUSES,
 )
 from finances.factories import ProductionStreamWorkLogFactory
@@ -42,7 +44,7 @@ class ProductionStreamFactory(factory.django.DjangoModelFactory):
     status = LazyRandEnum(PRODUCTION_STREAM_STATUS)
     officer = factory.SubFactory(ProductionUserFactory)
     supervisor = factory.SubFactory(ProductionUserFactory)
-    invitations_officer = factory.SubFactory(ProductionUserFactory)
+    invitations_officer = None
     on_hold = False
 
     @factory.post_generation
@@ -54,7 +56,7 @@ class ProductionStreamFactory(factory.django.DjangoModelFactory):
             for work_log in extracted:
                 self.work_logs.add(work_log)
 
-        else:
+        elif self.status not in [PRODUCTION_STREAM_INITIATED, PROOFS_SOURCE_REQUESTED]:
             self.work_logs.add(
                 *ProductionStreamWorkLogFactory.create_batch(
                     random.randint(1, 4),
@@ -63,6 +65,25 @@ class ProductionStreamFactory(factory.django.DjangoModelFactory):
                 )
             )
 
+    @factory.post_generation
+    def proofs_repository(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            extracted.stream = self
+            extracted.save()
+            return
+
+        from production.models import ProofsRepository
+        from production.factories import ProofsRepositoryFactory
+
+        ProofsRepositoryFactory(
+            stream=self,
+            status=ProofsRepository.PROOFS_REPO_UNINITIALIZED
+            if self.status == PRODUCTION_STREAM_INITIATED
+            else ProofsRepository.PROOFS_REPO_PRODUCTION_READY,
+        )
 
 class ProductionEventFactory(factory.django.DjangoModelFactory):
     class Meta:

@@ -70,6 +70,16 @@ class ProfileFactory(factory.django.DjangoModelFactory):
             except Contributor.DoesNotExist:
                 ProfileEmailFactory(profile=self, primary=True)
 
+    @factory.post_generation
+    def affiliations(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for organization in extracted:
+                AffiliationFactory(profile=self, organization=organization)
+        else:
+            AffiliationFactory.create_batch(random.randint(1, 3), profile=self)
+
 
 class ProfileEmailFactory(factory.django.DjangoModelFactory):
     class Meta:

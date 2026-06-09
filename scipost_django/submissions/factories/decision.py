@@ -14,7 +14,7 @@ class EditorialDecisionFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ("submission", "version")
 
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
-    for_journal = factory.SubFactory("journals.factories.JournalFactory")
+    for_journal = factory.SelfAttribute("submission.submitted_to")
     taken_on = LazyAwareDateOffset("submission.submission_date", "+2M")
 
     remarks_for_authors = factory.Faker("paragraph")
