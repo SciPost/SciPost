@@ -59,25 +59,20 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ("preprint",)
 
     @factory.post_generation
-    def add_specialties(self, create, extracted, **kwargs):
-        if create:
-            if extracted:
-                self.specialties.add(*extracted)
-            else:
-                self.specialties.set(Specialty.objects.order_by("?")[:3])
+    @set_or_create_consistent_related_field(
+        SpecialtyFactory, (1, 4), {"acad_field": "acad_field"}
+    )
+    def specialties(self, create, extracted, **kwargs):
+        pass
 
     @factory.post_generation
+    @set_or_create_consistent_related_field(
+        ContributorFactory, (1, 4), {"profile__acad_field": "acad_field"}
+    )
     def authors(self, create, extracted, **kwargs):
-        if create:
-            if extracted:
-                # Add submitted_by to the list of authors
-                if self.submitted_by not in extracted:
-                    extracted.append(self.submitted_by)
-
-                self.authors.add(*extracted)
-                self.author_list = ", ".join(
-                    [f"{c.profile.first_name} {c.profile.last_name}" for c in extracted]
-                )
+        self.author_list = ", ".join(
+            [a.profile.full_name for a in self.authors.all().select_related("profile")]
+        )
 
 
 class SeekingAssignmentSubmissionFactory(SubmissionFactory):

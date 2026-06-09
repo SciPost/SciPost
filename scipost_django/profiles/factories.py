@@ -6,6 +6,7 @@ import random
 import re
 
 import factory
+from common.factories import set_or_create_consistent_related_field
 from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
 from common.utils.text import latinise
 from ontology.factories import SpecialtyFactory, TopicFactory
@@ -34,18 +35,11 @@ class ProfileFactory(factory.django.DjangoModelFactory):
         )
 
     @factory.post_generation
+    @set_or_create_consistent_related_field(
+        SpecialtyFactory, (1, 4), {"acad_field": "acad_field"}
+    )
     def specialties(self, create, extracted, **kwargs):
-        if not create:
-            return
-        if extracted:
-            for specialty in extracted:
-                self.specialties.add(specialty)
-        else:
-            self.specialties.add(
-                *SpecialtyFactory.create_batch(
-                    random.randint(1, 3), acad_field=self.acad_field
-                )
-            )
+        pass
 
     @factory.post_generation
     def topics(self, create, extracted, **kwargs):
