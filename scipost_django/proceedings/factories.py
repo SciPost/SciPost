@@ -50,6 +50,6 @@ class ProceedingsFactory(factory.django.DjangoModelFactory):
             self.fellowships.add(
                 *FellowshipFactory.create_batch(
                     random.randint(1, 5),
-                    college=self.issue.in_journal.college,
+                    college=self.issue.get_journal().college,
                 )
             )
