@@ -4,6 +4,7 @@ from datetime import date, datetime
 from nameparser import HumanName
 
 from django.utils.http import urlencode
+import requests
 
 from .utils import Person, QueryFragment, format_person_name
 from .server import BasePreprintServer, PreprintServer
@@ -32,6 +33,8 @@ class ArxivServer(BasePreprintServer):
     base_url = "https://arxiv.org"
     api_url = "http://export.arxiv.org/api"
 
+    MAX_REQUESTS_PER_SECOND = 1 / 3.0
+
     @classmethod
     def identifier_to_url(cls, identifier: str) -> str:
         return f"{cls.base_url}/abs/{identifier}"
@@ -57,7 +60,14 @@ class ArxivServer(BasePreprintServer):
                 "max_results": max_results,
             }
         )
-        return feedparser.parse(f"{cls.api_url}/query?{encoded_params}")
+        return cls.request(encoded_params, **kwargs)
+
+    @classmethod
+    def request(cls, query: str, **kwargs: Any) -> feedparser.FeedParserDict:
+        cls._limit_rate()
+        response = requests.get(f"{cls.api_url}/query?{query}")
+        response.raise_for_status()
+        return feedparser.parse(response.text)
 
     @classmethod
     def find_common_works_between(

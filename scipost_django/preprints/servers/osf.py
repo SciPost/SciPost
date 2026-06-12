@@ -68,13 +68,6 @@ class OSFServer(BasePreprintServer):
         return f"https://doi.org/{identifier}/"
 
     @classmethod
-    def query(cls, query: OSFQuery) -> dict[str, Any]:
-        response = requests.get(f"{cls.api_url}/{query.url}")
-        if not response.ok:
-            return {}
-        return response.json()
-
-    @classmethod
     def parse_work(cls, data: dict[str, Any]) -> "CoauthoredWork | None":
         from ethics.models import CoauthoredWork
 

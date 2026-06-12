@@ -61,17 +61,10 @@ class ChemArxivServer(BasePreprintServer):
         return f"https://doi.org/{identifier}"
 
     @classmethod
-    def query(cls, query: ChemArxivQuery, **kwargs: Any) -> dict[str, Any]:
-        response = requests.get(f"{cls.api_url}/{query.url}")
-        if not response.ok:
-            return {}
-        return response.json()
-
-    @classmethod
     def find_common_works_between(
         cls, *people: Person, **kwargs: Any
     ) -> list["CoauthoredWork"]:
-        data = cls.query(
+        data = cls.request(
             ChemArxivQuery().author(
                 " ".join([format_person_name(person) for person in people])
             )

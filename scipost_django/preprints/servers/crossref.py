@@ -9,7 +9,7 @@ from django.conf import settings
 from .utils import Person, format_person_name
 from .server import BasePreprintServer, BaseQuery, PreprintServer
 
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, override
 
 if TYPE_CHECKING:
     from ethics.models import CoauthoredWork
@@ -102,7 +102,7 @@ class CrossrefServer(BasePreprintServer):
             if isinstance(published_after, date):
                 query = query.filter(from_pub_date=published_after.isoformat())
 
-        data = cls.query(query)
+        data = cls.request(query)
 
         if data and "message" in data:
             items: list[dict[str, Any]] = data["message"].get("items", [])
@@ -112,14 +112,14 @@ class CrossrefServer(BasePreprintServer):
         return [parsed_work for item in items if (parsed_work := cls.parse_work(item))]
 
     @classmethod
-    def query(cls, query: "CrossrefQuery") -> dict[str, Any]:
+    @override
+    def request(cls, query: "CrossrefQuery", **kwargs: Any) -> dict[str, Any]:
+        cls._limit_rate()
         response = requests.get(
             f"{cls.api_url}/{query.url}&mailto={CROSSREF_MAILTO_ADDRESS}",
             headers={"User-Agent": CROSSREF_USER_AGENT},
         )
-        if not response.ok:
-            return {}
-
+        response.raise_for_status()
         return response.json()
 
     @classmethod
