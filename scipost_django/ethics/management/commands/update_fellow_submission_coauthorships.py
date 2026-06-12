@@ -18,6 +18,8 @@ class Command(BaseCommand):
             Submission.objects.all()
             .stage_incoming_completed()
             .needs_coauthorships_update()
+            .annot_has_failed_coauthorship_update()
+            .exclude(has_failed_coauthorship_update=True)
             .prefetch_related("fellows")
             .order_by("latest_activity")
         )
@@ -45,6 +47,8 @@ class Command(BaseCommand):
                     preprint_servers=preprint_servers,
                 )
 
+            # Marked immediately after scheduling
+            # Any errors in the task reset this flag to True to retry later
             submission.needs_coauthorships_update = False
             submission.save()
 

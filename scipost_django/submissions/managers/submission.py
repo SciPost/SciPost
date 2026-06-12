@@ -4,10 +4,11 @@ __license__ = "AGPL v3"
 
 import datetime
 
+from django_celery_results.models import TaskResult
 from django.contrib.postgres.lookups import Unaccent
 from django.db import models
-from django.db.models import Q, Exists, Value
-from django.db.models.functions import Coalesce
+from django.db.models import Q, Exists, OuterRef, Value
+from django.db.models.functions import Cast, Coalesce, Concat
 from django.utils import timezone
 
 from comments.models import Comment
@@ -363,6 +364,21 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
     def needs_coauthorships_update(self):
         """Return set of Submissions that need a Coauthorships update."""
         return self.filter(needs_coauthorships_update=True)
+
+    @queryset_annotation
+    def annot_has_failed_coauthorship_update(self):
+        sub_id_arg = Concat(
+            Value(r"\(\d+,\s*"),
+            Cast(models.OuterRef("id"), output_field=models.CharField()),
+            Value(r"\)"),
+        )
+        return models.Exists(
+            TaskResult.objects.filter(
+                task_name="ethics.tasks.celery_fetch_potential_coauthorships_for_profile_and_submission_authors",
+                status="FAILURE",
+                task_args__regex=sub_id_arg,
+            )
+        )
 
     def has_editor_invitations_to_be_sent(self):
         from submissions.models import EditorialAssignment
