@@ -2,8 +2,8 @@
 
 <tr>
   <td style="max-width:200px;" class="text-truncate overflow-hidden">
-    <div class="d-flex flex-column">
-      <a title={{ profile }} href="{{ profile.get_absolute_url }}">
+    <div class="d-flex flex-column mt-2">
+      <a title="{{ profile.full_name }}" href="{{ profile.get_absolute_url }}">
         <span>{{ profile }}</span>
       </a>
     </div>
@@ -28,13 +28,13 @@
 
   <td style="min-width:150px; max-width:250px;">
     {% if profile.invitations_sent_5y %}
-      <div class="d-flex flex-row w-100 bg-light rounded overflow-hidden" style="height:14px; z-index:2;">
-        {% if not profile.invitations_accepted_5y and not profile.invitations_declined_5y and not profile.invitations_cancelled_5y and not profile.invitations_fulfilled_5y %}
-          <span style="width:100%; font-size: 10px; z-index: 1;"
+      <div class="d-flex flex-row w-100 bg-light rounded overflow-hidden mt-2" style="height:20px; z-index:2">
+        {% if not profile.invitations_accepted_5y and not profile.invitations_declined_5y and not profile.invitations_cancelled_5y and not profile.invitations_fulfilled_5y and not profile.invitations_outstanding_sent_by_eic %}
+          <span style="width:100%; font-size: 14px; z-index: 1;"
                 class="d-flex justify-content-center align-items-center"
                 title="Sent: {{ profile.invitations_sent_5y }}"
-                data-bs-placement="top"
-                data-bs-toggle="tooltip">
+                data-bs-toggle="tooltip"
+                data-bs-placement="top">
                 {{ profile.invitations_sent_5y }}</span>
         {% endif %}
         
@@ -42,9 +42,9 @@
           <div style="width:{{ profile.invitations_cancelled_5y|multiply:100|int_divide:profile.invitations_sent_5y }}%;"
               class="bg-secondary d-flex justify-content-center align-items-center" 
               title="Cancelled: {{ profile.invitations_cancelled_5y }}" 
-              data-bs-placement="top"
-              data-bs-toggle="tooltip">
-              <span style="font-size: 10px;">{{ profile.invitations_cancelled_5y }}</span>
+              data-bs-toggle="tooltip"
+              data-bs-placement="top">
+              <span style="font-size: 14px;">{{ profile.invitations_cancelled_5y }}</span>
           </div>
         {% endif %}
 
@@ -52,9 +52,9 @@
           <div style="width:{{ profile.invitations_declined_5y|multiply:100|int_divide:profile.invitations_sent_5y }}%;"
                 class="bg-danger d-flex justify-content-center align-items-center"
                 title="Declined: {{ profile.invitations_declined_5y }}" 
-                data-bs-placement="top"
-                data-bs-toggle="tooltip">
-                <span style="font-size: 10px;" class="text-white">{{ profile.invitations_declined_5y }}</span>
+                data-bs-toggle="tooltip"
+                data-bs-placement="top">
+                <span style="font-size: 14px;" class="text-white">{{ profile.invitations_declined_5y }}</span>
           </div>
         {% endif %}
 
@@ -62,9 +62,9 @@
           <div style="width:{{ profile.invitations_accepted_5y|multiply:100|int_divide:profile.invitations_sent_5y }}%;"
                 class="bg-primary d-flex justify-content-center align-items-center"
                 title="Accepted: {{ profile.invitations_accepted_5y }}" 
-                data-bs-placement="top"
-                data-bs-toggle="tooltip">
-                <span style="font-size: 10px;" class="text-white">{{ profile.invitations_accepted_5y }}</span>
+                data-bs-toggle="tooltip"
+                data-bs-placement="top">
+                <span style="font-size: 14px;" class="text-white">{{ profile.invitations_accepted_5y }}</span>
           </div>
         {% endif %}
 
@@ -72,9 +72,19 @@
           <div style="width:{{ profile.invitations_fulfilled_5y|multiply:100|int_divide:profile.invitations_sent_5y }}%;"
                 class="bg-success d-flex justify-content-center align-items-center"
                 title="Fulfilled: {{ profile.invitations_fulfilled_5y }}" 
-                data-bs-placement="top"
-                data-bs-toggle="tooltip">
-                <span style="font-size: 10px;" class="text-white">{{ profile.invitations_fulfilled_5y }}</span>
+                data-bs-toggle="tooltip"
+                data-bs-placement="top">
+                <span style="font-size: 14px;" class="text-white">{{ profile.invitations_fulfilled_5y }}</span>
+          </div>
+        {% endif %}
+
+        {% if profile.invitations_outstanding_sent_by_eic %}
+          <div style="width:{{ profile.invitations_outstanding_sent_by_eic|multiply:100|int_divide:profile.invitations_sent_5y }}%;"
+                class="bg-warning d-flex justify-content-center align-items-center"
+                title="Outstanding (sent by you): {{ profile.invitations_outstanding_sent_by_eic }}" 
+                data-bs-toggle="tooltip"
+                data-bs-placement="top">
+                <span style="font-size: 14px;" class="text-white">{{ profile.invitations_outstanding_sent_by_eic }}</span>
           </div>
         {% endif %}
 

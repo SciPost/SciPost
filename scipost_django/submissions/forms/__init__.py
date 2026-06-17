@@ -2800,6 +2800,22 @@ class InviteRefereeSearchForm(CrispyFormMixin, SearchForm[Profile]):
             ),
         )
 
+        # Workload indicator for outstanding invitations sent by the current EIC
+        queryset = queryset.annotate(
+            invitations_outstanding_sent_by_eic=Count(
+                "referee_invitations",
+                filter=Q(
+                    referee_invitations__invited_by=self.submission.editor_in_charge
+                )
+                # Mirrors the logic in `RefereeInvitation.objects.outstanding()`
+                & ~(
+                    Q(referee_invitations__cancelled=True)
+                    | Q(referee_invitations__accepted=False)
+                    | Q(referee_invitations__fulfilled=True)
+                ),
+            )
+        )
+
         return queryset
 
 
