@@ -16,15 +16,17 @@ from tasks.tasks.task_kinds import get_all_task_kinds
 @user_passes_test(is_edadmin_or_active_fellow)
 def tasklist(request):
     """Displays list of tasks for Fellows."""
+    assignments = EditorialAssignment.objects.filter(to=request.user.contributor)
+
     context = {
-        "assignments_to_consider": EditorialAssignment.objects.invited().filter(
-            to=request.user.contributor
-        ),
-        "assignments_ongoing": request.user.contributor.editorial_assignments.ongoing(),
-        "recs_to_vote_on": EICRecommendation.objects.user_must_vote_on(request.user),
+        "assignments_to_consider": assignments.invited().select_related("submission"),
+        "assignments_ongoing": assignments.ongoing().select_related("submission"),
+        "recs_to_vote_on": EICRecommendation.objects.user_must_vote_on(
+            request.user
+        ).select_related("submission"),
         "recs_current_voted": EICRecommendation.objects.user_current_voted(
             request.user
-        ),
+        ).select_related("submission"),
     }
 
     if fellowship := request.user.contributor.session_fellowship(request):
@@ -33,6 +35,8 @@ def tasklist(request):
             .filter(status=Submission.SEEKING_ASSIGNMENT)
             .annot_fully_appraised_by(fellowship.contributor)
             .filter(is_fully_appraised=False)
+            .prefetch_related("specialties")
+            .select_related("preprint", "acad_field")
         )
 
     return render(request, "tasks/tasklist.html", context)
