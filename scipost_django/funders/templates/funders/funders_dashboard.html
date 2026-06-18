@@ -71,14 +71,18 @@
 	    <tbody id="accordion" role="tablist" aria-multiselectable="true">
 	      {% for funder in funders %}
 		<tr>
-		  <td>{{ funder.name }}</td>
+		  <td><a href="{{ funder.get_absolute_url }}">{{ funder.name }}</a></td>
 		  <td>{{ funder.acronym }}</td>
 		  <td>{{ funder.identifier }}</td>
-		  <td>{{ funder.organization }}</td>
+		  <td>
+        {% if funder.organization %}
+          <a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization }}</a>
+        {% endif %}
+      </td>
 		  <td>
 		    <ul>
-		      <li><a href="{% url 'funders:link_to_organization' pk=funder.id %}">{% if not funder.organization %}Link to an{% else %}Edit the{% endif %} Organization</a></li>
-		      <li><a href="{% url 'funders:funder_publications' funder.id %}">See all Publications for Funder</a></li>
+		      <li><a href="{% url 'funders:link_to_organization' pk=funder.id %}">{% if not funder.organization %}Link{% else %}Edit{% endif %}</a></li>
+		      <li><a href="{% url 'funders:funder_detail' pk=funder.id %}">Details</a></li>
 		  </td>
 		</tr>
               {% empty %}
