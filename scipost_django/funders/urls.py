@@ -27,7 +27,7 @@ urlpatterns = [
         name="query_crossref_for_funder",
     ),
     path("add", views.add_funder, name="add_funder"),
-    path("<int:funder_id>/", views.funder_publications, name="funder_publications"),
+    path("<int:pk>/", views.FunderDetailView.as_view(), name="funder_detail"),
     path("grants/add", views.CreateGrantView.as_view(), name="add_grant"),
     path(
         "<int:pk>/link_to_organization/",

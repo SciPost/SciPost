@@ -50,13 +50,29 @@ class Funder(models.Model):
 
     def get_absolute_url(self):
         """Return the Funder detail page."""
-        return reverse("funders:funder_publications", args=(self.id,))
+        return reverse("funders:funder_detail", kwargs={"pk": self.pk})
 
     def all_related_publications(self):
         """Return all Publication objects linked to this Funder."""
-        return Publication.objects.filter(
-            Q(funders_generic=self) | Q(grants__funder=self)
-        ).distinct()
+        from django.db.models import Exists, OuterRef
+
+        pub_grants = Publication.grants.through.objects.all()
+        gen_funders = Publication.funders_generic.through.objects.all()
+
+        return Publication.objects.annotate(
+            is_funded_via_grant=Exists(
+                pub_grants.filter(
+                    publication_id=OuterRef("pk"),
+                    grant__funder_id=self.pk,
+                )
+            ),
+            is_generic_funder=Exists(
+                gen_funders.filter(
+                    publication_id=OuterRef("pk"),
+                    funder_id=self.pk,
+                )
+            ),
+        ).filter(Q(is_generic_funder=True) | Q(is_funded_via_grant=True))
 
 
 class Grant(models.Model):

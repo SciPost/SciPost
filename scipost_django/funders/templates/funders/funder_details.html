@@ -9,22 +9,44 @@
 {% endblock %}
 
 {% block content %}
+  <hgroup class="highlight p-2 mb-4 d-flex flex-row justify-content-between align-items-center">
+    <h1 class="mb-0">{{ funder.name }}</h1>
 
-  <h1 class="highlight">Funder {{ funder.name }}</h1>
+    {% if funder.organization %}
+      <a class="btn btn-outline-secondary"
+         href="{{ funder.organization.get_absolute_url }}">Go to Organization</a>
+    {% endif %}
+  </hgroup>
 
+  <div class="row">
+    <div class="col">
+       <section>
+        <h2>Publications funded</h2>
 
-  <h3>All Publications related to {{ funder.name }}</h3>
-  <ul>
-    {% for publication in funder.all_related_publications %}
-      <li>
-        <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a>
-        <br>by {{ publication.author_list }},
-        <br>{{ publication.citation }}
-      </li>
-    {% empty %}
-      <li>No publications</li>
-    {% endfor %}
-  </ul>
+        <ul class="list-unstyled d-flex flex-column gap-3">
+          {% for publication in publications_funded %}
+            <li>{% include "journals/_publication_li_content.html" %}</li>
+          {% empty %}
+            <li><span class="fs-3 text-muted">No publications found</span></li>
+          {% endfor %}
+        </ul>
+      </section>
+    </div>
 
+    {% if perms.scipost.can_create_grants %}
+      <section class="d-none d-md-block col-2">
+        <h2>Grants</h2>
+
+        <ul class="list-unstyled d-flex flex-column gap-1">
+          {% for grant in funder.grants.all %}
+            <li class="text-truncate">{{ grant.number }}</li>
+          {% empty %}
+            <li><span class="fs-3 text-muted">No grants found</span></li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
+  </div>
+ 
 
 {% endblock content %}

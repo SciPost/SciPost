@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
 from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.views.generic.edit import CreateView, UpdateView
@@ -124,11 +124,23 @@ def funders(request):
     return render(request, "funders/funder_list.html", context)
 
 
-def funder_publications(request, funder_id):
+class FunderDetailView(DetailView):
     """Detail page of a specific Funder (publicly accessible)."""
-    funder = get_object_or_404(Funder, id=funder_id)
-    context = {"funder": funder}
-    return render(request, "funders/funder_details.html", context)
+
+    model = Funder
+    template_name = "funders/funder_details.html"
+    context_object_name = "funder"
+
+    def get_context_data(self, **kwargs):
+        from journals.models import Publication
+
+        context = super().get_context_data(**kwargs)
+        context["publications_funded"] = (
+            self.object.all_related_publications()
+            .prefetch_related("collections", "specialties")
+            .select_related("acad_field")
+        )
+        return context
 
 
 class HttpRefererMixin:
