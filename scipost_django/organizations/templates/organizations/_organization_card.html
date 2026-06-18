@@ -101,31 +101,47 @@
 
           {% include "organizations/_hx_organization_info.html" %}
 
-          <h3>Funder Registry instances associated to this Organization:</h3>
-          <ul>
-            {% for funder in org.funder_set.all %}
-              <li>{{ funder }}</li>
-            {% empty %}
-              <li>
-                No Funder Registry instance found
-                <br />
-                <br />
-                <strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
-                <p>Are you a representative of this Organization? We advise you to:</p>
-                <ul>
-                  <li>
-                    Make sure your Organization gets included in
-                    <a href="https://www.crossref.org/services/funder-registry/" target="_blank" rel="noopener">Crossref's Funder Registry</a>;
-                  </li>
-                  <li>
-                    After inclusion, <a href="mailto:admin@{{ request.get_host }}?subject=Inclusion&nbsp;of&nbsp;{{ organization|urlencode }}&nbsp;
-                    {% if organization.acronym %}({{ organization.acronym|urlencode }}){% endif %}
-                    &nbsp;in&nbsp;the&nbsp;Funder&nbsp;Registry">contact our administration</a> with this information so that we can update our records.
-                  </li>
-                </ul>
-              </li>
-            {% endfor %}
-          </ul>
+          <h3>Crossref Funder Registry Associations</h3>
+          {% if org.funder_set.all %}
+            <ul class="list-unstyled">
+              {% for funder in org.funder_set.all %}
+                <li class="d-flex flex-row gap-2"> 
+                  <div class="d-flex flex-column gap-1">
+                    <a class="fs-5" href="{{ funder.get_absolute_url }}">{{ funder }}</a>
+                    <span><a href="https://search.crossref.org/search/funders?id={{ funder.identifier }}&from_ui=yes">{{ funder.identifier }}</a></span>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% elif org.ror_json.ror_id %}
+            <div class="p-2 d-flex gap-2 bg-info bg-opacity-25">
+              <span>{% include "bi/info-circle-fill.html" %}</span>
+              <div class="mb-0">
+                <span class="fw-bold">No instance found. ROR ID will be used instead.</span>
+                <span>If there exists a Funder Registry instance for this Organization, you may contact our administration to link it to this Organization.</span>
+              </div>
+            </div>
+          {% else %}
+            <div class="p-2">
+              <div class="p-2 d-flex gap-2 bg-warning bg-opacity-10">
+                <span>{% include "bi/info-circle-fill.html" %}</span>
+                <div class="mb-0 d-flex flex-column gap-1">
+                  <span class="fw-bold">No instance or ROR ID found.</span>
+                  <p class="mb-0">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</p>
+                  <p class="mb-0">Are you a representative of this Organization? We advise you to:</p>
+                  <ul class="mb-0">
+                    <li>
+                      Make sure your Organization gets included in <a href="https://ror.org/" target="_blank" rel="noopener">ROR</a> or in
+                      <a href="https://www.crossref.org/services/funder-registry/" target="_blank" rel="noopener">Crossref's Funder Registry</a>;
+                    </li>
+                    <li>
+                      After inclusion, <a href="mailto:techsupport@scipost.org">contact our administration</a> with this information so that we can update our records.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          {% endif %}
 
         </div>
 
