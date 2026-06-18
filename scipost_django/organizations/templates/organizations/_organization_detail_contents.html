@@ -39,12 +39,11 @@
  
   <tr>
     <td>ROR id (link)</td>
-    <td class="d-flex">
+    <td>
+      <div class="d-flex">
 
       {% if org.ror_json.id %}
         <a href="{{ org.ror_json.ror_link }}" target="_blank" rel="noopener">{{ org.ror_json.ror_link }}</a>
-      {% else %}
-        No ROR id found.
       {% endif %}
 
       {% if perms.scipost.can_manage_organizations %}
@@ -55,20 +54,7 @@
                 hx-get="{% url "organizations:ror_add" pk=org.id ror_id="None" %}"
                 hx-target="#organization-info">Remove</button>
       {% endif %}
-
-    </td>
-  </tr>
-
-  <tr>
-    <td>Crossref Org ID (link)</td>
-    <td>
-
-      {% if org.crossref_json.org_id %}
-        <a href="https://crossref.org" target="_blank" rel="noopener">{{ org.crossref_json.org_id }}</a>
-      {% else %}
-        No Crossref Org ID found
-      {% endif %}
-
+      </div>
     </td>
   </tr>
 

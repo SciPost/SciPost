@@ -41,7 +41,6 @@ class OrganizationFactory(factory.django.DjangoModelFactory):
     logo = factory.django.ImageField()
     css_class = ""
     ror_json = {}
-    crossref_json = {}
     parent = None
     superseded_by = None
 

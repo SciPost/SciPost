@@ -143,9 +143,6 @@ class Organization(models.Model):
     ror_json = models.JSONField(
         default=dict, blank=True, null=True
     )  # JSON data from ROR
-    crossref_json = models.JSONField(
-        default=dict, blank=True, null=True
-    )  # JSON data from Crossref
     parent = models.ForeignKey(
         "self",
         blank=True,
