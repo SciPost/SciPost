@@ -405,37 +405,40 @@ class Publication(models.Model):
 
     @property
     def BiBTeX(self):
-        bibtex_entry = ("@Article{%s,\n\ttitle={{%s}},\n\tauthor={%s},\n") % (
-            self.doi_string,
-            self.title,
-            self.author_list.replace(",", " and"),
+        bibtex_details = [
+            ("title", self.title),
+            ("pages", self.get_paper_nr()),
+            ("year", self.publication_date.strftime("%Y")),
+            ("publisher", "SciPost"),
+            ("doi", self.doi_string),
+            ("url", f"https://{get_current_domain()}/{self.doi_string}"),
+        ]
+
+        author_names = self.authors.all().values_list(
+            "profile__first_name", "profile__last_name"
         )
-        if self.in_issue:
-            if self.in_issue.in_volume:
-                bibtex_entry += "\tjournal={%s},\n\tvolume={%i},\n" % (
-                    self.in_issue.in_volume.in_journal.name_abbrev,
-                    self.in_issue.in_volume.number,
-                )
-            elif self.in_issue.in_journal:
-                bibtex_entry += (
-                    "\tjournal={%s},\n" % self.in_issue.in_journal.name_abbrev
-                )
-        elif self.in_journal:
-            bibtex_entry += "\tjournal={%s},\n" % self.in_journal.name_abbrev
-        bibtex_entry += (
-            "\tpages={%s},\n"
-            "\tyear={%s},\n"
-            "\tpublisher={SciPost},\n"
-            "\tdoi={%s},\n"
-            "\turl={https://%s/%s},\n"
-            "}"
-        ) % (
-            self.get_paper_nr(),
-            self.publication_date.strftime("%Y"),
-            self.doi_string,
-            get_current_domain(),
-            self.doi_string,
+        author_str = " and ".join(f"{l}, {f}" for f, l in author_names)
+
+        journal_name = None
+        if journal := self.in_journal:
+            journal_name = journal.name_abbrev
+        elif issue := self.in_issue:
+            if journal := issue.in_journal:
+                journal_name = journal.name_abbrev
+            elif volume := issue.in_volume:
+                journal_name = volume.in_journal.name_abbrev
+                bibtex_details.insert(2, ("volume", volume.number))
+
+        bibtex_details.insert(2, ("journal", journal_name))
+        bibtex_details.insert(2, ("author", author_str))
+
+        details_equals_str = (f"\t{k} = {{{v}}}" for k, v in bibtex_details)
+        bibtex_entry = (
+            "@article{{{identifier},\n".format(identifier=self.doi_label)
+            + ",\n".join(details_equals_str)
+            + "\n}"
         )
+
         return bibtex_entry
 
     def resources_as_md(self):
