@@ -4,11 +4,13 @@ from django.utils.datastructures import MultiValueDict
 from django.utils.http import urlencode
 import requests
 
+
 from .server import BasePreprintServer, PreprintServer
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from preprints.servers.utils import Person
     from ethics.models import CoauthoredWork
 
 
@@ -81,3 +83,9 @@ class OSFServer(BasePreprintServer):
             date_updated=attributes.get("date_modified"),
             metadata=data,
         )
+
+    @classmethod
+    def find_common_works_between(
+        cls, *people: "Person", **kwargs: Any
+    ) -> list["CoauthoredWork"]:
+        return []
