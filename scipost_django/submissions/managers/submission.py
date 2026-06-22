@@ -368,14 +368,13 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
     @queryset_annotation
     def annot_has_failed_coauthorship_update(self):
         sub_id_arg = Concat(
-            Value(r"\(\d+,\s*"),
+            Value(r"\"\("),
             Cast(models.OuterRef("id"), output_field=models.CharField()),
-            Value(r"\)"),
+            Value(r",\)\""),
         )
         return models.Exists(
             TaskResult.objects.filter(
-                task_name="ethics.tasks.celery_fetch_potential_coauthorships_for_profile_and_submission_authors",
-                status="FAILURE",
+                task_name="ethics.tasks.handle_failed_coauthorship_updates",
                 task_args__regex=sub_id_arg,
             )
         )

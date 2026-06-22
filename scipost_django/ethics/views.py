@@ -25,9 +25,7 @@ from ethics.forms import (
 
 from colleges.permissions import is_edadmin
 from colleges.models.fellowship import Fellowship
-from ethics.tasks import (
-    celery_fetch_potential_coauthorships_for_profile_and_submission_authors,
-)
+from ethics.tasks import query_submission_authors_coauthorships_against_profile
 from profiles.models import Profile
 from scipost.mixins import PermissionsMixin
 from scipost.permissions import HTMXResponse, permission_required_htmx
@@ -363,13 +361,11 @@ def _hx_fetch_coauthorships_for_submission_authors(
     if not submission or not profile:
         return HTMXResponse("Submission or profile not found", tag="danger")
 
-    preprint_servers = submission.get_coauthorship_preprint_servers()
     try:
-        task = celery_fetch_potential_coauthorships_for_profile_and_submission_authors.delay(
-            profile.id,
-            submission.id,
-            preprint_servers=preprint_servers,
-        )
+        group_task = query_submission_authors_coauthorships_against_profile(
+            profile.id, submission.id
+        )()
+        group_task.save()
     except Exception as e:
         return HTMXResponse(f"Error starting task: {e}", tag="danger")
 
@@ -377,5 +373,8 @@ def _hx_fetch_coauthorships_for_submission_authors(
     time.sleep(2)
 
     return redirect(
-        reverse("common:hx_celery_task_status", kwargs={"task_id": task.id})
+        reverse(
+            "common:hx_celery_group_status",
+            kwargs={"group_id": group_task.id},
+        )
     )
