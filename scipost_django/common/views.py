@@ -21,6 +21,7 @@ from django.views.generic import FormView, ListView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from django.views.generic.detail import SingleObjectMixin
 
+from celery.result import GroupResult
 from django_celery_results.models import TaskResult
 
 from scipost.permissions import HTMXResponse
@@ -362,6 +363,7 @@ class HXCeleryTaskStatusView(SingleObjectMixin, View):
     model = TaskResult
     template_name = "htmx/celery_task_status.html"
     slug_url_kwarg = "task_id"
+    context_object_name = "task"
     success_url = None  # URL to redirect to on success, if any
 
     def get(self, request, *args, **kwargs):
@@ -385,7 +387,6 @@ class HXCeleryTaskStatusView(SingleObjectMixin, View):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        context["task"] = self.object
         context["task_result"] = json.loads(self.object.result or "{}")
 
         context["refresh_interval"] = 0
@@ -418,6 +419,71 @@ class HXCeleryTaskStatusView(SingleObjectMixin, View):
     def get_success_url(self):
         return self.success_url
 
+class HXCeleryGroupStatusView(SingleObjectMixin, View):
+    """
+    View to check the status of a Celery group and return an appropriate response.
+    """
+
+    model = GroupResult
+    template_name = "htmx/celery_group_status.html"
+    context_object_name = "group"
+    success_url = None  # URL to redirect to on success, if any
+
+    def get(self, request, *args, **kwargs):
+        self.object_id = kwargs.get("group_id")
+        self.object: GroupResult = GroupResult.restore(self.object_id)
+        return self.get_response(request, *args, **kwargs)
+
+    def get_response(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        response = render(request, self.template_name, context)
+
+        completed = [task.status in ("SUCCESS", "FAILURE") for task in context["tasks"]]
+        if all(completed):
+            response["HX-Trigger"] = "task-completed"
+            if success_url := self.get_success_url():
+                response["HX-Redirect"] = success_url
+
+        return response
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        refresh_interval = 0
+        tasks = self.object.children
+        for task in tasks:
+            task.progress_percent = task.result.get("progress", 0) * 100
+
+            match task.status:
+                case "PENDING":
+                    task.message = "Pending..."
+                    task.color = "warning"
+                    task.progress_percent = 0
+                case "STARTED":
+                    task.message = "Started..."
+                    task.progress_percent = 0
+                case "SUCCESS":
+                    task.message = "Completed"
+                    task.color = "success"
+                    task.progress_percent = 100
+                case "FAILURE":
+                    task.message = "Failed"
+                    task.color = "danger"
+                    task.progress_percent = 100
+                case "PROGRESS":
+                    task.message = f"{task.progress_percent:.0f}%"
+                    task.color = "primary"
+
+                    refresh_interval = 2
+
+        context["tasks"] = tasks
+        context["refresh_interval"] = refresh_interval
+        context["group_id"] = self.object_id
+
+        return context
+
+    def get_success_url(self):
+        return self.success_url
 
 class NonRedirectFormMixin(ContextMixin):
     """

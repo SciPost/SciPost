@@ -24,4 +24,9 @@ urlpatterns = [
         views.HXCeleryTaskStatusView.as_view(),
         name="hx_celery_task_status",
     ),
+    path(
+        "hx/celery/group/<uuid:group_id>/status",
+        views.HXCeleryGroupStatusView.as_view(),
+        name="hx_celery_group_status",
+    ),
 ]
