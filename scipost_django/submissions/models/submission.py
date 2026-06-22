@@ -1038,44 +1038,8 @@ class Submission(models.Model):
         from scipost.models import Contributor
         from profiles.models import Profile
 
-        qs = qs.annotate(
-            submission_coauthorships_latest_fetch_date=Subquery(
-                TaskResult.objects.filter(
-                    task_name="ethics.tasks.celery_fetch_potential_coauthorships_for_profile_and_submission_authors"
-                )
-                # Convert the task_arg = `"(<profile_id>, <submission_id>)"` string into usable integers
-                .annotate(
-                    task_args_arr=SplitString(
-                        Func(
-                            F("task_args"),
-                            template="""TRIM(BOTH '(")' FROM %(expressions)s)""",
-                        ),
-                        delimiter=", ",
-                    ),
-                    profile_id=Cast(
-                        GetElement(
-                            "task_args_arr",
-                            index=1,
-                            output_field=models.CharField(),
-                        ),
-                        models.IntegerField(),
-                    ),
-                    submission_id=Cast(
-                        GetElement(
-                            "task_args_arr",
-                            index=2,
-                            output_field=models.CharField(),
-                        ),
-                        models.IntegerField(),
-                    ),
-                )
-                .filter(
-                    profile_id__in=OuterRef("contributor__profile_id"),
-                    submission_id=self.pk,
-                )
-                .order_by("-date_done")
-                .values("date_done")[:1]
-            )
+        qs = qs.annot_submission_coauthorships_latest_successful_fetch_date(
+            submission_id=self.id
         )
 
         fellows = list(qs)

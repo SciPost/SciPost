@@ -2,10 +2,11 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 from functools import reduce
+import re
 
 from django.db import models
-from django.db.models import Q, Count, Value
-from django.db.models.functions import Cast, Coalesce
+from django.db.models import Q, Count, Subquery, Value
+from django.db.models.functions import Cast, Coalesce, Concat
 from django.utils import timezone
 from common.utils.models import queryset_annotation
 from scipost.models import Contributor
@@ -177,6 +178,43 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
             lambda acc, x: acc + x,
             thread_anon_sources + thread_epon_sources,
             Value(0),
+        )
+
+    @queryset_annotation
+    def annot_submission_coauthorships_latest_successful_fetch_date(
+        self, submission_id: int
+    ):
+        from submissions.models import Submission
+        from django_celery_results.models import TaskResult
+
+        submission = Submission.objects.get(id=submission_id)
+
+        submission_author_ids = list(
+            submission.author_profiles.all()
+            .order_by("profile_id")
+            .values_list("profile_id", flat=True)
+        )
+
+        sub_id_arg = Concat(
+            Value(r"\"\("),
+            Value(re.escape(str(submission_author_ids))),
+            Value(r",\s*\[([0-9]+,?\s*)*"),
+            Cast(
+                models.OuterRef("contributor__profile_id"),
+                output_field=models.CharField(),
+            ),
+            Value(r",?\s*([0-9]+,?\s*)*\]"),
+            Value(r",\s*\'\w+\'\)\""),
+            output_field=models.CharField(),
+        )
+
+        return Subquery(
+            TaskResult.objects.filter(
+                task_name="ethics.tasks.task_query_coauthorships_in_server",
+                task_args__regex=sub_id_arg,
+            )
+            .order_by("-date_done")
+            .values("date_done")[:1]
         )
 
 

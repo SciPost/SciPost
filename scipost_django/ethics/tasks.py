@@ -174,7 +174,9 @@ def query_submission_authors_coauthorships_against_profile(
     preprint_server_names = submission.get_coauthorship_preprint_servers()
 
     submission_author_ids = list(
-        submission.author_profiles.all().values_list("profile_id", flat=True)
+        submission.author_profiles.all()
+        .order_by("profile_id")
+        .values_list("profile_id", flat=True)
     )
     nr_total_pairs = len(submission_author_ids) * len(preprint_server_names)
     if nr_total_pairs == 0:
@@ -183,8 +185,8 @@ def query_submission_authors_coauthorships_against_profile(
     # Run parallel tasks for each preprint server
     group_task = group(
         task_query_coauthorships_in_server.s(
-            [profile_id],
             submission_author_ids,
+            [profile_id],
             server_name,
         )
         for server_name in preprint_server_names
@@ -198,10 +200,14 @@ def query_submission_authors_fellows_coauthorships(submission_id: int):
     preprint_server_names = submission.get_coauthorship_preprint_servers()
 
     submission_authors_ids = list(
-        submission.author_profiles.all().values_list("profile_id", flat=True)
+        submission.author_profiles.all()
+        .order_by("profile_id")
+        .values_list("profile_id", flat=True)
     )
     fellowship_ids = list(
-        submission.fellows.all().values_list("contributor__profile_id", flat=True)
+        submission.fellows.all()
+        .order_by("contributor__profile_id")
+        .values_list("contributor__profile_id", flat=True)
     )
 
     nr_total_pairs = len(submission_authors_ids) * len(fellowship_ids)

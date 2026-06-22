@@ -1,8 +1,8 @@
 <div style="max-width: 600px"
      class="ms-auto coauthorship-fetch-button">
 
-  {% if fellowship.submission_coauthorships_latest_fetch_date %}
-    <small class="text-muted">Last checked: {{ fellowship.submission_coauthorships_latest_fetch_date|timesince }} ago</small>
+  {% if fellowship.submission_coauthorships_latest_successful_fetch_date %}
+    <small class="text-muted">Last checked: {{ fellowship.submission_coauthorships_latest_successful_fetch_date|timesince }} ago</small>
   {% endif %}
 
   <span id="coauthorship-{{ fellowship.id }}-fetch-indicator"
