@@ -80,6 +80,7 @@ if TYPE_CHECKING:
         SubmissionClearance,
     )
     from profiles.models import Profile
+    from production.models import ProductionStream
 
 
 class SubmissionAuthorProfile(models.Model):
@@ -149,6 +150,7 @@ class Submission(models.Model):
     VOTING_IN_PREPARATION = "voting_in_preparation"
     IN_VOTING = "in_voting"
     AWAITING_DECISION = "awaiting_decision"
+    DORMANT = "dormant"
     ACCEPTED_IN_TARGET = "accepted_in_target"
     ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE = (
         "accepted_alt_puboffer_waiting"
@@ -177,6 +179,7 @@ class Submission(models.Model):
         (VOTING_IN_PREPARATION, "Voting in preparation"),
         (IN_VOTING, "In voting"),
         (AWAITING_DECISION, "Awaiting decision"),
+        (DORMANT, "Dormant"),
         (ACCEPTED_IN_TARGET, "Accepted in target Journal"),
         (
             ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
@@ -789,6 +792,10 @@ class Submission(models.Model):
     def open_for_resubmission(self):
         """Check if Submission has fixed EICRecommendation asking for revision."""
         return self.status == self.AWAITING_RESUBMISSION
+
+    @property
+    def is_dormant(self):
+        return self.status == self.DORMANT
 
     @property
     def has_extended_assignment_deadline(self):
