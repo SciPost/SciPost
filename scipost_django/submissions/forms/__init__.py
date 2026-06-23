@@ -457,8 +457,8 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
                 ("nr_voted_for_gte_4", "At least 4 votes cast in favour of EiC rec"),
             ),
         )
-        decided = (
-            "Decided",
+        completed = (
+            "Completed",
             (
                 (Submission.ACCEPTED_IN_TARGET, "Accepted in target Journal"),
                 (
@@ -469,6 +469,10 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
                 (Submission.PUBLISHED, "Published"),
                 (Submission.REJECTED, "Rejected"),
                 (Submission.WITHDRAWN, "Withdrawn by the Authors"),
+                (
+                    Submission.DORMANT,
+                    "Dormant (awaiting resubmission, acceptance, sources, or proofs)",
+                ),
             ),
         )
         if user.contributor.is_ed_admin:
@@ -480,7 +484,7 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
                 refereeing,
                 awaiting_resubmission,
                 voting,
-                decided,
+                completed,
             )
         elif user.contributor.is_active_senior_fellow:
             choices = (
@@ -490,7 +494,7 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
                 refereeing,
                 awaiting_resubmission,
                 voting,
-                decided,
+                completed,
             )
         else:
             choices = (
@@ -499,7 +503,7 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
                 refereeing,
                 awaiting_resubmission,
                 voting,
-                decided,
+                completed,
             )
 
         return choices
@@ -674,7 +678,7 @@ class SubmissionPoolSearchForm(CrispyFormMixin, SearchForm[Submission]):
                 .filter(nr_voted_for__gte=4)
                 .values_list("submission__id", flat=True)
             )
-        else:  # if an actual unmodified status is used, just filter on that
+        elif status in dict(Submission._meta.get_field("status").choices):
             queryset = queryset.filter(status=status)
 
         # filter by EIC
