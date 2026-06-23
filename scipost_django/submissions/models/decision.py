@@ -9,6 +9,11 @@ from django.utils import timezone
 from ..constants import EDITORIAL_DECISION_CHOICES, EIC_REC_PUBLISH
 from ..managers import EditorialDecisionQuerySet
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from journals.models import Journal
+    from submissions.models import Submission
 
 class EditorialDecision(models.Model):
     """Editorial decision, created by EdAdmin based on voting results.
@@ -51,8 +56,12 @@ class EditorialDecision(models.Model):
         (DEPRECATED, "Deprecated"),
     )
 
-    submission = models.ForeignKey("submissions.Submission", on_delete=models.CASCADE)
-    for_journal = models.ForeignKey("journals.Journal", on_delete=models.CASCADE)
+    submission = models.ForeignKey["Submission"](
+        "submissions.Submission", on_delete=models.CASCADE
+    )
+    for_journal = models.ForeignKey["Journal"](
+        "journals.Journal", on_delete=models.CASCADE
+    )
     decision = models.SmallIntegerField(choices=EDITORIAL_DECISION_CHOICES)
     taken_on = models.DateTimeField(default=timezone.now)
     remarks_for_authors = models.TextField(

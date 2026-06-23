@@ -299,6 +299,7 @@ class Submission(models.Model):
         readinesses: "RelatedManager[Readiness]"
         clearances: "RelatedManager[SubmissionClearance]"
         gen_ai_disclosures: "Manager[GenAIDisclosure]"
+        production_stream: "ProductionStream"
 
     # Fields
     preprint = models.OneToOneField["Preprint"](
