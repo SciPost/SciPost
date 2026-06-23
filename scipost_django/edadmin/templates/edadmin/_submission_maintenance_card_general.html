@@ -11,27 +11,47 @@
         {% include "submissions/admin/_submission_update_collections.html" with submission=submission %}
       </li>
       <li>
-        <button class="btn btn-sm btn-warning text-white" 
-                hx-get="{% url "submissions:pool:_hx_submission_toggle_on_hold" submission.preprint.identifier_w_vn_nr %}" 
-                hx-swap="outerHTML"
-                {% if submission.on_hold %}
-                hx-confirm="Are you sure you want to take the submission off hold?"
-                {% else %}
-                hx-prompt="What is the reason for putting the submission on hold? (will be added as a submission internal note)"
-                {% endif %}
-                hx-target="#submission-{{ submission.id }}-details">
-            {% if submission.on_hold %}
-            Take off hold
-            {% else %}
-            Put on hold
-            {% endif %}
-        </button>
+        <div class="fs-6">Mark as:</div>
+        <ul role="menu" class="d-flex gap-3 list-unstyled">
+          <li role="menuitem">
+            <a role="button" class="a-hx-get"
+              hx-get="{% url "submissions:pool:_hx_submission_toggle_on_hold" submission.preprint.identifier_w_vn_nr %}" 
+              hx-swap="outerHTML"
+              {% if submission.on_hold %}
+              hx-confirm="Are you sure you want to take the submission off hold?"
+              {% else %}
+              hx-prompt="What is the reason for putting the submission on hold? (will be added as a submission internal note)"
+              {% endif %}
+              hx-target="#submission-{{ submission.id }}-details">
+              {% if submission.on_hold %}
+                Off hold
+              {% else %}
+                On hold
+              {% endif %}
+            </a>
+          </li>
+          <li role="menuitem">
+            <a role="button" class="a-hx-get"
+              hx-get="{% url "submissions:pool:_hx_submission_toggle_dormant" submission.preprint.identifier_w_vn_nr %}" 
+              hx-swap="outerHTML"
+              {% if submission.is_dormant %}
+              hx-confirm="Are you sure you want to mark the submission as no longer dormant?"
+              {% else %}
+              hx-prompt="What is the reason for marking the submission as dormant? (will be added as a submission internal note)"
+              {% endif %}
+              hx-target="#submission-{{ submission.id }}-details">
+              {% if submission.is_dormant %}
+                Not dormant
+              {% else %}
+                Dormant
+              {% endif %}
+            </a>
+          </li>
+        </ul>
       </li>
       {% if submission.assignment_deadline %}
         <li>
-          <div>
-            Extend assignment deadline by:
-          </div>
+          <div class="fs-6">Extend assignment deadline by:</div>
           <ul role="menu" class="d-flex gap-3 list-unstyled">
             <li role="menuitem"><a href="{% url 'submissions:extend_assignment_deadline' submission.preprint.identifier_w_vn_nr 7 %}">7 days</a></li>
             <li role="menuitem"><a href="{% url 'submissions:extend_assignment_deadline' submission.preprint.identifier_w_vn_nr 14 %}">14 days</a></li>
