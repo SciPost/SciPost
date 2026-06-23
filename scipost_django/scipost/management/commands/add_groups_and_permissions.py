@@ -344,6 +344,11 @@ class Command(BaseCommand):
             name="Can mark Submission on hold",
             content_type=content_type,
         )
+        can_mark_submission_dormant, created = Permission.objects.get_or_create(
+            codename="can_mark_submission_dormant",
+            name="Can mark Submission as dormant",
+            content_type=content_type,
+        )
 
         # Refereeing
         can_referee, created = Permission.objects.get_or_create(
@@ -713,6 +718,7 @@ class Command(BaseCommand):
                 can_manage_mailing_lists,
                 can_create_affiliate_journals,
                 can_mark_submission_on_hold,
+                can_mark_submission_dormant,
                 can_explore_graphs,
                 can_plot_personal_fields,
             ]
@@ -761,6 +767,7 @@ class Command(BaseCommand):
                 can_reassign_submissions,
                 can_run_preassignment,
                 can_mark_submission_on_hold,
+                can_mark_submission_dormant,
                 can_manage_series,
                 can_prepare_recommendations_for_voting,
                 can_manage_college_composition,

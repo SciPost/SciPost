@@ -225,6 +225,96 @@ def _hx_submission_toggle_on_hold(request, identifier_w_vn_nr):
         {"submission": submission},
     )
 
+@permission_required_htmx("scipost.can_mark_submission_dormant")
+def _hx_submission_toggle_dormant(request, identifier_w_vn_nr):
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
+
+    def infer_pre_dormant_status(submission: Submission):
+        """
+        Infer the status of a Submission before it was marked as dormant.
+        This is used to restore the status when unmarking a Submission as dormant.
+        """
+
+        if submission.status != Submission.DORMANT:
+            raise ValueError("Submission is not marked as dormant.")
+
+        # Any accepted submission must have a decision, therefore it's awaiting resubmission otherwise.
+        if not ((decision := submission.editorial_decision) and decision.publish):
+            return Submission.AWAITING_RESUBMISSION
+        elif decision.for_journal == submission.submitted_to:
+            return Submission.ACCEPTED_IN_TARGET
+        elif decision.is_fixed_and_accepted:
+            return Submission.ACCEPTED_IN_ALTERNATIVE
+        else:
+            return Submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
+
+    def can_be_marked_dormant(submission: Submission):
+        """
+        A Submission may be marked as dormant if it is:
+        - Awaiting resubmission
+        - Awaiting puboffer acceptance
+        - Is accepted, and its production stream is:
+            - awaiting source files
+            - awaiting acceptance of proofs
+        """
+        from production.models import ProductionStream
+        from production.constants import PROOFS_SOURCE_REQUESTED, PROOFS_SENT
+
+        if submission.status in [
+            Submission.AWAITING_RESUBMISSION,
+            Submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
+        ]:
+            return True
+        elif submission.in_stage_in_production:
+            try:
+                prod_stream_status = submission.production_stream.status
+            except ProductionStream.DoesNotExist:
+                return False
+
+            if prod_stream_status in [PROOFS_SOURCE_REQUESTED, PROOFS_SENT]:
+                return True
+
+        return False
+
+    if submission.is_dormant:
+        submission.status = infer_pre_dormant_status(submission)
+        submission.visible_public = True
+    elif not can_be_marked_dormant(submission):
+        return HTMXResponse(
+            "This Submission is not in a state where it can be marked as dormant.",
+            tag="danger",
+        )
+    else:
+        submission.status = Submission.DORMANT
+        submission.visible_public = False
+
+    submission.save()
+
+    # Create an internal note on this submission with the reason provided through HX-Prompt
+    if submission.is_dormant:
+        note = Note(
+            visibility=Note.VISIBILITY_INTERNAL,
+            author=request.user.contributor,
+            regarding_content_type=ContentType.objects.get_for_model(Submission),
+            regarding_object_id=submission.id,
+            title="Submission marked as dormant",
+            description=request.headers.get("HX-Prompt"),
+        )
+        note.save()
+
+    message = "Submission has been {verb} as dormant.".format(
+        verb="marked" if submission.is_dormant else "unmarked"
+    )
+    submission.add_event_for_edadmin(message)
+    messages.success(request, message)
+
+    return render(
+        request,
+        "submissions/pool/_hx_submission_details.html",
+        {"submission": submission},
+    )
 
 @login_required
 @fellowship_or_admin_required()

@@ -63,6 +63,11 @@ urlpatterns = [  # building on /submissions/pool/
                     name="_hx_submission_toggle_on_hold",
                 ),
                 path(
+                    "_hx_toggle_dormant",
+                    views_base._hx_submission_toggle_dormant,
+                    name="_hx_submission_toggle_dormant",
+                ),
+                path(
                     "editorial_assignment/",
                     include(
                         [
