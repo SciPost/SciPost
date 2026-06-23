@@ -1,0 +1,28 @@
+<p>Dear {{ submission.editor_in_charge.profile.formal_name }},</p>
+
+<p>
+  Thank you for your efforts as Editor in Charge of the submission
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>
+  <br />
+  by {{ submission.author_list }}
+</p>
+
+<p>
+  On {{ submission.editorial_decision.taken_on|date:"Y-m-d" }}, the Editorial College accepted this manuscript for publication. Our production team has sent the proofs of the paper for the authors' approval, but unfortunately the authors have not responded to our request. Given the amount of time that has passed and the authors unresponsiveness, the submission is being marked as dormant. This means that, unless contacted by the authors, we consider the editorial processing of the submission terminated and the submission and refereeing history have been removed from public view.
+</p>
+
+<p>
+  Should the authors respond and provide their feedback on or acceptance of the proofs, we will proceed with publication. No action is required from your side; this email is purely informative.
+</p>
+
+<p>Thank you once again for your contributions to the Editorial College.</p>
+
+<p>
+  Best regards,
+  <br />
+  SciPost Editorial Administration
+</p>
+
+{% include 'email/_footer.html' %}
+{% include 'email/_submission_thread_uuid.html' with submission=submission %}

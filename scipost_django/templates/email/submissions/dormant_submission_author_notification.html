@@ -1,0 +1,40 @@
+<p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
+
+<p>
+  Thank you once again for your submission to {{ submission.submitted_to.owner }}
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>
+  <br />
+  by {{ submission.author_list }}
+</p>
+
+<p>
+  We have tried to contact you regarding actions required of you to continue with the editorial processing of this submission for the past several months. Unfortunately, we have not heard back from you.
+</p>
+
+<p>
+  Due to the lack of reply from your part, your submission has been marked as dormant and will not continue to be processed without action from your part. Your submission and its refereeing history (if any) are being removed from public visibility.
+</p>
+
+{% if reason %}
+  <p>
+    Reason for your submission to be marked as dormant:
+    <br />
+    {{ reason }}
+  </p>
+{% endif %}
+
+<p>
+  If you would like your submission to continue with the editorial process, please contact SciPost Editorial Administration at <a href="mailto:edadmin@scipost.org">edadmin@scipost.org</a>. If you no longer wish your manuscript to be processed by SciPost, please withdraw your submission. You can withdraw from your <a href="https://{{ domain }}{% url 'scipost:personal_page' %}">personal page</a> under the Submissions tab.
+</p>
+
+<p>We thank you once again for your interest in SciPost.</p>
+
+<p>
+  Best regards,
+  <br />
+  SciPost Editorial Administration
+</p>
+
+{% include 'email/_footer.html' %}
+{% include 'email/_submission_thread_uuid.html' with submission=submission %}

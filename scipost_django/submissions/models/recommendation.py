@@ -173,7 +173,11 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         True if the recommendation requires voting by the Editorial College,
         i.e. if it is not a mere revision, but rather publication or rejection.
         """
-        return self.recommendation not in [
+        return not self.is_revision
+
+    @property
+    def is_revision(self):
+        return self.recommendation in [
             EIC_REC_MINOR_REVISION,
             EIC_REC_MAJOR_REVISION,
         ]

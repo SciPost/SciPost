@@ -8,10 +8,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.shortcuts import get_object_or_404, render, redirect
+from django.template.defaulttags import comment
 from django.urls import reverse, reverse_lazy
 from common.utils.attachments import RelatedAttachment, attach_related
 from mails.views import MailView
 from pins.models import Note
+from production.constants import PROOFS_SENT, PROOFS_SOURCE_REQUESTED
 from scipost.mixins import PermissionsMixin
 
 from scipost.models import Remark
@@ -278,6 +280,47 @@ def _hx_submission_toggle_dormant(request, identifier_w_vn_nr):
 
         return False
 
+    reason = request.headers.get("HX-Prompt")
+
+    author_mail = DirectMailUtil(
+        "submissions/dormant_submission_author_notification",
+        submission=submission,
+        reason=reason,
+    )
+    author_mail.send_mail()
+
+    if (
+        submission.status == Submission.AWAITING_RESUBMISSION
+        and (recommendation := submission.recommendation)
+        and recommendation.is_revision
+    ):
+        eic_mail = DirectMailUtil(
+            "submissions/dormant_submission_resubmission_editor_notification",
+            submission=submission,
+            revision_date=recommendation.date_submitted.strftime("%Y-%m-%d"),
+        )
+    elif (
+        submission.status
+        == Submission.ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE
+    ):
+        eic_mail = DirectMailUtil(
+            "submissions/dormant_submission_puboffer_editor_notification",
+            submission=submission,
+        )
+    elif submission.in_stage_in_production:
+        if submission.production_stream.status == PROOFS_SOURCE_REQUESTED:
+            eic_mail = DirectMailUtil(
+                "submissions/dormant_submission_sourcefiles_editor_notification",
+                submission=submission,
+            )
+        elif submission.production_stream.status == PROOFS_SENT:
+            eic_mail = DirectMailUtil(
+                "submissions/dormant_submission_proofssent_editor_notification",
+                submission=submission,
+            )
+
+    eic_mail.send_mail()
+
     if submission.is_dormant:
         submission.status = infer_pre_dormant_status(submission)
         submission.visible_public = True
@@ -300,7 +343,7 @@ def _hx_submission_toggle_dormant(request, identifier_w_vn_nr):
             regarding_content_type=ContentType.objects.get_for_model(Submission),
             regarding_object_id=submission.id,
             title="Submission marked as dormant",
-            description=request.headers.get("HX-Prompt"),
+            description=reason,
         )
         note.save()
 

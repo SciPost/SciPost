@@ -1,0 +1,7 @@
+{
+  "subject": "Authors unresponsive to source files request",
+  "recipient_list": ["submission.editor_in_charge.profile.email"],
+  "bcc": ["edadmin@"],
+  "from_name": "SciPost Editorial Administration",
+  "from_email": "submissions@"
+}

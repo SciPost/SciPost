@@ -1,0 +1,7 @@
+{
+  "subject": "SciPost: Your submission has been marked as dormant",
+  "recipient_list": ["submission.submitted_by.profile.email"],
+  "bcc": ["edadmin@"],
+  "from_name": "SciPost Editorial Administration",
+  "from_email": "submissions@"
+}
