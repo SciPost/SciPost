@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from ethics.tasks import query_submission_authors_fellows_coauthorships
 from submissions.models import Submission
 
+from django_celery_results.models import TaskResult
 
 class Command(BaseCommand):
     """Compare submission fellows and authors for potential coauthorships."""
@@ -12,6 +13,20 @@ class Command(BaseCommand):
     SUBMISSIONS_PROCESSED_PER_RUN = 1
 
     def handle(self, *args, **options):
+
+        scheduled_coauthorship_tasks = TaskResult.objects.filter(
+            task_name="ethics.tasks.task_query_coauthorships_in_server",
+            status__in=["STARTED", "PENDING"],
+        )
+        if scheduled_coauthorship_tasks.exists():
+            self.stdout.write(
+                self.style.WARNING(
+                    "There are already scheduled coauthorship-fetching tasks. "
+                    "Please wait for them to finish before scheduling new ones."
+                )
+            )
+            return
+
         submissions: list[Submission] = list(
             Submission.objects.all()
             .stage_incoming_completed()
