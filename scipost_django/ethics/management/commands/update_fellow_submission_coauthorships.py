@@ -15,8 +15,13 @@ class Command(BaseCommand):
         submissions: list[Submission] = list(
             Submission.objects.all()
             .stage_incoming_completed()
-            .needs_coauthorships_update()
             .annot_has_failed_coauthorship_update()
+            .filter(
+                coauthorships_update_status__in=[
+                    Submission.COAUTHORSHIPS_UNKNOWN,
+                    Submission.COAUTHORSHIPS_FAILED,
+                ]
+            )
             .exclude(has_failed_coauthorship_update=True)
             .prefetch_related("fellows")
             .order_by("latest_activity")
@@ -33,5 +38,8 @@ class Command(BaseCommand):
             # Schedule the task to query coauthorships for this submission
             # This is a celery chord, and will handle success and failure on its own.
             query_submission_authors_fellows_coauthorships(submission.id).apply_async()
+
+            submission.coauthorships_update_status = Submission.COAUTHORSHIPS_FETCHING
+            submission.save()
 
             submissions_processed += 1

@@ -3768,7 +3768,7 @@ class EICRecommendationForm(forms.ModelForm):
                 open_for_reporting=False,
                 open_for_commenting=False,
                 reporting_deadline=timezone.now(),
-                needs_coauthorships_update=True,  # to prepare for voting
+                coauthorships_update_status=Submission.COAUTHORSHIPS_UNKNOWN,  # to prepare for voting
                 status=Submission.VOTING_IN_PREPARATION,
             )
 

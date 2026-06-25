@@ -361,10 +361,6 @@ class SubmissionQuerySet(models.QuerySet["Submission"]):
         """Return Submission that allow for commenting."""
         return self.filter(open_for_commenting=True)
 
-    def needs_coauthorships_update(self):
-        """Return set of Submissions that need a Coauthorships update."""
-        return self.filter(needs_coauthorships_update=True)
-
     @queryset_annotation
     def annot_has_failed_coauthorship_update(self):
         sub_id_arg = Concat(

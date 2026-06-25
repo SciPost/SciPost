@@ -234,7 +234,7 @@ def handle_successful_coauthorship_updates(
     self, results: list[dict[str, int]], submission_id: int
 ):
     submission = Submission.objects.get(id=submission_id)
-    submission.needs_coauthorships_update = False
+    submission.coauthorships_update_status = Submission.COAUTHORSHIPS_FETCHED
     submission.save()
 
     return {
@@ -250,5 +250,5 @@ def handle_successful_coauthorship_updates(
 @app.task(bind=True, trail=True)
 def handle_failed_coauthorship_updates(self, submission_id: int):
     submission = Submission.objects.get(id=submission_id)
-    submission.needs_coauthorships_update = True
+    submission.coauthorships_update_status = Submission.COAUTHORSHIPS_FAILED
     submission.save()

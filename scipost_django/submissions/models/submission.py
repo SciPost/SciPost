@@ -281,6 +281,19 @@ class Submission(models.Model):
     )
     STAGE_IN_REFEREEING_COMPLETED_STATUSES = STAGE_DECISIONMAKING + STAGE_DECIDED
 
+    # Coauthorship statuses
+    COAUTHORSHIPS_UNKNOWN = "unknown"
+    COAUTHORSHIPS_FETCHING = "fetching"
+    COAUTHORSHIPS_FETCHED = "fetched"
+    COAUTHORSHIPS_FAILED = "failed"
+
+    COAUTHORSHIPS_FETCH_STATUSES = (
+        (COAUTHORSHIPS_UNKNOWN, "Unknown"),
+        (COAUTHORSHIPS_FETCHING, "Fetching"),
+        (COAUTHORSHIPS_FETCHED, "Fetched"),
+        (COAUTHORSHIPS_FAILED, "Failed"),
+    )
+
     # Related managers
     if TYPE_CHECKING:
         referee_invitations: "RelatedManager[RefereeInvitation]"
@@ -422,7 +435,11 @@ class Submission(models.Model):
     comments = GenericRelation("comments.Comment", related_query_name="submissions")
 
     # Coauthorships
-    needs_coauthorships_update = models.BooleanField(default=True)
+    coauthorships_update_status = models.CharField(
+        max_length=30,
+        choices=COAUTHORSHIPS_FETCH_STATUSES,
+        default=COAUTHORSHIPS_UNKNOWN,
+    )
 
     # Plagiarism
     internal_plagiarism_matches = models.JSONField(

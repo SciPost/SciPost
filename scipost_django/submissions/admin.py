@@ -330,18 +330,12 @@ class SubmissionAdmin(GuardedModelAdmin):
             },
         ),
         (
-            "Coauthorships",
-            {
-                "classes": ("collapse",),
-                "fields": ("needs_coauthorships_update",),
-            },
-        ),
-        (
             "Refereeing",
             {
                 "classes": ("collapse",),
                 "fields": (
                     "editor_in_charge",
+                    "coauthorships_update_status",
                     "eic_first_assigned_date",
                     ("visible_public", "visible_pool"),
                     "refereeing_cycle",
