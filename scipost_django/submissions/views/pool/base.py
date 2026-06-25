@@ -325,6 +325,7 @@ def _hx_submission_toggle_dormant(request, identifier_w_vn_nr):
         # Unmark as dormant, and restore the status to what it was before.
         submission.status = infer_pre_dormant_status(submission)
         submission.visible_public = True
+        submission.referee_invitations.outstanding().update(cancelled=True)
         if assignment := submission.editor_assignment:
             assignment.status = EditorialAssignment.STATUS_ACCEPTED
             assignment.save()
