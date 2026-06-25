@@ -249,6 +249,7 @@ class Submission(models.Model):
         REJECTED,
         WITHDRAWN,
         PUBLISHED,
+        DORMANT,
     )
     STAGE_IN_PRODUCTION = (
         ACCEPTED_IN_TARGET,
@@ -1281,6 +1282,16 @@ class Submission(models.Model):
     def editorial_decision(self) -> "EditorialDecision | None":
         """Returns the latest EditorialDecision (if it exists)."""
         return self.editorialdecision_set.nondeprecated().latest_version()
+
+    @cached_property
+    def editor_assignment(self) -> "EditorialAssignment | None":
+        """Returns the latest EditorialAssignment (if it exists)."""
+        return (
+            self.editorial_assignments.filter(to=self.editor_in_charge)
+            .accepted()
+            .order_by("-date_answered")
+            .first()
+        )
 
     @cached_property
     def special_considerations(self) -> dict[str, dict[str, list[str]]]:

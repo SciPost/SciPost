@@ -322,16 +322,26 @@ def _hx_submission_toggle_dormant(request, identifier_w_vn_nr):
     eic_mail.send_mail()
 
     if submission.is_dormant:
+        # Unmark as dormant, and restore the status to what it was before.
         submission.status = infer_pre_dormant_status(submission)
         submission.visible_public = True
+        if assignment := submission.editor_assignment:
+            assignment.status = EditorialAssignment.STATUS_ACCEPTED
+            assignment.save()
+
     elif not can_be_marked_dormant(submission):
         return HTMXResponse(
             "This Submission is not in a state where it can be marked as dormant.",
             tag="danger",
         )
     else:
+        # Mark as dormant, and set the status to dormant.
         submission.status = Submission.DORMANT
         submission.visible_public = False
+
+        if assignment := submission.editor_assignment:
+            assignment.status = EditorialAssignment.STATUS_COMPLETED
+            assignment.save()
 
     submission.save()
 
