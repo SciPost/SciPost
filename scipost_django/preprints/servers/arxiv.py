@@ -33,7 +33,7 @@ class ArxivServer(BasePreprintServer):
     base_url = "https://arxiv.org"
     api_url = "http://export.arxiv.org/api"
 
-    MAX_REQUESTS_PER_SECOND = 1 / 5.0
+    MAX_REQUESTS_PER_SECOND = 1 / 10.0
 
     @classmethod
     def identifier_to_url(cls, identifier: str) -> str:
