@@ -452,7 +452,8 @@ class HXCeleryGroupStatusView(SingleObjectMixin, View):
         refresh_interval = 0
         tasks = self.object.children
         for task in tasks:
-            task.progress_percent = task.result.get("progress", 0) * 100
+            task_result = getattr(task, "result", {})
+            task.progress_percent = task_result.get("progress", 0) * 100
 
             match task.status:
                 case "PENDING":
