@@ -428,7 +428,9 @@ class ProfileEmail(models.Model):
         if created:
             # Attempt to fetch from the ROR API if the domain was just created
             try:
-                if found_ROR_ids := RORAPIHandler.query_for_domain(domain_name):
+                if found_ROR_ids := RORAPIHandler.query_for_domain(
+                    domain_name, exclude_private=True
+                ):
                     domain.ror_id_matches = found_ROR_ids
                     domain.kind = MailAddressDomain.KIND_INSTITUTIONAL
                     domain.save()

@@ -48,15 +48,23 @@ class RORAPIHandler:
         return response
 
     @staticmethod
-    def query_for_domain(domain: str) -> dict[str, Any]:
+    def query_for_domain(domain: str, exclude_private: bool = False) -> dict[str, Any]:
         """
         Query the ROR API for an organization with the given domain
         and return the matching ROR IDs.
+
+        :param domain: The domain to query for.
+        :param exclude_private: If True, exclude results of private organizations (e.g., companies) from the results.
         """
         # URL-encode domain to make it safe for use in a URL
         domain = quote(domain)
 
-        url = f"{RORAPIHandler.API_URL}?query.advanced=links.value:{domain}"
+        url = RORAPIHandler.API_URL + f"?query.advanced=links.value:{domain}"
+
+        if exclude_private:
+            url += (
+                "&filter=types:education,types:funder,types:government,types:nonprofit"
+            )
 
         response = requests.get(url)
         try:
