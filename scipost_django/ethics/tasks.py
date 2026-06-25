@@ -141,7 +141,7 @@ def task_query_coauthorships_in_server(
     results: list[dict[str, int]] = []
     for i, (author, coauthor) in enumerate(profile_pairs):
         self.update_state(
-            state="PROGRESS",
+            state="STARTED",
             meta={
                 "current": f"({author.id}, {coauthor.id})",
                 "progress": round(i / total_pairs, 3),
