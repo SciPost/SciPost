@@ -30,16 +30,14 @@ class Command(BaseCommand):
         submissions: list[Submission] = list(
             Submission.objects.all()
             .stage_incoming_completed()
-            .annot_has_failed_coauthorship_update()
             .filter(
                 coauthorships_update_status__in=[
                     Submission.COAUTHORSHIPS_UNKNOWN,
                     Submission.COAUTHORSHIPS_FAILED,
                 ]
             )
-            .exclude(has_failed_coauthorship_update=True)
             .prefetch_related("fellows")
-            .order_by("latest_activity")
+            .order_by("-coauthorships_update_status", "latest_activity")
         )
 
         submissions_processed = 0
