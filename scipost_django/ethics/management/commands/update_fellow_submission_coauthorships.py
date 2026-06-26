@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 from django.core.management.base import BaseCommand
+from django.db.models import Count
 from ethics.tasks import query_submission_authors_fellows_coauthorships
 from submissions.models import Submission
 
@@ -30,14 +31,20 @@ class Command(BaseCommand):
         submissions: list[Submission] = list(
             Submission.objects.all()
             .stage_incoming_completed()
+            .annotate(total_pairs=Count("fellows") * Count("authors"))
             .filter(
+                total_pairs__gt=0,
                 coauthorships_update_status__in=[
                     Submission.COAUTHORSHIPS_UNKNOWN,
                     Submission.COAUTHORSHIPS_FAILED,
-                ]
+                ],
             )
             .prefetch_related("fellows")
-            .order_by("-coauthorships_update_status", "latest_activity")
+            .order_by(
+                "-coauthorships_update_status",
+                "total_pairs",
+                "latest_activity",
+            )
         )
 
         submissions_processed = 0
@@ -47,6 +54,14 @@ class Command(BaseCommand):
 
             if not submission.enough_author_profiles_matched:
                 continue
+
+            self.stdout.write(
+                self.style.WARNING(
+                    f"Scheduling coauthorship query for submission {submission.preprint.identifier_w_vn_nr} "
+                    f"({submission.title}) with {submission.fellows.count()} fellows and "
+                    f"{submission.authors.count()} authors."
+                )
+            )
 
             # Schedule the task to query coauthorships for this submission
             # This is a celery chord, and will handle success and failure on its own.
