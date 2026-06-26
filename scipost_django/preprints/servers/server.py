@@ -48,7 +48,7 @@ class BasePreprintServer(ABC):
             elapsed = now - cls._last_request_timestamp
             wait_time = max(0, 1 / cls.MAX_REQUESTS_PER_SECOND - elapsed)
             time.sleep(wait_time)
-        cls._last_request_timestamp = now
+        cls._last_request_timestamp = time.monotonic()
 
     @classmethod
     def request(cls, query: BaseQuery, **kwargs: Any) -> JSONResponse:
