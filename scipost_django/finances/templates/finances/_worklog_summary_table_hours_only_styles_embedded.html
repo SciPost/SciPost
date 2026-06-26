@@ -18,9 +18,9 @@
       {% for employee_timesheet in timesheets_in_month %}
         <tr style="border-color: inherit; border-style: solid; border-width: 1px 0;">
           <td style="padding: 4px;">{{ employee_timesheet.full_name }}</td>
-          <td style="padding: 4px;">{{ employee_timesheet.base_hours|duration }}</td>
-          <td style="font-weight: bold; padding: 4px;">{{ employee_timesheet.extra_hours|duration }}</td>
-          <td style="border-left: 1px solid #dee2e6; padding: 4px;">{{ employee_timesheet.total_hours|duration }}</td>
+          <td style="padding: 4px;">{{ employee_timesheet.base_hours|floatformat:"2" }}</td>
+          <td style="font-weight: bold; padding: 4px;">{{ employee_timesheet.extra_hours|floatformat:"2" }}</td>
+          <td style="border-left: 1px solid #dee2e6; padding: 4px;">{{ employee_timesheet.total_hours|floatformat:"2" }}</td>
         </tr>
       {% empty %}
         <tr>

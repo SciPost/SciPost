@@ -28,12 +28,12 @@
       {% for employee_timesheet in timesheets_in_month %}
         <tr>
           <td>{{ employee_timesheet.full_name }}</td>
-          <td>{{ employee_timesheet.base_hours|duration }}</td>
-          <td>{{ employee_timesheet.extra_hours|duration }}</td>
+          <td>{{ employee_timesheet.base_hours|floatformat:"2" }}</td>
+          <td>{{ employee_timesheet.extra_hours|floatformat:"2" }}</td>
           {% if show_paid_time_off %}
-            <td class="text-muted">{{ employee_timesheet.paid_time_off|duration }}</td>
+            <td class="text-muted">{{ employee_timesheet.paid_time_off|floatformat:"2" }}</td>
           {% endif %}
-          <td class="border-start">{{ employee_timesheet.total_hours|duration }}</td>
+          <td class="border-start">{{ employee_timesheet.total_hours|floatformat:"2" }}</td>
           <td>&times;</td>
           <td>{{ employee_timesheet.pay_rate|floatformat:2 }} &euro;/h</td>
           <td>=</td>
