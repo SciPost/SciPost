@@ -1,12 +1,10 @@
 <details id="submission-{{ submission.id }}-author-profiles-details"
 	 class="border border-2"
 >
-  <summary class="bg-primary bg-opacity-10 p-2">
-    <span id="submission-{{ submission.pk }}-author-profiles-details-summary"
+  <summary id="submission-{{ submission.pk }}-author-profiles-details-summary"
+    class="list-triangle d-flex justify-content-between align-items-center bg-primary bg-opacity-10 p-2"
 	  hx-get="{% url 'edadmin:preassignment:_hx_author_profiles_details_summary' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}"
-	  hx-trigger="load, submission-{{ submission.pk }}-author-profiles-details-updated from:body"
-    >
-    </span>
+	  hx-trigger="load, submission-{{ submission.pk }}-author-profiles-details-updated from:body">
   </summary>
 
   <div id="submission-{{ submission.pk }}-author-profiles-details-contents"
