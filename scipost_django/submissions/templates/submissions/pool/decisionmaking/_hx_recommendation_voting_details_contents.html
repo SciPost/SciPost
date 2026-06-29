@@ -207,9 +207,13 @@
 			  {% for coi in coi_qs %}
 			    <tr>
 			      <td>
-				{{ coi.related_profile }}
-				<br>
-				<em>({{ coi.get_nature_display }})</em>
+            {% if fellowship.contributor.profile == coi.related_profile %}
+              {{ coi.profile }}
+            {% else %}
+              {{ coi.related_profile }}
+            {% endif %}
+            <br>
+            <em>({{ coi.get_nature_display }})</em>
 			      </td>
 			    </tr>
 			  {% endfor %}
