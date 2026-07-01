@@ -21,13 +21,19 @@ from ..managers import IssueManager
 from ..validators import doi_issue_validator
 
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from journals.models import Journal, Volume
+
+
 class Issue(models.Model):
     """
     An Issue is related to a specific Journal, either indirectly via a Volume
     container, or directly. It is a container for multiple Publications.
     """
 
-    in_journal = models.ForeignKey(
+    in_journal = models.ForeignKey["Journal"](
         "journals.Journal",
         on_delete=models.CASCADE,
         null=True,
@@ -35,7 +41,7 @@ class Issue(models.Model):
         limit_choices_to={"structure": ISSUES_ONLY},
         help_text="Assign either a Volume or Journal to the Issue",
     )
-    in_volume = models.ForeignKey(
+    in_volume = models.ForeignKey["Volume"](
         "journals.Volume",
         on_delete=models.CASCADE,
         null=True,

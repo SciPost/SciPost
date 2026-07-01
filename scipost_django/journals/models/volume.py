@@ -10,6 +10,10 @@ from django.utils import timezone
 from ..constants import ISSUES_AND_VOLUMES
 from ..validators import doi_volume_validator
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from journals.models import Journal, Issue
 
 class Volume(models.Model):
     """
@@ -17,7 +21,7 @@ class Volume(models.Model):
     either (multiple) Issue(s) or Publication(s).
     """
 
-    in_journal = models.ForeignKey(
+    in_journal = models.ForeignKey["Journal"](
         "journals.Journal",
         limit_choices_to={"structure": ISSUES_AND_VOLUMES},
         on_delete=models.CASCADE,
@@ -28,6 +32,10 @@ class Volume(models.Model):
     doi_label = models.CharField(
         max_length=200, unique=True, db_index=True, validators=[doi_volume_validator]
     )
+
+    if TYPE_CHECKING:
+        from django.db.models.manager import RelatedManager
+        issues: "RelatedManager[Issue]"
 
     class Meta:
         default_related_name = "volumes"

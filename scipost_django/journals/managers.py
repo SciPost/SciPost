@@ -76,8 +76,8 @@ class IssueManager(models.Manager.from_queryset(IssueQuerySet)):
         return (
             super()
             .get_queryset()
+            .select_related("proceedings")
             .prefetch_related(
-                "proceedings",
                 "in_volume",
                 "in_volume__in_journal",
                 "in_journal",

@@ -30,7 +30,9 @@ from ..validators import doi_journal_validator
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from django.db.models.manager import RelatedManager
     from colleges.models import College
+    from journals.models import Issue, Volume
 
 
 def cost_default_value():
@@ -164,6 +166,9 @@ class Journal(models.Model):
 
     objects = JournalQuerySet.as_manager()
 
+    if TYPE_CHECKING:
+        issues: RelatedManager["Issue"]
+        volumes: RelatedManager["Volume"]
     class Meta:
         ordering = ["college__acad_field", "list_order"]
 
