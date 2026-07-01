@@ -344,6 +344,11 @@ def _hx_submission_toggle_dormant(request, identifier_w_vn_nr):
             assignment.status = EditorialAssignment.STATUS_COMPLETED
             assignment.save()
 
+        if stream := submission.production_stream:
+            stream.set_officer(None)
+            stream.set_supervisor(None)
+            stream.save()
+
     submission.save()
 
     # Create an internal note on this submission with the reason provided through HX-Prompt

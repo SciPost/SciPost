@@ -212,9 +212,13 @@ class ProductionStream(models.Model):
 
     @cached_property
     def in_stasis(self):
-        return self.on_hold or (
-            self.submission.editorial_decision.status
-            == EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
+        return (
+            self.on_hold
+            or self.submission.is_dormant
+            or (
+                self.submission.editorial_decision.status
+                == EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
+            )
         )
 
     @cached_property
