@@ -269,7 +269,7 @@ class CoauthoredWork(models.Model):
     """
 
     server_source = models.CharField(max_length=64)
-    work_type = models.CharField(max_length=64)
+    work_type = models.CharField(max_length=64, blank=True)
     identifier = models.CharField(max_length=256, null=True, blank=True)
     doi = models.CharField(max_length=256, null=True, blank=True)
     title = models.CharField(max_length=512)
