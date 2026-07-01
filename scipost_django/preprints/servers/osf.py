@@ -77,7 +77,7 @@ class OSFServer(BasePreprintServer):
         return CoauthoredWork(
             server_source=PreprintServer.OSF.value,
             identifier=data.get("doi"),
-            title=attributes.get("title", ""),
+            title=attributes.get("title", "")[:512],
             authors="",
             date_published=attributes.get("date_created"),
             date_updated=attributes.get("date_modified"),

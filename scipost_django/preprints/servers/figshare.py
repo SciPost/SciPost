@@ -57,7 +57,7 @@ class FigshareServer(BasePreprintServer):
             server_source=PreprintServer.FIGSHARE.value,
             identifier=data.get("doi", ""),
             doi=data.get("doi", ""),
-            title=data.get("title", ""),
+            title=data.get("title", "")[:512],
             metadata=data,
         )
         work.authors = [HumanName(author) for author in data.get("authors", [])]

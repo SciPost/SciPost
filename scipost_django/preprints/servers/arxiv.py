@@ -115,7 +115,7 @@ class ArxivServer(BasePreprintServer):
             work_type="preprint",
             identifier=identifier_wo_vn_nr,
             doi=doi,
-            title=data.get("title", ""),
+            title=data.get("title", "")[:512],
             metadata=data,
         )
         work.authors = [HumanName(author.name) for author in data.get("authors", [])]

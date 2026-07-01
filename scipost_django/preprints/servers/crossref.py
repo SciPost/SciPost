@@ -147,7 +147,7 @@ class CrossrefServer(BasePreprintServer):
             server_source=PreprintServer.CROSSREF.value,
             identifier=doi,
             doi=doi,
-            title=data.get("title", [""])[0],
+            title=data.get("title", [""])[0][:512],
             metadata=data,
         )
         work.authors = [

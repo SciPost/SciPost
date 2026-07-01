@@ -80,7 +80,7 @@ class ChemArxivServer(BasePreprintServer):
             server_source=PreprintServer.CHEMARXIV.value,
             work_type="preprint",
             doi=data.get("doi"),
-            title=data.get("title", ""),
+            title=data.get("title", "")[:512],
             date_published=data.get("publishedDate"),
             date_updated=data.get("statusDate"),
             metadata=data,
