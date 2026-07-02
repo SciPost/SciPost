@@ -59,7 +59,7 @@
     <td>
 
       {% if fellowship.contributor.profile.submission_clearance.0 %}
-        <div class="text-success">all clear</div>
+        <div class="badge bg-success">No conflicts</div>
         {% if fellowship.contributor.profile.submission_clearance.0.asserted_by != fellowship.contributor %}
           <div class="text-muted">asserted by {{ fellowship.contributor.profile.submission_clearance.0.asserted_by }}</div>
         {% endif %}
@@ -68,69 +68,75 @@
         {% with submission_conflicts_of_interest=fellowship.contributor.profile.submission_conflicts_of_interest|add:fellowship.contributor.profile.submission_conflicts_of_interest_related %}
 
           {% if submission_conflicts_of_interest %}
-            <table class="table mb-0">
-              <thead>
-                <tr>
-                  <th>Profile / <em>(nature)</em></th>
-                  <th>Until</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-
-                {% for coi in submission_conflicts_of_interest %}
-                  <tr class="{% if coi.submission_exempted %}table-success{% else %}table-danger{% endif %}">
-                    <td>
-                      {% if fellowship.contributor.profile == coi.related_profile %}
-                        {{ coi.profile }}
-                      {% else %}
-                        {{ coi.related_profile }}
-                      {% endif %}
-                      </br>
-                      <em>({{ coi.get_nature_display }})</em>
-                    </td>
-                    <td>
-                      {% if coi.date_expiry %}
-                        {{ coi.date_expiry|date:"Y-m-d" }}
-                      {% else %}
-                        <em>indefinite</em>
-                      {% endif %}
-                    </td>
-                    <td>
-
-                      {% if "edadmin" in user_roles %}
-                        <a class="btn btn-sm btn-danger px-1 py-0"
-                           hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=coi.pk %}"
-                           hx-confirm="Delete this conflict of interest?"
-                           hx-target="#submission-{{ submission.pk }}-fellows-details">
-                          {% include "bi/trash-fill.html" %}
-                        </a>
-                        <a class="btn btn-sm btn-secondary px-1 py-0"
-                           title="{% if coi.submission_exempted %}Revoke exemption{% else %}Grant exemption from this conflict of interest{% endif %}"
-                           data-bs-toggle="tooltip"
-                           hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_exemption_toggle' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=coi.pk %}"
-                           hx-target="#submission-{{ submission.pk }}-fellows-details">
-                          {% if coi.submission_exempted %}
-                            {% include "bi/x-circle-fill.html" %}
-                          {% else %}
-                            {% include "bi/exclamation-circle-fill.html" %}
-                          {% endif %}
-                        </a>
-                        <a class="btn btn-sm btn-primary px-1 py-0"
-                            href="{% url 'ethics:conflicts' %}?name={{ coi.profile.full_name }};{{ coi.related_profile.full_name }}">
-                          {% include "bi/arrow-right.html" %}
-                        </a>
-                      {% endif %}
-
-                    </td>
+            <details {% if submission_conflicts_of_interest|length == 1 %}open{% endif %}>
+              <summary class="p-1 px-2 bg-danger bg-opacity-25 d-flex justify-content-between list-triangle">
+                <span>Verified Conflict{{ submission_conflicts_of_interest|length|pluralize }}</span>
+                <span>{{ submission_conflicts_of_interest|length }}</span>
+              </summary>
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th>Profile / <em>(nature)</em></th>
+                    <th>Until</th>
+                    <th></th>
                   </tr>
-                {% endfor %}
+                </thead>
+                <tbody>
+
+                  {% for coi in submission_conflicts_of_interest %}
+                    <tr class="{% if coi.submission_exempted %}table-success{% endif %}">
+                      <td>
+                        {% if fellowship.contributor.profile == coi.related_profile %}
+                          {{ coi.profile }}
+                        {% else %}
+                          {{ coi.related_profile }}
+                        {% endif %}
+                        </br>
+                        <em>({{ coi.get_nature_display }})</em>
+                      </td>
+                      <td>
+                        {% if coi.date_expiry %}
+                          {{ coi.date_expiry|date:"Y-m-d" }}
+                        {% else %}
+                          <em>indefinite</em>
+                        {% endif %}
+                      </td>
+                      <td>
+
+                        {% if "edadmin" in user_roles %}
+                          <a class="btn btn-sm btn-danger px-1 py-0"
+                            hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=coi.pk %}"
+                            hx-confirm="Delete this conflict of interest?"
+                            hx-target="#submission-{{ submission.pk }}-fellows-details">
+                            {% include "bi/trash-fill.html" %}
+                          </a>
+                          <a class="btn btn-sm btn-secondary px-1 py-0"
+                            title="{% if coi.submission_exempted %}Revoke exemption{% else %}Grant exemption from this conflict of interest{% endif %}"
+                            data-bs-toggle="tooltip"
+                            hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_exemption_toggle' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=coi.pk %}"
+                            hx-target="#submission-{{ submission.pk }}-fellows-details">
+                            {% if coi.submission_exempted %}
+                              {% include "bi/x-circle-fill.html" %}
+                            {% else %}
+                              {% include "bi/exclamation-circle-fill.html" %}
+                            {% endif %}
+                          </a>
+                          <a class="btn btn-sm btn-primary px-1 py-0"
+                              href="{% url 'ethics:conflicts' %}?name={{ coi.profile.full_name }};{{ coi.related_profile.full_name }}">
+                            {% include "bi/arrow-right.html" %}
+                          </a>
+                        {% endif %}
+
+                      </td>
+                    </tr>
+                  {% endfor %}
 
 
-              </tbody>
-            </table>
+                </tbody>
+              </table>
+            </details>
           {% else %}
-            <em class="text-danger">unknown</em>
+            <span class="badge bg-secondary text-dark">Unknown</span>
           {% endif %}
 
         {% endwith %}
