@@ -13,7 +13,12 @@
   </td>
   <td><span title="{{ fellowship.get_status_display }}" data-bs-toggle="tooltip">{{ fellowship.get_status_display|first|upper }}</span></td>
   <td>
-    <a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor }}</a>
+    <div class="d-flex justify-content-between align-items-center">
+      <span>{{ fellowship.contributor }}</span>
+      {% if fellowship.is_submission_author %}
+        <span class="badge bg-danger">Author</span>
+      {% endif %}
+    </div>
   </td>
 
   {% if "edadmin" in user_roles or "active_senior_fellow" in user_roles %}
@@ -145,7 +150,7 @@
              hx-confirm="Remove this Fellow from this Submission's Fellowship?"
              hx-target="#submission-{{ submission.pk }}-fellows-details">{% include "bi/trash-fill.html" %}</a>
 
-          {% if fellowship.submission_readiness.0.status != 'desk_reject' %}
+          {% if not fellowship.is_submission_author and fellowship.submission_readiness.0.status != 'desk_reject' %}
             <a class="btn btn-sm btn-primary px-1 py-0" title="Send manual EIC invitation 
               {% if fellowship.nr_manual_eic_invitations %}<br> Already sent: {{ fellowship.nr_manual_eic_invitations }} time{{ fellowship.nr_manual_eic_invitations|pluralize }}<br>Latest at: {{ fellowship.latest_manual_eic_invitation }}
             {% endif %}

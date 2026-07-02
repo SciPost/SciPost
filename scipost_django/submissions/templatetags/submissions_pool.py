@@ -127,6 +127,11 @@ def get_annotated_submission_fellows_queryset(submission: "Submission"):
                     end__gte=today,
                 )
             ),
+            is_submission_author=Exists(
+                submission.author_profiles.filter(
+                    profile=OuterRef("contributor__profile")
+                )
+            ),
             nr_ongoing_editorial_assignments=Count(
                 "contributor__editorial_assignments",
                 filter=Q(
