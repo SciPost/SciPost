@@ -3,14 +3,23 @@
   {% if disclosure %}
     {% if disclosure.was_used or should_display_negative_gen_ai_disclosure %}
       <div class="bg-info bg-opacity-25 p-2">
-        <div class="fs-6 mb-2">
-          <span class="text-primary me-2">{% include 'bi/exclamation-circle-fill.html' %}</span>
-          Disclosure of Generative AI use
+        <div class="mb-2 d-flex gap-2">
+          <span class="mx-1 position-relative p-2">
+            <span class="position-absolute top-50 start-50 translate-middle fw-bold">AI</span>
+            <span class="fs-1 position-absolute top-50 start-50 translate-middle">
+              {% if disclosure.was_used %}
+                {% include 'bi/circle.html' %}
+              {% else %}
+                <span class="text-danger">{% include 'bi/slash-circle.html' %}</span>
+              {% endif %}
+            </span>
+          </span>
+          <span class="fs-6">Disclosure of Generative AI use</span>
         </div>
         <div class="d-flex flex-column gap-2">
           <p class="mb-0">
             The {{ disclosure.get_content_author_name }} disclose{{ disclosure.get_authors_could_be_plural|yesno:",s" }} that 
-            {{ disclosure.was_used|yesno:"the following,no" }} generative AI tools have been used 
+            {% if disclosure.was_used %}the following{% else %}<span class="fw-bold">no</span>{% endif %} generative AI tools have been used 
             in the preparation of this {{ disclosure.get_object_model_name }}
           </p>
           {% if disclosure.use_details %}
