@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django import template
 
+from scipost.templatetags.user_groups import guard_real_user
+
 from ..constants import (
     DECISION_FIXED,
     REPORT_PUBLISH_1,
@@ -15,6 +17,7 @@ from ..models import Submission, EICRecommendation
 register = template.Library()
 
 @register.simple_tag
+@guard_real_user
 def is_edadmin_or_submission_fellow(user, submission) -> bool:
     """
     Assign template variable (boolean) to check if user is Editorial Administator.
