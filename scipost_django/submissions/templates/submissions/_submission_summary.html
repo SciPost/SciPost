@@ -1,4 +1,7 @@
 {% load common_extras %}
+{% load submissions_extras %}
+
+{% is_edadmin_or_submission_fellow request.user submission as is_edadmin_or_submission_fellow %}
 
 <table class="submission summary">
     {% if not hide_title %}
@@ -162,7 +165,7 @@
     </div>
 </div>
 
-{% include "ethics/_gen_ai_disclosure_details_box.html" with object=submission %}
+{% include "ethics/_gen_ai_disclosure_details_box.html" with object=submission should_display_negative_gen_ai_disclosure=is_edadmin_or_submission_fellow %}
 
 {% if show_abstract %}
     {% if submission.pdf_refereeing_pack %}

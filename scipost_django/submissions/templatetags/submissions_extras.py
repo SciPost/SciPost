@@ -14,6 +14,17 @@ from ..models import Submission, EICRecommendation
 
 register = template.Library()
 
+@register.simple_tag
+def is_edadmin_or_submission_fellow(user, submission) -> bool:
+    """
+    Assign template variable (boolean) to check if user is Editorial Administator.
+    or one of the Submission's Fellows.
+    """
+    return (
+        user.groups.filter(name="Editorial Administrators").exists()
+        or user.is_superuser
+        or submission.fellows.filter(contributor__dbuser=user).exists()
+    )
 
 @register.filter
 def filter_for_submission(qs, submission):

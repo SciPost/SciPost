@@ -1,6 +1,8 @@
 {% load scipost_extras %}
 {% load submissions_extras %}
 
+{% is_edadmin_or_submission_fellow request.user report.submission as is_edadmin_or_submission_fellow %}
+
 <div class="report" id="report_{{ report.report_nr }}">
   <div class="row mb-5">
     <div class="col-12">
@@ -90,7 +92,7 @@
         {% endif %}
 
         <div class="mt-2 mb-1">
-          {% include "ethics/_gen_ai_disclosure_details_box.html" with object=report %}
+          {% include "ethics/_gen_ai_disclosure_details_box.html" with object=report should_display_negative_gen_ai_disclosure=is_edadmin_or_submission_fellow %}
         </div>
       </div>
 

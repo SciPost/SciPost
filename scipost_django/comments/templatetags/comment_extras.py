@@ -29,17 +29,20 @@ class CommentTemplateNode(template.Node):
             t = context.template.engine.get_template(
                 "submissions/_submission_summary.html"
             )
-            return t.render(template.Context({"submission": content_object}))
+            context.update({"submission": content_object})
+            return t.render(context)
         elif isinstance(content_object, Commentary):
             t = context.template.engine.get_template(
                 "commentaries/_commentary_summary.html"
             )
-            return t.render(template.Context({"commentary": content_object}))
+            context.update({"commentary": content_object})
+            return t.render(context)
         elif isinstance(content_object, ThesisLink):
             t = context.template.engine.get_template(
                 "theses/_thesislink_information.html"
             )
-            return t.render(template.Context({"thesislink": content_object}))
+            context.update({"thesislink": content_object})
+            return t.render(context)
         else:
             raise template.TemplateSyntaxError(
                 "The instance type given as an argument is not supported."
