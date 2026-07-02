@@ -408,6 +408,7 @@
                     <th>Type</th>
                     <th>Amount</th>
                     <th>Date</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -432,6 +433,9 @@
                         {% if subsidy.date_until %}until {{ subsidy.date_until }}{% endif %}
 
                       </td>
+                      <td>
+                        <a href="{% url 'finances:subsidy_details' pk=subsidy.id %}">View</a>
+                      </td>
                     </tr>
                   {% endfor %}
 
@@ -448,6 +452,7 @@
 
                       {% endwith %}
                     </td>
+                    <td></td>
                     <td></td>
                   </tr>
                 </tbody>
@@ -503,6 +508,9 @@
                             <a href="{% url 'funders:individual_budget_details' budget_id=subsidy.individual_budget.id %}" class="ms-auto">View</a>
                           </td>
                         {% endif %}
+                        <td>
+                          <a href="{% url 'finances:subsidy_details' pk=subsidy.id %}">View</a>
+                        </td>
                       </tr>
                   {% endfor %}
 
