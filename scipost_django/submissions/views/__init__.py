@@ -2949,32 +2949,30 @@ def claim_voting_right(request, rec_id):
 @transaction.atomic
 def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
-    submissions = Submission.objects.in_pool(request.user)
-    previous_vote = None
-    try:
-        recommendation = EICRecommendation.objects.user_must_vote_on(request.user).get(
-            submission__in=submissions, id=rec_id
+    submissions = Submission.objects.in_pool(request.user, historical=True)
+    recommendation = EICRecommendation.objects.filter(
+        id=rec_id,
+        submission__in=submissions,
+        eligible_to_vote__dbuser=request.user,
+    ).first()
+
+    if not recommendation:
+        raise PermissionDenied("You are not eligible to vote on this recommendation.")
+
+    if recommendation.submission.status in [
+        Submission.REJECTED,
+        Submission.PUBLISHED,
+        Submission.WITHDRAWN,
+    ]:
+        raise PermissionDenied(
+            """
+            Voting on this Editorial Recommendation is now closed.
+            Thank you for your interest in participating in the vote.
+            """
         )
-        initial = {"vote": "abstain"}
-    except EICRecommendation.DoesNotExist:  # Try to find an EICRec already voted on:
-        try:
-            recommendation = EICRecommendation.objects.user_current_voted(
-                request.user
-            ).get(submission__in=submissions, id=rec_id)
-            if request.user.contributor in recommendation.voted_for.all():
-                previous_vote = "agree"
-            elif request.user.contributor in recommendation.voted_against.all():
-                previous_vote = "disagree"
-            elif request.user.contributor in recommendation.voted_abstain.all():
-                previous_vote = "abstain"
-        except EICRecommendation.DoesNotExist:
-            raise Http404
 
-    context = {
-        "recommendation": recommendation,
-    }
+    context = {"recommendation": recommendation}
     return render(request, "submissions/pool/recommendation.html", context)
-
 
 @permission_required(
     "scipost.can_prepare_recommendations_for_voting", raise_exception=True
