@@ -2030,7 +2030,7 @@ def manage_proceedings_metadata(request):
     This page offers Editorial Administrators tools for managing
     the metadata of Proceedings.
     """
-    proceedings = Proceedings.objects.all()
+    proceedings = Proceedings.objects.all().order_by("-submissions_deadline")
 
     paginator = Paginator(proceedings, 25)
     page = request.GET.get("page")

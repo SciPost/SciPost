@@ -22,7 +22,9 @@ def proceedings(request):
     """
     List all Proceedings
     """
-    context = {"proceedings": Proceedings.objects.all()}
+    context = {
+        "proceedings": Proceedings.objects.all().order_by("-submissions_deadline")
+    }
     return render(request, "proceedings/proceedings.html", context)
 
 
