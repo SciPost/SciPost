@@ -106,5 +106,9 @@ class Proceedings(TimeStampedModel):
         return self.submissions_open <= today and self.submissions_close >= today
 
     @property
+    def submission_close_date_elapsed(self):
+        return self.submissions_close < today
+
+    @property
     def doi_label(self):
         return self.issue.doi_label

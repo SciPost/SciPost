@@ -52,8 +52,8 @@
 
 </div>
 
-{% if proceedings.open_for_submission %}
- 
+{% if not proceedings.submission_close_date_elapsed %}
+
   <h3>Instructions for submitting to these Proceedings:</h3>
   <ul>
     <li>
