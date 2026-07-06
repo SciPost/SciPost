@@ -612,6 +612,14 @@ CORS_ALLOWED_ORIGINS = [
     "https://git.scipost.org",
 ]
 
+# Generic API settings
+SCIPOST_VERSION = f"#{COMMIT_HASH[:8]}" if COMMIT_HASH else "1.0"
+SCIPOST_MAILTO_ADDRESS = "techsupport@scipost.org"
+SCIPOST_USER_AGENT = (
+    f"SciPost/{SCIPOST_VERSION} (https://scipost.org; mailto:{SCIPOST_MAILTO_ADDRESS})"
+)
+
+
 # GitLab API
 GITLAB_ROOT = "SciPost"
 GITLAB_URL = "git.scipost.org"

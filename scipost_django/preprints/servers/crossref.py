@@ -6,6 +6,8 @@ from django.utils.datastructures import MultiValueDict
 from django.utils.http import urlencode
 from django.conf import settings
 
+from SciPost_v1.settings.base import SCIPOST_USER_AGENT
+
 from .utils import Person, format_person_name
 from .server import BasePreprintServer, BaseQuery, PreprintServer
 
@@ -13,10 +15,6 @@ from typing import Any, TYPE_CHECKING, override
 
 if TYPE_CHECKING:
     from ethics.models import CoauthoredWork
-
-
-CROSSREF_USER_AGENT = f"SciPost/#{settings.COMMIT_HASH[:8]} (https://scipost.org)"
-CROSSREF_MAILTO_ADDRESS = "admin@scipost.org"
 
 
 class CrossrefQuery(BaseQuery):
@@ -116,8 +114,8 @@ class CrossrefServer(BasePreprintServer):
     def request(cls, query: "CrossrefQuery", **kwargs: Any) -> dict[str, Any]:
         cls._limit_rate()
         response = requests.get(
-            f"{cls.api_url}/{query.url}&mailto={CROSSREF_MAILTO_ADDRESS}",
-            headers={"User-Agent": CROSSREF_USER_AGENT},
+            f"{cls.api_url}/{query.url}",
+            headers={"User-Agent": SCIPOST_USER_AGENT},
         )
         response.raise_for_status()
         return response.json()

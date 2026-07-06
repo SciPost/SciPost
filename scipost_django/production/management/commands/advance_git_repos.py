@@ -13,7 +13,7 @@ from time import sleep
 from django.core.management.base import BaseCommand, CommandParser
 from django.conf import settings
 
-from SciPost_v1.settings.base import get_secret
+from SciPost_v1.settings.base import SCIPOST_USER_AGENT, get_secret
 from common.utils import get_current_domain
 
 from gitlab import Gitlab
@@ -26,8 +26,6 @@ import requests
 import tarfile
 from base64 import b64encode
 
-
-from preprints.servers.crossref import CROSSREF_USER_AGENT
 from production.models import ProofsRepository, ProductionUser, ProductionEvent
 
 
@@ -494,7 +492,7 @@ class Command(BaseCommand):
         )
 
     def _copy_arxiv_source_files(self, repo: ProofsRepository):
-        headers = {"User-Agent": CROSSREF_USER_AGENT}
+        headers = {"User-Agent": SCIPOST_USER_AGENT}
         if captcha_auth := get_secret("PREPRINT_SERVER_CAPTCHA_AUTH"):
             headers |= {"Cookie": f"captchaAuth={captcha_auth}"}
 

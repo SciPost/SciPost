@@ -8,9 +8,8 @@ import requests
 from django.urls import reverse
 from django.db import models
 
-from SciPost_v1.settings.base import get_secret
+from SciPost_v1.settings.base import SCIPOST_USER_AGENT, get_secret
 from common.utils import get_current_domain
-from preprints.servers.crossref import CROSSREF_USER_AGENT
 from submissions.exceptions import PreprintDocumentNotFoundError
 
 
@@ -63,7 +62,7 @@ class Preprint(models.Model):
             # return file directly since the url isn't yet publicly accessible
             return self._file.read()
         url = self.citation_pdf_url
-        headers = {"User-Agent": CROSSREF_USER_AGENT}
+        headers = {"User-Agent": SCIPOST_USER_AGENT}
         if captcha_auth := get_secret("PREPRINT_SERVER_CAPTCHA_AUTH"):
             headers |= {"Cookie": f"captchaAuth={captcha_auth}"}
 
