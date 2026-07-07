@@ -81,6 +81,7 @@ class PreprintServer(Enum):
     CHEMARXIV = "chemrxiv"
     FIGSHARE = "figshare"
     OSF = "osf"
+    DATACITE = "datacite"
 
     def __str__(self) -> str:
         return self.value
@@ -93,6 +94,7 @@ class PreprintServer(Enum):
             ChemArxivServer,
             FigshareServer,
             OSFServer,
+            DataciteServer,
         )
 
         return {
@@ -101,6 +103,7 @@ class PreprintServer(Enum):
             "chemrxiv": ChemArxivServer,
             "figshare": FigshareServer,
             "osf": OSFServer,
+            "datacite": DataciteServer,
         }
 
     @property
