@@ -1290,6 +1290,11 @@ class Submission(models.Model):
             if server_name in PreprintServer.mapping().keys()
         ]
 
+        # Swap out arxiv for datacite, if present
+        if PreprintServer.ARXIV.value in preprint_servers:
+            preprint_servers.remove(PreprintServer.ARXIV.value)
+            preprint_servers.append(PreprintServer.DATACITE.value)
+
         # Always add Crossref as a source
         preprint_servers.append(PreprintServer.CROSSREF.value)
 
