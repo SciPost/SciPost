@@ -45,6 +45,38 @@ class QueryFragment:
     def __repr__(self) -> str:
         return f"QueryFragment({self.s})"
 
+class KeywordQueryFragment(QueryFragment):
+    def __init__(self, key: str | None = None, value: str | None = None, **kwargs: str):
+        if key is None and value is None and kwargs:
+            if len(kwargs) > 1:
+                raise ValueError("Only one key-value pair is allowed per fragment.")
+            key, value = next(iter(kwargs.items()))
+
+        if key is None:
+            raise ValueError("Key must be provided for KeywordQueryFragment.")
+
+        self.key = key
+        self.value = value
+
+    def __and__(self, other: "QueryFragment") -> "QueryFragment":
+        if isinstance(other, KeywordQueryFragment) and self.key == other.key:
+            return KeywordQueryFragment(self.key, f"({self.value} AND {other.value})")
+        return QueryFragment(f"({self} AND {other})")
+
+    def __or__(self, other: "QueryFragment") -> "QueryFragment":
+        if isinstance(other, KeywordQueryFragment) and self.key == other.key:
+            return KeywordQueryFragment(self.key, f"({self.value} OR {other.value})")
+        return QueryFragment(f"({self} OR {other})")
+
+    def __invert__(self) -> "KeywordQueryFragment":
+        return KeywordQueryFragment(f"{self.key}:NOT {self.value}")
+
+    def __str__(self) -> str:
+        return f"{self.key}:{self.value}"
+
+    def __repr__(self) -> str:
+        return f"KeywordQueryFragment({self})"
+
 
 def format_person_name(
     person: Person, format: str = AUTHOR_LAST_FIRST_NAME_FORMAT
