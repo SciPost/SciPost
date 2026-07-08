@@ -104,42 +104,56 @@
       <table class="table table-striped">
 	<thead>
 	  <tr>
+	    <th></th>
+	    <th></th>
 	    <th>Fellow</th>
-	    <th>Currently<br>available</th>
 	    <th>Specialties</th>
-	    <th>Voted for</th>
-	    <th>Voted against</th>
-	    <th>Voted abstain</th>
+	    <th>Vote</th>
 	    <th>Actions</th>
 	  </tr>
 	</thead>
 	<tbody>
 	  {% for contributor in recommendation.eligible_to_vote.all %}
 	    <tr>
+        <td>
+          {% if contributor.is_currently_available %}
+            <span title="Available" data-bs-toggle="tooltip" class="text-success">{% include "bi/check-square-fill.html" %}</span>
+          {% else %}
+            <span title="Unavailable" data-bs-toggle="tooltip" class="text-danger">{% include "bi/x-square-fill.html" %}</span>
+          {% endif %}
+        </td>
 	      <td>
-		{{ contributor }}
-		{% if contributor.is_active_senior_fellow %}&emsp;[SF]{% endif %}
-	      </td>
-	      <td>{% if contributor.is_currently_available %}<span class="text-success">{% include "bi/check-square-fill.html" %}</span>{% else %}<span class="text-danger">{% include "bi/x-square-fill.html" %}</span>{% endif %}</td>
+          {% if contributor.is_active_senior_fellow %}
+            <span title="Senior" data-bs-toggle="tooltip">S</span>
+          {% else %}
+            <span title="Regular" data-bs-toggle="tooltip">R</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="d-flex justify-content-between align-items-center">
+            <span>{{ contributor }}</span>
+            {% if contributor.profile.id in submission.author_profile_ids %}
+              <span class="badge bg-danger">Author</span>
+            {% endif %}
+          </div>
+        </td>
 	      <td>
-		{% for specialty in contributor.profile.specialties.all %}
-		  {{ specialty.code }}&nbsp;
-		{% endfor %}
-	      </td>
+          <div class="d-flex flex-wrap gap-1">
+          {% for specialty in contributor.profile.specialties.all %}
+            <span title="{{ specialty.name }}" data-bs-toggle="tooltip">{{ specialty.code }}</span>
+          {% endfor %}
+          </div>
+        </td>
 	      <td>
-		{% if contributor in recommendation.voted_for %}
-		  {% include "bi/check-square-fill.html" %}
-		{% endif %}
-	      </td>
-	      <td>
-		{% if contributor in recommendation.voted_against %}
-		  {% include "bi/check-square-fill.html" %}
-		{% endif %}
-	      </td>
-	      <td>
-		{% if contributor in recommendation.voted_abstain %}
-		  {% include "bi/check-square-fill.html" %}
-		{% endif %}
+          {% if contributor in recommendation.voted_for.all %}
+            <span class="badge bg-success">In favor</span>
+          {% elif contributor in recommendation.voted_against.all %}
+            <span class="badge bg-danger">Against</span>
+          {% elif contributor in recommendation.voted_abstain.all %}
+            <span class="badge bg-warning">Abstain</span>
+          {% else %}
+            <span class="badge bg-secondary text-dark">No vote</span>
+          {% endif %}
 	      </td>
 	      <td>
 		<a class="btn btn-sm btn-danger"
@@ -147,7 +161,7 @@
 		   hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
 		   hx-confirm="Confirm: revoke voting right of {{ contributor }}?"
 		   hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
-		> Revoke voting right
+		> Revoke
 		</a>
 	      </td>
 	    </tr>
@@ -166,13 +180,13 @@
       <table class="table table-striped">
 	<thead>
 	  <tr>
-	    <th>Fellow</th>
-	    <th>Status</th>
-	    <th>Currently<br>available</th>
+      <th></th>
+      <th></th>
+      <th>Fellow</th>
 	    <th>Specialties</th>
 	    <th>Qualification</th>
-	    <th>Conflicts of<br>interest</th>
-	    <th>Readiness to take charge</th>
+	    <th>Readiness</th>
+	    <th>Conflicts of Interest</th>
 	    <th>Actions</th>
 	  </tr>
 	</thead>
@@ -180,60 +194,126 @@
 	  {% for fellowship in submission_fellows %}
 	    {% if fellowship.contributor not in recommendation.eligible_to_vote.all  %}
 	      <tr>
-		<td>{{ fellowship.contributor }}</td>
-		<td>{{ fellowship.get_status_display }}</td>
-		<td>{% if fellowship.contributor.is_currently_available %}<span class="text-success">{% include "bi/check-square-fill.html" %}</span>{% else %}<span class="text-danger">{% include "bi/x-square-fill.html" %}</span>{% endif %}</td>
+      <td>
+
+      {% if fellowship.contributor.is_currently_available %}
+        <span title="Available" data-bs-toggle="tooltip" class="text-success">{% include "bi/check-square-fill.html" %}</span>
+      {% else %}
+        <span title="Unavailable" data-bs-toggle="tooltip" class="text-danger">{% include "bi/x-square-fill.html" %}</span>
+      {% endif %}
+
+    </td>
+		<td><span title="{{ fellowship.get_status_display }}" data-bs-toggle="tooltip">{{ fellowship.get_status_display|first|upper }}</span></td>
+    <td>
+      <div class="d-flex justify-content-between align-items-center">
+        <span>{{ fellowship.contributor }}</span>
+        {% if fellowship.contributor.profile.id in submission.author_profile_ids %}
+          <span class="badge bg-danger">Author</span>
+        {% endif %}
+      </div>
+    </td>
 		<td>
+      <div class="d-flex flex-wrap gap-1">
 		  {% for specialty in fellowship.contributor.profile.specialties.all %}
-		    {{ specialty.code }}&nbsp;
+		    <span title="{{ specialty.name }}" data-bs-toggle="tooltip">{{ specialty.code }}</span>
 		  {% endfor %}
+      </div>
 		</td>
 		<td>{% get_fellow_qualification_expertise_level_display submission fellowship.contributor %}</td>
+    <td>{% get_fellow_readiness_status_display submission fellowship.contributor %}</td>
 		<td>
 		  {% get_profile_clearance submission.clearances fellowship.contributor.profile as clearance %}
 		  {% if clearance %}
 		    <span class="text-success">all clear</span>
 		    &nbsp;<em>(asserted by {{ clearance.asserted_by }})</em>
 		  {% else %}
-		    {% with coi_qs=fellowship.contributor.profile.submission_conflicts_of_interest|add:fellowship.contributor.profile.submission_conflicts_of_interest_related %}
-		    {% if coi_qs %}
-		      <table class="table table-bordered bg-danger bg-opacity-10 mb-0">
-			<thead>
-			  <tr>
-			    <th>Related Profile / <em>(nature)</em></th>
-			  </tr>
-			</thead>
-			<tbody>
-			  {% for coi in coi_qs %}
-			    <tr>
-			      <td>
-            {% if fellowship.contributor.profile == coi.related_profile %}
-              {{ coi.profile }}
-            {% else %}
-              {{ coi.related_profile }}
-            {% endif %}
-            <br>
-            <em>({{ coi.get_nature_display }})</em>
-			      </td>
-			    </tr>
-			  {% endfor %}
-			</tbody>
-		      </table>
-		    {% else %}
-		      <em class="text-danger">unknown</em>
-		    {% endif %}
+		    {% with submission_conflicts_of_interest=fellowship.contributor.profile.submission_conflicts_of_interest|add:fellowship.contributor.profile.submission_conflicts_of_interest_related %}
+
+          {% if submission_conflicts_of_interest %}
+            <details {% if submission_conflicts_of_interest|length == 1 %}open{% endif %}>
+              <summary class="p-1 px-2 bg-danger bg-opacity-25 d-flex justify-content-between list-triangle">
+                <span>Verified Conflict{{ submission_conflicts_of_interest|length|pluralize }}</span>
+                <span>{{ submission_conflicts_of_interest|length }}</span>
+              </summary>
+              <table class="table mb-0">
+                <thead>
+                  <tr>
+                    <th>Profile / <em>(nature)</em></th>
+                    <th>Until</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  {% for coi in submission_conflicts_of_interest %}
+                    <tr class="{% if coi.submission_exempted %}table-success{% endif %}">
+                      <td>
+                        {% if fellowship.contributor.profile == coi.related_profile %}
+                          {{ coi.profile }}
+                        {% else %}
+                          {{ coi.related_profile }}
+                        {% endif %}
+                        </br>
+                        <em>({{ coi.get_nature_display }})</em>
+                      </td>
+                      <td>
+                        {% if coi.date_expiry %}
+                          {{ coi.date_expiry|date:"Y-m-d" }}
+                        {% else %}
+                          <em>indefinite</em>
+                        {% endif %}
+                      </td>
+                      <td>
+
+                        {% if "edadmin" in user_roles %}
+                          <a class="btn btn-sm btn-danger px-1 py-0"
+                            hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_delete' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=coi.pk %}"
+                            hx-confirm="Delete this conflict of interest?"
+                            hx-target="#submission-{{ submission.pk }}-fellows-details">
+                            {% include "bi/trash-fill.html" %}
+                          </a>
+                          <a class="btn btn-sm btn-secondary px-1 py-0"
+                            title="{% if coi.submission_exempted %}Revoke exemption{% else %}Grant exemption from this conflict of interest{% endif %}"
+                            data-bs-toggle="tooltip"
+                            hx-get="{% url 'ethics:_hx_submission_conflict_of_interest_exemption_toggle' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr pk=coi.pk %}"
+                            hx-target="#submission-{{ submission.pk }}-fellows-details">
+                            {% if coi.submission_exempted %}
+                              {% include "bi/x-circle-fill.html" %}
+                            {% else %}
+                              {% include "bi/exclamation-circle-fill.html" %}
+                            {% endif %}
+                          </a>
+                          <a class="btn btn-sm btn-primary px-1 py-0"
+                              href="{% url 'ethics:conflicts' %}?name={{ coi.profile.full_name }};{{ coi.related_profile.full_name }}">
+                            {% include "bi/arrow-right.html" %}
+                          </a>
+                        {% endif %}
+
+                      </td>
+                    </tr>
+                  {% endfor %}
+
+
+                </tbody>
+              </table>
+            </details>
+          {% else %}
+            <span class="badge bg-secondary text-dark">Unknown</span>
+          {% endif %}
+
         {% endwith %}
 		  {% endif %}
 		</td>
-		<td>{% get_fellow_readiness_status_display submission fellowship.contributor %}</td>
 		<td>
-		  <a class="btn btn-sm btn-primary"
-		     hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_grant_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id contributor_id=fellowship.contributor.id %}"
-		     hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
-		     hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
-		  >
-		    Grant voting right
-		  </a>
+      {% if fellowship.contributor.profile.id not in submission.author_profile_ids %}
+        <a class="btn btn-sm btn-primary"
+          hx-get="{% url 'submissions:pool:decisionmaking:_hx_recommendation_grant_voting_right' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr rec_id=recommendation.id contributor_id=fellowship.contributor.id %}"
+          hx-target="#recommendation-{{ recommendation.id }}-voting-details-contents"
+          hx-indicator="#recommendation-{{ recommendation.id }}-voting-rights-indicator"
+        >
+          Grant
+        </a>
+      {% endif %}
 		</td>
 	      </tr>
 	    {% endif %}

@@ -671,6 +671,11 @@ class Submission(models.Model):
         comma_separated = comma_separated.replace(";", ", ")
         return [e.lstrip().rstrip() for e in comma_separated.split(",")]
 
+    @cached_property
+    def author_profile_ids(self):
+        """Return a list of author profile ids."""
+        return list(self.author_profiles.values_list("profile_id", flat=True))
+
     def touch(self):
         """Update latest activity timestamp."""
         Submission.objects.filter(id=self.id).update(latest_activity=timezone.now())
