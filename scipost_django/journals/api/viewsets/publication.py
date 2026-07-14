@@ -24,7 +24,7 @@ from journals.api.serializers import (
 class PublicationPublicAPIViewSet(
     FilteringOptionsActionMixin, ExtraFilteredReadOnlyModelViewSet
 ):
-    queryset = Publication.objects.published()
+    queryset = Publication.objects.ever_published()
     permission_classes = [
         AllowAny,
     ]
@@ -58,7 +58,7 @@ class PublicationPublicAPIViewSet(
 class PublicationPublicSearchAPIViewSet(
     FilteringOptionsActionMixin, ExtraFilteredReadOnlyModelViewSet
 ):
-    queryset = Publication.objects.published()
+    queryset = Publication.objects.ever_published()
     permission_classes = [
         AllowAny,
     ]

@@ -436,7 +436,7 @@ class OrganizationDetailView(DetailView):
         context = super().get_context_data(*args, **kwargs)
         context["balance"] = self.object.cf_balance_info
         context["publishing_years"] = (
-            Publication.objects.published()
+            Publication.objects.ever_published()
             .values_list("publication_date__year", flat=True)
             .distinct()
             .order_by("-publication_date__year")

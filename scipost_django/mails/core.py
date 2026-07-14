@@ -9,7 +9,7 @@ import json
 import re
 
 from django.conf import settings
-from django.template import Context, Template
+from django.template import Context, Template, TemplateDoesNotExist
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 
@@ -213,22 +213,36 @@ class MailEngine:
 
         # Find and return the first existing configuration and template file
         EMAIL_TEMPLATE_PATH = f"{settings.BASE_DIR}/templates/email"
-        config_path = next(
-            (
-                path
-                for code in possible_codes
-                if (path := f"{EMAIL_TEMPLATE_PATH}/{code}.json")
-                and os.path.exists(path)
+
+        try:
+            config_path = next(
+                (
+                    path
+                    for code in possible_codes
+                    if (path := f"{EMAIL_TEMPLATE_PATH}/{code}.json")
+                    and os.path.exists(path)
+                )
             )
-        )
-        template_path = next(
-            (
-                path
-                for code in possible_codes
-                if (path := f"{EMAIL_TEMPLATE_PATH}/{code}.html")
-                and os.path.exists(path)
+        except StopIteration:
+            raise ImportError(
+                f"No configuration file found for mail code: {base_mail_code}. "
+                f"Checked the following codes: {possible_codes}."
             )
-        )
+
+        try:
+            template_path = next(
+                (
+                    path
+                    for code in possible_codes
+                    if (path := f"{EMAIL_TEMPLATE_PATH}/{code}.html")
+                    and os.path.exists(path)
+                )
+            )
+        except StopIteration:
+            raise TemplateDoesNotExist(
+                f"No template file found for mail code: {base_mail_code}. "
+                f"Checked the following codes: {possible_codes}."
+            )
 
         return config_path, template_path
 

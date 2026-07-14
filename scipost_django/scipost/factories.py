@@ -2,31 +2,33 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import re
+
 import factory
 import pytz
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from common.utils.text import latinise
 from journals.models.publication import Publication
 from profiles.factories import ProfileFactory
 from submissions.models.submission import Submission
 
 from .constants import NORMAL_CONTRIBUTOR
 from .models import *
-from common.faker import LazyRandEnum, fake
+from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Contributor
-        django_get_or_create = ("user",)
+        django_get_or_create = ("dbuser",)
 
-    user = factory.SubFactory("scipost.factories.UserFactory", contributor=None)
-    profile = factory.RelatedFactory(
-        ProfileFactory,
-        first_name=factory.SelfAttribute("..user.first_name"),
-        last_name=factory.SelfAttribute("..user.last_name"),
-        factory_related_name="contributor",
+    profile = factory.SubFactory(ProfileFactory)
+    dbuser = factory.SubFactory(
+        "scipost.factories.UserFactory",
+        first_name=factory.SelfAttribute("..profile.first_name"),
+        last_name=factory.SelfAttribute("..profile.last_name"),
     )
     invitation_key = factory.Faker("md5")
     activation_key = factory.Faker("md5")
@@ -34,15 +36,19 @@ class ContributorFactory(factory.django.DjangoModelFactory):
     status = NORMAL_CONTRIBUTOR  # normal user
     address = factory.Faker("address")
 
-    @classmethod
-    def from_profile(cls, profile):
-        contributor = cls(
-            user__first_name=profile.first_name,
-            user__last_name=profile.last_name,
-        )
-        contributor.profile = profile
-        contributor.save()
-        return contributor
+    @factory.post_generation
+    def email(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.dbuser.email = extracted
+            profile_email = self.profile.emails.first()
+            profile_email.email = extracted
+            profile_email.save()
+            self.dbuser.save()
+        else:
+            self.dbuser.email = self.profile.emails.first().email
+            self.dbuser.save()
 
 
 class VettingEditorFactory(ContributorFactory):
@@ -56,21 +62,47 @@ class VettingEditorFactory(ContributorFactory):
 class UserFactory(factory.django.DjangoModelFactory):
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
-    username = factory.LazyAttribute(
-        lambda self: "{first_char}{last_name}".format(
-            first_char=self.first_name[0].lower(), last_name=self.last_name.lower()
-        )
-    )
-    password = factory.PostGenerationMethodCall("set_password", "adm1n")
-    email = factory.Faker("safe_email")
     is_active = True
 
-    # When user object is created, associate new Contributor object to it.
-    contrib = factory.RelatedFactory(ContributorFactory, "user")
+    @factory.lazy_attribute
+    def username(self):
+        username = "{first_name[0]}{last_name}".format(
+            first_name=re.sub(r"[\W\s]", "", latinise(self.first_name.lower())),
+            last_name=re.sub(r"[\W\s]", "", latinise(self.last_name.lower())),
+        )
 
+        if nr := (
+            get_user_model().objects.filter(username__startswith=username).count()
+        ):
+            username += str(nr + 1)
+
+        return username
     class Meta:
         model = get_user_model()
         django_get_or_create = ("username",)
+
+    @factory.post_generation
+    def email(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.email = extracted
+        else:
+            self.email = f"{self.username}@example.com"
+
+        self.save()
+
+    @factory.post_generation
+    def password(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            password = extracted
+        else:
+            password = f"{self.username}_pass"
+
+        self.set_password(password)
+        self.save()
 
     @factory.post_generation
     def groups(self, create, extracted, **kwargs):
@@ -120,9 +152,7 @@ class UnavailabilityPeriodFactory(factory.django.DjangoModelFactory):
 
     contributor = factory.SubFactory(ContributorFactory)
     start = factory.Faker("date_time_this_decade")
-    end = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.start, end_date="+1y")
-    )
+    end = LazyAwareDateOffset("start", "+1y")
 
 
 class AuthorshipClaimFactory(factory.django.DjangoModelFactory):

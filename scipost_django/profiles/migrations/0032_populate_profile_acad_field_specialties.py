@@ -19,8 +19,8 @@ def populate_acad_field_specialty(apps, schema_editor):
                 )
         # Fish out specialties from profile.contributor.expertises, if contributor exists:
         try:
-            if p.contributor.expertises:
-                for e in p.contributor.expertises:
+            if expertises := getattr(p.contributor, "expertises", None):
+                for e in expertises:
                     p.specialties.add(
                         Specialty.objects.get(slug=slugify(e.replace(":", "-")))
                     )

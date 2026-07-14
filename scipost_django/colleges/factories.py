@@ -16,10 +16,11 @@ from colleges.models.nomination import (
     FellowshipNominationVote,
     FellowshipNominationVotingRound,
 )
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum, fake
 from ontology.factories import AcademicFieldFactory
 from profiles.factories import ProfileFactory
 from scipost.factories import ContributorFactory
+from scipost.models import Contributor
 
 from .models import College, Fellowship
 
@@ -30,17 +31,14 @@ from .models import College, Fellowship
 
 
 class CollegeFactory(factory.django.DjangoModelFactory):
-    name = factory.LazyAttribute(
-        lambda _: fake.word(part_of_speech="adjective").title()
-        + " "
-        + fake.word(part_of_speech="noun").title()
-    )
+    name = factory.SelfAttribute("acad_field.name")
     acad_field = factory.SubFactory(AcademicFieldFactory)
     slug = factory.LazyAttribute(lambda self: slugify(self.name))
     order = factory.Sequence(lambda n: n + 1)
 
     class Meta:
         model = College
+        django_get_or_create = ("name",)
 
 
 ###############
@@ -50,13 +48,18 @@ class CollegeFactory(factory.django.DjangoModelFactory):
 
 class BaseFellowshipFactory(factory.django.DjangoModelFactory):
     college = factory.SubFactory(CollegeFactory)
-    contributor = factory.SubFactory(ContributorFactory)
-    start_date = factory.Faker("date_this_year")
-    until_date = factory.Faker("date_between", start_date="now", end_date="+2y")
+    contributor = factory.SubFactory(
+        ContributorFactory,
+        profile__acad_field=factory.SelfAttribute("...college.acad_field"),
+    )
+    start_date = fake.aware.date_time_this_year()
+    until_date = factory.LazyAttribute(
+        lambda self: self.start_date + datetime.timedelta(days=5 * 365)
+    )
 
     class Meta:
         model = Fellowship
-        django_get_or_create = ("contributor", "start_date")
+        django_get_or_create = ("contributor", "college")
         abstract = True
 
 
@@ -71,6 +74,19 @@ class GuestFellowshipFactory(BaseFellowshipFactory):
 class SeniorFellowshipFactory(BaseFellowshipFactory):
     status = "senior"
 
+class FellowFactory(ContributorFactory):
+
+    @factory.post_generation
+    def fellowship(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            self.fellowship = extracted
+        else:
+            self.fellowship = FellowshipFactory(
+                contributor=self,
+                college=CollegeFactory(acad_field=self.profile.acad_field),
+            )
 
 ###############
 # Nominations #
@@ -103,7 +119,7 @@ class RegisteredFellowshipNominationFactory(FellowshipNominationFactory):
     def create_profile_contributor(self, create, extracted, **kwargs):
         if not create:
             return
-        self.profile.contributor = ContributorFactory.from_profile(self.profile)
+        self.profile.contributor = ContributorFactory(profile=self.profile)
         self.profile.save()
 
 
@@ -144,9 +160,7 @@ class FellowshipNominationVotingRoundFactory(factory.django.DjangoModelFactory):
 
     nomination = factory.SubFactory(FellowshipNominationFactory)
     voting_opens = LazyAwareDate("date_time_this_year")
-    voting_deadline = factory.LazyAttribute(
-        lambda self: self.voting_opens + datetime.timedelta(days=14)
-    )
+    voting_deadline = LazyAwareDateOffset("voting_opens", "+14d")
 
     @factory.post_generation
     def eligible_to_vote(self, create, extracted, **kwargs):
@@ -183,12 +197,7 @@ class FellowshipNominationDecisionFactory(factory.django.DjangoModelFactory):
     voting_round = factory.SubFactory(FellowshipNominationVotingRoundFactory)
     outcome = LazyRandEnum(FellowshipNominationDecision.OUTCOME_CHOICES)
     comments = factory.Faker("text")
-    fixed_on = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.voting_round.voting_deadline,
-            end_date="+1y",
-        )
-    )
+    fixed_on = LazyAwareDateOffset("voting_round.voting_deadline", "+1y")
 
 
 class FellowshipInvitationFactory(factory.django.DjangoModelFactory):

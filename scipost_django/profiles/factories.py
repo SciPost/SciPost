@@ -3,9 +3,12 @@ __license__ = "AGPL v3"
 
 
 import random
+import re
 
 import factory
-from common.faker import LazyRandEnum, fake
+from common.factories import set_or_create_consistent_related_field
+from common.faker import LazyAwareDateOffset, LazyRandEnum, fake
+from common.utils.text import latinise
 from ontology.factories import SpecialtyFactory, TopicFactory
 from profiles.constants import AFFILIATION_CATEGORIES
 from scipost.constants import TITLE_CHOICES
@@ -18,6 +21,14 @@ class ProfileFactory(factory.django.DjangoModelFactory):
         model = Profile
         django_get_or_create = ("orcid_id",)
 
+    class Params:
+        registered = factory.Trait(
+            contributor=factory.RelatedFactory(
+                "scipost.factories.ContributorFactory",
+                factory_related_name="profile",
+            )
+        )
+
     title = LazyRandEnum(TITLE_CHOICES)
     first_name = factory.Faker("first_name")
     last_name = factory.Faker("last_name")
@@ -26,19 +37,13 @@ class ProfileFactory(factory.django.DjangoModelFactory):
     webpage = factory.Faker("url")
     acad_field = factory.SubFactory("ontology.factories.AcademicFieldFactory")
 
+
     @factory.post_generation
+    @set_or_create_consistent_related_field(
+        SpecialtyFactory, (1, 4), {"acad_field": "acad_field"}
+    )
     def specialties(self, create, extracted, **kwargs):
-        if not create:
-            return
-        if extracted:
-            for specialty in extracted:
-                self.specialties.add(specialty)
-        else:
-            self.specialties.add(
-                *SpecialtyFactory.create_batch(
-                    random.randint(1, 3), acad_field=self.acad_field
-                )
-            )
+        pass
 
     @factory.post_generation
     def topics(self, create, extracted, **kwargs):
@@ -50,13 +55,44 @@ class ProfileFactory(factory.django.DjangoModelFactory):
         else:
             self.topics.add(*TopicFactory.create_batch(random.randint(1, 3)))
 
+    @factory.post_generation
+    def emails(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for i, email in enumerate(extracted):
+                ProfileEmailFactory(profile=self, email=email, primary=(i == 0))
+        else:
+            try:
+                ProfileEmailFactory(
+                    profile=self, email=self.contributor.user.email, primary=True
+                )
+            except Contributor.DoesNotExist:
+                ProfileEmailFactory(profile=self, primary=True)
+
+    @factory.post_generation
+    def affiliations(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for organization in extracted:
+                AffiliationFactory(profile=self, organization=organization)
+        else:
+            AffiliationFactory.create_batch(random.randint(1, 3), profile=self)
+
 
 class ProfileEmailFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProfileEmail
 
     profile = factory.SubFactory(ProfileFactory)
-    email = factory.Faker("email")
+    email = factory.LazyAttribute(
+        lambda self: "{first_name[0]}{last_name}{num}@example.com".format(
+            first_name=re.sub(r"[\W\s]", "", latinise(self.profile.first_name.lower())),
+            last_name=re.sub(r"[\W\s]", "", latinise(self.profile.last_name.lower())),
+            num=fake.random_number(digits=4, fix_len=True),
+        )
+    )
 
 
 class AffiliationFactory(factory.django.DjangoModelFactory):
@@ -68,6 +104,4 @@ class AffiliationFactory(factory.django.DjangoModelFactory):
     category = LazyRandEnum(AFFILIATION_CATEGORIES)
     description = factory.Faker("sentence")
     date_from = factory.Faker("date_this_decade")
-    date_until = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")
-    )
+    date_until = LazyAwareDateOffset("date_from", "+1y")

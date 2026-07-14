@@ -12,6 +12,7 @@ from proceedings.factories import ProceedingsFactory
 from production.factories import ProofsRepositoryFactory
 from production.models import ProofsRepository
 from profiles.factories import ProfileFactory
+from scipost.factories import ContributorFactory
 from submissions.constants import EIC_REC_PUBLISH
 from submissions.factories.decision import EditorialDecisionFactory
 from submissions.factories.submission import SubmissionFactory
@@ -20,12 +21,10 @@ from submissions.factories.submission import SubmissionFactory
 class TestProofRepository(TestCase):
     def test_repo_name_existing_profile(self):
         proofs_repo = ProofsRepositoryFactory(
-            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1",
+            stream__submission__preprint__identifier_w_vn_nr="scipost_202101_00001v1"
         )
 
         proofs_repo.stream.submission.author_list = "John F. Doe"
-        proofs_repo.stream.submission.save()
-
         ProfileFactory(first_name="John Frank", last_name="Doe")
 
         self.assertEqual(
@@ -39,7 +38,6 @@ class TestProofRepository(TestCase):
         )
 
         proofs_repo.stream.submission.author_list = "Kim J. Ranger"
-        proofs_repo.stream.submission.save()
 
         self.assertEqual(
             ProofsRepository._get_repo_name(proofs_repo.stream),
@@ -52,8 +50,6 @@ class TestProofRepository(TestCase):
         )
 
         proofs_repo.stream.submission.author_list = "Liam Magnus Carter"
-        proofs_repo.stream.submission.save()
-
         ProfileFactory(first_name="Liam", last_name="Magnus Carter")
 
         self.assertEqual(
@@ -74,11 +70,12 @@ class TestProofRepository(TestCase):
         )
 
     def test_repo_name_accented_authors(self):
-        ProfileFactory(first_name="Ella", last_name="Vérsøüsær")
         proofs_repo = ProofsRepositoryFactory(
-            stream__submission__preprint__identifier_w_vn_nr="5212.24912v4",
-            stream__submission__author_list="Ella Vérsøüsær",
+            stream__submission__preprint__identifier_w_vn_nr="5212.24912v4"
         )
+
+        proofs_repo.stream.submission.author_list = "Ella Vérsøüsær"
+        ProfileFactory(first_name="Ella", last_name="Vérsøüsær")
 
         self.assertEqual(
             ProofsRepository._get_repo_name(proofs_repo.stream),
@@ -88,11 +85,15 @@ class TestProofRepository(TestCase):
     def test_repo_paths_scipostphys(self):
         settings.GITLAB_ROOT = "ProjectRoot"
 
-        ProfileFactory(first_name="Ryan", last_name="MacVigor")
+        submitter = ContributorFactory(
+            profile__first_name="Ryan",
+            profile__last_name="MacVigor",
+        )
 
         submission = SubmissionFactory(
             preprint__identifier_w_vn_nr="scipost_199402_00223v3",
-            author_list="Ryan MacVigor",
+            submitted_by=submitter,
+            authors=[submitter.id],
         )
 
         EditorialDecisionFactory(
@@ -128,12 +129,16 @@ class TestProofRepository(TestCase):
             event_suffix="TopCon2019",
         )
 
-        ProfileFactory(first_name="Tylla M.", last_name="Jones")
+        submitter = ContributorFactory(
+            profile__first_name="Tylla M.",
+            profile__last_name="Jones",
+        )
 
         submission = SubmissionFactory(
             preprint__identifier_w_vn_nr="scipost_200101_00323v2",
-            author_list="Tylla Maria Jones",
             proceedings=topology_conf,
+            submitted_by=submitter,
+            authors=[submitter.id],
         )
 
         EditorialDecisionFactory(

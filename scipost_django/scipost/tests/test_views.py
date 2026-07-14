@@ -24,7 +24,7 @@ class RequestCommentaryTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.contributor = ContributorFactory(
-            user__username="Test", user__password="testpw"
+            dbuser__username="Test", dbuser__password="testpw"
         )
         self.view_url = reverse("commentaries:request_commentary")
         self.login_url = reverse("scipost:login")
@@ -56,7 +56,7 @@ class VetCommentaryRequestsTest(TestCase):
         self.view_url = reverse("commentaries:vet_commentary_requests")
         self.login_url = reverse("scipost:login")
         self.password = "test123"
-        self.contributor = ContributorFactory(user__password=self.password)
+        self.contributor = ContributorFactory(dbuser__password=self.password)
 
     def set_required_permissions_and_login(self):
         """Set the required permissions to testuser to access vet_commentary_requests."""

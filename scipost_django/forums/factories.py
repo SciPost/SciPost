@@ -1,7 +1,7 @@
 from django.utils.text import slugify
 import factory
 
-from common.faker import LazyAwareDate
+from common.faker import LazyAwareDate, LazyAwareDateOffset
 from scipost.factories import UserFactory
 
 from .models import Forum, Meeting, Motion, Post
@@ -25,9 +25,7 @@ class MeetingFactory(factory.django.DjangoModelFactory):
 
     forum = factory.SubFactory(ForumFactory)
     date_from = LazyAwareDate("date_this_year")
-    date_until = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")
-    )
+    date_until = LazyAwareDateOffset("date_from", "+1y")
     preamble = factory.Faker("paragraph")
     minutes = factory.Faker("paragraph")
 

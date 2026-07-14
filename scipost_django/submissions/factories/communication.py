@@ -14,7 +14,7 @@ class EditorialCommunicationFactory(factory.django.DjangoModelFactory):
         model = EditorialCommunication
 
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
-    referee = factory.SubFactory("scipost.factories.ContributorFactory")
+    referee = factory.SubFactory("scipost.factories.ProfileFactory")
     comtype = LazyRandEnum(ED_COMM_CHOICES)
     timestamp = LazyAwareDate("date_time_this_year")
     text = factory.Faker("paragraph")

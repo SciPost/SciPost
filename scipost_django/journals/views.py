@@ -87,6 +87,7 @@ from .forms import (
     DraftPublicationUpdateForm,
     FundingInfoForm,
     HTMXInlinePublicationResourceForm,
+    PublicationOpenRevisionForm,
     VolumeForm,
     IssueForm,
     AuthorsTableOrganizationSelectForm,
@@ -136,7 +137,7 @@ class PublicationAutocompleteView(autocomplete.Select2QuerySetView):
     """
 
     def get_queryset(self):
-        qs = Publication.objects.published()
+        qs = Publication.objects.ever_published()
         if self.q:
             qs = qs.filter(
                 Q(title__icontains=self.q)
@@ -282,7 +283,7 @@ class PublicationListView(PaginationMixin, ListView):
     Show Publications filtered per specialty.
     """
 
-    queryset = Publication.objects.published()
+    queryset = Publication.objects.ever_published()
     paginate_by = 10
 
     def get_queryset(self):
@@ -349,7 +350,7 @@ def journal_detail(request, doi_label):
         )
     )
 
-    journal_publications = Publication.objects.for_journal(journal.name).published()
+    journal_publications = Publication.objects.for_journal(journal.name).ever_published()
 
     most_cited = journal_publications.most_cited(5)
     latest_publications = journal_publications[:5]
@@ -578,7 +579,7 @@ def issue_detail(request, doi_label):
     issue = get_object_or_404(Issue.objects.open_or_published(), doi_label=doi_label)
     journal = issue.in_journal or issue.in_volume.in_journal
 
-    papers = issue.publications.published().order_by("paper_nr")
+    papers = issue.publications.ever_published().order_by("paper_nr")
     next_issue = (
         Issue.objects.published()
         .filter(start_date__gt=issue.start_date)
@@ -888,6 +889,14 @@ class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
     slug_field = slug_url_kwarg = "doi_label"
     form_class = PublicationPublishForm
     template_name = "journals/publication_publish_form.html"
+
+@method_decorator(transaction.atomic, name="dispatch")
+class PublicationOpenRevisionView(PermissionsMixin, RequestViewMixin, UpdateView):
+    permission_required = "scipost.can_publish_accepted_submission"
+    queryset = Publication.objects.published()
+    slug_field = slug_url_kwarg = "doi_label"
+    form_class = PublicationOpenRevisionForm
+    template_name = "journals/publication_open_revision_form.html"
 
 
 @permission_required("scipost.can_publish_accepted_submission", return_403=True)
@@ -2372,7 +2381,7 @@ def publication_detail(request, doi_label):
     visible for Production Supervisors and Administrators if in draft.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_published and not request.user.has_perm(
+    if publication.is_draft and not request.user.has_perm(
         "scipost.can_draft_publication"
     ):
         raise Http404("Publication is not publicly visible")
@@ -2408,7 +2417,7 @@ def publication_detail_pdf(request, doi_label):
     visible for Production Supervisors and Administrators if in draft.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_published and not request.user.has_perm(
+    if publication.is_draft and not request.user.has_perm(
         "scipost.can_draft_publication"
     ):
         raise Http404("Publication is not publicly visible")

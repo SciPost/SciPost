@@ -20,7 +20,7 @@ from .models import (
 from production.constants import WORK_LOG_TYPE_SUPERVISOR_CHOICES
 from scipost.factories import UserFactory
 
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum, fake
 
 
 # work_log.py
@@ -55,12 +55,8 @@ class SubsidyFactory(factory.django.DjangoModelFactory):
     amount_publicly_shown = True
     status = LazyRandEnum(SUBSIDY_TYPES)
     date_from = LazyAwareDate("date_this_decade")
-    paid_on = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")
-    )
-    date_until = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")
-    )
+    paid_on = LazyAwareDateOffset("date_from", "+1y")
+    date_until = LazyAwareDateOffset("date_from", "+1y")
     renewable = False
 
 
@@ -87,17 +83,15 @@ class SubsidyPaymentFactory(factory.django.DjangoModelFactory):
     reference = factory.Faker("iban")
     amount = factory.Faker("pyint")
     date_scheduled = LazyAwareDate("date_this_year")
-    invoice = factory.RelatedFactory(
+    invoice = factory.SubFactory(
         "finances.factories.SubsidyAttachmentFactory",
-        factory_related_name="invoice_for",
         kind=SubsidyAttachment.KIND_INVOICE,
         description=factory.lazy_attribute(
             lambda self: "Invoice for " + self.subsidy.organization.name
         ),
     )
-    proof_of_payment = factory.RelatedFactory(
+    proof_of_payment = factory.SubFactory(
         "finances.factories.SubsidyAttachmentFactory",
-        factory_related_name="proof_of_payment_for",
         kind=SubsidyAttachment.KIND_PROOF_OF_PAYMENT,
         description=factory.lazy_attribute(
             lambda self: "Proof of payment for " + self.subsidy.organization.name

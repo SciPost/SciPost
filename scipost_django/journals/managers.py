@@ -7,6 +7,8 @@ from django.db.models import Q
 from django.utils import timezone
 
 from .constants import (
+    PUBLICATION_RETRACTED,
+    PUBLICATION_UNDER_REVISION,
     STATUS_DRAFT,
     STATUS_PUBLICLY_OPEN,
     STATUS_PUBLISHED,
@@ -86,6 +88,18 @@ class IssueManager(models.Manager.from_queryset(IssueQuerySet)):
 
 
 class PublicationQuerySet(models.QuerySet):
+    def ever_published(self):
+        return self.filter(
+            status__in=[
+                PUBLICATION_PUBLISHED,
+                PUBLICATION_UNDER_REVISION,
+                PUBLICATION_RETRACTED,
+            ]
+        ).filter(
+            models.Q(in_issue__status=STATUS_PUBLISHED)
+            | models.Q(in_journal__active=True)
+        )
+
     def published(self):
         return self.filter(status=PUBLICATION_PUBLISHED).filter(
             models.Q(in_issue__status=STATUS_PUBLISHED)
@@ -94,6 +108,9 @@ class PublicationQuerySet(models.QuerySet):
 
     def unpublished(self):
         return self.exclude(status=PUBLICATION_PUBLISHED)
+
+    def not_retracted(self):
+        return self.exclude(status=PUBLICATION_RETRACTED)
 
     def in_draft(self):
         return self.filter(in_issue__status=STATUS_DRAFT)

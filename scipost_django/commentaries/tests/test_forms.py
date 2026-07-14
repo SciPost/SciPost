@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import re
+from unittest import skip
 
 from django.test import TestCase
 
@@ -31,7 +32,9 @@ from common.helpers import (
 )
 from common.helpers.test import add_groups_and_permissions
 
-
+@skip(
+    "Invoking ArxivQueryForm calls the API. Mock the calls before unskipping this test."
+)
 class TestArxivQueryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
@@ -77,7 +80,7 @@ class TestArxivQueryForm(TestCase):
         form = ArxivQueryForm(invalid_data)
         self.assertFalse(form.is_valid())
 
-
+@skip("Calls the API without mocking.")
 class TestDOIToQueryForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
@@ -122,7 +125,7 @@ class TestVetCommentaryForm(TestCase):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
         self.commentary = UnvettedCommentaryFactory.create()
-        self.user = UserFactory.create()
+        self.contributor = ContributorFactory.create()
         self.form_data = {
             "action_option": VetCommentaryForm.ACTION_ACCEPT,
             "refusal_reason": VetCommentaryForm.REFUSAL_EMPTY,
@@ -132,7 +135,7 @@ class TestVetCommentaryForm(TestCase):
     def test_valid_accepted_form(self):
         """Test valid form data and return Commentary"""
         form = VetCommentaryForm(
-            self.form_data, commentary_id=self.commentary.id, user=self.user
+            self.form_data, commentary_id=self.commentary.id, user=self.contributor.user
         )
         self.assertTrue(form.is_valid())
         self.assertFalse(Commentary.objects.vetted().exists())
@@ -147,7 +150,7 @@ class TestVetCommentaryForm(TestCase):
         """Test valid form data and delete Commentary"""
         self.form_data["action_option"] = VetCommentaryForm.ACTION_MODIFY
         form = VetCommentaryForm(
-            self.form_data, commentary_id=self.commentary.id, user=self.user
+            self.form_data, commentary_id=self.commentary.id, user=self.contributor.user
         )
         self.assertTrue(form.is_valid())
         self.assertFalse(Commentary.objects.vetted().exists())
@@ -163,7 +166,7 @@ class TestVetCommentaryForm(TestCase):
         self.form_data["action_option"] = VetCommentaryForm.ACTION_REFUSE
         self.form_data["refusal_reason"] = VetCommentaryForm.REFUSAL_UNTRACEBLE
         form = VetCommentaryForm(
-            self.form_data, commentary_id=self.commentary.id, user=self.user
+            self.form_data, commentary_id=self.commentary.id, user=self.contributor.user
         )
         self.assertTrue(form.is_valid())
         self.assertFalse(Commentary.objects.vetted().exists())
@@ -183,7 +186,7 @@ class TestVetCommentaryForm(TestCase):
     def test_process_before_validation(self):
         """Test response of form on processing before validation"""
         form = VetCommentaryForm(
-            self.form_data, commentary_id=self.commentary.id, user=self.user
+            self.form_data, commentary_id=self.commentary.id, user=self.contributor.user
         )
         self.assertRaises(AttributeError, form.process_commentary)
 

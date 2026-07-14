@@ -4,11 +4,16 @@ __license__ = "AGPL v3"
 
 import re
 
+JOURNAL_LABEL_PATTERNS = [
+    r"SciPost[a-zA-Z]+",
+    r"Test[a-zA-Z\d]+",
+    "MigPol",
+    "JRobustRep",
+    "JSocBehavCh",
+]
 
-JOURNAL_DOI_LABEL_REGEX = r"(SciPost[a-zA-Z]+|MigPol|JRobustRep|JSocBehavCh)"
-
+JOURNAL_DOI_LABEL_REGEX = f"({'|'.join(JOURNAL_LABEL_PATTERNS)})"
 VOLUME_DOI_LABEL_REGEX = r"({})\.\w+".format(JOURNAL_DOI_LABEL_REGEX)
-
 ISSUE_DOI_LABEL_REGEX = r"({})\.\w+(\.[0-9]+)?".format(JOURNAL_DOI_LABEL_REGEX)
 
 DOI_DISPATCH_PATTERN = (

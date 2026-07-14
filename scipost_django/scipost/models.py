@@ -190,7 +190,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
         Return the database-saved User object of the Contributor if
         it is not anonymous, or a runtime instance of AnonymousAbstractUser.
         """
-        if self.is_anonymous or not self.dbuser:
+        if getattr(self, "is_anonymous", False) or not self.dbuser:
             return AnonymousAbstractUser()
         return self.dbuser
 

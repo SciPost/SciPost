@@ -11,5 +11,5 @@ class Command(BaseCommand):
     help = "Recalculates PubFracs for all publications"
 
     def handle(self, *args, **kwargs):
-        for pub in Publication.objects.published():
+        for pub in Publication.objects.ever_published():
             pub.recalculate_pubfracs()

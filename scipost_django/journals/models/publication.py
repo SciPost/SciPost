@@ -16,6 +16,8 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 
 from ..constants import (
+    PUBLICATION_RETRACTED,
+    PUBLICATION_UNDER_REVISION,
     STATUS_DRAFT,
     STATUS_PUBLISHED,
     PUBLICATION_PUBLISHED,
@@ -131,7 +133,7 @@ class Publication(models.Model):
     paper_nr = models.PositiveSmallIntegerField()
     paper_nr_suffix = models.CharField(max_length=32, blank=True)
     status = models.CharField(
-        max_length=8, choices=PUBLICATION_STATUSES, default=STATUS_DRAFT
+        max_length=32, choices=PUBLICATION_STATUSES, default=STATUS_DRAFT
     )
 
     # Core fields
@@ -182,6 +184,10 @@ class Publication(models.Model):
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = models.JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
+    current_revision_description = models.TextField(
+        blank=True,
+        help_text="Details about the current revision process, if applicable.",
+    )
 
     # To handle cases without parsable author info (e.g. docx)
     author_info_source = models.TextField(blank=True, null=True)
@@ -227,7 +233,8 @@ class Publication(models.Model):
 
     class Meta:
         default_related_name = "publications"
-        ordering = ("-publication_date", "-paper_nr")
+        ordering = ("-publication_date", "-paper_nr", "pubtype")
+        get_latest_by = "publication_date"
 
     def __str__(self):
         return "{cite}, {title} by {authors}, {date}".format(
@@ -383,6 +390,16 @@ class Publication(models.Model):
         return self.status == STATUS_DRAFT
 
     @property
+    def is_retracted(self) -> bool:
+        """Check if the publication is retracted."""
+        return self.status == PUBLICATION_RETRACTED
+
+    @property
+    def is_under_revision(self) -> bool:
+        """Check if the publication is under revision."""
+        return self.status == PUBLICATION_UNDER_REVISION
+
+    @property
     def is_published(self) -> bool:
         if self.status != PUBLICATION_PUBLISHED:
             return False
@@ -392,6 +409,13 @@ class Publication(models.Model):
         elif self.in_journal:
             return self.in_journal.active
         return False
+
+    @property
+    def was_ever_published(self) -> bool:
+        return self.is_published or self.status in [
+            PUBLICATION_UNDER_REVISION,
+            PUBLICATION_RETRACTED,
+        ]
 
     @property
     def has_abstract_jats(self) -> bool:
@@ -600,7 +624,7 @@ class Publication(models.Model):
     def get_issue_related_publications(self):
         """Return 4 Publications within same Issue."""
         return (
-            Publication.objects.published()
+            Publication.objects.ever_published()
             .filter(in_issue=self.in_issue)
             .exclude(id=self.id)[:4]
         )

@@ -252,7 +252,7 @@ def comment_on_publication(request, doi_label):
     automatically creating a Commentary page if not exist already.
     """
     publication = get_object_or_404(
-        Publication.objects.published(),
+        Publication.objects.ever_published(),
         doi_label=doi_label,
         authors=request.user.contributor,
     )

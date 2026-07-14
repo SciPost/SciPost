@@ -535,7 +535,7 @@ class Submission(models.Model):
             header += " (current version)"
         else:
             header += " (deprecated version " + str(self.thread_sequence_order) + ")"
-        if hasattr(self, "publication") and self.publication.is_published:
+        if hasattr(self, "publication") and self.publication.was_ever_published:
             header += " (published as %s (%s))" % (
                 self.publication.doi_string,
                 self.publication.publication_date.strftime("%Y"),
@@ -742,6 +742,13 @@ class Submission(models.Model):
         return self.is_resubmission_of is not None
 
     @property
+    def is_post_publication(self):
+        if (pub := self.thread_publications.order_by("publication_date").first()) is None:
+            return False
+
+        return self.submission_date.date() >= pub.publication_date
+
+    @property
     def plagiarism_internal_tests_completed(self):
         from submissions.models import InternalPlagiarismAssessment
 
@@ -791,7 +798,7 @@ class Submission(models.Model):
         )
 
     @cached_property
-    def recommendation(self):
+    def recommendation(self) -> "EICRecommendation | None":
         return self.eicrecommendations.active().first()
 
     @property
@@ -945,7 +952,7 @@ class Submission(models.Model):
             Publication.objects.filter(
                 accepted_submission__followup_of__accepted_submission__thread_hash=self.thread_hash
             )
-            .published()
+            .ever_published()
             .order_by(
                 "accepted_submission__thread_hash",
                 "-accepted_submission__submission_date",
@@ -967,6 +974,15 @@ class Submission(models.Model):
             Submission.objects.public()
             .filter(thread_hash=self.thread_hash)
             .order_by("-submission_date", "preprint")
+        )
+
+    @property
+    def thread_publications(self):
+        """Return all Publications in the database linked to Submissions in this thread."""
+        from journals.models import Publication
+
+        return Publication.objects.filter(
+            accepted_submission__thread_hash=self.thread_hash
         )
 
     @cached_property

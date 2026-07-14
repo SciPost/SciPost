@@ -3,9 +3,8 @@ __license__ = "AGPL v3"
 
 import factory
 from django.utils.text import slugify
-from django.utils.timezone import timedelta
 
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum
 
 from .models import *
 
@@ -39,11 +38,7 @@ class TicketFactory(factory.django.DjangoModelFactory):
     publicly_visible = False
     defined_on = LazyAwareDate("date_time_this_decade")
     defined_by = factory.SubFactory("scipost.factories.UserFactory")
-    deadline = factory.LazyAttribute(
-        lambda self: fake.aware.date_time_between(
-            start_date=self.defined_on, end_date="+1y"
-        )
-    )
+    deadline = LazyAwareDateOffset("defined_on", "+1y")
     priority = LazyRandEnum(TICKET_PRIORITIES)
     status = LazyRandEnum(TICKET_STATUSES)
     assigned_to = factory.SubFactory("scipost.factories.UserFactory")

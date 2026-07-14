@@ -12,7 +12,11 @@ class JournalDOILabelConverter:
         try:
             from journals.models import Journal
 
-            self.regex = "|".join([j.doi_label for j in Journal.objects.all()])
+            non_test_journals = Journal.objects.exclude(doi_label__startswith="Test")
+
+            self.regex = r"Test\w*|" + "|".join(
+                [j.doi_label for j in non_test_journals]
+            )
         except ProgrammingError:
             self.regex = "SciPost"
 

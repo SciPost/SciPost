@@ -32,7 +32,7 @@ def populate_tiering(apps, schema_editor):
             tiering.save()
     EICRecommendation.objects.filter(
         recommendation__in=[REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3]
-    ).update(recommendation=EIC_REC_PUBLISH)
+    ).update(recommendation=1)
 
 
 class Migration(migrations.Migration):

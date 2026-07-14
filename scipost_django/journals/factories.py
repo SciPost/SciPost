@@ -9,7 +9,13 @@ from string import ascii_lowercase
 import factory
 import pytz
 
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import (
+    LazyAwareDate,
+    LazyAwareDateOffset,
+    LazyRandEnum,
+    LazyRandInstance,
+    fake,
+)
 
 from common.helpers import (
     random_external_doi,
@@ -19,6 +25,7 @@ from faker import Faker
 from funders.factories import FunderFactory, GrantFactory
 from journals.constants import (
     CC_LICENSES,
+    INDIVIDUAL_PUBLICATIONS,
     ISSUES_AND_VOLUMES,
     ISSUES_ONLY,
     JOURNAL_STRUCTURE,
@@ -60,13 +67,27 @@ class ReferenceFactory(factory.django.DjangoModelFactory):
 
 class JournalFactory(factory.django.DjangoModelFactory):
     college = factory.SubFactory("colleges.factories.CollegeFactory")
-    name = factory.LazyAttributeSequence(
-        lambda self, n: f"SciPost {self.college.name} {n}"
-    )
-    name_abbrev = factory.LazyAttribute(
-        lambda self: "SciPost" + "".join([w[:2] for w in self.name.split()[1:]])
-    )
+    name = factory.LazyAttribute(lambda self: f"Test {self.college.acad_field.name}")
     doi_label = factory.SelfAttribute("name_abbrev")
+
+    @factory.lazy_attribute
+    def name_abbrev(self):
+        nr_chars = 2
+        different_journals = Journal.objects.exclude(college=self.college)
+        while (
+            (
+                name_parts := [
+                    word[:nr_chars].title()
+                    for word in self.college.acad_field.name.split()
+                ]
+            )
+            and (abbreviation := "Test" + "".join(name_parts))
+            and different_journals.filter(name_abbrev=abbreviation).exists()
+        ):
+            nr_chars += 1
+
+        return abbreviation
+
     issn = factory.Faker("numerify", text="########")
     structure = LazyRandEnum(JOURNAL_STRUCTURE)
     list_order = factory.LazyAttribute(lambda self: self.college.journals.count() + 1)
@@ -129,9 +150,7 @@ class VolumeFactory(factory.django.DjangoModelFactory):
         lambda self: f"{self.in_journal.doi_label}.{self.number}"
     )
     start_date = LazyAwareDate("date_time_this_decade")
-    until_date = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.start_date, end_date="+1y")
-    )
+    until_date = LazyAwareDateOffset("start_date", "+1y")
 
     class Meta:
         model = Volume
@@ -162,14 +181,16 @@ class VolumeIssueFactory(IssueFactory):
     in_volume = factory.SelfAttribute("parent")
 
     start_date = factory.LazyAttribute(
-        lambda self: Faker().date_time_between(
+        lambda self: fake.aware.date_time_between(
             start_date=self.parent.start_date,
             end_date=self.parent.until_date,
-            tzinfo=pytz.UTC,
         )
     )
     until_date = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.start_date, end_date="+1y")
+        lambda self: fake.aware.date_between(
+            start_date=self.start_date,
+            end_date=self.parent.until_date,
+        )
     )
 
     path = factory.LazyAttribute(
@@ -193,7 +214,10 @@ class BasePublicationFactory(factory.django.DjangoModelFactory):
         model = Publication
         abstract = True
         django_get_or_create = ("accepted_submission",)
-        exclude = ("pub_container",)
+        exclude = (
+            "pub_container",
+            "container_journal",
+        )
 
     @factory.lazy_attribute
     def pub_container(self):
@@ -201,10 +225,22 @@ class BasePublicationFactory(factory.django.DjangoModelFactory):
         journal = getattr(self, "in_journal", None)
         return issue or journal
 
+    @factory.lazy_attribute
+    def container_journal(self):
+        if in_journal := getattr(self, "in_journal", None):
+            return in_journal
+        elif in_issue := getattr(self, "in_issue", None):
+            if in_journal := getattr(in_issue, "in_journal", None):
+                return in_journal
+            elif in_volume := getattr(in_issue, "in_volume", None):
+                return in_volume.in_journal
+
     # Publication data
     # TODO: This should be a PublishedSubmissionFactory
     accepted_submission = factory.SubFactory(
-        "submissions.factories.SubmissionFactory"  # , generate_publication=False
+        "submissions.factories.PublishedSubmissionFactory",
+        submitted_to=factory.SelfAttribute("..container_journal"),
+        acad_field=factory.SelfAttribute("..container_journal.college.acad_field"),
     )
     status = PUBLICATION_PUBLISHED
 
@@ -245,7 +281,10 @@ class BasePublicationFactory(factory.django.DjangoModelFactory):
         if extracted:
             self.grants.add(*extracted)
 
-        grants = GrantFactory.create_batch(3)
+        grants = GrantFactory.create_batch(
+            3,
+            recipient=LazyRandInstance(self.accepted_submission.authors.all()),
+        )
         self.grants.add(*grants)
 
     @factory.post_generation
@@ -272,8 +311,10 @@ class BasePublicationFactory(factory.django.DjangoModelFactory):
 
     # Date fields
     submission_date = factory.SelfAttribute("accepted_submission.submission_date")
-    acceptance_date = factory.SelfAttribute("accepted_submission.latest_activity")
-    publication_date = factory.SelfAttribute("accepted_submission.latest_activity")
+    acceptance_date = factory.SelfAttribute(
+        "accepted_submission.editorial_decision.taken_on"
+    )
+    publication_date = LazyAwareDateOffset("acceptance_date", "+1m")
     latest_activity = factory.SelfAttribute("accepted_submission.latest_activity")
     latest_citedby_update = factory.SelfAttribute("accepted_submission.latest_activity")
     latest_metadata_update = factory.SelfAttribute(
@@ -294,34 +335,59 @@ class BasePublicationFactory(factory.django.DjangoModelFactory):
     #         author_list=self.author_list,
     #     )
 
-    # @factory.post_generation
-    # def author_relations(self, create, extracted, **kwargs):
-    #     if not create:
-    #         return
+    @factory.post_generation
+    def references(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for i, reference in enumerate(extracted, start=1):
+                reference.publication = self
+                reference.reference_number = i
+                reference.save()
+        else:
+            ReferenceFactory.create_batch(5, publication=self)
 
-    #     # Append references
-    #     for i in range(5):
-    #         ReferenceFactory(publication=self)
+    @factory.post_generation
+    def authors(self, create, extracted, **kwargs):
+        if not create:
+            return
 
-    # Copy author data from Submission
-    # for author in self.accepted_submission.authors.all():
-    #     self.authors.create(publication=self, profile=author)
-    # self.authors_claims.add(*self.accepted_submission.authors_claims.all())
-    # self.authors_false_claims.add(*self.accepted_submission.authors_false_claims.all())
+        if extracted:
+            raise NotImplementedError(
+                "Passing authors to PublicationFactory is not implemented."
+            )
+
+        # Copy author data from Submission
+        for i, author in enumerate(self.accepted_submission.authors.all()):
+            pat = self.authors.create(
+                publication=self,
+                profile=author.profile,
+                order=i + 1,
+            )
+            # Assign one of the author's affiliations to the publication author relation
+            if affil := random.choice(author.profile.affiliations.all()):
+                pat.affiliations.set([affil.organization.id])
 
 
 class JournalPublicationFactory(BasePublicationFactory):
-    in_journal = factory.SubFactory(JournalFactory)
+    in_journal = factory.SubFactory(
+        JournalFactory,
+        structure=INDIVIDUAL_PUBLICATIONS,
+    )
 
 
 class VolumeIssuePublicationFactory(BasePublicationFactory):
-    in_issue = factory.SubFactory(VolumeIssueFactory)
-    in_journal = factory.SelfAttribute("in_issue.in_volume.in_journal")
+    in_issue = factory.SubFactory(
+        VolumeIssueFactory,
+        parent__in_journal__structure=ISSUES_AND_VOLUMES,
+    )
 
 
 class JournalIssuePublicationFactory(BasePublicationFactory):
-    in_issue = factory.SubFactory(JournalIssueFactory)
-    in_journal = factory.SelfAttribute("in_issue.in_journal")
+    in_issue = factory.SubFactory(
+        JournalIssueFactory,
+        parent__structure=ISSUES_ONLY,
+    )
 
 
 class AutogeneratedFileContentTemplateFactory(factory.django.DjangoModelFactory):
@@ -411,11 +477,7 @@ class PublicationUpdateFactory(factory.django.DjangoModelFactory):
     number = factory.LazyAttribute(lambda self: self.publication.updates.count() + 1)
     update_type = LazyRandEnum(PublicationUpdate.TYPE_CHOICES)
     text = factory.Faker("paragraph")
-    publication_date = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(
-            start_date=self.publication.publication_date, end_date="+1y"
-        )
-    )
+    publication_date = LazyAwareDateOffset("publication.publication_date", "+1y")
     doideposit_needs_updating = False
     doi_label = factory.LazyAttribute(
         lambda self: f"{self.publication.doi_label}.Upd.{self.number}"

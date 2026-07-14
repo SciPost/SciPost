@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 import factory
 
-from common.faker import fake
+from common.faker import fake, LazyAwareDateOffset
 
 from ..models import RefereeInvitation
 
@@ -12,28 +12,22 @@ from ..models import RefereeInvitation
 class RefereeInvitationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = RefereeInvitation
-        exclude = ("profile_info",)
-        django_get_or_create = ("submission", "profile")
-
-    class Params:
-        registered = factory.Trait(
-            referee=factory.SubFactory("scipost.factories.ContributorFactory"),
-            profile=None,
-            profile_info=factory.SelfAttribute("referee.profile"),
-        )
-
-    referee = factory.SubFactory("profiles.factories.ProfileFactory")
-
-    profile_info = factory.SelfAttribute("referee")
-    title = factory.SelfAttribute("profile_info.title")
-    first_name = factory.SelfAttribute("profile_info.first_name")
-    last_name = factory.SelfAttribute("profile_info.last_name")
-    email_address = factory.SelfAttribute("profile_info.email")
+        exclude = ("registered",)
+        django_get_or_create = ("submission", "referee")
 
     submission = factory.SubFactory("submissions.factories.SubmissionFactory")
 
-    date_invited = factory.SelfAttribute("submission.latest_activity")
-    date_last_reminded = factory.SelfAttribute("submission.latest_activity")
+    registered = factory.Faker("boolean", chance_of_getting_true=30)
+    referee = factory.SubFactory(
+        "profiles.factories.ProfileFactory",
+        acad_field=factory.SelfAttribute("..submission.acad_field"),
+        registered=factory.SelfAttribute("..registered"),
+    )
+    email_address = factory.SelfAttribute("referee.email")
+
+    date_invited = LazyAwareDateOffset("submission.eic_first_assigned_date", "+3d")
+    date_last_reminded = factory.SelfAttribute("date_invited")
+    intended_delivery_date = LazyAwareDateOffset("date_invited", "+30d")
     invited_by = factory.SelfAttribute("submission.editor_in_charge")
 
     nr_reminders = factory.Faker("random_int", min=0, max=3)
@@ -43,24 +37,38 @@ class RefereeInvitationFactory(factory.django.DjangoModelFactory):
 class AcceptedRefereeInvitationFactory(RefereeInvitationFactory):
     registered = True
     accepted = True
-    date_responded = factory.LazyAttribute(
-        lambda self: fake.aware.date_time_between(
-            start_date=self.date_invited, end_date="+1y"
-        )
-    )
-
-    @factory.post_generation
-    def report(self, create, extracted, **kwargs):
-        if create:
-            from submissions.factories import VettedReportFactory
-
-            VettedReportFactory(
-                submission=self.submission, author=self.referee.contributor
-            )
+    date_responded = LazyAwareDateOffset("date_invited", "+15d")
+    intended_delivery_date = LazyAwareDateOffset("date_responded", "+30d")
 
 
 class FulfilledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):
     fulfilled = True
+
+    @factory.post_generation
+    def report(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        fuzzed_delay = fake.time_delta("-10d") + fake.time_delta("+5d")
+        date_submitted = self.intended_delivery_date + fuzzed_delay
+
+        if extracted:
+            extracted.submission = self.submission
+            extracted.author = self.referee.contributor
+            extracted.date_submitted = date_submitted
+            extracted.save()
+
+        from submissions.factories import VettedReportFactory
+
+        # The report is usually submitted earlier than,
+        # but also occasionally later than the intended delivery date
+        VettedReportFactory(
+            submission=self.submission,
+            author=self.referee.contributor,
+            date_submitted=date_submitted,
+            invited=True,
+            **kwargs,
+        )
 
 
 class CancelledRefereeInvitationFactory(AcceptedRefereeInvitationFactory):

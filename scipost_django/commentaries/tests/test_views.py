@@ -98,7 +98,7 @@ class VetCommentaryRequestsTest(TestCase):
         self.view_url = reverse("commentaries:vet_commentary_requests")
         self.login_url = reverse("scipost:login")
         self.password = "test123"
-        self.contributor = ContributorFactory(user__password=self.password)
+        self.contributor = ContributorFactory(dbuser__password=self.password)
 
     def set_required_permissions_and_login(self):
         """Set the required permissions to testuser to access vet_commentary_requests."""

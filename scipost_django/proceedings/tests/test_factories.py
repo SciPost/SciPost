@@ -6,6 +6,6 @@ from proceedings.factories import ProceedingsFactory
 
 
 class TestProceedingsFactory(TestCase):
-    def test_can_create_proceedingss(self):
+    def test_can_create_proceedings(self):
         proceedings = ProceedingsFactory()
         self.assertIsNotNone(proceedings)

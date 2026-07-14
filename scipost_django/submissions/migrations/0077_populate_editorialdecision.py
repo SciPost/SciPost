@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-from submissions.constants import EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED
+from submissions.constants import DECISION_FIXED
 
 
 def populate_editorialdecision(apps, schema_editor):
@@ -10,7 +10,7 @@ def populate_editorialdecision(apps, schema_editor):
     EditorialDecision = apps.get_model("submissions", "EditorialDecision")
 
     for eicrec in EICRecommendation.objects.filter(
-        recommendation__in=[EIC_REC_PUBLISH, EIC_REC_REJECT], status=DECISION_FIXED
+        recommendation__in=[1, -3], status=DECISION_FIXED
     ):
         decision = EditorialDecision(
             submission=eicrec.submission,

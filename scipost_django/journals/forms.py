@@ -31,12 +31,19 @@ from common.forms import CrispyFormMixin, HTMXInlineCRUDModelForm, SearchForm
 from journals.models.resource import PublicationResource
 from journals.models.update import PublicationUpdate
 from series.models import CollectionPublicationsTable
+from submissions.constants import (
+    EIC_REC_ACCEPT_CORRECTIONS,
+    EIC_REC_RETRACT_PUBLICATION,
+)
+from submissions.models.decision import EditorialDecision
 
 from .constants import (
+    PUBLICATION_RETRACTED,
     STATUS_DRAFT,
     STATUS_PUBLICLY_OPEN,
     PUBLICATION_PREPUBLISHED,
     PUBLICATION_PUBLISHED,
+    PUBLICATION_UNDER_REVISION,
 )
 from .exceptions import PaperNumberingError
 from .models import (
@@ -65,7 +72,7 @@ from submissions.models import Submission
 
 class PortalPublicationSearchForm(CrispyFormMixin, SearchForm[Publication]):
     model = Publication
-    queryset = Publication.objects.published()
+    queryset = Publication.objects.ever_published()
 
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=512, required=False)
@@ -1075,6 +1082,32 @@ class DraftPublicationUpdateForm(forms.ModelForm):
         self.initial["number"] = publication.updates.count() + 1
         self.initial["publication_date"] = timezone.now()
 
+    def save(self, commit: bool):
+        instance = super().save(commit)
+
+        # Find the latest fixed decision in the thread and
+        # update the publication status after the update is issued.
+        if instance.publication.status == PUBLICATION_UNDER_REVISION and (
+            decision := EditorialDecision.objects.filter(
+                for_submission__thread_hash=instance.publication.accepted_submission.thread_hash,
+                status=EditorialDecision.FIXED_AND_ACCEPTED,
+            ).first()
+        ):
+            if (
+                decision.decision == EIC_REC_ACCEPT_CORRECTIONS
+                and instance.update_type == PublicationUpdate.CORRECTION
+            ):
+                instance.publication.status = PUBLICATION_PUBLISHED
+                instance.publication.save()
+            elif (
+                decision.decision == EIC_REC_RETRACT_PUBLICATION
+                and instance.update_type == PublicationUpdate.RETRACTION
+            ):
+                instance.publication.status = PUBLICATION_RETRACTED
+                instance.publication.save()
+
+        return instance
+
 
 class DraftPublicationApprovalForm(forms.ModelForm):
     class Meta:
@@ -1207,6 +1240,56 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
             # Email authors
             DirectMailUtil(
                 "journals/paper_published_notification",
+                publication=self.instance,
+            ).send_mail()
+
+        return self.instance
+
+
+class PublicationOpenRevisionForm(RequestFormMixin, forms.ModelForm):
+    class Meta:
+        model = Publication
+        fields = ["current_revision_description"]
+
+    def update_submission(self):
+        # Mark the submission as having been published:
+        submission = self.instance.accepted_submission
+        submission.status = Submission.AWAITING_RESUBMISSION
+        submission.save()
+
+    def update_publication(self):
+        self.instance.status = PUBLICATION_UNDER_REVISION
+        self.instance.save()
+
+    def update_editorial_decision(self):
+        from submissions.models import EditorialDecision
+
+        if editorial_decision := self.instance.accepted_submission.editorial_decision:
+            editorial_decision.status = EditorialDecision.DEPRECATED
+            editorial_decision.save()
+
+    def add_revision_event(self):
+        revision_event = (
+            f"Publication {self.instance.doi_label} has been opened for revision."
+        )
+        if self.instance.current_revision_description:
+            revision_event += (
+                f" The description reads: {self.instance.current_revision_description}"
+            )
+        self.instance.accepted_submission.add_general_event(revision_event)
+
+    def save(self, commit=True):
+        super().save(commit=commit)
+
+        if commit:
+            self.update_publication()
+            self.update_submission()
+            self.update_editorial_decision()
+            self.add_revision_event()
+
+            # Email authors
+            DirectMailUtil(
+                "journals/publication_open_for_revision_notification_authors",
                 publication=self.instance,
             ).send_mail()
 

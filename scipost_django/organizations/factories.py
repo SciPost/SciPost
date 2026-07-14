@@ -1,7 +1,7 @@
 import factory
 import faker
 
-from common.faker import LazyAwareDate, LazyRandEnum, fake
+from common.faker import LazyAwareDate, LazyAwareDateOffset, LazyRandEnum
 from organizations.constants import (
     ORGANIZATION_EVENTS,
     ORGANIZATION_STATUSES,
@@ -71,11 +71,15 @@ class OrganizationEventFactory(factory.django.DjangoModelFactory):
 class ContactFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Contact
+        exclude = ("contributor",)
 
-    user = factory.SubFactory("scipost.factories.UserFactory")
-    title = factory.SelfAttribute("user.contributor.profile.title")
-    activation_key = factory.SelfAttribute("user.contributor.activation_key")
-    key_expires = factory.SelfAttribute("user.contributor.key_expires")
+    # To create a User - Profile pair. Contributor is not strictly needed.
+    contributor = factory.SubFactory("scipost.factories.ContributorFactory")
+
+    user = factory.SelfAttribute("contributor.user")
+    title = factory.SelfAttribute("contributor.profile.title")
+    activation_key = factory.SelfAttribute("contributor.activation_key")
+    key_expires = factory.SelfAttribute("contributor.key_expires")
 
 
 class ContactRoleFactory(factory.django.DjangoModelFactory):
@@ -86,9 +90,7 @@ class ContactRoleFactory(factory.django.DjangoModelFactory):
     organization = factory.SubFactory(OrganizationFactory)
     kind = LazyRandEnum(ROLE_KINDS, repeat=2)
     date_from = LazyAwareDate("date_this_year")
-    date_until = factory.LazyAttribute(
-        lambda self: fake.aware.date_between(start_date=self.date_from, end_date="+1y")
-    )
+    date_until = LazyAwareDateOffset("date_from", "+1y")
 
 
 class ContactPersonFactory(factory.django.DjangoModelFactory):

@@ -130,9 +130,7 @@ class TestConditionalAssignmentOfferAcceptanceFailure(TestCase):
         )
         later_offer = ConditionalAssignmentOfferFactory(
             submission=offer.submission,
-            offered_on=fake.aware.date_time_between(
-                start_date=offer.offered_on, end_date="+30d"
-            ),
+            offered_on=offer.offered_on + fake.aware.timedelta("+30d"),
             offered_until=offer.offered_until,
             condition_type=offer.condition_type,
             condition_details=offer.condition_details,

@@ -68,11 +68,10 @@ TEST_SUBMISSION = {
 class BaseContributorTestCase(TestCase):
     def setUp(self):
         add_groups_and_permissions()
-        ContributorFactory.create_batch(5)
         self.current_contrib = ContributorFactory.create(
-            user__last_name="Linder",  # To pass the author check in create submissions view
-            user__username="Test",
-            user__password="testpw",
+            profile__last_name="Linder",  # To pass the author check in create submissions view
+            dbuser__username="Test",
+            dbuser__password="testpw",
         )
 
 
@@ -288,9 +287,7 @@ class SubmitReportTest(BaseContributorTestCase):
     def setUp(self):
         super().setUp()
         self.client = Client()
-        report_deadline = Faker().date_time_between(
-            start_date="now", end_date="+30d", tzinfo=pytz.utc
-        )
+        report_deadline = fake.aware.date_time_between(start_date="now", offset="+30d")
         self.submission = InRefereeingSubmissionFactory(
             reporting_deadline=report_deadline
         )

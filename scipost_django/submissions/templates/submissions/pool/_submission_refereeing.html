@@ -6,7 +6,7 @@
 
 <div class="row">
 
-  {% if submission.thread_full.first.publication and submission.thread_full.first.publication.is_published %}
+  {% if submission.thread_full.first.publication and submission.thread_full.first.publication.was_ever_published %}
     <div class="col-12">
       <h4 class="my-4">
         <span class="border border-2 border-success p-2">
