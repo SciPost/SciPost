@@ -21,7 +21,7 @@ def update_keys_migration(app: str, model: str, field: str, key_map: dict[Any, A
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("submissions", "0174_remove_submission_code_metadata_and_more"),
+        ("submissions", "0176_remove_submission_needs_coauthorships_update_and_more"),
     ]
 
     operations = [

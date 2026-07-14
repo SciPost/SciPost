@@ -4,9 +4,8 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("submissions", "0175_alter_alternativerecommendation_recommendation_and_more"),
+        ("submissions", "0177_alter_alternativerecommendation_recommendation_and_more"),
     ]
 
     operations = [
