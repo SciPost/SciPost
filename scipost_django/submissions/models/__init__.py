@@ -36,3 +36,5 @@ from .recommendation import EICRecommendation, AlternativeRecommendation
 from .decision import EditorialDecision
 
 from .referee_indication import RefereeIndication
+
+from .appeal import Appeal

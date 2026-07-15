@@ -28,6 +28,7 @@ from submissions.models import (
     Readiness,
     PreprintServer,
     RefereeIndication,
+    Appeal,
 )
 from scipost.models import Contributor
 from colleges.models import Fellowship
@@ -602,3 +603,23 @@ class RefereeIndicationAdmin(admin.ModelAdmin):
             if obj.referee
             else f"{obj.first_name} {obj.last_name}"
         )
+
+
+@admin.register(Appeal)
+class AppealAdmin(admin.ModelAdmin):
+    search_fields = [
+        "editorial_decision__submission__title",
+        "editorial_decision__submission__author_list",
+        "editorial_decision__submission__preprint__identifier_w_vn_nr",
+    ]
+    list_display = (
+        "editorial_decision",
+        "status",
+        "created",
+        "updated",
+    )
+    list_filter = ("status",)
+    autocomplete_fields = [
+        "editorial_decision",
+        "adjudicators",
+    ]
