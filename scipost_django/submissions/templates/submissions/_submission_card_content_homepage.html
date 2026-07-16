@@ -1,7 +1,7 @@
 {% extends 'submissions/_submission_card_content.html' %}
 
 {% block card_footer %}
-  <div class="meta">
+  <div class="text-muted">
     Submitted {{ submission.submission_date|date:'Y-m-d' }} to {{ submission.submitted_to }}
   </div>
 {% endblock %}

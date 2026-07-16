@@ -1,18 +1,19 @@
-<div class="li publication">
-  <h3 class="specialties">
-    <a href="{% url 'journals:publications' %}?field={{ publication.acad_field.slug }}" class="muted-link">{{ publication.acad_field }}</a>:&nbsp;
+<div class="d-flex flex-column gap-1">
+  <p class="d-flex flex-wrap gap-1 align-items-center mb-0">
+    <a href="{% url 'journals:publications' %}?field={{ publication.acad_field.slug }}" class="badge border border-2 border-secondary text-dark">{{ publication.acad_field }}</a>
     {% for specialty in publication.specialties.all %}
-      <a href="{% url 'journals:publications' %}?specialty={{ specialty.slug }}" class="muted-link p-1">{{ specialty }}</a>
-      {% if not forloop.last %}<strong>&nbsp;&bullet;&nbsp;</strong>{% endif %}
+      <a href="{% url 'journals:publications' %}?specialty={{ specialty.slug }}" class="badge bg-light text-muted">{{ specialty }}</a>
+      {% if not forloop.last %}&bullet;{% endif %}
     {% endfor %}
-  </h3>
-  <h3 class="title"><a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a></h3>
-
-  <p class="authors">{{ publication.author_list }}</p>
-  <p class="meta mb-0">
-    {{ publication.citation }} &middot; <span class="fw-light">published {{ publication.publication_date|date:'j F Y' }}</span>
   </p>
+  <h3 class="mb-0"><a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a></h3>
+  <p class="mb-0">by {{ publication.author_list }}</p>
+  <div class="text-muted mb-0 d-flex flex-wrap gap-1 align-items-center">
+    <span>{{ publication.citation }}</span>
+    &middot; 
+    <span>published {{ publication.publication_date|date:'j F Y' }}</span>
+  </div>
   {% for collection in publication.collections.all %}
-    <p class="m-1"><em>Part of the <a href="{{ collection.get_absolute_url }}">{{ collection }}</a> Collection in the <a href="{{ collection.series.get_absolute_url }}">{{ collection.series }}</a> Series.</em></p>
+    <p class="my-1"><em>Part of the <a href="{{ collection.get_absolute_url }}">{{ collection }}</a> Collection in the <a href="{{ collection.series.get_absolute_url }}">{{ collection.series }}</a> Series.</em></p>
   {% endfor %}
 </div>

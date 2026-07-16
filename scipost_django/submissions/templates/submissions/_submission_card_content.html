@@ -3,7 +3,7 @@
 {% load common_extras %}
 
 {% block card_footer %}
-  <p class="meta">
+  <p class="text-muted">
     Version {{ submission.thread_sequence_order }} {% if submission.is_latest %}(latest version){% endif %}
     <br>
     {% with published_publications=submission.published_publications|default_if_none:submission.publications.published %}

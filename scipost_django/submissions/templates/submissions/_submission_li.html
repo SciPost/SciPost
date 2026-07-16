@@ -1,12 +1,12 @@
-<div class="li submission">
-  <h3 class="specialties">
-    <a href="{% url 'submissions:submissions' %}?field={{ submission.acad_field.slug }}" class="muted-link">{{ submission.acad_field }}</a>:&nbsp;
+<div class="d-flex flex-column">
+  <p class="d-flex flex-wrap gap-1 align-items-center mb-0">
+    <a href="{% url 'submissions:submissions' %}?field={{ submission.acad_field.slug }}" class="badge border border-2 border-secondary text-dark">{{ submission.acad_field }}</a>
     {% for specialty in submission.specialties.all %}
-      <a href="{% url 'submissions:submissions' %}?specialty={{ specialty.slug }}" class="muted-link">{{ specialty }}</a>
-      {% if not forloop.last %}<strong>&nbsp;&bullet;&nbsp;</strong>{% endif %}
+      <a href="{% url 'submissions:submissions' %}?specialty={{ specialty.slug }}" class="badge bg-light text-muted">{{ specialty }}</a>
+      {% if not forloop.last %}&bullet;{% endif %}
     {% endfor %}
-  </h3>
-    <h3 class="title"><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
-    <p class="authors">by {{ submission.author_list }}</p>
-    {% block card_footer %}{% endblock %}
+  </p>
+  <h3 class="mb-0 mt-1"><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
+  <p class="mb-0">by {{ submission.author_list }}</p>
+  {% block card_footer %}{% endblock %}
 </div>
