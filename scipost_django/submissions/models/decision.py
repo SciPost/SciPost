@@ -12,6 +12,7 @@ from ..constants import (
     EIC_REC_DISMISS_CONCERNS,
     EIC_REC_NO_UPDATE_NEEDED,
     EIC_REC_PUBLISH,
+    EIC_REC_REJECT,
     EIC_REC_RETRACT_PUBLICATION,
 )
 from ..managers import EditorialDecisionQuerySet
@@ -108,6 +109,23 @@ class EditorialDecision(models.Model):
             "submissions:editorial_decision_detail",
             kwargs={"identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr},
         )
+
+    def get_decision_bs_class(self):
+        """Bootstrap class for the decision."""
+        if self.decision == EIC_REC_PUBLISH:
+            return "success"
+        elif self.decision == EIC_REC_REJECT:
+            return "danger"
+        elif self.decision == EIC_REC_ACCEPT_CORRECTIONS:
+            return "success"
+        elif self.decision == EIC_REC_RETRACT_PUBLICATION:
+            return "danger"
+        elif self.decision == EIC_REC_DISMISS_CONCERNS:
+            return "secondary"
+        elif self.decision == EIC_REC_NO_UPDATE_NEEDED:
+            return "secondary"
+        else:
+            return "secondary"
 
     @property
     def is_fixed_and_accepted(self):

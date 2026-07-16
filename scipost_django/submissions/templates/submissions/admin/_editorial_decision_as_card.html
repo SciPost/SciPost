@@ -1,0 +1,50 @@
+{% load bootstrap %}
+{% load automarkup %}
+
+<div class="card">
+
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h3 class="mb-0">Editorial Decision</h3>
+    <div class="d-flex gap-2">
+      <span>Version {{ decision.version }}</span>
+      -
+      <span>{{ decision.taken_on }}</span>
+    </div>
+  </div>
+  
+  <div class="card-body">
+    {% include "submissions/_submission_li.html" with submission=decision.submission %}
+
+    <div class="row mb-0 mt-2 d-flex justify-content-between align-items-center">
+
+      <div class="col-12 col-md-auto d-flex gap-2 align-items-center fs-6">
+        <p class="mb-0">
+          Publication in {{ decision.for_journal }}
+        </p>
+        <span class="badge bg-{{ decision.get_decision_bs_class }}">
+          {{ decision.get_decision_display }}
+        </span>
+      </div>
+
+      <div class="col-12 col-md-auto">
+        {{ decision.get_status_display }}
+      </div>
+      
+    </div>
+
+    {% if decision.remarks_for_authors %}
+      <section class="mt-4">
+        <h6 class="mb-2">Remarks for authors</h6>
+        {% automarkup decision.remarks_for_authors %}
+      </section>
+    {% endif %}
+
+    {% if decision.remarks_for_editorial_college %}
+      <section class="mt-4">
+        <h6 class="mb-2">Remarks for the Editorial College</h6>
+        {% automarkup decision.remarks_for_editorial_college %}
+      </section>
+    {% endif %}
+
+  </div>
+</div>
