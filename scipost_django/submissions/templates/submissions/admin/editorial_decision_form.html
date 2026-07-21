@@ -1,11 +1,11 @@
-{% extends 'submissions/admin/base.html' %}
+{% extends 'submissions/submission_detail.html' %}
 
 {% load bootstrap %}
 {% load scipost_extras %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">Editorial Decision</span>
+  <a class="breadcrumb-item" href="{{ submission.editorial_decision.get_absolute_url }}">Editorial Decision</a>
 {% endblock %}
 
 {% block pagetitle %}: Editorial Decision{% endblock pagetitle %}

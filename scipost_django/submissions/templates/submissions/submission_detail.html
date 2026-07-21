@@ -18,7 +18,7 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</span>
+  <a class="breadcrumb-item" href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}</a>
 {% endblock %}
 
 {% block headsup %}
