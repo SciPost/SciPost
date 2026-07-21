@@ -11,6 +11,7 @@ from colleges.permissions import is_edadmin
 from common.forms import CrispyFormMixin, HTMXDynSelWidget, SearchForm
 from common.utils.text import partial_names_match
 from ethics.managers import CoauthorshipExclusionPurpose
+from submissions.models.appeal import Appeal
 from submissions.models.assignment import ConditionalAssignmentOffer
 
 
@@ -4407,3 +4408,37 @@ class RefereeIndicationForm(forms.ModelForm):
         if commit:
             indication.save()
         return indication
+
+
+class AppealForm(forms.ModelForm):
+    class Meta:
+        model = Appeal
+        fields = [
+            "editorial_decision",
+            "appeal_letter_attachment",
+            "remarks_edadmin",
+            "adjudicators",
+            "status",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["editorial_decision"].disabled = True
+
+        senior_fellows_for_submission = Fellowship.objects.all().active().senior()
+        if self.instance and self.instance.pk:
+            editorial_decision = self.instance.editorial_decision
+        else:
+            editorial_decision = self.initial.get("editorial_decision")
+        if not editorial_decision:
+            raise ValueError("Editorial decision must be provided for the appeal form.")
+
+        senior_fellows_for_submission = (
+            senior_fellows_for_submission.college_specialties_overlap_with_submission(
+                editorial_decision.submission
+            )
+        )
+        self.fields["adjudicators"].queryset = Contributor.objects.filter(
+            id__in=senior_fellows_for_submission.values("contributor_id")
+        )

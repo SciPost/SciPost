@@ -52,6 +52,7 @@ from scipost.permissions import (
     HTMXResponse,
     permission_required_htmx,
 )
+from submissions.models.appeal import Appeal
 from submissions.models.assignment import ConditionalAssignmentOffer
 from submissions.models.communication import EditorialCommunication
 
@@ -83,6 +84,7 @@ from ..models import (
 )
 from ..mixins import SubmissionMixin, SubmissionAdminViewMixin
 from ..forms import (
+    AppealForm,
     InviteRefereeSearchForm,
     RefereeIndicationForm,
     RefereeInvitationChangeEmailForm,
@@ -4135,3 +4137,45 @@ def _hx_referee_indication_delete(request: HttpRequest, pk, profile=None):
 
     referee_indication.delete()
     return empty(request)
+
+
+class AppealCreateView(SubmissionMixin, PermissionsMixin, CreateView):
+    """For EdAdmin to create an appeal on a Submission."""
+
+    permission_required = "scipost.can_fix_College_decision"
+    model = Appeal
+    form_class = AppealForm
+    template_name = "submissions/admin/appeal_form.html"
+
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        initial.update(
+            {
+                "editorial_decision": self.submission.editorial_decision,
+                "status": Appeal.DRAFTED,
+            }
+        )
+        return initial
+
+
+class AppealUpdateView(SubmissionMixin, PermissionsMixin, UpdateView):
+    """For EdAdmin to update an appeal on a Submission."""
+
+    permission_required = "scipost.can_fix_College_decision"
+    model = Appeal
+    form_class = AppealForm
+    template_name = "submissions/admin/appeal_form.html"
+
+    def get_object(self, queryset: QuerySet | None = None) -> Appeal:
+        return get_object_or_404(
+            Appeal,
+            editorial_decision__submission__preprint__identifier_w_vn_nr=self.kwargs.get(
+                "identifier_w_vn_nr"
+            ),
+        )
+
+
+class AppealDetailView(SubmissionMixin, PermissionsMixin, DetailView):
+    permission_required = "scipost.can_fix_College_decision"
+    model = Appeal
+    template_name = "submissions/admin/appeal_detail.html"

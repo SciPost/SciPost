@@ -289,6 +289,21 @@ urlpatterns = [
         name="fix_editorial_decision",
     ),
     path(
+        "admin/<identifier:identifier_w_vn_nr>/appeal/create",
+        views.AppealCreateView.as_view(),
+        name="appeal_create",
+    ),
+    path(
+        "admin/<identifier:identifier_w_vn_nr>/appeal/update",
+        views.AppealUpdateView.as_view(),
+        name="appeal_update",
+    ),
+    path(
+        "admin/<identifier:identifier_w_vn_nr>/appeal",
+        views.AppealDetailView.as_view(),
+        name="appeal_detail",
+    ),
+    path(
         "<identifier:identifier_w_vn_nr>/accept_puboffer",
         views.accept_puboffer,
         name="accept_puboffer",

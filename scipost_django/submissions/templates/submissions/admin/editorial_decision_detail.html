@@ -31,6 +31,12 @@
 	      </ul>
 	    </span>
 	  </li>
+  {% elif decision.status == decision.FIXED_AND_ACCEPTED %}
+    <li class="list-item my-2">
+      <a class="btn btn-danger" href="{% url 'submissions:appeal_create' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr %}">
+        Start an appeal to this Editorial Decision
+      </a>
+    </li>
 	{% endif %}
       </ul>
 

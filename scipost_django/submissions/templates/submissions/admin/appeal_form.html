@@ -1,0 +1,27 @@
+{% extends 'submissions/admin/editorial_decision_detail.html' %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <a class="breadcrumb-item"
+     href="{{ submission.editorial_decision.appeal.get_absolute_url }}">Appeal</a>
+     <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Create{% endif %}</span>
+{% endblock %}
+
+{% block pagetitle %}
+  : Appeal
+{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+
+      <h1 class="highlight">
+        {% if form.instance.id %}Update{% else %}Create{% endif %} Appeal
+      </h1>
+      {% include 'submissions/admin/_editorial_decision_as_card.html' with decision=submission.editorial_decision %}
+
+    </div>
+  </div>
+
+{% endblock %}
