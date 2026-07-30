@@ -26,3 +26,21 @@ def is_date_representation(value: Any) -> TypeGuard[DateRepresentation]:
             return False
     else:
         return isinstance(value, (date, datetime))
+
+def days_duration_human(duration: int) -> str:
+    """
+    Returns the most appropriate human-readable representation of a duration in days.
+    """
+    years = duration // 365
+    months = (duration % 365) // 30
+    days = duration % 30
+
+    parts = []
+    if years > 0:
+        parts.append(f"{years} year{'s' if years > 1 else ''}")
+    if months > 0:
+        parts.append(f"{months} month{'s' if months > 1 else ''}")
+    if days > 0:
+        parts.append(f"{days} day{'s' if days > 1 else ''}")
+
+    return ", ".join(parts) if parts else "0 days"

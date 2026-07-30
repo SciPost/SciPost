@@ -9,10 +9,12 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from common.utils.text import split_strip
+from common.utils.dates import days_duration_human
 
 register = template.Library()
 
 register.filter("split_strip", split_strip)
+register.filter("days_duration_human", days_duration_human)
 
 @register.simple_tag(takes_context=True)
 def action_url(context, **extra_kwargs):
