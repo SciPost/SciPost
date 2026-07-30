@@ -175,6 +175,16 @@ class Command(BaseCommand):
             name="Can delete emails of Profiles",
             content_type=content_type,
         )
+        can_view_unavailability_periods, created = Permission.objects.get_or_create(
+            codename="can_view_unavailability_periods",
+            name="Can view unavailability periods of Contributors",
+            content_type=content_type,
+        )
+        can_manage_unavailability_periods, created = Permission.objects.get_or_create(
+            codename="can_manage_unavailability_periods",
+            name="Can manage unavailability periods of Contributors",
+            content_type=content_type,
+        )
 
         # Object Merger
         can_compare_objects, created = Permission.objects.get_or_create(
@@ -697,6 +707,8 @@ class Command(BaseCommand):
                 can_mark_profile_emails_recovery,
                 can_view_profile_email_creation_dates,
                 can_delete_profile_emails,
+                can_view_unavailability_periods,
+                can_manage_unavailability_periods,
                 can_mark_non_duplicates,
                 can_compare_objects,
                 can_compare_profiles,

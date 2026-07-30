@@ -65,7 +65,8 @@
     {% if perms.scipost.can_view_profiles %}
       <h3>Profiles</h3>
       <ul>
-	<li><a href="{% url 'profiles:profiles' %}">List/Manage Profiles</a></li>
+        <li><a href="{% url 'profiles:profiles' %}">List/Manage Profiles</a></li>
+        <li><a href="{% url 'scipost:unavailability_period_list' %}">List/Manage Unavailabilities</a></li>
       </ul>
     {% endif %}
 

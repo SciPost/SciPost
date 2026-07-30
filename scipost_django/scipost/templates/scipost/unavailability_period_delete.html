@@ -1,0 +1,71 @@
+{% extends 'scipost/unavailability_period_list.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Delete</span>
+{% endblock %}
+
+
+{% block content %}
+  <h1 class="highlight">Delete Unavailability Period</h1>
+  <table class="table table-hover table-center table-responsive position-relative">
+    <tr>
+      <th>Profile</th>
+      <td>{{ object.contributor.profile.full_name }}</td>
+    </tr>
+    <tr>
+      <th>Start</th>
+      <td>{{ object.start }}</td>
+    </tr>
+    <tr>
+      <th>End</th>
+      <td>{{ object.end }}</td>
+    </tr>
+  </table>
+
+  {% if work_contract %}
+    <p class="mt-3 fs-4">This unavailability period coincides with an active work contract.</p>
+    <p>
+      Deleting it will remove the associated (paid time off) work log and reattribute the remaining days off to the contributor's work contract.
+    </p>
+
+    {% if work_logs %}
+      <table class="table table-hover table-center table-responsive position-relative mt-2">
+        <thead>
+          <tr>
+            <th>Comments</th>
+            <th>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for work_log in work_logs %}
+            <tr>
+              <td>{{ work_log.comments }}</td>
+              <td>{{ work_log.duration }} hrs</td>
+            </tr>
+          {% endfor %}
+
+        </tbody>
+      </table>
+    {% endif %}
+  {% endif %}
+
+  <form action="" method="post">
+    {% csrf_token %}
+    <input type="submit"
+           value="Delete"
+           class="btn btn-danger" />
+    <a href="{% url 'scipost:unavailability_period_list' %}"
+       class="btn btn-secondary">Cancel</a>
+  </form>
+
+{% endblock content %}
+
+
+{% block footer_script %}
+  {{ block.super }}
+  {{ form.media }}
+{% endblock footer_script %}

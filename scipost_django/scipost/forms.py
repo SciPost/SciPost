@@ -23,7 +23,7 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.dates import MONTHS
 
@@ -61,7 +61,7 @@ from .models import (
 )
 from .totp import TOTPVerification
 
-from common.forms import ModelChoiceFieldwithid, MultiEmailField
+from common.forms import HTMXDynSelWidget, MultiEmailField
 
 from colleges.models import Fellowship, PotentialFellowshipEvent
 from commentaries.models import Commentary
@@ -991,9 +991,14 @@ class AuthorshipClaimForm(forms.Form):
 
 
 class UnavailabilityPeriodForm(forms.ModelForm):
+    contributor = forms.ModelChoiceField(queryset=Contributor.objects.eponymous())
     class Meta:
         model = UnavailabilityPeriod
-        fields = ["start", "end"]
+        fields = (
+            "contributor",
+            "start",
+            "end",
+        )
         widgets = {
             "start": forms.DateInput(attrs={"type": "date"}),
             "end": forms.DateInput(attrs={"type": "date"}),
@@ -1002,9 +1007,22 @@ class UnavailabilityPeriodForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.contributor: "Contributor" = kwargs.pop("contributor", None)
         super().__init__(*args, **kwargs)
+
+        if self.contributor:
+            self.fields["contributor"].queryset = Contributor.objects.filter(
+                id=self.contributor.id
+            )
+            self.fields["contributor"].initial = self.contributor.id
+            self.fields["contributor"].disabled = True
+        else:
+            self.fields["contributor"].widget = HTMXDynSelWidget(
+                url=reverse_lazy("scipost:contributor-autocomplete")
+            )
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
+                Div(FloatingField("contributor"), css_class="col-12"),
                 Div(FloatingField("start"), css_class="col-12"),
                 Div(FloatingField("end"), css_class="col-12"),
                 Div(
@@ -1023,6 +1041,7 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         now = timezone.now()
         start: datetime.date | None = cleaned_data.get("start")
         end: datetime.date | None = cleaned_data.get("end")
+        contributor = cleaned_data.get("contributor") or self.contributor
 
         if (start is None) or (end is None):
             raise ValidationError("Both start and end dates must be provided.")
@@ -1033,22 +1052,24 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         if end < now.date():
             self.add_error("end", "You have entered an end date in the past.")
 
-        if contract := self.contributor.work_contracts.first():
+        if contract := contributor.work_contracts.first():
             if (end - start).days > contract.days_off_remaining:
                 self.add_error(
                     "end",
-                    f"You have requested {(end - start).days} days off, "
-                    f"but only have {contract.days_off_remaining} days off remaining "
-                    "in your current work contract.",
+                    f"{(end - start).days} days off have been requested, but "
+                    f"{contributor.profile.full_name} "
+                    f"only has {contract.days_off_remaining} days off remaining "
+                    "in their current work contract.",
                 )
 
         return cleaned_data
 
     def save(self, commit: bool = True) -> UnavailabilityPeriod:
         period: UnavailabilityPeriod = super().save(commit=False)
+        contributor = self.cleaned_data.get("contributor") or self.contributor
 
-        if self.contributor:
-            period.contributor = self.contributor
+        if contributor:
+            period.contributor = contributor
         else:
             raise ValueError(
                 "Contributor must be provided to save UnavailabilityPeriod."
@@ -1059,7 +1080,7 @@ class UnavailabilityPeriodForm(forms.ModelForm):
 
         # If the contributor has an active work contract during this period,
         # Automatically create a work-log associated to this period as a "day off"
-        if contract := self.contributor.work_contracts.first():
+        if contract := contributor.work_contracts.first():
             if not commit:
                 raise ValueError(
                     "Cannot create associated WorkLog without saving UnavailabilityPeriod first."

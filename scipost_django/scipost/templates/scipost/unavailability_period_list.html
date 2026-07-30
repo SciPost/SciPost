@@ -1,0 +1,74 @@
+{% extends 'scipost/base.html' %}
+
+{% load common_extras %}
+
+{% block meta_description %}
+  {{ block.super }} Unavailability Periods
+{% endblock meta_description %}
+
+{% block pagetitle %}
+  : Unavailability Periods
+{% endblock pagetitle %}
+
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+
+        {% block breadcrumb_items %}
+          <span class="breadcrumb-item"><a href="{% url 'scipost:unavailability_period_list' %}">Unavailability Periods</a></span>
+        {% endblock %}
+
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="highlight py-2 px-3 d-flex flex-row justify-content-between align-items-center mt-0 mb-3">
+    <h1 class="m-0">Unavailability Periods</h1>
+    <a href="{% url 'scipost:unavailability_periods_create' %}"
+       class="btn btn-primary">Create</a>
+  </div>
+
+  <table class="table table-hover table-center table-responsive position-relative">
+    <thead>
+      <tr>
+        <th>Profile</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Duration</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for period in unavailability_periods %}
+        <tr>
+          <td>
+            <a href="{{ period.contributor.profile.get_absolute_url }}">{{ period.contributor.profile.full_name }}</a>
+          </td>
+          <td>{{ period.start }}</td>
+          <td>{{ period.end }}</td>
+          <td>{{ period.duration.days|days_duration_human }}</td>
+          <td>
+            <div class="d-flex flex-row justify-content-end gap-2">
+              {% if not period.has_work_contract %}
+              <a href="{% url 'scipost:unavailability_periods_update' period.id %}">Edit</a>
+              {% endif %}
+              <a class="text-danger" href="{% url 'scipost:unavailability_periods_delete' period.id %}">Delete</a>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+{% endblock content %}
+
+
+{% block footer_script %}
+  {{ block.super }}
+{% endblock footer_script %}

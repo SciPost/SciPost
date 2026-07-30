@@ -1,0 +1,37 @@
+{% extends 'scipost/unavailability_period_list.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">
+
+    {% if form.instance.id %}
+      Update {{ form.instance }}
+    {% else %}
+      Create
+    {% endif %}
+
+  </span>
+{% endblock %}
+
+
+{% block content %}
+  <div class="row">
+    <form action="" method="post">
+      <div class="col-12">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input type="submit"
+               value="Submit"
+               class="btn btn-primary" />
+      </div>
+    </form>
+  </div>
+{% endblock content %}
+
+
+{% block footer_script %}
+  {{ block.super }}
+  {{ form.media }}
+{% endblock footer_script %}

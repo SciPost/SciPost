@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from email.utils import make_msgid
 import urllib
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.functions import Cast, Coalesce
 from django.db.models.query import QuerySet
 from django.template.response import TemplateResponse
@@ -15,7 +16,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model, login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import (
     LoginView,
@@ -44,7 +45,13 @@ from django.db.models import (
     Value,
     When,
 )
-from django.http import Http404, HttpResponse, HttpResponseBadRequest, JsonResponse
+from django.http import (
+    Http404,
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBadRequest,
+    JsonResponse,
+)
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
@@ -52,6 +59,7 @@ from django.utils.http import url_has_allowed_host_and_scheme, urlsafe_base64_de
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.views.generic import UpdateView
 from django.views.generic.edit import DeleteView, CreateView
 from django.views.generic.list import ListView
 from django.views.static import serve
@@ -59,6 +67,8 @@ from django.views.static import serve
 from dal import autocomplete
 from guardian.decorators import permission_required
 import requests
+from careers.models import WorkContract
+from finances.models.work_log import WorkLog
 from ontology.forms import AcadFieldSpecialtyForm
 from scipost.permissions import permission_required_htmx, HTMXResponse
 
@@ -1069,9 +1079,125 @@ class SciPostPasswordResetConfirmView(PasswordResetConfirmView):
         return user
 
 
+class UnavailabilityPeriodListView(PermissionRequiredMixin, ListView):
+    """
+    List of unavailability periods for all contributors.
+    """
+
+    model = UnavailabilityPeriod
+    template_name = "scipost/unavailability_period_list.html"
+    context_object_name = "unavailability_periods"
+    permission_required = "scipost.can_view_unavailability_periods"
+
+    def get_queryset(self):
+        return (
+            UnavailabilityPeriod.objects.order_by("-start")
+            .annotate(
+                has_work_contract=Exists(
+                    WorkContract.objects.filter(
+                        Q(employee=OuterRef("contributor"))
+                        & Q(start_date__lte=OuterRef("start"))
+                        & (Q(end_date__gte=OuterRef("end")) | Q(end_date__isnull=True)),
+                    )
+                )
+            )
+            .select_related("contributor__profile")
+        )
+
+
+class UnavailabilityPeriodCreateView(PermissionRequiredMixin, CreateView):
+    model = UnavailabilityPeriod
+    form_class = UnavailabilityPeriodForm
+    template_name = "scipost/unavailability_period_form.html"
+    permission_required = "scipost.can_manage_unavailability_periods"
+
+    def get_success_url(self) -> str:
+        return reverse_lazy("scipost:unavailability_period_list")
+
+
+class UnavailabilityPeriodUpdateView(PermissionRequiredMixin, UpdateView):
+    model = UnavailabilityPeriod
+    form_class = UnavailabilityPeriodForm
+    template_name = "scipost/unavailability_period_form.html"
+    permission_required = "scipost.can_manage_unavailability_periods"
+
+    def get_form_kwargs(self):
+        object = self.get_object()
+        kwargs = super().get_form_kwargs()
+        kwargs["contributor"] = object.contributor
+        return kwargs
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "The unavailability period has been successfully updated.",
+        )
+        return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy("scipost:unavailability_period_list")
+
+
+class UnavailabilityPeriodDeleteView(PermissionRequiredMixin, DeleteView):
+    model = UnavailabilityPeriod
+    template_name = "scipost/unavailability_period_delete.html"
+    permission_required = "scipost.can_manage_unavailability_periods"
+
+    def get_success_url(self) -> str:
+        return reverse_lazy("scipost:unavailability_period_list")
+
+    def get_work_contract(self, period: UnavailabilityPeriod) -> WorkContract | None:
+        return WorkContract.objects.filter(
+            Q(employee=period.contributor)
+            & Q(start_date__lte=period.start)
+            & (Q(end_date__gte=period.end) | Q(end_date__isnull=True)),
+        ).first()
+
+    def get_work_logs(self, period: UnavailabilityPeriod) -> QuerySet[WorkLog]:
+        return WorkLog.objects.filter(
+            object_id=period.id,
+            content_type=ContentType.objects.get_for_model(UnavailabilityPeriod),
+        )
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)
+
+        if period := context["object"]:
+            context["work_contract"] = self.get_work_contract(period)
+            context["work_logs"] = self.get_work_logs(period)
+
+        return context
+
+    def post(
+        self, request: HttpRequest, *args: str, **kwargs: reverse_lazy
+    ) -> HttpResponse:
+        if period := self.get_object():
+            if work_logs := self.get_work_logs(period):
+                work_logs.delete()
+            period.delete()
+            messages.success(
+                request,
+                "The unavailability period has been successfully deleted.",
+            )
+        else:
+            messages.error(
+                request,
+                "The unavailability period could not be found and was not deleted.",
+            )
+
+        return redirect(self.get_success_url())
+
+
 @login_required
 @is_contributor_user()
 def _hx_unavailability(request, pk: int = None):
+    form = UnavailabilityPeriodForm(
+        request.POST or None,
+        contributor=request.user.contributor,
+    )
+    del form.fields["contributor"]  # contributor is set automatically
+    context = {"form": form}
+
     if pk:  # delete UnavailabilityPeriod, if asked by associated Contributor
         period = get_object_or_404(
             UnavailabilityPeriod.objects.filter(
@@ -1085,17 +1211,18 @@ def _hx_unavailability(request, pk: int = None):
                 "You cannot delete unavailability periods that have already started.",
             )
         else:
+            WorkLog.objects.filter(
+                object_id=period.id,
+                content_type=ContentType.objects.get_for_model(UnavailabilityPeriod),
+            ).delete()
             period.delete()
+
             messages.success(
                 request,
                 "The unavailability period has been successfully deleted.",
             )
 
-    form = UnavailabilityPeriodForm(
-        request.POST or None,
-        contributor=request.user.contributor,
-    )
-    context = {"form": form}
+        render(request, "scipost/personal_page/_hx_unavailability.html", context)
 
     if work_contract := request.user.contributor.work_contracts.active().first():
         context["work_contract"] = work_contract

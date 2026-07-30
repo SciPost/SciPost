@@ -459,16 +459,36 @@ urlpatterns = [
     # Unavailabilities
     ###################
     path(
-        "_hx_unavailability/",
+        "unavailability_periods/",
         include(
             [
                 path(
                     "",
+                    views.UnavailabilityPeriodListView.as_view(),
+                    name="unavailability_period_list",
+                ),
+                path(
+                    "create/",
+                    views.UnavailabilityPeriodCreateView.as_view(),
+                    name="unavailability_periods_create",
+                ),
+                path(
+                    "<int:pk>/update/",
+                    views.UnavailabilityPeriodUpdateView.as_view(),
+                    name="unavailability_periods_update",
+                ),
+                path(
+                    "<int:pk>/delete/",
+                    views.UnavailabilityPeriodDeleteView.as_view(),
+                    name="unavailability_periods_delete",
+                ),
+                path(
+                    "_hx_/<int:pk>",
                     views._hx_unavailability,
                     name="_hx_unavailability",
                 ),
                 path(
-                    "<int:pk>",
+                    "_hx_",
                     views._hx_unavailability,
                     name="_hx_unavailability",
                 ),
