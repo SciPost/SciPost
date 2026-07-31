@@ -1006,6 +1006,7 @@ class UnavailabilityPeriodForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.contributor: "Contributor" = kwargs.pop("contributor", None)
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
         if self.contributor:
@@ -1049,7 +1050,10 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         if start > end:
             self.add_error("end", "The start date is after the end date.")
 
-        if end < now.date():
+        if end < now.date() and not (
+            self.user
+            and self.user.has_perm("scipost.can_manage_unavailability_periods")
+        ):
             self.add_error("end", "You have entered an end date in the past.")
 
         prospective_period = UnavailabilityPeriod(

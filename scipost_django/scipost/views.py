@@ -1111,6 +1111,11 @@ class UnavailabilityPeriodCreateView(PermissionRequiredMixin, CreateView):
     template_name = "scipost/unavailability_period_form.html"
     permission_required = "scipost.can_manage_unavailability_periods"
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
     def get_success_url(self) -> str:
         return reverse_lazy("scipost:unavailability_period_list")
 
@@ -1125,6 +1130,7 @@ class UnavailabilityPeriodUpdateView(PermissionRequiredMixin, UpdateView):
         object = self.get_object()
         kwargs = super().get_form_kwargs()
         kwargs["contributor"] = object.contributor
+        kwargs["user"] = self.request.user
         return kwargs
 
     def form_valid(self, form):
