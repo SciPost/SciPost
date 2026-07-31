@@ -16,34 +16,11 @@
 
   <h1 class="highlight">Statistics</h1>
 
-  <h2>Aggregate statistics</h2>
-  <p>For each Journal, clicking on a year gives aggregate statistics for Submissions (so including rejections and withdrawals) which were first submitted in that year.</p>
-  <p>Clicking on a Journal/Volume/Issue gives aggregates for all publications in that object.</p>
-  <ul>
-    {% for journal in journals|dictsort:"doi_label" %}
-      <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label %}">{{ journal }}</a></li>
-      <ul>
-	{% for year in journal|journal_publication_years %}
-          <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label year=year %}">{{ year }}</a></li>
-	{% endfor %}
-      </ul>
-      <ul>
-        {% for volume in journal.volumes.all|dictsort:"number" %}
-          <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number %}">{{ volume }}</a></li>
-          <ul>
-            {% for issue in volume.issues.all|dictsort:"number" %}
-              <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number issue_nr=issue.number %}">{{ issue }}</a></li>
-            {% endfor %}
-          </ul>
-        {% endfor %}
-      </ul>
-    {% endfor %}
-  </ul>
-
   {% if journal %}
     <h2>Results:</h2>
     {% if year %}
-      <h3>Impact factor (Cited-by) for {{ year }}: {{ citedby_impact_factor|floatformat:2 }} {% now "Y" as currentyear %}{% ifequal year currentyear %}<span style="color: red;">WARNING: not complete (year is current one)</span>{% endifequal %}</h3>
+      {% now "Y" as currentyear %}
+      <h3>Impact factor (Cited-by) for {{ year }}: {{ citedby_impact_factor|floatformat:2 }} {% if year == currentyear %}<span style="color: red;">WARNING: not complete (year is current one)</span>{% endif %}</h3>
     {% endif %}
     <table class="table">
       <tr>
@@ -91,50 +68,6 @@
         {% endif %}
       </tr>
     </table>
-
-    <table class="table">
-      <tr>
-        <th>DOI label</th>
-        <th colspan="3">Nr per Tier</th>
-        <th colspan="3">Citation rate (per paper per year)</th>
-      </tr>
-      <tr>
-        <th></th>
-        <th>I</th>
-        <th>II</th>
-        <th>III</th>
-        <th>I</th>
-        <th>II</th>
-        <th>III</th>
-      </tr>
-      <tr>
-        {% if issue %}
-          <td>{{ issue.doi_label }}</td>
-          <td>{% nr_publications issue tier=1 %}</td>
-          <td>{% nr_publications issue tier=2 %}</td>
-          <td>{% nr_publications issue tier=3 %}</td>
-          <td>{% citation_rate issue tier=1 as cr %}{{ cr|floatformat:2 }}</td>
-          <td>{% citation_rate issue tier=2 as cr %}{{ cr|floatformat:2 }}</td>
-          <td>{% citation_rate issue tier=3 as cr %}{{ cr|floatformat:2 }}</td>
-        {% elif volume %}
-          <td>{{ volume.doi_label }}</td>
-          <td>{% nr_publications volume tier=1 %}</td>
-          <td>{% nr_publications volume tier=2 %}</td>
-          <td>{% nr_publications volume tier=3 %}</td>
-          <td>{% citation_rate volume tier=1 as cr %}{{ cr|floatformat:2 }}</td>
-          <td>{% citation_rate volume tier=2 as cr %}{{ cr|floatformat:2 }}</td>
-          <td>{% citation_rate volume tier=3 as cr %}{{ cr|floatformat:2 }}</td>
-        {% else %}
-          <td>{{ journal.doi_label }}</td>
-          <td>{% nr_publications journal tier=1 %}</td>
-          <td>{% nr_publications journal tier=2 %}</td>
-          <td>{% nr_publications journal tier=3 %}</td>
-          <td>{% citation_rate journal tier=1 as cr %}{{ cr|floatformat:2 }}</td>
-          <td>{% citation_rate journal tier=2 as cr %}{{ cr|floatformat:2 }}</td>
-          <td>{% citation_rate journal tier=3 as cr %}{{ cr|floatformat:2 }}</td>
-        {% endif %}
-      </tr>
-    </table>
   {% endif %}
 
   {% if year %}
@@ -161,5 +94,28 @@
     </table>
   {% endif %}
 
+  <h2>Aggregate statistics</h2>
+  <p>For each Journal, clicking on a year gives aggregate statistics for Submissions (so including rejections and withdrawals) which were first submitted in that year.</p>
+  <p>Clicking on a Journal/Volume/Issue gives aggregates for all publications in that object.</p>
+  <ul>
+    {% for journal in journals|dictsort:"doi_label" %}
+      <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label %}">{{ journal }}</a></li>
+      <ul>
+	{% for year in journal|journal_publication_years %}
+          <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label year=year %}">{{ year }}</a></li>
+	{% endfor %}
+      </ul>
+      <ul>
+        {% for volume in journal.volumes.all|dictsort:"number" %}
+          <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number %}">{{ volume }}</a></li>
+          <ul>
+            {% for issue in volume.issues.all|dictsort:"number" %}
+              <li><a href="{% url 'stats:statistics' journal_doi_label=journal.doi_label volume_nr=volume.number issue_nr=issue.number %}">{{ issue }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+      </ul>
+    {% endfor %}
+  </ul>
 
 {% endblock content %}

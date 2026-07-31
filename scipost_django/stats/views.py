@@ -61,7 +61,7 @@ def _hx_country_level_authorships(request, country):
 def statistics(
     request, journal_doi_label=None, volume_nr=None, issue_nr=None, year=None
 ):
-    journals = Journal.objects.all()
+    journals = Journal.objects.all().prefetch_related("volumes", "volumes__issues")
     context = {
         "journals": journals,
     }
