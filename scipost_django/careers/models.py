@@ -247,12 +247,11 @@ class WorkContract(models.Model):
 
         work_year_start, work_year_end = current_period
 
-        used_days_off: int = (
-            self.employee.unavailability_periods.all()
-            .filter(start__gte=work_year_start, end__lte=work_year_end)
-            .annotate(duration_in_days=ExtractDay(F("end") - F("start")))
-            .aggregate(total_days_off=Coalesce(Sum("duration_in_days"), 0))
-            .get("total_days_off", 0)
+        used_days_off = sum(
+            unavailability.weekdays
+            for unavailability in self.employee.unavailability_periods.filter(
+                start__gte=work_year_start, end__lte=work_year_end
+            )
         )
 
         return max(0, self.days_off_in_period - used_days_off)

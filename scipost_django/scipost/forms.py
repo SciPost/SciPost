@@ -1052,11 +1052,17 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         if end < now.date():
             self.add_error("end", "You have entered an end date in the past.")
 
-        if contract := contributor.work_contracts.first():
-            if (end - start).days > contract.days_off_remaining:
+        prospective_period = UnavailabilityPeriod(
+            contributor=contributor, start=start, end=end
+        )
+        if (
+            (contract := contributor.work_contracts.first())
+            and (requested_days_off := prospective_period.weekdays)
+            and requested_days_off > contract.days_off_remaining
+        ):
                 self.add_error(
                     "end",
-                    f"{(end - start).days} days off have been requested, but "
+                    f"{requested_days_off} days off have been requested, but "
                     f"{contributor.profile.full_name} "
                     f"only has {contract.days_off_remaining} days off remaining "
                     "in their current work contract.",
@@ -1089,7 +1095,7 @@ class UnavailabilityPeriodForm(forms.ModelForm):
             WorkLog.objects.create(
                 user=period.contributor.user,
                 log_type=WORK_LOG_TYPE_TIME_OFF,
-                duration=period.duration.days * contract.work_hours_day,
+                duration=period.weekdays * contract.work_hours_day,
                 work_date=period.end,
                 comments="Paid time off (unavailability period)",
                 content=period,

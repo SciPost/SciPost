@@ -398,6 +398,15 @@ class UnavailabilityPeriod(models.Model):
     def duration(self):
         return self.end - self.start
 
+    @property
+    def weekdays(self):
+        """Return the number of weekdays (Monday to Friday) in the unavailability period."""
+        return sum(
+            1
+            for day in range(self.duration.days + 1)
+            if (self.start + datetime.timedelta(days=day)).weekday() < 5
+        )
+
     def __str__(self):
         return "%s (%s to %s)" % (self.contributor, self.start, self.end)
 
