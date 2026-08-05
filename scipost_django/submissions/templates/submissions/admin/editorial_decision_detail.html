@@ -10,14 +10,14 @@
   <div class="row">
     <div class="col-12">
 
-      <h1 class="highlight">Editorial Decision</h1>
+      <hgroup class="highlight d-flex p-2 justify-content-between align-items-center">
+        <h1 class="mb-0">Editorial Decision</h1>
+        <a class="btn btn-primary" href="{% url 'submissions:editorial_decision_update' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr %}">Edit</a>
+      </hgroup>
 
       {% include 'submissions/admin/_editorial_decision_as_card.html' with decision=decision %}
 
       <ul class="list-unstyled">
-	<li class="list-item my-2">
-	  <a class="btn btn-warning" href="{% url 'submissions:editorial_decision_update' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr %}">Update this decision</a>
-	</li>
 	{% if decision.status == decision.DRAFTED %}
 	  <li class="list-item my-2">
 	    <a class="btn btn-danger" href="{% url 'submissions:fix_editorial_decision' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr %}">Fix this decision</a>
@@ -35,6 +35,12 @@
     <li class="list-item my-2">
       <a class="btn btn-danger" href="{% url 'submissions:appeal_create' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr %}">
         Start an appeal to this Editorial Decision
+      </a>
+    </li>
+  {% elif decision.appeal %}
+    <li class="list-item my-2">
+      <a class="btn btn-warning" href="{% url 'submissions:appeal_update' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr %}">
+        Update the appeal to this Editorial Decision
       </a>
     </li>
 	{% endif %}

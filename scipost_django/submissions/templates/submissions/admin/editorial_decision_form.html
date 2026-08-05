@@ -17,13 +17,12 @@
 
       <h1 class="highlight">Editorial Decision</h1>
 
-      <h2>Concerning Submission:</h2>
-      {% include 'submissions/_submission_li.html' with submission=submission %}
+      {% include 'submissions/admin/_editorial_decision_as_card.html' with decision=decision %}
 
-      <h3>Editorial process details:</h3>
+      <h3 class="mt-3">Editorial process details:</h3>
       <ul>
 	<li>
-	  <a class="d-inline-block mb-3" href="{{ submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
+	  <a href="{{ submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
 	</li>
 	<li>
 	  <a href="{% url 'submissions:eic_recommendation_detail' submission.preprint.identifier_w_vn_nr %}" target="_blank">View the Recommendations and Voting results</a>
@@ -31,7 +30,7 @@
       </ul>
 
 
-      <h2 class="highlight">Set the Editorial Decision</h2>
+      <h2 class="highlight">Update the Editorial Decision</h2>
 
       {% if form.errors %}
 	{% for field in form %}
@@ -51,7 +50,7 @@
       <form action="" method="post">
 	{% csrf_token %}
 	{{ form|bootstrap }}
-	<input type="submit" value="{% if form.instance.id %}Update{% else %}Draft{% endif %} the decision" class="btn btn-danger">
+	<input type="submit" value="{% if form.instance.id %}Update{% else %}Draft{% endif %}" class="btn btn-primary">
 	<br>
       </form>
 
