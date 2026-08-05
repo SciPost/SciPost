@@ -241,7 +241,7 @@ class Contributor(AnonymizableObjectMixin, models.Model):
     def is_duplicate(self):
         return self.duplicate_of is not None
 
-    @property
+    @cached_property
     def is_currently_available(self):
         """Check if Contributor is currently not marked as unavailable."""
         return not self.unavailability_periods.today().exists()
