@@ -103,8 +103,8 @@ class CrispyFormMixin(forms.Form):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, **kwargs)
 
+        self.helper = getattr(self, "helper", FormHelper())
         if layout := self.get_form_layout():
-            self.helper = FormHelper() if not hasattr(self, "helper") else self.helper
             self.helper.layout = layout
 
     def get_form_layout(self) -> Layout:
