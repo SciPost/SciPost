@@ -9,6 +9,7 @@ from django.utils.timezone import timedelta
 
 from colleges.permissions import is_edadmin
 from common.forms import CrispyFormMixin, HTMXDynSelWidget, SearchForm
+from common.utils.attachments import RelatedAttachment, attach_related
 from common.utils.text import partial_names_match
 from ethics.managers import CoauthorshipExclusionPurpose
 from submissions.models.appeal import Appeal
@@ -25,7 +26,9 @@ from django.db.models import (
     Count,
     Exists,
     OuterRef,
+    Prefetch,
     QuerySet,
+    Subquery,
     Value,
     BooleanField,
     ExpressionWrapper,
@@ -50,6 +53,7 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
 
+from submissions.models.qualification import Qualification
 from submissions.models.readiness import Readiness
 
 from ..constants import (
@@ -4410,23 +4414,31 @@ class RefereeIndicationForm(forms.ModelForm):
         return indication
 
 
-class AppealForm(forms.ModelForm):
+class AppealForm(CrispyFormMixin, forms.ModelForm):
+    adjudicators = forms.ModelMultipleChoiceField(
+        queryset=Contributor.objects.all(),
+        label="Adjudicators",
+        required=False,
+        widget=forms.CheckboxSelectMultiple(),
+    )
     class Meta:
         model = Appeal
-        fields = [
+        fields = (
             "editorial_decision",
+            "status",
             "appeal_letter_attachment",
+            "appeal_letter_text",
             "remarks_edadmin",
             "adjudicators",
-            "status",
-        ]
+        )
+        widgets = {
+            "editorial_decision": forms.HiddenInput(),
+            "adjudicators": forms.HiddenInput(),
+            "appeal_letter_text": forms.Textarea(attrs={"rows": 3}),
+            "remarks_edadmin": forms.Textarea(attrs={"rows": 3}),
+        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["editorial_decision"].disabled = True
-
-        senior_fellows_for_submission = Fellowship.objects.all().active().senior()
+    def get_adjudicators_queryset(self):
         if self.instance and self.instance.pk:
             editorial_decision = self.instance.editorial_decision
         else:
@@ -4435,10 +4447,100 @@ class AppealForm(forms.ModelForm):
             raise ValueError("Editorial decision must be provided for the appeal form.")
 
         senior_fellows_for_submission = (
-            senior_fellows_for_submission.college_specialties_overlap_with_submission(
+            Fellowship.objects.all()
+            .active()
+            .senior()
+            .college_specialties_overlap_with_submission(editorial_decision.submission)
+            .without_conflicts_of_interest_against_submission_authors_of(
                 editorial_decision.submission
             )
         )
-        self.fields["adjudicators"].queryset = Contributor.objects.filter(
-            id__in=senior_fellows_for_submission.values("contributor_id")
+
+        today = timezone.now().date()
+        adjudicators_qs = (
+            Contributor.objects.all()
+            .filter(id__in=senior_fellows_for_submission.values("contributor_id"))
+            .annotate(
+                fellowship_id=Subquery(
+                    Fellowship.objects.active()
+                    .filter(
+                        contributor_id=OuterRef("id"),
+                        college__acad_field=editorial_decision.submission.acad_field,
+                    )
+                    .values("id")[:1]
+                ),
+                is_currently_available=~Exists(
+                    UnavailabilityPeriod.objects.filter(
+                        contributor=OuterRef("id"),
+                        start__lte=today,
+                        end__gte=today,
+                    )
+                ),
+            )
+            .select_related("profile")
+            .prefetch_related(
+                Prefetch(
+                    "qualifications",
+                    queryset=Qualification.objects.filter(
+                        submission__thread_hash=editorial_decision.submission.thread_hash
+                    )[:1],
+                    to_attr="submission_qualification",
+                ),
+            )
         )
+
+        attach_related(
+            adjudicators_qs,
+            RelatedAttachment(
+                "fellowship_id",
+                "fellowship",
+                Fellowship.objects.filter(
+                    contributor__in=adjudicators_qs.values_list("id", flat=True)
+                ),
+            ),
+        )
+
+        return adjudicators_qs
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["editorial_decision"].disabled = True
+
+        self.possible_adjudicators = self.get_adjudicators_queryset()
+
+        self.helper.form_tag = False
+
+    def get_form_layout(self):
+        layout = Layout(
+            FloatingField("editorial_decision"),
+            FloatingField("status"),
+            Field("remarks_edadmin"),
+            Field("appeal_letter_text"),
+            Field("appeal_letter_attachment"),
+        )
+        return layout
+
+    def clean_adjudicators(self):
+        adjudicators = self.cleaned_data.get("adjudicators")
+        if not adjudicators:
+            raise forms.ValidationError(
+                "You must select at least one adjudicator for the appeal."
+            )
+        return adjudicators
+
+    def reset_adjudicator_permissions(self):
+        return
+
+    def save(self, commit=True):
+        appeal = super().save(commit=False)
+
+        if appeal.status == Appeal.STARTED:
+            appeal.editorial_decision.status = EditorialDecision.APPEALED_BY_AUTHORS
+            self.reset_adjudicator_permissions()
+
+        if commit:
+            appeal.save()
+            appeal.editorial_decision.save()
+            self.save_m2m()
+        return appeal

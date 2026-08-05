@@ -1,5 +1,7 @@
 {% extends 'submissions/admin/editorial_decision_detail.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block breadcrumb_items %}
   {{ block.super }}
   <a class="breadcrumb-item"
@@ -23,5 +25,59 @@
 
     </div>
   </div>
+
+  <form method="post">
+
+    {% crispy form %}
+
+    <h3>Select Adjudicators</h3>
+    {% if form.errors.adjudicators %}
+      <ul class="list-unstyled alert alert-danger">
+        {% for error in form.errors.adjudicators %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <table class="table table-bordered table-hover">
+      <thead class="table-light">
+        <th></th>
+        <th></th>
+        <th>Name</th>
+        <th>Expertise</th>
+        <th></th>
+      </thead>
+      <tbody>
+        {% for contributor in form.possible_adjudicators %}
+          <tr>
+            <td>
+              {% if contributor.is_currently_available %}
+                <span title="Available" data-bs-toggle="tooltip" class="text-success">{% include "bi/check-square-fill.html" %}</span>
+              {% else %}
+                <span title="Unavailable" data-bs-toggle="tooltip" class="text-danger">{% include "bi/x-square-fill.html" %}</span>
+              {% endif %}
+            </td>
+            <td><span title="{{ contributor.fellowship.get_status_display }}" data-bs-toggle="tooltip">{{ contributor.fellowship.get_status_display|first|upper }}</span></td>
+            <td>
+              <div class="d-flex justify-content-between align-items-center">
+              <label for="id_adjudicators_{{ forloop.counter0 }}" class="form-check-label">
+                <span>{{ contributor.profile }}</span>
+              </label>
+                {% if fellowship.is_submission_author %}
+                  <span class="badge bg-danger">Author</span>
+                {% endif %}
+              </div>
+            </td>
+            <td>{{ contributor.submission_qualification.0.get_expertise_level_display }}</td>
+            <td>
+              <input id="id_adjudicators_{{ forloop.counter0 }}" class="form-check-input" type="checkbox" name="adjudicators" value="{{ contributor.id }}" {% if contributor in form.initial.adjudicators %}checked{% endif %}>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <input type="submit" class="btn btn-primary" value="{% if form.instance.id %}Update{% else %}Create{% endif %} Appeal">
+    <a href="{{ submission.editorial_decision.get_absolute_url }}" class="btn btn-light">Go Back</a>
+  </form>
 
 {% endblock %}
