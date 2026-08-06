@@ -77,7 +77,7 @@
 	  <th>Published on</th>
 	</thead>
 	{% for item in publication.bundle.all %}
-    {% if perms.scipost.can_draft_publication or item.status == 'pub' %}
+    {% if perms.scipost.can_draft_publication or item.is_published %}
       <tr{% if item.doi_label == publication.doi_label %} class="bg-light bg-success"{% endif %}>
         <td>
           {% if item.doi_label == publication.doi_label %}
