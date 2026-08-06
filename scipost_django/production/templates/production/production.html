@@ -52,10 +52,10 @@
                     <li>
                       {% if period.start < today %}
                         <span class="text-danger me-1">{% include "bi/x-circle-fill.html" %}</span> 
-                        <span>Is unavailable from {{ period.start }}, back on {{ period.end }}</span>  
+                        <span>Is unavailable from {{ period.start }} to {{ period.end }}</span>  
                       {% else %}
                         <span class="text-warning me-1">{% include "bi/x-circle-fill.html" %}</span> 
-                        <span>To be unavailable from {{ period.start }}, back on {{ period.end }}</span>  
+                        <span>To be unavailable from {{ period.start }} to {{ period.end }}</span>  
                       {% endif %}
                     </li>
                     {% empty %}

@@ -8,7 +8,7 @@
     <div class="row g-4 p-2">
       <div class="col">
 	<h3 class="mb-3">Unavailability periods</h3>
-	<p>To help with the editorial workflow, you can inform us of any periods during which you are unavailable. Please mark the entire period of your absence, with the end date being your first day back into availability.</p>
+	<p>To help with the editorial workflow, you can inform us of any periods during which you are unavailable. Please mark the entire period of your absence.</p>
 
   {% if work_contract %}
       <div class="bg-white border border-{% if is_currently_available %}success{% else %}danger{% endif %} p-2 mb-3">
@@ -21,7 +21,7 @@
 	<table class="table table-bordered">
 	  <tr>
 	    <th>Start</th>
-	    <th>End (excl.)</th>
+	    <th>End</th>
       <th>Duration (days)</th>
 	    <th></th>
 	  </tr>
@@ -31,19 +31,19 @@
 	      <td>{{ unav.end }}</td>
         <td>{{ unav.duration.days }}</td>
 	      <td>
-		<a class="text-danger px-1 py-0"
-		   hx-get="{% url 'scipost:_hx_unavailability' pk=unav.id %}"
-		   hx-confirm="Remove this unavailability?"
-		   hx-target="#unavailability"
-		>
-		  {% include 'bi/x-square-fill.html' %}
-		</a>
+          <a class="text-danger px-1 py-0"
+            hx-get="{% url 'scipost:_hx_unavailability' pk=unav.id %}"
+            hx-confirm="Remove this unavailability?"
+            hx-target="#unavailability"
+          >
+            {% include 'bi/x-square-fill.html' %}
+          </a>
 	      </td>
 	    </tr>
 	  {% empty %}
 	    <tr>
-	      <td colspan="2">
-		No upcoming unavailability periods on record
+	      <td colspan="4">
+		      No upcoming unavailability periods on record
 	      </td>
 	    </tr>
 	  {% endfor %}
