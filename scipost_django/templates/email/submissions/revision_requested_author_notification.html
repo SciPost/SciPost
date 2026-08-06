@@ -28,7 +28,7 @@
 
 {% if recommendation.for_journal != recommendation.submission.submitted_to %}
   <p>
-    Moreover, the Editor-in-charge recommends you to submit your modified manuscript to <strong>{{ recommendation.for_journal }}</strong> instead. You can find more information on {{ recommendation.for_journal }}, including its acceptance criteria, at its <a href="https://{{ domain }}/{% url 'journal:about' recommendation.for_journal.doi_label %}">about page</a>.
+    Moreover, the Editor-in-charge recommends you to submit your modified manuscript to <strong>{{ recommendation.for_journal }}</strong> instead. You can find more information on {{ recommendation.for_journal }}, including its acceptance criteria, at its <a href="https://{{ domain }}{% url 'journal:about' recommendation.for_journal.doi_label %}">about page</a>.
   </p>
 {% endif %}
 
@@ -37,7 +37,7 @@
 </p>
 
 <p>
-  To resubmit your paper, please first update the version on the preprint server you used to submit the manuscript (e.g. arXiv); after appearance, go to the <a href="https://{{ domain }}/{% url 'submissions:submit_manuscript' %}">submit page</a> and fill in the forms. Your submission will be automatically recognized as a resubmission.
+  To resubmit your paper, please first update the version on the preprint server you used to submit the manuscript (e.g. arXiv); after appearance, go to the <a href="https://{{ domain }}{% url 'submissions:submit_manuscript' %}">submit page</a> and fill in the forms. Your submission will be automatically recognized as a resubmission.
 </p>
 
 <p>
