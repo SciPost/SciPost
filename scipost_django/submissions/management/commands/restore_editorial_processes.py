@@ -6,7 +6,7 @@ from django.core.serializers import deserialize
 from django.db.models import Model
 
 from anonymization.models import ContributorAnonymization, ProfileAnonymization
-from mails.models import MailLog
+from mails.models import MailLog, MailLogRelation
 from submissions.models.communication import EditorialCommunication
 from submissions.models.referee_invitation import RefereeInvitation
 from submissions.models.submission import SubmissionEvent
@@ -117,7 +117,14 @@ class Command(BaseCommand):
                 model.objects.filter(pk__in=obj_pks).update(original=None)
             elif model in (RefereeInvitation,):
                 model.objects.filter(pk__in=obj_pks).update(email_address="")
-            elif model in (SubmissionEvent, EditorialCommunication, MailLog):
+            elif model in (
+                SubmissionEvent,
+                EditorialCommunication,
+                MailLog,
+                MailLogRelation,
+            ):
                 model.objects.filter(pk__in=obj_pks).delete()
             else:
-                raise TypeError(f"Unsupported object type for cleaning: {type(obj)}")
+                raise TypeError(
+                    f"Unsupported object type for cleaning: {model.__name__}"
+                )
