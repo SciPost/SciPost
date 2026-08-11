@@ -7,7 +7,12 @@ from .base import *
 
 # THE MAIN THING HERE
 DEBUG = False
-ALLOWED_HOSTS = ["scipost.org", "www.scipost.org", "localhost", "142.93.224.252"]
+ALLOWED_HOSTS = [
+    "scipost.org",
+    "www.scipost.org",
+    "localhost",
+    "142.93.224.252",
+]
 
 # Static and media
 STATIC_URL = "https://scipost.org/static/"
@@ -34,6 +39,11 @@ MANAGERS = (("J.S.Caux", "J.S.Caux@uva.nl"),)
 # Cookies
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://scipost.org",
+    "https://*.scipost.org",
+]
 
 # Email
 EMAIL_BACKEND = "mails.backends.filebased.ModelEmailBackend"
