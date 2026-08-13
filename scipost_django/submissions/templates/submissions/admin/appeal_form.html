@@ -41,9 +41,10 @@
     <table class="table table-bordered table-hover">
       <thead class="table-light">
         <th></th>
-        <th></th>
         <th>Name</th>
+        <th>Specialties</th>
         <th>Expertise</th>
+        <th>Conflicts</th>
         <th></th>
       </thead>
       <tbody>
@@ -56,7 +57,6 @@
                 <span title="Unavailable" data-bs-toggle="tooltip" class="text-danger">{% include "bi/x-square-fill.html" %}</span>
               {% endif %}
             </td>
-            <td><span title="{{ contributor.fellowship.get_status_display }}" data-bs-toggle="tooltip">{{ contributor.fellowship.get_status_display|first|upper }}</span></td>
             <td>
               <div class="d-flex justify-content-between align-items-center">
               <label for="id_adjudicators_{{ forloop.counter0 }}" class="form-check-label">
@@ -67,10 +67,88 @@
                 {% endif %}
               </div>
             </td>
-            <td>{{ contributor.submission_qualification.0.get_expertise_level_display }}</td>
             <td>
-              <input id="id_adjudicators_{{ forloop.counter0 }}" class="form-check-input" type="checkbox" name="adjudicators" value="{{ contributor.id }}" {% if contributor in form.initial.adjudicators %}checked{% endif %}>
+              <div class="d-flex flex-wrap gap-1">
+                {% for specialty in contributor.profile.specialties.all %}
+                  <span class="badge {% if specialty in submission.specialties.all %}bg-primary{% else %}bg-light text-dark{% endif %}" 
+                        data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</span>
+                {% endfor %}
+              </div>
             </td>
+            <td>{{ contributor.submission_qualification.0.get_expertise_level_display }}</td>
+            
+            {% with submission_conflicts_of_interest=contributor.profile.submission_conflicts_of_interest|add:contributor.profile.submission_conflicts_of_interest_related %}
+              <td>
+                {% if contributor.profile.submission_clearance.0 %}
+                  <div class="badge bg-success">No conflicts</div>
+                  {% if contributor.profile.submission_clearance.0.asserted_by != contributor %}
+                    <div class="text-muted">asserted by {{ contributor.profile.submission_clearance.0.asserted_by }}</div>
+                  {% endif %}
+                {% else %}
+                  {% if submission_conflicts_of_interest %}
+                    <details {% if submission_conflicts_of_interest|length == 1 %}open{% endif %}>
+                      <summary class="p-1 px-2 bg-danger bg-opacity-25 d-flex justify-content-between list-triangle">
+                        <span>Verified Conflict{{ submission_conflicts_of_interest|length|pluralize }}</span>
+                        <span>{{ submission_conflicts_of_interest|length }}</span>
+                      </summary>
+                      <table class="table mb-0">
+                        <thead>
+                          <tr>
+                            <th>Profile / <em>(nature)</em></th>
+                            <th>Until</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+
+                          {% for coi in submission_conflicts_of_interest %}
+                            <tr class="{% if coi.submission_exempted %}table-success{% endif %}">
+                              <td>
+                                {% if contributor.profile == coi.related_profile %}
+                                  {{ coi.profile }}
+                                {% else %}
+                                  {{ coi.related_profile }}
+                                {% endif %}
+                                </br>
+                                <em>({{ coi.get_nature_display }})</em>
+                              </td>
+                              <td>
+                                {% if coi.date_expiry %}
+                                  {{ coi.date_expiry|date:"Y-m-d" }}
+                                {% else %}
+                                  <em>indefinite</em>
+                                {% endif %}
+                              </td>
+                              <td>
+
+                                {% if "edadmin" in user_roles %}
+                                  <a class="btn btn-sm btn-primary px-1 py-0"
+                                      href="{% url 'ethics:conflicts' %}?name={{ coi.profile.full_name }};{{ coi.related_profile.full_name }}">
+                                    {% include "bi/arrow-right.html" %}
+                                  </a>
+                                {% endif %}
+
+                              </td>
+                            </tr>
+                          {% endfor %}
+
+                        </tbody>
+                      </table>
+                    </details>
+                  {% else %}
+                    <span class="badge bg-secondary text-dark">Unknown</span>
+                  {% endif %}
+                {% endif %}
+              </td>
+
+              <td>
+                <input id="id_adjudicators_{{ forloop.counter0 }}" class="form-check-input" type="checkbox" name="adjudicators" value="{{ contributor.id }}" 
+                {% if contributor in form.initial.adjudicators %}checked{% endif %}
+                {% if not contributor.is_currently_available or submission_conflicts_of_interest %}disabled{% endif %}
+                >
+              </td>
+            {% endwith %}
+
           </tr>
         {% endfor %}
       </tbody>

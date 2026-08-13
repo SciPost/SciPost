@@ -12,6 +12,7 @@ from common.forms import CrispyFormMixin, HTMXDynSelWidget, SearchForm
 from common.utils.attachments import RelatedAttachment, attach_related
 from common.utils.text import partial_names_match
 from ethics.managers import CoauthorshipExclusionPurpose
+from ethics.models import ConflictOfInterest, SubmissionClearance
 from submissions.models.appeal import Appeal
 from submissions.models.assignment import ConditionalAssignmentOffer
 
@@ -4438,7 +4439,7 @@ class AppealForm(CrispyFormMixin, forms.ModelForm):
             "remarks_edadmin": forms.Textarea(attrs={"rows": 3}),
         }
 
-    def get_adjudicators_queryset(self):
+    def get_editorial_decision(self):
         if self.instance and self.instance.pk:
             editorial_decision = self.instance.editorial_decision
         else:
@@ -4446,14 +4447,20 @@ class AppealForm(CrispyFormMixin, forms.ModelForm):
         if not editorial_decision:
             raise ValueError("Editorial decision must be provided for the appeal form.")
 
+        return editorial_decision
+
+    def get_adjudicators_queryset(self):
+        editorial_decision = self.get_editorial_decision()
+
+        submission_authors = editorial_decision.submission.author_profiles.values_list(
+            "profile", flat=True
+        )
+
         senior_fellows_for_submission = (
             Fellowship.objects.all()
             .active()
             .senior()
-            .college_specialties_overlap_with_submission(editorial_decision.submission)
-            .without_conflicts_of_interest_against_submission_authors_of(
-                editorial_decision.submission
-            )
+            .filter(college=editorial_decision.submission.submitted_to.college)
         )
 
         today = timezone.now().date()
@@ -4486,6 +4493,27 @@ class AppealForm(CrispyFormMixin, forms.ModelForm):
                     )[:1],
                     to_attr="submission_qualification",
                 ),
+                Prefetch(
+                    "profile__submission_clearances",
+                    queryset=SubmissionClearance.objects.filter(
+                        submission__thread_hash=editorial_decision.submission.thread_hash
+                    )[:1],
+                    to_attr="submission_clearance",
+                ),
+                Prefetch(
+                    "profile__conflicts_of_interest",
+                    queryset=ConflictOfInterest.objects.valid_on_date()
+                    .filter(related_profile__in=submission_authors)
+                    .annot_submission_exempted(editorial_decision.submission),
+                    to_attr="submission_conflicts_of_interest",
+                ),
+                Prefetch(
+                    "profile__related_conflicts_of_interest",
+                    queryset=ConflictOfInterest.objects.valid_on_date()
+                    .filter(profile__in=submission_authors)
+                    .annot_submission_exempted(editorial_decision.submission),
+                    to_attr="submission_conflicts_of_interest_related",
+                ),
             )
         )
 
@@ -4508,6 +4536,19 @@ class AppealForm(CrispyFormMixin, forms.ModelForm):
         self.fields["editorial_decision"].disabled = True
 
         self.possible_adjudicators = self.get_adjudicators_queryset()
+
+        editorial_decision = self.get_editorial_decision()
+        if self.initial.get("adjudicators") is None:
+            self.initial["adjudicators"] = self.possible_adjudicators.filter(
+                id__in=Fellowship.objects.all()
+                .college_specialties_overlap_with_submission(
+                    editorial_decision.submission
+                )
+                .without_conflicts_of_interest_against_submission_authors_of(
+                    editorial_decision.submission
+                )
+                .values_list("contributor_id", flat=True)
+            )
 
         self.helper.form_tag = False
 
