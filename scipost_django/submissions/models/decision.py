@@ -141,3 +141,8 @@ class EditorialDecision(models.Model):
     @property
     def production_can_proceed(self):
         return self.status == self.FIXED_AND_ACCEPTED
+
+    @property
+    def is_publicly_visible(self):
+        """Whether the decision should be publicly visible"""
+        return self.is_fixed_and_accepted
