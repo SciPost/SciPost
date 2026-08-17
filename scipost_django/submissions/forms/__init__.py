@@ -4574,14 +4574,9 @@ class AppealForm(CrispyFormMixin, forms.ModelForm):
         return
 
     def save(self, commit=True):
-        appeal = super().save(commit=False)
+        appeal = super().save(commit)
 
         if appeal.status == Appeal.STARTED:
-            appeal.editorial_decision.status = EditorialDecision.APPEALED_BY_AUTHORS
             self.reset_adjudicator_permissions()
 
-        if commit:
-            appeal.save()
-            appeal.editorial_decision.save()
-            self.save_m2m()
         return appeal

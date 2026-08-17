@@ -4157,6 +4157,21 @@ class AppealCreateView(SubmissionMixin, PermissionsMixin, CreateView):
         )
         return initial
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        self.mark_objects_under_appeal()
+
+        return response
+
+    def mark_objects_under_appeal(self):
+        """Mark the EditorialDecision and Submission as being under appeal."""
+        appeal = self.object
+        appeal.editorial_decision.status = EditorialDecision.APPEALED_BY_AUTHORS
+        appeal.editorial_decision.submission.status = Submission.UNDER_APPEAL
+        appeal.editorial_decision.save()
+        appeal.editorial_decision.submission.save()
+
 
 class AppealUpdateView(SubmissionMixin, PermissionsMixin, UpdateView):
     """For EdAdmin to update an appeal on a Submission."""
