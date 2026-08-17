@@ -4530,25 +4530,25 @@ class AppealForm(CrispyFormMixin, forms.ModelForm):
 
         return adjudicators_qs
 
+    def get_initial_adjudicators(self):
+        editorial_decision = self.get_editorial_decision()
+        initial_adjudicators = self.possible_adjudicators.filter(
+            id__in=Fellowship.objects.all()
+            .college_specialties_overlap_with_submission(editorial_decision.submission)
+            .without_conflicts_of_interest_against_submission_authors_of(
+                editorial_decision.submission
+            )
+            .values_list("contributor_id", flat=True)
+        )
+        return initial_adjudicators
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.fields["editorial_decision"].disabled = True
 
         self.possible_adjudicators = self.get_adjudicators_queryset()
-
-        editorial_decision = self.get_editorial_decision()
-        if self.initial.get("adjudicators") is None:
-            self.initial["adjudicators"] = self.possible_adjudicators.filter(
-                id__in=Fellowship.objects.all()
-                .college_specialties_overlap_with_submission(
-                    editorial_decision.submission
-                )
-                .without_conflicts_of_interest_against_submission_authors_of(
-                    editorial_decision.submission
-                )
-                .values_list("contributor_id", flat=True)
-            )
+        self.initial.setdefault("adjudicators", self.get_initial_adjudicators())
 
         self.helper.form_tag = False
 
