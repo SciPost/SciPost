@@ -157,6 +157,7 @@ class Submission(models.Model):
     )
     ACCEPTED_IN_ALTERNATIVE = "accepted_alt"
     REJECTED = "rejected"
+    UNDER_APPEAL = "under_appeal"
     WITHDRAWN = "withdrawn"
     PUBLISHED = "published"
 
@@ -187,6 +188,7 @@ class Submission(models.Model):
         ),
         (ACCEPTED_IN_ALTERNATIVE, "Accepted in alternative Journal"),
         (REJECTED, "Publication decision taken: reject"),
+        (UNDER_APPEAL, "Under appeal"),
         (WITHDRAWN, "Withdrawn by the Authors"),
         (PUBLISHED, "Published"),
     )
@@ -230,6 +232,7 @@ class Submission(models.Model):
         IN_VOTING,
         AWAITING_DECISION,
         ACCEPTED_IN_ALTERNATIVE_AWAITING_PUBOFFER_ACCEPTANCE,
+        UNDER_APPEAL,
     )
     STAGE_DECIDED = (
         ADMISSION_FAILED,
