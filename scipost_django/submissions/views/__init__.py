@@ -4157,10 +4157,43 @@ class AppealCreateView(SubmissionMixin, PermissionsMixin, CreateView):
         )
         return initial
 
+    def create_submission_event(self):
+        """Create a SubmissionEvent for the appeal."""
+        appeal = self.object
+        submission = appeal.editorial_decision.submission
+        submission.add_general_event(
+            "An appeal against the editorial decision has been started"
+        )
+        submission.add_event_for_eic(
+            "An appeal against the following editorial decision has been started: \n"
+            f"{appeal.editorial_decision.summary()}"
+        )
+
+    def send_author_appeal_started_email(self):
+        """Send an email to the authors notifying them that their appeal has started."""
+        appeal = self.object
+        submission = appeal.editorial_decision.submission
+        mail_sender = DirectMailUtil(
+            "authors/inform_author_appeal_started", submission=submission, appeal=appeal
+        )
+        mail_sender.send_mail()
+
+    def send_eic_appeal_started_email(self):
+        """Send an email to the EIC notifying them that an appeal has started."""
+        appeal = self.object
+        submission = appeal.editorial_decision.submission
+        mail_sender = DirectMailUtil(
+            "eic/inform_eic_appeal_started", submission=submission, appeal=appeal
+        )
+        mail_sender.send_mail()
+
     def form_valid(self, form):
         response = super().form_valid(form)
 
         self.mark_objects_under_appeal()
+        self.send_author_appeal_started_email()
+        self.send_eic_appeal_started_email()
+        self.create_submission_event()
 
         return response
 

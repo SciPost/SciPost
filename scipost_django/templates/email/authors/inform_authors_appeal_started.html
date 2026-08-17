@@ -1,0 +1,18 @@
+<p>Dear {{ submission.submitted_by.profile.formal_name }},</p>
+
+<p>
+  We would like to inform you that an appeal has been started against the current editorial decision on your recent Submission
+  <br />
+  <a href="https://{{ domain }}{{ submission.get_absolute_url }}">{{ submission.title }}</a>,
+  <br />
+  by {{ submission.author_list }}.
+</p>
+
+<p>
+  Sincerely,
+  <br />
+  The SciPost Team
+</p>
+
+{% include 'email/_footer.html' %}
+{% include 'email/_submission_thread_uuid.html' with submission=submission %}

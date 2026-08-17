@@ -1,0 +1,7 @@
+{
+  "subject": "SciPost: Appeal started",
+  "recipient_list": ["submission.editor_in_charge.profile.email"],
+  "bcc": ["edadmin@"],
+  "from_name": "SciPost Editorial Admin",
+  "from_email": "submissions@"
+}
