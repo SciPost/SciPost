@@ -64,13 +64,7 @@ class ChemArxivServer(BasePreprintServer):
     def find_common_works_between(
         cls, *people: Person, **kwargs: Any
     ) -> list["CoauthoredWork"]:
-        data = cls.request(
-            ChemArxivQuery().author(
-                " ".join([format_person_name(person) for person in people])
-            )
-        )
-        items = [hit.get("item", {}) for hit in data.get("itemHits", [])]
-        return [parsed_work for item in items if (parsed_work := cls.parse_work(item))]
+        return []
 
     @classmethod
     def parse_work(cls, data: dict[str, Any]) -> "CoauthoredWork | None":
