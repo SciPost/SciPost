@@ -14,10 +14,14 @@ class RefereeInvitationQuerySet(models.QuerySet):
     def auto_reminders_allowed(self):
         return self.filter(auto_reminders_allowed=True)
 
+    def invitation_sent(self):
+        """Filter invitations that have been sent to referees."""
+        return self.filter(date_invited__isnull=False)
+
     def awaiting_response(self):
         """Filter sent invitations awaiting response by referee."""
-        return self.filter(
-            date_invited__isnull=False, accepted=None, cancelled=False, fulfilled=False
+        return self.invitation_sent().filter(
+            accepted=None, cancelled=False, fulfilled=False
         )
 
     def accepted(self):

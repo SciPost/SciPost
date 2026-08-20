@@ -22,9 +22,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         submission: Submission
         for submission in Submission.objects.open_for_reporting():
-            invitations_w_auto_reminders = (
-                submission.referee_invitations.auto_reminders_allowed()
-            )
+            invitations_w_auto_reminders = submission.referee_invitations.invitation_sent().auto_reminders_allowed()
             invitation: "RefereeInvitation"
 
             # Send automatic reminders to referees who have not responded
