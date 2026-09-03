@@ -17,7 +17,7 @@ from .models import NonDuplicateMark, MergeHistoryRecord
 from .utils import (
     M,
     FieldOrRel,
-    FieldValues,
+    FieldValue,
     resolve_field_value,
     merge_objects,
     MergeChangeType,
@@ -25,6 +25,8 @@ from .utils import (
 )
 
 from typing import Any
+
+FieldChange = tuple[MergeChangeType, FieldValue]
 
 
 class BaseComparisonView(PermissionRequiredMixin, TemplateView):
@@ -134,9 +136,10 @@ class BaseComparisonView(PermissionRequiredMixin, TemplateView):
             object_b_pk=object_b.pk,
         ).first()
 
+    @staticmethod
     def get_object_field_data(
-        self, object: Model, use_display: bool = True
-    ) -> dict[FieldOrRel, tuple[str, FieldValues]]:
+        object: Model, use_display: bool = True
+    ) -> dict[FieldOrRel, tuple[str, list[FieldValue]]]:
         """
         Return a list of fields, ordered by type (fields, Any-to-1 and 1-to-Any relations).
         """
@@ -407,10 +410,10 @@ class HXMergeView(BaseComparisonView):
     @staticmethod
     def compute_field_merge_changes(
         field: FieldOrRel,
-        from_vals: FieldValues,
-        to_vals: FieldValues,
-        strategy: MergeStrategy | None = None,
-    ) -> list[tuple[MergeChangeType, Model | None]]:
+        from_vals: list[FieldValue],
+        to_vals: list[FieldValue],
+        strategy: MergeStrategy,
+    ) -> list[FieldChange]:
         """
         Produces a preview of what the merged field will look like.
         Return a list of tuples, where the first element is the status of the object (unchanged, added, removed)
@@ -419,7 +422,7 @@ class HXMergeView(BaseComparisonView):
             field, from_vals, to_vals
         )
 
-        changes: list[tuple[MergeChangeType, Model | None]] = []
+        changes: list[FieldChange] = []
 
         if (
             (not field.is_relation or field.one_to_one or field.many_to_one)

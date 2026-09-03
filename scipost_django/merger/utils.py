@@ -13,7 +13,7 @@ from django.db.models import (
 from typing import Any, TypeVar
 
 
-FieldValues = list[Model | None]
+FieldValue = Model | None
 FieldOrRel = Field[Any, Any] | ForeignObjectRel
 T = TypeVar("T")
 M = TypeVar("M", bound=Model)
@@ -36,7 +36,7 @@ def resolve_field_value(
     object: Model,
     field: Field[Any, Any] | ForeignObjectRel,
     use_display: bool = True,
-) -> tuple[str, FieldValues]:
+) -> tuple[str, list[FieldValue]]:
     """
     Resolve a field of an object to a displayable format.
     Returns a dictionary of the field and its display name - value pair,
@@ -254,7 +254,7 @@ class MergeStrategy(enum.Enum):
 
         return _first_admissible(*default_strategy_candidates)
 
-    def _get_field_value(self, field: FieldOrRel, obj: Model) -> FieldValues:
+    def _get_field_value(self, field: FieldOrRel, obj: Model) -> list[FieldValue]:
         from django.db.models.manager import ManyToManyRelatedManager
 
         value = getattr(obj, field.name, None)
