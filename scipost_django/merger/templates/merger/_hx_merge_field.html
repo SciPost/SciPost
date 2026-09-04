@@ -10,7 +10,7 @@
              value="{{ field.name }}" />
       <span>{{ field.verbose_name|default:field.name|title }}</span>
 
-      {% if not field.primary_key and changes|length > 1 %}
+      {% if not field.primary_key and field.merge_strategies|length > 1 %}
         {% for strategy in field.merge_strategies %}
           <div class="d-flex align-items-center justify-content-between">
             <span class="fw-normal">

@@ -411,54 +411,45 @@ class HXMergeView(BaseComparisonView):
         Produces a preview of what the merged field will look like.
         Return a list of tuples, where the first element is the status of the object (unchanged, added, removed)
         """
-        strategy = strategy or MergeStrategy.default_for_field(
-            field, from_vals, to_vals
+        retainment, deprecation = strategy.to_tuple()
+        deprecation_change_type = (
+            deprecation.merge_change_type if deprecation else MergeChangeType.REMOVED
         )
 
         changes: list[FieldChange] = []
 
-        if (
-            (not field.is_relation or field.one_to_one or field.many_to_one)
-            and (from_val := next(iter(from_vals), None))
-            and (to_val := next(iter(to_vals), None))
-        ):
-            match strategy.to_tuple():
-                case (MergeStrategy.FieldRetainment.KEEP, deprecation_strategy):
-                    merge_change_type = (
-                        deprecation_strategy.merge_change_type
-                        if deprecation_strategy
-                        else MergeChangeType.REMOVED
-                    )
-                    if from_val == to_val or not from_val:  # Empty "from" or identical
-                        changes = [(MergeChangeType.UNCHANGED, to_val)]
-                    elif not to_val:  # Empty "to" value, so "from" value prevails
-                        changes = [(MergeChangeType.ADDED, from_val)]
-                    elif from_val:  # Non-empty "from" removed and "to" unchanged
-                        changes = [
-                            (merge_change_type, from_val),
-                            (MergeChangeType.UNCHANGED, to_val),
-                        ]
-                case (MergeStrategy.FieldRetainment.REPLACE, deprecation_strategy):
-                    merge_change_type = (
-                        deprecation_strategy.merge_change_type
-                        if deprecation_strategy
-                        else MergeChangeType.REMOVED
-                    )
-                    if from_val == to_val:  # Same value, just appear unchanged
-                        changes = [(MergeChangeType.UNCHANGED, to_val)]
-                    elif not from_val:  # Empty "from" value, so "to" value prevails
-                        changes = [(MergeChangeType.UNCHANGED, to_val)]
-                    elif to_val:  # Overwrite "to" value with "from" value
-                        changes = [
-                            (merge_change_type, to_val),
-                            (MergeChangeType.ADDED, from_val),
-                        ]
+        from_val = next(iter(from_vals), None)
+        to_val = next(iter(to_vals), None)
+
+        is_multi_valued_field = bool(field.many_to_many or field.one_to_many)
+        is_single_valued_field = bool(
+            not field.is_relation  # just a regular field
+            or (field.one_to_one or field.many_to_one)  # relation with cardinality 1
+        )
+        if is_single_valued_field and (from_val or to_val):
+            match retainment:
+                case MergeStrategy.FieldRetainment.KEEP:  # "to" takes precedence
+                    presiding, deprecated = to_val, from_val
+                case MergeStrategy.FieldRetainment.REPLACE:  # "from" takes precedence
+                    presiding, deprecated = from_val, to_val
                 case _:
                     raise NotImplementedError(
                         f"Merge strategy {strategy} not implemented for single-valued fields."
                     )
-        elif field.many_to_many or field.one_to_many:
-            retainment, deprecation = strategy.to_tuple()
+
+            if presiding == deprecated:  # Identical values, no change
+                changes = [(MergeChangeType.UNCHANGED, presiding)]
+            elif not presiding:  # No presiding value, deprecated value removed
+                changes = [(deprecation_change_type, deprecated)]
+            elif not deprecated:  # No deprecated value, presiding value added
+                changes = [(MergeChangeType.ADDED, presiding)]
+            else:  # Both values present, deprecated value removed, presiding value kept
+                changes = [
+                    (deprecation_change_type, deprecated),
+                    (MergeChangeType.UNCHANGED, presiding),
+                ]
+
+        elif is_multi_valued_field:
             if (
                 retainment != MergeStrategy.FieldRetainment.COMBINE
                 and deprecation is None
@@ -471,7 +462,7 @@ class HXMergeView(BaseComparisonView):
                 case MergeStrategy.FieldRetainment.KEEP:
                     existing = [(MergeChangeType.UNCHANGED, o) for o in to_vals if o]
                     removed = [
-                        (deprecation.merge_change_type, o)
+                        (deprecation_change_type, o)
                         for o in set(from_vals) - set(to_vals)
                         if o
                     ]
@@ -488,7 +479,7 @@ class HXMergeView(BaseComparisonView):
                         if o and o in from_vals
                     ]
                     removed = [
-                        (deprecation.merge_change_type, o)
+                        (deprecation_change_type, o)
                         for o in set(to_vals) - set(from_vals)
                         if o
                     ]
