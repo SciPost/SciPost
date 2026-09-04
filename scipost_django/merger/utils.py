@@ -17,6 +17,7 @@ FieldValue = Model | None
 FieldOrRel = Field[Any, Any] | ForeignObjectRel
 T = TypeVar("T")
 M = TypeVar("M", bound=Model)
+N = TypeVar("N", bound=Model)
 
 
 def get_field_name(field: Field[Any, Any] | ForeignObjectRel) -> str:
@@ -298,10 +299,10 @@ def merge_objects(
     dry_run: bool = False,
 ) -> None:
     def _set_resolve_save(
-        obj: M,
+        obj: N,
         field: FieldOrRel,
         value: Any,
-    ) -> M:
+    ) -> N:
         field_name = get_field_name(field)
 
         # Special handling for GenericRel, which needs to
@@ -325,8 +326,8 @@ def merge_objects(
             obj.save()
         else:
             print(
-                f"Setting ({type(obj).__name__}-{obj.pk}).{field_name} = "
-                f"{type(value).__name__}-{value.pk if hasattr(value, 'pk') else value}"
+                f'Setting {type(obj).__name__}({obj.pk}).{field_name} = "{value}"'
+                f"\t[{type(value).__name__}({getattr(value, 'pk', value)})]"
             )
 
         return obj
