@@ -209,52 +209,6 @@ class MergeStrategy(enum.Enum):
             case _:
                 raise ValueError(f"Unknown strategy tuple: {tup}")
 
-    @classmethod
-    def default_for_field(
-        cls,
-        field: FieldOrRel,
-        from_vals: FieldValues | None = None,
-        to_vals: FieldValues | None = None,
-    ) -> "MergeStrategy":
-        """
-        Returns the default strategy for a given field, based on its type.
-        If values are provided, the strategy will be adjusted accordingly,
-        e.g. if KEEP is default but the value is None, REPLACE will be chosen instead.
-        """
-        admissible_strategies = cls.get_admissible_strategies(field)
-        default_strategy_candidates: list[MergeStrategy] = []
-
-        def _first_admissible(*strategies: "MergeStrategy") -> "MergeStrategy":
-            for strategy in strategies:
-                if strategy in admissible_strategies:
-                    return strategy
-            raise ValueError(
-                "No admissible strategy found", strategies, admissible_strategies
-            )
-
-        if field.many_to_many or field.one_to_many:
-            default_strategy_candidates.append(cls.COMBINE)
-        elif field.one_to_one or field.many_to_one:
-            default_strategy_candidates.extend(
-                (
-                    cls.KEEP_ORPHAN,
-                    cls.KEEP_DELETE,
-                    cls.REPLACE_ORPHAN,
-                    cls.REPLACE_DELETE,
-                )
-            )
-        else:  # Fields
-            default_strategy_candidates.extend((cls.KEEP, cls.REPLACE))
-            if from_vals and all(v is None for v in from_vals):
-                default_strategy_candidates.remove(cls.KEEP)
-            if to_vals and all(v is None for v in to_vals):
-                default_strategy_candidates.remove(cls.REPLACE)
-            # ... but if both are None, we have to keep something
-            if not default_strategy_candidates:
-                default_strategy_candidates.append(cls.KEEP)
-
-        return _first_admissible(*default_strategy_candidates)
-
     def _get_field_value(self, field: FieldOrRel, obj: Model) -> list[FieldValue]:
         from django.db.models.manager import ManyToManyRelatedManager
 
@@ -272,23 +226,64 @@ class MergeStrategy(enum.Enum):
         return display_str
 
     @classmethod
-    def get_admissible_strategies(cls, field: FieldOrRel) -> list["MergeStrategy"]:
-        strategies: list["MergeStrategy"] = []
+    def get_admissible_strategies(
+        cls,
+        field: FieldOrRel,
+        from_vals: list[FieldValue] | None = None,
+        to_vals: list[FieldValue] | None = None,
+    ) -> tuple[list["MergeStrategy"], "MergeStrategy"]:
+        """
+        Returns the admissible strategies for a given field, based on its type.
+        If values are provided, the preferred strategy will be adjusted accordingly,
+        e.g. if KEEP is default but the value is None, REPLACE will be chosen instead.
+        """
+        admissible_strategies: list[MergeStrategy] = []
+        preferred_deprecation_strategy = cls.RelationDeprecation.DELETE
 
+        ##### Add anything that is remotely possible
         if not field.is_relation:
-            strategies.extend((cls.KEEP, cls.REPLACE))
+            admissible_strategies.extend((cls.KEEP, cls.REPLACE))
 
         if field.many_to_many or field.one_to_many:
-            strategies.append(cls.COMBINE)
+            admissible_strategies.append(cls.COMBINE)
 
         if field.is_relation:
             nullable = not field.auto_created and field.null
             remote_nullable = field.auto_created and field.remote_field.null
             if nullable or remote_nullable:
-                strategies.extend((cls.KEEP_ORPHAN, cls.REPLACE_ORPHAN))
-            strategies.extend((cls.KEEP_DELETE, cls.REPLACE_DELETE))
+                admissible_strategies.extend((cls.KEEP_ORPHAN, cls.REPLACE_ORPHAN))
+                preferred_deprecation_strategy = cls.RelationDeprecation.ORPHAN
+            admissible_strategies.extend((cls.KEEP_DELETE, cls.REPLACE_DELETE))
 
-        return strategies
+        ##### Determine the preferred strategy based on the field type and values
+        # Easy case, *-to-many relations should be combined.
+        if field.many_to_many or field.one_to_many:
+            return admissible_strategies, cls.COMBINE
+
+        # For *-to-one relations, we have to check if the values are None
+        # and return the least-invasive deprecation strategy
+        if field.one_to_one or field.many_to_one:
+            if not from_vals or all(not v for v in from_vals):
+                preferred_retention_strategy = cls.FieldRetainment.KEEP
+            elif not to_vals or all(not v for v in to_vals):
+                preferred_retention_strategy = cls.FieldRetainment.REPLACE
+            else:
+                preferred_retention_strategy = cls.FieldRetainment.KEEP
+
+            return admissible_strategies, cls.from_tuple(
+                (preferred_retention_strategy, preferred_deprecation_strategy)
+            )
+
+        # For single-valued fields just return the self-explanatory default
+        if not from_vals or all(not v for v in from_vals):
+            preferred_strategy = cls.KEEP
+        elif not to_vals or all(not v for v in to_vals):
+            preferred_strategy = cls.REPLACE
+        # ... but if both are None, no strategy matters, just return KEEP as a default
+        else:
+            preferred_strategy = cls.KEEP
+
+        return admissible_strategies, preferred_strategy
 
 
 @transaction.atomic

@@ -157,24 +157,17 @@ class BaseComparisonView(PermissionRequiredMixin, TemplateView):
                     return 1
             return 0
 
-        model_fields = object._meta.get_fields(
-            include_parents=True, include_hidden=False
+        model_fields = sorted(
+            object._meta.get_fields(include_parents=True, include_hidden=False),
+            key=_sort_field_on_type,
         )
 
-        model_fields = sorted(model_fields, key=_sort_field_on_type)
-
-        resolved_fields = {}
-        for field in model_fields:
-            field.merge_strategies = MergeStrategy.get_admissible_strategies(field)
-            field.selected_strategy = MergeStrategy.default_for_field(field)
-
+        resolved_fields = {
+            field: resolve_field_value(object, field, use_display=use_display)
+            for field in model_fields
             # We don't care about GeneratedFields or "calculated fields" (cf_)
-            if isinstance(field, GeneratedField) or field.name.startswith("cf_"):
-                continue
-
-            resolved_fields[field] = resolve_field_value(
-                object, field, use_display=use_display
-            )
+            if not (isinstance(field, GeneratedField) or field.name.startswith("cf_"))
+        }
 
         return resolved_fields
 
@@ -533,18 +526,34 @@ class HXMergeView(BaseComparisonView):
         }
 
         if model := content_type.model_class():
-            obj_a_field_data = self.get_object_field_data(object_from)
-            obj_b_field_data = self.get_object_field_data(object_to)
+            obj_from_field_data = self.get_object_field_data(object_from)
+            obj_to_field_data = self.get_object_field_data(object_to)
 
-            object_field_changes = {
-                field: (field_name, changes)
-                for (field, (field_name, from_val)), (_, (_, to_val)) in zip(
-                    obj_a_field_data.items(), obj_b_field_data.items()
+            # field -> (field_name, list of changes)
+            object_field_changes: dict[FieldOrRel, tuple[str, list[FieldChange]]] = {}
+            for (field, (field_name, from_val)), (_, (_, to_val)) in zip(
+                obj_from_field_data.items(), obj_to_field_data.items()
+            ):
+                admissible_strategies, preferred_strategy = (
+                    MergeStrategy.get_admissible_strategies(field, from_val, to_val)
                 )
-                if (
-                    changes := self.compute_field_merge_changes(field, from_val, to_val)
+                changes = self.compute_field_merge_changes(
+                    field, from_val, to_val, preferred_strategy
                 )
-            }
+
+                # Only process fields that have changes
+                if not changes:
+                    continue
+
+                # attach strategies to field object for template rendering
+                field.selected_strategy = preferred_strategy
+                if from_val == to_val and len(changes) == 1:
+                    # If the values are identical, we simplify to the preferred strategy only
+                    field.merge_strategies = [preferred_strategy]
+                else:
+                    field.merge_strategies = admissible_strategies
+
+                object_field_changes[field] = (field_name, changes)
 
             context |= {
                 "model_name": model._meta.verbose_name,
@@ -647,7 +656,7 @@ class HXMergePreviewFieldView(HXMergeView):
         except Exception as e:
             raise AttributeError(f"Error retrieving field: {e}")
 
-        field_merge_strategies = MergeStrategy.get_admissible_strategies(field)
+        field_merge_strategies, _ = MergeStrategy.get_admissible_strategies(field)
         if selected_strategy not in field_merge_strategies:
             raise ValueError("Invalid merge strategy provided for this field.")
 
