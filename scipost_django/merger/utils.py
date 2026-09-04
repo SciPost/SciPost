@@ -1,4 +1,5 @@
 import enum
+import itertools
 
 from django.contrib.contenttypes.fields import GenericRel
 from django.db import transaction
@@ -327,22 +328,31 @@ def merge_objects(
 
         return obj
 
+
     def _handle_deprecation(
-        deprecation: MergeStrategy.RelationDeprecation | None,
-        obj: Model,
+        obj: M,
         field: FieldOrRel,
+        deprecation: MergeStrategy.RelationDeprecation | None,
     ):
+        """
+        Disassociate the values of the given field from the object, according to the deprecation strategy.
+        - ORPHAN: Set the field to None (requires null=True)
+        - DELETE: Delete the related objects
+        - None: Do nothing
+        """
         match deprecation:
             case MergeStrategy.RelationDeprecation.ORPHAN:
-                if not dry_run:
-                    _set_resolve_save(obj, field, None)
-                else:
-                    print(f"Orphaning {obj} due to deprecation strategy.")
+                _set_resolve_save(obj, field, None)
             case MergeStrategy.RelationDeprecation.DELETE:
-                if not dry_run:
-                    obj.delete()
-                else:
-                    print(f"Deleting {obj} due to deprecation strategy.")
+                _, values = resolve_field_value(obj, field, use_display=False)
+                for value in values:
+                    if value is not None:
+                        if not dry_run:
+                            value.delete()
+                        else:
+                            print(
+                                f'Deleting {type(value).__name__}({value.pk}) "{value}" due to deprecation strategy.'
+                            )
             case None:
                 pass
 
@@ -355,34 +365,83 @@ def merge_objects(
 
         retainment, deprecation = strategy.to_tuple()
 
-        # Replace is like KEEP but with swapped values,
-        # and acts the same for single- and multi-valued fields
+        presiding, deprecated = [], []
+        if retainment == MergeStrategy.FieldRetainment.KEEP:
+            presiding, deprecated = to_vals, from_vals
         if retainment == MergeStrategy.FieldRetainment.REPLACE:
-            to_vals, from_vals = from_vals, to_vals
+            presiding, deprecated = from_vals, to_vals
         elif retainment == MergeStrategy.FieldRetainment.COMBINE:
-            # Combine is like KEEP but with added values from "from" that are not in "to"
-            to_vals = list(set(to_vals) | set(from_vals))
+            presiding, deprecated = list(set(from_vals) - set(to_vals)), []
 
         is_X_to_one = not (field.many_to_many or field.one_to_many)
-        if is_X_to_one and len(to_vals) != 1:
+        if is_X_to_one and len(presiding) != 1:
             raise ValueError(
-                f"Field {field.name} admits single values but received many: {to_vals}"
+                f"Field {field.name} admits single values but received many: {presiding}"
             )
 
+        # Accessing presiding[0] is safe due to raise above
         if not field.is_relation:
-            _set_resolve_save(object_to, field, to_vals[0])
-            # Deprecation guaranteed to be None for non-relational fields
+            _set_resolve_save(object_to, field, presiding[0])
         elif field.many_to_one:
             # Many to one is a forward foreign key, just set it,
             # and apply deprecation on the other afterwards(!)
-            _handle_deprecation(deprecation, object_from, field)
-            _set_resolve_save(object_to, field, to_vals[0])
+            _handle_deprecation(object_from, field, deprecation)
+            _set_resolve_save(object_to, field, presiding[0])
+        elif field.one_to_one:
+            # One to one is a special case of many to one, and we
+            # can't know off the bat if it is forward or reverse.
+
+            # Forward FK, like many-to-one FFK above.
+            if not field.auto_created:
+                _handle_deprecation(object_from, field, deprecation)
+                _set_resolve_save(object_to, field, presiding[0])
+                continue
+
+            # Implies reverse FK.
+            # Reverse it and handle it like a forward FK.
+            # `object` -> `remote_object` and
+            # `field` -> `remote_field`
+            field_name = get_field_name(field)
+            field_descriptor = getattr(field.model, field_name)
+
+            try:
+                remote_object_from: FieldValue = getattr(object_from, field_name, None)
+            except field_descriptor.RelatedObjectDoesNotExist:
+                remote_object_from = None
+
+            try:
+                remote_object_to: FieldValue = getattr(object_to, field_name, None)
+            except field_descriptor.RelatedObjectDoesNotExist:
+                remote_object_to = None
+
+            # F -> T
+            # RF -> RT
+            # ---------
+            # Keep: RT._ = T, Deprecate RF
+            # Replace: RF._ = T, Deprecate RT
+            if retainment == MergeStrategy.FieldRetainment.KEEP:
+                remote_object_pres = remote_object_to
+                remote_object_depr = remote_object_from
+            elif retainment == MergeStrategy.FieldRetainment.REPLACE:
+                remote_object_pres = remote_object_from
+                remote_object_depr = remote_object_to
+            else:
+                raise ValueError(
+                    "One-to-one relations cannot be combined, "
+                    "as they are inherently single-valued."
+                )
+
+            if remote_object_depr is not None:
+                _handle_deprecation(remote_object_depr, field.remote_field, deprecation)
+            if remote_object_pres is not None:
+                _set_resolve_save(remote_object_pres, field.remote_field, object_to)
+
         elif field.one_to_many:
             # One to many is a reverse foreign key, so we need to set the remote field on the related objects
-            for from_val in from_vals:
-                _handle_deprecation(deprecation, from_val, field.remote_field)
-            for to_val in to_vals:
-                _set_resolve_save(to_val, field.remote_field, object_to)
+            for depr_val in deprecated:
+                _handle_deprecation(depr_val, field.remote_field, deprecation)
+            for pres_val in presiding:
+                _set_resolve_save(pres_val, field.remote_field, object_to)
 
         elif field.many_to_many:
             through_model = None
@@ -397,6 +456,13 @@ def merge_objects(
             if through_model is None:
                 raise ValueError("Through model could not be determined.")
 
+            # Determine the fields other than the merged model
+            through_model_other_fields = [
+                field
+                for field in through_model._meta.get_fields()
+                if field.name != m2m_field_name and not field.auto_created
+            ]
+
             # When accessing the model via the `through` attribute,
             # we get a table with two forward foreign keys. No complications.
             # We do this to get them as objects of the through "invisible" model
@@ -408,56 +474,33 @@ def merge_objects(
                 **{m2m_field_name: object_to}
             )
 
-            # Replace is like KEEP but with swapped values,
-            # and acts the same for single- and multi-valued fields
+            presiding, deprecated = [], []
+            if retainment == MergeStrategy.FieldRetainment.KEEP:
+                presiding, deprecated = through_to_vals, through_from_vals
             if retainment == MergeStrategy.FieldRetainment.REPLACE:
-                through_to_vals, through_from_vals = through_from_vals, through_to_vals
+                presiding, deprecated = through_from_vals, through_to_vals
             elif retainment == MergeStrategy.FieldRetainment.COMBINE:
                 # Combine is like KEEP but with added values from "from" that are not in "to"
-                through_to_vals = list(set(through_to_vals) | set(through_from_vals))
-
-            for through_from_val in through_from_vals:
-                _handle_deprecation(deprecation, through_from_val, field)
-            for through_to_val in through_to_vals:
-                _set_resolve_save(through_to_val, field, object_to)
-
-        elif field.one_to_one:
-            # One to one is a special case of many to one, and we
-            # can't know off the bat if it is forward or reverse.
-
-            if field.auto_created:  # Implies reverse FK.
-                field_name = get_field_name(field)
-                field_descriptor = getattr(field.model, field_name)
-
-                # Translate the objects from reverse FK to forward FK
-                #! There could be a complication here as I used to manipulate
-                #! fields and their values, but now I'm manipulating fields twice
-                #! Make sure the logic is bulletproof.
-
-                try:
-                    forward_object_to = getattr(object_to, field_name)
-                    forward_object_from = getattr(object_from, field_name)
-                except field_descriptor.RelatedObjectDoesNotExist:
-                    # Nothing to do if the object does not exist
-                    continue
-
-                # Below this line, the procedure is identical by making the substitutions
-                # `object_X` -> `forward_object_X` and
-                # `field` -> `remote_field`
-                # if not for the fact that deprecation runs first.
-                # In all examples, however, the deprecation could be made to run first
-                #! Double check this.
-
-                merge_objects(
-                    forward_object_from,
-                    forward_object_to,
-                    {field.remote_field: strategy},
-                    dry_run=dry_run,
+                # Whether two instances are the same is determined by the values of its `through_model_other_fields`
+                field_attnames = ["pk"] + [
+                    getattr(field, "attname", field.name)
+                    for field in through_model_other_fields
+                ]
+                unique_instances = {
+                    tuple(instance_values): pk
+                    for (pk, *instance_values) in itertools.chain(
+                        through_from_vals.values_list(*field_attnames),
+                        through_to_vals.values_list(*field_attnames),
+                    )
+                }
+                presiding = (through_from_vals | through_to_vals).filter(
+                    pk__in=unique_instances.values()
                 )
 
-            else:  # Forward FK, like many-to-one FFK.
-                _handle_deprecation(deprecation, object_from, field)
-                _set_resolve_save(object_to, field, to_vals[0])
+            for depr_val in deprecated:
+                _handle_deprecation(depr_val, field, deprecation)
+            for pres_val in presiding:
+                _set_resolve_save(pres_val, field, object_to)
 
         else:
             raise ValueError("Field type not supported for merging.")
