@@ -9,6 +9,7 @@ from django.db.models import (
     Model,
     Field,
     ForeignObjectRel,
+    UniqueConstraint,
 )
 
 from typing import Any, TypeVar
@@ -381,6 +382,14 @@ def merge_objects(
 
         # Accessing presiding[0] is safe due to raise above
         if not field.is_relation:
+            # If the field is not a relation, deprecation is not needed
+            # However, uniqueness constraints may require us to temporarily discard the field's value on the deprecated object before setting it on the presiding object
+            if any(
+                field.name in constraint.fields
+                for constraint in object_to._meta.constraints
+                if isinstance(constraint, UniqueConstraint)
+            ):
+                _set_resolve_save(object_from, field, field.get_default())
             _set_resolve_save(object_to, field, presiding[0])
         elif field.many_to_one:
             # Many to one is a forward foreign key, just set it,
