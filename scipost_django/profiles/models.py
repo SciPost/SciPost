@@ -485,6 +485,26 @@ class ProfileEmail(models.Model):
         self.kind = ProfileEmail.KIND_RECOVERY
         self.save()
 
+    def resolve_inconsistencies(self, commit: bool = True):
+        """
+        Ensure that there are no more than one email is marked as primary/recovery.
+        """
+        other_profile_emails = self.profile.emails.exclude(id=self.id)
+
+        if self.primary and other_profile_emails.filter(primary=True).exists():
+            self.primary = False
+
+        if (
+            self.kind == ProfileEmail.KIND_RECOVERY
+            and other_profile_emails.filter(kind=ProfileEmail.KIND_RECOVERY).exists()
+        ):
+            self.kind = ProfileEmail.KIND_COMMUNICATION
+
+        if commit:
+            self.save()
+
+        return self
+
 
 def get_profiles(slug):
     """
