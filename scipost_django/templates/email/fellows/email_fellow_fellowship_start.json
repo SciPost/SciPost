@@ -4,7 +4,8 @@
 	    "fellowship.contributor.profile.email"
     ],
     "bcc": [
-	    "admin@"
+	    "admin@",
+	    "edadmin@"
     ],
     "from_name": "SciPost Admin",
     "from_email": "admin@"
