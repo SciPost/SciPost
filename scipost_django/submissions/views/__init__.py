@@ -2086,10 +2086,12 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
 
 def decline_ref_invitation(request, invitation_key):
     """Decline a RefereeInvitation."""
-    invitation = get_object_or_404(
-        RefereeInvitation.objects.awaiting_response().non_cancelled(),
-        invitation_key=invitation_key,
-    )
+    invitation = RefereeInvitation.objects.filter(invitation_key=invitation_key).first()
+
+    if invitation.cancelled:
+        raise Http404("This invitation has been cancelled.")
+    elif invitation.accepted or invitation.fulfilled:
+        raise Http404("This invitation has already been accepted.")
 
     # Push the invitation to the user's session
     # for use with refereeing indications later
