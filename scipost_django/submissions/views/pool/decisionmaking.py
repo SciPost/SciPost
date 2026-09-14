@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404, render
@@ -195,6 +196,7 @@ def _hx_recommendation_remarks(request, identifier_w_vn_nr, rec_id):
             identifier_w_vn_nr=identifier_w_vn_nr,
             contributor=request.user.contributor,
         )
+        messages.success(request, "Your remark has been added.")
 
     return render(
         request,
