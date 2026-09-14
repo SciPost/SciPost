@@ -1254,19 +1254,7 @@ def assignment_failed(request, identifier_w_vn_nr):
         header_template="submissions/admin/editorial_assignment_failed.html",
     )
     if mail_editor_view.is_valid():
-        # Deprecate old Editorial Assignments
-        EditorialAssignment.objects.filter(submission=submission).invited().update(
-            status=EditorialAssignment.STATUS_DEPRECATED,
-        )
-
-        # Update status of Submission
-        submission.touch()
-        Submission.objects.filter(id=submission.id).update(
-            status=Submission.ASSIGNMENT_FAILED,
-            completion_date=timezone.now().date(),
-            visible_pool=False,
-            visible_public=False,
-        )
+        submission.fail_assignment()
 
         messages.success(
             request,

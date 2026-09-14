@@ -1261,6 +1261,25 @@ class Submission(models.Model):
             self.fellows.add(*manually_added_fellows)
         self.save()
 
+    def fail_assignment(self):
+        """
+        Fails assignment for the submission (could not find a suitable EIC).
+        This method:
+        - Deprecates past editorial assignments
+        - Hides the submission from the pool and public view
+        - Adds a public event describing the failure of assignment
+        """
+        self.editorial_assignments.invited().update(
+            status=EditorialAssignment.STATUS_DEPRECATED
+        )
+        self.status = self.ASSIGNMENT_FAILED
+        self.completion_date = timezone.now().date()
+        self.visible_pool = False
+        self.visible_public = False
+        self.save()
+
+        self.add_general_event("Submission closed: Failed to find a suitable EIC.")
+
     def get_default_fellowship(self) -> QuerySet[Fellowship]:
         """
         Return the default *list* of Fellows for this Submission.
