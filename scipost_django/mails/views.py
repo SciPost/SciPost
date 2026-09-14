@@ -1,6 +1,8 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from typing import Any
+
 from django import forms
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.contrib import messages
@@ -20,8 +22,6 @@ class MailViewBase:
 
     form_class = None
     mail_code: str | None = None
-    mail_config = {}
-    mail_variables = {}
     fail_silently = True
 
     def __init__(self, *args, **kwargs):
@@ -30,6 +30,8 @@ class MailViewBase:
                 "No mail code provided. Please set `mail_code` attribute, "
                 "or override `get_mail_code` method."
             )
+        self.mail_config: dict[str, Any] = {}
+        self.mail_variables: dict[str, Any] = {}
         super().__init__(*args, **kwargs)
         self.mail_form = None
 

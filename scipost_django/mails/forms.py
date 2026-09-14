@@ -36,12 +36,11 @@ class EmailForm(forms.Form):
         label="Optional: bcc this email to", required=False
     )
     prefix = "mail_form"
-    extra_config: dict[str, Any] = {}
 
     def __init__(self, *args, **kwargs: Any):
         self.mail_code = kwargs.pop("mail_code")
         # Check if all exta configurations are valid.
-        self.extra_config.update(kwargs.pop("mail_config", {}))
+        self.extra_config: dict[str, Any] = kwargs.pop("mail_config", {})
 
         # Pop out user to prevent saving it as a form field.
         user: "User | None" = kwargs.pop("user", None)
