@@ -48,7 +48,7 @@ class RORAPIHandler:
         return response
 
     @staticmethod
-    def query_for_domain(domain: str, exclude_private: bool = False) -> dict[str, Any]:
+    def query_for_domain(domain: str, exclude_private: bool = False) -> list[str]:
         """
         Query the ROR API for an organization with the given domain
         and return the matching ROR IDs.
@@ -68,7 +68,7 @@ class RORAPIHandler:
 
         response = requests.get(url)
         try:
-            data = response.json()
+            data: dict[str, list[dict[str, str]]] = response.json()
         except requests.JSONDecodeError:
             data = {}
 
