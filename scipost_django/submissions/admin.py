@@ -50,11 +50,9 @@ class PreprintServerAdmin(admin.ModelAdmin):
 
 @admin.register(iThenticateReport)
 class iThenticateReportAdmin(admin.ModelAdmin):
-    list_display = ["doc_id", "to_submission", "status"]
-    list_filter = ["status"]
-    search_fields = [
-        "doc_id",
-    ]
+    list_display = ("sub_id", "to_submission", "status")
+    list_filter = ("status",)
+    search_fields = ("sub_id",)
 
 
 class InternalPlagiarismAssessmentInline(admin.TabularInline):
@@ -235,7 +233,6 @@ class SubmissionAdmin(GuardedModelAdmin):
         "authors",
         "authors_claims",
         "authors_false_claims",
-        "iThenticate_plagiarism_report",
         "topics",
     ]
     inlines = [

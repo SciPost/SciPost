@@ -447,13 +447,8 @@ class Submission(models.Model):
         blank=True,
         null=True,
     )
-    iThenticate_plagiarism_report = models.OneToOneField["iThenticateReport"](
-        "submissions.iThenticateReport",
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name="to_submission",
-    )
+    if TYPE_CHECKING:
+        iThenticate_plagiarism_report: "iThenticateReport | None"
 
     # Refereeing pack
     pdf_refereeing_pack = models.FileField(
