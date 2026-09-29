@@ -107,7 +107,7 @@ class iThenticateReport(TimeStampedModel):
 
     @property
     def processed(self):
-        return self.processed_time is not None
+        return self.generated_time is not None
 
     @property
     def score(self):
