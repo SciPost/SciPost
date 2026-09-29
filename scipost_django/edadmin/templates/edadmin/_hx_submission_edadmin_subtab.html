@@ -39,46 +39,43 @@
     {% if not submission.stage_incoming_completed %}
       {% include "edadmin/incoming/_submission_incoming.html" with submission=submission %}
     {% else %}
-      <table class="table">
-        <tr>
-          <td>iThenticate plagiarism score</td>
-          <td>
-
-            {% if submission.iThenticate_plagiarism_report %}
-              {{ submission.iThenticate_plagiarism_report.score }}%
-              &emsp;<a href="{% url 'submissions:iThenticate_plagiarism_report' submission.preprint.identifier_w_vn_nr %}"
-   class="ms-2 btn btn-default"
-   target="_blank">View report pdf</a>
-            {% else %}
-              <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
-            {% endif %}
-
-          </td>
-        </tr>
-        <tr>
-          <td>Internal plagiarism matches</td>
-          <td>
-
-            {% if submission.internal_plagiarism_matches.submission_matches %}
-              Sub: {{ submission.internal_plagiarism_matches.submission_matches|length }}&emsp;
-            {% endif %}
-
-            {% if submission.internal_plagiarism_matches.publication_matches %}
-              Pub: {{ submission.internal_plagiarism_matches.publication_matches|length }}&emsp;
-            {% endif %}
-
-            {% if submission.internal_plagiarism_matches.submission_matches or submission.internal_plagiarism_matches.publication_matches %}
-              <a href="{% url 'submissions:plagiarism_internal' submission.preprint.identifier_w_vn_nr %}"
-                 target="_blank">View details</a>
-            {% else %}
-              No matches
-            {% endif %}
-
-          </td>
-        </tr>
-      </table>
+      <div class="row">
+        <div class="col-12 col-sm">
+          <div class="card bg-light mb-3">
+            <div class="card-body">
+              <h5 class="card-title mb-2">iThenticate</h5>
+              <div class="d-flex gap-3 align-items-center">
+                {% if submission.iThenticate_plagiarism_report.score %}
+                  <span class="fs-2">{{ submission.iThenticate_plagiarism_report.score }}%</span>
+                  <a href="{% url 'submissions:iThenticate_plagiarism_report' submission.preprint.identifier_w_vn_nr %}"
+                  class="btn btn-sm btn-dark ms-auto"
+                  target="_blank">View Report</a>
+                {% else %}
+                  <button class="text-muted ms-auto fs-5 btn btn-sm btn-muted" disabled>No report</button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-sm">
+          <div class="card bg-light mb-3">
+            <div class="card-body">
+              <h5 class="card-title mb-2">Internal plagiarism matches</h5>
+              <p class="card-text d-flex gap-3 align-items-center">
+                <span>{{ submission.internal_plagiarism_matches.submission_matches|length }} Submissions</span>
+                <span>{{ submission.internal_plagiarism_matches.publication_matches|length }} Publications</span>
+                {% if submission.internal_plagiarism_matches.submission_matches or submission.internal_plagiarism_matches.publication_matches %}
+                  <a href="{% url 'submissions:plagiarism_internal' submission.preprint.identifier_w_vn_nr %}"
+                    class="btn btn-sm btn-dark ms-auto"
+                    target="_blank">View Details</a>
+                {% else %}
+                  <button class="text-muted ms-auto fs-5 btn btn-sm btn-muted" disabled>No matches</button>
+                {% endif %}
+              </p>
+            </div>
+        </div>
+      </div>
     {% endif %}
-
 
     {% with assessment=submission.internal_plagiarism_assessment %}
 
