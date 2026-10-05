@@ -1696,16 +1696,18 @@ def invite_referee(
         )
     else:  # no Contributor, so registration invitation
         registration_invitation, reginv_created = (
-            RegistrationInvitation.objects.get_or_create(
+            RegistrationInvitation.objects.update_or_create(
                 profile=profile,
-                title=profile.title if profile.title else TITLE_DR,
-                first_name=profile.first_name,
-                last_name=profile.last_name,
-                email=profile_email.email,
-                invitation_type=INVITATION_REFEREEING,
-                created_by=request.user,
-                invited_by=request.user,
                 invitation_key=referee_invitation.invitation_key,
+                defaults=dict(
+                    title=profile.title if profile.title else TITLE_DR,
+                    first_name=profile.first_name,
+                    last_name=profile.last_name,
+                    email=profile_email.email,
+                    invitation_type=INVITATION_REFEREEING,
+                    created_by=request.user,
+                    invited_by=request.user,
+                ),
             )
         )
         mail_request = MailEditorSubview(
@@ -1824,16 +1826,18 @@ def _hx_quick_invite_referee(request, identifier_w_vn_nr, profile_id):
         )
     else:  # no Contributor, so registration invitation
         registration_invitation, reginv_created = (
-            RegistrationInvitation.objects.get_or_create(
+            RegistrationInvitation.objects.update_or_create(
                 profile=profile,
-                title=profile.title if profile.title else TITLE_DR,
-                first_name=profile.first_name,
-                last_name=profile.last_name,
-                email=profile.email,
-                invitation_type=INVITATION_REFEREEING,
-                created_by=request.user,
-                invited_by=request.user,
                 invitation_key=referee_invitation.invitation_key,
+                defaults=dict(
+                    title=profile.title if profile.title else TITLE_DR,
+                    first_name=profile.first_name,
+                    last_name=profile.last_name,
+                    email=profile.email,
+                    invitation_type=INVITATION_REFEREEING,
+                    created_by=request.user,
+                    invited_by=request.user,
+                ),
             )
         )
         mail_request = DirectMailUtil(
