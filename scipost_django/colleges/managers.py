@@ -4,10 +4,12 @@ __license__ = "AGPL v3"
 from functools import reduce
 import re
 
+from celery.states import SUCCESS
 from django.db import models
 from django.db.models import Q, Count, Subquery, Value
 from django.db.models.functions import Cast, Coalesce, Concat
 from django.utils import timezone
+
 from common.utils.models import queryset_annotation
 from scipost.models import Contributor
 
@@ -212,6 +214,7 @@ class FellowQuerySet(models.QuerySet["Fellowship"]):
             TaskResult.objects.filter(
                 task_name="ethics.tasks.task_query_coauthorships_in_server",
                 task_args__regex=sub_id_arg,
+                status=SUCCESS,
             )
             .order_by("-date_done")
             .values("date_done")[:1]
