@@ -436,9 +436,12 @@ MAX_EMAIL_ATTACHMENT_FILE_SIZE = 20000000
 MAX_EMAIL_MIME_FILE_SIZE = 25000000
 
 
-# iThenticate
-ITHENTICATE_USERNAME = "test_ithenticate_username"
-ITHENTICATE_PASSWORD = "test_ithenticate_password"
+# iThenticate Python API credentials
+TCA_TENANT = "test_tca_tenant"
+TCA_API_KEY = "test_tca_api_key"
+TCA_INTEGRATION_NAME = "test_tca_integration_name"
+TCA_INTEGRATION_VERSION = "test_tca_integration_version"
+TCA_WEBHOOK_SIGNING_SECRET = "test_tca_webhook_signing_secret"
 
 # Own settings
 JOURNALS_DIR = "journals"

@@ -20,6 +20,13 @@ WEBPACK_LOADER["DEFAULT"][
 # RECAPTCHA_PUBLIC_KEY = get_secret("GOOGLE_RECAPTCHA_PUBLIC_KEY")
 # RECAPTCHA_PRIVATE_KEY = get_secret("GOOGLE_RECAPTCHA_PRIVATE_KEY")
 
+# iThenticate Python API credentials
+TCA_TENANT = get_secret("TCA_TENANT")
+TCA_API_KEY = get_secret("TCA_API_KEY")
+TCA_INTEGRATION_NAME = get_secret("TCA_INTEGRATION_NAME")
+TCA_INTEGRATION_VERSION = get_secret("TCA_INTEGRATION_VERSION")
+TCA_WEBHOOK_SIGNING_SECRET = get_secret("TCA_WEBHOOK_SIGNING_SECRET")
+
 # Logging location
 LOGGING["handlers"]["scipost_file_arxiv"][
     "filename"

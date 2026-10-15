@@ -64,9 +64,12 @@ CROSSREF_DEPOSIT_EMAIL = "edadmin@scipost.org"
 
 DOAJ_API_KEY = get_secret("DOAJ_API_KEY")
 
-# iThenticate
-ITHENTICATE_USERNAME = get_secret("ITHENTICATE_USERNAME")
-ITHENTICATE_PASSWORD = get_secret("ITHENTICATE_PASSWORD")
+# iThenticate Python API credentials
+TCA_TENANT = get_secret("TCA_TENANT")
+TCA_API_KEY = get_secret("TCA_API_KEY")
+TCA_INTEGRATION_NAME = get_secret("TCA_INTEGRATION_NAME")
+TCA_INTEGRATION_VERSION = get_secret("TCA_INTEGRATION_VERSION")
+TCA_WEBHOOK_SIGNING_SECRET = get_secret("TCA_WEBHOOK_SIGNING_SECRET")
 
 # Logging
 LOGGING["handlers"]["scipost_file_arxiv"][
