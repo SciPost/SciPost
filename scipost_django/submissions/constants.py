@@ -263,12 +263,15 @@ EDITORIAL_DECISION_CHOICES = (
 
 # Plagiarism Report statuses
 STATUS_WAITING = "waiting"
-STATUS_SENT, STATUS_RECEIVED = "sent", "received"
+STATUS_SENT, STATUS_PROCESSED = "sent", "processed"
+STATUS_REQUESTED, STATUS_RECEIVED = "requested", "received"
 STATUS_FAILED_DOWNLOAD, STATUS_FAILED_UPLOAD = "fail_down", "fail_up"
 
 PLAGIARISM_STATUSES = (
     (STATUS_WAITING, "Awaiting action"),
-    (STATUS_SENT, "Sent succesfully, awaiting report"),
+    (STATUS_SENT, "Sent successfully"),
+    (STATUS_PROCESSED, "Content processed"),
+    (STATUS_REQUESTED, "Report requested"),
     (STATUS_RECEIVED, "Report received"),
     (STATUS_FAILED_DOWNLOAD, "Failed (downloading failed)"),
     (STATUS_FAILED_UPLOAD, "Failed (uploading failed)"),
