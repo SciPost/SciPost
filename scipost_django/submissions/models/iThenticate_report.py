@@ -7,9 +7,12 @@ import uuid
 from django.db import models
 from django.db.models.functions import Cast, Coalesce
 from django.urls import reverse
+from django.utils.functional import cached_property
 from scipost.behaviors import TimeStampedModel
 
 from ..constants import PLAGIARISM_STATUSES, STATUS_WAITING
+
+import ithenticate_python_api.core as TCA
 
 from typing import TYPE_CHECKING, Any
 
@@ -93,17 +96,8 @@ class iThenticateReport(TimeStampedModel):
         )
 
     def get_report_url(self):
-        """Request and return new read-only url from the iThenticate API.
-
-        Note: The read-only link is valid for only 15 minutes, saving may be worthless.
-        """
-        if not self.sub_id:
-            return ""
-
-        from ..plagiarism import iThenticate
-
-        plagiarism = iThenticate()
-        return plagiarism.get_url(self.sub_id)
+        """Request and return new read-only url from the iThenticate API."""
+        return self.tca_report.get_viewer_url()
 
     @property
     def processed(self):
@@ -113,3 +107,12 @@ class iThenticateReport(TimeStampedModel):
     def score(self):
         """Return the iThenticate score returned by their API as saved in the database."""
         return self.percent_match
+
+    @cached_property
+    def tca_report(self) -> "TCA.SimilarityReport":
+        """Return the iThenticateReport as a TCA SimilarityReport object."""
+        submission = TCA.Submission.from_response_data(self.submission_raw_data)
+        report = TCA.SimilarityReport.from_response_data(
+            self.report_raw_data, submission=submission
+        )
+        return report

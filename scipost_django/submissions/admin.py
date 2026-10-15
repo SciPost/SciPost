@@ -62,6 +62,12 @@ class InternalPlagiarismAssessmentInline(admin.TabularInline):
 class iThenticatePlagiarismAssessmentInline(admin.TabularInline):
     model = iThenticatePlagiarismAssessment
 
+class iThenticateReportInline(admin.TabularInline):
+    model = iThenticateReport
+    extra = 0
+    min_num = 0
+    readonly_fields = ("percent_match",)
+    fields = ("status", "percent_match", "report_raw_data")
 
 class QualificationInline(admin.TabularInline):
     model = Qualification
@@ -236,6 +242,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         "topics",
     ]
     inlines = [
+        iThenticateReportInline,
         GenAIDisclosureInline,
         CollectionInline,
         InternalPlagiarismAssessmentInline,
@@ -322,7 +329,6 @@ class SubmissionAdmin(GuardedModelAdmin):
                 "fields": (
                     "checks_cleared_date",
                     "internal_plagiarism_matches",
-                    "iThenticate_plagiarism_report",
                 ),
             },
         ),
