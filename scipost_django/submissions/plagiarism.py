@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.conf import settings
+from django.urls import reverse
 
 import ithenticate_python_api.core as TCA
 
@@ -11,6 +12,7 @@ from profiles.models import Profile
 
 from typing import TYPE_CHECKING
 
+from scipost.utils import build_absolute_uri_using_site
 
 if TYPE_CHECKING:
     from submissions.models.submission import Submission
@@ -24,6 +26,26 @@ class SciPostiThenticateService(TCA.iThenticateService):
             integration_name=settings.TCA_INTEGRATION_NAME,
             integration_version=settings.TCA_INTEGRATION_VERSION,
         )
+
+        # Attempt to register a webhook if it doesn't exist yet
+        self.register_webhook()
+
+    def register_webhook(self):
+        """Register the webhook for the SciPost iThenticate integration if it doesn't exist yet."""
+        webhook_url = build_absolute_uri_using_site(
+            reverse("submissions:ithenticate-webhook")
+        )
+        existing_webhooks = self.client.get_webhooks()
+        webhook_exists = any(
+            webhook.url == webhook_url for webhook in existing_webhooks
+        )
+
+        if not webhook_exists:
+            webhook = TCA.Webhook.from_url(
+                webhook_url, signing_secret=settings.TCA_WEBHOOK_SIGNING_SECRET
+            )
+            webhook.set_client(self.client)
+            webhook.create()
 
     @classmethod
     def tca_user_from_profile(cls, profile: Profile) -> TCA.User:

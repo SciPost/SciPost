@@ -4,11 +4,15 @@ __license__ = "AGPL v3"
 
 import datetime
 import hmac
+import json
 import re
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import Paginator
 from django.template.response import TemplateResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
 
 from django.contrib import messages
 from django.contrib.auth.decorators import (
@@ -23,15 +27,24 @@ from django.contrib.auth.mixins import (
 )
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
+from django.conf import settings
 from django.db import transaction, IntegrityError
 from django.db.models import Q, QuerySet
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseForbidden,
+    HttpResponseRedirect,
+)
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.timezone import timedelta
+from django.views import View
 from django.views.decorators.http import require_POST
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin, DetailView
@@ -55,12 +68,17 @@ from scipost.permissions import (
 )
 from submissions.models.assignment import ConditionalAssignmentOffer
 from submissions.models.communication import EditorialCommunication
+from submissions.models.iThenticate_report import iThenticateReport
+from submissions.tasks import request_iThenticate_report
 
 from ..constants import (
     ED_COMM_CHOICES,
     EDITORIAL_DECISION_CHOICES,
+    STATUS_PROCESSED,
+    STATUS_RECEIVED,
     STATUS_VETTED,
     STATUS_DRAFT,
+    STATUS_SENT,
     CYCLE_DIRECT_REC,
     EIC_REC_PUBLISH,
     EIC_REC_REJECT,
@@ -142,8 +160,11 @@ from scipost.constants import TITLE_DR, INVITATION_REFEREEING
 from scipost.mixins import PaginationMixin, PermissionsMixin
 from scipost.models import Contributor, Remark
 from scipost.views import prompt_to_login
+from submissions.plagiarism import SciPostiThenticateService
 
-from typing import TYPE_CHECKING
+import ithenticate_python_api.core as TCA
+
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from submissions.forms import SubmissionPrefillForm
@@ -3986,6 +4007,87 @@ def monitor(request):
     }
     return render(request, "submissions/monitor.html", context)
 
+@method_decorator(csrf_exempt, name="dispatch")
+class iThenticateWebhookView(View):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.service = SciPostiThenticateService()
+
+    def post(self, request, *args, **kwargs):
+        if signature := request.headers.get("X-Turnitin-Signature"):
+            return HttpResponseBadRequest("Missing signature")
+        if not self.verify_signature(request.body, signature):
+            return HttpResponseForbidden("Invalid signature")
+
+        if event_type_str := request.headers.get("X-Turnitin-Eventtype"):
+            try:
+                event_type = TCA.WebhookEventType(event_type_str)
+            except ValueError:
+                return HttpResponseBadRequest("Invalid event type")
+        else:
+            return HttpResponseBadRequest("Missing event type")
+
+        try:
+            request_data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return HttpResponseBadRequest("Invalid JSON payload as request body")
+
+        match event_type:
+            case TCA.WebhookEventType.SUBMISSION_COMPLETE:
+                self.process_submission_complete(request_data)
+
+            case TCA.WebhookEventType.SIMILARITY_COMPLETE:
+                self.process_similarity_complete(request_data)
+
+            case _:
+                return HttpResponseBadRequest("Unknown event type")
+
+    @staticmethod
+    def verify_signature(request_body: bytes, signature: str) -> bool:
+        signing_secret: bytes = settings.TCA_WEBHOOK_SIGNING_SECRET.encode("utf-8")
+        computed_signature = hmac.new(
+            signing_secret, request_body, "sha256"
+        ).hexdigest()
+        return computed_signature == signature
+
+    @staticmethod
+    def process_submission_complete(data: dict[str, Any]):
+        """
+        Handles the SUBMISSION_COMPLETE webhook event from iThenticate.
+        - Updates the Submission's iThenticateReport with the payload data.
+        - Requests a similarity report for the submission (queued via Celery).
+        - Marks the iThenticateReport as "sent" to iThenticate for processing.
+        """
+        preprint_identifier: str = (
+            data.get("metadata", {}).get("custom", {}).get("preprint_identifier", "")
+        )
+
+        report = iThenticateReport.objects.get(
+            to_submission__preprint__identifier_w_vn_nr=preprint_identifier
+        )
+        report.submission_raw_data |= data
+        report.status = STATUS_PROCESSED
+        report.save()
+
+        request_iThenticate_report.delay(report.to_submission.id)
+
+    @staticmethod
+    def process_similarity_complete(data: dict[str, Any]):
+        """
+        Handles the SIMILARITY_COMPLETE webhook event from iThenticate.
+        - Updates the Submisison's iThenticateReport with the payload data.
+        - Marks the iThenticateReport as "received" from iThenticate.
+        """
+        preprint_identifier: str = (
+            data.get("metadata", {}).get("custom", {}).get("preprint_identifier", "")
+        )
+
+        report = iThenticateReport.objects.get(
+            to_submission__preprint__identifier_w_vn_nr=preprint_identifier
+        )
+        report.report_raw_data |= data
+        report.status = STATUS_RECEIVED
+        report.save()
 
 class HXRefereeIndicationFormSetView(HXFormSetView):
     form_class = RefereeIndicationForm

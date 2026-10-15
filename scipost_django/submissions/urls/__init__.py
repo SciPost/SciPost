@@ -552,4 +552,10 @@ urlpatterns = [
     ),
     # Monitoring
     path("monitor", views.monitor, name="monitor"),
+    # Webhook (iThenticate)
+    path(
+        "plagiarism/iThenticate_webhook",
+        views.iThenticateWebhookView.as_view(),
+        name="ithenticate-webhook",
+    ),
 ]
