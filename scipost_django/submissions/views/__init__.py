@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import hmac
 import re
 
 from django.contrib.contenttypes.models import ContentType
@@ -99,7 +100,6 @@ from ..forms import (
     RecommendationVoteForm,
     VetReportForm,
     SetRefereeingDeadlineForm,
-    iThenticateReportForm,
     VotingEligibilityForm,
     WithdrawSubmissionForm,
     ConsiderRefereeInvitationForm,
@@ -3793,20 +3793,6 @@ def accept_puboffer(request, identifier_w_vn_nr):
         ),
     )
     return redirect(reverse("scipost:personal_page"))
-
-
-class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
-    """Administration detail page of Plagiarism report."""
-
-    permission_required = "scipost.can_do_plagiarism_checks"
-    template_name = "submissions/admin/iThenticate_plagiarism_report.html"
-    editorial_page = True
-    form_class = iThenticateReportForm
-
-    def get_object(self):
-        """Get the iThenticate_plagiarism_report as a linked object from the Submission."""
-        submission = super().get_object()
-        return submission.iThenticate_plagiarism_report
 
 
 class PlagiarismReportPDFView(

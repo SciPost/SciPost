@@ -21,7 +21,6 @@ from submissions.models import (
     InternalPlagiarismAssessment,
     iThenticatePlagiarismAssessment,
 )
-from submissions.forms import iThenticateReportForm
 
 from edadmin.forms import (
     InternalPlagiarismAssessmentForm,
@@ -181,18 +180,7 @@ def _hx_plagiarism_iThenticate(request, identifier_w_vn_nr):
     submission = get_object_or_404(
         Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
     )
-    form = iThenticateReportForm(
-        submission,
-        request.POST or None,
-        instance=submission.iThenticate_plagiarism_report,
-    )
-    if form.is_valid():
-        form.save()
-        submission.refresh_from_db()
-    context = {
-        "submission": submission,
-        "form": form,
-    }
+    context = {"submission": submission}
     return render(request, "edadmin/incoming/_hx_plagiarism_iThenticate.html", context)
 
 

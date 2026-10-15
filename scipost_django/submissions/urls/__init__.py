@@ -249,11 +249,6 @@ urlpatterns = [
         name="treated_submission_pdf_compile",
     ),
     path(
-        "admin/<identifier:identifier_w_vn_nr>/plagiarism",
-        views.PlagiarismView.as_view(),
-        name="plagiarism",
-    ),
-    path(
         "admin/<identifier:identifier_w_vn_nr>/plagiarism/iThenticate_report",
         views.PlagiarismReportPDFView.as_view(),
         name="iThenticate_plagiarism_report",
