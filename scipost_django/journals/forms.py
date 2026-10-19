@@ -19,6 +19,7 @@ from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
+import xmlschema
 import lxml.etree as ET
 from html.entities import entitydefs
 
@@ -315,24 +316,21 @@ class AuthorsTableOrganizationSelectForm(forms.ModelForm):
 
 class CreateMetadataXMLForm(forms.ModelForm):
     schema = None
-    parser = None
 
     @classmethod
-    def initialize_lxml(cls):
+    def initialize_schema(cls):
         if cls.schema is None:
-            cls.schema = ET.XMLSchema(
-                file=settings.STATIC_ROOT + settings.CROSSREF_SCHEMA_FILE
+            cls.schema = xmlschema.XMLSchema11(
+                settings.STATIC_ROOT + settings.CROSSREF_SCHEMA_FILE
             )
-        if cls.parser is None:
-            cls.parser = ET.XMLParser(schema=cls.schema)
 
     def __init__(self, *args, **kwargs):
         xml = self.generate_xml(kwargs.get("instance"))
         self.xml_str = self.format_xml(self.decode_html_entities(xml))
         kwargs["initial"] = {"metadata_xml": self.xml_str}
 
-        if self.schema is None or self.parser is None:
-            self.initialize_lxml()
+        if self.schema is None:
+            self.initialize_schema()
 
         super().__init__(*args, **kwargs)
 
@@ -383,14 +381,15 @@ class CreateMetadataXMLForm(forms.ModelForm):
         Validate XML by running it through the schema.
         Returns a tuple of (valid, errors, xml_str).
         """
-        # Try to parse the XML, if it fails, just return the string
+        xml_str = self.format_xml(xml_str)
+
+        if self.schema is None:
+            return False, ["Schema not initialized"], xml_str
+
         try:
-            xml_str = self.format_xml(xml_str)
-            xml = ET.fromstring(bytes(xml_str, encoding="utf8"))
-            valid = self.schema.validate(xml)
-            errors = list(self.schema.error_log)
-            return valid, errors, xml_str
-        except ET.XMLSyntaxError as error:
+            errors = list(self.schema.iter_errors(xml_str))
+            return not errors, errors, xml_str
+        except xmlschema.XMLSchemaException as error:
             return False, [str(error)], xml_str
 
 

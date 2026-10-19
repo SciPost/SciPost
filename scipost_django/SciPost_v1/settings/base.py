@@ -447,7 +447,7 @@ CROSSREF_LOGIN_ID = ""
 CROSSREF_LOGIN_PASSWORD = ""
 CROSSREF_DEBUG = True
 CROSSREF_DEPOSIT_EMAIL = "techsupport@scipost.org"
-CROSSREF_SCHEMA_FILE = "crossref/schemas/crossref5.4.0.xsd"
+CROSSREF_SCHEMA_FILE = "crossref/schemas/crossref5.5.0.xsd"
 DOAJ_API_KEY = ""
 
 # Google reCaptcha with Google's global test keys
