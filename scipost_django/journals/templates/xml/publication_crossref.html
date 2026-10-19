@@ -3,6 +3,7 @@
 <doi_batch xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.crossref.org/schema/5.5.0 https://www.crossref.org/schemas/crossref5.5.0.xsd"
     xmlns="http://www.crossref.org/schema/5.5.0" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1"
+    xmlns:ai="http://www.crossref.org/AccessIndicators.xsd" xmlns:rel="http://www.crossref.org/relations.xsd"
     xmlns:fr="http://www.crossref.org/fundref.xsd" xmlns:mml="http://www.w3.org/1998/Math/MathML" version="5.5.0">
     <head>
         <doi_batch_id>{{ doi_batch_id }}</doi_batch_id>
@@ -93,47 +94,44 @@
                     <item_number item_number_type='article-number'>{{ publication.get_paper_nr }}</item_number>
                 </publisher_item>
                 <crossmark>
-                    <crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>
-                    <crossmark_domains>
-                        <crossmark_domain><domain>{{ domain }}</domain></crossmark_domain>
-                    </crossmark_domains>
-                    <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
-                    <custom_metadata>
-                        {% if funders %}
-                            <fr:program name='fundref'>
-                                {% for funder in funders %}
-                                    {% if funders|length > 1 %}
-                                        <fr:assertion name='fundgroup'>
-                                    {% endif %}
-                                    {% if funder.organization.ror_json.ror_link %}
-                                      <fr:assertion name="ror">{{ funder.organization.ror_json.ror_link }}</fr:assertion>
-                                    {% else %}
-                                      <fr:assertion name='funder_name'>{{ funder.name }}<fr:assertion name='funder_identifier'>{{ funder.identifier }}</fr:assertion></fr:assertion>
-                                    {% endif %}
-                                    {% for grant in publication.grants.all %}
-                                        {% if grant.funder == funder %}
-                                            <fr:assertion name='award_number'>{{ grant.number }}</fr:assertion>
-                                        {% endif %}
-                                    {% endfor %}
-                                    {% if funders|length > 1 %}
-                                        </fr:assertion>
-                                    {% endif %}
-                                {% endfor %}
-                            </fr:program>
-                        {% endif %}
-                        <program xmlns="http://www.crossref.org/AccessIndicators.xsd">
-                          <license_ref applies_to="vor" start_date="{{ publication.publication_date|date:'Y-m-d' }}"
-                            >{{ publication.get_cc_license_URI }}</license_ref>
-                          <license_ref applies_to="am" start_date="{{ publication.publication_date|date:'Y-m-d' }}"
-                            >{{ publication.get_cc_license_URI }}</license_ref>
-                        </program>
-                    </custom_metadata>
+                  <crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>
+                  <crossmark_domains>
+                      <crossmark_domain><domain>{{ domain }}</domain></crossmark_domain>
+                  </crossmark_domains>
+                  <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
+                  <custom_metadata>
+                    {% if funders %}
+                      <fr:program name='fundref'>
+                        {% for funder in funders %}
+                          <fr:assertion name='fundgroup'>
+                            <fr:assertion name='funder_name'>{{ funder.name }}
+                              <fr:assertion name='funder_identifier'>{{ funder.identifier }}</fr:assertion>
+                              {% if funder.organization.ror_json.ror_link %}
+                                <fr:assertion name="ror">{{ funder.organization.ror_json.ror_link }}</fr:assertion>
+                              {% endif %}
+                            </fr:assertion>
+                            {% for grant in publication.grants.all %}
+                              {% if grant.funder == funder %}
+                                  <fr:assertion name='award_number'>{{ grant.number }}</fr:assertion>
+                              {% endif %}
+                            {% endfor %}
+                          </fr:assertion>
+                        {% endfor %}
+                      </fr:program>
+                    {% endif %}
+                    <ai:program name="AccessIndicators">
+                      <ai:license_ref applies_to="vor" start_date="{{ publication.publication_date|date:'Y-m-d' }}"
+                        >{{ publication.get_cc_license_URI }}</ai:license_ref>
+                      <ai:license_ref applies_to="am" start_date="{{ publication.publication_date|date:'Y-m-d' }}"
+                        >{{ publication.get_cc_license_URI }}</ai:license_ref>
+                    </ai:program>
+                  </custom_metadata>
                 </crossmark>
-                <program xmlns="http://www.crossref.org/relations.xsd">
-                  <related_item>
-                    <intra_work_relation relationship-type="hasPreprint" identifier-type="uri">{{ publication.accepted_submission.preprint.get_absolute_url }}</intra_work_relation>
-                  </related_item>
-                </program>
+                <rel:program name="relations">
+                  <rel:related_item>
+                    <rel:intra_work_relation relationship-type="hasPreprint" identifier-type="uri">{{ publication.accepted_submission.preprint.get_absolute_url }}</rel:intra_work_relation>
+                  </rel:related_item>
+                </rel:program>
                 <archive_locations>
                     <archive name="CLOCKSS"></archive>
                 </archive_locations>
