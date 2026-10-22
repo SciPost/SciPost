@@ -517,13 +517,15 @@ class ProofsRepository(models.Model):
         elif collections := self.stream.submission.collections.all():
             for collection in collections:
                 collection_slug = collection.slug
-                series_slug = collection.series.slug
-                paths.extend(
-                    [
-                        f"{ROOT}/Templates/Series/{series_slug}/Base",
-                        f"{ROOT}/Templates/Series/{series_slug}/{collection_slug}",
-                    ]
-                )
+                if collection.series and (series_slug := collection.series.slug):
+                    paths.extend(
+                        [
+                            f"{ROOT}/Templates/Series/{series_slug}/Base",
+                            f"{ROOT}/Templates/Series/{series_slug}/{collection_slug}",
+                        ]
+                    )
+                else:
+                    paths.append(f"{ROOT}/Templates/Series/Without/{collection_slug}")
         else:
             paths.append(f"{ROOT}/Templates/{self.journal_abbrev}")
 

@@ -6,9 +6,9 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">
-    <a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a>
-  </span>
+  {% if collection.series %}
+    <span class="breadcrumb-item"><a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a></span>
+  {% endif %}
   <span class="breadcrumb-item">{{ collection.name }}</span>
 {% endblock %}
 
@@ -26,17 +26,17 @@
 
   <div class="row">
     <div class="col-12">
-      <div class="highlight p-2">
-        <h1><a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a></h1>
+      {% if collection.series %}
+        <div class="highlight p-2">
+          <h1><a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a></h1>
 
-        {% if collection.series.is_uniquely_contained %}
-          {% with collection.series.container_journals.first as journal %}
-            <span class="fs-4">a series contained in <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a></span>
-          {% endwith %}
-        {% endif %}
-
-      </h1>
-    </div>
+          {% if collection.series.is_uniquely_contained %}
+            {% with collection.series.container_journals.first as journal %}
+              <span class="fs-4">a series contained in <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a></span>
+            {% endwith %}
+          {% endif %}
+        </div>
+      {% endif %}
 
       <h2 class="highlight">Collection&emsp;{{ collection.name }}</h2>
     </div>

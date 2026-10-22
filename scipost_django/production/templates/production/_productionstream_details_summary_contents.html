@@ -62,8 +62,10 @@
                   {% endif %}
                 {% endif %}
                 {% for collection in productionstream.submission.collections.all %}
-                  <br>
-                  <span title="{{ collection.series.name }}">{{ collection.series.name }}</span>
+                  {% if collection.series %}
+                    <br>
+                    <span title="{{ collection.series.name }}">{{ collection.series.name }}</span>
+                  {% endif %}
                   <br>
                   <span title="{{ collection.name }}">{{ collection.name }}</span>
                 {% endfor %}

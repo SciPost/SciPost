@@ -1848,7 +1848,9 @@ class SubmissionForm(forms.ModelForm):
         collection = get_object_or_404(Collection, id=collection_id)
 
         # Check that the collection is part of a series in the target journal
-        if not self.submitted_to_journal in collection.series.container_journals.all():
+        if collection.series and (
+            self.submitted_to_journal not in collection.series.container_journals.all()
+        ):
             self.add_error(
                 "collection",
                 "This collection is not part of a series in the target journal. "

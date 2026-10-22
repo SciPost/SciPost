@@ -124,6 +124,8 @@ class Collection(models.Model):
 
     @property
     def name_with_series(self):
+        if not self.series:
+            return self.name
         return f"{self.series.name} - {self.name}"
 
     def get_absolute_url(self):
