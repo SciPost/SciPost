@@ -19,6 +19,26 @@
     </ul>
 {% endif %}
 
+{% if reports_to_vet %}
+    <br/>
+    <h3>Reports for you to vet</h3>
+    <ul>
+      {% for report in reports_to_vet %}
+        <li><a href="https://{{ domain }}{% url 'submissions:vet_submitted_report' report.id %}">{{ report }} </a></li>
+      {% endfor %}
+    </ul>
+{% endif %}
+
+{% if comments_to_vet %}
+    <br/>
+    <h3>Comments for you to vet</h3>
+    <ul>
+      {% for comment in comments_to_vet %}
+        <li><a href="https://{{ domain }}{% url 'comments:vet_submitted_comment' comment.id %}">{{ comment }} </a></li>
+      {% endfor %}
+    </ul>
+{% endif %}
+
 {% if nr_visible > 0 %}
   <br>
   {% if nr_appraised < nr_visible  %}

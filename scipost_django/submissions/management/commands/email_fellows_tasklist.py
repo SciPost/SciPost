@@ -2,15 +2,22 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.core.management import BaseCommand
-from django.db.models import Count, Q
+from collections.abc import Callable
+from itertools import chain, groupby
+from guardian.shortcuts import get_objects_for_user
 
-from ...models import EICRecommendation
+from django.core.management import BaseCommand
+from django.db.models import Model, QuerySet
 
 from colleges.models import Fellowship, FellowshipNominationVotingRound
+from comments.models import Comment
 from mails.utils import DirectMailUtil
-from submissions.models import Submission
 
+from submissions.models import EICRecommendation, Submission, Report
+
+from typing import Any, TypeVar
+
+M = TypeVar("M", bound=Model)
 
 class Command(BaseCommand):
     """Send out mail to Fellows letting them know about their open tasks."""
@@ -21,7 +28,74 @@ class Command(BaseCommand):
         fellowships = Fellowship.objects.active()
         count = 0
 
+        ##### Handle comments awaiting vetting
+        comments_awaiting_vetting = Comment.objects.all().awaiting_vetting()
+        comment_content_types: list[int] = list(
+            comments_awaiting_vetting.order_by("content_type")
+            .values_list("content_type", flat=True)
+            .distinct()
+        )
+
+        # Handle comments by content type: comments attached to either a Submission or a Report
+        # are filtered out if the latest Submission in the thread has been treated.
+        CONTENT_TYPE_GROUPERS: dict[int, Callable[[Comment], Any] | None] = {
+            16: lambda c: c.content_object.thread_hash,  # Submission
+            17: lambda c: c.content_object.submission.thread_hash,  # Report
+        }
+
+        for content_type_id in comment_content_types:
+            CONTENT_TYPE_GROUPERS.setdefault(content_type_id, None)
+
+        def get_objects_to_vet(
+            qs: QuerySet[M], grouper: Callable[[M], Any] | None = None
+        ):
+            objects: list[M] = list(qs)
+            if not grouper:
+                return objects
+
+            objects_to_vet: list[M] = []
+            for thread_hash, thread in groupby(
+                sorted(objects, key=grouper), key=grouper
+            ):
+                latest_submission = (
+                    Submission.objects.filter(thread_hash=thread_hash)
+                    .order_by("-id")
+                    .first()
+                )
+                if latest_submission and latest_submission.treated:
+                    continue
+
+                objects_to_vet.extend(list(thread))
+            return objects_to_vet
+
+        reports_awaiting_vetting = (
+            Report.objects.awaiting_vetting()
+            .select_related("submission")
+            .order_by("submission__thread_hash", "submission__id")
+        )
+
+        ##### Handle comments awaiting vetting
         for fellowship in fellowships:
+            comments_can_vet: QuerySet[Comment] = get_objects_for_user(
+                fellowship.contributor.user,
+                "comments.can_vet_comments",
+                klass=comments_awaiting_vetting,
+            )
+            comments_to_vet = list(
+                chain.from_iterable(
+                    get_objects_to_vet(ct_comments, grouper)
+                    for ct_id, grouper in CONTENT_TYPE_GROUPERS.items()
+                    if (ct_comments := comments_can_vet.filter(content_type__id=ct_id))
+                )
+            )
+
+            reports_can_vet: QuerySet[Report] = reports_awaiting_vetting.filter(
+                submission__editor_in_charge=fellowship.contributor
+            )
+            reports_to_vet = get_objects_to_vet(
+                reports_can_vet, lambda r: r.submission.thread_hash
+            )
+
             nr_nominations_to_vote_on = (
                 FellowshipNominationVotingRound.objects.ongoing()
                 .filter(eligible_to_vote=fellowship)
@@ -58,6 +132,8 @@ class Command(BaseCommand):
                 or assignments_to_consider
                 or assignments_upcoming_deadline
                 or nr_visible > nr_appraised
+                or comments_to_vet
+                or reports_to_vet
             ):
                 DirectMailUtil(
                     "fellows/email_fellow_tasklist",
@@ -72,6 +148,8 @@ class Command(BaseCommand):
                     nr_appraised=nr_appraised,
                     nr_appraisals_required=(nr_visible - nr_appraised),
                     assignments_upcoming_deadline=assignments_upcoming_deadline,
+                    comments_to_vet=comments_to_vet,
+                    reports_to_vet=reports_to_vet,
                 ).send_mail()
                 count += 1
         self.stdout.write(self.style.SUCCESS("Emailed {} fellows.".format(count)))
