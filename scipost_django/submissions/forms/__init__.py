@@ -3567,15 +3567,19 @@ class EICRecommendationForm(forms.ModelForm):
         else:
             self.fields["for_journal"].initial = self.submission.submitted_to
 
-            if journal_help_points:
-                journal_help_points_HTML = HTML(
-                    '<div class="bg-info bg-opacity-25 p-2 mb-2">Please be aware of all the points below!'
-                    + '<ul class="mb-0">'
-                    + "".join([f"<li>{point}</li>" for point in journal_help_points])
-                    + "</ul>"
-                    + "</div>"
-                )
-                self.layout_fields["for_journal"].append(journal_help_points_HTML)
+        # Optimistically assume the recommendation is to publish, unless provided
+        if not self.fields["recommendation"].initial:
+            self.fields["recommendation"].initial = EIC_REC_PUBLISH
+
+        if journal_help_points:
+            journal_help_points_HTML = HTML(
+                '<div class="bg-info bg-opacity-25 p-2 mb-2">Please be aware of all the points below!'
+                + '<ul class="mb-0">'
+                + "".join([f"<li>{point}</li>" for point in journal_help_points])
+                + "</ul>"
+                + "</div>"
+            )
+            self.layout_fields["for_journal"].append(journal_help_points_HTML)
 
         # Hide the tier field if the recommendation is not to publish
         recommendation_data = self.data.get("recommendation")
@@ -3589,6 +3593,23 @@ class EICRecommendationForm(forms.ModelForm):
         if hide_tier:
             self.fields["tier"].widget = forms.HiddenInput()
             self.fields["tier"].required = False
+
+        # Hide requested changes field unless the recommendation is to request revisions
+        if recommendation_data:
+            hide_requested_changes = recommendation_data not in [
+                str(EIC_REC_MINOR_REVISION),
+                str(EIC_REC_MAJOR_REVISION),
+            ]
+        elif recommendation_initial:
+            hide_requested_changes = recommendation_initial not in [
+                EIC_REC_MINOR_REVISION,
+                EIC_REC_MAJOR_REVISION,
+            ]
+        else:
+            hide_requested_changes = False
+        if hide_requested_changes:
+            self.fields["requested_changes"].widget = forms.HiddenInput()
+            self.fields["requested_changes"].required = False
 
         should_mandate_requested_changes = False
         if recommendation_data:
