@@ -390,9 +390,6 @@ class ProofsRepository(models.Model):
     )
     name = models.CharField(max_length=128, default="")
 
-    def __str__(self):
-        return self.name
-
     @staticmethod
     def _get_repo_name(stream) -> str:
         """
@@ -505,50 +502,35 @@ class ProofsRepository(models.Model):
         """
         Return the list of paths to the various templates used for the proofs.
         """
-        paths = ["{ROOT}/Templates/Base".format(ROOT=settings.GITLAB_ROOT)]
+        ROOT = settings.GITLAB_ROOT
+        paths = [f"{ROOT}/Templates/Base"]
 
         if self.journal_abbrev.startswith("SciPost"):
-            paths.append(
-                "{ROOT}/Templates/BaseSciPost".format(ROOT=settings.GITLAB_ROOT)
-            )
+            paths.append(f"{ROOT}/Templates/BaseSciPost")
 
         # Determine whether to add the proceedings template or of some other journal
         if self.stream.submission.proceedings is not None:
-            paths.append(
-                "{ROOT}/Templates/{journal_subdivision}".format(
-                    ROOT=settings.GITLAB_ROOT,
-                    journal_subdivision=self.journal_subdivision,
-                )
-            )
+            paths.append(f"{ROOT}/Templates/{self.journal_subdivision}")
+
         # Add extra paths for any collections associated with the submission
         # First add the base template for the series and then the collection
         elif collections := self.stream.submission.collections.all():
             for collection in collections:
-                paths.append(
-                    "{ROOT}/Templates/Series/{series}/Base".format(
-                        ROOT=settings.GITLAB_ROOT,
-                        series=collection.series.slug,
-                        collection=collection.slug,
-                    )
-                )
-                paths.append(
-                    "{ROOT}/Templates/Series/{series}/{collection}".format(
-                        ROOT=settings.GITLAB_ROOT,
-                        series=collection.series.slug,
-                        collection=collection.slug,
-                    )
+                collection_slug = collection.slug
+                series_slug = collection.series.slug
+                paths.extend(
+                    [
+                        f"{ROOT}/Templates/Series/{series_slug}/Base",
+                        f"{ROOT}/Templates/Series/{series_slug}/{collection_slug}",
+                    ]
                 )
         else:
-            paths.append(
-                "{ROOT}/Templates/{journal}".format(
-                    ROOT=settings.GITLAB_ROOT,
-                    journal=self.journal_abbrev,
-                )
-            )
+            paths.append(f"{ROOT}/Templates/{self.journal_abbrev}")
 
         # Add the selected template if the submission is a Selections paper
-        if "Selections" in self.stream.submission.editorial_decision.for_journal.name:
-            paths.append("{ROOT}/Templates/Selected".format(ROOT=settings.GITLAB_ROOT))
+        editorial_decision = self.stream.submission.editorial_decision
+        if editorial_decision and "Selections" in editorial_decision.for_journal.name:
+            paths.append(f"{ROOT}/Templates/Selected")
 
         return paths
 
