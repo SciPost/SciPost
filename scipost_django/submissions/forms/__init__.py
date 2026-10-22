@@ -2096,6 +2096,11 @@ class SubmissionForm(forms.ModelForm):
             status=Submission.REFEREEING_IN_PREPARATION,
         )
 
+        # Mark the previous EditorialAssignments as completed
+        previous_submission.editorial_assignments.filter(
+            status=EditorialAssignment.STATUS_ACCEPTED
+        ).update(status=EditorialAssignment.STATUS_COMPLETED)
+
         # Create new EditorialAssigment for the current Editor-in-Charge
         EditorialAssignment.objects.create(
             submission=submission,
@@ -3757,11 +3762,6 @@ class EICRecommendationForm(forms.ModelForm):
                 reporting_deadline=timezone.now(),
                 status=Submission.AWAITING_RESUBMISSION,
             )
-
-            if self.assignment:
-                # The EIC has fulfilled this editorial assignment.
-                self.assignment.status = EditorialAssignment.STATUS_COMPLETED
-                self.assignment.save()
 
             # Add SubmissionEvents for both Author and EIC
             self.submission.add_general_event(
