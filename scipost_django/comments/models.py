@@ -49,7 +49,7 @@ class Comment(TimeStampedModel):
     """
 
     status = models.SmallIntegerField(default=STATUS_PENDING, choices=COMMENT_STATUS)
-    vetted_by = models.ForeignKey(
+    vetted_by = models.ForeignKey["Contributor"](
         "scipost.Contributor",
         blank=True,
         null=True,
@@ -73,7 +73,7 @@ class Comment(TimeStampedModel):
 
     # Author info
     is_author_reply = models.BooleanField(default=False)
-    author = models.ForeignKey(
+    author = models.ForeignKey["Contributor"](
         "scipost.Contributor", on_delete=models.CASCADE, related_name="comments"
     )
     anonymous = models.BooleanField(default=False, verbose_name="Publish anonymously")
@@ -126,15 +126,13 @@ class Comment(TimeStampedModel):
 
     def __str__(self):
         text = "Anonymous"
-        if not self.anonymous:
-            text = self.author.user.first_name + " " + self.author.user.last_name
-        return (
-            text
-            + " on "
-            + self.date_submitted.strftime("%Y-%m-%d")
-            + ", "
-            + self.comment_text[:30]
-        )
+        if not self.anonymous and self.author and self.author.profile:
+            text = f"{self.author.profile.full_name}"
+
+        submitted_date = self.date_submitted.strftime("%Y-%m-%d")
+        comment_preview = self.comment_text[:30].replace("\n", " ")
+
+        return f"{text} on {submitted_date}, {comment_preview}"
 
     def save(self, *args, **kwargs):
         super_save = super().save(*args, **kwargs)
