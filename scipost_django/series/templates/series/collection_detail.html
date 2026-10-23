@@ -24,122 +24,130 @@
 
   {% is_ed_admin request.user as is_ed_admin %}
 
-  <div class="row">
-    <div class="col-12">
-      {% if collection.series %}
-        <div class="highlight p-2">
-          <h1><a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a></h1>
 
+  <section>
+    <hgroup class="highlight p-2 d-flex flex-column gap-2">
+      <h1 class="mb-0">{{ collection.name }}</h1>
+      
+      {% if collection.series %}
+        <div class="d-flex flex-column gap-1">
+          <span class="fs-5 mb-0">a part of the <a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a> series</span>
           {% if collection.series.is_uniquely_contained %}
             {% with collection.series.container_journals.first as journal %}
-              <span class="fs-4">a series contained in <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a></span>
+              <span class="fs-5">contained in <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a></span>
             {% endwith %}
           {% endif %}
         </div>
-      {% endif %}
+        {% endif %}
+    </hgroup>
+  </section>
 
-      <h2 class="highlight">Collection&emsp;{{ collection.name }}</h2>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-12">
-      <div class="p-2">{% automarkup collection.description %}</div>
+  <section>
+    {% if collection.start_event_date or collection.event_end_date %}
+      <p class="fs-5 mb-1">From {{ collection.event_start_date|default:"-" }} to {{ collection.event_end_date|default:"-" }}.</p>
+    {% endif %}
 
-      {% if collection.event_start_date and collection.event_end_date %}
-        <p class="p-2">Dates: from {{ collection.event_start_date }} to {{ collection.event_end_date }}.</p>
-      {% endif %}
+    <p>{% automarkup collection.description %}</p>
 
-      {% if collection.image %}
-        <div class="p-2">
-          <img class="d-flex me-3 p-2"
-               style="max-height: 350px;
-                      max-width: 100%"
-               alt="image"
-               src="{{ collection.image.url }}" />
-        </div>
-      {% endif %}
+    {% if collection.image %}
+      <div class="p-2">
+        <img class="d-flex me-3 p-2"
+              style="max-height: 350px;
+                    max-width: 100%"
+              alt="image"
+              src="{{ collection.image.url }}" />
+      </div>
+    {% endif %}
+  </section>
 
-    </div>
-  </div>
+
 
   {% if is_ed_admin %}
-    <div class="border border-danger mt-2 p-2">
-      <h3>Editorial Administration</h3>
+    <details class="hcard hcard-danger mb-4">
+      <summary class="list-triangle d-flex align-items-center bg-danger bg-opacity-10">Editorial Administration</summary>
 
-      <div class="card my-4">
-        <div class="card-header d-flex flex-row justify-content-between">
-          <span>Expected authors for this Collection</span>
-          {% include "series/_hx_collection_toggle_enforce_expected_authors.html" %}
+      <div class="d-flex flex-column gap-2">
+        <div class="card">
+          <div class="card-header d-flex flex-row justify-content-between">
+            <span>Expected authors for this Collection</span>
+            {% include "series/_hx_collection_toggle_enforce_expected_authors.html" %}
+          </div>
+          <div class="card-body">
+            <div id="author_profiles"
+                hx-get="{% url 'series:_hx_collection_expected_authors' slug=collection.slug %}"
+                hx-trigger="load"></div>
+          </div>
         </div>
-        <div class="card-body">
-          <div id="author_profiles"
-               hx-get="{% url 'series:_hx_collection_expected_authors' slug=collection.slug %}"
-               hx-trigger="load"></div>
+
+        <div class="card">
+          <div class="card-header">Expected editors for this Collection</div>
+          <div class="card-body">
+            <div id="editor_fellowships"
+                hx-get="{% url 'series:_hx_collection_expected_editors' slug=collection.slug %}"
+                hx-trigger="load"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Publications</div>
+          <div class="card-body">
+            <div id="publications"
+                hx-get="{% url 'series:_hx_collection_publications' slug=collection.slug %}"
+                hx-trigger="load"></div>
+          </div>
         </div>
       </div>
-
-      <div class="card my-4">
-        <div class="card-header">Expected editors for this Collection</div>
-        <div class="card-body">
-          <div id="editor_fellowships"
-               hx-get="{% url 'series:_hx_collection_expected_editors' slug=collection.slug %}"
-               hx-trigger="load"></div>
-        </div>
-      </div>
-
-      <div class="card my-4">
-        <div class="card-header">Publications</div>
-        <div class="card-body">
-          <div id="publications"
-               hx-get="{% url 'series:_hx_collection_publications' slug=collection.slug %}"
-               hx-trigger="load"></div>
-        </div>
-      </div>
-    </div>
+    </details>
   {% endif %}
 
 
   {% if collection_submissions|length > 0 %}
     <div class="row">
       <div class="col-12">
-        <h3 class="highlight">Submissions to this Collection</h3>
+        <details class="hcard hcard-secondary" {% if collection_submissions|length < 3 %}open{% endif %}>
+          <summary class="list-triangle d-flex align-items-center bg-secondary bg-opacity-10 py-2">
+            <p class="fs-3 mb-0">Submissions in this Collection</p>
+          </summary>
  
-        {% regroup collection_submissions|dictsort:'status' by status as submissions_by_status %}
+          {% regroup collection_submissions|dictsort:'status' by status as submissions_by_status %}
 
-        {% for submission_group in submissions_by_status %}
-          <section class="px-2"
-                   aria-labelledby="submission-{{ submission_group.grouper }}-header">
-            <h4 id="submission-{{ submission_group.grouper }}-header">{{ submission_group.list.0.get_status_display }}</h4>
-            <ul>
+          {% for submission_group in submissions_by_status %}
+            <section class="px-2"
+                    aria-labelledby="submission-{{ submission_group.grouper }}-header">
+              <h4 id="submission-{{ submission_group.grouper }}-header">{{ submission_group.list.0.get_status_display }}</h4>
+              <ul class="mb-0 list-unstyled d-flex flex-column gap-3">
+                {% for submission in submission_group.list %}
+                  <li>
+                    {% include 'submissions/_submission_card_content.html' with submission=submission %}
+                  </li>
+                {% empty %}
+                  <li>No Submission has yet been associated with this Collection.</li>
+                {% endfor %}
+              </ul>
+            </section>
+          {% endfor %}
 
-              {% for submission in submission_group.list %}
-                <li>
-                  <a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
-                </li>
-              {% endfor %}
-
-            </ul>
-          </section>
-        {% endfor %}
-
+        </details>
       </div>
     </div>
   {% endif %}
 
   <div class="row">
     <div class="col-12">
-      <h3 class="highlight">Publications in this Collection</h3>
-      <ul>
-
-        {% for publication in collection.publications.all %}
-          <li>
-            <a href="{{ publication.get_absolute_url }}">{{ publication }}</a>
-          </li>
-        {% empty %}
-          <li>No Publication has yet been associated to this Collection</li>
-        {% endfor %}
-
-      </ul>
+      <details class="hcard hcard-secondary" {% if collection.publications.count < 3 %}open{% endif %}>
+        <summary class="list-triangle d-flex align-items-center bg-secondary bg-opacity-10 py-2">
+          <p class="fs-3 mb-0">Publications in this Collection</p>
+        </summary>
+        <ul class="mb-0 list-unstyled d-flex flex-column gap-3 px-2">
+          {% for publication in collection.publications.all %}
+            <li>
+              {% include 'journals/_publication_li_content.html' with publication=publication %}
+            </li>
+          {% empty %}
+            <li>No Publication has yet been associated with this Collection.</li>
+          {% endfor %}
+        </ul>
+      </details>
     </div>
   </div>
 
