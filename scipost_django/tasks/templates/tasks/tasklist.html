@@ -13,7 +13,7 @@
       &nbsp;in construction!</span> <em>This might not contain all your todo items.</em>
     </p>
 
-    {% if assignments_to_consider or assignments_ongoing or submissions_to_appraise %}
+    {% if assignments_to_consider or ongoing_submission_threads or submissions_to_appraise %}
       <div class="mt-5 p-4 border border-primary">
         <h2>Assignments</h2>
 
@@ -61,58 +61,67 @@
         </ul>
       {% endif %}
 
-      {% if assignments_ongoing %}
+      {% if ongoing_submission_threads %}
         <h3 class="highlight">Ongoing assignments (you are Editor-in-charge)</h3>
-        <table class="table table-borderless">
-          <thead>
-            <tr>
-              <th>Submission</th>
-              <th>Refereeing deadline</th>
-              <th>Required actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        
+            {% regroup ongoing_submission_threads by has_actions as ongoing_threads_by_actions %}
+            
+            {% for ongoing_thread_by_actions in ongoing_threads_by_actions %}
+              <details {{ ongoing_thread_by_actions.grouper|yesno:"open," }}>
+                <summary class="highlight list-triangle p-1 fs-6">
+                  {{ ongoing_thread_by_actions.grouper|yesno:"With,Without" }} Required Actions
+                </summary>
 
-            {% for assignment in assignments_ongoing %}
-              <tr class="bg-info bg-opacity-50 border-top border-dark overflow-hidden align-middle">
-                <td class="p-2" colspan="20">
-                  <span class="fw-semibold fs-6">{{ assignment.submission.title }}</span>
-                  <br />
-                  <span class="fs-6 text-muted">by {{ assignment.submission.author_list|truncatechars:150 }}</span>
-                </td>
-              </tr>
+                <table class="table table-borderless">
+                  <thead>
+                    <tr>
+                      <th>Submission</th>
+                      <th>Refereeing deadline</th>
+                      <th>Required actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
 
-              {% for submission in assignment.submission.thread_full %}
-                <tr class="align-middle 
-                  {% if submission.cycle.required_actions %}bg-warning 
-                    {% if submission == assignment.submission %}bg-opacity-25{% else %}bg-opacity-10{% endif %}{% endif %}
-                     ">
-                    <td>
-                      <a href="{% url "submissions:submission" submission.preprint.identifier_w_vn_nr %}">
-                        Version {{ submission.thread_sequence_order }}
-                      </a>
-                      <a class="text-nowrap"
-                         href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Editorial page</a>
-                    </td>
-                    <td class="text-nowrap">
+                  {% for thread in ongoing_thread_by_actions.list|dictsort:"latest_assignment_date" %}
+                    {% with latest_submission=thread.submissions.0.submission %}
+                      <tr class="bg-info bg-opacity-50 border-top border-dark overflow-hidden align-middle">
+                        <td class="p-2" colspan="20">
+                          <span class="fw-semibold fs-6">{{ latest_submission.title }}</span>
+                          <br />
+                          <span class="fs-6 text-muted">by {{ latest_submission.author_list|truncatechars:150 }}</span>
+                        </td>
+                      </tr>
 
-                      {% if submission.reporting_deadline %}
-                        {{ submission.reporting_deadline|date:"Y-m-d" }}
-                      {% else %}
-                        No deadline
-                      {% endif %}
+                      {% for submission_dict in thread.submissions %}
+                        <tr class="align-middle 
+                          {% if submission_dict.cycle_actions %}bg-warning 
+                            {% if forloop.first %}bg-opacity-25{% else %}bg-opacity-10{% endif %}{% endif %}
+                            ">
+                            <td>
+                              <a href="{% url "submissions:submission" submission_dict.submission.preprint.identifier_w_vn_nr %}">
+                                Version {{ submission_dict.version }}
+                              </a>
+                              <a class="text-nowrap"
+                                href="{% url 'submissions:editorial_page' submission_dict.submission.preprint.identifier_w_vn_nr %}">Editorial page</a>
+                            </td>
+                            <td class="text-nowrap">
 
-                    </td>
-                    <td>
-                      {% include "submissions/_cycle_required_actions.html" with actions=submission.cycle.required_actions %}
-                    </td>
-                  </tr>
-                {% endfor %}
-              {% endfor %}
+                              {{ submission_dict.submission.reporting_deadline|date:"Y-m-d"|default:"No deadline" }}
 
+                            </td>
+                            <td>
+                              {% include "submissions/_cycle_required_actions.html" with actions=submission_dict.cycle_actions %}
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      {% endwith %}
+                    {% endfor %}
+                    
+                  </tbody>
+                </table>
+              </details>
+            {% endfor %}
 
-            </tbody>
-          </table>
         {% endif %}
 
       </div>
