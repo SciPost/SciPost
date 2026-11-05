@@ -1081,7 +1081,7 @@ class DraftPublicationUpdateForm(forms.ModelForm):
         self.initial["number"] = publication.updates.count() + 1
         self.initial["publication_date"] = timezone.now()
 
-    def save(self, commit: bool):
+    def save(self, commit: bool = True):
         instance = super().save(commit)
 
         # Find the latest fixed decision in the thread and
