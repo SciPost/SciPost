@@ -56,7 +56,7 @@ class AffiliateJournal(models.Model):
     logo = models.ImageField(upload_to="affiliates/journals/logos/", blank=True)
 
     # Cost per publication information
-    cost_info = models.JSONField(default=cost_default_value)
+    cost_info = models.JSONField[dict[str, int]](default=cost_default_value)
 
     class Meta:
         ordering = ["publisher", "name"]
@@ -68,11 +68,19 @@ class AffiliateJournal(models.Model):
     def get_absolute_url(self):
         return reverse("affiliates:journal_detail", kwargs={"slug": self.slug})
 
-    def cost_per_publication(self, year):
+    def cost_per_publication(self, year: int):
+        """
+        Return the cost per publication for a given year.
+        If the request is for the year following the latest year in cost_info, it will return last year's cost.
+        Otherwise, any year missing cost info will return the default cost.
+        """
         try:
-            return int(self.cost_info[str(year)])
+            return self.cost_info[str(year)]
         except KeyError:
-            return int(self.cost_info["default"])
+            max_year = max((int(y) for y in self.cost_info if y.isdigit()), default=0)
+            if year == max_year + 1:
+                return self.cost_info[str(max_year)]
+            return self.cost_info["default"]
 
     @property
     def balance_info(self):

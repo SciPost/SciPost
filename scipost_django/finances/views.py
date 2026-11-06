@@ -129,9 +129,7 @@ def recent_publishing_expenditures(months=6):
             .count()
         )
         npub_total += npub
-        expenditures += npub * journal.cost_per_publication(
-            timezone.now().strftime("%Y")
-        )
+        expenditures += npub * journal.cost_per_publication(timezone.now().year)
     return {"npub": npub_total, "expenditures": expenditures}
 
 
