@@ -1,0 +1,175 @@
+<p>Dear librarians of {{ org_name_prose }},</p>
+
+<p>
+  I am writing to you on behalf of the SciPost Foundation.
+
+  {% if sponsored_in_past %}
+    We would like to thank you for sponsoring us
+
+    {% if years_of_sponsorship >= 3 %}
+      over the past several years,
+    {% elif years_of_sponsorship >= 2 %}
+      over the past few years,
+    {% elif years_of_sponsorship == 1 %}
+      over the past year,
+    {% else %}
+      in the past,
+    {% endif %}
+
+    and
+
+    {% if latest_subsidy_nearing_expiration %}
+      since our most recent agreement is nearing expiration,
+    {% elif latest_subsidy_expired %}
+      since our most recent agreement has expired,
+    {% endif %}
+  {% endif %}
+
+  I would like to ask you whether {{ org_name_prose }} would consider
+
+  {% if sponsored_in_past %}
+    renewing
+  {% else %}
+    pledging
+  {% endif %}
+
+  its support in {% now "Y" %}.
+</p>
+
+{% if sponsorship_tiers %}
+  <p>
+    Over the past few years, our publication output has grown substantially, in part owing to an increasing number of authors from your institution choosing to publish at SciPost. As of today, {{ number_of_profiles_affiliated }} researcher{{ number_of_profiles_affiliated|pluralize }} affiliated with {{ org_name_prose }} {{ number_of_profiles_affiliated|pluralize:"has,have" }} registered on SciPost, and {{ number_of_authors }} of them {{ number_of_authors|pluralize:"has,have" }} authored a total of {{ number_of_papers }} paper{{ number_of_papers|pluralize }} published via SciPost. We consider it a privilege to work with your author{{ number_of_authors|pluralize }} and are most thankful for it. You can find more data about our publishing activities associated with your institution at <a href="https://scipost.org{{ org.get_absolute_url }}">your organization's page</a>.
+  </p>
+{% endif %}
+
+<p>
+  SciPost has recently been positively evaluated by SCOSS and now joins their family of "essential open infrastructures", participating in its <a href="https://scoss.org/scoss-launches-round-6/">6th funding cycle</a>. Separately from this, we have also recently committed to the <a href="https://scipost.org/posi">Principles of Open Scholarly Infrastructure</a>, which require us to put our long-term sustainability on a firmer level. Despite this wider recognition and positive reception, we are regrettably currently facing quite <a href="https://scipost.org/finances/#:~:text=Liquidities">high pressures on our liquidities</a>, which represent an immediate threat to our continued existence.
+</p>
+
+<p>
+  In view of this, I would like to ask you
+
+  {% if sponsored_in_past %}
+    if you would consider adjusting the amount of your support for
+  {% else %}
+    if you would consider supporting us in
+  {% endif %}
+
+  {% now "Y" %}, in recognition of the value and scale of the services we have delivered to your scientists in the past and can deliver in the future.
+
+  {% if sponsorship_tiers %}
+    The amount of your contribution is of course voluntary, but we can hereby provide you with some financial information and our suggested sponsorship tiers to help you decide:
+    <ul>
+
+      {% if number_of_authors %}
+        <li>
+          In total, there are {{ number_of_profiles_affiliated }} unique researchers affiliated to your institution with an active SciPost account,
+
+          {% if number_of_profiles_affiliated == number_of_authors %}
+            all of whom are
+          {% else %}
+            of whom {{ number_of_authors }} {{ number_of_authors|pluralize:"is,are" }}
+          {% endif %}
+
+          also {{ number_of_authors|pluralize:"an," }} author{{ number_of_authors|pluralize }}{{ number_of_fellows|yesno:" and,." }}
+
+          {% if number_of_fellows %}
+            {{ number_of_fellows }}  hold{{ number_of_fellows|pluralize:"s," }} a fellowship in our colleges.
+          {% endif %}
+
+        </li>
+      {% endif %}
+
+      {% if number_of_papers_in_year_projected %}
+        <li>
+          In {% now "Y" %}, your researchers
+
+          {% if number_of_papers_in_year_projection_delta %}
+            are expected to be involved in a total of {{ number_of_papers_in_year_actual }} (already published) + ~{{ number_of_papers_in_year_projection_delta }} (projected) = {{ number_of_papers_in_year_projected }}
+          {% else %}
+            were involved in a total of {{ number_of_papers_in_year_actual }}
+          {% endif %}
+
+          publication{{ number_of_papers_in_year_projected|pluralize }}.
+
+        </li>
+      {% endif %}
+
+      {% if number_of_papers_uncompensated %}
+        <li>
+          There exist a total of {{ number_of_papers }} publication{{ number_of_papers|pluralize }} authored by your researchers, for
+
+          {% if number_of_papers_uncompensated != number_of_papers %}{{ number_of_papers_uncompensated }} of{% endif %}
+
+          which the costs have not been covered, impacting our reserves. Your equitable share of these costs, which translates to the equivalent of {{ pubfracs_uncompensated }} whole publications, is €{{ pubfracs_uncompensated_value }}.
+        </li>
+      {% endif %}
+
+    </ul>
+  {% endif %}
+
+</p>
+
+{% if sponsorship_tiers %}
+  <p>
+    We therefore propose the following tier{{ sponsorship_tiers|pluralize }} of sponsorship for {% now "Y" %}:
+    <ul>
+
+      {% for tier in sponsorship_tiers %}
+        <li>
+          <div>{{ tier.title|safe }}: €{{ tier.rounded_amount }}</div>
+          <span>{{ tier.desc }}</span>
+        </li>
+      {% endfor %}
+
+    </ul>
+    Note that any amount exceeding your outstanding costs will be added to your reserves, covering for your future publications automatically.
+  </p>
+
+  <p>
+
+    {% for tier in sponsorship_tiers %}
+
+      {% if tier.name == "cover" %}
+        The Cover tier represents the minimal amount we would need to keep our operations running at the current scale and keep providing our service to the scientific community.
+      {% elif tier.name == 'protect' %}
+        The Protect tier shields us from other institutions not paying their fair share, and avoids further liquidity issues which hinder our services.
+      {% elif tier.name == 'grow' %}
+        The Grow tier allows us to build up reserves for future growth, expanding to more fields, and providing even better services to your authors.
+      {% endif %}
+
+    {% endfor %}
+
+    Opting for any of the tiers outlined above would help us safeguard the sustainability of our Diamond Open Access initiative.
+    Without your support, we would be forced to cut down on our services, which would be a loss for your authors and the community at large.
+    We would be grateful to count on your continued support regardless of the amount chosen.
+  </p>
+{% endif %}
+
+<p>
+  You can choose to renew your sponsorship with either a formal signed agreement, or informally by email; in both cases we process and display your contribution exactly the same on our website. If you require a signed formal agreement, please fill in the form on page 4 of the <a href="https://scipost.org/static/sponsors/SciPost_Sponsorship_Agreement.pdf">Sponsorship Agreement</a> and return it to us for our countersignature. Alternatively, you can simply ask us to issue an invoice directly by specifying the sponsorship amount and duration, your billing address, and optionally any other details you wish to added, such as a reference number, optional VAT number, etc. In both cases, I also ask that you let me know of your preferred invoicing date, such that I can schedule the invoice promptly.
+</p>
+
+<p>
+  Thank you once again
+
+  {% if sponsored_in_past %}
+    for the generous support that {{ org_name_prose }} has provided us
+
+    {% if years_of_sponsorship >= 3 %}
+      over the past several years
+    {% elif years_of_sponsorship >= 2 %}
+      over the past few years
+    {% elif latest_subsidy_nearing_expiration %}
+      over the past year
+    {% else %}
+      in the past
+    {% endif %}
+
+    as a SciPost Sponsor.
+  {% else %}
+    for considering to become a SciPost Sponsor.
+  {% endif %}
+
+  It is only thanks to the kind support of our Sponsors that we can offer our high-quality open access publication services.
+</p>

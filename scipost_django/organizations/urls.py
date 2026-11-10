@@ -50,6 +50,11 @@ urlpatterns = [
         name="_hx_export_associated_profile_emails",
     ),
     path(
+        "<int:pk>/_hx_sponsorship_renewal_details",
+        views._hx_sponsorship_renewal_details,
+        name="_hx_sponsorship_renewal_details",
+    ),
+    path(
         "get_organization_detail",
         views.get_organization_detail,
         name="get_organization_detail",

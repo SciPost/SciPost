@@ -191,6 +191,16 @@ class Organization(models.Model):
         return self.name
 
     @property
+    def name_prose(self):
+        """
+        Return the name in a prose-like format.
+        E.g. "the University of Amsterdam" instead of "University of Amsterdam".
+        """
+        if " of " in self.name or " for " in self.name:
+            return "the " + self.name
+        return self.name
+
+    @property
     def full_name(self):
         full_name_str = ""
         if self.name_original:
@@ -680,6 +690,105 @@ class Organization(models.Model):
             "impact_on_reserves": cumulative_impact_on_reserves,
         }
         return rep
+
+    def get_sponsorship_email_content(self):
+        """
+        Renders the content of a renewal email for this Organization, based on its subsidy status and history.
+        """
+        from math import ceil, log10
+
+        from django.template.loader import get_template
+
+        tiers = [
+            {
+                "name": "replenish",
+                "title": "<b>Replenish</b> some of our resources",
+                "desc": "Equates to 1/3 of your share of the cost of your past publications.",
+            },
+            {
+                "name": "settle",
+                "title": "<b>Settle</b> all past costs",
+                "desc": "Equates to your share of the cost of your past publications.",
+            },
+            {
+                "name": "cover",
+                "title": "<b>Cover</b> all your publications",
+                "desc": "Equates to your share of the cost of all your publications.",
+            },
+            {
+                "name": "protect",
+                "title": "<b>Protect</b> your co-authors",
+                "desc": "Equates to the full cost of all your publications instead of only your equitable share.",
+            },
+            {
+                "name": "grow",
+                "title": "<b>Grow</b> our operations",
+                "desc": "Equates to the full cost of all your publications, and proactively covers next year's projected costs.",
+            },
+        ]
+
+        past_rounded_amount = 0
+        rounded_amount = 0
+        for tier in tiers[::-1]:
+            amount = getattr(self, f"tier_{tier['name']}", 0) or 0
+
+            # Round to a magnitude-appropriate quarter-multiple (25 * 10**n)
+            if amount > 0:
+                digits = max(0, ceil(log10(amount)) - 3)
+                step = 25 * 10**digits
+                rounded_amount = round(amount / step) * step
+
+            if past_rounded_amount == rounded_amount:
+                continue
+
+            tier["amount"] = amount
+            tier["rounded_amount"] = rounded_amount
+            past_rounded_amount = rounded_amount
+
+        tiers = [tier for tier in tiers if "amount" in tier]
+
+        sponsorship_years = sorted({s["year"] for s in self.sponsorships})
+        latest_subsidy_year = sponsorship_years[-1] if sponsorship_years else 0
+        year = timezone.now().year
+
+        try:
+            context = {
+                "org": self,
+                "org_name_prose": self.name_prose,
+                "sponsored_in_past": self.has_any_subsidy,
+                "years_of_sponsorship": len(sponsorship_years),
+                "latest_subsidy_nearing_expiration": latest_subsidy_year == year,
+                "latest_subsidy_expired": latest_subsidy_year < year,
+                "number_of_papers": self.cf_nr_associated_publications,
+                "number_of_authors": self.nr_authors,
+                "number_of_profiles_affiliated": self.nr_affiliated,
+                "number_of_fellows": self.nr_fellows,
+                "number_of_papers_in_year_actual": round(self.nap_this_year_actual),
+                "number_of_papers_in_year_projected": round(
+                    self.nap_this_year_projected
+                ),
+                "number_of_papers_in_year_projection_delta": round(
+                    self.nap_this_year_projection_delta
+                ),
+                "number_of_papers_uncompensated": round(
+                    self.nr_uncompensated_publications
+                ),
+                "pubfracs_uncompensated": round(
+                    self.sum_uncompensated_pubfracs_fraction, 2
+                ),
+                "pubfracs_uncompensated_value": round(
+                    self.sum_uncompensated_pubfracs_value
+                ),
+                "sponsorship_tiers": tiers,
+            }
+        except AttributeError as e:
+            raise ValueError(
+                "Organization instance is missing required attributes for rendering the renewal email content: "
+                + str(e)
+            )
+
+        template = get_template("organizations/organization_sponsorship_email.html")
+        return template.render(context)
 
 
 ###################################

@@ -388,6 +388,56 @@ def _hx_export_associated_profile_emails(request, pk):
         f'<textarea rows="5" style="width: 300px;">{", ".join(profile_emails)}</textarea>'
     )
 
+@permission_required_htmx("scipost.can_manage_organizations")
+def _hx_sponsorship_renewal_details(request, pk):
+    """
+    Return the sponsorship renewal details for an organization.
+    """
+    from itertools import groupby
+
+    organizations = Organization.objects.all()
+    nap_actual, nap_proj = organizations.get_balance_value_projection("nap")
+
+    # Annotate the organization with the necessary fields for sponsorship renewal details
+    organization: Organization = get_object_or_404(
+        organizations.annotate(
+            nap_this_year_actual=nap_actual,
+            nap_this_year_projected=nap_proj,
+            nap_this_year_projection_delta=nap_proj - nap_actual,
+        )
+        .annot_nr_authors()
+        .annot_nr_affiliated()
+        .annot_nr_fellows()
+        .annot_has_any_subsidy()
+        .annot_nr_uncompensated_publications()
+        .annot_sum_uncompensated_pubfracs_fraction()
+        .annot_sum_uncompensated_pubfracs_value()
+        .annot_sponsorships()
+        .annot_sponsorship_tiers(),
+        pk=pk,
+    )
+
+    sponsorships = {
+        year: sum(subsidy["amount"] for subsidy in subsidies_in_year)
+        for year, subsidies_in_year in groupby(
+            organization.sponsorships, lambda s: s["year"]
+        )
+    }
+
+    sponsorship_tiers = {
+        tier: getattr(organization, f"tier_{tier}", 0) or 0
+        for tier in ["settle", "replenish", "cover", "protect", "grow"]
+    }
+
+    return TemplateResponse(
+        request,
+        "organizations/_hx_sponsorship_renewal_details.html",
+        {
+            "organization": organization,
+            "sponsorships": sponsorships,
+            "sponsorship_tiers": sponsorship_tiers,
+        },
+    )
 
 @permission_required_htmx("scipost.can_manage_organizations")
 def download_associated_publications_tex(request, pk):

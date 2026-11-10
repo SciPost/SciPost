@@ -81,6 +81,18 @@
           </li>
         {% endif %}
 
+        {% if perms.scipost.can_manage_organizations %}
+          <li class="nav-item">
+            <a class="nav-link"
+               id="sponsorship-renewal-{{ org.id }}-tab"
+               data-bs-toggle="tab"
+               href="#sponsorship-renewal-{{ org.id }}"
+               role="tab"
+               aria-controls="sponsorship-renewal-{{ org.id }}"
+               aria-selected="true">Sponsorship Renewal</a>
+          </li>
+        {% endif %}
+
       </ul>
 
       <div class="tab-content">
@@ -974,6 +986,18 @@
         </div>
       {% endif %}
 
+      {% if perms.scipost.can_manage_organizations %}
+        <div class="tab-pane pt-4"
+              id="sponsorship-renewal-{{ org.id }}"
+              role="tabpanel"
+              aria-labelledby="sponsorship-renewal-{{ org.id }}-tab">
+          <h3>Sponsorship renewal</h3>
+          
+          <div hx-get="{% url 'organizations:_hx_sponsorship_renewal_details' pk=org.id %}"
+               hx-trigger="intersect"></div>
+        </div>
+      {% endif %}
+      
       </div>
     </div>
   </div>
