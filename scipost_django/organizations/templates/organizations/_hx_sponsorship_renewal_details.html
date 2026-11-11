@@ -16,6 +16,7 @@
     {% include "number_box.html" with title="Uncomp. Pubs." value=organization.nr_uncompensated_publications %}
     {% include "number_box.html" with title="Uncomp. PubFracs" value=organization.sum_uncompensated_pubfracs_fraction|floatformat:2 %}
     {% include "number_box.html" with title="Uncomp. Costs (€)" value=organization.sum_uncompensated_pubfracs_value|floatformat:2 %}
+    {% include "number_box.html" with title="Uncomp. Costs Inflated (€)" value=organization.cf_balance_info.cumulative.uncompensated_inflated|floatformat:"0"|default:"-" %}
   </div>
 </div>
 

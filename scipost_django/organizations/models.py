@@ -515,7 +515,25 @@ class Organization(models.Model):
         """
         Return a dict containing this Organization's expenditure and support history.
         """
-        pubyears = range(int(timezone.now().strftime("%Y")), 2015, -1)
+        current_year = timezone.now().year
+
+        # Source: https://opendata.cbs.nl/#/CBS/nl/dataset/71905ned/table
+        INFLATION_RATES = {
+            2016: 1.013,
+            2017: 1.013,
+            2018: 1.013,
+            2019: 1.013,
+            2020: 1.013,
+            2021: 1.027,
+            2022: 1.100,
+            2023: 1.037,
+            2024: 1.033,
+            2025: 1.033,
+            current_year: 1.000,
+        }
+        inflation = 1  # Start at 1, multiply in the year loop.
+
+        pubyears = range(current_year, 2015, -1)
         rep = {}
         cumulative_nap = 0
         cumulative_pubfracs = 0
@@ -523,15 +541,20 @@ class Organization(models.Model):
         cumulative_self_compensated = 0
         cumulative_ally_compensated = 0
         cumulative_uncompensated = 0
+        cumulative_uncompensated_inflated = 0
         cumulative_associated_expenditures = 0
         cumulative_associated_compensated = 0
         cumulative_associated_uncompensated = 0
+        cumulative_associated_uncompensated_inflated = 0
         cumulative_subsidy_income = 0
         cumulative_reserved = 0
         cumulative_impact_on_reserves = 0
         pf = self.pubfracs.all()
         publications_all = self.get_publications()
         for year in pubyears:
+            # Years loop backwards, so current year is inflation=1, and previous years are inflated to current year.
+            inflation *= INFLATION_RATES.get(year, 1.013 if year <= 2020 else 1.033)
+
             rep[str(year)] = {}
             subsidy_income = self.total_subsidies_in_year(year)
             rep[str(year)]["subsidy_income"] = subsidy_income
@@ -542,9 +565,10 @@ class Organization(models.Model):
             year_self_compensated = 0
             year_ally_compensated = 0
             year_uncompensated = 0
+            year_uncompensated_inflated = 0
             year_associated_compensated = 0
             year_associated_uncompensated = 0
-            year_reserved = 0
+            year_associated_uncompensated_inflated = 0
             rep[str(year)]["expenditures"] = {
                 "per_journal": {},
             }
@@ -598,6 +622,7 @@ class Organization(models.Model):
                     or 0
                 )
                 uncompensated = expenditures - self_compensated - ally_compensated
+                uncompensated_inflated = uncompensated * inflation
                 associated_compensated = int(
                     sum(
                         p.compensated_expenditures
@@ -605,6 +630,7 @@ class Organization(models.Model):
                     )
                 )
                 associated_uncompensated = nap * costperpaper - associated_compensated
+                associated_uncompensated_inflated = associated_uncompensated * inflation
                 if sum_pf > 0 or associated_uncompensated > 0:
                     rep[str(year)]["expenditures"]["per_journal"][journal_label] = {
                         "costperpaper": costperpaper,
@@ -614,9 +640,11 @@ class Organization(models.Model):
                         "self_compensated": self_compensated,
                         "ally_compensated": ally_compensated,
                         "uncompensated": uncompensated,
+                        "uncompensated_inflated": uncompensated_inflated,
                         "associated_expenditures": nap * costperpaper,
                         "associated_compensated": associated_compensated,
                         "associated_uncompensated": associated_uncompensated,
+                        "associated_uncompensated_inflated": associated_uncompensated_inflated,
                         "bystander_percentage": (
                             int(100 * associated_uncompensated / (nap * costperpaper))
                             if nap * costperpaper > 0
@@ -629,9 +657,14 @@ class Organization(models.Model):
                 year_self_compensated += self_compensated
                 year_ally_compensated += ally_compensated
                 year_uncompensated += uncompensated
+                year_uncompensated_inflated += uncompensated_inflated
                 year_associated_expenditures += nap * costperpaper
                 year_associated_compensated += associated_compensated
                 year_associated_uncompensated += associated_uncompensated
+                year_associated_uncompensated_inflated += (
+                    associated_uncompensated_inflated
+                )
+
             rep[str(year)]["expenditures"]["total"] = {
                 "nap": year_nap,
                 "pubfracs": year_pubfracs,
@@ -639,9 +672,11 @@ class Organization(models.Model):
                 "self_compensated": year_self_compensated,
                 "ally_compensated": year_ally_compensated,
                 "uncompensated": year_uncompensated,
+                "uncompensated_inflated": year_uncompensated_inflated,
                 "associated_expenditures": year_associated_expenditures,
                 "associated_compensated": year_associated_compensated,
                 "associated_uncompensated": year_associated_uncompensated,
+                "associated_uncompensated_inflated": year_associated_uncompensated_inflated,
                 "bystander_percentage": (
                     int(
                         100
@@ -660,9 +695,13 @@ class Organization(models.Model):
             cumulative_self_compensated += year_self_compensated
             cumulative_ally_compensated += year_ally_compensated
             cumulative_uncompensated += year_uncompensated
+            cumulative_uncompensated_inflated += year_uncompensated_inflated
             cumulative_associated_expenditures += year_associated_expenditures
             cumulative_associated_compensated += year_associated_compensated
             cumulative_associated_uncompensated += year_associated_uncompensated
+            cumulative_associated_uncompensated_inflated += (
+                year_associated_uncompensated_inflated
+            )
             cumulative_subsidy_income += subsidy_income
             cumulative_impact_on_reserves += subsidy_income - year_expenditures
             cumulative_reserved += subsidy_income - year_self_compensated
@@ -673,9 +712,11 @@ class Organization(models.Model):
             "self_compensated": cumulative_self_compensated,
             "ally_compensated": cumulative_ally_compensated,
             "uncompensated": cumulative_uncompensated,
+            "uncompensated_inflated": cumulative_uncompensated_inflated,
             "associated_expenditures": cumulative_associated_expenditures,
             "associated_compensated": cumulative_associated_compensated,
             "associated_uncompensated": cumulative_associated_uncompensated,
+            "associated_uncompensated_inflated": cumulative_associated_uncompensated_inflated,
             "bystander_percentage": (
                 int(
                     100
