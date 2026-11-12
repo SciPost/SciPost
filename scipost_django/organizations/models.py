@@ -3,15 +3,16 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from decimal import Decimal
 import hashlib
-from itertools import chain
+from itertools import chain, groupby
 import random
 import string
 
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import F, Q, Count, OuterRef, Subquery, Sum
-from django.db.models.functions import Lower
+from django.db.models.functions import Coalesce, Lower
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -19,7 +20,11 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django_countries.fields import CountryField
 
-from common.utils.attachments import AttachableQuerySet, RelatedAttachment
+from common.utils.attachments import (
+    AttachableQuerySet,
+    RelatedAttachment,
+    attach_related,
+)
 from common.utils.lookups import ImmutableUnaccent
 from finances.models.subsidy import Subsidy
 from scipost.constants import TITLE_CHOICES
@@ -514,10 +519,69 @@ class Organization(models.Model):
     def get_balance_info(self):
         """
         Return a dict containing this Organization's expenditure and support history.
+        The dict is structured as follows:
+        ```{
+            "cumulative": {
+                "nap": 0,
+                "pubfracs": 0.0,
+                "expenditures": 0.0,
+                "associated_expenditures": 0.0,
+                "associated_compensated": 0.0,
+                "associated_uncompensated": 0.0,
+                "associated_uncompensated_inflated": 0.0,
+                "self_compensated": 0.0,
+                "ally_compensated": 0.0,
+                "uncompensated": 0.0,
+                "uncompensated_inflated": 0.0,
+                "bystander_percentage": 0.0,
+                "subsidy_income": 0.0,
+                "reserved": 0.0,
+                "impact_on_reserves": 0.0
+            },
+            "YYYY": {
+                "subsidy_income": 0.0,
+                "reserved": 0.0,
+                "impact_on_reserves": 0.0,
+                "expenditures": {
+                    "total":  {
+                        "nap": 0,
+                        "pubfracs": 0.0,
+                        "expenditures": 0.0,
+                        "associated_expenditures": 0.0,
+                        "associated_compensated": 0.0,
+                        "associated_uncompensated": 0.0,
+                        "associated_uncompensated_inflated": 0.0,
+                        "self_compensated": 0.0,
+                        "ally_compensated": 0.0,
+                        "uncompensated": 0.0,
+                        "uncompensated_inflated": 0.0,
+                        "bystander_percentage": 0.0
+                    },
+                    "per_journal": {
+                        "JOURNAL_DOI_LABEL": {
+                            "nap": 0,
+                            "pubfracs": 0.0,
+                            "expenditures": 0.0,
+                            "associated_expenditures": 0.0,
+                            "associated_compensated": 0.0,
+                            "associated_uncompensated": 0.0,
+                            "associated_uncompensated_inflated": 0.0,
+                            "self_compensated": 0.0,
+                            "ally_compensated": 0.0,
+                            "uncompensated": 0.0,
+                            "uncompensated_inflated": 0.0,
+                            "bystander_percentage": 0.0
+                        }
+                    }
+                }
+            }
+        }```
         """
         current_year = timezone.now().year
+        publication_years = range(current_year, 2015, -1)
 
         # Source: https://opendata.cbs.nl/#/CBS/nl/dataset/71905ned/table
+        inflation = 1  # Start at 1, multiply in the year loop.
         INFLATION_RATES = {
             2016: 1.013,
             2017: 1.013,
@@ -531,206 +595,210 @@ class Organization(models.Model):
             2025: 1.033,
             current_year: 1.000,
         }
-        inflation = 1  # Start at 1, multiply in the year loop.
 
-        pubyears = range(current_year, 2015, -1)
-        rep = {}
-        cumulative_nap = 0
-        cumulative_pubfracs = 0
-        cumulative_expenditures = 0
-        cumulative_self_compensated = 0
-        cumulative_ally_compensated = 0
-        cumulative_uncompensated = 0
-        cumulative_uncompensated_inflated = 0
-        cumulative_associated_expenditures = 0
-        cumulative_associated_compensated = 0
-        cumulative_associated_uncompensated = 0
-        cumulative_associated_uncompensated_inflated = 0
-        cumulative_subsidy_income = 0
-        cumulative_reserved = 0
-        cumulative_impact_on_reserves = 0
-        pf = self.pubfracs.all()
-        publications_all = self.get_publications()
-        for year in pubyears:
-            # Years loop backwards, so current year is inflation=1, and previous years are inflated to current year.
+        DEFAULT_EXPENDITURES = {
+            "nap": 0.0,
+            "pubfracs": 0.0,
+            "expenditures": 0.0,
+            "associated_expenditures": 0.0,
+            "associated_compensated": 0.0,
+            "associated_uncompensated": 0.0,
+            "associated_uncompensated_inflated": 0.0,
+            "self_compensated": 0.0,
+            "ally_compensated": 0.0,
+            "uncompensated": 0.0,
+            "uncompensated_inflated": 0.0,
+            "bystander_percentage": 0.0,
+        }
+        DEFAULT_NON_EXPENDITURES = {
+            "subsidy_income": 0.0,
+            "reserved": 0.0,
+            "impact_on_reserves": 0.0,
+        }
+
+        compensated_pubfrac_total_amount = (
+            PubFrac.objects.filter(
+                publication=OuterRef("pk"),
+                compensated_by__isnull=False,
+            )
+            .values("publication")
+            .annotate(total=Sum("cf_value"))
+            .values("total")[:1]
+        )
+        publications = (
+            self.get_publications()
+            .annotate(
+                amount_compensated=Coalesce(
+                    Subquery(compensated_pubfrac_total_amount), Decimal(0)
+                ),
+                journal_id=Coalesce(
+                    "in_issue__in_volume__in_journal__id",
+                    "in_issue__in_journal__id",
+                    "in_journal__id",
+                ),
+                pubfrac_id=Subquery(
+                    PubFrac.objects.all()
+                    .filter(
+                        publication=OuterRef("pk"),
+                        organization=self,
+                    )
+                    .values("id")[:1]
+                ),
+            )
+            .order_by("-publication_date__year", "journal_id")
+        )
+
+        Q_self_compensated = Q(compensated_by__organization=F("organization"))
+        attach_related(
+            publications,
+            RelatedAttachment[Journal, Publication](
+                "journal_id",
+                "journal",
+                Journal.objects.all(),
+            ),
+            RelatedAttachment[PubFrac, Publication](
+                "pubfrac_id",
+                "pubfrac",
+                PubFrac.objects.all().annotate(
+                    is_compensated=Q(compensated_by__isnull=False),
+                    is_self_compensated=Q(is_compensated=True) & Q_self_compensated,
+                    is_ally_compensated=Q(is_compensated=True) & ~Q_self_compensated,
+                ),
+            ),
+        )
+
+        balance_info = {}
+        cumulative_stats = balance_info.setdefault(
+            "cumulative",
+            {
+                **DEFAULT_EXPENDITURES.copy(),
+                **DEFAULT_NON_EXPENDITURES.copy(),
+            },
+        )
+
+        for year in publication_years:
             inflation *= INFLATION_RATES.get(year, 1.013 if year <= 2020 else 1.033)
 
-            rep[str(year)] = {}
-            subsidy_income = self.total_subsidies_in_year(year)
-            rep[str(year)]["subsidy_income"] = subsidy_income
-            year_nap = 0
-            year_associated_expenditures = 0
-            year_pubfracs = 0
-            year_expenditures = 0
-            year_self_compensated = 0
-            year_ally_compensated = 0
-            year_uncompensated = 0
-            year_uncompensated_inflated = 0
-            year_associated_compensated = 0
-            year_associated_uncompensated = 0
-            year_associated_uncompensated_inflated = 0
-            rep[str(year)]["expenditures"] = {
-                "per_journal": {},
-            }
-            pfy = pf.filter(publication__publication_date__year=year)
-            publications_year = publications_all.filter(publication_date__year=year)
-            jl1 = [
-                j
-                for j in publications_year.values_list(
-                    "in_journal__doi_label",
-                    flat=True,
-                )
-                if j
-            ]
-            jl2 = [
-                j
-                for j in publications_year.values_list(
-                    "in_issue__in_journal__doi_label",
-                    flat=True,
-                )
-                if j
-            ]
-            jl3 = [
-                j
-                for j in publications_year.values_list(
-                    "in_issue__in_volume__in_journal__doi_label",
-                    flat=True,
-                )
-                if j
-            ]
-            journal_labels = set(jl1 + jl2 + jl3)
-            for journal_label in journal_labels:
-                qs = pfy.filter(publication__doi_label__istartswith=journal_label + ".")
-                journal = get_object_or_404(Journal, doi_label=journal_label)
-                publications_year_journal = self.get_publications(
-                    year=year, journal=journal
-                )
-                nap = publications_year_journal.count()
-                sum_pf = qs.aggregate(Sum("fraction"))["fraction__sum"] or 0
-                costperpaper = journal.cost_per_publication(year)
-                expenditures = int(costperpaper * sum_pf)
-                self_compensated = int(
-                    qs.filter(compensated_by__organization=self).aggregate(
-                        Sum("cf_value")
-                    )["cf_value__sum"]
-                    or 0
-                )
-                ally_compensated = int(
-                    qs.filter(compensated_by__isnull=False)
-                    .exclude(compensated_by__organization=self)
-                    .aggregate(Sum("cf_value"))["cf_value__sum"]
-                    or 0
-                )
-                uncompensated = expenditures - self_compensated - ally_compensated
-                uncompensated_inflated = uncompensated * inflation
-                associated_compensated = int(
-                    sum(
-                        p.compensated_expenditures
-                        for p in self.get_publications(year=year, journal=journal)
-                    )
-                )
-                associated_uncompensated = nap * costperpaper - associated_compensated
-                associated_uncompensated_inflated = associated_uncompensated * inflation
-                if sum_pf > 0 or associated_uncompensated > 0:
-                    rep[str(year)]["expenditures"]["per_journal"][journal_label] = {
-                        "costperpaper": costperpaper,
-                        "nap": nap,
-                        "pubfracs": float(sum_pf),
-                        "expenditures": expenditures,
-                        "self_compensated": self_compensated,
-                        "ally_compensated": ally_compensated,
-                        "uncompensated": uncompensated,
-                        "uncompensated_inflated": uncompensated_inflated,
-                        "associated_expenditures": nap * costperpaper,
-                        "associated_compensated": associated_compensated,
-                        "associated_uncompensated": associated_uncompensated,
-                        "associated_uncompensated_inflated": associated_uncompensated_inflated,
-                        "bystander_percentage": (
-                            int(100 * associated_uncompensated / (nap * costperpaper))
-                            if nap * costperpaper > 0
-                            else "N/A"
-                        ),
-                    }
-                year_nap += nap
-                year_pubfracs += float(sum_pf)
-                year_expenditures += expenditures
-                year_self_compensated += self_compensated
-                year_ally_compensated += ally_compensated
-                year_uncompensated += uncompensated
-                year_uncompensated_inflated += uncompensated_inflated
-                year_associated_expenditures += nap * costperpaper
-                year_associated_compensated += associated_compensated
-                year_associated_uncompensated += associated_uncompensated
-                year_associated_uncompensated_inflated += (
-                    associated_uncompensated_inflated
+            year_group = [p for p in publications if p.publication_date.year == year]
+            year_info = balance_info.setdefault(
+                str(year), DEFAULT_NON_EXPENDITURES.copy()
+            )
+            year_expenditures = year_info.setdefault("expenditures", {})
+            per_journal_expenditures = year_expenditures.setdefault("per_journal", {})
+            year_expenditure_totals = year_expenditures.setdefault(
+                "total", DEFAULT_EXPENDITURES.copy()
+            )
+
+            for journal, journal_group in groupby(year_group, key=lambda p: p.journal):
+                journal_group = list(journal_group)
+                journal_expenditures = per_journal_expenditures.setdefault(
+                    journal.doi_label, {}
                 )
 
-            rep[str(year)]["expenditures"]["total"] = {
-                "nap": year_nap,
-                "pubfracs": year_pubfracs,
-                "expenditures": year_expenditures,
-                "self_compensated": year_self_compensated,
-                "ally_compensated": year_ally_compensated,
-                "uncompensated": year_uncompensated,
-                "uncompensated_inflated": year_uncompensated_inflated,
-                "associated_expenditures": year_associated_expenditures,
-                "associated_compensated": year_associated_compensated,
-                "associated_uncompensated": year_associated_uncompensated,
-                "associated_uncompensated_inflated": year_associated_uncompensated_inflated,
-                "bystander_percentage": (
-                    int(
-                        100
-                        * year_associated_uncompensated
-                        / year_associated_expenditures
-                    )
-                    if year_associated_expenditures > 0
-                    else "N/A"
-                ),
-            }
-            rep[str(year)]["reserved"] = subsidy_income - year_self_compensated
-            rep[str(year)]["impact_on_reserves"] = subsidy_income - year_expenditures
-            cumulative_nap += year_nap
-            cumulative_pubfracs += year_pubfracs
-            cumulative_expenditures += year_expenditures
-            cumulative_self_compensated += year_self_compensated
-            cumulative_ally_compensated += year_ally_compensated
-            cumulative_uncompensated += year_uncompensated
-            cumulative_uncompensated_inflated += year_uncompensated_inflated
-            cumulative_associated_expenditures += year_associated_expenditures
-            cumulative_associated_compensated += year_associated_compensated
-            cumulative_associated_uncompensated += year_associated_uncompensated
-            cumulative_associated_uncompensated_inflated += (
-                year_associated_uncompensated_inflated
-            )
-            cumulative_subsidy_income += subsidy_income
-            cumulative_impact_on_reserves += subsidy_income - year_expenditures
-            cumulative_reserved += subsidy_income - year_self_compensated
-        rep["cumulative"] = {
-            "nap": cumulative_nap,
-            "pubfracs": cumulative_pubfracs,
-            "expenditures": cumulative_expenditures,
-            "self_compensated": cumulative_self_compensated,
-            "ally_compensated": cumulative_ally_compensated,
-            "uncompensated": cumulative_uncompensated,
-            "uncompensated_inflated": cumulative_uncompensated_inflated,
-            "associated_expenditures": cumulative_associated_expenditures,
-            "associated_compensated": cumulative_associated_compensated,
-            "associated_uncompensated": cumulative_associated_uncompensated,
-            "associated_uncompensated_inflated": cumulative_associated_uncompensated_inflated,
-            "bystander_percentage": (
-                int(
-                    100
-                    * cumulative_associated_uncompensated
-                    / cumulative_associated_expenditures
+                cost_per_paper = journal.cost_per_publication(year)
+                nap = len(journal_group)
+                associated_expenditures = cost_per_paper * nap
+                associated_compensated = sum(
+                    pub.amount_compensated for pub in journal_group
                 )
-                if cumulative_associated_expenditures > 0
-                else "N/A"
-            ),
-            "subsidy_income": cumulative_subsidy_income,
-            "reserved": cumulative_reserved,
-            "impact_on_reserves": cumulative_impact_on_reserves,
-        }
-        return rep
+                associated_uncompensated = (
+                    associated_expenditures - associated_compensated
+                )
+
+                pubfracs = Decimal(0)
+                expenditures = Decimal(0)
+                uncompensated = Decimal(0)
+                self_compensated = Decimal(0)
+                ally_compensated = Decimal(0)
+                for pub in journal_group:
+                    if not (pubfrac := pub.pubfrac):
+                        continue
+                    fraction, value = pubfrac.fraction, pubfrac.cf_value
+
+                    pubfracs += fraction
+                    expenditures += value
+                    if not pubfrac.is_compensated:
+                        uncompensated += value
+                    elif pubfrac.is_self_compensated:
+                        self_compensated += value
+                    elif pubfrac.is_ally_compensated:
+                        ally_compensated += value
+
+                # Add to journal stats
+                journal_stats = {
+                    "nap": nap,
+                    "pubfracs": float(pubfracs),
+                    "expenditures": float(expenditures),
+                    "associated_expenditures": float(associated_expenditures),
+                    "associated_compensated": float(associated_compensated),
+                    "associated_uncompensated": float(associated_uncompensated),
+                    "associated_uncompensated_inflated": float(associated_uncompensated)
+                    * inflation,
+                    "self_compensated": float(self_compensated),
+                    "ally_compensated": float(ally_compensated),
+                    "uncompensated": float(uncompensated),
+                    "uncompensated_inflated": float(uncompensated) * inflation,
+                }
+                journal_expenditures.update(
+                    {
+                        **journal_stats,
+                        "costperpaper": float(cost_per_paper),
+                        "bystander_percentage": float(
+                            100 * uncompensated / expenditures
+                        )
+                        if expenditures > 0
+                        else 0.0,
+                    }
+                )
+
+                # Add to journal expenditures to yearly and cumulative expenditures
+                for key, journal_stat in journal_stats.items():
+                    year_expenditure_totals[key] += journal_stat
+                    cumulative_stats[key] += journal_stat
+
+            # Update yearly expenditure info
+            year_expenditures = year_expenditure_totals.get("expenditures", 0.0)
+            year_uncompensated = year_expenditure_totals.get("uncompensated", 0.0)
+            year_expenditure_totals.update(
+                {
+                    "bystander_percentage": (
+                        float(100 * year_uncompensated / year_expenditures)
+                        if year_expenditures > 0
+                        else 0.0
+                    ),
+                }
+            )
+
+            # Update yearly subsidy info
+            subsidy_income = self.total_subsidies_in_year(year)
+            year_self_compensated = year_expenditure_totals.get("self_compensated", 0.0)
+            year_info.update(
+                {
+                    "subsidy_income": float(subsidy_income),
+                    "reserved": float(subsidy_income - year_self_compensated),
+                    "impact_on_reserves": float(subsidy_income - year_expenditures),
+                }
+            )
+
+            # Add yearly subsidy info to cumulative subsidy info
+            for key, year_stat in year_info.items():
+                if key == "expenditures":
+                    continue
+                cumulative_stats[key] += year_stat
+
+        cumulative_uncompensated = cumulative_stats.get("uncompensated", 0.0)
+        cumulative_expenditures = cumulative_stats.get("expenditures", 0.0)
+        cumulative_stats.update(
+            {
+                "bystander_percentage": (
+                    float(100 * cumulative_uncompensated / cumulative_expenditures)
+                    if cumulative_expenditures > 0
+                    else 0.0
+                )
+            }
+        )
+
+        return balance_info
 
     def get_sponsorship_email_content(self):
         """
