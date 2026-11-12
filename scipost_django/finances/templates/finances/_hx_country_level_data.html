@@ -1,76 +1,80 @@
 {% load countries %}
+
 {% get_country country as country_obj %}
 
-<p>The data in this table is compiled by summing over all Organizations in {{ country_obj.name }}&emsp;<i class="{{ country_obj.flag_css }}"></i></p>
 
 <table class="table">
   <thead>
     <tr>
-      <th></th>
-      <th style="text-align: right;">NAP</th>
-      <th style="text-align: right;">Expenditures</th>
-      <th style="text-align: right;">Subsidy income</th>
-      <th style="text-align: right;">Impact on reserves</th>
+      <th>
+        <h2 class="fs-4 mb-0">Per year</h2>
+      </th>
+      <th style="text-align: right">NAP</th>
+      <th style="text-align: right">Expenditures</th>
+      <th style="text-align: right">Subsidy income</th>
+      <th style="text-align: right">Impact on reserves</th>
     </tr>
   </thead>
   <tbody>
     <tr class="bg-light border-bottom border-dark">
-      <td>Cumulative</td>
-      <td style="text-align: right;">{{ cumulative.nap|floatformat:"0" }}</td>
-      <td style="text-align: right;">&euro;{{ cumulative.expenditures|floatformat:"0" }}</td>
-      <td style="text-align: right;">&euro;{{ cumulative.subsidy_income|floatformat:"0" }}</td>
-      <td style="text-align: right;">&euro;{{ cumulative.impact_on_reserves|floatformat:"0" }}</td>
+      <td>Total</td>
+      <td style="text-align: right">{{ cumulative.nap|floatformat:"0" }}</td>
+      <td style="text-align: right">&euro;{{ cumulative.expenditures|floatformat:"0" }}</td>
+      <td style="text-align: right">&euro;{{ cumulative.subsidy_income|floatformat:"0" }}</td>
+      <td style="text-align: right">&euro;{{ cumulative.impact_on_reserves|floatformat:"0" }}</td>
     </tr>
+
     {% for year, val in per_year.items %}
       <tr>
-	<td>{{ year }}</td>
-	<td style="text-align: right;">{{ val.nap|floatformat:"0" }}</td>
-	<td style="text-align: right;">&euro;{{ val.expenditures|floatformat:"0" }}</td>
-	<td style="text-align: right;">&euro;{{ val.subsidy_income|floatformat:"0" }}</td>
-	<td style="text-align: right;">&euro;{{ val.impact_on_reserves|floatformat:"0" }}</td>
+        <td>{{ year }}</td>
+        <td style="text-align: right">{{ val.nap|floatformat:"0" }}</td>
+        <td style="text-align: right">&euro;{{ val.expenditures|floatformat:"0" }}</td>
+        <td style="text-align: right">&euro;{{ val.subsidy_income|floatformat:"0" }}</td>
+        <td style="text-align: right">&euro;{{ val.impact_on_reserves|floatformat:"0" }}</td>
       </tr>
     {% endfor %}
+
   </tbody>
 </table>
 
-<div class="p-2">
-
-  <h2 class="mt-5">Cumulative, per Organization</h2>
-
-  <table class="table">
-    <thead>
-<tr>
-  <th></th>
-  <th></th>
-  <th style="text-align: right;">NAP</th>
-  <th style="text-align: right;">Expenditures</th>
-  <th style="text-align: right;">Subsidy Income</th>
-  <th style="text-align: right;">Impact on reserves</th>
-</tr>
-    </thead>
-    <tbody>
-<tr class="bg-light border-bottom border-dark">
-  <td>Total</td>
-  <td></td>
-  <td style="text-align: right;">{{ cumulative.nap|floatformat:"0" }}</td>
-  <td style="text-align: right;">{{ cumulative.expenditures|floatformat:"0" }}</td>
-  <td style="text-align: right;">{{ cumulative.subsidy_income|floatformat:"0" }}</td>
-  <td style="text-align: right;">{{ cumulative.impact_on_reserves|floatformat:"0" }}</td>
-</tr>
-{% for organization in organizations %}
-  {% if organization.cf_balance_info.cumulative.subsidy_income > 0 or organization.cf_balance_info.cumulative.expenditures > 0 %}
+<table class="table mb-0">
+  <thead>
     <tr>
-      <td><a href="https://{{ request.get_host }}{{ organization.get_absolute_url }}">{{ organization }}</a></td>
-      <td>{{ organization.get_orgtype_display }}</td>
-      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.nap|floatformat:"0" }}</td>
-      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.expenditures|floatformat:"0" }}</td>
-      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.subsidy_income|floatformat:"0" }}</td>
-      <td style="text-align: right;">{{ organization.cf_balance_info.cumulative.impact_on_reserves|floatformat:"0" }}</td>
+      <th colspan="2">
+        <h2 class="fs-4 mb-0">Per Organization</h2>
+      </th>
+      <th style="text-align: right">NAP</th>
+      <th style="text-align: right">Expenditures</th>
+      <th style="text-align: right">Subsidy Income</th>
+      <th style="text-align: right">Impact on reserves</th>
     </tr>
-  {% endif %}
-{% endfor %}
-    </tbody>
-  </table>
+  </thead>
+  <tbody>
+    <tr class="bg-light border-bottom border-dark">
+      <td>Total</td>
+      <td></td>
+      <td style="text-align: right">{{ cumulative.nap|floatformat:"0" }}</td>
+      <td style="text-align: right">{{ cumulative.expenditures|floatformat:"0" }}</td>
+      <td style="text-align: right">{{ cumulative.subsidy_income|floatformat:"0" }}</td>
+      <td style="text-align: right">{{ cumulative.impact_on_reserves|floatformat:"0" }}</td>
+    </tr>
 
-</div>
+    {% for organization in organizations %}
 
+      {% if organization.cf_balance_info.cumulative.subsidy_income > 0 or organization.cf_balance_info.cumulative.expenditures > 0 %}
+        <tr>
+          <td>
+            <a href="https://{{ request.get_host }}{{ organization.get_absolute_url }}">{{ organization }}</a>
+          </td>
+          <td>{{ organization.get_orgtype_display }}</td>
+          <td style="text-align: right">{{ organization.cf_balance_info.cumulative.nap|floatformat:"0" }}</td>
+          <td style="text-align: right">{{ organization.cf_balance_info.cumulative.expenditures|floatformat:"0" }}</td>
+          <td style="text-align: right">{{ organization.cf_balance_info.cumulative.subsidy_income|floatformat:"0" }}</td>
+          <td style="text-align: right">{{ organization.cf_balance_info.cumulative.impact_on_reserves|floatformat:"0" }}</td>
+        </tr>
+      {% endif %}
+
+    {% endfor %}
+
+  </tbody>
+</table>
