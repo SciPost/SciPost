@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import json
+from typing import Any
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -397,6 +398,7 @@ def _hx_sponsorship_renewal_details(request, pk):
 
     organizations = Organization.objects.all()
     nap_actual, nap_proj = organizations.get_balance_value_projection("nap")
+    _, uncomp_expend_proj = organizations.get_balance_value_projection("uncompensated")
 
     # Annotate the organization with the necessary fields for sponsorship renewal details
     organization: Organization = get_object_or_404(
@@ -404,6 +406,7 @@ def _hx_sponsorship_renewal_details(request, pk):
             nap_this_year_actual=nap_actual,
             nap_this_year_projected=nap_proj,
             nap_this_year_projection_delta=nap_proj - nap_actual,
+            uncomp_expend_this_year_projected=uncomp_expend_proj,
         )
         .annot_nr_authors()
         .annot_nr_affiliated()
@@ -424,10 +427,12 @@ def _hx_sponsorship_renewal_details(request, pk):
         )
     }
 
-    sponsorship_tiers = {
-        tier: getattr(organization, f"tier_{tier}", 0) or 0
-        for tier in ["settle", "replenish", "cover", "protect", "grow"]
-    }
+    tiers: list[dict[str, Any]] = [
+        {"name": tier, "amount": getattr(organization, attr, 0) or 0}
+        for attr in dir(organization)
+        if attr.startswith("tier_") and (tier := attr.removeprefix("tier_"))
+    ]
+    tiers.sort(key=lambda x: x["amount"])
 
     return TemplateResponse(
         request,
@@ -435,7 +440,7 @@ def _hx_sponsorship_renewal_details(request, pk):
         {
             "organization": organization,
             "sponsorships": sponsorships,
-            "sponsorship_tiers": sponsorship_tiers,
+            "sponsorship_tiers": tiers,
         },
     )
 

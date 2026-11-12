@@ -41,7 +41,7 @@ from .constants import (
 )
 from .managers import OrganizationQuerySet
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from django.db.models.manager import RelatedManager
@@ -740,53 +740,30 @@ class Organization(models.Model):
 
         from django.template.loader import get_template
 
-        tiers = [
-            {
-                "name": "replenish",
-                "title": "<b>Replenish</b> some of our resources",
-                "desc": "Equates to 1/3 of your share of the cost of your past publications.",
-            },
-            {
-                "name": "settle",
-                "title": "<b>Settle</b> all past costs",
-                "desc": "Equates to your share of the cost of your past publications.",
-            },
-            {
-                "name": "cover",
-                "title": "<b>Cover</b> all your publications",
-                "desc": "Equates to your share of the cost of all your publications.",
-            },
-            {
-                "name": "protect",
-                "title": "<b>Protect</b> your co-authors",
-                "desc": "Equates to the full cost of all your publications instead of only your equitable share.",
-            },
-            {
-                "name": "grow",
-                "title": "<b>Grow</b> our operations",
-                "desc": "Equates to the full cost of all your publications, and proactively covers next year's projected costs.",
-            },
+        tiers: list[dict[str, Any]] = [
+            {"name": tier, "amount": 0}
+            for attr in dir(self)
+            if attr.startswith("tier_") and (tier := attr.removeprefix("tier_"))
         ]
 
-        past_rounded_amount = 0
-        rounded_amount = 0
         for tier in tiers[::-1]:
-            amount = getattr(self, f"tier_{tier['name']}", 0) or 0
+            amount = getattr(self, "tier_" + tier["name"], 0)
 
             # Round to a magnitude-appropriate quarter-multiple (25 * 10**n)
             if amount > 0:
                 digits = max(0, ceil(log10(amount)) - 3)
                 step = 25 * 10**digits
                 rounded_amount = round(amount / step) * step
-
-            if past_rounded_amount == rounded_amount:
-                continue
+            else:
+                rounded_amount = 0
 
             tier["amount"] = amount
             tier["rounded_amount"] = rounded_amount
-            past_rounded_amount = rounded_amount
 
-        tiers = [tier for tier in tiers if "amount" in tier]
+        # Only keep tiers with a rounded amount greater than 1k,
+        # other amounts do not outweigh the administrative cost
+        tiers = list(filter(lambda x: x.get("rounded_amount", 0) >= 1000, tiers))
+        tiers.sort(key=lambda x: x.get("rounded_amount", 0))
 
         sponsorship_years = sorted({s["year"] for s in self.sponsorships})
         latest_subsidy_year = sponsorship_years[-1] if sponsorship_years else 0
@@ -819,6 +796,9 @@ class Organization(models.Model):
                 ),
                 "pubfracs_uncompensated_value": round(
                     self.sum_uncompensated_pubfracs_value
+                ),
+                "uncompensated_expenditures_this_year_projected": round(
+                    self.uncomp_expend_this_year_projected
                 ),
                 "sponsorship_tiers": tiers,
             }

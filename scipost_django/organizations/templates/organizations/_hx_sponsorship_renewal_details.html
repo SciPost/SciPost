@@ -7,26 +7,71 @@
 
 <h4 class="mt-3">Publications</h4>
 <div class="d-flex flex-column gap-2">
-  <div class="d-flex flex-row gap-2 align-items-center">
-    {% include "number_box.html" with title="Publications" value=organization.cf_nr_associated_publications %}
-    {% include "number_box.html" with title="Publications This Year" value=organization.nap_this_year_actual|floatformat:0 %}
-    {% include "number_box.html" with title="Publications Projected" value=organization.nap_this_year_projected|floatformat:2 %}
+  <div class="px-2 text-muted fw-bold text-uppercase">Total</div>
+  <div class="row g-2 mb-0">
+    <div class="col-3">{% include "number_box.html" with title="Publications" value=organization.cf_nr_associated_publications %}</div>
+    <div class="col-3">{% include "number_box.html" with title="Pubfracs" value=organization.cf_balance_info.cumulative.pubfracs %}</div>
+    <div class="col-3">{% include "number_box.html" with title="Pubfracs Cost (€)" value=organization.cf_balance_info.cumulative.expenditures|floatformat:"0" %}</div>
+    <div class="col-3">{% include "number_box.html" with title="NAP Cost (€)" value=organization.cf_balance_info.cumulative.associated_expenditures|floatformat:"0" %}</div>
   </div>
-  <div class="d-flex flex-row gap-2 align-items-center">
-    {% include "number_box.html" with title="Uncomp. Pubs." value=organization.nr_uncompensated_publications %}
-    {% include "number_box.html" with title="Uncomp. PubFracs" value=organization.sum_uncompensated_pubfracs_fraction|floatformat:2 %}
-    {% include "number_box.html" with title="Uncomp. Costs (€)" value=organization.sum_uncompensated_pubfracs_value|floatformat:2 %}
-    {% include "number_box.html" with title="Uncomp. Costs Inflated (€)" value=organization.cf_balance_info.cumulative.uncompensated_inflated|floatformat:"0"|default:"-" %}
+  <div class="px-2 text-muted fw-bold text-uppercase">Uncompensated</div>
+  <div class="row g-2 mb-0">
+    <div class="col-3">{% include "number_box.html" with title="Publications" value=organization.nr_uncompensated_publications %}</div>
+    <div class="col-3">{% include "number_box.html" with title="PubFracs" value=organization.sum_uncompensated_pubfracs_fraction|floatformat:"2" %}</div>
+    <div class="col-3">
+      <div class="row g-2">
+        <div class="col-12 col-sm">{% include "number_box.html" with title="PubFracs Cost (€)" value=organization.sum_uncompensated_pubfracs_value|floatformat:"0" %}  </div>
+        <div class="col-12 col-sm">{% include "number_box.html" with title="Inflated (€)" value=organization.cf_balance_info.cumulative.uncompensated_inflated|floatformat:"0" %}</div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="row g-2">
+        <div class="col-12 col-sm">{% include "number_box.html" with title="NAP Costs (€)" value=organization.cf_balance_info.cumulative.associated_uncompensated|floatformat:"0" %}</div>
+        <div class="col-12 col-sm">{% include "number_box.html" with title="Inflated (€)" value=organization.cf_balance_info.cumulative.associated_uncompensated_inflated|floatformat:"0" %}</div>
+      </div>
+    </div>
   </div>
 </div>
+
+<details class="mt-3">
+  <summary class="list-triangle">
+    <h4>Yearly Figures</h4>
+  </summary>
+  <div class="d-flex flex-column gap-2">
+    <div class="px-2 text-muted fw-bold text-uppercase">NAP</div>
+    <div class="row g-2 mb-0">
+      {% for year, year_dict in organization.cf_balance_info.items %}
+        {% if year|length == 4 %}
+          <div class="col-3 col-sm-2 col-md">{% include "number_box.html" with title=year value=year_dict.expenditures.total.nap|floatformat:"0" %}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="px-2 text-muted fw-bold text-uppercase">PubFracs</div>
+    <div class="row g-2 mb-0">
+      {% for year, year_dict in organization.cf_balance_info.items %}
+        {% if year|length == 4 %}
+          <div class="col-3 col-sm-2 col-md">{% include "number_box.html" with title=year value=year_dict.expenditures.total.pubfracs|floatformat:"2" %}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="px-2 text-muted fw-bold text-uppercase">Cost</div>
+    <div class="row g-2 mb-0">
+      {% for year, year_dict in organization.cf_balance_info.items %}
+        {% if year|length == 4 %}
+          <div class="col-3 col-sm-2 col-md">{% include "number_box.html" with title=year value=year_dict.expenditures.total.expenditures|floatformat:"0" %}</div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</details>
 
 {% if sponsorships %}
   <h4 class="mt-3">Subsidies</h4>
   <div class="d-flex flex-row gap-2 align-items-center">
-    {% include "number_box.html" with title="Total" value=organization.cf_balance_info.cumulative.subsidy_income|floatformat:2 %}
+    {% include "number_box.html" with title="Total" value=organization.cf_balance_info.cumulative.subsidy_income|floatformat:"2" %}
 
     {% for year, amount in sponsorships.items %}
-      {% include "number_box.html" with title=year value=amount|floatformat:2 small=True %}
+      {% include "number_box.html" with title=year value=amount|floatformat:"0" %}
     {% endfor %}
 
 
@@ -36,8 +81,8 @@
 <h4 class="mt-3">Sponsorship Tiers</h4>
 <div class="d-flex flex-row gap-2 align-items-center">
 
-  {% for name, amount in sponsorship_tiers.items %}
-    {% include "number_box.html" with title=name|add:" (€)" value=amount|floatformat:2 %}
+  {% for tier in sponsorship_tiers %}
+    {% include "number_box.html" with title=tier.name|add:" (€)" value=tier.amount|floatformat:"0" %}
   {% endfor %}
 
 

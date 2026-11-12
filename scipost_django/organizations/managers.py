@@ -410,13 +410,8 @@ class OrganizationQuerySet(models.QuerySet):
         """
         Annotate with sponsorship stats and tiers.
         """
-        APEX_INFL = 1.10  # 10% inflation
+        APEX_INFL = 1.033  # 3.3% inflation
         NAP_INFL = 1.30  # 30% inflation
-
-        # Compensated == Pubfracs (cf_value) covered by own subsidies
-        compensated = self.get_balance_value("self_compensated")
-        compensated_this_year, _ = self.get_balance_value_projection("self_compensated")
-        compensated_past = compensated - compensated_this_year
 
         # Subsidy Income == sum of subsidies (amount)
         subsidy_income = self.get_balance_value("subsidy_income")
@@ -426,11 +421,11 @@ class OrganizationQuerySet(models.QuerySet):
         subsidy_income_past = subsidy_income - subsidy_income_this_year
 
         # Expenditures == sum of pubfracs (cf_value)
-        expenditures = self.get_balance_value("expenditures")
-        expenditures_this_year, expenditures_proj = self.get_balance_value_projection(
-            "expenditures"
+        uncompensated = self.get_balance_value("uncompensated")
+        uncompensated_this_year, uncompensated_proj = self.get_balance_value_projection(
+            "uncompensated"
         )
-        expenditures_past = expenditures - expenditures_this_year
+        uncompensated_past = uncompensated - uncompensated_this_year
 
         # Whole Cost == sum of NAP * APEX (equiv to fraction == 1.0)
         # This is also called an "Associated Expenditure" in the cf_balance_info JSON field.
@@ -440,13 +435,12 @@ class OrganizationQuerySet(models.QuerySet):
         )
         whole_cost_past = whole_cost - whole_cost_this_year
 
-        prior_debt = expenditures_past - compensated_past  # Pubfracs value
+        prior_debt = uncompensated_past
         prior_cost = whole_cost_past - subsidy_income_past  # Total pub cost
 
         return self.annotate(
-            tier_settle=prior_debt,
-            tier_replenish=prior_debt / 3 + expenditures_proj,
-            tier_cover=prior_debt + expenditures_proj,
+            tier_engage=prior_debt / 3 + uncompensated_proj,
+            tier_cover=prior_debt + uncompensated_proj,
             tier_protect=prior_cost + whole_cost_proj * APEX_INFL,
             tier_grow=F("tier_protect") + whole_cost_proj * NAP_INFL * APEX_INFL**2,
         )
