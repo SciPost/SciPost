@@ -9,7 +9,7 @@
 </p>
 
 <p>
-  Since our beginnings in 2016, {{ contactperson.organization.get_author_profiles|length }} scientists associated to your institution have published {{ contactperson.organization.cf_balance_info.cumulative.nap }} papers with us. You can find all these details at your institution's detail page <a href="https://{{ domain }}{{ contactperson.organization.get_absolute_url }}">{{ domain }}{{ contactperson.organization.get_absolute_url }}</a>. We are happy to have served your scientists in this way. In order for us to be able to continue doing so, however, we need your help.
+  Since our beginnings in 2016, {{ contactperson.organization.get_author_profiles|length }} scientists associated to your institution have published {{ contactperson.organization.cf_balance_info.cumulative.nap|floatformat:"0" }} papers with us. You can find all these details at your institution's detail page <a href="https://{{ domain }}{{ contactperson.organization.get_absolute_url }}">{{ domain }}{{ contactperson.organization.get_absolute_url }}</a>. We are happy to have served your scientists in this way. In order for us to be able to continue doing so, however, we need your help.
 </p>
 
 <p>

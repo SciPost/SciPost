@@ -26,7 +26,7 @@
     {% if 'finadmin' in user_roles %}
       <td class="bg-opacity-10 text-end 
         {% if organization.cf_balance_info.cumulative.impact_on_reserves <= 0 %}bg-danger{% else %}bg-success{% endif %}
-         ">&euro;{{ organization.cf_balance_info.cumulative.impact_on_reserves }}</td>
+         ">&euro;{{ organization.cf_balance_info.cumulative.impact_on_reserves|floatformat:"0" }}</td>
     {% endif %}
 
 
