@@ -9,14 +9,14 @@
 <div class="d-flex flex-column gap-2">
   <div class="px-2 text-muted fw-bold text-uppercase">Total</div>
   <div class="row g-2 mb-0">
-    <div class="col-3">{% include "number_box.html" with title="Publications" value=organization.cf_nr_associated_publications %}</div>
-    <div class="col-3">{% include "number_box.html" with title="Pubfracs" value=organization.cf_balance_info.cumulative.pubfracs %}</div>
+    <div class="col-3">{% include "number_box.html" with title="Publications" value=organization.cf_nr_associated_publications|floatformat:"0" %}</div>
+    <div class="col-3">{% include "number_box.html" with title="Pubfracs" value=organization.cf_balance_info.cumulative.pubfracs|floatformat:"2" %}</div>
     <div class="col-3">{% include "number_box.html" with title="Pubfracs Cost (€)" value=organization.cf_balance_info.cumulative.expenditures|floatformat:"0" %}</div>
     <div class="col-3">{% include "number_box.html" with title="NAP Cost (€)" value=organization.cf_balance_info.cumulative.associated_expenditures|floatformat:"0" %}</div>
   </div>
   <div class="px-2 text-muted fw-bold text-uppercase">Uncompensated</div>
   <div class="row g-2 mb-0">
-    <div class="col-3">{% include "number_box.html" with title="Publications" value=organization.nr_uncompensated_publications %}</div>
+    <div class="col-3">{% include "number_box.html" with title="Publications" value=organization.nr_uncompensated_publications|floatformat:"0" %}</div>
     <div class="col-3">{% include "number_box.html" with title="PubFracs" value=organization.sum_uncompensated_pubfracs_fraction|floatformat:"2" %}</div>
     <div class="col-3">
       <div class="row g-2">
