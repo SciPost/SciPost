@@ -7,7 +7,8 @@ from itertools import groupby
 import datetime
 
 from django.db import models
-from django.db.models import F, Q, QuerySet, Sum
+from django.db.models import F, Q, Case, QuerySet, Sum, When
+from django.db.models.fields.generated import GeneratedField
 from django.db.models.functions import ExtractYear
 from django.urls import reverse
 
@@ -18,6 +19,7 @@ from scipost.fields import ChoiceArrayField
 from ..constants import (
     SUBSIDY_RECEIVED,
     SUBSIDY_TYPES,
+    SUBSIDY_TYPE_COLLABORATION,
     SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
     SUBSIDY_STATUS,
     SUBSIDY_UPTODATE,
@@ -66,6 +68,19 @@ class Subsidy(models.Model):
     date_from = models.DateField()
     date_until = models.DateField(blank=True, null=True)
     renewable = models.BooleanField(null=True)
+    renewal_action_date = GeneratedField(
+        expression=Case(
+            When(
+                Q(date_until__isnull=False) & Q(renewable=True),
+                then=F("date_until") - datetime.timedelta(days=122),
+            ),
+            default=None,
+        ),
+        blank=True,
+        null=True,
+        output_field=models.DateField(),
+        db_persist=True,
+    )
     renewal_of = models.ManyToManyField(
         "self", related_name="renewed_by", symmetrical=False, blank=True
     )
@@ -128,12 +143,6 @@ class Subsidy(models.Model):
             nr_years_covered = self.date_until.year - self.date_from.year + 1
             return int(self.amount / nr_years_covered)
         return 0
-
-    @property
-    def renewal_action_date(self):
-        if self.date_until and self.subsidy_type == SUBSIDY_TYPE_SPONSORSHIPAGREEMENT:
-            return self.date_until - datetime.timedelta(days=122)
-        return "-"
 
     @property
     def renewal_action_date_color_class(self):

@@ -191,7 +191,7 @@ class SubsidySearchForm(CrispyFormMixin, SearchForm[Subsidy]):
             ("amount", "Amount"),
             ("date_from", "Date from"),
             ("date_until", "Date until"),
-            ("annot_renewal_action_date", "Renewal date"),
+            ("renewal_action_date", "Renewal date"),
         ),
         initial="date_from",
         required=False,
@@ -239,18 +239,6 @@ class SubsidySearchForm(CrispyFormMixin, SearchForm[Subsidy]):
     def filter_queryset(self, queryset: "QuerySet[Subsidy]") -> "QuerySet[Subsidy]":
         if not self.user.groups.filter(name="Financial Administrators").exists():
             queryset = queryset.obtained()
-
-        # Include `renewal_action_date` property in queryset
-        queryset = queryset.annotate(
-            annot_renewal_action_date=Case(
-                When(
-                    Q(subsidy_type=SUBSIDY_TYPE_SPONSORSHIPAGREEMENT),
-                    then=F("date_until") - timedelta(days=122),
-                ),
-                default=Value(None),
-                output_field=DateField(),
-            )
-        )
 
         if organization_query := self.cleaned_data.get("organization_query"):
             queryset = queryset.filter(

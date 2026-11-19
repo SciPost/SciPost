@@ -311,8 +311,6 @@ class RenewSponsorshipTask(TaskKind):
         from organizations.models import Organization
         from finances.models import Subsidy
 
-        renewal_action_date = F("date_until") - timezone.timedelta(days=365 // 2)
-
         org_renewable_subsidies = Subsidy.objects.filter(
             organization=OuterRef("id"), renewable=True
         )
@@ -326,9 +324,7 @@ class RenewSponsorshipTask(TaskKind):
                     )
                 ),
                 is_current_sponsor=Exists(
-                    org_renewable_subsidies.all()
-                    .annotate(renewal_action_date=renewal_action_date)
-                    .filter(
+                    org_renewable_subsidies.all().filter(
                         date_from__lte=timezone.now(),
                         renewal_action_date__gte=timezone.now(),
                     )
@@ -366,7 +362,6 @@ class RenewSponsorshipTask(TaskKind):
                 ),
                 latest_renewal_action_date=Subquery(
                     org_renewable_subsidies.all()
-                    .annotate(renewal_action_date=renewal_action_date)
                     .order_by("-renewal_action_date")
                     .values("renewal_action_date")[:1]
                 ),
