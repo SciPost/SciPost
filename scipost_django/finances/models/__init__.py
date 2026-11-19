@@ -10,7 +10,7 @@ from .periodic_report import (
 
 from .pubfrac import PubFrac
 
-from .subsidy import Subsidy
+from .subsidy import Subsidy, SubsidyCollective
 
 from .subsidy_payment import SubsidyPayment
 

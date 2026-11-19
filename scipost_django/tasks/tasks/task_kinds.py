@@ -6,6 +6,7 @@ from collections.abc import Collection
 from django.db.models import (
     F,
     Q,
+    BooleanField,
     DateTimeField,
     Exists,
     IntegerField,
@@ -15,7 +16,15 @@ from django.db.models import (
     Subquery,
     Sum,
 )
-from django.db.models.functions import Cast, Coalesce, ExtractDay, ExtractIsoYear, Now
+from django.db.models.fields.json import KT
+from django.db.models.functions import (
+    Cast,
+    Coalesce,
+    ExtractDay,
+    ExtractIsoYear,
+    JSONObject,
+    Now,
+)
 from django.urls import reverse_lazy
 from django.utils import timezone
 from finances.constants import SUBSIDY_RECEIVED, SUBSIDY_WITHDRAWN
@@ -312,7 +321,9 @@ class RenewSponsorshipTask(TaskKind):
         from finances.models import Subsidy
 
         org_renewable_subsidies = Subsidy.objects.filter(
-            organization=OuterRef("id"), renewable=True
+            organization=OuterRef("id"),
+            renewable=True,
+            collective__isnull=True,
         )
 
         return (
@@ -367,12 +378,115 @@ class RenewSponsorshipTask(TaskKind):
                 ),
                 due_date=Cast(F("latest_renewal_action_date"), DateTimeField()),
             )
-            .filter(Q(has_older_renewable_subsidy=True) & Q(is_current_sponsor=False))
+            .filter(
+                has_older_renewable_subsidy=True,
+                is_current_sponsor=False,
+            )
         )
 
     @staticmethod
     def search_query(text: str) -> Q:
         return Q(name__icontains=text) | Q(acronym__icontains=text)
+
+
+class RenewCollectiveTask(TaskKind):
+    name = "Renew Collective Sponsorship"
+    task_title = "Renew Collective Sponsorship for {object}"
+    description = "Renew the sponsorship for a collective."
+    actions = [
+        lambda t: ViewAction(
+            url=reverse_lazy(
+                "finances:subsidy_collective_details",
+                kwargs={"collective_id": t.data["object"].pk},
+            )
+        ),
+        lambda task: ViewAction(
+            url=reverse_lazy(
+                "finances:subsidy_collective_renew",
+                kwargs={"collective_id": task.data["object"].pk},
+            ),
+            content="Renew",
+        ),
+    ]
+    badges = [
+        TaskBadge.default_builder(
+            "yearly_amount",
+            field_name="Yearly Amount",
+            unit="€",
+            color_func=lambda v: "success" if v and v >= 10000 else "warning",
+        ),
+        TaskBadge.default_builder(
+            "days_since_last_email_sent",
+            field_name="Contacted",
+            unit="d",
+            color_func=lambda v: (
+                "secondary"
+                if v is None
+                else "success"
+                if v <= 7
+                else "warning"
+                if v <= 14
+                else "danger"
+            ),
+        ),
+    ]
+
+    @staticmethod
+    def is_user_eligible(user):
+        return is_financial_admin(user)
+
+    @staticmethod
+    def get_task_map(obj) -> dict:
+        return {"object": obj, "due_date": obj.due_date}
+
+    @classmethod
+    def get_queryset(cls) -> "QuerySet":
+        from finances.models import SubsidyCollective, Subsidy
+
+        coordinator_subsidy_subquery = Subsidy.objects.filter(
+            organization=OuterRef("coordinator_id"),
+            collective=OuterRef("id"),
+        )
+
+        return SubsidyCollective.objects.annotate(
+            coordinator_subsidy=Subquery(
+                coordinator_subsidy_subquery.annotate(
+                    details=JSONObject(
+                        is_renewable=F("renewable"),
+                        renewal_action_date=F("renewal_action_date"),
+                        last_email_sent_date=Max(
+                            "organization__organizationevent__noted_on",
+                            filter=Q(
+                                organization__organizationevent__event=ORGANIZATION_EVENT_EMAIL_SENT
+                            ),
+                        ),
+                        duration_days=1 + ExtractDay(F("date_until") - F("date_from")),
+                    )
+                ).values("details")[:1]
+            ),
+            is_renewable=Cast(F("coordinator_subsidy__is_renewable"), BooleanField()),
+            due_date=Cast(
+                KT("coordinator_subsidy__renewal_action_date"), DateTimeField()
+            ),
+            total_amount=Sum("subsidies__amount"),
+            yearly_amount=Cast(
+                F("total_amount")
+                * 365.0
+                / Cast(F("coordinator_subsidy__duration_days"), IntegerField()),
+                output_field=IntegerField(),
+            ),
+            days_since_last_email_sent=ExtractDay(
+                Now()
+                - Cast(
+                    KT("coordinator_subsidy__last_email_sent_date"),
+                    DateTimeField(),
+                )
+            ),
+        ).filter(renewed_by__isnull=True, is_renewable=True)
+
+    @staticmethod
+    def search_query(text: str) -> Q:
+        return Q(name__icontains=text) | Q(coordinator__acronym__icontains=text)
 
 
 #####################
