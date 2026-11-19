@@ -19,12 +19,30 @@
 
 {% block content %}
 
+  {% if collective.renewal_of or collective.renewed_by %}
+    <div class="d-flex flex-row justify-content-between align-items-center mb-3">
+      <div>
+        {% if collective.renewal_of %}
+          <span>
+             <a href="{{ collective.renewal_of.get_absolute_url }}">{% include "bi/arrow-left.html" %} {{ collective.renewal_of }}</a>
+          </span>
+        {% endif %}
+      </div>
+      <div>
+      </div>
+      <div>
+        {% if collective.renewed_by %}
+          <span><a href="{{ collective.renewed_by.get_absolute_url }}">{{ collective.renewed_by }}</a>{% include "bi/arrow-right.html" %}</span>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
   <div class="highlight p-3 d-flex flex-row justify-content-between align-items-center mb-3">
-    <hgroup>
-      <h1>{{ collective }}</h1>
-      <p class="m-0 fs-4">(Coordinated by <a href="{{ collective.coordinator.get_absolute_url }}">{{ collective.coordinator }}</a>)</p>
+    <hgroup class="d-flex flex-column gap-1">
+      <h1 class="mb-0">{{ collective }}</h1>
+      <p class="mb-0 fs-4">Coordinated by <a href="{{ collective.coordinator.get_absolute_url }}">{{ collective.coordinator }}</a></p>
     </hgroup>
-    <div class="dropdown">
+    <div class="dropdown align-self-start">
       <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <span>Actions</span>
       </button>

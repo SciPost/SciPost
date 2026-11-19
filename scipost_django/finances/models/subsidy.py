@@ -283,6 +283,14 @@ class SubsidyCollective(models.Model):
     name = models.CharField(max_length=256, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
 
+    renewal_of = models.OneToOneField["SubsidyCollective"](
+        "self",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="renewed_by",
+    )
+
     if TYPE_CHECKING:
         subsidies: RelatedManager[Subsidy]
 

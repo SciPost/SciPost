@@ -801,7 +801,7 @@ class SubsidyCollectiveForm(forms.ModelForm):
 
     class Meta:
         model = SubsidyCollective
-        fields = ["name", "description", "coordinator"]
+        fields = ["name", "description", "coordinator", "renewal_of"]
         widgets = {
             "coordinator": autocomplete.ModelSelect2(
                 url=reverse_lazy("organizations:organization-autocomplete"),
@@ -817,6 +817,12 @@ class SubsidyCollectiveForm(forms.ModelForm):
 
         if self.instance.pk:
             self.fields["subsidies"].initial = self.instance.subsidies.all()
+            self.fields["renewal_of"].queryset = self.fields[
+                "renewal_of"
+            ].queryset.filter(
+                coordinator=self.instance.coordinator,
+                renewed_by__isnull=True,
+            )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -824,6 +830,7 @@ class SubsidyCollectiveForm(forms.ModelForm):
             Field("description"),
             Field("coordinator"),
             Field("subsidies"),
+            Field("renewal_of"),
             ButtonHolder(Submit("submit", "Submit", css_class="btn-sm")),
         )
 
@@ -876,7 +883,7 @@ class SubsidyCollectiveRenewForm(forms.Form):
         start = data.get("start_date")
         end = data.get("end_date")
 
-        if start > end:
+        if start and end and start > end:
             self.add_error("end_date", "End date must be after start date")
 
         return data
@@ -915,6 +922,7 @@ class SubsidyCollectiveRenewForm(forms.Form):
             name=f"{self.collective.name} - Renewal {start_date} - {end_date}",
             description=f"{self.collective.description}\n Renewal {start_date} - {end_date}",
             coordinator=self.collective.coordinator,
+            renewal_of=self.collective,
         )
         new_collective.subsidies.set(new_subsidies)
         new_collective.save()
