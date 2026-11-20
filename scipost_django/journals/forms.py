@@ -87,7 +87,7 @@ class PortalPublicationSearchForm(CrispyFormMixin, SearchForm[Publication]):
         label="Published after",
         widget=forms.DateInput(attrs={"type": "date"}),
     )
-    date_until = forms.DateField(
+    date_before = forms.DateField(
         required=False,
         label="Published before",
         widget=forms.DateInput(attrs={"type": "date"}),
@@ -123,7 +123,7 @@ class PortalPublicationSearchForm(CrispyFormMixin, SearchForm[Publication]):
             Div(
                 Div(FloatingField("author"), css_class="col-lg-6"),
                 Div(FloatingField("date_after"), css_class="col-lg-2"),
-                Div(FloatingField("date_until"), css_class="col-lg-2"),
+                Div(FloatingField("date_before"), css_class="col-lg-2"),
                 Div(FloatingField("ordering"), css_class="col-lg-2"),
                 css_class="row mb-0",
             ),
