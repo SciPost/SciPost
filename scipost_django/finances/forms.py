@@ -68,13 +68,6 @@ class SubsidyForm(forms.ModelForm):
 
     renewal_of = forms.ModelMultipleChoiceField(
         queryset=Subsidy.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(
-            url=reverse_lazy("finances:subsidy_autocomplete"),
-            attrs={
-                "data-html": True,
-                "style": "width: 100%",
-            },
-        ),
         help_text=("Start typing, and select from the popup."),
         required=False,
     )
@@ -119,6 +112,11 @@ class SubsidyForm(forms.ModelForm):
         )
         self.fields["individual_budget"].help_text = CREATE_URL.format(
             url=reverse_lazy("funders:individual_budget_create")
+        )
+        self.fields["renewal_of"].queryset = (
+            Subsidy.objects.filter(organization=self.instance.organization)
+            .exclude(id=self.instance.id)
+            .exclude(renewal_of=self.instance.id)
         )
 
     def clean(self):
