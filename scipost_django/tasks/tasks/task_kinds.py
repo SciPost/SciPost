@@ -549,7 +549,7 @@ class VetCommentTask(TaskKind):
         return (
             get_objects_for_user(cls.user, "comments.can_vet_comments")
             .awaiting_vetting()
-            .prefetch_related("author__dbuser")
+            .select_related("author__dbuser", "author__profile")
         )
 
     @staticmethod
@@ -601,7 +601,11 @@ class VetReportTask(TaskKind):
                 )
             )
 
-        return qs.awaiting_vetting().prefetch_related("submission")
+        return qs.awaiting_vetting().select_related(
+            "submission",
+            "author__profile",
+            "author__dbuser",
+        )
 
     @staticmethod
     def search_query(text: str) -> Q:
