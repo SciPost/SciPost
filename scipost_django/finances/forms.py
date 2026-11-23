@@ -113,11 +113,18 @@ class SubsidyForm(forms.ModelForm):
         self.fields["individual_budget"].help_text = CREATE_URL.format(
             url=reverse_lazy("funders:individual_budget_create")
         )
-        self.fields["renewal_of"].queryset = (
-            Subsidy.objects.filter(organization=self.instance.organization)
-            .exclude(id=self.instance.id)
-            .exclude(renewal_of=self.instance.id)
-        )
+
+        related_subsidies = Subsidy.objects.all()
+        if self.instance.pk and (organization := self.instance.organization):
+            related_subsidies = (
+                related_subsidies.filter(organization=organization)
+                .exclude(id=self.instance.id)
+                .exclude(renewal_of=self.instance.id)
+            )
+        elif organization := self.initial.get("organization"):
+            related_subsidies = related_subsidies.filter(organization=organization)
+
+        self.fields["renewal_of"].queryset = related_subsidies
 
     def clean(self):
         cleaned_data = super().clean()
