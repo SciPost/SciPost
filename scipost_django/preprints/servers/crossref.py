@@ -72,6 +72,8 @@ class CrossrefServer(BasePreprintServer):
     api_url = "https://api.crossref.org"
     query_type = CrossrefQuery
 
+    MAX_REQUESTS_PER_SECOND = 1 / 1.0
+
     @classmethod
     def identifier_to_url(cls, identifier: str) -> str:
         return f"https://doi.org/{identifier}"
